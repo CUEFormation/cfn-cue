@@ -17,47 +17,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ImageBuilder::ImagePipeline
-#Properties: matchN(1, [{
-	Name!:                           _
-	ContainerRecipeArn!:             _
-	InfrastructureConfigurationArn!: _
-	...
-}, {
-	Name!:                           _
-	ImageRecipeArn!:                 _
-	InfrastructureConfigurationArn!: _
-	...
-}]) & close({
-	ContainerRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):container-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ImageBuilder::ImagePipeline"
+	Properties?: matchN(1, [{
+		Name!:                           _
+		ContainerRecipeArn!:             _
+		InfrastructureConfigurationArn!: _
+		...
+	}, {
+		Name!:                           _
+		ImageRecipeArn!:                 _
+		InfrastructureConfigurationArn!: _
+		...
+	}]) & close({
+		ContainerRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):container-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
+			fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		DistributionConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):distribution-configuration/[a-z0-9-_]+$" |
+			fn.#StringExpression
+		EnhancedImageMetadataEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		ExecutionRole?: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 		fn.#StringExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	DistributionConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):distribution-configuration/[a-z0-9-_]+$" |
-		fn.#StringExpression
-	EnhancedImageMetadataEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExecutionRole?: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	ImageRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):image-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
-		fn.#StringExpression
-	ImageScanningConfiguration?: #ImageScanningConfiguration | fn.#ObjectExpression
-	ImageTags?: close({
+		ImageRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):image-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
+			fn.#StringExpression
+		ImageScanningConfiguration?: #ImageScanningConfiguration | fn.#ObjectExpression
+		ImageTags?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	ImageTestsConfiguration?: #ImageTestsConfiguration | fn.#ObjectExpression
-	InfrastructureConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):infrastructure-configuration/[a-z0-9-_]+$" |
-		fn.#StringExpression
-	LoggingConfiguration?: #PipelineLoggingConfiguration | fn.#ObjectExpression
-	Name?:                 =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-	Schedule?:             #Schedule | fn.#ObjectExpression
-	Status?:               "DISABLED" | "ENABLED" | fn.#StringExpression
-	Tags?: close({
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		ImageTestsConfiguration?: #ImageTestsConfiguration | fn.#ObjectExpression
+		InfrastructureConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):infrastructure-configuration/[a-z0-9-_]+$" |
+			fn.#StringExpression
+		LoggingConfiguration?: #PipelineLoggingConfiguration | fn.#ObjectExpression
+		Name?:                 =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+		Schedule?:             #Schedule | fn.#ObjectExpression
+		Status?:               "DISABLED" | "ENABLED" | fn.#StringExpression
+		Tags?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Workflows?: [...#WorkflowConfiguration] | fn.#ListExpression
-})
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Workflows?: [...#WorkflowConfiguration] | fn.#ListExpression
+	})
+}
 
 #AutoDisablePolicy: close({
 	FailureCount!: int & <=10 & >=1 |
@@ -148,7 +158,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #WorkflowParameterValue: strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ImageBuilder::ImagePipeline"
-	Properties?: #Properties
-}

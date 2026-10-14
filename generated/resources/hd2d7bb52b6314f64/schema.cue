@@ -15,23 +15,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::RDS::DBClusterEndpoint. Creates a new
 // custom endpoint and associates it with an Amazon Aurora DB cluster. This
 // resource applies only to Aurora DB clusters.
-#Properties: close({
-	CustomEndpointType!: "READER" | "WRITER" | "ANY" | fn.#StringExpression
-	DBClusterEndpointIdentifier!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
-	fn.#StringExpression
-	DBClusterIdentifier!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
-	fn.#StringExpression
-	ExcludedMembers?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	StaticMembers?:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:            list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RDS::DBClusterEndpoint"
+	Properties!: close({
+		CustomEndpointType!: "READER" | "WRITER" | "ANY" | fn.#StringExpression
+		DBClusterEndpointIdentifier!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
+		fn.#StringExpression
+		DBClusterIdentifier!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
+		fn.#StringExpression
+		ExcludedMembers?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		StaticMembers?:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RDS::DBClusterEndpoint"
-	Properties!: #Properties
-}

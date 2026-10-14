@@ -18,88 +18,95 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::DocDBElastic::Cluster Amazon DocumentDB (with MongoDB compatibility)
 // Elastic Scale resource describes a Cluster
-#Properties: close({
-	AdminUserName!:     string | fn.#StringExpression
-	AdminUserPassword?: string | fn.#StringExpression
-	AuthType!:          string | fn.#StringExpression
-	BackupRetentionPeriod?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ClusterName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[a-zA-z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*" |
-	fn.#StringExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DocDBElastic::Cluster"
+	Properties!: close({
+		AdminUserName!:     string | fn.#StringExpression
+		AdminUserPassword?: string | fn.#StringExpression
+		AuthType!:          string | fn.#StringExpression
+		BackupRetentionPeriod?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ClusterName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[a-zA-z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*" |
 		fn.#StringExpression
-	PreferredBackupWindow?:      string | fn.#StringExpression
-	PreferredMaintenanceWindow?: string | fn.#StringExpression
-	ShardCapacity!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ShardCount!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ShardInstanceCount?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SubnetIds?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:      list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	VpcSecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
 			fn.#StringExpression
-	] |
-		fn.#ListExpression
-})
+		PreferredBackupWindow?:      string | fn.#StringExpression
+		PreferredMaintenanceWindow?: string | fn.#StringExpression
+		ShardCapacity!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ShardCount!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ShardInstanceCount?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SubnetIds?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:      list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		VpcSecurityGroupIds?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DocDBElastic::Cluster"
-	Properties!: #Properties
-}

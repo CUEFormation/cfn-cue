@@ -13,13 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Omics::Configuration
-#Properties: close({
-	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9\\-\\._]*$" | fn.#StringExpression
-	RunConfigurations!: #RunConfigurations | fn.#ObjectExpression
-	Tags?:              #TagMap | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Omics::Configuration"
+	Properties!: close({
+		Description?: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9\\-\\._]*$" | fn.#StringExpression
+		RunConfigurations!: #RunConfigurations | fn.#ObjectExpression
+		Tags?:              #TagMap | fn.#ObjectExpression
+	})
+}
 
 #RunConfigurations: close({VpcConfig?: #VpcConfig}) | fn.#ObjectExpression
 
@@ -43,7 +48,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Omics::Configuration"
-	Properties!: #Properties
-}

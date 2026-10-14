@@ -13,19 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Personalize::EventTracker
-#Properties: close({
-	DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^arn:([a-z\\d-]+):personalize:.*:.*:.+$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Personalize::EventTracker"
+	Properties!: close({
+		DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^arn:([a-z\\d-]+):personalize:.*:.*:.+$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*$" | fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Personalize::EventTracker"
-	Properties!: #Properties
-}

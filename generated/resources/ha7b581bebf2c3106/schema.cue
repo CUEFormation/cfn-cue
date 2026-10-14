@@ -14,14 +14,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::AutomatedReasoningPolicy Resource Type
-#Properties: close({
-	Description?:      #Description
-	ForceDelete?:      #ForceDelete
-	KmsKeyId?:         #KmsKeyId
-	Name!:             #Name
-	PolicyDefinition?: #PolicyDefinition
-	Tags?:             #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::AutomatedReasoningPolicy"
+	Properties!: close({
+		Description?:      #Description
+		ForceDelete?:      #ForceDelete
+		KmsKeyId?:         #KmsKeyId
+		Name!:             #Name
+		PolicyDefinition?: #PolicyDefinition
+		Tags?:             #Tags
+	})
+}
 
 #CreatedAt: time.Time | fn.#StringExpression
 
@@ -108,7 +111,3 @@ fn.#ObjectExpression
 #UpdatedAt: time.Time | fn.#StringExpression
 
 #Version: =~"^(([1-9][0-9]{0,11})|(DRAFT))$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::AutomatedReasoningPolicy"
-	Properties!: #Properties
-}

@@ -17,37 +17,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::FeatureGroup
-#Properties: close({
-	Description?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	EventTimeFeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
-	fn.#StringExpression
-	FeatureDefinitions!: list.MaxItems(2500) & list.MinItems(1) & [...#FeatureDefinition] | fn.#ListExpression
-	FeatureGroupName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
-	fn.#StringExpression
-	OfflineStoreConfig?: close({
-		DataCatalogConfig?:        #DataCatalogConfig
-		DisableGlueTableCreation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		S3StorageConfig!:          #S3StorageConfig
-		TableFormat?:              #TableFormat
-	}) |
-	fn.#ObjectExpression
-	OnlineStoreConfig?: close({
-		EnableOnlineStore?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		SecurityConfig?:    #OnlineStoreSecurityConfig
-		StorageType?:       #StorageType
-		TtlDuration?:       #TtlDuration
-	}) |
-	fn.#ObjectExpression
-	RecordIdentifierFeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
-	fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	Tags?:             list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	ThroughputConfig?: #ThroughputConfig
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::FeatureGroup"
+	Properties!: close({
+		Description?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+		EventTimeFeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
+		fn.#StringExpression
+		FeatureDefinitions!: list.MaxItems(2500) & list.MinItems(1) & [...#FeatureDefinition] | fn.#ListExpression
+		FeatureGroupName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
+		fn.#StringExpression
+		OfflineStoreConfig?: close({
+			DataCatalogConfig?: #DataCatalogConfig
+			DisableGlueTableCreation?: bool |
+				"true" |
+				"True" |
+				"TRUE" |
+				"false" |
+				"False" |
+				"FALSE" |
+				fn.#BooleanExpression
+			S3StorageConfig!: #S3StorageConfig
+			TableFormat?:     #TableFormat
+		}) |
+		fn.#ObjectExpression
+		OnlineStoreConfig?: close({
+			EnableOnlineStore?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			SecurityConfig?:    #OnlineStoreSecurityConfig
+			StorageType?:       #StorageType
+			TtlDuration?:       #TtlDuration
+		}) |
+		fn.#ObjectExpression
+		RecordIdentifierFeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
+		fn.#StringExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		Tags?:             list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		ThroughputConfig?: #ThroughputConfig
+	})
+}
 
 #DataCatalogConfig: close({
 	Catalog!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -150,7 +160,3 @@ fn.#ObjectExpression
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::FeatureGroup"
-	Properties!: #Properties
-}

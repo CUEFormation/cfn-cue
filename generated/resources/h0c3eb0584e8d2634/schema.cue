@@ -17,13 +17,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ECS::CapacityProvider.
-#Properties: close({
-	AutoScalingGroupProvider?: #AutoScalingGroupProvider
-	ClusterName?:              string | fn.#StringExpression
-	ManagedInstancesProvider?: #ManagedInstancesProvider
-	Name?:                     string | fn.#StringExpression
-	Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECS::CapacityProvider"
+	Properties?: close({
+		AutoScalingGroupProvider?: #AutoScalingGroupProvider
+		ClusterName?:              string | fn.#StringExpression
+		ManagedInstancesProvider?: #ManagedInstancesProvider
+		Name?:                     string | fn.#StringExpression
+		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AcceleratorCountRequest: close({
 	Max?: int |
@@ -618,7 +621,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::CapacityProvider"
-	Properties?: #Properties
-}

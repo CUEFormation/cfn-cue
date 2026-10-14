@@ -17,14 +17,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::NetworkManager::CoreNetwork Resource Type Definition.
-#Properties: close({
-	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	PolicyDocument?: fn.#Object & {...} |
-	strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
-	fn.#StringObjectExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkManager::CoreNetwork"
+	Properties!: close({
+		Description?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		PolicyDocument?: fn.#Object & {...} |
+		strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		fn.#StringObjectExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CoreNetworkEdge: close({
 	Asn?: number |
@@ -74,7 +77,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkManager::CoreNetwork"
-	Properties!: #Properties
-}

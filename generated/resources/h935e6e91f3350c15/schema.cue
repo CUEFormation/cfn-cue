@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::Segment
-#Properties: close({
-	ApplicationId!: string | fn.#StringExpression
-	Dimensions?:    #SegmentDimensions
-	Name!:          string | fn.#StringExpression
-	SegmentGroups?: #SegmentGroups
-	Tags?:          fn.#Object & {...} | string | fn.#StringObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Pinpoint::Segment"
+	Properties!: close({
+		ApplicationId!: string | fn.#StringExpression
+		Dimensions?:    #SegmentDimensions
+		Name!:          string | fn.#StringExpression
+		SegmentGroups?: #SegmentGroups
+		Tags?:          fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
+}
 
 #Behavior: close({Recency?: #Recency}) | fn.#ObjectExpression
 
@@ -159,7 +162,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pinpoint::Segment"
-	Properties!: #Properties
-}

@@ -9,20 +9,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A module that has been registered in the CloudFormation registry as the default version
-#Properties: matchN(1, [{
-	Arn!: _
-	...
-}, {
-	ModuleName!: _
-	VersionId!:  _
-	...
-}]) & close({
-	Arn?: =~"^arn:aws[A-Za-z0-9-]{0,64}:cloudformation:[A-Za-z0-9-]{1,64}:([0-9]{12})?:type/module/.+/[0-9]{8}$" |
-		fn.#StringExpression
-	ModuleName?: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::MODULE" | fn.#StringExpression
-	VersionId?:  =~"^[0-9]{8}$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::ModuleDefaultVersion"
-	Properties?: #Properties
+	Type!: "AWS::CloudFormation::ModuleDefaultVersion"
+	Properties?: matchN(1, [{
+		Arn!: _
+		...
+	}, {
+		ModuleName!: _
+		VersionId!:  _
+		...
+	}]) & close({
+		Arn?: =~"^arn:aws[A-Za-z0-9-]{0,64}:cloudformation:[A-Za-z0-9-]{1,64}:([0-9]{12})?:type/module/.+/[0-9]{8}$" |
+			fn.#StringExpression
+		ModuleName?: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::MODULE" | fn.#StringExpression
+		VersionId?:  =~"^[0-9]{8}$" | fn.#StringExpression
+	})
 }

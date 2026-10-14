@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Backup::BackupVault
-#Properties: close({
-	AccessPolicy?:    fn.#Object & {...} | string | fn.#StringObjectExpression
-	BackupVaultName!: #BackupVaultNamePattern
-	BackupVaultTags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Backup::BackupVault"
+	Properties!: close({
+		AccessPolicy?:    fn.#Object & {...} | string | fn.#StringObjectExpression
+		BackupVaultName!: #BackupVaultNamePattern
+		BackupVaultTags?: close({
 
-		{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	EncryptionKeyArn?:  string | fn.#StringExpression
-	LockConfiguration?: #LockConfigurationType
-	Notifications?:     #NotificationObjectType
-})
+			{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		EncryptionKeyArn?:  string | fn.#StringExpression
+		LockConfiguration?: #LockConfigurationType
+		Notifications?:     #NotificationObjectType
+	})
+}
 
 #BackupVaultNamePattern: =~"^[a-zA-Z0-9\\-\\_]{2,50}$" | fn.#StringExpression
 
@@ -79,7 +82,3 @@ fn.#ObjectExpression
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Backup::BackupVault"
-	Properties!: #Properties
-}

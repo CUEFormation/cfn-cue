@@ -17,22 +17,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Crawler
-#Properties: close({
-	Classifiers?:   [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Configuration?: string | fn.#StringExpression
-	CrawlerSecurityConfiguration?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	DatabaseName?:                 string | fn.#StringExpression
-	Description?:                  strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	LakeFormationConfiguration?:   #LakeFormationConfiguration
-	Name?:                         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	RecrawlPolicy?:                #RecrawlPolicy
-	Role!:                         string | fn.#StringExpression
-	Schedule?:                     #Schedule
-	SchemaChangePolicy?:           #SchemaChangePolicy
-	TablePrefix?:                  strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:                         fn.#Object & {...} | string | fn.#StringObjectExpression
-	Targets!:                      #Targets
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Crawler"
+	Properties!: close({
+		Classifiers?:   [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		Configuration?: string | fn.#StringExpression
+		CrawlerSecurityConfiguration?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+		DatabaseName?:                 string | fn.#StringExpression
+		Description?:                  strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		LakeFormationConfiguration?:   #LakeFormationConfiguration
+		Name?:                         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		RecrawlPolicy?:                #RecrawlPolicy
+		Role!:                         string | fn.#StringExpression
+		Schedule?:                     #Schedule
+		SchemaChangePolicy?:           #SchemaChangePolicy
+		TablePrefix?:                  strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+		Tags?:                         fn.#Object & {...} | string | fn.#StringObjectExpression
+		Targets!:                      #Targets
+	})
+}
 
 #CatalogTarget: close({
 	ConnectionName?:   string | fn.#StringExpression
@@ -186,7 +189,3 @@ fn.#ObjectExpression
 	S3Targets?:       [...#S3Target] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Crawler"
-	Properties!: #Properties
-}

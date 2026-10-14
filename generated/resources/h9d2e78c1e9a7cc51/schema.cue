@@ -12,13 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GuardDuty::Detector
-#Properties: close({
-	DataSources?:                #CFNDataSourceConfigurations
-	Enable!:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Features?:                   [...#CFNFeatureConfiguration] | fn.#ListExpression
-	FindingPublishingFrequency?: "FIFTEEN_MINUTES" | "ONE_HOUR" | "SIX_HOURS" | fn.#StringExpression
-	Tags?:                       [...#TagItem] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GuardDuty::Detector"
+	Properties!: close({
+		DataSources?: #CFNDataSourceConfigurations
+		Enable!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Features?:    [...#CFNFeatureConfiguration] | fn.#ListExpression
+		FindingPublishingFrequency?: "FIFTEEN_MINUTES" | "ONE_HOUR" | "SIX_HOURS" | fn.#StringExpression
+		Tags?:                       [...#TagItem] | fn.#ListExpression
+	})
+}
 
 #CFNDataSourceConfigurations: close({
 	Kubernetes?:        #CFNKubernetesConfiguration
@@ -75,7 +78,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GuardDuty::Detector"
-	Properties!: #Properties
-}

@@ -14,14 +14,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The ``AWS::ECR::PullThroughCacheRule`` resource creates or updates a pull
 // through cache rule. A pull through cache rule provides a way to cache images
 // from an upstream registry in your Amazon ECR private registry.
-#Properties: close({
-	CredentialArn?:            #CredentialArn | fn.#StringExpression
-	CustomRoleArn?:            #CustomRoleArn | fn.#StringExpression
-	EcrRepositoryPrefix?:      #EcrRepositoryPrefix | fn.#StringExpression
-	UpstreamRegistry?:         #UpstreamRegistry | fn.#StringExpression
-	UpstreamRegistryUrl?:      #UpstreamRegistryUrl | fn.#StringExpression
-	UpstreamRepositoryPrefix?: #UpstreamRepositoryPrefix | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECR::PullThroughCacheRule"
+	Properties?: close({
+		CredentialArn?:            #CredentialArn | fn.#StringExpression
+		CustomRoleArn?:            #CustomRoleArn | fn.#StringExpression
+		EcrRepositoryPrefix?:      #EcrRepositoryPrefix | fn.#StringExpression
+		UpstreamRegistry?:         #UpstreamRegistry | fn.#StringExpression
+		UpstreamRegistryUrl?:      #UpstreamRegistryUrl | fn.#StringExpression
+		UpstreamRepositoryPrefix?: #UpstreamRepositoryPrefix | fn.#StringExpression
+	})
+}
 
 #CredentialArn: strings.MaxRunes(612) &
 strings.MinRunes(50) &
@@ -66,7 +69,3 @@ fn.#ObjectExpression
 strings.MinRunes(2) &
 =~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECR::PullThroughCacheRule"
-	Properties?: #Properties
-}

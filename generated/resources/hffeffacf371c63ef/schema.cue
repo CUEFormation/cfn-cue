@@ -16,15 +16,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaPackage::PackagingConfiguration
-#Properties: close({
-	CmafPackage?:      #CmafPackage | fn.#ObjectExpression
-	DashPackage?:      #DashPackage | fn.#ObjectExpression
-	HlsPackage?:       #HlsPackage | fn.#ObjectExpression
-	Id!:               string | fn.#StringExpression
-	MssPackage?:       #MssPackage | fn.#ObjectExpression
-	PackagingGroupId!: string | fn.#StringExpression
-	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaPackage::PackagingConfiguration"
+	Properties!: close({
+		CmafPackage?:      #CmafPackage | fn.#ObjectExpression
+		DashPackage?:      #DashPackage | fn.#ObjectExpression
+		HlsPackage?:       #HlsPackage | fn.#ObjectExpression
+		Id!:               string | fn.#StringExpression
+		MssPackage?:       #MssPackage | fn.#ObjectExpression
+		PackagingGroupId!: string | fn.#StringExpression
+		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CmafEncryption: close({SpekeKeyProvider!: #SpekeKeyProvider}) | fn.#ObjectExpression
 
@@ -229,7 +232,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaPackage::PackagingConfiguration"
-	Properties!: #Properties
-}

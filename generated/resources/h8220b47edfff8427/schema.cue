@@ -19,20 +19,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A report generator that creates periodic reports about your AWS License
 // Manager license configurations.
-#Properties: close({
-	Description?:         string | fn.#StringExpression
-	ReportContext!:       #ReportContext
-	ReportFrequency!:     #ReportFrequency
-	ReportGeneratorName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	ReportType!: [
-		..."LicenseConfigurationSummaryReport" |
-			"LicenseConfigurationUsageReport" |
-			"LicenseAssetGroupUsageReport" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LicenseManager::ReportGenerator"
+	Properties!: close({
+		Description?:         string | fn.#StringExpression
+		ReportContext!:       #ReportContext
+		ReportFrequency!:     #ReportFrequency
+		ReportGeneratorName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		ReportType!: [
+			..."LicenseConfigurationSummaryReport" |
+				"LicenseConfigurationUsageReport" |
+				"LicenseAssetGroupUsageReport" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ReportContext: close({
 	LicenseAssetGroupArns?: [...strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression] |
@@ -74,7 +77,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LicenseManager::ReportGenerator"
-	Properties!: #Properties
-}

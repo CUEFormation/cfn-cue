@@ -9,17 +9,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::PCS::Queue resource creates an AWS PCS queue.
-#Properties: close({
-	ClusterId!:                      string | fn.#StringExpression
-	ComputeNodeGroupConfigurations?: [...#ComputeNodeGroupConfiguration] | fn.#ListExpression
-	Name?:                           string | fn.#StringExpression
-	SlurmConfiguration?: close({SlurmCustomSettings?: [...#SlurmCustomSetting] | fn.#ListExpression}) |
-		fn.#ObjectExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PCS::Queue"
+	Properties!: close({
+		ClusterId!:                      string | fn.#StringExpression
+		ComputeNodeGroupConfigurations?: [...#ComputeNodeGroupConfiguration] | fn.#ListExpression
+		Name?:                           string | fn.#StringExpression
+		SlurmConfiguration?: close({SlurmCustomSettings?: [...#SlurmCustomSetting] | fn.#ListExpression}) |
+			fn.#ObjectExpression
+		Tags?: close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
 #ComputeNodeGroupConfiguration: close({ComputeNodeGroupId?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -34,7 +37,3 @@ fn.#ObjectExpression
 	ParameterValue!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PCS::Queue"
-	Properties!: #Properties
-}

@@ -18,13 +18,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // This schema provides construct and validation rules for AWS-XRay SamplingRule
 // resource parameters.
-#Properties: close({
-	RuleName?:           #RuleName
-	SamplingRule?:       #SamplingRule
-	SamplingRuleRecord?: #SamplingRuleRecord
-	SamplingRuleUpdate?: #SamplingRuleUpdate
-	Tags?:               #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::XRay::SamplingRule"
+	Properties?: close({
+		RuleName?:           #RuleName
+		SamplingRule?:       #SamplingRule
+		SamplingRuleRecord?: #SamplingRuleRecord
+		SamplingRuleUpdate?: #SamplingRuleUpdate
+		Tags?:               #Tags
+	})
+}
 
 #RuleARN: string | fn.#StringExpression
 
@@ -234,7 +237,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::XRay::SamplingRule"
-	Properties?: #Properties
-}

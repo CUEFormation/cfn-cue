@@ -13,14 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SMSVOICE::ConfigurationSet
-#Properties: close({
-	ConfigurationSetName?:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
-	DefaultSenderId?:        =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
-	EventDestinations?:      list.MaxItems(5) & [...#EventDestination] | fn.#ListExpression
-	MessageFeedbackEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ProtectConfigurationId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
-	Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SMSVOICE::ConfigurationSet"
+	Properties?: close({
+		ConfigurationSetName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
+		DefaultSenderId?:      =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
+		EventDestinations?:    list.MaxItems(5) & [...#EventDestination] | fn.#ListExpression
+		MessageFeedbackEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ProtectConfigurationId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CloudWatchLogsDestination: close({
 	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -73,7 +77,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SMSVOICE::ConfigurationSet"
-	Properties?: #Properties
-}

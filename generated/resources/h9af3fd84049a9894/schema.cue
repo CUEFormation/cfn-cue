@@ -14,21 +14,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QBusiness::DataSource Resource Type
-#Properties: close({
-	ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
-	fn.#StringExpression
-	Configuration!: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Description?:   strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	DisplayName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	DocumentEnrichmentConfiguration?: #DocumentEnrichmentConfiguration
-	IndexId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" | fn.#StringExpression
-	MediaExtractionConfiguration?: #MediaExtractionConfiguration
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
-	fn.#StringExpression
-	SyncSchedule?:     strings.MaxRunes(998) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Tags?:             list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	VpcConfiguration?: #DataSourceVpcConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QBusiness::DataSource"
+	Properties!: close({
+		ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
+		fn.#StringExpression
+		Configuration!: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Description?:   strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		DisplayName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
+		fn.#StringExpression
+		DocumentEnrichmentConfiguration?: #DocumentEnrichmentConfiguration
+		IndexId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" | fn.#StringExpression
+		MediaExtractionConfiguration?: #MediaExtractionConfiguration
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+		fn.#StringExpression
+		SyncSchedule?:     strings.MaxRunes(998) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		Tags?:             list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		VpcConfiguration?: #DataSourceVpcConfiguration
+	})
+}
 
 #AttributeValueOperator: "DELETE" | fn.#StringExpression
 
@@ -147,7 +151,3 @@ fn.#ObjectExpression
 #VideoExtractionConfiguration: close({VideoExtractionStatus!: #VideoExtractionStatus}) | fn.#ObjectExpression
 
 #VideoExtractionStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QBusiness::DataSource"
-	Properties!: #Properties
-}

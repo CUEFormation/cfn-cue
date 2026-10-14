@@ -13,27 +13,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SMSVOICE::PhoneNumber
-#Properties: close({
-	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IsoCountryCode!:            =~"^[A-Z]{2}$" | fn.#StringExpression
-	MandatoryKeywords!: close({
-		HELP!: #MandatoryKeyword
-		STOP!: #MandatoryKeyword
-	}) |
-	fn.#ObjectExpression
-	NumberCapabilities!: list.UniqueItems() & [..."SMS" | "VOICE" | "MMS" | fn.#StringExpression] | fn.#ListExpression
-	NumberType!:         "LONG_CODE" | "TOLL_FREE" | "TEN_DLC" | "SIMULATOR" | fn.#StringExpression
-	OptOutListName?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
-	OptionalKeywords?:   list.UniqueItems() & [...#OptionalKeyword] | fn.#ListExpression
-	SelfManagedOptOutsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TwoWay?: close({
-		ChannelArn?:  =~"^arn:\\S+$" | fn.#StringExpression
-		ChannelRole?: =~"^arn:\\S+$" | fn.#StringExpression
-		Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	}) |
-	fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SMSVOICE::PhoneNumber"
+	Properties!: close({
+		DeletionProtectionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		IsoCountryCode!: =~"^[A-Z]{2}$" | fn.#StringExpression
+		MandatoryKeywords!: close({
+			HELP!: #MandatoryKeyword
+			STOP!: #MandatoryKeyword
+		}) |
+		fn.#ObjectExpression
+		NumberCapabilities!: list.UniqueItems() & [..."SMS" | "VOICE" | "MMS" | fn.#StringExpression] |
+			fn.#ListExpression
+		NumberType!:       "LONG_CODE" | "TOLL_FREE" | "TEN_DLC" | "SIMULATOR" | fn.#StringExpression
+		OptOutListName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
+		OptionalKeywords?: list.UniqueItems() & [...#OptionalKeyword] | fn.#ListExpression
+		SelfManagedOptOutsEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TwoWay?: close({
+			ChannelArn?:  =~"^arn:\\S+$" | fn.#StringExpression
+			ChannelRole?: =~"^arn:\\S+$" | fn.#StringExpression
+			Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		}) |
+		fn.#ObjectExpression
+	})
+}
 
 #MandatoryKeyword: close({Message!: strings.MaxRunes(1600) | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -49,7 +67,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SMSVOICE::PhoneNumber"
-	Properties!: #Properties
-}

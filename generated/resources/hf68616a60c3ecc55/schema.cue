@@ -17,18 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Tables::Table
-#Properties: close({
-	Compaction?:                #Compaction
-	IcebergMetadata?:           #IcebergMetadata
-	Namespace!:                 #Namespace
-	OpenTableFormat!:           #OpenTableFormat
-	SnapshotManagement?:        #SnapshotManagement
-	StorageClassConfiguration?: #StorageClassConfiguration
-	TableBucketARN!:            #TableBucketARN
-	TableName!:                 #TableName
-	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	WithoutMetadata?:           #WithoutMetadata
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3Tables::Table"
+	Properties!: close({
+		Compaction?:                #Compaction
+		IcebergMetadata?:           #IcebergMetadata
+		Namespace!:                 #Namespace
+		OpenTableFormat!:           #OpenTableFormat
+		SnapshotManagement?:        #SnapshotManagement
+		StorageClassConfiguration?: #StorageClassConfiguration
+		TableBucketARN!:            #TableBucketARN
+		TableName!:                 #TableName
+		Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		WithoutMetadata?:           #WithoutMetadata
+	})
+}
 
 #Compaction: close({
 	Status?: "enabled" | "disabled" | fn.#StringExpression
@@ -308,7 +311,3 @@ fn.#ObjectExpression
 #WarehouseLocation: string | fn.#StringExpression
 
 #WithoutMetadata: "Yes" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Tables::Table"
-	Properties!: #Properties
-}

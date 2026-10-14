@@ -13,26 +13,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an AWS Supply Chain data lake dataset.
-#Properties: close({
-	Description?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceId!: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
-	fn.#StringExpression
-	Name!:      strings.MaxRunes(75) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
-	Namespace!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
-	PartitionSpec?: close(
-		{Fields!: list.MaxItems(10) & list.MinItems(1) & [...#DataLakeDatasetPartitionField] | fn.#ListExpression},
-	) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SCN::Dataset"
+	Properties!: close({
+		Description?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceId!: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+		fn.#StringExpression
+		Name!:      strings.MaxRunes(75) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
+		Namespace!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
+		PartitionSpec?: close(
+			{Fields!: list.MaxItems(10) & list.MinItems(1) & [...#DataLakeDatasetPartitionField] | fn.#ListExpression},
+		) |
+			fn.#ObjectExpression
+		Schema?: close({
+			Fields!: list.MaxItems(500) & list.MinItems(1) & [...#DataLakeDatasetSchemaField] | fn.#ListExpression
+			Name!:   strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9]+$" | fn.#StringExpression
+			PrimaryKeys?: list.MaxItems(20) & list.MinItems(1) & [...#DataLakeDatasetPrimaryKeyField] |
+				fn.#ListExpression
+		}) |
 		fn.#ObjectExpression
-	Schema?: close({
-		Fields!:      list.MaxItems(500) & list.MinItems(1) & [...#DataLakeDatasetSchemaField] | fn.#ListExpression
-		Name!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9]+$" | fn.#StringExpression
-		PrimaryKeys?: list.MaxItems(20) & list.MinItems(1) & [...#DataLakeDatasetPrimaryKeyField] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DataLakeDatasetPartitionField: close({
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
@@ -58,7 +62,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SCN::Dataset"
-	Properties!: #Properties
-}

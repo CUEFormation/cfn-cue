@@ -12,12 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::DomainNameApiAssociation
-#Properties: close({
-	ApiId!: string | fn.#StringExpression
-	DomainName!: strings.MaxRunes(253) & strings.MinRunes(1) & =~"^(\\*[a-z\\d-]*\\.)?([a-z\\d-]+\\.)+[a-z\\d-]+$" |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::DomainNameApiAssociation"
-	Properties!: #Properties
+	Type!: "AWS::AppSync::DomainNameApiAssociation"
+	Properties!: close({
+		ApiId!: string | fn.#StringExpression
+		DomainName!: strings.MaxRunes(253) & strings.MinRunes(1) & =~"^(\\*[a-z\\d-]*\\.)?([a-z\\d-]+\\.)+[a-z\\d-]+$" |
+		fn.#StringExpression
+	})
 }

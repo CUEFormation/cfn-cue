@@ -18,55 +18,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for Local Gateway Virtual Interface which describes
 // a virtual interface for AWS Outposts local gateways.
-#Properties: close({
-	LocalAddress!:                        string | fn.#StringExpression
-	LocalGatewayVirtualInterfaceGroupId!: string | fn.#StringExpression
-	OutpostLagId!:                        string | fn.#StringExpression
-	PeerAddress!:                         string | fn.#StringExpression
-	PeerBgpAsn?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PeerBgpAsnExtended?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Vlan!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::LocalGatewayVirtualInterface"
+	Properties!: close({
+		LocalAddress!:                        string | fn.#StringExpression
+		LocalGatewayVirtualInterfaceGroupId!: string | fn.#StringExpression
+		OutpostLagId!:                        string | fn.#StringExpression
+		PeerAddress!:                         string | fn.#StringExpression
+		PeerBgpAsn?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PeerBgpAsnExtended?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Vlan!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #Tag: close({
 	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
@@ -75,7 +84,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::LocalGatewayVirtualInterface"
-	Properties!: #Properties
-}

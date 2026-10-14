@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An object representing an Amazon EKS IdentityProviderConfig.
-#Properties: close({
-	ClusterName!:                string | fn.#StringExpression
-	IdentityProviderConfigName?: string | fn.#StringExpression
-	Oidc?:                       #OidcIdentityProviderConfig
-	Tags?:                       list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Type!:                       "oidc" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EKS::IdentityProviderConfig"
+	Properties!: close({
+		ClusterName!:                string | fn.#StringExpression
+		IdentityProviderConfigName?: string | fn.#StringExpression
+		Oidc?:                       #OidcIdentityProviderConfig
+		Tags?:                       list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type!:                       "oidc" | fn.#StringExpression
+	})
+}
 
 #OidcIdentityProviderConfig: close({
 	ClientId!:       string | fn.#StringExpression
@@ -43,7 +46,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EKS::IdentityProviderConfig"
-	Properties!: #Properties
-}

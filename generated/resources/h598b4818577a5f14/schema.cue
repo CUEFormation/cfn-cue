@@ -16,14 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for Resiliency Policy.
-#Properties: close({
-	DataLocationConstraint?: "AnyLocation" | "SameContinent" | "SameCountry" | fn.#StringExpression
-	Policy!:                 #PolicyMap
-	PolicyDescription?:      strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	PolicyName!:             =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	Tags?:                   #TagMap
-	Tier!: "MissionCritical" | "Critical" | "Important" | "CoreServices" | "NonCritical" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ResilienceHub::ResiliencyPolicy"
+	Properties!: close({
+		DataLocationConstraint?: "AnyLocation" | "SameContinent" | "SameCountry" | fn.#StringExpression
+		Policy!:                 #PolicyMap
+		PolicyDescription?:      strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+		PolicyName!:             =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
+		Tags?:                   #TagMap
+		Tier!: "MissionCritical" | "Critical" | "Important" | "CoreServices" | "NonCritical" | fn.#StringExpression
+	})
+}
 
 #FailurePolicy: close({
 	RpoInSecs!: int |
@@ -71,7 +74,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TagValue: strings.MaxRunes(256) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ResilienceHub::ResiliencyPolicy"
-	Properties!: #Properties
-}

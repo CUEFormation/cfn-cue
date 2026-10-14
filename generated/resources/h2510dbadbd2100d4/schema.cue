@@ -14,19 +14,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::AccountAccess::Application specifying an
 // application for account access
-#Properties: close({
-	IdentitySource!: close({
-		IdentityCenter!: close({
-			InstanceArn!: strings.MaxRunes(1224) &
-			strings.MinRunes(10) &
-			=~"^arn:[a-z0-9-]+:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
-			fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AccountAccess::Application"
+	Properties!: close({
+		IdentitySource!: close({
+			IdentityCenter!: close({
+				InstanceArn!: strings.MaxRunes(1224) &
+				strings.MinRunes(10) &
+				=~"^arn:[a-z0-9-]+:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
+				fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #IdentityCenter: close({
 	ApplicationArn?: strings.MaxRunes(1224) &
@@ -47,7 +50,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AccountAccess::Application"
-	Properties!: #Properties
-}

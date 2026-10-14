@@ -13,33 +13,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for EKS Capability.
-#Properties: close({
-	CapabilityName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	ClusterName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Configuration?: close({
-		Ack?: #Ack
-		ArgoCd?: close({
-			AwsIdc!: close({
-				IdcInstanceArn!: string | fn.#StringExpression
-				IdcRegion?:      string | fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EKS::Capability"
+	Properties!: close({
+		CapabilityName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		ClusterName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Configuration?: close({
+			Ack?: #Ack
+			ArgoCd?: close({
+				AwsIdc!: close({
+					IdcInstanceArn!: string | fn.#StringExpression
+					IdcRegion?:      string | fn.#StringExpression
+				}) |
+				fn.#ObjectExpression
+				EndpointPrefix?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
+				fn.#StringExpression
+				Namespace?:        string | fn.#StringExpression
+				NetworkAccess?:    #NetworkAccess
+				RbacRoleMappings?: [...#ArgoCdRoleMapping] | fn.#ListExpression
 			}) |
 			fn.#ObjectExpression
-			EndpointPrefix?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
-			fn.#StringExpression
-			Namespace?:        string | fn.#StringExpression
-			NetworkAccess?:    #NetworkAccess
-			RbacRoleMappings?: [...#ArgoCdRoleMapping] | fn.#ListExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	DeletePropagationPolicy!: "RETAIN" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:aws[a-z-]*:iam::[0-9]+:role/[a-zA-Z0-9+=,.@_-]+$" |
-		fn.#StringExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Type!: "ARGOCD" | "ACK" | "KRO" | fn.#StringExpression
-})
+		DeletePropagationPolicy!: "RETAIN" | fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:aws[a-z-]*:iam::[0-9]+:role/[a-zA-Z0-9+=,.@_-]+$" |
+			fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type!: "ARGOCD" | "ACK" | "KRO" | fn.#StringExpression
+	})
+}
 
 #Ack: close({
 	DisabledServices?: list.MaxItems(200) & [...] & [
@@ -93,7 +96,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EKS::Capability"
-	Properties!: #Properties
-}

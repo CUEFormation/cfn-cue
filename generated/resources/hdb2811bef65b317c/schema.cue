@@ -13,92 +13,105 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::SecurityGroupIngress
-#Properties: close({
-	CidrIp?:      string | fn.#StringExpression
-	CidrIpv6?:    string | fn.#StringExpression
-	Description?: string | fn.#StringExpression
-	FromPort?: int & >=-1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=-1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	GroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	GroupName?:          string | fn.#StringExpression
-	IpProtocol!:         string | fn.#StringExpression
-	SourcePrefixListId?: string | fn.#StringExpression
-	SourceSecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SourceSecurityGroupName?:    string | fn.#StringExpression
-	SourceSecurityGroupOwnerId?: string | fn.#StringExpression
-	ToPort?: int & >=-1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=-1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	if CidrIp != _|_ {
-		CidrIpv6?: error(
-			"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
-		)
-		SourcePrefixListId?: error(
-			"SourcePrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
-		)
-		SourceSecurityGroupId?: error(
-			"SourceSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
-		)
-		SourceSecurityGroupName?: error(
-			"SourceSecurityGroupName cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
-		)
-	}
-	if CidrIpv6 != _|_ {
-		SourcePrefixListId?: error(
-			"SourcePrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
-		)
-		SourceSecurityGroupId?: error(
-			"SourceSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
-		)
-		SourceSecurityGroupName?: error(
-			"SourceSecurityGroupName cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
-		)
-	}
-	if SourcePrefixListId != _|_ {
-		SourceSecurityGroupId?: error(
-			"SourceSecurityGroupId cannot be used with SourcePrefixListId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
-		)
-		SourceSecurityGroupName?: error(
-			"SourceSecurityGroupName cannot be used with SourcePrefixListId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
-		)
-	}
-	if SourceSecurityGroupId != _|_ {
-		SourceSecurityGroupName?: error(
-			"SourceSecurityGroupName cannot be used with SourceSecurityGroupId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
-		)
-	}
-}) & matchN(
-	>=1,
-	[{CidrIp!: _}, {CidrIpv6!: _}, {SourcePrefixListId!: _}, {SourceSecurityGroupId!: _}, {SourceSecurityGroupName!: _}],
-)
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::SecurityGroupIngress"
-	Properties!: #Properties
+	Type!: "AWS::EC2::SecurityGroupIngress"
+	Properties!: close({
+		CidrIp?:      string | fn.#StringExpression
+		CidrIpv6?:    string | fn.#StringExpression
+		Description?: string | fn.#StringExpression
+		FromPort?: int & >=-1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=-1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		GroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		GroupName?:          string | fn.#StringExpression
+		IpProtocol!:         string | fn.#StringExpression
+		SourcePrefixListId?: string | fn.#StringExpression
+		SourceSecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		SourceSecurityGroupName?:    string | fn.#StringExpression
+		SourceSecurityGroupOwnerId?: string | fn.#StringExpression
+		ToPort?: int & >=-1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=-1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		if CidrIp != _|_ {
+			CidrIpv6?: error(
+				"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+			)
+			SourcePrefixListId?: error(
+				"SourcePrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+			)
+			SourceSecurityGroupId?: error(
+				"SourceSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+			)
+			SourceSecurityGroupName?: error(
+				"SourceSecurityGroupName cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+			)
+		}
+		if CidrIpv6 != _|_ {
+			SourcePrefixListId?: error(
+				"SourcePrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+			)
+			SourceSecurityGroupId?: error(
+				"SourceSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+			)
+			SourceSecurityGroupName?: error(
+				"SourceSecurityGroupName cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+			)
+		}
+		if SourcePrefixListId != _|_ {
+			SourceSecurityGroupId?: error(
+				"SourceSecurityGroupId cannot be used with SourcePrefixListId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+			)
+			SourceSecurityGroupName?: error(
+				"SourceSecurityGroupName cannot be used with SourcePrefixListId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+			)
+		}
+		if SourceSecurityGroupId != _|_ {
+			SourceSecurityGroupName?: error(
+				"SourceSecurityGroupName cannot be used with SourceSecurityGroupId; set exactly one of CidrIp, CidrIpv6, SourcePrefixListId, SourceSecurityGroupId, SourceSecurityGroupName",
+			)
+		}
+	}) & matchN(
+		>=1,
+		[{
+			CidrIp!: _
+		}, {
+			CidrIpv6!: _
+		}, {
+			SourcePrefixListId!: _
+		}, {
+			SourceSecurityGroupId!: _
+		}, {
+			SourceSecurityGroupName!: _
+		}],
+	)
 }

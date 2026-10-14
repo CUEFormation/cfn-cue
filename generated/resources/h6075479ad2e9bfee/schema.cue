@@ -12,16 +12,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a studio that contains other Nimble Studio resources
-#Properties: close({
-	AdminRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	DisplayName!:                   strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	StudioEncryptionConfiguration?: #StudioEncryptionConfiguration
-	StudioName!:                    strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9]*$" | fn.#StringExpression
-	Tags?:                          #Tags
-	UserRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NimbleStudio::Studio"
+	Properties!: close({
+		AdminRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		DisplayName!:                   strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+		StudioEncryptionConfiguration?: #StudioEncryptionConfiguration
+		StudioName!: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9]*$" | fn.#StringExpression
+		Tags?:       #Tags
+		UserRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	})
+}
 
 #StudioEncryptionConfiguration: close({
 	KeyArn?:  strings.MinRunes(4) & =~"^arn:.*" | fn.#StringExpression
@@ -35,7 +38,3 @@ fn.#ObjectExpression
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NimbleStudio::Studio"
-	Properties!: #Properties
-}

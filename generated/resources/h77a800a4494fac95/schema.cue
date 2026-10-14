@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::LaunchWizard::Deployment Resource Type
-#Properties: close({
-	DeploymentPatternName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][a-zA-Z0-9-]*$" |
-	fn.#StringExpression
-	Name!:           strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[A-Za-z0-9_\\s\\.-]+$" | fn.#StringExpression
-	Specifications?: #DeploymentSpecifications | fn.#ObjectExpression
-	Tags?:           [...#Tags] | fn.#ListExpression
-	WorkloadName!:   strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z][a-zA-Z0-9-_]*$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LaunchWizard::Deployment"
+	Properties!: close({
+		DeploymentPatternName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][a-zA-Z0-9-]*$" |
+		fn.#StringExpression
+		Name!:           strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[A-Za-z0-9_\\s\\.-]+$" | fn.#StringExpression
+		Specifications?: #DeploymentSpecifications | fn.#ObjectExpression
+		Tags?:           [...#Tags] | fn.#ListExpression
+		WorkloadName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z][a-zA-Z0-9-_]*$" | fn.#StringExpression
+	})
+}
 
 #DeploymentSpecifications: struct.MaxFields(100) & struct.MinFields(1) & close({
 
@@ -43,7 +46,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LaunchWizard::Deployment"
-	Properties!: #Properties
-}

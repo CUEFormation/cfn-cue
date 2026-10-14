@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a custom framework in AWS Audit Manager.
-#Properties: close({
-	ComplianceType?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
-	ControlSets!:    list.MinItems(1) & [...#ControlSet] | fn.#ListExpression
-	Description?:    strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
-	Name!:           strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\]*$" | fn.#StringExpression
-	Tags?:           list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AuditManager::AssessmentFramework"
+	Properties!: close({
+		ComplianceType?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
+		ControlSets!:    list.MinItems(1) & [...#ControlSet] | fn.#ListExpression
+		Description?:    strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
+		Name!:           strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\]*$" | fn.#StringExpression
+		Tags?:           list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ControlSet: close({
 	Controls!: list.MinItems(1) & [...#ControlSetControl] | fn.#ListExpression
@@ -40,7 +43,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AuditManager::AssessmentFramework"
-	Properties!: #Properties
-}

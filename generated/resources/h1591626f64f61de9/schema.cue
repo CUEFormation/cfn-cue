@@ -16,13 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // existing AWS DevOps Agent Space. Customer-creatable types include skill,
 // agents_md, and attachment; call ListAssetTypes for the current authoritative
 // set.
-#Properties: close({
-	AgentSpaceId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	AssetType!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" | fn.#StringExpression
-	Files?:        list.MinItems(1) & [...#AssetFile] | fn.#ListExpression
-	Metadata?:     fn.#Object & {...} | fn.#ObjectExpression
-	Zip?:          strings.MaxRunes(8388608) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DevOpsAgent::Asset"
+	Properties!: close({
+		AgentSpaceId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		AssetType!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" | fn.#StringExpression
+		Files?:        list.MinItems(1) & [...#AssetFile] | fn.#ListExpression
+		Metadata?:     fn.#Object & {...} | fn.#ObjectExpression
+		Zip?:          strings.MaxRunes(8388608) | fn.#StringExpression
+	})
+}
 
 #AssetFile: close({
 	ContentBytes?: strings.MaxRunes(8388608) | fn.#StringExpression
@@ -36,7 +39,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}
 }) & matchN(>=1, [{ContentText!: _}, {ContentBytes!: _}]) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DevOpsAgent::Asset"
-	Properties!: #Properties
-}

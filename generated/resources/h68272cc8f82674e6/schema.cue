@@ -14,12 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The key value store. Use this to separate data from function code, allowing
 // you to update data without having to publish a new version of a function.
 // The key value store holds keys and their corresponding values.
-#Properties: close({
-	Comment?:      strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	ImportSource?: #ImportSource | fn.#ObjectExpression
-	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
-	Tags?:         [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::KeyValueStore"
+	Properties!: close({
+		Comment?:      strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+		ImportSource?: #ImportSource | fn.#ObjectExpression
+		Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
+		Tags?:         [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ImportSource: close({
 	SourceArn!:  string | fn.#StringExpression
@@ -32,7 +35,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::KeyValueStore"
-	Properties!: #Properties
-}

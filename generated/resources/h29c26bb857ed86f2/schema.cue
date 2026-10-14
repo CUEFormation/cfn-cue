@@ -17,13 +17,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RTBFabric::RequesterGateway Resource Type.
-#Properties: close({
-	Description?:      #Description
-	SecurityGroupIds!: #SecurityGroupIds
-	SubnetIds!:        #SubnetIds
-	Tags?:             #Tags
-	VpcId!:            #VpcId
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RTBFabric::RequesterGateway"
+	Properties!: close({
+		Description?:      #Description
+		SecurityGroupIds!: #SecurityGroupIds
+		SubnetIds!:        #SubnetIds
+		Tags?:             #Tags
+		VpcId!:            #VpcId
+	})
+}
 
 #ActiveLinksCount: int |
 	{
@@ -109,7 +112,3 @@ strings.MaxRunes(50) &
 strings.MinRunes(5) &
 =~"^vpc-[a-f0-9]{8,17}$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RTBFabric::RequesterGateway"
-	Properties!: #Properties
-}

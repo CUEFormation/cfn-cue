@@ -12,15 +12,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::LakeFormation::DataCellsFilter
-#Properties: close({
-	ColumnNames?:    #ColumnNames | fn.#ListExpression
-	ColumnWildcard?: #ColumnWildcard | fn.#ObjectExpression
-	DatabaseName!:   #NameString | fn.#StringExpression
-	Name!:           #NameString | fn.#StringExpression
-	RowFilter?:      #RowFilter | fn.#ObjectExpression
-	TableCatalogId!: #CatalogIdString | fn.#StringExpression
-	TableName!:      #NameString | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LakeFormation::DataCellsFilter"
+	Properties!: close({
+		ColumnNames?:    #ColumnNames | fn.#ListExpression
+		ColumnWildcard?: #ColumnWildcard | fn.#ObjectExpression
+		DatabaseName!:   #NameString | fn.#StringExpression
+		Name!:           #NameString | fn.#StringExpression
+		RowFilter?:      #RowFilter | fn.#ObjectExpression
+		TableCatalogId!: #CatalogIdString | fn.#StringExpression
+		TableName!:      #NameString | fn.#StringExpression
+	})
+}
 
 #CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
 
@@ -35,7 +38,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	FilterExpression?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LakeFormation::DataCellsFilter"
-	Properties!: #Properties
-}

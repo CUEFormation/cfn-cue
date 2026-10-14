@@ -16,80 +16,89 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::MLTransform
-#Properties: close({
-	Description?:       strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	GlueVersion?:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
-	InputRecordTables!: #InputRecordTables | fn.#ObjectExpression
-	MaxCapacity?: <=100 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::MLTransform"
+	Properties!: close({
+		Description?:       strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		GlueVersion?:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
+		InputRecordTables!: #InputRecordTables | fn.#ObjectExpression
+		MaxCapacity?: <=100 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=100 &
+								>=1,
+							"g",
+							-1,
 							64,
-						) &
-							<=100 &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaxRetries?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	NumberOfWorkers?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Role!: string | fn.#StringExpression
-	Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Timeout?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TransformEncryption?: #TransformEncryption | fn.#ObjectExpression
-	TransformParameters!: #TransformParameters | fn.#ObjectExpression
-	WorkerType?:          "G.025X" | "G.1X" | "G.2X" | "G.4X" | "G.8X" | "Standard" | "Z.2X" | fn.#StringExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxRetries?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		NumberOfWorkers?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Role!: string | fn.#StringExpression
+		Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Timeout?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TransformEncryption?: #TransformEncryption | fn.#ObjectExpression
+		TransformParameters!: #TransformParameters | fn.#ObjectExpression
+		WorkerType?:          "G.025X" | "G.1X" | "G.2X" | "G.4X" | "G.8X" | "Standard" | "Z.2X" | fn.#StringExpression
+	})
+}
 
 #FindMatchesParameters: close({
 	AccuracyCostTradeoff?: number |
@@ -170,7 +179,3 @@ fn.#ObjectExpression
 	TransformType!:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::MLTransform"
-	Properties!: #Properties
-}

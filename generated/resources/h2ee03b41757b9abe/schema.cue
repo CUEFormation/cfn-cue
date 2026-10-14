@@ -13,11 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SMSVOICE::ProtectConfiguration
-#Properties: close({
-	CountryRuleSet?:            #CountryRuleSet | fn.#ObjectExpression
-	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SMSVOICE::ProtectConfiguration"
+	Properties?: close({
+		CountryRuleSet?: #CountryRuleSet | fn.#ObjectExpression
+		DeletionProtectionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CountryRule: close({
 	CountryCode!:   =~"^[A-Z]{2}$" | fn.#StringExpression
@@ -37,7 +47,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SMSVOICE::ProtectConfiguration"
-	Properties?: #Properties
-}

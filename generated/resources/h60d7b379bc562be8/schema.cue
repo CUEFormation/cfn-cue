@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::VoiceChannel
-#Properties: close({
-	ApplicationId!: string | fn.#StringExpression
-	Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pinpoint::VoiceChannel"
-	Properties!: #Properties
+	Type!: "AWS::Pinpoint::VoiceChannel"
+	Properties!: close({
+		ApplicationId!: string | fn.#StringExpression
+		Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	})
 }

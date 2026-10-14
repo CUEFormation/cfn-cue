@@ -13,27 +13,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::ServiceCatalog::CloudFormationProduct
-#Properties: close({
-	AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	Description?:    strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
-	Distributor?:    strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:           strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
-	Owner!:          strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
-	ProductType?: "CLOUD_FORMATION_TEMPLATE" |
-		"MARKETPLACE_AMI" |
-		"MARKETPLACE_CAR" |
-		"TERRAFORM_OPEN_SOURCE" |
-		"TERRAFORM_CLOUD" |
-		"EXTERNAL" |
-		fn.#StringExpression
-	ProvisioningArtifactParameters?: [...#ProvisioningArtifactProperties] | fn.#ListExpression
-	ReplaceProvisioningArtifacts?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SourceConnection?:             #SourceConnection | fn.#ObjectExpression
-	SupportDescription?:           strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
-	SupportEmail?:                 strings.MaxRunes(254) & strings.MinRunes(0) | fn.#StringExpression
-	SupportUrl?:                   strings.MaxRunes(2083) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:                         list.MaxItems(20) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ServiceCatalog::CloudFormationProduct"
+	Properties!: close({
+		AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		Description?:    strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
+		Distributor?:    strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:           strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
+		Owner!:          strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
+		ProductType?: "CLOUD_FORMATION_TEMPLATE" |
+			"MARKETPLACE_AMI" |
+			"MARKETPLACE_CAR" |
+			"TERRAFORM_OPEN_SOURCE" |
+			"TERRAFORM_CLOUD" |
+			"EXTERNAL" |
+			fn.#StringExpression
+		ProvisioningArtifactParameters?: [...#ProvisioningArtifactProperties] | fn.#ListExpression
+		ReplaceProvisioningArtifacts?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		SourceConnection?:   #SourceConnection | fn.#ObjectExpression
+		SupportDescription?: strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
+		SupportEmail?:       strings.MaxRunes(254) & strings.MinRunes(0) | fn.#StringExpression
+		SupportUrl?:         strings.MaxRunes(2083) & strings.MinRunes(0) | fn.#StringExpression
+		Tags?:               list.MaxItems(20) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CodeStarParameters: close({
 	ArtifactPath!:  strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
@@ -71,7 +81,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceCatalog::CloudFormationProduct"
-	Properties!: #Properties
-}

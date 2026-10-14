@@ -13,25 +13,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataSync::LocationEFS.
-#Properties: close({
-	AccessPointArn?: strings.MaxRunes(128) &
-	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):elasticfilesystem:[a-z\\-0-9]+:[0-9]{12}:access-point/fsap-[0-9a-f]{8,40}$" |
-	fn.#StringExpression
-	Ec2Config!: #Ec2Config
-	EfsFilesystemArn?: strings.MaxRunes(128) &
-	strings.MinRunes(0) &
-	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):elasticfilesystem:[a-z\\-0-9]*:[0-9]{12}:file-system/fs-.*$" |
-	fn.#StringExpression
-	FileSystemAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(128) &
-	strings.MinRunes(0) &
-	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*$" |
-	fn.#StringExpression
-	InTransitEncryption?: "NONE" | "TLS1_2" | fn.#StringExpression
-	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataSync::LocationEFS"
+	Properties!: close({
+		AccessPointArn?: strings.MaxRunes(128) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):elasticfilesystem:[a-z\\-0-9]+:[0-9]{12}:access-point/fsap-[0-9a-f]{8,40}$" |
+		fn.#StringExpression
+		Ec2Config!: #Ec2Config
+		EfsFilesystemArn?: strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):elasticfilesystem:[a-z\\-0-9]*:[0-9]{12}:file-system/fs-.*$" |
+		fn.#StringExpression
+		FileSystemAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*$" |
+		fn.#StringExpression
+		InTransitEncryption?: "NONE" | "TLS1_2" | fn.#StringExpression
+		Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Ec2Config: close({
 	SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [
@@ -53,7 +56,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataSync::LocationEFS"
-	Properties!: #Properties
-}

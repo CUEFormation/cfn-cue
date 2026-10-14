@@ -13,65 +13,74 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::Campaign
-#Properties: close({
-	AdditionalTreatments?:        [...#WriteTreatmentResource] | fn.#ListExpression
-	ApplicationId!:               string | fn.#StringExpression
-	CampaignHook?:                #CampaignHook
-	CustomDeliveryConfiguration?: #CustomDeliveryConfiguration
-	Description?:                 string | fn.#StringExpression
-	HoldoutPercent?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	IsPaused?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Limits?:               #Limits
-	MessageConfiguration?: #MessageConfiguration
-	Name!:                 string | fn.#StringExpression
-	Priority?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Schedule!:  #Schedule
-	SegmentId!: string | fn.#StringExpression
-	SegmentVersion?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?:                  fn.#Object & {...} | string | fn.#StringObjectExpression
-	TemplateConfiguration?: #TemplateConfiguration
-	TreatmentDescription?:  string | fn.#StringExpression
-	TreatmentName?:         string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Pinpoint::Campaign"
+	Properties!: close({
+		AdditionalTreatments?:        [...#WriteTreatmentResource] | fn.#ListExpression
+		ApplicationId!:               string | fn.#StringExpression
+		CampaignHook?:                #CampaignHook
+		CustomDeliveryConfiguration?: #CustomDeliveryConfiguration
+		Description?:                 string | fn.#StringExpression
+		HoldoutPercent?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		IsPaused?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Limits?:               #Limits
+		MessageConfiguration?: #MessageConfiguration
+		Name!:                 string | fn.#StringExpression
+		Priority?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Schedule!:  #Schedule
+		SegmentId!: string | fn.#StringExpression
+		SegmentVersion?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?:                  fn.#Object & {...} | string | fn.#StringObjectExpression
+		TemplateConfiguration?: #TemplateConfiguration
+		TreatmentDescription?:  string | fn.#StringExpression
+		TreatmentName?:         string | fn.#StringExpression
+	})
+}
 
 #CampaignCustomMessage: close({Data?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -363,7 +372,3 @@ fn.#ObjectExpression
 	TreatmentName?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pinpoint::Campaign"
-	Properties!: #Properties
-}

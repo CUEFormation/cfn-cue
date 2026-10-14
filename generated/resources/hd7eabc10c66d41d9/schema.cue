@@ -12,12 +12,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaTailor::VodSource Resource Type
-#Properties: close({
-	HttpPackageConfigurations!: [...#HttpPackageConfiguration] | fn.#ListExpression
-	SourceLocationName!:        string | fn.#StringExpression
-	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VodSourceName!:             string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaTailor::VodSource"
+	Properties!: close({
+		HttpPackageConfigurations!: [...#HttpPackageConfiguration] | fn.#ListExpression
+		SourceLocationName!:        string | fn.#StringExpression
+		Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VodSourceName!:             string | fn.#StringExpression
+	})
+}
 
 #HttpPackageConfiguration: close({
 	Path!:        string | fn.#StringExpression
@@ -33,7 +36,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Type: "DASH" | "HLS" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaTailor::VodSource"
-	Properties!: #Properties
-}

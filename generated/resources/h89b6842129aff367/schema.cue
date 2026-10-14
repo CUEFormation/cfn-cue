@@ -16,42 +16,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EMR::InstanceFleetConfig
-#Properties: close({
-	ClusterId!:            strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	InstanceFleetType!:    string | fn.#StringExpression
-	InstanceTypeConfigs?:  [...#InstanceTypeConfig] | fn.#ListExpression
-	LaunchSpecifications?: #InstanceFleetProvisioningSpecifications | fn.#ObjectExpression
-	Name?:                 string | fn.#StringExpression
-	ResizeSpecifications?: #InstanceFleetResizingSpecifications | fn.#ObjectExpression
-	TargetOnDemandCapacity?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TargetSpotCapacity?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMR::InstanceFleetConfig"
+	Properties!: close({
+		ClusterId!:            strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		InstanceFleetType!:    string | fn.#StringExpression
+		InstanceTypeConfigs?:  [...#InstanceTypeConfig] | fn.#ListExpression
+		LaunchSpecifications?: #InstanceFleetProvisioningSpecifications | fn.#ObjectExpression
+		Name?:                 string | fn.#StringExpression
+		ResizeSpecifications?: #InstanceFleetResizingSpecifications | fn.#ObjectExpression
+		TargetOnDemandCapacity?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TargetSpotCapacity?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #ApplicationConfiguration: close({
 	Classification?: string | fn.#StringExpression
@@ -293,7 +300,3 @@ fn.#ObjectExpression
 	VolumeType!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMR::InstanceFleetConfig"
-	Properties!: #Properties
-}

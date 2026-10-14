@@ -12,11 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSM::ResourcePolicy
-#Properties: close({
-	Policy!:      fn.#Object & {...} | string | fn.#StringObjectExpression
-	ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSM::ResourcePolicy"
-	Properties!: #Properties
+	Type!: "AWS::SSM::ResourcePolicy"
+	Properties!: close({
+		Policy!:      fn.#Object & {...} | string | fn.#StringObjectExpression
+		ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	})
 }

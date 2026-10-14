@@ -9,13 +9,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::Group
-#Properties: close({
-	InitialVersion?: #GroupVersion
-	Name!:           string | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Greengrass::Group"
+	Properties!: close({
+		InitialVersion?: #GroupVersion
+		Name!:           string | fn.#StringExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
+}
 
 #GroupVersion: close({
 	ConnectorDefinitionVersionArn?:    string | fn.#StringExpression
@@ -27,7 +30,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SubscriptionDefinitionVersionArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Greengrass::Group"
-	Properties!: #Properties
-}

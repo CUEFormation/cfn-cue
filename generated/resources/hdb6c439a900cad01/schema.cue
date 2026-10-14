@@ -16,48 +16,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApiGatewayV2::Integration
-#Properties: close({
-	ApiId!:                   string | fn.#StringExpression
-	ConnectionId?:            string | fn.#StringExpression
-	ConnectionType?:          string | fn.#StringExpression
-	ContentHandlingStrategy?: string | fn.#StringExpression
-	CredentialsArn?:          =~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role|user|group)\\/.*" | fn.#StringExpression
-	Description?:             string | fn.#StringExpression
-	IntegrationMethod?:       string | fn.#StringExpression
-	IntegrationSubtype?:      string | fn.#StringExpression
-	IntegrationType!:         string | fn.#StringExpression
-	IntegrationUri?:          string | fn.#StringExpression
-	PassthroughBehavior?:     string | fn.#StringExpression
-	PayloadFormatVersion?:    string | fn.#StringExpression
-	RequestParameters?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::Integration"
+	Properties!: close({
+		ApiId!:                   string | fn.#StringExpression
+		ConnectionId?:            string | fn.#StringExpression
+		ConnectionType?:          string | fn.#StringExpression
+		ContentHandlingStrategy?: string | fn.#StringExpression
+		CredentialsArn?:       =~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role|user|group)\\/.*" | fn.#StringExpression
+		Description?:          string | fn.#StringExpression
+		IntegrationMethod?:    string | fn.#StringExpression
+		IntegrationSubtype?:   string | fn.#StringExpression
+		IntegrationType!:      string | fn.#StringExpression
+		IntegrationUri?:       string | fn.#StringExpression
+		PassthroughBehavior?:  string | fn.#StringExpression
+		PayloadFormatVersion?: string | fn.#StringExpression
+		RequestParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	RequestTemplates?: close({
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		RequestTemplates?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	ResponseParameters?: close({
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		ResponseParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: #ResponseParameterMap}}) |
-	fn.#ObjectExpression
-	TemplateSelectionExpression?: string | fn.#StringExpression
-	TimeoutInMillis?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TlsConfig?: #TlsConfig | fn.#ObjectExpression
-})
+			{[=~"[a-zA-Z0-9]+"]: #ResponseParameterMap}}) |
+		fn.#ObjectExpression
+		TemplateSelectionExpression?: string | fn.#StringExpression
+		TimeoutInMillis?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TlsConfig?: #TlsConfig | fn.#ObjectExpression
+	})
+}
 
 #ResponseParameter: close({
 	Destination?: string | fn.#StringExpression
@@ -76,7 +81,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TlsConfig: close({ServerNameToVerify?: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::Integration"
-	Properties!: #Properties
-}

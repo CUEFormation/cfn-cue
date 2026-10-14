@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::QuickConnect
-#Properties: close({
-	Description?: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Name!:        strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	QuickConnectConfig!: #QuickConnectConfig | fn.#ObjectExpression
-	Tags?:               list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::QuickConnect"
+	Properties!: close({
+		Description?: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Name!:        strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+		QuickConnectConfig!: #QuickConnectConfig | fn.#ObjectExpression
+		Tags?:               list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ContactFlowArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" |
 	fn.#StringExpression
@@ -64,7 +67,3 @@ fn.#ObjectExpression
 	UserArn!:        #UserArn
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::QuickConnect"
-	Properties!: #Properties
-}

@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Wireless Device Import Tasks
-#Properties: close({
-	DestinationName!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-_]+" | fn.#StringExpression
-	Sidewalk!: close({
-		DeviceCreationFile?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Role?:                    #Role
-		SidewalkManufacturingSn?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTWireless::WirelessDeviceImportTask"
+	Properties!: close({
+		DestinationName!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-_]+" | fn.#StringExpression
+		Sidewalk!: close({
+			DeviceCreationFile?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+			Role?:                    #Role
+			SidewalkManufacturingSn?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DeviceCreationFileList: [...strings.MaxRunes(1024) | fn.#StringExpression] | fn.#ListExpression
 
@@ -33,7 +36,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTWireless::WirelessDeviceImportTask"
-	Properties!: #Properties
-}

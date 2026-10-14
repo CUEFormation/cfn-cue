@@ -20,32 +20,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // channel exchange messages within it. Every channel operation is performed on
 // behalf of an AppInstanceUser or AppInstanceBot, whose ARN is supplied as
 // ChimeBearer and forms part of the channel's CloudFormation identifier.
-#Properties: close({
-	AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-	ChannelId?: strings.MaxRunes(64) &
-	strings.MinRunes(1) &
-	=~"^[A-Za-z0-9]([A-Za-z0-9\\:\\-\\_\\.\\@]{0,62}[A-Za-z0-9])?$" |
-	fn.#StringExpression
-	ChimeBearer!:                 strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-	ElasticChannelConfiguration?: #ElasticChannelConfiguration
-	ExpirationSettings?:          #ExpirationSettings
-	MemberArns?: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Metadata?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Mode?:     "UNRESTRICTED" | "RESTRICTED" | fn.#StringExpression
-	ModeratorArns?: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Name!: strings.MaxRunes(256) &
-	strings.MinRunes(1) &
-	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}𐀀-\U0010ffff]*$" |
-	fn.#StringExpression
-	Privacy?: "PUBLIC" | "PRIVATE" | fn.#StringExpression
-	Tags?:    list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Chime::Channel"
+	Properties!: close({
+		AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
+		ChannelId?: strings.MaxRunes(64) &
+		strings.MinRunes(1) &
+		=~"^[A-Za-z0-9]([A-Za-z0-9\\:\\-\\_\\.\\@]{0,62}[A-Za-z0-9])?$" |
+		fn.#StringExpression
+		ChimeBearer!:                 strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
+		ElasticChannelConfiguration?: #ElasticChannelConfiguration
+		ExpirationSettings?:          #ExpirationSettings
+		MemberArns?: list.MaxItems(10) & list.MinItems(1) & [
+			...strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Metadata?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Mode?:     "UNRESTRICTED" | "RESTRICTED" | fn.#StringExpression
+		ModeratorArns?: list.MaxItems(10) & list.MinItems(1) & [
+			...strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Name!: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}𐀀-\U0010ffff]*$" |
+		fn.#StringExpression
+		Privacy?: "PUBLIC" | "PRIVATE" | fn.#StringExpression
+		Tags?:    list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ElasticChannelConfiguration: close({
 	MaximumSubChannels!: int & >=2 |
@@ -129,7 +132,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Chime::Channel"
-	Properties!: #Properties
-}

@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::EC2::TransitGatewayPolicyTableAssociation Resource Definition
-#Properties: close({
-	TransitGatewayAttachmentId!:  string | fn.#StringExpression
-	TransitGatewayPolicyTableId!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TransitGatewayPolicyTableAssociation"
-	Properties!: #Properties
+	Type!: "AWS::EC2::TransitGatewayPolicyTableAssociation"
+	Properties!: close({
+		TransitGatewayAttachmentId!:  string | fn.#StringExpression
+		TransitGatewayPolicyTableId!: string | fn.#StringExpression
+	})
 }

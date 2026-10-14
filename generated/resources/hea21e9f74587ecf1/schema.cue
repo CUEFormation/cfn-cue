@@ -13,12 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A domain unit enables you to easily organize your assets and other domain
 // entities under specific business units and teams.
-#Properties: close({
-	Description?:                strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	DomainIdentifier!:           =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	Name!:                       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-	ParentDomainUnitIdentifier!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_-]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataZone::DomainUnit"
+	Properties!: close({
+		Description?:      strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		Name!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
+		ParentDomainUnitIdentifier!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_-]+$" |
+		fn.#StringExpression
+	})
+}
 
 #DomainUnitGroupProperties: close({GroupId?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -29,7 +33,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #DomainUnitUserProperties: close({UserId?: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::DomainUnit"
-	Properties!: #Properties
-}

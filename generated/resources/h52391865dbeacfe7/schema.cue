@@ -14,13 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates a monitor for specific network flows between local and remote
 // resources to monitor network performance for workloads.
-#Properties: close({
-	LocalResources!:  list.MinItems(1) & [...#MonitorLocalResource] | fn.#ListExpression
-	MonitorName!:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	RemoteResources?: [...#MonitorRemoteResource] | fn.#ListExpression
-	ScopeArn?:        strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*$" | fn.#StringExpression
-	Tags?:            list.MaxItems(200) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkFlowMonitor::Monitor"
+	Properties!: close({
+		LocalResources!:  list.MinItems(1) & [...#MonitorLocalResource] | fn.#ListExpression
+		MonitorName!:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+		RemoteResources?: [...#MonitorRemoteResource] | fn.#ListExpression
+		ScopeArn?:        strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*$" | fn.#StringExpression
+		Tags?:            list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #MonitorLocalResource: close({
 	Identifier!: string | fn.#StringExpression
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkFlowMonitor::Monitor"
-	Properties!: #Properties
-}

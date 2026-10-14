@@ -18,10 +18,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A distribution tells CloudFront where you want content to be delivered from,
 // and the details about how to track and manage content delivery.
-#Properties: close({
-	DistributionConfig!: #DistributionConfig | fn.#ObjectExpression
-	Tags?:               [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::Distribution"
+	Properties!: close({
+		DistributionConfig!: #DistributionConfig | fn.#ObjectExpression
+		Tags?:               [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CacheBehavior: close({
 	AllowedMethods?: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -943,7 +946,3 @@ fn.#ObjectExpression
 	VpcOriginId!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::Distribution"
-	Properties!: #Properties
-}

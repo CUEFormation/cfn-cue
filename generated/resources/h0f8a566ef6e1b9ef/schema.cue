@@ -16,47 +16,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::AutoScaling::WarmPool.
-#Properties: close({
-	AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceReusePolicy?:  #InstanceReusePolicy
-	MaxGroupPreparedCapacity?: int & >=-1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=-1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MinSize?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PoolState?: "Hibernated" | "Running" | "Stopped" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AutoScaling::WarmPool"
+	Properties!: close({
+		AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceReusePolicy?:  #InstanceReusePolicy
+		MaxGroupPreparedCapacity?: int & >=-1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=-1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MinSize?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PoolState?: "Hibernated" | "Running" | "Stopped" | fn.#StringExpression
+	})
+}
 
 #InstanceReusePolicy: close(
 	{ReuseOnScaleIn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AutoScaling::WarmPool"
-	Properties!: #Properties
-}

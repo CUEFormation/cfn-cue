@@ -24,39 +24,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // number of roles you can create, see [IAM and
 // quotas](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html)
 // in the *IAM User Guide*.
-#Properties: close({
-	AssumeRolePolicyDocument!: iam.#TrustPolicyValue
-	Description?: strings.MaxRunes(1000) &
-	strings.MinRunes(0) &
-	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*$" |
-	fn.#StringExpression
-	ManagedPolicyArns?: list.UniqueItems() & [...] & [
-		...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	MaxSessionDuration?: int & <=43200 & >=3600 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=43200 &
-							>=3600,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
-	fn.#StringExpression
-	PermissionsBoundary?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	Policies?:            [...#Policy] | fn.#ListExpression
-	RoleName?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	Tags?:                list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IAM::Role"
+	Properties!: close({
+		AssumeRolePolicyDocument!: iam.#TrustPolicyValue
+		Description?: strings.MaxRunes(1000) &
+		strings.MinRunes(0) &
+		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*$" |
+		fn.#StringExpression
+		ManagedPolicyArns?: list.UniqueItems() & [...] & [
+			...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		MaxSessionDuration?: int & <=43200 & >=3600 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=43200 &
+								>=3600,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Path?: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
+		fn.#StringExpression
+		PermissionsBoundary?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+		Policies?:            [...#Policy] | fn.#ListExpression
+		RoleName?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+		Tags?:                list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Policy: close({
 	PolicyDocument!: iam.#IdentityPolicyValue
@@ -69,7 +76,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IAM::Role"
-	Properties!: #Properties
-}

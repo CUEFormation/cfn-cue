@@ -16,15 +16,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::IoTSiteWise::Pipeline. A pipeline defines a directed
 // acyclic graph (DAG) of compute nodes, where each node references a task
 // definition and can declare dependencies on other nodes.
-#Properties: close({
-	Computations!: list.MaxItems(50) & list.MinItems(1) & [...#ComputeNode] | fn.#ListExpression
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	EnvironmentVariables?: #EnvironmentVariablesMap | fn.#ObjectExpression
-	PipelineName!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Tags?:                 list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-	WorkspaceName!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTSiteWise::Pipeline"
+	Properties!: close({
+		Computations!: list.MaxItems(50) & list.MinItems(1) & [...#ComputeNode] | fn.#ListExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
+		EnvironmentVariables?: #EnvironmentVariablesMap | fn.#ObjectExpression
+		PipelineName!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Tags?:                 list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		WorkspaceName!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	})
+}
 
 #ComputeNode: close({
 	ComputeNodeName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
@@ -47,7 +50,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSiteWise::Pipeline"
-	Properties!: #Properties
-}

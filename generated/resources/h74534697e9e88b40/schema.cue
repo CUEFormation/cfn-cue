@@ -14,24 +14,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::Session Resource Type
-#Properties: close({
-	EncryptionKeyArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
-	fn.#StringExpression
-	SessionMetadata?: struct.MaxFields(50) & close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::Session"
+	Properties?: close({
+		EncryptionKeyArn?: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		fn.#StringExpression
+		SessionMetadata?: struct.MaxFields(50) & close({
 
-		{[=~"^[\\s\\S]{1,100}$"]: strings.MaxRunes(5000) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...#Tag] | fn.#ListExpression
-})
+			{[=~"^[\\s\\S]{1,100}$"]: strings.MaxRunes(5000) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Tags?: list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::Session"
-	Properties?: #Properties
-}

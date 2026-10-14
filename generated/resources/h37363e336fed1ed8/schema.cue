@@ -17,14 +17,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::PromptVersion Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	PromptArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:prompt/[0-9a-zA-Z]{10})$" |
-	fn.#StringExpression
-	Tags?: #TagsMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::PromptVersion"
+	Properties!: close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		PromptArn!: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:prompt/[0-9a-zA-Z]{10})$" |
+		fn.#StringExpression
+		Tags?: #TagsMap
+	})
+}
 
 #AdditionalModelRequestFields: fn.#Object & {...} | fn.#ObjectExpression
 
@@ -214,7 +217,3 @@ fn.#ObjectExpression
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::PromptVersion"
-	Properties!: #Properties
-}

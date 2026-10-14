@@ -17,61 +17,78 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::RDS::Deployment. Creates and manages an
 // Amazon RDS Blue/Green Deployment.
-#Properties: close({
-	BlueGreenDeploymentName!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z](?:-?[a-zA-Z0-9]+)*$" |
-	fn.#StringExpression
-	Source!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" | fn.#StringExpression
-	Tags?:   [...#Tag] | fn.#ListExpression
-	TargetAllocatedStorage?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TargetDBClusterParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TargetDBInstanceClass?: strings.MaxRunes(20) & strings.MinRunes(5) & =~"^db\\.[0-9a-z]{2,6}\\.[0-9a-z]{4,9}$" |
-	fn.#StringExpression
-	TargetDBParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TargetEngineVersion?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z-_.]+$" | fn.#StringExpression
-	TargetIops?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TargetStorageThroughput?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TargetStorageType?:          string | fn.#StringExpression
-	UpgradeTargetStorageConfig?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RDS::Deployment"
+	Properties!: close({
+		BlueGreenDeploymentName!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z](?:-?[a-zA-Z0-9]+)*$" |
+		fn.#StringExpression
+		Source!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+		TargetAllocatedStorage?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TargetDBClusterParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		TargetDBInstanceClass?: strings.MaxRunes(20) & strings.MinRunes(5) & =~"^db\\.[0-9a-z]{2,6}\\.[0-9a-z]{4,9}$" |
+		fn.#StringExpression
+		TargetDBParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		TargetEngineVersion?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z-_.]+$" | fn.#StringExpression
+		TargetIops?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TargetStorageThroughput?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TargetStorageType?: string | fn.#StringExpression
+		UpgradeTargetStorageConfig?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+	})
+}
 
 #DeploymentTask: close({
 	TaskName?:   string | fn.#StringExpression
@@ -93,7 +110,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RDS::Deployment"
-	Properties!: #Properties
-}

@@ -17,18 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::Topic Resource Type.
-#Properties: close({
-	AwsAccountId?:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	ConfigOptions?:      #TopicConfigOptions
-	CustomInstructions?: #CustomInstructions
-	DataSets?:           [...#DatasetMetadata] | fn.#ListExpression
-	Description?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FolderArns?:         list.MaxItems(20) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Name?:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	TopicId?:            strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_.\\\\+]*$" | fn.#StringExpression
-	UserExperienceVersion?: #TopicUserExperienceVersion
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::Topic"
+	Properties?: close({
+		AwsAccountId?:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		ConfigOptions?:      #TopicConfigOptions
+		CustomInstructions?: #CustomInstructions
+		DataSets?:           [...#DatasetMetadata] | fn.#ListExpression
+		Description?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		FolderArns?:         list.MaxItems(20) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+		Name?:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		TopicId?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_.\\\\+]*$" | fn.#StringExpression
+		UserExperienceVersion?: #TopicUserExperienceVersion
+	})
+}
 
 #AggregationFunctionParameters: close({
 
@@ -416,7 +419,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #UndefinedSpecifiedValueType: "LEAST" | "MOST" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::Topic"
-	Properties?: #Properties
-}

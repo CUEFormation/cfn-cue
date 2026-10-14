@@ -21,26 +21,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see
 // [](https://docs.aws.amazon.com/vpn/latest/s2svpn/VPC_VPN.html) in the *User
 // Guide*.
-#Properties: close({
-	CustomerGatewayId!:     string | fn.#StringExpression
-	EnableAcceleration?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LocalIpv4NetworkCidr?:  string | fn.#StringExpression
-	LocalIpv6NetworkCidr?:  string | fn.#StringExpression
-	OutsideIpAddressType?:  string | fn.#StringExpression
-	PreSharedKeyStorage?:   "Standard" | "SecretsManager" | fn.#StringExpression
-	RemoteIpv4NetworkCidr?: string | fn.#StringExpression
-	RemoteIpv6NetworkCidr?: string | fn.#StringExpression
-	StaticRoutesOnly?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                  [...#Tag] | fn.#ListExpression
-	TransitGatewayId?:      string | fn.#StringExpression
-	TransportTransitGatewayAttachmentId?: string | fn.#StringExpression
-	TunnelBandwidth?:                     "standard" | "large" | fn.#StringExpression
-	TunnelInsideIpVersion?:               string | fn.#StringExpression
-	Type!:                                string | fn.#StringExpression
-	VpnConcentratorId?:                   string | fn.#StringExpression
-	VpnGatewayId?:                        string | fn.#StringExpression
-	VpnTunnelOptionsSpecifications?:      [...#VpnTunnelOptionsSpecification] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VPNConnection"
+	Properties!: close({
+		CustomerGatewayId!:     string | fn.#StringExpression
+		EnableAcceleration?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		LocalIpv4NetworkCidr?:  string | fn.#StringExpression
+		LocalIpv6NetworkCidr?:  string | fn.#StringExpression
+		OutsideIpAddressType?:  string | fn.#StringExpression
+		PreSharedKeyStorage?:   "Standard" | "SecretsManager" | fn.#StringExpression
+		RemoteIpv4NetworkCidr?: string | fn.#StringExpression
+		RemoteIpv6NetworkCidr?: string | fn.#StringExpression
+		StaticRoutesOnly?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                  [...#Tag] | fn.#ListExpression
+		TransitGatewayId?:      string | fn.#StringExpression
+		TransportTransitGatewayAttachmentId?: string | fn.#StringExpression
+		TunnelBandwidth?:                     "standard" | "large" | fn.#StringExpression
+		TunnelInsideIpVersion?:               string | fn.#StringExpression
+		Type!:                                string | fn.#StringExpression
+		VpnConcentratorId?:                   string | fn.#StringExpression
+		VpnGatewayId?:                        string | fn.#StringExpression
+		VpnTunnelOptionsSpecifications?:      [...#VpnTunnelOptionsSpecification] | fn.#ListExpression
+	})
+}
 
 #CloudwatchLogOptionsSpecification: close({
 	BgpLogEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -208,7 +211,3 @@ fn.#ObjectExpression
 	TunnelInsideIpv6Cidr?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VPNConnection"
-	Properties!: #Properties
-}

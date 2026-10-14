@@ -16,13 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	ContentType!: "JAR" | "ZIP" | fn.#StringExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Location!:    #CustomPluginLocation
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:        [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KafkaConnect::CustomPlugin"
+	Properties!: close({
+		ContentType!: "JAR" | "ZIP" | fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Location!:    #CustomPluginLocation
+		Name!:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CustomPluginFileDescription: close({
 	FileMd5?: string | fn.#StringExpression
@@ -57,7 +60,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KafkaConnect::CustomPlugin"
-	Properties!: #Properties
-}

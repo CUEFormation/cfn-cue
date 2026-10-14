@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaPackage::PackagingGroup
-#Properties: close({
-	Authorization?:    #Authorization | fn.#ObjectExpression
-	EgressAccessLogs?: #LogConfiguration | fn.#ObjectExpression
-	Id!:               strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaPackage::PackagingGroup"
+	Properties!: close({
+		Authorization?:    #Authorization | fn.#ObjectExpression
+		EgressAccessLogs?: #LogConfiguration | fn.#ObjectExpression
+		Id!:               strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Authorization: close({
 	CdnIdentifierSecret!: string | fn.#StringExpression
@@ -35,7 +38,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaPackage::PackagingGroup"
-	Properties!: #Properties
-}

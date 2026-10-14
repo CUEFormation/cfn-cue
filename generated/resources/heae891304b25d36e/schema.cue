@@ -14,18 +14,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IAM::SAMLProvider
-#Properties: close({
-	AddPrivateKey?: strings.MaxRunes(16384) &
-	strings.MinRunes(1) &
-	=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
-	fn.#StringExpression
-	AssertionEncryptionMode?: "Allowed" | "Required" | fn.#StringExpression
-	Name?:                    strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w._-]+" | fn.#StringExpression
-	PrivateKeyList?:          list.MaxItems(2) & [...#SAMLPrivateKey] | fn.#ListExpression
-	RemovePrivateKey?:        strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+" | fn.#StringExpression
-	SamlMetadataDocument?:    strings.MaxRunes(10000000) & strings.MinRunes(1000) | fn.#StringExpression
-	Tags?:                    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IAM::SAMLProvider"
+	Properties?: close({
+		AddPrivateKey?: strings.MaxRunes(16384) &
+		strings.MinRunes(1) &
+		=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
+		fn.#StringExpression
+		AssertionEncryptionMode?: "Allowed" | "Required" | fn.#StringExpression
+		Name?:                    strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w._-]+" | fn.#StringExpression
+		PrivateKeyList?:          list.MaxItems(2) & [...#SAMLPrivateKey] | fn.#ListExpression
+		RemovePrivateKey?:        strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+" | fn.#StringExpression
+		SamlMetadataDocument?:    strings.MaxRunes(10000000) & strings.MinRunes(1000) | fn.#StringExpression
+		Tags?:                    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #SAMLPrivateKey: close({
 	KeyId!:     strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+" | fn.#StringExpression
@@ -38,7 +41,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IAM::SAMLProvider"
-	Properties?: #Properties
-}

@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::BridgeOutput
-#Properties: close({
-	BridgeArn!:     string | fn.#StringExpression
-	Name!:          string | fn.#StringExpression
-	NetworkOutput!: #BridgeNetworkOutput | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::BridgeOutput"
+	Properties!: close({
+		BridgeArn!:     string | fn.#StringExpression
+		Name!:          string | fn.#StringExpression
+		NetworkOutput!: #BridgeNetworkOutput | fn.#ObjectExpression
+	})
+}
 
 #BridgeNetworkOutput: close({
 	IpAddress!:   string | fn.#StringExpression
@@ -53,7 +56,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::BridgeOutput"
-	Properties!: #Properties
-}

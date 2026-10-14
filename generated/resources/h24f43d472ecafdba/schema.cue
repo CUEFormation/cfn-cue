@@ -17,58 +17,61 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::Agent Resource Type
-#Properties: close({
-	ActionGroups?:       [...#AgentActionGroup] | fn.#ListExpression
-	AgentCollaboration?: #AgentCollaboration
-	AgentCollaborators?: [...#AgentCollaborator] | fn.#ListExpression
-	AgentName!:          =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	AgentResourceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MaxRunes(2048) |
-	fn.#StringExpression
-	AutoPrepare?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CustomOrchestration?: #CustomOrchestration
-	CustomerEncryptionKeyArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
-	fn.#StringExpression
-	Description?:            strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	FoundationModel?:        #FoundationModel
-	GuardrailConfiguration?: #GuardrailConfiguration
-	IdleSessionTTLInSeconds?: <=5400 & >=60 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::Agent"
+	Properties!: close({
+		ActionGroups?:       [...#AgentActionGroup] | fn.#ListExpression
+		AgentCollaboration?: #AgentCollaboration
+		AgentCollaborators?: [...#AgentCollaborator] | fn.#ListExpression
+		AgentName!:          =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+		AgentResourceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MaxRunes(2048) |
+		fn.#StringExpression
+		AutoPrepare?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		CustomOrchestration?: #CustomOrchestration
+		CustomerEncryptionKeyArn?: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		fn.#StringExpression
+		Description?:            strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		FoundationModel?:        #FoundationModel
+		GuardrailConfiguration?: #GuardrailConfiguration
+		IdleSessionTTLInSeconds?: <=5400 & >=60 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=5400 &
+								>=60,
+							"g",
+							-1,
 							64,
-						) &
-							<=5400 &
-							>=60,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Instruction?:                 strings.MinRunes(40) | fn.#StringExpression
-	KnowledgeBases?:              [...#AgentKnowledgeBase] | fn.#ListExpression
-	MemoryConfiguration?:         #MemoryConfiguration
-	OrchestrationType?:           #OrchestrationType
-	PromptOverrideConfiguration?: #PromptOverrideConfiguration
-	SkipResourceInUseCheckOnDelete?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	Tags?:          #TagsMap
-	TestAliasTags?: #TagsMap
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Instruction?:                 strings.MinRunes(40) | fn.#StringExpression
+		KnowledgeBases?:              [...#AgentKnowledgeBase] | fn.#ListExpression
+		MemoryConfiguration?:         #MemoryConfiguration
+		OrchestrationType?:           #OrchestrationType
+		PromptOverrideConfiguration?: #PromptOverrideConfiguration
+		SkipResourceInUseCheckOnDelete?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Tags?:          #TagsMap
+		TestAliasTags?: #TagsMap
+	})
+}
 
 #APISchema: matchN(1, [close({S3!: #S3Identifier}), close({Payload!: string | fn.#StringExpression})]) |
 fn.#ValueExpression
@@ -378,7 +381,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Type: "string" | "number" | "integer" | "boolean" | "array" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::Agent"
-	Properties!: #Properties
-}

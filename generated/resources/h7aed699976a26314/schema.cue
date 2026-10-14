@@ -13,22 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::AccountAccess::Entitlement specifying an
 // entitlement for account access
-#Properties: close({
-	ApplicationArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(49) &
-	=~"^arn:[a-z0-9-]+:account-access:[a-z0-9]+(-[a-z0-9]+)*:[0-9]{12}:application/[a-zA-Z0-9-]+$" |
-	fn.#StringExpression
-	Entitlement!: close({
-		PrincipalRole!: close({
-			Principal!: #Principal
-			RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-				=~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$" |
-				fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AccountAccess::Entitlement"
+	Properties!: close({
+		ApplicationArn!: strings.MaxRunes(2048) &
+		strings.MinRunes(49) &
+		=~"^arn:[a-z0-9-]+:account-access:[a-z0-9]+(-[a-z0-9]+)*:[0-9]{12}:application/[a-zA-Z0-9-]+$" |
+		fn.#StringExpression
+		Entitlement!: close({
+			PrincipalRole!: close({
+				Principal!: #Principal
+				RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+					=~"^arn:[a-z0-9-]+:iam::[0-9]{12}:role\\/([a-zA-Z0-9+=,.@_-]+\\/)*[a-zA-Z0-9+=,.@_-]+$" |
+					fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-})
+	})
+}
 
 #Entitlement: close({PrincipalRole!: #PrincipalRoleEntitlement}) | fn.#ObjectExpression
 
@@ -57,7 +60,3 @@ fn.#ObjectExpression
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AccountAccess::Entitlement"
-	Properties!: #Properties
-}

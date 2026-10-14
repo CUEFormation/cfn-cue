@@ -17,20 +17,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The resource schema for creating an Amazon Connect Customer Profiles Integration.
-#Properties: close({
-	DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	EventTriggerNames?: list.MaxItems(1) & list.MinItems(1) & [
-		...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	FlowDefinition?:  #FlowDefinition
-	ObjectTypeName?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" | fn.#StringExpression
-	ObjectTypeNames?: [...#ObjectTypeMapping] | fn.#ListExpression
-	Scope?: ("PROFILE" | "DOMAIN") & strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	Uri?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CustomerProfiles::Integration"
+	Properties!: close({
+		DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		EventTriggerNames?: list.MaxItems(1) & list.MinItems(1) & [
+			...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		FlowDefinition?: #FlowDefinition
+		ObjectTypeName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" |
+		fn.#StringExpression
+		ObjectTypeNames?: [...#ObjectTypeMapping] | fn.#ListExpression
+		Scope?: ("PROFILE" | "DOMAIN") & strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Uri?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #ConnectorOperator: close({
 	Marketo?:    #MarketoConnectorOperator
@@ -332,7 +336,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #ZendeskSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CustomerProfiles::Integration"
-	Properties!: #Properties
-}

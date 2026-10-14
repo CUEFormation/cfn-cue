@@ -12,18 +12,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::VPCEndpointService
-#Properties: close({
-	AcceptanceRequired?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ContributorInsightsEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	GatewayLoadBalancerArns?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	NetworkLoadBalancerArns?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	PayerResponsibility?:         string | fn.#StringExpression
-	PrivateDnsName?:              string | fn.#StringExpression
-	PrivateDnsNameConfiguration?: close({}) | fn.#ObjectExpression
-	SupportedIpAddressTypes?:     [...#IpAddressType] | fn.#ListExpression
-	SupportedRegions?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                        [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VPCEndpointService"
+	Properties?: close({
+		AcceptanceRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ContributorInsightsEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		GatewayLoadBalancerArns?:     [...string | fn.#StringExpression] | fn.#ListExpression
+		NetworkLoadBalancerArns?:     [...string | fn.#StringExpression] | fn.#ListExpression
+		PayerResponsibility?:         string | fn.#StringExpression
+		PrivateDnsName?:              string | fn.#StringExpression
+		PrivateDnsNameConfiguration?: close({}) | fn.#ObjectExpression
+		SupportedIpAddressTypes?:     [...#IpAddressType] | fn.#ListExpression
+		SupportedRegions?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:                        [...#Tag] | fn.#ListExpression
+	})
+}
 
 #IpAddressType: "ipv4" | "ipv6" | fn.#StringExpression
 
@@ -40,7 +50,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VPCEndpointService"
-	Properties?: #Properties
-}

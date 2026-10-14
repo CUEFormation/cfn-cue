@@ -17,26 +17,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApplicationInsights::Application
-#Properties: close({
-	AttachMissingPermission?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AutoConfigurationEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CWEMonitorEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ComponentMonitoringSettings?: list.MinItems(1) & [...#ComponentMonitoringSetting] | fn.#ListExpression
-	CustomComponents?:            list.MinItems(1) & [...#CustomComponent] | fn.#ListExpression
-	GroupingType?:                "ACCOUNT_BASED" | fn.#StringExpression
-	LogPatternSets?:              list.MinItems(1) & [...#LogPatternSet] | fn.#ListExpression
-	OpsCenterEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OpsItemSNSTopicArn?: strings.MaxRunes(300) &
-	strings.MinRunes(20) &
-	=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
-	fn.#StringExpression
-	ResourceGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
-	SNSNotificationArn?: strings.MaxRunes(300) &
-	strings.MinRunes(20) &
-	=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApplicationInsights::Application"
+	Properties!: close({
+		AttachMissingPermission?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AutoConfigurationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		CWEMonitorEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ComponentMonitoringSettings?: list.MinItems(1) & [...#ComponentMonitoringSetting] | fn.#ListExpression
+		CustomComponents?:            list.MinItems(1) & [...#CustomComponent] | fn.#ListExpression
+		GroupingType?:                "ACCOUNT_BASED" | fn.#StringExpression
+		LogPatternSets?:              list.MinItems(1) & [...#LogPatternSet] | fn.#ListExpression
+		OpsCenterEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		OpsItemSNSTopicArn?: strings.MaxRunes(300) &
+		strings.MinRunes(20) &
+		=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
+		fn.#StringExpression
+		ResourceGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
+		SNSNotificationArn?: strings.MaxRunes(300) &
+		strings.MinRunes(20) &
+		=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Alarm: close({
 	AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -201,7 +204,3 @@ fn.#ObjectExpression
 	PatternSet?:   strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApplicationInsights::Application"
-	Properties!: #Properties
-}

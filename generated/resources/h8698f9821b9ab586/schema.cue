@@ -13,60 +13,63 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QuickSight::OAuthClientApplication Resource Type
-#Properties: close({
-	ClientId?:     strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" | fn.#StringExpression
-	ClientSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" | fn.#StringExpression
-	DataSourceType?: "ADOBE_ANALYTICS" |
-		"AMAZON_ELASTICSEARCH" |
-		"AMAZON_OPENSEARCH" |
-		"ATHENA" |
-		"AURORA" |
-		"AURORA_POSTGRESQL" |
-		"AWS_IOT_ANALYTICS" |
-		"BIGQUERY" |
-		"CONFLUENCE" |
-		"DATABRICKS" |
-		"EXASOL" |
-		"GITHUB" |
-		"GOOGLESHEETS" |
-		"GOOGLE_DRIVE" |
-		"JIRA" |
-		"MARIADB" |
-		"MYSQL" |
-		"ONE_DRIVE" |
-		"ORACLE" |
-		"POSTGRESQL" |
-		"PRESTO" |
-		"QBUSINESS" |
-		"REDSHIFT" |
-		"S3" |
-		"S3_KNOWLEDGE_BASE" |
-		"S3_TABLES" |
-		"SALESFORCE" |
-		"SERVICENOW" |
-		"SHAREPOINT" |
-		"SNOWFLAKE" |
-		"SPARK" |
-		"SQLSERVER" |
-		"STARBURST" |
-		"TERADATA" |
-		"TIMESTREAM" |
-		"TRINO" |
-		"TWITTER" |
-		"WEB_CRAWLER" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::OAuthClientApplication"
+	Properties!: close({
+		ClientId?:     strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" | fn.#StringExpression
+		ClientSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" | fn.#StringExpression
+		DataSourceType?: "ADOBE_ANALYTICS" |
+			"AMAZON_ELASTICSEARCH" |
+			"AMAZON_OPENSEARCH" |
+			"ATHENA" |
+			"AURORA" |
+			"AURORA_POSTGRESQL" |
+			"AWS_IOT_ANALYTICS" |
+			"BIGQUERY" |
+			"CONFLUENCE" |
+			"DATABRICKS" |
+			"EXASOL" |
+			"GITHUB" |
+			"GOOGLESHEETS" |
+			"GOOGLE_DRIVE" |
+			"JIRA" |
+			"MARIADB" |
+			"MYSQL" |
+			"ONE_DRIVE" |
+			"ORACLE" |
+			"POSTGRESQL" |
+			"PRESTO" |
+			"QBUSINESS" |
+			"REDSHIFT" |
+			"S3" |
+			"S3_KNOWLEDGE_BASE" |
+			"S3_TABLES" |
+			"SALESFORCE" |
+			"SERVICENOW" |
+			"SHAREPOINT" |
+			"SNOWFLAKE" |
+			"SPARK" |
+			"SQLSERVER" |
+			"STARBURST" |
+			"TERADATA" |
+			"TIMESTREAM" |
+			"TRINO" |
+			"TWITTER" |
+			"WEB_CRAWLER" |
+			fn.#StringExpression
+		IdentityProviderVpcConnectionProperties?: #IdentityProviderVpcConnectionProperties
+		Name!:                                    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		OAuthAuthorizationEndpointUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$" |
 		fn.#StringExpression
-	IdentityProviderVpcConnectionProperties?: #IdentityProviderVpcConnectionProperties
-	Name!:                                    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	OAuthAuthorizationEndpointUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$" |
-	fn.#StringExpression
-	OAuthClientApplicationId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^/][^\\x{0000}-\\x{001f}]*" |
-	fn.#StringExpression
-	OAuthClientAuthenticationType!: "TOKEN" | fn.#StringExpression
-	OAuthScopes?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" | fn.#StringExpression
-	OAuthTokenEndpointUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+		OAuthClientApplicationId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^/][^\\x{0000}-\\x{001f}]*" |
+		fn.#StringExpression
+		OAuthClientAuthenticationType!: "TOKEN" | fn.#StringExpression
+		OAuthScopes?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" | fn.#StringExpression
+		OAuthTokenEndpointUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #IdentityProviderVpcConnectionProperties: close({VpcConnectionArn!: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
@@ -76,7 +79,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::OAuthClientApplication"
-	Properties!: #Properties
-}

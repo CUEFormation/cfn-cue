@@ -13,24 +13,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::Workspace
-#Properties: close({
-	Associations?: list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
-	Description?: strings.MaxRunes(500) &
-	strings.MinRunes(0) &
-	=~"""
-		^[\\P{C}\r
-		\t]*$
-		""" |
-	fn.#StringExpression
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Media?:       list.MaxItems(4) & list.UniqueItems() & [...#MediaItem] | fn.#ListExpression
-	Name!:        strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Pages?:       list.UniqueItems() & [...#WorkspacePage] | fn.#ListExpression
-	Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Theme?:       #WorkspaceTheme | fn.#ObjectExpression
-	Title?:       strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[\\P{C}]*$" | fn.#StringExpression
-	Visibility?:  #Visibility | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::Workspace"
+	Properties!: close({
+		Associations?: list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
+		Description?: strings.MaxRunes(500) &
+		strings.MinRunes(0) &
+		=~"""
+			^[\\P{C}\r
+			\t]*$
+			""" |
+		fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Media?:       list.MaxItems(4) & list.UniqueItems() & [...#MediaItem] | fn.#ListExpression
+		Name!:        strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		Pages?:       list.UniqueItems() & [...#WorkspacePage] | fn.#ListExpression
+		Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Theme?:       #WorkspaceTheme | fn.#ObjectExpression
+		Title?:       strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[\\P{C}]*$" | fn.#StringExpression
+		Visibility?:  #Visibility | fn.#StringExpression
+	})
+}
 
 #FontFamily: close({Default?: #WorkspaceFontFamily}) | fn.#ObjectExpression
 
@@ -129,7 +132,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #WorkspaceThemeTypography: close({FontFamily?: #FontFamily}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::Workspace"
-	Properties!: #Properties
-}

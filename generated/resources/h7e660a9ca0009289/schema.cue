@@ -17,21 +17,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an intermediate table that stores cached query results within a collaboration
-#Properties: close({
-	AnalysisRules?: list.MaxItems(1) & list.MinItems(1) & [...#IntermediateTableAnalysisRule] | fn.#ListExpression
-	Description?: strings.MaxRunes(255) &
-	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
-	fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(4) &
-	=~"^arn:aws:kms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:key/[a-zA-Z0-9-]+$" |
-	fn.#StringExpression
-	MembershipIdentifier!:            #UUID
-	Name!:                            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	PopulationAnalysisConfiguration!: #PopulationAnalysisConfiguration
-	Tags?:                            list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CleanRooms::IntermediateTable"
+	Properties!: close({
+		AnalysisRules?: list.MaxItems(1) & list.MinItems(1) & [...#IntermediateTableAnalysisRule] | fn.#ListExpression
+		Description?: strings.MaxRunes(255) &
+		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		fn.#StringExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(4) &
+		=~"^arn:aws:kms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:key/[a-zA-Z0-9-]+$" |
+		fn.#StringExpression
+		MembershipIdentifier!:            #UUID
+		Name!:                            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		PopulationAnalysisConfiguration!: #PopulationAnalysisConfiguration
+		Tags?:                            list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AdditionalAnalyses: "ALLOWED" | "REQUIRED" | "NOT_ALLOWED" | fn.#StringExpression
 
@@ -166,7 +169,3 @@ fn.#ObjectExpression
 
 #UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CleanRooms::IntermediateTable"
-	Properties!: #Properties
-}

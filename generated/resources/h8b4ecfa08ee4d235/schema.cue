@@ -16,16 +16,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaTailor::PrefetchSchedule Resource Type
-#Properties: close({
-	Consumption?:                    #PrefetchConsumption
-	Name!:                           string | fn.#StringExpression
-	PlaybackConfigurationName!:      string | fn.#StringExpression
-	RecurringPrefetchConfiguration?: #RecurringPrefetchConfiguration
-	Retrieval?:                      #PrefetchRetrieval
-	ScheduleType?:                   "SINGLE" | "RECURRING" | fn.#StringExpression
-	StreamId?:                       string | fn.#StringExpression
-	Tags?:                           [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaTailor::PrefetchSchedule"
+	Properties!: close({
+		Consumption?:                    #PrefetchConsumption
+		Name!:                           string | fn.#StringExpression
+		PlaybackConfigurationName!:      string | fn.#StringExpression
+		RecurringPrefetchConfiguration?: #RecurringPrefetchConfiguration
+		Retrieval?:                      #PrefetchRetrieval
+		ScheduleType?:                   "SINGLE" | "RECURRING" | fn.#StringExpression
+		StreamId?:                       string | fn.#StringExpression
+		Tags?:                           [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AvailMatchingCriteria: close({
 	DynamicVariable!: string | fn.#StringExpression
@@ -160,7 +163,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaTailor::PrefetchSchedule"
-	Properties!: #Properties
-}

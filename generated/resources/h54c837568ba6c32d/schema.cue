@@ -13,13 +13,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Designates the IAM role and Amazon Simple Notification Service (SNS) topic
 // that AWS Firewall Manager uses to record SNS logs.
-#Properties: close({
-	SnsRoleName!: #ResourceArn
-	SnsTopicArn!: #ResourceArn
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FMS::NotificationChannel"
+	Properties!: close({
+		SnsRoleName!: #ResourceArn
+		SnsTopicArn!: #ResourceArn
+	})
+}
 
 #ResourceArn: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]+)$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FMS::NotificationChannel"
-	Properties!: #Properties
-}

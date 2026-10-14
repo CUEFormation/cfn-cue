@@ -17,10 +17,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::SpotFleet
-#Properties: close({
-	SpotFleetRequestConfigData!: #SpotFleetRequestConfigData
-	Tags?:                       [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::SpotFleet"
+	Properties!: close({
+		SpotFleetRequestConfigData!: #SpotFleetRequestConfigData
+		Tags?:                       [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AcceleratorCountRequest: close({
 	Max?: int |
@@ -861,7 +864,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::SpotFleet"
-	Properties!: #Properties
-}

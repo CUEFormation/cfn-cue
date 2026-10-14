@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a policy store that you can place schema, policies, and policy
 // templates in to validate authorization requests
-#Properties: close({
-	DeletionProtection?: #DeletionProtection
-	Description?:        strings.MaxRunes(150) & strings.MinRunes(0) | fn.#StringExpression
-	EncryptionSettings?: #EncryptionSettings
-	Schema?:             #SchemaDefinition
-	Tags?:               [...#Tag] | fn.#ListExpression
-	ValidationSettings!: #ValidationSettings
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::VerifiedPermissions::PolicyStore"
+	Properties!: close({
+		DeletionProtection?: #DeletionProtection
+		Description?:        strings.MaxRunes(150) & strings.MinRunes(0) | fn.#StringExpression
+		EncryptionSettings?: #EncryptionSettings
+		Schema?:             #SchemaDefinition
+		Tags?:               [...#Tag] | fn.#ListExpression
+		ValidationSettings!: #ValidationSettings
+	})
+}
 
 #Default: close({}) | fn.#ObjectExpression
 
@@ -65,7 +68,3 @@ fn.#ObjectExpression
 #ValidationMode: "OFF" | "STRICT" | fn.#StringExpression
 
 #ValidationSettings: close({Mode!: #ValidationMode}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VerifiedPermissions::PolicyStore"
-	Properties!: #Properties
-}

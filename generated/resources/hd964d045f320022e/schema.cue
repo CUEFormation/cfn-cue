@@ -19,17 +19,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::SageMaker::ClusterSchedulerConfig. Cluster
 // policy configuration used for task prioritization and fair-share allocation
 // of idle compute.
-#Properties: close({
-	ClusterArn!: strings.MaxRunes(256) &
-	strings.MinRunes(0) &
-	=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:cluster/[a-z0-9]{12}$" |
-	fn.#StringExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
-	SchedulerConfig!: #SchedulerConfig
-	Tags?:            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::ClusterSchedulerConfig"
+	Properties!: close({
+		ClusterArn!: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:cluster/[a-z0-9]{12}$" |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
+		SchedulerConfig!: #SchedulerConfig
+		Tags?:            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #PriorityClass: close({
 	Name!: =~"^[a-z0-9]([-a-z0-9]*[a-z0-9]){0,39}?$" | fn.#StringExpression
@@ -64,7 +68,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::ClusterSchedulerConfig"
-	Properties!: #Properties
-}

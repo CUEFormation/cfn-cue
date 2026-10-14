@@ -14,21 +14,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a snapshot copy grant that permits Amazon Redshift to use an
 // encrypted symmetric key from AWS Key Management Service (KMS) to encrypt
 // copied snapshots in a destination region.
-#Properties: close({
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
-	fn.#StringExpression
-	SnapshotCopyGrantName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
-	fn.#StringExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Redshift::SnapshotCopyGrant"
+	Properties!: close({
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		fn.#StringExpression
+		SnapshotCopyGrantName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Redshift::SnapshotCopyGrant"
-	Properties!: #Properties
-}

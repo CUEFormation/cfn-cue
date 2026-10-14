@@ -24,12 +24,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // If the root volume is detached from an instance with an MKT product code,
 // then the product codes from that volume are no longer associated with the
 // instance.
-#Properties: close({
-	Device?:       #Device | fn.#StringExpression
-	EbsCardIndex?: #EbsCardIndex | fn.#NumberExpression
-	InstanceId!:   #InstanceId | fn.#StringExpression
-	VolumeId!:     #VolumeId | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VolumeAttachment"
+	Properties!: close({
+		Device?:       #Device | fn.#StringExpression
+		EbsCardIndex?: #EbsCardIndex | fn.#NumberExpression
+		InstanceId!:   #InstanceId | fn.#StringExpression
+		VolumeId!:     #VolumeId | fn.#StringExpression
+	})
+}
 
 #Device: string | fn.#StringExpression
 
@@ -52,7 +55,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #InstanceId: string | fn.#StringExpression
 
 #VolumeId: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VolumeAttachment"
-	Properties!: #Properties
-}

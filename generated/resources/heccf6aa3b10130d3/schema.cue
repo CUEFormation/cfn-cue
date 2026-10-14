@@ -9,19 +9,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElastiCache::SubnetGroup
-#Properties: close({
-	CacheSubnetGroupName?: string | fn.#StringExpression
-	Description!:          string | fn.#StringExpression
-	SubnetIds!:            [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                 [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElastiCache::SubnetGroup"
+	Properties!: close({
+		CacheSubnetGroupName?: string | fn.#StringExpression
+		Description!:          string | fn.#StringExpression
+		SubnetIds!:            [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:                 [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElastiCache::SubnetGroup"
-	Properties!: #Properties
-}

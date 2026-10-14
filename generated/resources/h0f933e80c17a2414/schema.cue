@@ -13,54 +13,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::CapacityReservation
-#Properties: close({
-	AvailabilityZone?:   string | fn.#StringExpression
-	AvailabilityZoneId?: string | fn.#StringExpression
-	EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EndDate?:            string | fn.#StringExpression
-	EndDateType?:        "limited" | "unlimited" | fn.#StringExpression
-	EphemeralStorage?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InstanceCount!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	InstanceMatchCriteria?: "open" | "targeted" | fn.#StringExpression
-	InstancePlatform!: "Linux with SQL Server Enterprise" |
-		"Linux with SQL Server Standard" |
-		"Linux with SQL Server Web" |
-		"Linux/UNIX" |
-		"RHEL with HA" |
-		"RHEL with HA and SQL Server Enterprise" |
-		"RHEL with HA and SQL Server Standard" |
-		"RHEL with SQL Server Enterprise" |
-		"RHEL with SQL Server Standard" |
-		"RHEL with SQL Server Web" |
-		"Red Hat Enterprise Linux" |
-		"SUSE Linux" |
-		"Ubuntu Pro" |
-		"Windows" |
-		"Windows with SQL Server" |
-		"Windows with SQL Server Enterprise" |
-		"Windows with SQL Server Standard" |
-		"Windows with SQL Server Web" |
-		fn.#StringExpression
-	InstanceType!: string | fn.#StringExpression
-	OutPostArn?:   =~"^arn:aws([a-z-]+)?:outposts:[a-z\\d-]+:\\d{12}:outpost/op-[a-f0-9]{17}$" | fn.#StringExpression
-	PlacementGroupArn?: =~"^arn:aws([a-z-]+)?:ec2:[a-z\\d-]+:\\d{12}:placement-group/^.{1,255}$" | fn.#StringExpression
-	TagSpecifications?: [...#TagSpecification] | fn.#ListExpression
-	Tenancy?:           "dedicated" | "default" | fn.#StringExpression
-	UnusedReservationBillingOwnerId?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::CapacityReservation"
+	Properties!: close({
+		AvailabilityZone?:   string | fn.#StringExpression
+		AvailabilityZoneId?: string | fn.#StringExpression
+		EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EndDate?:            string | fn.#StringExpression
+		EndDateType?:        "limited" | "unlimited" | fn.#StringExpression
+		EphemeralStorage?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		InstanceCount!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		InstanceMatchCriteria?: "open" | "targeted" | fn.#StringExpression
+		InstancePlatform!: "Linux with SQL Server Enterprise" |
+			"Linux with SQL Server Standard" |
+			"Linux with SQL Server Web" |
+			"Linux/UNIX" |
+			"RHEL with HA" |
+			"RHEL with HA and SQL Server Enterprise" |
+			"RHEL with HA and SQL Server Standard" |
+			"RHEL with SQL Server Enterprise" |
+			"RHEL with SQL Server Standard" |
+			"RHEL with SQL Server Web" |
+			"Red Hat Enterprise Linux" |
+			"SUSE Linux" |
+			"Ubuntu Pro" |
+			"Windows" |
+			"Windows with SQL Server" |
+			"Windows with SQL Server Enterprise" |
+			"Windows with SQL Server Standard" |
+			"Windows with SQL Server Web" |
+			fn.#StringExpression
+		InstanceType!: string | fn.#StringExpression
+		OutPostArn?: =~"^arn:aws([a-z-]+)?:outposts:[a-z\\d-]+:\\d{12}:outpost/op-[a-f0-9]{17}$" | fn.#StringExpression
+		PlacementGroupArn?: =~"^arn:aws([a-z-]+)?:ec2:[a-z\\d-]+:\\d{12}:placement-group/^.{1,255}$" |
+			fn.#StringExpression
+		TagSpecifications?:               [...#TagSpecification] | fn.#ListExpression
+		Tenancy?:                         "dedicated" | "default" | fn.#StringExpression
+		UnusedReservationBillingOwnerId?: string | fn.#StringExpression
+	})
+}
 
 #CapacityAllocation: close({
 	AllocationType?: string | fn.#StringExpression
@@ -204,7 +210,3 @@ fn.#ObjectExpression
 	Tags?: [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::CapacityReservation"
-	Properties!: #Properties
-}

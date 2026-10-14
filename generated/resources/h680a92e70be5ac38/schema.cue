@@ -16,19 +16,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ImageVersion
-#Properties: close({
-	Alias?:           #Alias
-	Aliases?:         #Aliases
-	BaseImage!:       #BaseImage
-	Horovod?:         #Horovod
-	ImageName!:       #ImageName
-	JobType?:         #JobType
-	MLFramework?:     #MLFramework
-	Processor?:       #Processor
-	ProgrammingLang?: #ProgrammingLang
-	ReleaseNotes?:    #ReleaseNotes
-	VendorGuidance?:  #VendorGuidance
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::ImageVersion"
+	Properties!: close({
+		Alias?:           #Alias
+		Aliases?:         #Aliases
+		BaseImage!:       #BaseImage
+		Horovod?:         #Horovod
+		ImageName!:       #ImageName
+		JobType?:         #JobType
+		MLFramework?:     #MLFramework
+		Processor?:       #Processor
+		ProgrammingLang?: #ProgrammingLang
+		ReleaseNotes?:    #ReleaseNotes
+		VendorGuidance?:  #VendorGuidance
+	})
+}
 
 #Alias: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -81,7 +84,3 @@ fn.#StringExpression
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::ImageVersion"
-	Properties!: #Properties
-}

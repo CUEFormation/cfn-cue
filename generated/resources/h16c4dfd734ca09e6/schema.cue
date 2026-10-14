@@ -12,18 +12,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Chime::AppInstance
-#Properties: close({
-	Metadata?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:     [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Chime::AppInstance"
+	Properties!: close({
+		Metadata?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:     [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Chime::AppInstance"
-	Properties!: #Properties
-}

@@ -24,67 +24,70 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // and [Step scaling
 // policies](https://docs.aws.amazon.com/autoscaling/application/userguide/application-auto-scaling-step-scaling-policies.html)
 // in the *Application Auto Scaling User Guide*.
-#Properties: close({
-	ResourceId?: _
-	if ResourceId != _|_ {
-		ScalableDimension!: _
-		ServiceNamespace!:  _
-	}
-	{}
-	PolicyName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	PolicyType!: "PredictiveScaling" | "StepScaling" | "TargetTrackingScaling" | fn.#StringExpression
-	PredictiveScalingPolicyConfiguration?: #PredictiveScalingPolicyConfiguration | fn.#ObjectExpression
-	ResourceId?:                           strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	ScalableDimension?: "appstream:fleet:DesiredCapacity" |
-		"cassandra:table:ReadCapacityUnits" |
-		"cassandra:table:WriteCapacityUnits" |
-		"comprehend:document-classifier-endpoint:DesiredInferenceUnits" |
-		"comprehend:entity-recognizer-endpoint:DesiredInferenceUnits" |
-		"custom-resource:ResourceType:Property" |
-		"dynamodb:index:ReadCapacityUnits" |
-		"dynamodb:index:WriteCapacityUnits" |
-		"dynamodb:table:ReadCapacityUnits" |
-		"dynamodb:table:WriteCapacityUnits" |
-		"ec2:spot-fleet-request:TargetCapacity" |
-		"ecs:service:DesiredCount" |
-		"elasticache:cache-cluster:Nodes" |
-		"elasticache:replication-group:NodeGroups" |
-		"elasticache:replication-group:Replicas" |
-		"elasticmapreduce:instancegroup:InstanceCount" |
-		"kafka:broker-storage:VolumeSize" |
-		"lambda:function:ProvisionedConcurrency" |
-		"neptune:cluster:ReadReplicaCount" |
-		"rds:cluster:ReadReplicaCount" |
-		"sagemaker:inference-component:DesiredCopyCount" |
-		"sagemaker:variant:DesiredInstanceCount" |
-		"sagemaker:variant:DesiredProvisionedConcurrency" |
-		"workspaces:workspacespool:DesiredUserSessions" |
-		fn.#StringExpression
-	ScalingTargetId?: string | fn.#StringExpression
-	ServiceNamespace?: "appstream" |
-		"cassandra" |
-		"comprehend" |
-		"custom-resource" |
-		"dynamodb" |
-		"ec2" |
-		"ecs" |
-		"elasticache" |
-		"elasticmapreduce" |
-		"kafka" |
-		"lambda" |
-		"neptune" |
-		"rds" |
-		"sagemaker" |
-		"workspaces" |
-		fn.#StringExpression
-	StepScalingPolicyConfiguration?:           #StepScalingPolicyConfiguration | fn.#ObjectExpression
-	TargetTrackingScalingPolicyConfiguration?: #TargetTrackingScalingPolicyConfiguration | fn.#ObjectExpression
-	if ScalingTargetId != _|_ {
-		ResourceId?: error(
-			"ResourceId cannot be used with ScalingTargetId; set exactly one of ScalingTargetId, ResourceId",
-		)
-	}
-}) & matchN(>=1, [{ScalingTargetId!: _}, {ResourceId!: _}])
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApplicationAutoScaling::ScalingPolicy"
+	Properties!: close({
+		ResourceId?: _
+		if ResourceId != _|_ {
+			ScalableDimension!: _
+			ServiceNamespace!:  _
+		}
+		{}
+		PolicyName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		PolicyType!: "PredictiveScaling" | "StepScaling" | "TargetTrackingScaling" | fn.#StringExpression
+		PredictiveScalingPolicyConfiguration?: #PredictiveScalingPolicyConfiguration | fn.#ObjectExpression
+		ResourceId?:                           strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+		ScalableDimension?: "appstream:fleet:DesiredCapacity" |
+			"cassandra:table:ReadCapacityUnits" |
+			"cassandra:table:WriteCapacityUnits" |
+			"comprehend:document-classifier-endpoint:DesiredInferenceUnits" |
+			"comprehend:entity-recognizer-endpoint:DesiredInferenceUnits" |
+			"custom-resource:ResourceType:Property" |
+			"dynamodb:index:ReadCapacityUnits" |
+			"dynamodb:index:WriteCapacityUnits" |
+			"dynamodb:table:ReadCapacityUnits" |
+			"dynamodb:table:WriteCapacityUnits" |
+			"ec2:spot-fleet-request:TargetCapacity" |
+			"ecs:service:DesiredCount" |
+			"elasticache:cache-cluster:Nodes" |
+			"elasticache:replication-group:NodeGroups" |
+			"elasticache:replication-group:Replicas" |
+			"elasticmapreduce:instancegroup:InstanceCount" |
+			"kafka:broker-storage:VolumeSize" |
+			"lambda:function:ProvisionedConcurrency" |
+			"neptune:cluster:ReadReplicaCount" |
+			"rds:cluster:ReadReplicaCount" |
+			"sagemaker:inference-component:DesiredCopyCount" |
+			"sagemaker:variant:DesiredInstanceCount" |
+			"sagemaker:variant:DesiredProvisionedConcurrency" |
+			"workspaces:workspacespool:DesiredUserSessions" |
+			fn.#StringExpression
+		ScalingTargetId?: string | fn.#StringExpression
+		ServiceNamespace?: "appstream" |
+			"cassandra" |
+			"comprehend" |
+			"custom-resource" |
+			"dynamodb" |
+			"ec2" |
+			"ecs" |
+			"elasticache" |
+			"elasticmapreduce" |
+			"kafka" |
+			"lambda" |
+			"neptune" |
+			"rds" |
+			"sagemaker" |
+			"workspaces" |
+			fn.#StringExpression
+		StepScalingPolicyConfiguration?:           #StepScalingPolicyConfiguration | fn.#ObjectExpression
+		TargetTrackingScalingPolicyConfiguration?: #TargetTrackingScalingPolicyConfiguration | fn.#ObjectExpression
+		if ScalingTargetId != _|_ {
+			ResourceId?: error(
+				"ResourceId cannot be used with ScalingTargetId; set exactly one of ScalingTargetId, ResourceId",
+			)
+		}
+	}) & matchN(>=1, [{ScalingTargetId!: _}, {ResourceId!: _}])
+}
 
 #CustomizedMetricSpecification: close({
 	Dimensions?: [...#MetricDimension] | fn.#ListExpression
@@ -469,7 +472,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApplicationAutoScaling::ScalingPolicy"
-	Properties!: #Properties
-}

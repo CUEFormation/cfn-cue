@@ -16,11 +16,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A signing profile is a signing template that can be used to carry out a pre-defined signing job.
-#Properties: close({
-	PlatformId!:              #PlatformId | fn.#StringExpression
-	SignatureValidityPeriod?: #SignatureValidityPeriod | fn.#ObjectExpression
-	Tags?:                    [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Signer::SigningProfile"
+	Properties!: close({
+		PlatformId!:              #PlatformId | fn.#StringExpression
+		SignatureValidityPeriod?: #SignatureValidityPeriod | fn.#ObjectExpression
+		Tags?:                    [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: =~"^arn:aws(-[a-z]{1,4}){0,2}:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" | fn.#StringExpression
 
@@ -54,7 +57,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Signer::SigningProfile"
-	Properties!: #Properties
-}

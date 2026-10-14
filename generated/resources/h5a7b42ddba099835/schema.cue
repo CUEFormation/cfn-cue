@@ -13,24 +13,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::MessageTemplate Resource Type
-#Properties: close({
-	ChannelSubtype!:    #ChannelSubtype
-	Content!:           #Content
-	DefaultAttributes?: #MessageTemplateAttributes
-	Description?:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\\\s_.,-]+" | fn.#StringExpression
-	GroupingConfiguration?: #GroupingConfiguration
-	KnowledgeBaseArn!: =~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})?$" |
-		fn.#StringExpression
-	Language?: strings.MaxRunes(5) & strings.MinRunes(2) | fn.#StringExpression
-	MessageTemplateAttachments?: [...close({
-		AttachmentName!: #AttachmentName
-		S3PresignedUrl!: #AttachmentUrl
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\\\s_.,-]+" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Wisdom::MessageTemplate"
+	Properties!: close({
+		ChannelSubtype!:    #ChannelSubtype
+		Content!:           #Content
+		DefaultAttributes?: #MessageTemplateAttributes
+		Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\\\s_.,-]+" | fn.#StringExpression
+		GroupingConfiguration?: #GroupingConfiguration
+		KnowledgeBaseArn!: =~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})?$" |
+			fn.#StringExpression
+		Language?: strings.MaxRunes(5) & strings.MinRunes(2) | fn.#StringExpression
+		MessageTemplateAttachments?: [...close({
+			AttachmentName!: #AttachmentName
+			S3PresignedUrl!: #AttachmentUrl
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\\\s_.,-]+" | fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AgentAttributes: close({
 	FirstName?: strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
@@ -186,7 +189,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Wisdom::MessageTemplate"
-	Properties!: #Properties
-}

@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerIngressPoint Resource Type
-#Properties: close({
-	IngressPointConfiguration?: #IngressPointConfiguration
-	IngressPointName?:     strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" | fn.#StringExpression
-	NetworkConfiguration?: #NetworkConfiguration
-	RuleSetId!:            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	StatusToUpdate?:       #IngressPointStatusToUpdate
-	Tags?:                 list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	TlsPolicy?:            #TlsPolicy
-	TrafficPolicyId!:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Type!:                 #IngressPointType
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::MailManagerIngressPoint"
+	Properties!: close({
+		IngressPointConfiguration?: #IngressPointConfiguration
+		IngressPointName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" | fn.#StringExpression
+		NetworkConfiguration?: #NetworkConfiguration
+		RuleSetId!:            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		StatusToUpdate?:       #IngressPointStatusToUpdate
+		Tags?:                 list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TlsPolicy?:            #TlsPolicy
+		TrafficPolicyId!:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Type!:                 #IngressPointType
+	})
+}
 
 #IngressPointConfiguration: matchN(1, [close({
 	SmtpPassword!: strings.MaxRunes(64) & strings.MinRunes(8) & =~"^[A-Za-z0-9!@#$%^&*()_+\\-=\\[\\]{}|.,?]+$" |
@@ -80,7 +83,3 @@ fn.#ObjectExpression
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::MailManagerIngressPoint"
-	Properties!: #Properties
-}

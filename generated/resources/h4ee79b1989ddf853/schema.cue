@@ -17,31 +17,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a router input in AWS Elemental MediaConnect that can be used to
 // egress content transmitted from router inputs
-#Properties: close({
-	AvailabilityZone?:         string | fn.#StringExpression
-	Configuration!:            #RouterOutputConfiguration
-	FabricConfiguration?:      #FabricConfiguration
-	MaintenanceConfiguration?: #MaintenanceConfiguration
-	MaximumBitrate!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name!:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RegionName?:   string | fn.#StringExpression
-	RoutingScope!: #RoutingScope
-	Tags?:         [...#Tag] | fn.#ListExpression
-	Tier!:         #RouterOutputTier
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::RouterOutput"
+	Properties!: close({
+		AvailabilityZone?:         string | fn.#StringExpression
+		Configuration!:            #RouterOutputConfiguration
+		FabricConfiguration?:      #FabricConfiguration
+		MaintenanceConfiguration?: #MaintenanceConfiguration
+		MaximumBitrate!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name!:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		RegionName?:   string | fn.#StringExpression
+		RoutingScope!: #RoutingScope
+		Tags?:         [...#Tag] | fn.#ListExpression
+		Tier!:         #RouterOutputTier
+	})
+}
 
 #AutomaticEncryptionKeyConfiguration: close({}) | fn.#ObjectExpression
 
@@ -342,7 +347,3 @@ fn.#ObjectExpression
 #TlsEncryptionConfiguration: close({Public!: #PublicTlsEncryptionConfiguration}) | fn.#ValueExpression
 
 #TlsEncryptionType: "PUBLIC" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::RouterOutput"
-	Properties!: #Properties
-}

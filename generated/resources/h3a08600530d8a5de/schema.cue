@@ -15,16 +15,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [Set up Custom Domain Name for an API in API
 // Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html)
 // in the *API Gateway Developer Guide*.
-#Properties: close({
-	DomainName!:               string | fn.#StringExpression
-	DomainNameConfigurations?: [...#DomainNameConfiguration] | fn.#ListExpression
-	MutualTlsAuthentication?:  #MutualTlsAuthentication | fn.#ObjectExpression
-	RoutingMode?: "API_MAPPING_ONLY" | "ROUTING_RULE_THEN_API_MAPPING" | "ROUTING_RULE_ONLY" | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::DomainName"
+	Properties!: close({
+		DomainName!:               string | fn.#StringExpression
+		DomainNameConfigurations?: [...#DomainNameConfiguration] | fn.#ListExpression
+		MutualTlsAuthentication?:  #MutualTlsAuthentication | fn.#ObjectExpression
+		RoutingMode?: "API_MAPPING_ONLY" | "ROUTING_RULE_THEN_API_MAPPING" | "ROUTING_RULE_ONLY" | fn.#StringExpression
+		Tags?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
 #DomainNameConfiguration: close({
 	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -42,7 +45,3 @@ fn.#ObjectExpression
 	TruststoreVersion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::DomainName"
-	Properties!: #Properties
-}

@@ -26,72 +26,75 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // specify all types or all codes, use -1.
 // Rule changes are propagated to instances associated with the security group
 // as quickly as possible. However, a small delay might occur.
-#Properties: close({
-	CidrIp?:                  string | fn.#StringExpression
-	CidrIpv6?:                string | fn.#StringExpression
-	Description?:             string | fn.#StringExpression
-	DestinationPrefixListId?: string | fn.#StringExpression
-	DestinationSecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	FromPort?: int & >=-1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=-1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	GroupId!: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	IpProtocol!: string | fn.#StringExpression
-	ToPort?: int & >=-1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=-1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	if CidrIp != _|_ {
-		CidrIpv6?: error(
-			"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
-		)
-		DestinationPrefixListId?: error(
-			"DestinationPrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
-		)
-		DestinationSecurityGroupId?: error(
-			"DestinationSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
-		)
-	}
-	if CidrIpv6 != _|_ {
-		DestinationPrefixListId?: error(
-			"DestinationPrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
-		)
-		DestinationSecurityGroupId?: error(
-			"DestinationSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
-		)
-	}
-	if DestinationPrefixListId != _|_ {
-		DestinationSecurityGroupId?: error(
-			"DestinationSecurityGroupId cannot be used with DestinationPrefixListId; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
-		)
-	}
-}) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationPrefixListId!: _}, {DestinationSecurityGroupId!: _}])
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::SecurityGroupEgress"
-	Properties!: #Properties
+	Type!: "AWS::EC2::SecurityGroupEgress"
+	Properties!: close({
+		CidrIp?:                  string | fn.#StringExpression
+		CidrIpv6?:                string | fn.#StringExpression
+		Description?:             string | fn.#StringExpression
+		DestinationPrefixListId?: string | fn.#StringExpression
+		DestinationSecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		FromPort?: int & >=-1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=-1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		GroupId!: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		IpProtocol!: string | fn.#StringExpression
+		ToPort?: int & >=-1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=-1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		if CidrIp != _|_ {
+			CidrIpv6?: error(
+				"CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
+			)
+			DestinationPrefixListId?: error(
+				"DestinationPrefixListId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
+			)
+			DestinationSecurityGroupId?: error(
+				"DestinationSecurityGroupId cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
+			)
+		}
+		if CidrIpv6 != _|_ {
+			DestinationPrefixListId?: error(
+				"DestinationPrefixListId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
+			)
+			DestinationSecurityGroupId?: error(
+				"DestinationSecurityGroupId cannot be used with CidrIpv6; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
+			)
+		}
+		if DestinationPrefixListId != _|_ {
+			DestinationSecurityGroupId?: error(
+				"DestinationSecurityGroupId cannot be used with DestinationPrefixListId; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
+			)
+		}
+	}) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationPrefixListId!: _}, {DestinationSecurityGroupId!: _}])
 }

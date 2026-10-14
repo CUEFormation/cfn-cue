@@ -19,85 +19,90 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::Memory
-#Properties: close({
-	Description?:      #Description
-	EncryptionKeyArn?: #Arn
-	EventExpiryDuration!: int & <=365 & >=3 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=365 &
-							>=3,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	IndexedKeys?: #IndexedKeysList
-	MemoryExecutionRoleArn?: #Arn &
-	(null |
-	bool |
-	number |
-	=~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	[...] |
-	{...}) |
-	fn.#StringExpression
-	MemoryStrategies?: [...struct.MaxFields(1) & struct.MinFields(1) & close({
-		CustomMemoryStrategy?: close({
-			Configuration?:      #CustomConfigurationInput
-			Description?:        #Description
-			MemoryRecordSchema?: #MemoryRecordSchema
-			Name!:               #Name
-			NamespaceTemplates?: #NamespacesList
-			Namespaces?:         #NamespacesList
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::Memory"
+	Properties!: close({
+		Description?:      #Description
+		EncryptionKeyArn?: #Arn
+		EventExpiryDuration!: int & <=365 & >=3 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=365 &
+								>=3,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		IndexedKeys?: #IndexedKeysList
+		MemoryExecutionRoleArn?: #Arn &
+		(null |
+		bool |
+		number |
+		=~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		[...] |
+		{...}) |
+		fn.#StringExpression
+		MemoryStrategies?: [...struct.MaxFields(1) & struct.MinFields(1) & close({
+			CustomMemoryStrategy?: close({
+				Configuration?:      #CustomConfigurationInput
+				Description?:        #Description
+				MemoryRecordSchema?: #MemoryRecordSchema
+				Name!:               #Name
+				NamespaceTemplates?: #NamespacesList
+				Namespaces?:         #NamespacesList
+			}) |
+			fn.#ObjectExpression
+			EpisodicMemoryStrategy?: close({
+				Description?:             #Description
+				MemoryRecordSchema?:      #MemoryRecordSchema
+				Name!:                    #Name
+				NamespaceTemplates?:      #NamespacesList
+				Namespaces?:              #NamespacesList
+				ReflectionConfiguration?: #EpisodicReflectionConfigurationInput
+			}) |
+			fn.#ObjectExpression
+			SemanticMemoryStrategy?: close({
+				Description?:        #Description
+				MemoryRecordSchema?: #MemoryRecordSchema
+				Name!:               #Name
+				NamespaceTemplates?: #NamespacesList
+				Namespaces?:         #NamespacesList
+			}) |
+			fn.#ObjectExpression
+			SummaryMemoryStrategy?: close({
+				Description?:        #Description
+				MemoryRecordSchema?: #MemoryRecordSchema
+				Name!:               #Name
+				NamespaceTemplates?: #NamespacesList
+				Namespaces?:         #NamespacesList
+			}) |
+			fn.#ObjectExpression
+			UserPreferenceMemoryStrategy?: close({
+				Description?:        #Description
+				MemoryRecordSchema?: #MemoryRecordSchema
+				Name!:               #Name
+				NamespaceTemplates?: #NamespacesList
+				Namespaces?:         #NamespacesList
+			}) |
+			fn.#ObjectExpression
 		}) |
-		fn.#ObjectExpression
-		EpisodicMemoryStrategy?: close({
-			Description?:             #Description
-			MemoryRecordSchema?:      #MemoryRecordSchema
-			Name!:                    #Name
-			NamespaceTemplates?:      #NamespacesList
-			Namespaces?:              #NamespacesList
-			ReflectionConfiguration?: #EpisodicReflectionConfigurationInput
-		}) |
-		fn.#ObjectExpression
-		SemanticMemoryStrategy?: close({
-			Description?:        #Description
-			MemoryRecordSchema?: #MemoryRecordSchema
-			Name!:               #Name
-			NamespaceTemplates?: #NamespacesList
-			Namespaces?:         #NamespacesList
-		}) |
-		fn.#ObjectExpression
-		SummaryMemoryStrategy?: close({
-			Description?:        #Description
-			MemoryRecordSchema?: #MemoryRecordSchema
-			Name!:               #Name
-			NamespaceTemplates?: #NamespacesList
-			Namespaces?:         #NamespacesList
-		}) |
-		fn.#ObjectExpression
-		UserPreferenceMemoryStrategy?: close({
-			Description?:        #Description
-			MemoryRecordSchema?: #MemoryRecordSchema
-			Name!:               #Name
-			NamespaceTemplates?: #NamespacesList
-			Namespaces?:         #NamespacesList
-		}) |
-		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Name!:                    #Name
-	NamespaceKeys?:           #NamespaceKeysList
-	StreamDeliveryResources?: #StreamDeliveryResources
-	Tags?:                    #TagsMap
-})
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		Name!:                    #Name
+		NamespaceKeys?:           #NamespaceKeysList
+		StreamDeliveryResources?: #StreamDeliveryResources
+		Tags?:                    #TagsMap
+	})
+}
 
 #Arn: string | fn.#StringExpression
 
@@ -605,7 +610,3 @@ fn.#ObjectExpression
 	StringValidation?:     #StringValidation
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::Memory"
-	Properties!: #Properties
-}

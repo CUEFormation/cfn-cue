@@ -13,16 +13,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecretsManager::RotationSchedule
-#Properties: close({
-	ExternalSecretRotationMetadata?: [...#ExternalSecretRotationMetadataItem] | fn.#ListExpression
-	ExternalSecretRotationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	HostedRotationLambda?:      #HostedRotationLambda | fn.#ObjectExpression
-	RotateImmediatelyOnUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RotationLambdaARN?:         string | fn.#StringExpression
-	RotationRules?:             #RotationRules | fn.#ObjectExpression
-	SecretId!:                  string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecretsManager::RotationSchedule"
+	Properties!: close({
+		ExternalSecretRotationMetadata?: [...#ExternalSecretRotationMetadataItem] | fn.#ListExpression
+		ExternalSecretRotationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		HostedRotationLambda?: #HostedRotationLambda | fn.#ObjectExpression
+		RotateImmediatelyOnUpdate?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		RotationLambdaARN?: string | fn.#StringExpression
+		RotationRules?:     #RotationRules | fn.#ObjectExpression
+		SecretId!:          string | fn.#StringExpression
+	})
+}
 
 #ExternalSecretRotationMetadataItem: close({
 	Key!:   string | fn.#StringExpression
@@ -65,7 +75,3 @@ fn.#ObjectExpression
 	ScheduleExpression?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecretsManager::RotationSchedule"
-	Properties!: #Properties
-}

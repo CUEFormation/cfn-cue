@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A Kendra FAQ resource
-#Properties: close({
-	Description?:  #Description | fn.#StringExpression
-	FileFormat?:   #FileFormat | fn.#StringExpression
-	IndexId!:      #IndexId | fn.#StringExpression
-	LanguageCode?: #LanguageCode
-	Name!:         #FaqName | fn.#StringExpression
-	RoleArn!:      #RoleArn | fn.#StringExpression
-	S3Path!:       #S3Path | fn.#ObjectExpression
-	Tags?:         #TagList | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Kendra::Faq"
+	Properties!: close({
+		Description?:  #Description | fn.#StringExpression
+		FileFormat?:   #FileFormat | fn.#StringExpression
+		IndexId!:      #IndexId | fn.#StringExpression
+		LanguageCode?: #LanguageCode
+		Name!:         #FaqName | fn.#StringExpression
+		RoleArn!:      #RoleArn | fn.#StringExpression
+		S3Path!:       #S3Path | fn.#ObjectExpression
+		Tags?:         #TagList | fn.#ListExpression
+	})
+}
 
 #Description: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\P{C}*$" | fn.#StringExpression
 
@@ -57,7 +60,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TagList: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Kendra::Faq"
-	Properties!: #Properties
-}

@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolResourceServer
-#Properties: close({
-	Identifier!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" |
-	fn.#StringExpression
-	Name!:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
-	Scopes?:     list.MaxItems(100) & [...] & [...#ResourceServerScopeType] | fn.#ListExpression
-	UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::UserPoolResourceServer"
+	Properties!: close({
+		Identifier!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" |
+		fn.#StringExpression
+		Name!:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
+		Scopes?:     list.MaxItems(100) & [...] & [...#ResourceServerScopeType] | fn.#ListExpression
+		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+	})
+}
 
 #ResourceServerScopeType: close({
 	ScopeDescription!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -27,7 +30,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::UserPoolResourceServer"
-	Properties!: #Properties
-}

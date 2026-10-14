@@ -16,17 +16,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::AppRunner::Service resource specifies an AppRunner Service.
-#Properties: close({
-	AutoScalingConfigurationArn?: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
-	EncryptionConfiguration?:     #EncryptionConfiguration
-	HealthCheckConfiguration?:    #HealthCheckConfiguration
-	InstanceConfiguration?:       #InstanceConfiguration
-	NetworkConfiguration?:        #NetworkConfiguration
-	ObservabilityConfiguration?:  #ServiceObservabilityConfiguration
-	ServiceName?: strings.MaxRunes(40) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9-_]{3,39}" | fn.#StringExpression
-	SourceConfiguration!: #SourceConfiguration
-	Tags?:                [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppRunner::Service"
+	Properties!: close({
+		AutoScalingConfigurationArn?: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
+		EncryptionConfiguration?:     #EncryptionConfiguration
+		HealthCheckConfiguration?:    #HealthCheckConfiguration
+		InstanceConfiguration?:       #InstanceConfiguration
+		NetworkConfiguration?:        #NetworkConfiguration
+		ObservabilityConfiguration?:  #ServiceObservabilityConfiguration
+		ServiceName?: strings.MaxRunes(40) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9-_]{3,39}" |
+		fn.#StringExpression
+		SourceConfiguration!: #SourceConfiguration
+		Tags?:                [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AuthenticationConfiguration: close({
 	AccessRoleArn?: #RoleArn | fn.#StringExpression
@@ -233,7 +237,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppRunner::Service"
-	Properties!: #Properties
-}

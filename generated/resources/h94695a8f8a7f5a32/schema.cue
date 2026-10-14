@@ -16,19 +16,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpenSearchServerless::SecurityConfig
-#Properties: close({
-	Description?:          strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	IamFederationOptions?: #IamFederationConfigOptions
-	IamIdentityCenterOptions?: close({
-		GroupAttribute?: #IamIdentityCenterGroupAttribute
-		InstanceArn!:    #IamIdentityCenterInstanceArn
-		UserAttribute?:  #IamIdentityCenterUserAttribute
-	}) |
-	fn.#ObjectExpression
-	Name?:        strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" | fn.#StringExpression
-	SamlOptions?: #SamlConfigOptions
-	Type?:        #SecurityConfigType
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OpenSearchServerless::SecurityConfig"
+	Properties?: close({
+		Description?:          strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+		IamFederationOptions?: #IamFederationConfigOptions
+		IamIdentityCenterOptions?: close({
+			GroupAttribute?: #IamIdentityCenterGroupAttribute
+			InstanceArn!:    #IamIdentityCenterInstanceArn
+			UserAttribute?:  #IamIdentityCenterUserAttribute
+		}) |
+		fn.#ObjectExpression
+		Name?:        strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" | fn.#StringExpression
+		SamlOptions?: #SamlConfigOptions
+		Type?:        #SecurityConfigType
+	})
+}
 
 #IamFederationConfigOptions: close({
 	GroupAttribute?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.:/=+\\-@]*$" |
@@ -86,7 +89,3 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #SecurityConfigType: "saml" | "iamidentitycenter" | "iamfederation" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpenSearchServerless::SecurityConfig"
-	Properties?: #Properties
-}

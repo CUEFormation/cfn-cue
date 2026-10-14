@@ -13,10 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An Amazon CloudFront VPC origin.
-#Properties: close({
-	Tags?:                    [...#Tag] | fn.#ListExpression
-	VpcOriginEndpointConfig!: #VpcOriginEndpointConfig | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::VpcOrigin"
+	Properties!: close({
+		Tags?:                    [...#Tag] | fn.#ListExpression
+		VpcOriginEndpointConfig!: #VpcOriginEndpointConfig | fn.#ObjectExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
@@ -60,7 +63,3 @@ fn.#ObjectExpression
 	OriginSSLProtocols?:   [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::VpcOrigin"
-	Properties!: #Properties
-}

@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53GlobalResolver::AccessSource
-#Properties: close({
-	Cidr!:          #Cidr
-	ClientToken?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	DnsViewId!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-	IpAddressType?: #IpAddressType
-	Name?:          #ResourceName
-	Protocol!:      #DnsProtocol
-	Tags?:          list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53GlobalResolver::AccessSource"
+	Properties!: close({
+		Cidr!:          #Cidr
+		ClientToken?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		DnsViewId!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
+		IpAddressType?: #IpAddressType
+		Name?:          #ResourceName
+		Protocol!:      #DnsProtocol
+		Tags?:          list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING" | fn.#StringExpression
 
@@ -38,7 +41,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53GlobalResolver::AccessSource"
-	Properties!: #Properties
-}

@@ -17,61 +17,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	AIMLOptions?:    #AIMLOptions
-	AccessPolicies?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	AdvancedOptions?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OpenSearchService::Domain"
+	Properties?: close({
+		AIMLOptions?:    #AIMLOptions
+		AccessPolicies?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		AdvancedOptions?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	AdvancedSecurityOptions?: close({
-		AnonymousAuthEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Enabled?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		IAMFederationOptions?: #IAMFederationOptions
-		InternalUserDatabaseEnabled?: bool |
-			"true" |
-			"True" |
-			"TRUE" |
-			"false" |
-			"False" |
-			"FALSE" |
-			fn.#BooleanExpression
-		JWTOptions?:        #JWTOptions
-		MasterUserOptions?: #MasterUserOptions
-		SAMLOptions?:       #SAMLOptions
-	}) |
-	fn.#ObjectExpression
-	AutomatedSnapshotPauseOptions?: #AutomatedSnapshotPauseOptions
-	ClusterConfig?:                 #ClusterConfig
-	CognitoOptions?:                #CognitoOptions
-	DeploymentStrategyOptions?:     #DeploymentStrategyOptions
-	DomainEndpointOptions?:         #DomainEndpointOptions
-	DomainName?:                    string | fn.#StringExpression
-	EBSOptions?:                    #EBSOptions
-	EncryptionAtRestOptions?:       #EncryptionAtRestOptions
-	EngineMode?:                    "GENERAL" | "OPTIMIZED" | fn.#StringExpression
-	EngineVersion?:                 string | fn.#StringExpression
-	IPAddressType?:                 string | fn.#StringExpression
-	IdentityCenterOptions?: close({
-		EnabledAPIAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		IdentityCenterInstanceARN?: string | fn.#StringExpression
-		RolesKey?:                  #RolesKeyIdcType | fn.#StringExpression
-		SubjectKey?:                #SubjectKeyIdcType | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	LogPublishingOptions?: close({
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		AdvancedSecurityOptions?: close({
+			AnonymousAuthEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			Enabled?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			IAMFederationOptions?: #IAMFederationOptions
+			InternalUserDatabaseEnabled?: bool |
+				"true" |
+				"True" |
+				"TRUE" |
+				"false" |
+				"False" |
+				"FALSE" |
+				fn.#BooleanExpression
+			JWTOptions?:        #JWTOptions
+			MasterUserOptions?: #MasterUserOptions
+			SAMLOptions?:       #SAMLOptions
+		}) |
+		fn.#ObjectExpression
+		AutomatedSnapshotPauseOptions?: #AutomatedSnapshotPauseOptions
+		ClusterConfig?:                 #ClusterConfig
+		CognitoOptions?:                #CognitoOptions
+		DeploymentStrategyOptions?:     #DeploymentStrategyOptions
+		DomainEndpointOptions?:         #DomainEndpointOptions
+		DomainName?:                    string | fn.#StringExpression
+		EBSOptions?:                    #EBSOptions
+		EncryptionAtRestOptions?:       #EncryptionAtRestOptions
+		EngineMode?:                    "GENERAL" | "OPTIMIZED" | fn.#StringExpression
+		EngineVersion?:                 string | fn.#StringExpression
+		IPAddressType?:                 string | fn.#StringExpression
+		IdentityCenterOptions?: close({
+			EnabledAPIAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			IdentityCenterInstanceARN?: string | fn.#StringExpression
+			RolesKey?:                  #RolesKeyIdcType | fn.#StringExpression
+			SubjectKey?:                #SubjectKeyIdcType | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		LogPublishingOptions?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: #LogPublishingOption}}) |
-	fn.#ObjectExpression
-	NodeToNodeEncryptionOptions?: #NodeToNodeEncryptionOptions
-	OffPeakWindowOptions?:        #OffPeakWindowOptions
-	SkipShardMigrationWait?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SnapshotOptions?:             #SnapshotOptions
-	SoftwareUpdateOptions?:       #SoftwareUpdateOptions
-	Tags?:                        list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	UseCase?:                     "SEARCH" | "VECTOR" | "OBSERVABILITY" | "MIXED" | fn.#StringExpression
-	VPCOptions?:                  #VPCOptions
-})
+			{[=~"[a-zA-Z0-9]+"]: #LogPublishingOption}}) |
+		fn.#ObjectExpression
+		NodeToNodeEncryptionOptions?: #NodeToNodeEncryptionOptions
+		OffPeakWindowOptions?:        #OffPeakWindowOptions
+		SkipShardMigrationWait?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SnapshotOptions?:        #SnapshotOptions
+		SoftwareUpdateOptions?:  #SoftwareUpdateOptions
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		UseCase?:                "SEARCH" | "VECTOR" | "OBSERVABILITY" | "MIXED" | fn.#StringExpression
+		VPCOptions?:             #VPCOptions
+	})
+}
 
 #AIMLOptions: close({
 	S3VectorsEngine?:              #S3VectorsEngine
@@ -470,7 +473,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpenSearchService::Domain"
-	Properties?: #Properties
-}

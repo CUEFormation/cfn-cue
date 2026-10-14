@@ -12,10 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::KeyPair
-#Properties: close({
-	KeyPairName!: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-	Tags?:        [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lightsail::KeyPair"
+	Properties!: close({
+		KeyPairName!: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ResourceLocation: close({
 	AvailabilityZone?: string | fn.#StringExpression
@@ -28,7 +31,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::KeyPair"
-	Properties!: #Properties
-}

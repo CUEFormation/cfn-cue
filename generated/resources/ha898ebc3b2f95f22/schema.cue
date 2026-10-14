@@ -17,59 +17,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A replication configuration template for AWS Elastic Disaster Recovery Service.
-#Properties: close({
-	AssociateDefaultSecurityGroup?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	AutoReplicateNewDisks?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BandwidthThrottling!: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	CreatePublicIP?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DataPlaneRouting?:            "PRIVATE_IP" | "PUBLIC_IP" | fn.#StringExpression
-	DefaultLargeStagingDiskType?: "GP2" | "GP3" | "ST1" | "AUTO" | fn.#StringExpression
-	EbsEncryption!:               "DEFAULT" | "CUSTOM" | "NONE" | fn.#StringExpression
-	EbsEncryptionKeyArn?:         strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	InternetProtocol?:            "IPV4" | "IPV6" | fn.#StringExpression
-	PitPolicy!:                   list.MaxItems(10) & list.MinItems(1) & [...#PITPolicyRule] | fn.#ListExpression
-	ReplicationServerInstanceType?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	ReplicationServersSecurityGroupsIDs!: list.MaxItems(32) & [...] & [
-		...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^sg-[0-9a-fA-F]{8,}$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	StagingAreaSubnetId!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$" |
-	fn.#StringExpression
-	StagingAreaTags!: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DRS::ReplicationConfigurationTemplate"
+	Properties!: close({
+		AssociateDefaultSecurityGroup?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		AutoReplicateNewDisks?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		BandwidthThrottling!: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		CreatePublicIP?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DataPlaneRouting?: "PRIVATE_IP" | "PUBLIC_IP" | fn.#StringExpression
+		DefaultLargeStagingDiskType?:   "GP2" | "GP3" | "ST1" | "AUTO" | fn.#StringExpression
+		EbsEncryption!:                 "DEFAULT" | "CUSTOM" | "NONE" | fn.#StringExpression
+		EbsEncryptionKeyArn?:           strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+		InternetProtocol?:              "IPV4" | "IPV6" | fn.#StringExpression
+		PitPolicy!:                     list.MaxItems(10) & list.MinItems(1) & [...#PITPolicyRule] | fn.#ListExpression
+		ReplicationServerInstanceType?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		ReplicationServersSecurityGroupsIDs!: list.MaxItems(32) & [...] & [
+			...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^sg-[0-9a-fA-F]{8,}$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		StagingAreaSubnetId!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$" |
+		fn.#StringExpression
+		StagingAreaTags!: close({
 
-		{[=~"^.{0,256}$"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	UseDedicatedReplicationServer?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-})
+			{[=~"^.{0,256}$"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		UseDedicatedReplicationServer?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+	})
+}
 
 #PITPolicyRule: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -127,7 +132,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DRS::ReplicationConfigurationTemplate"
-	Properties!: #Properties
-}

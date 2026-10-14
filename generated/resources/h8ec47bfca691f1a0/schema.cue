@@ -13,24 +13,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::StudioLifecycleConfig
-#Properties: close({
-	StudioLifecycleConfigAppType!: "JupyterServer" |
-		"KernelGateway" |
-		"CodeEditor" |
-		"JupyterLab" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::StudioLifecycleConfig"
+	Properties!: close({
+		StudioLifecycleConfigAppType!: "JupyterServer" |
+			"KernelGateway" |
+			"CodeEditor" |
+			"JupyterLab" |
+			fn.#StringExpression
+		StudioLifecycleConfigContent!: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"[\\S\\s]+" |
 		fn.#StringExpression
-	StudioLifecycleConfigContent!: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"[\\S\\s]+" | fn.#StringExpression
-	StudioLifecycleConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+		StudioLifecycleConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::StudioLifecycleConfig"
-	Properties!: #Properties
-}

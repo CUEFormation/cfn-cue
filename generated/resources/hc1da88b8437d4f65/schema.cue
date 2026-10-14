@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SSMGuiConnect::Preferences Resource Type
-#Properties: close({
-	ConnectionRecordingPreferences?: close({
-		KMSKeyArn!:             #KMSKeyArn
-		RecordingDestinations!: #RecordingDestinations
-	}) |
-	fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSMGuiConnect::Preferences"
+	Properties?: close({
+		ConnectionRecordingPreferences?: close({
+			KMSKeyArn!:             #KMSKeyArn
+			RecordingDestinations!: #RecordingDestinations
+		}) |
+		fn.#ObjectExpression
+	})
+}
 
 #BucketName: string | fn.#StringExpression
 
@@ -37,7 +40,3 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #S3Buckets: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#S3Bucket] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSMGuiConnect::Preferences"
-	Properties?: #Properties
-}

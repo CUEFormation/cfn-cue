@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EMRContainers::VirtualCluster Type
-#Properties: close({
-	ContainerProvider!: #ContainerProvider | fn.#ObjectExpression
-	Name!:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
-	SecurityConfigurationId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9a-z]+" | fn.#StringExpression
-	SessionEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMRContainers::VirtualCluster"
+	Properties!: close({
+		ContainerProvider!: #ContainerProvider | fn.#ObjectExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
+		SecurityConfigurationId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9a-z]+" | fn.#StringExpression
+		SessionEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ContainerInfo: close({EksInfo!: #EksInfo}) | fn.#ObjectExpression
 
@@ -40,7 +43,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMRContainers::VirtualCluster"
-	Properties!: #Properties
-}

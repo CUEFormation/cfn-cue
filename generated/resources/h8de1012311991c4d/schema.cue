@@ -35,41 +35,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // your Identity and Access Management (IAM) policies are updated with
 // appropriate permissions to allow for the authorization of these setting
 // changes.
-#Properties: matchIf({
-	LocalSecondaryIndexes!: list.MinItems(1) | fn.#ListExpression
-	...
-}, {
-	AttributeDefinitions?: null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
-	KeySchema?:            null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
-	...
-}, _) & {...} & close({
-	AttributeDefinitions?:             list.UniqueItems() & [...#AttributeDefinition] | fn.#ListExpression
-	BillingMode?:                      "PAY_PER_REQUEST" | "PROVISIONED" | fn.#StringExpression
-	ContributorInsightsSpecification?: #ContributorInsightsSpecification | fn.#ObjectExpression
-	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	GlobalSecondaryIndexes?:    [...#GlobalSecondaryIndex] | fn.#ListExpression
-	ImportSourceSpecification?: #ImportSourceSpecification | fn.#ObjectExpression
-	KeySchema!: matchN(1, [
-		#KeySchema & (null | bool | number | string | list.MaxItems(2) & list.MinItems(1) | {...}),
-		string | {...}
-	]) &
-	(null | bool | number | string | list.MinItems(1) | {...}) |
-	fn.#ValueExpression
-	KinesisStreamSpecification?:       #KinesisStreamSpecification | fn.#ObjectExpression
-	LocalSecondaryIndexes?:            [...#LocalSecondaryIndex] | fn.#ListExpression
-	OnDemandThroughput?:               #OnDemandThroughput | fn.#ObjectExpression
-	PointInTimeRecoverySpecification?: #PointInTimeRecoverySpecification | fn.#ObjectExpression
-	ProvisionedThroughput?:            #ProvisionedThroughput | fn.#ObjectExpression
-	ResourcePolicy?:                   #ResourcePolicy | fn.#ObjectExpression
-	SSESpecification?:                 #SSESpecification | fn.#ObjectExpression
-	StreamSpecification?:              #StreamSpecification | fn.#ObjectExpression
-	TableClass?:                       "STANDARD" | "STANDARD_INFREQUENT_ACCESS" | fn.#StringExpression
-	TableName?:                        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                             [...#Tag] | fn.#ListExpression
-	TimeToLiveSpecification?:          #TimeToLiveSpecification | fn.#ObjectExpression
-	VectorIndexes?:                    list.MinItems(1) & list.UniqueItems() & [...#VectorIndex] | fn.#ListExpression
-	WarmThroughput?:                   #WarmThroughput | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DynamoDB::Table"
+	Properties!: matchIf({
+		LocalSecondaryIndexes!: list.MinItems(1) | fn.#ListExpression
+		...
+	}, {
+		AttributeDefinitions?: null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
+		KeySchema?:            null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
+		...
+	}, _) & {...} & close({
+		AttributeDefinitions?:             list.UniqueItems() & [...#AttributeDefinition] | fn.#ListExpression
+		BillingMode?:                      "PAY_PER_REQUEST" | "PROVISIONED" | fn.#StringExpression
+		ContributorInsightsSpecification?: #ContributorInsightsSpecification | fn.#ObjectExpression
+		DeletionProtectionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		GlobalSecondaryIndexes?:    [...#GlobalSecondaryIndex] | fn.#ListExpression
+		ImportSourceSpecification?: #ImportSourceSpecification | fn.#ObjectExpression
+		KeySchema!: matchN(1, [
+			#KeySchema & (null | bool | number | string | list.MaxItems(2) & list.MinItems(1) | {...}),
+			string | {...}
+		]) &
+		(null | bool | number | string | list.MinItems(1) | {...}) |
+		fn.#ValueExpression
+		KinesisStreamSpecification?:       #KinesisStreamSpecification | fn.#ObjectExpression
+		LocalSecondaryIndexes?:            [...#LocalSecondaryIndex] | fn.#ListExpression
+		OnDemandThroughput?:               #OnDemandThroughput | fn.#ObjectExpression
+		PointInTimeRecoverySpecification?: #PointInTimeRecoverySpecification | fn.#ObjectExpression
+		ProvisionedThroughput?:            #ProvisionedThroughput | fn.#ObjectExpression
+		ResourcePolicy?:                   #ResourcePolicy | fn.#ObjectExpression
+		SSESpecification?:                 #SSESpecification | fn.#ObjectExpression
+		StreamSpecification?:              #StreamSpecification | fn.#ObjectExpression
+		TableClass?:                       "STANDARD" | "STANDARD_INFREQUENT_ACCESS" | fn.#StringExpression
+		TableName?:                        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                             [...#Tag] | fn.#ListExpression
+		TimeToLiveSpecification?:          #TimeToLiveSpecification | fn.#ObjectExpression
+		VectorIndexes?:  list.MinItems(1) & list.UniqueItems() & [...#VectorIndex] | fn.#ListExpression
+		WarmThroughput?: #WarmThroughput | fn.#ObjectExpression
+	})
+}
 
 #AttributeDefinition: close({
 	AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -380,7 +390,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) & matchN(>=1, [{ReadUnitsPerSecond!: _}, {WriteUnitsPerSecond!: _}]) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DynamoDB::Table"
-	Properties!: #Properties
-}

@@ -15,12 +15,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AWS::CloudWatch::OTelEnrichment enables OTel metric enrichment in CloudWatch,
 // allowing CloudWatch vended metrics to be available for PromQL querying
 // enriched with AWS resource tags and metadata.
-#Properties: close({
-	ExcludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#OTelEnrichmentMetricSelector] |
-		fn.#ListExpression
-	IncludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#OTelEnrichmentMetricSelector] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudWatch::OTelEnrichment"
+	Properties?: close({
+		ExcludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#OTelEnrichmentMetricSelector] |
+			fn.#ListExpression
+		IncludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#OTelEnrichmentMetricSelector] |
+			fn.#ListExpression
+	})
+}
 
 #OTelEnrichmentMetricSelector: close({
 	MetricNames?: list.MaxItems(100) & list.UniqueItems() & [...] & [
@@ -32,7 +35,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Status: "RUNNING" | "STOPPED" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudWatch::OTelEnrichment"
-	Properties?: #Properties
-}

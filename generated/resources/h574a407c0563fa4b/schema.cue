@@ -17,51 +17,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeBuild::Fleet
-#Properties: close({
-	BaseCapacity?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ComputeConfiguration?: #ComputeConfiguration
-	ComputeType?: "BUILD_GENERAL1_SMALL" |
-		"BUILD_GENERAL1_MEDIUM" |
-		"BUILD_GENERAL1_LARGE" |
-		"BUILD_GENERAL1_XLARGE" |
-		"BUILD_GENERAL1_2XLARGE" |
-		"ATTRIBUTE_BASED_COMPUTE" |
-		"CUSTOM_INSTANCE_TYPE" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeBuild::Fleet"
+	Properties?: close({
+		BaseCapacity?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ComputeConfiguration?: #ComputeConfiguration
+		ComputeType?: "BUILD_GENERAL1_SMALL" |
+			"BUILD_GENERAL1_MEDIUM" |
+			"BUILD_GENERAL1_LARGE" |
+			"BUILD_GENERAL1_XLARGE" |
+			"BUILD_GENERAL1_2XLARGE" |
+			"ATTRIBUTE_BASED_COMPUTE" |
+			"CUSTOM_INSTANCE_TYPE" |
+			fn.#StringExpression
+		EnvironmentType?: "WINDOWS_SERVER_2019_CONTAINER" |
+			"WINDOWS_SERVER_2022_CONTAINER" |
+			"LINUX_CONTAINER" |
+			"LINUX_GPU_CONTAINER" |
+			"ARM_CONTAINER" |
+			"MAC_ARM" |
+			"LINUX_EC2" |
+			"ARM_EC2" |
+			"WINDOWS_EC2" |
+			fn.#StringExpression
+		FleetProxyConfiguration?: #ProxyConfiguration
+		FleetServiceRole?:        strings.MinRunes(1) & =~"^(?:arn:)[a-zA-Z+-=,._:/@]+$" | fn.#StringExpression
+		FleetVpcConfig?:          #VpcConfig
+		ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
 		fn.#StringExpression
-	EnvironmentType?: "WINDOWS_SERVER_2019_CONTAINER" |
-		"WINDOWS_SERVER_2022_CONTAINER" |
-		"LINUX_CONTAINER" |
-		"LINUX_GPU_CONTAINER" |
-		"ARM_CONTAINER" |
-		"MAC_ARM" |
-		"LINUX_EC2" |
-		"ARM_EC2" |
-		"WINDOWS_EC2" |
+		Name?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"^[A-Za-z0-9][A-Za-z0-9\\-_]{1,127}$" |
 		fn.#StringExpression
-	FleetProxyConfiguration?: #ProxyConfiguration
-	FleetServiceRole?:        strings.MinRunes(1) & =~"^(?:arn:)[a-zA-Z+-=,._:/@]+$" | fn.#StringExpression
-	FleetVpcConfig?:          #VpcConfig
-	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
-	fn.#StringExpression
-	Name?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"^[A-Za-z0-9][A-Za-z0-9\\-_]{1,127}$" | fn.#StringExpression
-	OverflowBehavior?:     "QUEUE" | "ON_DEMAND" | fn.#StringExpression
-	ScalingConfiguration?: #ScalingConfigurationInput
-	Tags?:                 list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+		OverflowBehavior?:     "QUEUE" | "ON_DEMAND" | fn.#StringExpression
+		ScalingConfiguration?: #ScalingConfigurationInput
+		Tags?:                 list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ComputeConfiguration: close({
 	disk?: int |
@@ -186,7 +192,3 @@ fn.#ObjectExpression
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeBuild::Fleet"
-	Properties?: #Properties
-}

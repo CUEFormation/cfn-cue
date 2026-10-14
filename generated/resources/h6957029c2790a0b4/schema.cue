@@ -17,23 +17,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Transfer::WebApp
-#Properties: close({
-	AccessEndpoint?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	EndpointDetails?: #EndpointDetails
-	IdentityProviderDetails!: close({
-		InstanceArn?: strings.MaxRunes(1224) &
-		strings.MinRunes(10) &
-		=~"^arn:[\\w-]+:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
-		fn.#StringExpression
-		Role?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:[a-z-]+:iam::[0-9]{12}:role[:/]\\S+$" |
-		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?:                 list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	WebAppCustomization?:  #WebAppCustomization
-	WebAppEndpointPolicy?: #WebAppEndpointPolicy
-	WebAppUnits?:          #WebAppUnits
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Transfer::WebApp"
+	Properties!: close({
+		AccessEndpoint?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		EndpointDetails?: #EndpointDetails
+		IdentityProviderDetails!: close({
+			InstanceArn?: strings.MaxRunes(1224) &
+			strings.MinRunes(10) &
+			=~"^arn:[\\w-]+:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
+			fn.#StringExpression
+			Role?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:[a-z-]+:iam::[0-9]{12}:role[:/]\\S+$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?:                 list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		WebAppCustomization?:  #WebAppCustomization
+		WebAppEndpointPolicy?: #WebAppEndpointPolicy
+		WebAppUnits?:          #WebAppUnits
+	})
+}
 
 #EndpointDetails: close({Vpc?: #Vpc}) | fn.#ObjectExpression
 
@@ -106,7 +109,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 	fn.#ValueExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Transfer::WebApp"
-	Properties!: #Properties
-}

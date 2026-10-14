@@ -12,12 +12,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GuardDuty::PublishingDestination.
-#Properties: close({
-	DestinationProperties!: #CFNDestinationProperties & fn.#Object & {...} | fn.#ObjectExpression
-	DestinationType!:       "S3" | fn.#StringExpression
-	DetectorId!:            strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                  [...#TagItem] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GuardDuty::PublishingDestination"
+	Properties!: close({
+		DestinationProperties!: #CFNDestinationProperties & fn.#Object & {...} | fn.#ObjectExpression
+		DestinationType!:       "S3" | fn.#StringExpression
+		DetectorId!:            strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                  [...#TagItem] | fn.#ListExpression
+	})
+}
 
 #CFNDestinationProperties: close({
 	DestinationArn?: string | fn.#StringExpression
@@ -31,7 +34,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GuardDuty::PublishingDestination"
-	Properties!: #Properties
-}

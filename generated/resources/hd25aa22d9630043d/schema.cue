@@ -14,13 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Location::Map Resource Type
-#Properties: close({
-	Configuration!: #MapConfiguration
-	Description?:   strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	MapName!:       strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
-	PricingPlan?:   #PricingPlan
-	Tags?:          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Location::Map"
+	Properties!: close({
+		Configuration!: #MapConfiguration
+		Description?:   strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+		MapName!:       strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
+		PricingPlan?:   #PricingPlan
+		Tags?:          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #MapConfiguration: close({
 	CustomLayers?: list.MaxItems(10) & [
@@ -50,7 +53,3 @@ fn.#ObjectExpression
 
 #iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Location::Map"
-	Properties!: #Properties
-}

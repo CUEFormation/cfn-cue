@@ -9,11 +9,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::TransitGatewayConnect type
-#Properties: close({
-	Options!:                             #TransitGatewayConnectOptions | fn.#ObjectExpression
-	Tags?:                                [...#Tag] | fn.#ListExpression
-	TransportTransitGatewayAttachmentId!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::TransitGatewayConnect"
+	Properties!: close({
+		Options!:                             #TransitGatewayConnectOptions | fn.#ObjectExpression
+		Tags?:                                [...#Tag] | fn.#ListExpression
+		TransportTransitGatewayAttachmentId!: string | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key?:   string | fn.#StringExpression
@@ -22,7 +25,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #TransitGatewayConnectOptions: close({Protocol?: "gre" | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TransitGatewayConnect"
-	Properties!: #Properties
-}

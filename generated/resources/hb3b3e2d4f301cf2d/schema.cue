@@ -17,20 +17,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an evaluation form for the specified CON instance.
-#Properties: close({
-	AIVersion?:                   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	AutoEvaluationConfiguration?: #AutoEvaluationConfiguration | fn.#ObjectExpression
-	Description?:                 strings.MaxRunes(1024) | fn.#StringExpression
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Items!:       list.MaxItems(200) & list.MinItems(1) & [...#EvaluationFormBaseItem] | fn.#ListExpression
-	LanguageConfiguration?: #EvaluationFormLanguageConfiguration | fn.#ObjectExpression
-	ReviewConfiguration?:   #EvaluationReviewConfiguration | fn.#ObjectExpression
-	ScoringStrategy?:       #ScoringStrategy | fn.#ObjectExpression
-	Status!:                "DRAFT" | "ACTIVE" | fn.#StringExpression
-	Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TargetConfiguration?:   #EvaluationFormTargetConfiguration | fn.#ObjectExpression
-	Title!:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::EvaluationForm"
+	Properties!: close({
+		AIVersion?:                   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		AutoEvaluationConfiguration?: #AutoEvaluationConfiguration | fn.#ObjectExpression
+		Description?:                 strings.MaxRunes(1024) | fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Items!:       list.MaxItems(200) & list.MinItems(1) & [...#EvaluationFormBaseItem] | fn.#ListExpression
+		LanguageConfiguration?: #EvaluationFormLanguageConfiguration | fn.#ObjectExpression
+		ReviewConfiguration?:   #EvaluationReviewConfiguration | fn.#ObjectExpression
+		ScoringStrategy?:       #ScoringStrategy | fn.#ObjectExpression
+		Status!:                "DRAFT" | "ACTIVE" | fn.#StringExpression
+		Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetConfiguration?:   #EvaluationFormTargetConfiguration | fn.#ObjectExpression
+		Title!:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #AutoEvaluationConfiguration: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -496,7 +499,3 @@ fn.#ObjectExpression
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::EvaluationForm"
-	Properties!: #Properties
-}

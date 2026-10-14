@@ -18,14 +18,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // or Project). Policy Grants are essentially the mechanism by which DataZone
 // enforces fine-grained, role-based access control beyond what is possible
 // through AWS IAM alone.
-#Properties: close({
-	Detail!:           #PolicyGrantDetail & fn.#Object & {...} | fn.#ValueExpression
-	DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	EntityIdentifier!: string | fn.#StringExpression
-	EntityType!:       #TargetEntityType
-	PolicyType!:       #ManagedPolicyType
-	Principal!:        #PolicyGrantPrincipal & fn.#Object & {...} | fn.#ValueExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataZone::PolicyGrant"
+	Properties!: close({
+		Detail!:           #PolicyGrantDetail & fn.#Object & {...} | fn.#ValueExpression
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		EntityIdentifier!: string | fn.#StringExpression
+		EntityType!:       #TargetEntityType
+		PolicyType!:       #ManagedPolicyType
+		Principal!:        #PolicyGrantPrincipal & fn.#Object & {...} | fn.#ValueExpression
+	})
+}
 
 #AddToProjectMemberPoolPolicyGrantDetail: close(
 	{IncludeChildDomainUnits?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -186,7 +189,3 @@ fn.#ObjectExpression
 	{AllUsersGrantFilter!: #AllUsersGrantFilter},
 )]) |
 fn.#ValueExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::PolicyGrant"
-	Properties!: #Properties
-}

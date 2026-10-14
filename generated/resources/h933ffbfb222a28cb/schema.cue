@@ -15,21 +15,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A data source is used to import technical metadata of assets (data) from the
 // source databases or data warehouses into Amazon DataZone.
-#Properties: close({
-	AssetFormsInput?:       list.MaxItems(10) & [...] & [...#FormInput] | fn.#ListExpression
-	Configuration?:         #DataSourceConfigurationInput | fn.#ValueExpression
-	ConnectionIdentifier?:  string | fn.#StringExpression
-	Description?:           strings.MaxRunes(2048) | fn.#StringExpression
-	DomainIdentifier!:      =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	EnableSetting?:         #EnableSetting | fn.#StringExpression
-	EnvironmentIdentifier?: string | fn.#StringExpression
-	Name!:                  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ProjectIdentifier!:     string | fn.#StringExpression
-	PublishOnImport?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Recommendation?:        #RecommendationConfiguration | fn.#ObjectExpression
-	Schedule?:              #ScheduleConfiguration | fn.#ObjectExpression
-	Type!:                  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataZone::DataSource"
+	Properties!: close({
+		AssetFormsInput?:       list.MaxItems(10) & [...] & [...#FormInput] | fn.#ListExpression
+		Configuration?:         #DataSourceConfigurationInput | fn.#ValueExpression
+		ConnectionIdentifier?:  string | fn.#StringExpression
+		Description?:           strings.MaxRunes(2048) | fn.#StringExpression
+		DomainIdentifier!:      =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		EnableSetting?:         #EnableSetting | fn.#StringExpression
+		EnvironmentIdentifier?: string | fn.#StringExpression
+		Name!:                  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		ProjectIdentifier!:     string | fn.#StringExpression
+		PublishOnImport?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Recommendation?:        #RecommendationConfiguration | fn.#ObjectExpression
+		Schedule?:              #ScheduleConfiguration | fn.#ObjectExpression
+		Type!:                  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
 
@@ -217,7 +220,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TypeRevision: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::DataSource"
-	Properties!: #Properties
-}

@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApplicationSignals::ServiceLevelObjective
-#Properties: close({
-	BurnRateConfigurations?: #BurnRateConfigurations
-	Description?:            strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	ExclusionWindows?:       #ExclusionWindows
-	Goal?:                   #Goal
-	Name!:                   =~"^[0-9A-Za-z][-._0-9A-Za-z ]{0,126}[0-9A-Za-z]$" | fn.#StringExpression
-	RequestBasedSli?:        #RequestBasedSli
-	Sli?:                    #Sli
-	Tags?:                   #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApplicationSignals::ServiceLevelObjective"
+	Properties!: close({
+		BurnRateConfigurations?: #BurnRateConfigurations
+		Description?:            strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		ExclusionWindows?:       #ExclusionWindows
+		Goal?:                   #Goal
+		Name!:                   =~"^[0-9A-Za-z][-._0-9A-Za-z ]{0,126}[0-9A-Za-z]$" | fn.#StringExpression
+		RequestBasedSli?:        #RequestBasedSli
+		Sli?:                    #Sli
+		Tags?:                   #Tags
+	})
+}
 
 #BurnRateConfiguration: close({
 	LookBackWindowMinutes!: int & <=10080 & >=1 |
@@ -394,7 +397,3 @@ fn.#ObjectExpression
 	DurationUnit!: #DurationUnit
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApplicationSignals::ServiceLevelObjective"
-	Properties!: #Properties
-}

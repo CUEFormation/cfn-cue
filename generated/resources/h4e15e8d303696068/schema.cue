@@ -13,26 +13,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Document Classifier enables training document classifier models.
-#Properties: close({
-	DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
-	fn.#StringExpression
-	DocumentClassifierName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
-	fn.#StringExpression
-	InputDataConfig!: #DocumentClassifierInputDataConfig
-	LanguageCode!:    "en" | "es" | "fr" | "it" | "de" | "pt" | fn.#StringExpression
-	Mode?:            "MULTI_CLASS" | "MULTI_LABEL" | fn.#StringExpression
-	ModelKmsKeyId?:   #KmsKeyId
-	ModelPolicy?: strings.MaxRunes(20000) & strings.MinRunes(1) & =~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
-	fn.#StringExpression
-	OutputDataConfig?: #DocumentClassifierOutputDataConfig
-	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VersionName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
-	VolumeKmsKeyId?: #KmsKeyId
-	VpcConfig?:      #VpcConfig
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Comprehend::DocumentClassifier"
+	Properties!: close({
+		DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
+		fn.#StringExpression
+		DocumentClassifierName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		fn.#StringExpression
+		InputDataConfig!: #DocumentClassifierInputDataConfig
+		LanguageCode!:    "en" | "es" | "fr" | "it" | "de" | "pt" | fn.#StringExpression
+		Mode?:            "MULTI_CLASS" | "MULTI_LABEL" | fn.#StringExpression
+		ModelKmsKeyId?:   #KmsKeyId
+		ModelPolicy?: strings.MaxRunes(20000) &
+		strings.MinRunes(1) &
+		=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
+		fn.#StringExpression
+		OutputDataConfig?: #DocumentClassifierOutputDataConfig
+		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VersionName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		fn.#StringExpression
+		VolumeKmsKeyId?: #KmsKeyId
+		VpcConfig?:      #VpcConfig
+	})
+}
 
 #AugmentedManifestsListItem: close({
 	AttributeNames!: list.MaxItems(63) & list.MinItems(1) & list.UniqueItems() & [
@@ -110,7 +116,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Comprehend::DocumentClassifier"
-	Properties!: #Properties
-}

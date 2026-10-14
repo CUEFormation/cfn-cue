@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource definition for AWS::BedrockAgentCore::BrowserProfile
-#Properties: close({
-	Description?: #BrowserProfileDescription
-	Name!:        #BrowserProfileName
-	Tags?:        #TagsMap | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::BrowserProfile"
+	Properties!: close({
+		Description?: #BrowserProfileDescription
+		Name!:        #BrowserProfileName
+		Tags?:        #TagsMap | fn.#ObjectExpression
+	})
+}
 
 #BrowserProfileArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:browser-profile/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$" |
 	fn.#StringExpression
@@ -61,7 +64,3 @@ fn.#ObjectExpression
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::BrowserProfile"
-	Properties!: #Properties
-}

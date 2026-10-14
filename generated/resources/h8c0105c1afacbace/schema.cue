@@ -17,17 +17,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Endpoint
-#Properties: close({
-	DeploymentConfig?: #DeploymentConfig | fn.#ObjectExpression
-	EndpointConfigName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-	EndpointName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-	ExcludeRetainedVariantProperties?: [...#VariantProperty] | fn.#ListExpression
-	RetainAllVariantProperties?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RetainDeploymentConfig?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                       list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Endpoint"
+	Properties!: close({
+		DeploymentConfig?: #DeploymentConfig | fn.#ObjectExpression
+		EndpointConfigName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
+		EndpointName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
+		ExcludeRetainedVariantProperties?: [...#VariantProperty] | fn.#ListExpression
+		RetainAllVariantProperties?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		RetainDeploymentConfig?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Alarm: close({AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -166,7 +176,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VariantProperty: close({VariantPropertyType?: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Endpoint"
-	Properties!: #Properties
-}

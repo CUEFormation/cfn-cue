@@ -12,14 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoT::EncryptionConfiguration
-#Properties: close({
-	EncryptionType!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KMS_KEY" | fn.#StringExpression
-	KmsAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::EncryptionConfiguration"
-	Properties!: #Properties
+	Type!: "AWS::IoT::EncryptionConfiguration"
+	Properties!: close({
+		EncryptionType!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KMS_KEY" | fn.#StringExpression
+		KmsAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		fn.#StringExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		fn.#StringExpression
+	})
 }

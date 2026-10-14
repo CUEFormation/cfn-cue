@@ -232,11 +232,14 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		stripRootEmbed(f)
 		addImport(f, "base", opt.Module+"/template:template")
 		propsRequired := len(asArray(root["required"])) > 0
-		resource := and(sel("base", "ResourceAttributes"), obj(field("Type", str(typ), false), field("Properties", id("#Properties"), !propsRequired)))
-		if typ == cfn.CustomResourceType {
-			resource = and(sel("base", "ResourceAttributes"), obj(field("Type", union(str(typ), &ast.UnaryExpr{Op: token.MAT, X: str(cfn.CustomResourcePattern)}), false), field("Properties", id("#Properties"), false)))
+		if e = inlineProperties(f, func(properties ast.Expr) ast.Expr {
+			if typ == cfn.CustomResourceType {
+				return and(sel("base", "ResourceAttributes"), obj(field("Type", union(str(typ), &ast.UnaryExpr{Op: token.MAT, X: str(cfn.CustomResourcePattern)}), false), field("Properties", properties, false)))
+			}
+			return and(sel("base", "ResourceAttributes"), obj(field("Type", str(typ), false), field("Properties", properties, !propsRequired)))
+		}); e != nil {
+			return nil, fmt.Errorf("template %s: %w", typ, e)
 		}
-		f.Decls = append(f.Decls, def("Resource", resource))
 		if e = writeAST("resources/h"+hash+"/schema.cue", f); e != nil {
 			return nil, e
 		}
@@ -292,6 +295,27 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 	}
 	return m, nil
 }
+
+// inlineProperties replaces the extracted #Properties with #Resource, which
+// holds the properties schema inline, so a reader sees the whole resource in
+// one place. Literal packages keep #Properties, as they have no envelope.
+func inlineProperties(f *ast.File, resource func(ast.Expr) ast.Expr) error {
+	for i, d := range f.Decls {
+		properties, ok := d.(*ast.Field)
+		if !ok {
+			continue
+		}
+		if label, ok := properties.Label.(*ast.Ident); !ok || label.Name != "#Properties" {
+			continue
+		}
+		r := def("Resource", resource(properties.Value))
+		ast.SetComments(r, ast.Comments(properties))
+		f.Decls[i] = r
+		return nil
+	}
+	return fmt.Errorf("extracted schema has no #Properties")
+}
+
 func stripRootEmbed(f *ast.File) {
 	decls := f.Decls[:0]
 	for _, d := range f.Decls {

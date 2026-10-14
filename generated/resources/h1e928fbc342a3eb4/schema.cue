@@ -13,22 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElastiCache::UserGroup
-#Properties: close({
-	Engine!:      "redis" | "valkey" | fn.#StringExpression
-	Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	UserGroupId!: =~"[a-z][a-z0-9\\\\-]*" | fn.#StringExpression
-	UserIds!: list.UniqueItems() & [...] & [
-		...strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9\\-]*$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElastiCache::UserGroup"
+	Properties!: close({
+		Engine!:      "redis" | "valkey" | fn.#StringExpression
+		Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		UserGroupId!: =~"[a-z][a-z0-9\\\\-]*" | fn.#StringExpression
+		UserIds!: list.UniqueItems() & [...] & [
+			...strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9\\-]*$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElastiCache::UserGroup"
-	Properties!: #Properties
-}

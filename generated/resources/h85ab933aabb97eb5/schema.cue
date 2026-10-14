@@ -18,14 +18,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Balancer, or a Classic Load Balancer. You can protect Amazon EC2 instances
 // and Network Load Balancers by association with protected Amazon EC2 Elastic
 // IP addresses.
-#Properties: close({
-	ApplicationLayerAutomaticResponseConfiguration?: #ApplicationLayerAutomaticResponseConfiguration
-	HealthCheckArns?: list.MaxItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[ a-zA-Z0-9_\\.\\-]*" | fn.#StringExpression
-	ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws" | fn.#StringExpression
-	Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Shield::Protection"
+	Properties!: close({
+		ApplicationLayerAutomaticResponseConfiguration?: #ApplicationLayerAutomaticResponseConfiguration
+		HealthCheckArns?: list.MaxItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+		Name!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[ a-zA-Z0-9_\\.\\-]*" | fn.#StringExpression
+		ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws" | fn.#StringExpression
+		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ApplicationLayerAutomaticResponseConfiguration: close({
 	Action!: fn.#Object & {...} & matchN(1, [
@@ -41,7 +44,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Shield::Protection"
-	Properties!: #Properties
-}

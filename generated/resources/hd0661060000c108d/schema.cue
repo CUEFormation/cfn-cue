@@ -17,19 +17,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ConnectCampaignsV2::Campaign Resource Type
-#Properties: close({
-	ChannelSubtypeConfig?:        #ChannelSubtypeConfig
-	CommunicationLimitsOverride?: #CommunicationLimitsConfig
-	CommunicationTimeConfig?:     #CommunicationTimeConfig
-	ConnectCampaignFlowArn?:      #Arn
-	ConnectInstanceId!:           #InstanceId
-	EntryLimitsConfig?:           #EntryLimitsConfig
-	Name!:                        #CampaignName
-	Schedule?:                    #Schedule
-	Source?:                      #Source
-	Tags?:                        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Type?:                        #CampaignType
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ConnectCampaignsV2::Campaign"
+	Properties!: close({
+		ChannelSubtypeConfig?:        #ChannelSubtypeConfig
+		CommunicationLimitsOverride?: #CommunicationLimitsConfig
+		CommunicationTimeConfig?:     #CommunicationTimeConfig
+		ConnectCampaignFlowArn?:      #Arn
+		ConnectInstanceId!:           #InstanceId
+		EntryLimitsConfig?:           #EntryLimitsConfig
+		Name!:                        #CampaignName
+		Schedule?:                    #Schedule
+		Source?:                      #Source
+		Tags?:                        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type?:                        #CampaignType
+	})
+}
 
 #AgentAction: "DISCARD" | fn.#StringExpression
 
@@ -423,7 +426,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #WhatsAppOutboundMode: close({AgentlessConfig?: #AgentlessConfig}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ConnectCampaignsV2::Campaign"
-	Properties!: #Properties
-}

@@ -18,20 +18,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::GameLift::GameServerGroup resource creates an Amazon GameLift
 // (GameLift) GameServerGroup.
-#Properties: close({
-	AutoScalingPolicy?:          #AutoScalingPolicy | fn.#ObjectExpression
-	BalancingStrategy?:          #BalancingStrategy | fn.#StringExpression
-	DeleteOption?:               #DeleteOption | fn.#StringExpression
-	GameServerGroupName!:        #GameServerGroupName | fn.#StringExpression
-	GameServerProtectionPolicy?: #GameServerProtectionPolicy | fn.#StringExpression
-	InstanceDefinitions!:        #InstanceDefinitions | fn.#ListExpression
-	LaunchTemplate?:             #LaunchTemplate | fn.#ObjectExpression
-	MaxSize?:                    #MaxSize | fn.#NumberExpression
-	MinSize?:                    #MinSize | fn.#NumberExpression
-	RoleArn!:                    #RoleArn | fn.#StringExpression
-	Tags?:                       #Tags | fn.#ListExpression
-	VpcSubnets?:                 #VpcSubnets | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GameLift::GameServerGroup"
+	Properties!: close({
+		AutoScalingPolicy?:          #AutoScalingPolicy | fn.#ObjectExpression
+		BalancingStrategy?:          #BalancingStrategy | fn.#StringExpression
+		DeleteOption?:               #DeleteOption | fn.#StringExpression
+		GameServerGroupName!:        #GameServerGroupName | fn.#StringExpression
+		GameServerProtectionPolicy?: #GameServerProtectionPolicy | fn.#StringExpression
+		InstanceDefinitions!:        #InstanceDefinitions | fn.#ListExpression
+		LaunchTemplate?:             #LaunchTemplate | fn.#ObjectExpression
+		MaxSize?:                    #MaxSize | fn.#NumberExpression
+		MinSize?:                    #MinSize | fn.#NumberExpression
+		RoleArn!:                    #RoleArn | fn.#StringExpression
+		Tags?:                       #Tags | fn.#ListExpression
+		VpcSubnets?:                 #VpcSubnets | fn.#ListExpression
+	})
+}
 
 #AutoScalingGroupArn: strings.MaxRunes(256) &
 strings.MinRunes(0) &
@@ -210,7 +213,3 @@ fn.#ObjectExpression
 fn.#ListExpression
 
 #WeightedCapacity: =~"^[\\x{0031}-\\x{0039}][\\x{0030}-\\x{0039}]{0,2}$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GameLift::GameServerGroup"
-	Properties!: #Properties
-}

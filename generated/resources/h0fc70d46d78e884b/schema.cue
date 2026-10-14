@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a feed that receives media for inference processing
-#Properties: close({
-	AccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(255) &
-	strings.MinRunes(32) &
-	=~"^arn:aws[a-z\\-]*:iam::[0-9]{12}:role/.+$" |
-	fn.#StringExpression
-	Name!:    =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" | fn.#StringExpression
-	Outputs!: [...#GetOutput] | fn.#ListExpression
-	Tags?:    #TagMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElementalInference::Feed"
+	Properties!: close({
+		AccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(32) &
+		=~"^arn:aws[a-z\\-]*:iam::[0-9]{12}:role/.+$" |
+		fn.#StringExpression
+		Name!:    =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" | fn.#StringExpression
+		Outputs!: [...#GetOutput] | fn.#ListExpression
+		Tags?:    #TagMap
+	})
+}
 
 #AspectRatio: close({
 	Height!: int |
@@ -124,7 +127,3 @@ fn.#ObjectExpression
 	"spa" |
 	"por" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElementalInference::Feed"
-	Properties!: #Properties
-}

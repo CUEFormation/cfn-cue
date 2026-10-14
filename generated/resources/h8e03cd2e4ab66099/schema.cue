@@ -16,12 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a spending limit for a specified quantum device. Spending limits help
 // you control costs by setting maximum amounts that can be spent on quantum
 // computing tasks within a specified time period.
-#Properties: close({
-	DeviceArn!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	SpendingLimit!: strings.MinRunes(1) & =~"^\\d+(\\.\\d{1,2})?$" | fn.#StringExpression
-	Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TimePeriod?:    #TimePeriod
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Braket::SpendingLimit"
+	Properties!: close({
+		DeviceArn!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		SpendingLimit!: strings.MinRunes(1) & =~"^\\d+(\\.\\d{1,2})?$" | fn.#StringExpression
+		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TimePeriod?:    #TimePeriod
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -34,7 +37,3 @@ fn.#ObjectExpression
 	StartAt!: time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Braket::SpendingLimit"
-	Properties!: #Properties
-}

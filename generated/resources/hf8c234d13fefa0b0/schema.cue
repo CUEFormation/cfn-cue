@@ -14,14 +14,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource definition for AWS::BedrockAgentCore::CodeInterpreterCustom
-#Properties: close({
-	Certificates?:         #CertificateList | fn.#ListExpression
-	Description?:          #Description | fn.#StringExpression
-	ExecutionRoleArn?:     #RoleArn | fn.#StringExpression
-	Name!:                 #SandboxName | fn.#StringExpression
-	NetworkConfiguration!: #CodeInterpreterNetworkConfiguration | fn.#ObjectExpression
-	Tags?:                 #TagsMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::CodeInterpreterCustom"
+	Properties!: close({
+		Certificates?:         #CertificateList | fn.#ListExpression
+		Description?:          #Description | fn.#StringExpression
+		ExecutionRoleArn?:     #RoleArn | fn.#StringExpression
+		Name!:                 #SandboxName | fn.#StringExpression
+		NetworkConfiguration!: #CodeInterpreterNetworkConfiguration | fn.#ObjectExpression
+		Tags?:                 #TagsMap
+	})
+}
 
 #Certificate: close({CertificateLocation!: #CertificateLocation | fn.#ObjectExpression}) | fn.#ObjectExpression
 
@@ -96,7 +99,3 @@ fn.#ObjectExpression
 	Subnets!:        #Subnets
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::CodeInterpreterCustom"
-	Properties!: #Properties
-}

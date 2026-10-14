@@ -13,18 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QBusiness::Plugin Resource Type
-#Properties: close({
-	ApplicationId?: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
-	fn.#StringExpression
-	AuthConfiguration!:         #PluginAuthConfiguration
-	CustomPluginConfiguration?: #CustomPluginConfiguration
-	DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	ServerUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" |
-	fn.#StringExpression
-	State?: #PluginState
-	Tags?:  list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	Type!:  #PluginType
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QBusiness::Plugin"
+	Properties!: close({
+		ApplicationId?: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
+		fn.#StringExpression
+		AuthConfiguration!:         #PluginAuthConfiguration
+		CustomPluginConfiguration?: #CustomPluginConfiguration
+		DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
+		fn.#StringExpression
+		ServerUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" |
+		fn.#StringExpression
+		State?: #PluginState
+		Tags?:  list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Type!:  #PluginType
+	})
+}
 
 #APISchema: matchN(1, [close({Payload!: string | fn.#StringExpression}), close({S3!: #S3})]) | fn.#ValueExpression
 
@@ -107,7 +111,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QBusiness::Plugin"
-	Properties!: #Properties
-}

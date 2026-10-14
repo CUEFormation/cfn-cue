@@ -18,34 +18,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Redshift::Snapshot. Creates a manual
 // snapshot of the specified cluster. The cluster must be in the available
 // state.
-#Properties: close({
-	ClusterIdentifier!: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	ManualSnapshotRetentionPeriod?: int & <=3653 & >=-1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=3653 &
-							>=-1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SnapshotIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:               [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Redshift::Snapshot"
+	Properties!: close({
+		ClusterIdentifier!: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+		ManualSnapshotRetentionPeriod?: int & <=3653 & >=-1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=3653 &
+								>=-1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SnapshotIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:               [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Redshift::Snapshot"
-	Properties!: #Properties
-}

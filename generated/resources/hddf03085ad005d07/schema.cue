@@ -20,20 +20,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // template that describes the containers that form a daemon. Daemons deploy
 // cross-cutting software agents independently across your Amazon ECS
 // infrastructure.
-#Properties: close({
-	ContainerDefinitions?: list.UniqueItems() & [...#DaemonContainerDefinition] | fn.#ListExpression
-	Cpu?:                  string | fn.#StringExpression
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Family?:  string | fn.#StringExpression
-	IpcMode?: "none" | "shared" | fn.#StringExpression
-	Memory?:  string | fn.#StringExpression
-	PidMode?: "none" | "shared" | fn.#StringExpression
-	Tags?:    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Volumes?: list.UniqueItems() & [...#Volume] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECS::DaemonTaskDefinition"
+	Properties?: close({
+		ContainerDefinitions?: list.UniqueItems() & [...#DaemonContainerDefinition] | fn.#ListExpression
+		Cpu?:                  string | fn.#StringExpression
+		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Family?:  string | fn.#StringExpression
+		IpcMode?: "none" | "shared" | fn.#StringExpression
+		Memory?:  string | fn.#StringExpression
+		PidMode?: "none" | "shared" | fn.#StringExpression
+		Tags?:    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Volumes?: list.UniqueItems() & [...#Volume] | fn.#ListExpression
+	})
+}
 
 #ContainerDependency: close({
 	Condition?:     "COMPLETE" | "HEALTHY" | "START" | "SUCCESS" | fn.#StringExpression
@@ -392,7 +395,3 @@ fn.#ObjectExpression
 	Name?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::DaemonTaskDefinition"
-	Properties?: #Properties
-}

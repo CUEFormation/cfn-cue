@@ -18,19 +18,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see [Working with DB subnet
 // groups](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_VPC.WorkingWithRDSInstanceinaVPC.html#USER_VPC.Subnets)
 // in the *Amazon RDS User Guide*.
-#Properties: close({
-	DBSubnetGroupDescription!: string | fn.#StringExpression
-	DBSubnetGroupName?:        string | fn.#StringExpression
-	SubnetIds!:                [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                     list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RDS::DBSubnetGroup"
+	Properties!: close({
+		DBSubnetGroupDescription!: string | fn.#StringExpression
+		DBSubnetGroupName?:        string | fn.#StringExpression
+		SubnetIds!:                [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:                     list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RDS::DBSubnetGroup"
-	Properties!: #Properties
-}

@@ -17,33 +17,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53::RecordSet.
-#Properties: close({
-	AliasTarget?:          #AliasTarget | fn.#ObjectExpression
-	CidrRoutingConfig?:    #CidrRoutingConfig | fn.#ObjectExpression
-	Comment?:              #Comment | fn.#StringExpression
-	Failover?:             #Failover | fn.#StringExpression
-	GeoLocation?:          #GeoLocation | fn.#ObjectExpression
-	GeoProximityLocation?: #GeoProximityLocation | fn.#ObjectExpression
-	HealthCheckId?:        #HealthCheckId | fn.#StringExpression
-	HostedZoneId?:         #HostedZoneId | fn.#StringExpression
-	HostedZoneName?:       #HostedZoneName | fn.#StringExpression
-	MultiValueAnswer?:     #MultiValueAnswer | fn.#BooleanExpression
-	Name!:                 #Name | fn.#StringExpression
-	Region?:               #Region | fn.#StringExpression
-	ResourceRecords?:      #ResourceRecords | fn.#ListExpression
-	SetIdentifier?:        #SetIdentifier | fn.#StringExpression
-	TTL?:                  #TTL | fn.#StringExpression
-	Type!:                 #Type | fn.#StringExpression
-	Weight?:               #Weight | fn.#NumberExpression
-	if HostedZoneId != _|_ {
-		HostedZoneName?: error(
-			"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
-		)
-		HostedZoneName?: error(
-			"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
-		)
-	}
-}) & (matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]) & matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]))
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53::RecordSet"
+	Properties!: close({
+		AliasTarget?:          #AliasTarget | fn.#ObjectExpression
+		CidrRoutingConfig?:    #CidrRoutingConfig | fn.#ObjectExpression
+		Comment?:              #Comment | fn.#StringExpression
+		Failover?:             #Failover | fn.#StringExpression
+		GeoLocation?:          #GeoLocation | fn.#ObjectExpression
+		GeoProximityLocation?: #GeoProximityLocation | fn.#ObjectExpression
+		HealthCheckId?:        #HealthCheckId | fn.#StringExpression
+		HostedZoneId?:         #HostedZoneId | fn.#StringExpression
+		HostedZoneName?:       #HostedZoneName | fn.#StringExpression
+		MultiValueAnswer?:     #MultiValueAnswer | fn.#BooleanExpression
+		Name!:                 #Name | fn.#StringExpression
+		Region?:               #Region | fn.#StringExpression
+		ResourceRecords?:      #ResourceRecords | fn.#ListExpression
+		SetIdentifier?:        #SetIdentifier | fn.#StringExpression
+		TTL?:                  #TTL | fn.#StringExpression
+		Type!:                 #Type | fn.#StringExpression
+		Weight?:               #Weight | fn.#NumberExpression
+		if HostedZoneId != _|_ {
+			HostedZoneName?: error(
+				"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
+			)
+			HostedZoneName?: error(
+				"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
+			)
+		}
+	}) & (matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]) & matchN(
+		>=1,
+		[{HostedZoneId!: _}, {HostedZoneName!: _}],
+	))
+}
 
 #AliasTarget: close({
 	DNSName!:              strings.MaxRunes(1024) | fn.#StringExpression
@@ -149,7 +155,3 @@ fn.#ObjectExpression
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53::RecordSet"
-	Properties!: #Properties
-}

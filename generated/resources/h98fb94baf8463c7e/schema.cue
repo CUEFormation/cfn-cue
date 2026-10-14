@@ -16,17 +16,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaTailor::Channel Resource Type
-#Properties: close({
-	Audiences?:              [...string | fn.#StringExpression] | fn.#ListExpression
-	ChannelName!:            string | fn.#StringExpression
-	FillerSlate?:            #SlateSource
-	LogConfiguration?:       #LogConfigurationForChannel
-	Outputs!:                [...#RequestOutputItem] | fn.#ListExpression
-	PlaybackMode!:           #PlaybackMode
-	Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Tier?:                   #Tier
-	TimeShiftConfiguration?: #TimeShiftConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaTailor::Channel"
+	Properties!: close({
+		Audiences?:              [...string | fn.#StringExpression] | fn.#ListExpression
+		ChannelName!:            string | fn.#StringExpression
+		FillerSlate?:            #SlateSource
+		LogConfiguration?:       #LogConfigurationForChannel
+		Outputs!:                [...#RequestOutputItem] | fn.#ListExpression
+		PlaybackMode!:           #PlaybackMode
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Tier?:                   #Tier
+		TimeShiftConfiguration?: #TimeShiftConfiguration
+	})
+}
 
 #AdMarkupType: "DATERANGE" | "SCTE35_ENHANCED" | fn.#StringExpression
 
@@ -184,7 +187,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaTailor::Channel"
-	Properties!: #Properties
-}

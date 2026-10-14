@@ -12,20 +12,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for AWS::ServiceCatalog::ServiceAction
-#Properties: close({
-	AcceptLanguage?: ("en" | "jp" | "zh") & (strings.MaxRunes(100) & strings.MinRunes(0)) | fn.#StringExpression
-	Definition!:     [...#DefinitionParameter] | fn.#ListExpression
-	DefinitionType!: "SSM_AUTOMATION" | fn.#StringExpression
-	Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-.]*$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ServiceCatalog::ServiceAction"
+	Properties!: close({
+		AcceptLanguage?: ("en" | "jp" | "zh") & (strings.MaxRunes(100) & strings.MinRunes(0)) | fn.#StringExpression
+		Definition!:     [...#DefinitionParameter] | fn.#ListExpression
+		DefinitionType!: "SSM_AUTOMATION" | fn.#StringExpression
+		Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-.]*$" | fn.#StringExpression
+	})
+}
 
 #DefinitionParameter: close({
 	Key!:   strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(4096) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceCatalog::ServiceAction"
-	Properties!: #Properties
-}

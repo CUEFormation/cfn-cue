@@ -13,33 +13,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The `AWS::Redshift::EventSubscription` resource creates an Amazon Redshift Event Subscription.
-#Properties: close({
-	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EventCategories?: list.UniqueItems() & [
-		...("configuration" | "management" | "monitoring" | "security" | "pending") & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Redshift::EventSubscription"
+	Properties!: close({
+		Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EventCategories?: list.UniqueItems() & [
+			...("configuration" | "management" | "monitoring" | "security" | "pending") & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Severity?: ("ERROR" | "INFO") & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) | fn.#StringExpression
+		SnsTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
 		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Severity?: ("ERROR" | "INFO") & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) | fn.#StringExpression
-	SnsTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
-	fn.#StringExpression
-	SourceIds?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-	SourceType?: ("cluster" |
-		"cluster-parameter-group" |
-		"cluster-security-group" |
-		"cluster-snapshot" |
-		"scheduled-action") & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
-	fn.#StringExpression
-	SubscriptionName!: string | fn.#StringExpression
-	Tags?:             [...#Tag] | fn.#ListExpression
-})
+		SourceIds?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
+		SourceType?: ("cluster" |
+			"cluster-parameter-group" |
+			"cluster-security-group" |
+			"cluster-snapshot" |
+			"scheduled-action") & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		fn.#StringExpression
+		SubscriptionName!: string | fn.#StringExpression
+		Tags?:             [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Redshift::EventSubscription"
-	Properties!: #Properties
-}

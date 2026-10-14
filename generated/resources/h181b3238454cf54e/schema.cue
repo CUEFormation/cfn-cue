@@ -17,23 +17,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Dashboards dashboard. A scheduled report renders a snapshot of the dashboard
 // on a cron schedule, using an IAM role that the service assumes to read the
 // underlying cost and usage data.
-#Properties: close({
-	DashboardArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[-a-z0-9]*:bcm-dashboards::[0-9]{12}:dashboard/(\\*|[-a-z0-9]+)$" |
-	fn.#StringExpression
-	Description?:    strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:           strings.MaxRunes(50) & strings.MinRunes(2) | fn.#StringExpression
-	ScheduleConfig!: #ScheduleConfig | fn.#ObjectExpression
-	ScheduledReportExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@_/-]+$" |
-	fn.#StringExpression
-	Tags?:                    list.MaxItems(200) & [...#Tag] | fn.#ListExpression
-	WidgetDateRangeOverride?: #DateTimeRange | fn.#ObjectExpression
-	WidgetIds?:               list.MaxItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BCM::ScheduledReport"
+	Properties!: close({
+		DashboardArn!: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[-a-z0-9]*:bcm-dashboards::[0-9]{12}:dashboard/(\\*|[-a-z0-9]+)$" |
+		fn.#StringExpression
+		Description?:    strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:           strings.MaxRunes(50) & strings.MinRunes(2) | fn.#StringExpression
+		ScheduleConfig!: #ScheduleConfig | fn.#ObjectExpression
+		ScheduledReportExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@_/-]+$" |
+		fn.#StringExpression
+		Tags?:                    list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+		WidgetDateRangeOverride?: #DateTimeRange | fn.#ObjectExpression
+		WidgetIds?:               list.MaxItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	})
+}
 
 #DateTimeRange: close({
 	EndTime!:   #DateTimeValue | fn.#ObjectExpression
@@ -78,7 +81,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BCM::ScheduledReport"
-	Properties!: #Properties
-}

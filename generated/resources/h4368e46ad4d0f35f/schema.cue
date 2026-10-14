@@ -12,16 +12,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A WAFv2 Logging Configuration Resource Provider
-#Properties: close({
-	LogDestinationConfigs!: [...string | fn.#StringExpression] | fn.#ListExpression
-	LoggingFilter?: close({
-		DefaultBehavior!: "KEEP" | "DROP" | fn.#StringExpression
-		Filters!:         list.MinItems(1) & [...#Filter] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	RedactedFields?: [...#FieldToMatch] | fn.#ListExpression
-	ResourceArn!:    string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAFv2::LoggingConfiguration"
+	Properties!: close({
+		LogDestinationConfigs!: [...string | fn.#StringExpression] | fn.#ListExpression
+		LoggingFilter?: close({
+			DefaultBehavior!: "KEEP" | "DROP" | fn.#StringExpression
+			Filters!:         list.MinItems(1) & [...#Filter] | fn.#ListExpression
+		}) |
+		fn.#ObjectExpression
+		RedactedFields?: [...#FieldToMatch] | fn.#ListExpression
+		ResourceArn!:    string | fn.#StringExpression
+	})
+}
 
 #Condition: close({
 	ActionCondition?: close({
@@ -53,7 +56,3 @@ fn.#ObjectExpression
 	Requirement!: "MEETS_ALL" | "MEETS_ANY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAFv2::LoggingConfiguration"
-	Properties!: #Properties
-}

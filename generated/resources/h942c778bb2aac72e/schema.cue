@@ -18,25 +18,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // access logs from clients and services that are associated with their service
 // network. Access log entries represent traffic originated from VPCs
 // associated with that network.
-#Properties: close({
-	DestinationArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:([^/].*)?$" |
-	fn.#StringExpression
-	ResourceIdentifier?: strings.MaxRunes(2048) &
-	strings.MinRunes(17) &
-	=~"^((((sn)|(svc)|(rcfg))-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:((servicenetwork/sn)|(resourceconfiguration/rcfg)|(service/svc))-[0-9a-z]{17}))$" |
-	fn.#StringExpression
-	ServiceNetworkLogType?: "SERVICE" | "RESOURCE" | fn.#StringExpression
-	Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::VpcLattice::AccessLogSubscription"
+	Properties!: close({
+		DestinationArn!: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:([^/].*)?$" |
+		fn.#StringExpression
+		ResourceIdentifier?: strings.MaxRunes(2048) &
+		strings.MinRunes(17) &
+		=~"^((((sn)|(svc)|(rcfg))-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:((servicenetwork/sn)|(resourceconfiguration/rcfg)|(service/svc))-[0-9a-z]{17}))$" |
+		fn.#StringExpression
+		ServiceNetworkLogType?: "SERVICE" | "RESOURCE" | fn.#StringExpression
+		Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VpcLattice::AccessLogSubscription"
-	Properties!: #Properties
-}

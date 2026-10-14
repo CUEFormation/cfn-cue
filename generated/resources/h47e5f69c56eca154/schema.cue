@@ -13,7 +13,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource schema represents the NotificationChannel resource in the Amazon DevOps Guru.
-#Properties: close({Config!: #NotificationChannelConfig})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::DevOpsGuru::NotificationChannel"
+	Properties!: close({Config!: #NotificationChannelConfig})
+}
 
 #InsightSeveritiesFilterList: list.MaxItems(3) & list.MinItems(1) & [...#InsightSeverity] | fn.#ListExpression
 
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DevOpsGuru::NotificationChannel"
-	Properties!: #Properties
-}

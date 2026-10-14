@@ -13,25 +13,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::IoTFleetWise::StateTemplate Resource Type
-#Properties: close({
-	DataExtraDimensions?: list.MaxItems(5) & [...] & [
-		...strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	MetadataExtraDimensions?: list.MaxItems(5) & [...] & [
-		...strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Name!:             strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
-	SignalCatalogArn!: string | fn.#StringExpression
-	StateTemplateProperties!: list.MaxItems(500) & list.MinItems(1) & [
-		...strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTFleetWise::StateTemplate"
+	Properties!: close({
+		DataExtraDimensions?: list.MaxItems(5) & [...] & [
+			...strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
+		MetadataExtraDimensions?: list.MaxItems(5) & [...] & [
+			...strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Name!:             strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
+		SignalCatalogArn!: string | fn.#StringExpression
+		StateTemplateProperties!: list.MaxItems(500) & list.MinItems(1) & [
+			...strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -40,7 +43,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Unit: close({}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTFleetWise::StateTemplate"
-	Properties!: #Properties
-}

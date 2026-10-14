@@ -13,20 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // IdNamespace defined in AWS Entity Resolution service
-#Properties: close({
-	Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	IdMappingWorkflowProperties?: list.MaxItems(1) & list.MinItems(1) & [...#IdNamespaceIdMappingWorkflowProperties] |
-		fn.#ListExpression
-	IdNamespaceName!:   #EntityName
-	InputSourceConfig?: list.MaxItems(20) & [...] & [...#IdNamespaceInputSource] | fn.#ListExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(512) &
-	strings.MinRunes(32) &
-	=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	Type!: "SOURCE" | "TARGET" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EntityResolution::IdNamespace"
+	Properties!: close({
+		Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		IdMappingWorkflowProperties?: list.MaxItems(1) & list.MinItems(1) & [...#IdNamespaceIdMappingWorkflowProperties] |
+			fn.#ListExpression
+		IdNamespaceName!:   #EntityName
+		InputSourceConfig?: list.MaxItems(20) & [...] & [...#IdNamespaceInputSource] | fn.#ListExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(32) &
+		=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Type!: "SOURCE" | "TARGET" | fn.#StringExpression
+	})
+}
 
 #AttributeName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
 
@@ -83,7 +86,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EntityResolution::IdNamespace"
-	Properties!: #Properties
-}

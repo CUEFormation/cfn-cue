@@ -16,20 +16,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource type definition for AWS::SageMaker::Action. An action is a lineage
 // tracking entity that represents an action or activity, such as a model
 // deployment or an HPO job.
-#Properties: close({
-	ActionName!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
-	fn.#StringExpression
-	ActionType!:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Description?:        strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
-	MetadataProperties?: #MetadataProperties | fn.#ObjectExpression
-	Properties?: struct.MaxFields(30) & close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Action"
+	Properties!: close({
+		ActionName!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
+		fn.#StringExpression
+		ActionType!:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Description?:        strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
+		MetadataProperties?: #MetadataProperties | fn.#ObjectExpression
+		Properties?: struct.MaxFields(30) & close({
 
-		{[=~".+"]: strings.MaxRunes(2500) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Source!: #ActionSource | fn.#ObjectExpression
-	Status?: "Unknown" | "InProgress" | "Completed" | "Failed" | "Stopping" | "Stopped" | fn.#StringExpression
-	Tags?:   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+			{[=~".+"]: strings.MaxRunes(2500) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Source!: #ActionSource | fn.#ObjectExpression
+		Status?: "Unknown" | "InProgress" | "Completed" | "Failed" | "Stopping" | "Stopped" | fn.#StringExpression
+		Tags?:   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ActionSource: close({
 	SourceId?:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
@@ -51,7 +54,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Action"
-	Properties!: #Properties
-}

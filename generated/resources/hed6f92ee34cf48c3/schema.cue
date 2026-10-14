@@ -12,22 +12,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::AmplifyUIBuilder::Component Resource Type
-#Properties: close({
-	AppId?:                string | fn.#StringExpression
-	BindingProperties?:    #ComponentBindingProperties
-	Children?:             [...#ComponentChild] | fn.#ListExpression
-	CollectionProperties?: #ComponentCollectionProperties
-	ComponentType?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	EnvironmentName?:      string | fn.#StringExpression
-	Events?:               #ComponentEvents
-	Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Overrides?:            #ComponentOverrides
-	Properties?:           #ComponentProperties
-	SchemaVersion?:        string | fn.#StringExpression
-	SourceId?:             string | fn.#StringExpression
-	Tags?:                 #Tags
-	Variants?:             [...#ComponentVariant] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AmplifyUIBuilder::Component"
+	Properties?: close({
+		AppId?:                string | fn.#StringExpression
+		BindingProperties?:    #ComponentBindingProperties
+		Children?:             [...#ComponentChild] | fn.#ListExpression
+		CollectionProperties?: #ComponentCollectionProperties
+		ComponentType?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		EnvironmentName?:      string | fn.#StringExpression
+		Events?:               #ComponentEvents
+		Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Overrides?:            #ComponentOverrides
+		Properties?:           #ComponentProperties
+		SchemaVersion?:        string | fn.#StringExpression
+		SourceId?:             string | fn.#StringExpression
+		Tags?:                 #Tags
+		Variants?:             [...#ComponentVariant] | fn.#ListExpression
+	})
+}
 
 #ActionParameters: close({
 	Anchor?: #ComponentProperty
@@ -200,7 +203,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: {...} | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AmplifyUIBuilder::Component"
-	Properties?: #Properties
-}

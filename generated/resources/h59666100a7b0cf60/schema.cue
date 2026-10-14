@@ -18,15 +18,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates an Amazon S3 Tables table bucket in the same AWS Region where you
 // create the AWS CloudFormation stack.
-#Properties: close({
-	EncryptionConfiguration?:   #EncryptionConfiguration
-	MetricsConfiguration?:      #MetricsConfiguration
-	ReplicationConfiguration?:  #ReplicationConfiguration
-	StorageClassConfiguration?: #StorageClassConfiguration
-	TableBucketName!:           #TableBucketName
-	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	UnreferencedFileRemoval?:   #UnreferencedFileRemoval
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3Tables::TableBucket"
+	Properties!: close({
+		EncryptionConfiguration?:   #EncryptionConfiguration
+		MetricsConfiguration?:      #MetricsConfiguration
+		ReplicationConfiguration?:  #ReplicationConfiguration
+		StorageClassConfiguration?: #StorageClassConfiguration
+		TableBucketName!:           #TableBucketName
+		Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		UnreferencedFileRemoval?:   #UnreferencedFileRemoval
+	})
+}
 
 #EncryptionConfiguration: close({
 	KMSKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -97,7 +100,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Tables::TableBucket"
-	Properties!: #Properties
-}

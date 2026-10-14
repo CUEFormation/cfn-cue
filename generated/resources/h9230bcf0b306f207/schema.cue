@@ -11,17 +11,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The ``AWS::ApiGateway::ClientCertificate`` resource creates a client
 // certificate that API Gateway uses to configure client-side SSL
 // authentication for sending requests to the integration endpoint.
-#Properties: close({
-	Description?: string | fn.#StringExpression
-	Tags?:        [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGateway::ClientCertificate"
+	Properties?: close({
+		Description?: string | fn.#StringExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::ClientCertificate"
-	Properties?: #Properties
-}

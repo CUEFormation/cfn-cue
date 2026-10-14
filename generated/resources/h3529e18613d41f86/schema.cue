@@ -17,30 +17,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::EndpointConfig
-#Properties: close({
-	AsyncInferenceConfig?:   #AsyncInferenceConfig | fn.#ObjectExpression
-	DataCaptureConfig?:      #DataCaptureConfig | fn.#ObjectExpression
-	EnableNetworkIsolation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EndpointConfigName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	ExplainerConfig?: #ExplainerConfig | fn.#ObjectExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^[a-zA-Z0-9:/_-]*$" |
-	fn.#StringExpression
-	MetricsConfig?:            #MetricsConfig | fn.#ObjectExpression
-	ProductionVariants!:       list.MaxItems(10) & list.MinItems(1) & [...#ProductionVariant] | fn.#ListExpression
-	ShadowProductionVariants?: list.MaxItems(10) & list.MinItems(1) & [...#ProductionVariant] | fn.#ListExpression
-	Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	VpcConfig?:                #VpcConfig | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::EndpointConfig"
+	Properties!: close({
+		AsyncInferenceConfig?:   #AsyncInferenceConfig | fn.#ObjectExpression
+		DataCaptureConfig?:      #DataCaptureConfig | fn.#ObjectExpression
+		EnableNetworkIsolation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EndpointConfigName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
+		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		ExplainerConfig?: #ExplainerConfig | fn.#ObjectExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9:/_-]*$" |
+		fn.#StringExpression
+		MetricsConfig?:            #MetricsConfig | fn.#ObjectExpression
+		ProductionVariants!:       list.MaxItems(10) & list.MinItems(1) & [...#ProductionVariant] | fn.#ListExpression
+		ShadowProductionVariants?: list.MaxItems(10) & list.MinItems(1) & [...#ProductionVariant] | fn.#ListExpression
+		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		VpcConfig?:                #VpcConfig | fn.#ObjectExpression
+	})
+}
 
 #AsyncInferenceClientConfig: close({
 	MaxConcurrentInvocationsPerInstance?: int & <=1000 & >=1 |
@@ -1206,7 +1209,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::EndpointConfig"
-	Properties!: #Properties
-}

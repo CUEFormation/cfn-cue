@@ -19,12 +19,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::SecurityHub::ConfigurationPolicy resource represents the Central
 // Configuration Policy in your account.
-#Properties: close({
-	ConfigurationPolicy!: #Policy
-	Description?:         strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S" | fn.#StringExpression
-	Name!:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Tags?:                #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::ConfigurationPolicy"
+	Properties!: close({
+		ConfigurationPolicy!: #Policy
+		Description?:         strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S" | fn.#StringExpression
+		Name!:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		Tags?:                #Tags
+	})
+}
 
 #ParameterConfiguration: close({
 	Value?:     #ParameterValue
@@ -131,7 +134,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: {...} | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::ConfigurationPolicy"
-	Properties!: #Properties
-}

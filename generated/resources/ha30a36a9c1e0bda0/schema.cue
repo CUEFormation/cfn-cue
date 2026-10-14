@@ -13,23 +13,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a collaboration between AWS accounts that allows for secure data collaboration
-#Properties: close({
-	AllowedResultRegions?:        #AllowedResultRegions
-	AnalyticsEngine?:             #AnalyticsEngine
-	AutoApprovedChangeTypes?:     #AutoApprovedChangeTypeList
-	CreatorDisplayName!:          #Name
-	CreatorMLMemberAbilities?:    #MLMemberAbilities
-	CreatorMemberAbilities?:      #MemberAbilities
-	CreatorPaymentConfiguration?: #PaymentConfiguration
-	DataEncryptionMetadata?:      #DataEncryptionMetadata
-	Description!:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	IsMetricsEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	JobLogStatus?:                #CollaborationJobLogStatus
-	Members?:                     list.MaxItems(9) & [...] & [...#MemberSpecification] | fn.#ListExpression
-	Name!:                        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	QueryLogStatus!:              #CollaborationQueryLogStatus
-	Tags?:                        list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CleanRooms::Collaboration"
+	Properties!: close({
+		AllowedResultRegions?:        #AllowedResultRegions
+		AnalyticsEngine?:             #AnalyticsEngine
+		AutoApprovedChangeTypes?:     #AutoApprovedChangeTypeList
+		CreatorDisplayName!:          #Name
+		CreatorMLMemberAbilities?:    #MLMemberAbilities
+		CreatorMemberAbilities?:      #MemberAbilities
+		CreatorPaymentConfiguration?: #PaymentConfiguration
+		DataEncryptionMetadata?:      #DataEncryptionMetadata
+		Description!:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		IsMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		JobLogStatus?:     #CollaborationJobLogStatus
+		Members?:          list.MaxItems(9) & [...] & [...#MemberSpecification] | fn.#ListExpression
+		Name!:             strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		QueryLogStatus!:   #CollaborationQueryLogStatus
+		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AllowedResultRegions: list.UniqueItems() & [...#SupportedS3Region] | fn.#ListExpression
 
@@ -163,7 +166,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CleanRooms::Collaboration"
-	Properties!: #Properties
-}

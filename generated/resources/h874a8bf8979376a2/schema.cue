@@ -14,12 +14,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::NetworkFirewall::LoggingConfiguration
-#Properties: close({
-	EnableMonitoringDashboard?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FirewallArn!:               #ResourceArn
-	FirewallName?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	LoggingConfiguration!:      #LoggingConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkFirewall::LoggingConfiguration"
+	Properties!: close({
+		EnableMonitoringDashboard?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		FirewallArn!:          #ResourceArn
+		FirewallName?:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		LoggingConfiguration!: #LoggingConfiguration
+	})
+}
 
 #LogDestinationConfig: close({
 	LogDestination!: struct.MinFields(1) & close({
@@ -37,7 +47,3 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkFirewall::LoggingConfiguration"
-	Properties!: #Properties
-}

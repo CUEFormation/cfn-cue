@@ -16,36 +16,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies a customer gateway.
-#Properties: close({
-	BgpAsn?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	BgpAsnExtended?: math.MultipleOf(1) & <=4294967294 & >=2147483648 | fn.#NumberExpression
-	CertificateArn?: =~"^arn:(aws[a-zA-Z-]*)?:acm:[a-z]{2}((-gov)|(-iso([a-z]{1})?))?-[a-z]+-\\d{1}:\\d{12}:certificate\\/[a-zA-Z0-9-_]+$" |
-		fn.#StringExpression
-	DeviceName?: string | fn.#StringExpression
-	IpAddress!:  string | fn.#StringExpression
-	Tags?:       [...#Tag] | fn.#ListExpression
-	Type!:       string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::CustomerGateway"
+	Properties!: close({
+		BgpAsn?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		BgpAsnExtended?: math.MultipleOf(1) & <=4294967294 & >=2147483648 | fn.#NumberExpression
+		CertificateArn?: =~"^arn:(aws[a-zA-Z-]*)?:acm:[a-z]{2}((-gov)|(-iso([a-z]{1})?))?-[a-z]+-\\d{1}:\\d{12}:certificate\\/[a-zA-Z0-9-_]+$" |
+			fn.#StringExpression
+		DeviceName?: string | fn.#StringExpression
+		IpAddress!:  string | fn.#StringExpression
+		Tags?:       [...#Tag] | fn.#ListExpression
+		Type!:       string | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::CustomerGateway"
-	Properties!: #Properties
-}

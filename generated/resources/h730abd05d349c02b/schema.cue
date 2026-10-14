@@ -17,24 +17,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a stored analysis within a collaboration
-#Properties: close({
-	AnalysisParameters?: list.MaxItems(50) & [...] & [...#AnalysisParameter] | fn.#ListExpression
-	Description?: strings.MaxRunes(255) &
-	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
-	fn.#StringExpression
-	ErrorMessageConfiguration?: #ErrorMessageConfiguration
-	Format!:                    "SQL" | "PYSPARK_1_0" | fn.#StringExpression
-	MembershipIdentifier!: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
-	fn.#StringExpression
-	Name!:   strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" | fn.#StringExpression
-	Schema?: #AnalysisSchema
-	Source!: #AnalysisSource
-	SourceMetadata?:          #AnalysisSourceMetadata
-	SyntheticDataParameters?: #SyntheticDataParameters
-	Tags?:                    [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CleanRooms::AnalysisTemplate"
+	Properties!: close({
+		AnalysisParameters?: list.MaxItems(50) & [...] & [...#AnalysisParameter] | fn.#ListExpression
+		Description?: strings.MaxRunes(255) &
+		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		fn.#StringExpression
+		ErrorMessageConfiguration?: #ErrorMessageConfiguration
+		Format!:                    "SQL" | "PYSPARK_1_0" | fn.#StringExpression
+		MembershipIdentifier!: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
+		fn.#StringExpression
+		Name!:   strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" | fn.#StringExpression
+		Schema?: #AnalysisSchema
+		Source!: #AnalysisSource
+		SourceMetadata?:          #AnalysisSourceMetadata
+		SyntheticDataParameters?: #SyntheticDataParameters
+		Tags?:                    [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AnalysisParameter: close({
 	DefaultValue?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
@@ -176,7 +179,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CleanRooms::AnalysisTemplate"
-	Properties!: #Properties
-}

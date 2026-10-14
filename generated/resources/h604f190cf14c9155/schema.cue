@@ -17,21 +17,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RTBFabric::ResponderGateway Resource Type
-#Properties: close({
-	AcmCertificateArn?:            #AcmCertificateArn
-	Description?:                  #Description
-	DomainName?:                   #DomainName
-	GatewayType?:                  #GatewayType
-	ListenerConfig?:               #ListenerConfig
-	ManagedEndpointConfiguration?: #ManagedEndpointConfiguration
-	Port!:                         #Port
-	Protocol!:                     #Protocol
-	SecurityGroupIds!:             #SecurityGroupIds
-	SubnetIds!:                    #SubnetIds
-	Tags?:                         #Tags
-	TrustStoreConfiguration?:      #TrustStoreConfiguration
-	VpcId!:                        #VpcId
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RTBFabric::ResponderGateway"
+	Properties!: close({
+		AcmCertificateArn?:            #AcmCertificateArn
+		Description?:                  #Description
+		DomainName?:                   #DomainName
+		GatewayType?:                  #GatewayType
+		ListenerConfig?:               #ListenerConfig
+		ManagedEndpointConfiguration?: #ManagedEndpointConfiguration
+		Port!:                         #Port
+		Protocol!:                     #Protocol
+		SecurityGroupIds!:             #SecurityGroupIds
+		SubnetIds!:                    #SubnetIds
+		Tags?:                         #Tags
+		TrustStoreConfiguration?:      #TrustStoreConfiguration
+		VpcId!:                        #VpcId
+	})
+}
 
 #AcmCertificateArn: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 	fn.#StringExpression
@@ -296,7 +299,3 @@ strings.MaxRunes(50) &
 strings.MinRunes(5) &
 =~"^vpc-[a-f0-9]{8,17}$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RTBFabric::ResponderGateway"
-	Properties!: #Properties
-}

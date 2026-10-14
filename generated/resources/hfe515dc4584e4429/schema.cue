@@ -17,22 +17,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::DataSource Resource Type.
-#Properties: close({
-	AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [...#DataSourceParameters] |
-		fn.#ListExpression
-	AwsAccountId?:            strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Credentials?:             #DataSourceCredentials
-	DataSourceId?:            string | fn.#StringExpression
-	DataSourceParameters?:    #DataSourceParameters
-	ErrorInfo?:               #DataSourceErrorInfo
-	FolderArns?:              list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Name!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Permissions?:             list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
-	SslProperties?:           #SslProperties
-	Tags?:                    list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	Type!:                    #DataSourceType
-	VpcConnectionProperties?: #VpcConnectionProperties
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::DataSource"
+	Properties!: close({
+		AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [...#DataSourceParameters] |
+			fn.#ListExpression
+		AwsAccountId?:            strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		Credentials?:             #DataSourceCredentials
+		DataSourceId?:            string | fn.#StringExpression
+		DataSourceParameters?:    #DataSourceParameters
+		ErrorInfo?:               #DataSourceErrorInfo
+		FolderArns?:              list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+		Name!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Permissions?:             list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+		SslProperties?:           #SslProperties
+		Tags?:                    list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		Type!:                    #DataSourceType
+		VpcConnectionProperties?: #VpcConnectionProperties
+	})
+}
 
 #AmazonElasticsearchParameters: close({Domain!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
@@ -672,7 +675,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VpcConnectionProperties: close({VpcConnectionArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::DataSource"
-	Properties!: #Properties
-}

@@ -18,51 +18,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Represents a monitor, which defines the monitoring boundaries for
 // measurements that Internet Monitor publishes information about for an
 // application
-#Properties: close({
-	HealthEventsConfig?:    #HealthEventsConfig
-	IncludeLinkedAccounts?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InternetMeasurementsLogDelivery?: #InternetMeasurementsLogDelivery
-	LinkedAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^(\\d{12})$" | fn.#StringExpression
-	MaxCityNetworksToMonitor?: int & <=500000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=500000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MonitorName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Resources?: [...strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*" | fn.#StringExpression] |
-	fn.#ListExpression
-	ResourcesToAdd?:    [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] | fn.#ListExpression
-	ResourcesToRemove?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] | fn.#ListExpression
-	Status?:            #MonitorConfigState
-	Tags?:              [...#Tag] | fn.#ListExpression
-	TrafficPercentageToMonitor?: int & <=100 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=100 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::InternetMonitor::Monitor"
+	Properties!: close({
+		HealthEventsConfig?:    #HealthEventsConfig
+		IncludeLinkedAccounts?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		InternetMeasurementsLogDelivery?: #InternetMeasurementsLogDelivery
+		LinkedAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^(\\d{12})$" | fn.#StringExpression
+		MaxCityNetworksToMonitor?: int & <=500000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=500000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MonitorName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+		Resources?: [...strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*" | fn.#StringExpression] |
+		fn.#ListExpression
+		ResourcesToAdd?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] | fn.#ListExpression
+		ResourcesToRemove?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] |
+		fn.#ListExpression
+		Status?: #MonitorConfigState
+		Tags?:   [...#Tag] | fn.#ListExpression
+		TrafficPercentageToMonitor?: int & <=100 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=100 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #HealthEventsConfig: close({
 	AvailabilityLocalHealthEventsConfig?: #LocalHealthEventsConfig
@@ -182,7 +190,3 @@ fn.#ObjectExpression
 
 #iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::InternetMonitor::Monitor"
-	Properties!: #Properties
-}

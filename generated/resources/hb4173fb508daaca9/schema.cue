@@ -13,27 +13,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaLive::Channel
-#Properties: close({
-	AnywhereSettings?:      #AnywhereSettings
-	CdiInputSpecification?: #CdiInputSpecification
-	ChannelClass?:          string | fn.#StringExpression
-	ChannelEngineVersion?:  #ChannelEngineVersionRequest
-	ChannelSecurityGroups?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Destinations?:          [...#OutputDestination] | fn.#ListExpression
-	DryRun?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EncoderSettings?:       #EncoderSettings
-	InferenceSettings?:     #InferenceSettings
-	InputAttachments?:      [...#InputAttachment] | fn.#ListExpression
-	InputSpecification?:    #InputSpecification
-	LinkedChannelSettings?: #LinkedChannelSettings
-	LogLevel?:              string | fn.#StringExpression
-	Maintenance?:           #MaintenanceCreateSettings
-	Name?:                  string | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Vpc?:  #VpcOutputSettings
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::Channel"
+	Properties?: close({
+		AnywhereSettings?:      #AnywhereSettings
+		CdiInputSpecification?: #CdiInputSpecification
+		ChannelClass?:          string | fn.#StringExpression
+		ChannelEngineVersion?:  #ChannelEngineVersionRequest
+		ChannelSecurityGroups?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Destinations?:          [...#OutputDestination] | fn.#ListExpression
+		DryRun?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EncoderSettings?:       #EncoderSettings
+		InferenceSettings?:     #InferenceSettings
+		InputAttachments?:      [...#InputAttachment] | fn.#ListExpression
+		InputSpecification?:    #InputSpecification
+		LinkedChannelSettings?: #LinkedChannelSettings
+		LogLevel?:              string | fn.#StringExpression
+		Maintenance?:           #MaintenanceCreateSettings
+		Name?:                  string | fn.#StringExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Vpc?:  #VpcOutputSettings
+	})
+}
 
 #AacSettings: close({
 	Bitrate?: number |
@@ -4487,7 +4490,3 @@ fn.#ObjectExpression
 	StyleControl?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::Channel"
-	Properties?: #Properties
-}

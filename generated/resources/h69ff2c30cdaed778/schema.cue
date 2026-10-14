@@ -24,66 +24,70 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [DeletionPolicy
 // Attribute](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html).
 // You can only delete empty buckets. Deletion fails for buckets that have contents.
-#Properties: close({
-	AbacStatus?:              "Enabled" | "Disabled" | fn.#StringExpression
-	AccelerateConfiguration?: #AccelerateConfiguration | fn.#ObjectExpression
-	AccessControl?: "AuthenticatedRead" |
-		"AwsExecRead" |
-		"BucketOwnerFullControl" |
-		"BucketOwnerRead" |
-		"LogDeliveryWrite" |
-		"Private" |
-		"PublicRead" |
-		"PublicReadWrite" |
-		fn.#StringExpression
-	AnalyticsConfigurations?: list.UniqueItems() & [...#AnalyticsConfiguration] | fn.#ListExpression
-	BucketEncryption?:        #BucketEncryption | fn.#ObjectExpression
-	BucketName?:              strings.MaxRunes(63) & =~"^([a-z0-9][a-z0-9.-]*[a-z0-9])?$" | fn.#StringExpression
-	BucketNamePrefix?:        string | fn.#StringExpression
-	BucketNamespace?:         "global" | "account-regional" | fn.#StringExpression
-	CorsConfiguration?:       #CorsConfiguration | fn.#ObjectExpression
-	IntelligentTieringConfigurations?: list.UniqueItems() & [...#IntelligentTieringConfiguration] | fn.#ListExpression
-	InventoryConfigurations?:          list.UniqueItems() & [...#InventoryConfiguration] | fn.#ListExpression
-	LifecycleConfiguration?:           #LifecycleConfiguration | fn.#ObjectExpression
-	LoggingConfiguration?:             #LoggingConfiguration | fn.#ObjectExpression
-	MetadataConfiguration?: close({
-		AnnotationTableConfiguration?: close({
-			ConfigurationState!:      "ENABLED" | "DISABLED" | fn.#StringExpression
-			EncryptionConfiguration?: #MetadataTableEncryptionConfiguration | fn.#ObjectExpression
-			Role?:                    string | fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3::Bucket"
+	Properties?: close({
+		AbacStatus?:              "Enabled" | "Disabled" | fn.#StringExpression
+		AccelerateConfiguration?: #AccelerateConfiguration | fn.#ObjectExpression
+		AccessControl?: "AuthenticatedRead" |
+			"AwsExecRead" |
+			"BucketOwnerFullControl" |
+			"BucketOwnerRead" |
+			"LogDeliveryWrite" |
+			"Private" |
+			"PublicRead" |
+			"PublicReadWrite" |
+			fn.#StringExpression
+		AnalyticsConfigurations?: list.UniqueItems() & [...#AnalyticsConfiguration] | fn.#ListExpression
+		BucketEncryption?:        #BucketEncryption | fn.#ObjectExpression
+		BucketName?:              strings.MaxRunes(63) & =~"^([a-z0-9][a-z0-9.-]*[a-z0-9])?$" | fn.#StringExpression
+		BucketNamePrefix?:        string | fn.#StringExpression
+		BucketNamespace?:         "global" | "account-regional" | fn.#StringExpression
+		CorsConfiguration?:       #CorsConfiguration | fn.#ObjectExpression
+		IntelligentTieringConfigurations?: list.UniqueItems() & [...#IntelligentTieringConfiguration] |
+			fn.#ListExpression
+		InventoryConfigurations?: list.UniqueItems() & [...#InventoryConfiguration] | fn.#ListExpression
+		LifecycleConfiguration?:  #LifecycleConfiguration | fn.#ObjectExpression
+		LoggingConfiguration?:    #LoggingConfiguration | fn.#ObjectExpression
+		MetadataConfiguration?: close({
+			AnnotationTableConfiguration?: close({
+				ConfigurationState!:      "ENABLED" | "DISABLED" | fn.#StringExpression
+				EncryptionConfiguration?: #MetadataTableEncryptionConfiguration | fn.#ObjectExpression
+				Role?:                    string | fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
+			InventoryTableConfiguration?: close({
+				ConfigurationState!:      "ENABLED" | "DISABLED" | fn.#StringExpression
+				EncryptionConfiguration?: #MetadataTableEncryptionConfiguration | fn.#ObjectExpression
+			}) |
+			fn.#ObjectExpression
+			JournalTableConfiguration!: close({
+				EncryptionConfiguration?: #MetadataTableEncryptionConfiguration | fn.#ObjectExpression
+				RecordExpiration!:        #RecordExpiration | fn.#ObjectExpression
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		InventoryTableConfiguration?: close({
-			ConfigurationState!:      "ENABLED" | "DISABLED" | fn.#StringExpression
-			EncryptionConfiguration?: #MetadataTableEncryptionConfiguration | fn.#ObjectExpression
+		MetadataTableConfiguration?: close({
+			S3TablesDestination!: close({
+				TableBucketArn!: string | fn.#StringExpression
+				TableName!:      string | fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		JournalTableConfiguration!: close({
-			EncryptionConfiguration?: #MetadataTableEncryptionConfiguration | fn.#ObjectExpression
-			RecordExpiration!:        #RecordExpiration | fn.#ObjectExpression
-		}) |
-		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	MetadataTableConfiguration?: close({
-		S3TablesDestination!: close({
-			TableBucketArn!: string | fn.#StringExpression
-			TableName!:      string | fn.#StringExpression
-		}) |
-		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	MetricsConfigurations?:     list.UniqueItems() & [...#MetricsConfiguration] | fn.#ListExpression
-	NotificationConfiguration?: #NotificationConfiguration | fn.#ObjectExpression
-	ObjectLockConfiguration?:   #ObjectLockConfiguration | fn.#ObjectExpression
-	ObjectLockEnabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OwnershipControls?:         #OwnershipControls | fn.#ObjectExpression
-	PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration | fn.#ObjectExpression
-	ReplicationConfiguration?:       #ReplicationConfiguration | fn.#ObjectExpression
-	Tags?:                           [...#Tag] | fn.#ListExpression
-	VersioningConfiguration?:        #VersioningConfiguration | fn.#ObjectExpression
-	WebsiteConfiguration?:           #WebsiteConfiguration | fn.#ObjectExpression
-})
+		MetricsConfigurations?:     list.UniqueItems() & [...#MetricsConfiguration] | fn.#ListExpression
+		NotificationConfiguration?: #NotificationConfiguration | fn.#ObjectExpression
+		ObjectLockConfiguration?:   #ObjectLockConfiguration | fn.#ObjectExpression
+		ObjectLockEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		OwnershipControls?: #OwnershipControls | fn.#ObjectExpression
+		PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration | fn.#ObjectExpression
+		ReplicationConfiguration?:       #ReplicationConfiguration | fn.#ObjectExpression
+		Tags?:                           [...#Tag] | fn.#ListExpression
+		VersioningConfiguration?:        #VersioningConfiguration | fn.#ObjectExpression
+		WebsiteConfiguration?:           #WebsiteConfiguration | fn.#ObjectExpression
+	})
+}
 
 #AbortIncompleteMultipartUpload: close({
 	DaysAfterInitiation!: int & >=0 |
@@ -825,7 +829,3 @@ fn.#ObjectExpression
 
 #iso8601UTC: =~"^(\\d{4})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3::Bucket"
-	Properties?: #Properties
-}

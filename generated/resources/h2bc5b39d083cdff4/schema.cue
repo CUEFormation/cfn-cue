@@ -13,32 +13,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::Blueprint Resource Type
-#Properties: close({
-	BlueprintName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	KmsEncryptionContext?: close({
-		KmsEncryptionContext?: _
-		if KmsEncryptionContext != _|_ {
-			KmsKeyId!: _
-		}
-		{}
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::Blueprint"
+	Properties!: close({
+		BlueprintName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+		KmsEncryptionContext?: close({
+			KmsEncryptionContext?: _
+			if KmsEncryptionContext != _|_ {
+				KmsKeyId!: _
+			}
+			{}
 
-		{[=~"^.*$"]: string | fn.#StringExpression}
-	}) |
-	fn.#ObjectExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	Schema!: fn.#Object & {...} | fn.#ObjectExpression
-	Tags?:   list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	Type!:   "DOCUMENT" | "IMAGE" | "AUDIO" | "VIDEO" | fn.#StringExpression
-})
+			{[=~"^.*$"]: string | fn.#StringExpression}
+		}) |
+		fn.#ObjectExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		Schema!: fn.#Object & {...} | fn.#ObjectExpression
+		Tags?:   list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Type!:   "DOCUMENT" | "IMAGE" | "AUDIO" | "VIDEO" | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::Blueprint"
-	Properties!: #Properties
-}

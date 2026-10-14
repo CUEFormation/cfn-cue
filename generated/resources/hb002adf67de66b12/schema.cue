@@ -18,30 +18,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BedrockAgentCore::Gateway Resource Type
-#Properties: close({
-	AuthorizerConfiguration?: #AuthorizerConfiguration
-	AuthorizerType!:          #AuthorizerType
-	Description?:             strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	ExceptionLevel?:          #ExceptionLevel
-	InterceptorConfigurations?: list.MaxItems(2) & list.MinItems(1) & [...#GatewayInterceptorConfiguration] |
-		fn.#ListExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
-	fn.#StringExpression
-	Name!:                      =~"^([0-9a-zA-Z][-]?){1,48}$" | fn.#StringExpression
-	PolicyEngineConfiguration?: #GatewayPolicyEngineConfiguration
-	ProtocolConfiguration?:     #GatewayProtocolConfiguration
-	ProtocolType?:              #GatewayProtocolType | fn.#ValueExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
-	fn.#StringExpression
-	Tags?:             #TagsMap
-	WafConfiguration?: #WafConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::Gateway"
+	Properties!: close({
+		AuthorizerConfiguration?: #AuthorizerConfiguration
+		AuthorizerType!:          #AuthorizerType
+		Description?:             strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		ExceptionLevel?:          #ExceptionLevel
+		InterceptorConfigurations?: list.MaxItems(2) & list.MinItems(1) & [...#GatewayInterceptorConfiguration] |
+			fn.#ListExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		fn.#StringExpression
+		Name!:                      =~"^([0-9a-zA-Z][-]?){1,48}$" | fn.#StringExpression
+		PolicyEngineConfiguration?: #GatewayPolicyEngineConfiguration
+		ProtocolConfiguration?:     #GatewayProtocolConfiguration
+		ProtocolType?:              #GatewayProtocolType | fn.#ValueExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
+		fn.#StringExpression
+		Tags?:             #TagsMap
+		WafConfiguration?: #WafConfiguration
+	})
+}
 
 #AdvertisedScopeMappingType: struct.MaxFields(50) & struct.MinFields(1) & close({
 
@@ -233,7 +236,3 @@ fn.#ObjectExpression
 	{WorkloadIdentityArn!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::Gateway"
-	Properties!: #Properties
-}

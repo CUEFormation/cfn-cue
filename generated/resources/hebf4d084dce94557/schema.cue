@@ -19,34 +19,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::AutoScaling::LaunchConfiguration resource specifies the launch
 // configuration that can be used by an Auto Scaling group to configure Amazon
 // EC2 instances.
-#Properties: close({
-	AssociatePublicIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BlockDeviceMappings?:      list.UniqueItems() & [...#BlockDeviceMapping] | fn.#ListExpression
-	ClassicLinkVPCId?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ClassicLinkVPCSecurityGroups?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IamInstanceProfile?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	ImageId!: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	InstanceId?:              strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceMonitoring?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InstanceType!:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	KernelId?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	KeyName?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	LaunchConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	MetadataOptions?:         #MetadataOptions | fn.#ObjectExpression
-	PlacementTenancy?:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	RamDiskId?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	SecurityGroups?: [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
-	] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AutoScaling::LaunchConfiguration"
+	Properties!: close({
+		AssociatePublicIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		BlockDeviceMappings?:      list.UniqueItems() & [...#BlockDeviceMapping] | fn.#ListExpression
+		ClassicLinkVPCId?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		ClassicLinkVPCSecurityGroups?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
 		fn.#ListExpression
-	SpotPrice?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	UserData?:  strings.MaxRunes(21847) & strings.MinRunes(0) | fn.#StringExpression
-})
+		EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IamInstanceProfile?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+		ImageId!: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		InstanceId?:              strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceMonitoring?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		InstanceType!:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		KernelId?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		KeyName?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		LaunchConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		MetadataOptions?:         #MetadataOptions | fn.#ObjectExpression
+		PlacementTenancy?:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		RamDiskId?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		SecurityGroups?: [...] & [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				string |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		SpotPrice?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		UserData?:  strings.MaxRunes(21847) & strings.MinRunes(0) | fn.#StringExpression
+	})
+}
 
 #BlockDevice: close({
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -140,7 +143,3 @@ fn.#ObjectExpression
 	HttpTokens?: "optional" | "required" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AutoScaling::LaunchConfiguration"
-	Properties!: #Properties
-}

@@ -13,18 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Events::Endpoint.
-#Properties: close({
-	Description?:       strings.MaxRunes(512) & =~".*" | fn.#StringExpression
-	EventBuses!:        #EventBuses
-	Name?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" | fn.#StringExpression
-	ReplicationConfig?: #ReplicationConfig
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(256) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$" |
-	fn.#StringExpression
-	RoutingConfig!: #RoutingConfig
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Events::Endpoint"
+	Properties!: close({
+		Description?: strings.MaxRunes(512) & =~".*" | fn.#StringExpression
+		EventBuses!:  #EventBuses
+		Name?:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" | fn.#StringExpression
+		ReplicationConfig?: #ReplicationConfig
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$" |
+		fn.#StringExpression
+		RoutingConfig!: #RoutingConfig
+	})
+}
 
 #EndpointEventBus: close({EventBusArn!: #EventBusArn}) | fn.#ObjectExpression
 
@@ -57,7 +60,3 @@ fn.#StringExpression
 #RoutingConfig: close({FailoverConfig!: #FailoverConfig}) | fn.#ObjectExpression
 
 #Secondary: close({Route!: #Route}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Events::Endpoint"
-	Properties!: #Properties
-}

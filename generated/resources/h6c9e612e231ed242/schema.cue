@@ -9,17 +9,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolRegionalConfigurationAttachment
-#Properties: close({
-	EmailConfiguration?: #EmailConfiguration
-	LambdaConfig?:       #LambdaConfig
-	SmsConfiguration?:   #SmsConfiguration
-	Status?:             string | fn.#StringExpression
-	UserPoolId!:         string | fn.#StringExpression
-	UserPoolTags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::UserPoolRegionalConfigurationAttachment"
+	Properties!: close({
+		EmailConfiguration?: #EmailConfiguration
+		LambdaConfig?:       #LambdaConfig
+		SmsConfiguration?:   #SmsConfiguration
+		Status?:             string | fn.#StringExpression
+		UserPoolId!:         string | fn.#StringExpression
+		UserPoolTags?: close({
 
-		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
 #CustomEmailSender: close({
 	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -95,7 +98,3 @@ fn.#ObjectExpression
 	SnsRegion?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::UserPoolRegionalConfigurationAttachment"
-	Properties!: #Properties
-}

@@ -14,12 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A service network is a logical boundary for a collection of services. You can
 // associate services and VPCs with a service network.
-#Properties: close({
-	AuthType?:      "NONE" | "AWS_IAM" | fn.#StringExpression
-	Name?:          strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	SharingConfig?: #SharingConfig
-	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::VpcLattice::ServiceNetwork"
+	Properties?: close({
+		AuthType?:      "NONE" | "AWS_IAM" | fn.#StringExpression
+		Name?:          strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+		SharingConfig?: #SharingConfig
+		Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #SharingConfig: close({enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
@@ -29,7 +32,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VpcLattice::ServiceNetwork"
-	Properties?: #Properties
-}

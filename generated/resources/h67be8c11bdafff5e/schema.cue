@@ -9,13 +9,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::SMSChannel
-#Properties: close({
-	ApplicationId!: string | fn.#StringExpression
-	Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SenderId?:      string | fn.#StringExpression
-	ShortCode?:     string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pinpoint::SMSChannel"
-	Properties!: #Properties
+	Type!: "AWS::Pinpoint::SMSChannel"
+	Properties!: close({
+		ApplicationId!: string | fn.#StringExpression
+		Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SenderId?:      string | fn.#StringExpression
+		ShortCode?:     string | fn.#StringExpression
+	})
 }

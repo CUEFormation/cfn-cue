@@ -17,21 +17,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A custom line item is an one time charge that is applied to a specific billing group's bill.
-#Properties: close({
-	AccountId?: =~"[0-9]{12}" | fn.#StringExpression
-	BillingGroupArn!: =~"arn:aws(-cn)?:billingconductor::[0-9]{12}:billinggroup/?[a-zA-Z0-9]{10,12}" |
-		fn.#StringExpression
-	BillingPeriodRange?:          #BillingPeriodRange
-	ComputationRule?:             "CONSOLIDATED" | "ITEMIZED" | fn.#StringExpression
-	CustomLineItemChargeDetails?: #CustomLineItemChargeDetails
-	Description?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
-	PresentationDetails?: close(
-		{Service!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression},
-	) |
-	fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BillingConductor::CustomLineItem"
+	Properties!: close({
+		AccountId?: =~"[0-9]{12}" | fn.#StringExpression
+		BillingGroupArn!: =~"arn:aws(-cn)?:billingconductor::[0-9]{12}:billinggroup/?[a-zA-Z0-9]{10,12}" |
+			fn.#StringExpression
+		BillingPeriodRange?:          #BillingPeriodRange
+		ComputationRule?:             "CONSOLIDATED" | "ITEMIZED" | fn.#StringExpression
+		CustomLineItemChargeDetails?: #CustomLineItemChargeDetails
+		Description?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
+		PresentationDetails?: close(
+			{Service!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression},
+		) |
+		fn.#ObjectExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AttributeValue: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 
@@ -125,7 +128,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Type: "FEE" | "CREDIT" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BillingConductor::CustomLineItem"
-	Properties!: #Properties
-}

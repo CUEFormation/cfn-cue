@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::UserHierarchyGroup
-#Properties: close({
-	InstanceArn!:    =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Name!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	ParentGroupArn?: #UserHierarchyGroupArn | fn.#StringExpression
-	Tags?:           list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::UserHierarchyGroup"
+	Properties!: close({
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Name!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		ParentGroupArn?: #UserHierarchyGroupArn | fn.#StringExpression
+		Tags?:           list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -28,7 +31,3 @@ fn.#ObjectExpression
 
 #UserHierarchyGroupArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group/[-a-zA-Z0-9]*$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::UserHierarchyGroup"
-	Properties!: #Properties
-}

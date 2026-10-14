@@ -13,39 +13,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GammaDilithium::JobDefinition
-#Properties: close({
-	ContainerProperties?:  #ContainerProperties
-	EcsProperties?:        #EcsProperties
-	EksProperties?:        #EksProperties
-	JobDefinitionName?:    string | fn.#StringExpression
-	NodeProperties?:       #NodeProperties
-	Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	PlatformCapabilities?: [...string | fn.#StringExpression] | fn.#ListExpression
-	PropagateTags?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RetryStrategy?:        #RetryStrategy
-	SchedulingPriority?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: [...close({
-		Key!:   string | fn.#StringExpression
-		Value!: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Timeout?: #Timeout
-	Type!:    string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GammaDilithium::JobDefinition"
+	Properties!: close({
+		ContainerProperties?:  #ContainerProperties
+		EcsProperties?:        #EcsProperties
+		EksProperties?:        #EksProperties
+		JobDefinitionName?:    string | fn.#StringExpression
+		NodeProperties?:       #NodeProperties
+		Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		PlatformCapabilities?: [...string | fn.#StringExpression] | fn.#ListExpression
+		PropagateTags?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RetryStrategy?:        #RetryStrategy
+		SchedulingPriority?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: [...close({
+			Key!:   string | fn.#StringExpression
+			Value!: string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		Timeout?: #Timeout
+		Type!:    string | fn.#StringExpression
+	})
+}
 
 #AuthorizationConfig: close({
 	AccessPointId?: string | fn.#StringExpression
@@ -549,7 +554,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VolumesHost: close({SourcePath?: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GammaDilithium::JobDefinition"
-	Properties!: #Properties
-}

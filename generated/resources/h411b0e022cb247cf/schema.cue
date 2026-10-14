@@ -17,11 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a package and storage location in an Amazon S3 access point.
-#Properties: close({
-	PackageName!:     #NodePackageName | fn.#StringExpression
-	StorageLocation?: close({}) | fn.#ObjectExpression
-	Tags?:            #TagList | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Panorama::Package"
+	Properties!: close({
+		PackageName!:     #NodePackageName | fn.#StringExpression
+		StorageLocation?: close({}) | fn.#ObjectExpression
+		Tags?:            #TagList | fn.#ListExpression
+	})
+}
 
 #NodePackageArn: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -59,7 +62,3 @@ fn.#ObjectExpression
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Panorama::Package"
-	Properties!: #Properties
-}

@@ -12,11 +12,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Database
-#Properties: close({
-	CatalogId!:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DatabaseInput!: #DatabaseInput | fn.#ObjectExpression
-	DatabaseName?:  string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Database"
+	Properties!: close({
+		CatalogId!:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DatabaseInput!: #DatabaseInput | fn.#ObjectExpression
+		DatabaseName?:  string | fn.#StringExpression
+	})
+}
 
 #DataLakePrincipal: close(
 	{DataLakePrincipalIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression},
@@ -64,7 +67,3 @@ fn.#ObjectExpression
 	Principal?: #DataLakePrincipal | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Database"
-	Properties!: #Properties
-}

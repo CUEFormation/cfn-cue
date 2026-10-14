@@ -9,18 +9,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Describes a VPN concentrator.
-#Properties: close({
-	Tags?:             [...#Tag] | fn.#ListExpression
-	TransitGatewayId?: string | fn.#StringExpression
-	Type!:             string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VPNConcentrator"
+	Properties!: close({
+		Tags?:             [...#Tag] | fn.#ListExpression
+		TransitGatewayId?: string | fn.#StringExpression
+		Type!:             string | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VPNConcentrator"
-	Properties!: #Properties
-}

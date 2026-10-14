@@ -13,10 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::LoggerDefinitionVersion
-#Properties: close({
-	LoggerDefinitionId!: string | fn.#StringExpression
-	Loggers!:            [...#Logger] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Greengrass::LoggerDefinitionVersion"
+	Properties!: close({
+		LoggerDefinitionId!: string | fn.#StringExpression
+		Loggers!:            [...#Logger] | fn.#ListExpression
+	})
+}
 
 #Logger: close({
 	Component!: string | fn.#StringExpression
@@ -39,7 +42,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Greengrass::LoggerDefinitionVersion"
-	Properties!: #Properties
-}

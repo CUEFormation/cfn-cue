@@ -12,13 +12,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a service function within a Resilience Hub service.
-#Properties: close({
-	Criticality!: "PRIMARY" | "SUPPLEMENTAL" | fn.#StringExpression
-	Description?: strings.MaxRunes(500) | fn.#StringExpression
-	Name!:        =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	ServiceArn!:  string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ResilienceHubV2::ServiceFunction"
-	Properties!: #Properties
+	Type!: "AWS::ResilienceHubV2::ServiceFunction"
+	Properties!: close({
+		Criticality!: "PRIMARY" | "SUPPLEMENTAL" | fn.#StringExpression
+		Description?: strings.MaxRunes(500) | fn.#StringExpression
+		Name!:        =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
+		ServiceArn!:  string | fn.#StringExpression
+	})
 }

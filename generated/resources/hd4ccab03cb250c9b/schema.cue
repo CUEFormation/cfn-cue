@@ -17,26 +17,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::ImageBuilder
-#Properties: close({
-	AccessEndpoints?:             list.MaxItems(4) & list.MinItems(1) & [...#AccessEndpoint] | fn.#ListExpression
-	AppstreamAgentVersion?:       strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:                 strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DisableIMDSV1?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DisplayName?:                 strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	DomainJoinInfo?:              #DomainJoinInfo
-	EnableDefaultInternetAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	ImageArn?:             string | fn.#StringExpression
-	ImageName?:            strings.MinRunes(1) | fn.#StringExpression
-	InstanceType!:         strings.MinRunes(1) | fn.#StringExpression
-	Name!:                 strings.MinRunes(1) | fn.#StringExpression
-	RootVolumeConfig?:     #VolumeConfig
-	SoftwaresToInstall?:   [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	SoftwaresToUninstall?: [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                 [...#Tag] | fn.#ListExpression
-	VpcConfig?:            #VpcConfig
-}) & matchN(>=1, [{ImageName!: _}, {ImageArn!: _}])
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppStream::ImageBuilder"
+	Properties!: close({
+		AccessEndpoints?:       list.MaxItems(4) & list.MinItems(1) & [...#AccessEndpoint] | fn.#ListExpression
+		AppstreamAgentVersion?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Description?:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		DisableIMDSV1?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DisplayName?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		DomainJoinInfo?:        #DomainJoinInfo
+		EnableDefaultInternetAccess?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		ImageArn?:             string | fn.#StringExpression
+		ImageName?:            strings.MinRunes(1) | fn.#StringExpression
+		InstanceType!:         strings.MinRunes(1) | fn.#StringExpression
+		Name!:                 strings.MinRunes(1) | fn.#StringExpression
+		RootVolumeConfig?:     #VolumeConfig
+		SoftwaresToInstall?:   [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		SoftwaresToUninstall?: [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		Tags?:                 [...#Tag] | fn.#ListExpression
+		VpcConfig?:            #VpcConfig
+	}) & matchN(>=1, [{ImageName!: _}, {ImageArn!: _}])
+}
 
 #AccessEndpoint: close({
 	EndpointType!: "STREAMING" | fn.#StringExpression
@@ -83,7 +93,3 @@ fn.#ObjectExpression
 	SubnetIds?: [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppStream::ImageBuilder"
-	Properties!: #Properties
-}

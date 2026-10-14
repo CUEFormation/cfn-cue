@@ -12,23 +12,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GuardDuty::ThreatIntelSet
-#Properties: close({
-	Activate?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DetectorId?:          strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
-	ExpectedBucketOwner?: strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
-	Format!: ("ALIEN_VAULT" | "FIRE_EYE" | "OTX_CSV" | "PROOF_POINT" | "STIX" | "TXT") & (strings.MaxRunes(300) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	Location!: strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:     strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:     [...#TagItem] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GuardDuty::ThreatIntelSet"
+	Properties!: close({
+		Activate?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DetectorId?:          strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+		ExpectedBucketOwner?: strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
+		Format!: ("ALIEN_VAULT" | "FIRE_EYE" | "OTX_CSV" | "PROOF_POINT" | "STIX" | "TXT") & (strings.MaxRunes(300) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		Location!: strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+		Name?:     strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:     [...#TagItem] | fn.#ListExpression
+	})
+}
 
 #TagItem: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GuardDuty::ThreatIntelSet"
-	Properties!: #Properties
-}

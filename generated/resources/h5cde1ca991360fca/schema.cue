@@ -12,13 +12,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Associates WebACL to Application Load Balancer, CloudFront or API Gateway.
-#Properties: close({
-	ResourceArn!: #ResourceArn
-	WebACLArn!:   #ResourceArn
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAFv2::WebACLAssociation"
+	Properties!: close({
+		ResourceArn!: #ResourceArn
+		WebACLArn!:   #ResourceArn
+	})
+}
 
 #ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"\\S" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAFv2::WebACLAssociation"
-	Properties!: #Properties
-}

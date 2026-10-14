@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A segment definition resource of Amazon Connect Customer Profiles
-#Properties: close({
-	Description?:           strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression
-	DisplayName!:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DomainName!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	SegmentDefinitionName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	SegmentGroups?:         #SegmentGroup | fn.#ObjectExpression
-	SegmentSort?:           #SegmentSort | fn.#ObjectExpression
-	SegmentSqlQuery?:       strings.MaxRunes(50000) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CustomerProfiles::SegmentDefinition"
+	Properties!: close({
+		Description?:           strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression
+		DisplayName!:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DomainName!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		SegmentDefinitionName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		SegmentGroups?:         #SegmentGroup | fn.#ObjectExpression
+		SegmentSort?:           #SegmentSort | fn.#ObjectExpression
+		SegmentSqlQuery?:       strings.MaxRunes(50000) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AddressDimension: close({
 	City?:       #ProfileDimension
@@ -235,7 +238,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CustomerProfiles::SegmentDefinition"
-	Properties!: #Properties
-}

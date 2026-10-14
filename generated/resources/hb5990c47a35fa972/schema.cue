@@ -18,35 +18,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::Rekognition::StreamProcessor type is used to create an Amazon
 // Rekognition StreamProcessor that you can use to analyze streaming videos.
-#Properties: matchN(1, [{
-	ConnectedHomeSettings!: _
-	S3Destination!:         _
-	NotificationChannel!:   _
-	...
-}, {
-	FaceSearchSettings!: _
-	KinesisDataStream!:  _
-	...
-}]) & close({
-	BoundingBoxRegionsOfInterest?: list.UniqueItems() & [...] & [...#BoundingBox] | fn.#ListExpression
-	ConnectedHomeSettings?:        #ConnectedHomeSettings
-	DataSharingPreference?:        #DataSharingPreference
-	FaceSearchSettings?:           #FaceSearchSettings
-	KinesisDataStream?:            #KinesisDataStream
-	KinesisVideoStream!:           #KinesisVideoStream
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	Name?:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]+" | fn.#StringExpression
-	NotificationChannel?: #NotificationChannel
-	PolygonRegionsOfInterest?: list.UniqueItems() & [...] & [...#Polygon] | fn.#ListExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
-	fn.#StringExpression
-	S3Destination?: #S3Destination
-	Tags?:          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Rekognition::StreamProcessor"
+	Properties!: matchN(1, [{
+		ConnectedHomeSettings!: _
+		S3Destination!:         _
+		NotificationChannel!:   _
+		...
+	}, {
+		FaceSearchSettings!: _
+		KinesisDataStream!:  _
+		...
+	}]) & close({
+		BoundingBoxRegionsOfInterest?: list.UniqueItems() & [...] & [...#BoundingBox] | fn.#ListExpression
+		ConnectedHomeSettings?:        #ConnectedHomeSettings
+		DataSharingPreference?:        #DataSharingPreference
+		FaceSearchSettings?:           #FaceSearchSettings
+		KinesisDataStream?:            #KinesisDataStream
+		KinesisVideoStream!:           #KinesisVideoStream
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		Name?:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]+" | fn.#StringExpression
+		NotificationChannel?: #NotificationChannel
+		PolygonRegionsOfInterest?: list.UniqueItems() & [...] & [...#Polygon] | fn.#ListExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
+		fn.#StringExpression
+		S3Destination?: #S3Destination
+		Tags?:          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: strings.MaxRunes(2048) | fn.#StringExpression
 
@@ -259,7 +262,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Rekognition::StreamProcessor"
-	Properties!: #Properties
-}

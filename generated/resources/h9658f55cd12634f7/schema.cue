@@ -17,15 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::NetworkManager::Link type describes a link.
-#Properties: close({
-	Bandwidth!:       #Bandwidth | fn.#ObjectExpression
-	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Provider?:        strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	SiteId!:          strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Type?:            strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkManager::Link"
+	Properties!: close({
+		Bandwidth!:       #Bandwidth | fn.#ObjectExpression
+		Description?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		Provider?:        strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		SiteId!:          strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type?:            strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	})
+}
 
 #Bandwidth: close({
 	DownloadSpeed?: int |
@@ -64,7 +67,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkManager::Link"
-	Properties!: #Properties
-}

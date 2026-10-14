@@ -13,27 +13,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpenSearchServerless::VpcEndpoint
-#Properties: close({
-	Name!: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" | fn.#StringExpression
-	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		strings.MaxRunes(128) &
-		strings.MinRunes(1) &
-		=~"^[\\w+\\-]+$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	SubnetIds!: list.MaxItems(6) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^subnet-([0-9a-f]{8}|[0-9a-f]{17})$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(255) &
-	strings.MinRunes(1) &
-	=~"^vpc-[0-9a-z]*$" |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpenSearchServerless::VpcEndpoint"
-	Properties!: #Properties
+	Type!: "AWS::OpenSearchServerless::VpcEndpoint"
+	Properties!: close({
+		Name!: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" | fn.#StringExpression
+		SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"^[\\w+\\-]+$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		SubnetIds!: list.MaxItems(6) & list.MinItems(1) & [
+			...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^subnet-([0-9a-f]{8}|[0-9a-f]{17})$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^vpc-[0-9a-z]*$" |
+		fn.#StringExpression
+	})
 }

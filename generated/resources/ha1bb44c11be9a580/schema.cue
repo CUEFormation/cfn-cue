@@ -9,21 +9,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EventSchemas::Schema
-#Properties: close({
-	Content!:      string | fn.#StringExpression
-	Description?:  string | fn.#StringExpression
-	RegistryName!: string | fn.#StringExpression
-	SchemaName?:   string | fn.#StringExpression
-	Tags?:         [...#TagsEntry] | fn.#ListExpression
-	Type!:         string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EventSchemas::Schema"
+	Properties!: close({
+		Content!:      string | fn.#StringExpression
+		Description?:  string | fn.#StringExpression
+		RegistryName!: string | fn.#StringExpression
+		SchemaName?:   string | fn.#StringExpression
+		Tags?:         [...#TagsEntry] | fn.#ListExpression
+		Type!:         string | fn.#StringExpression
+	})
+}
 
 #TagsEntry: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EventSchemas::Schema"
-	Properties!: #Properties
-}

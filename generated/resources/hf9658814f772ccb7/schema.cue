@@ -12,13 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::InstanceConnectEndpoint
-#Properties: close({
-	ClientToken?:      string | fn.#StringExpression
-	PreserveClientIp?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SecurityGroupIds?: list.MaxItems(16) & list.UniqueItems() & [...] & [...#SecurityGroupId] | fn.#ListExpression
-	SubnetId!:         string | fn.#StringExpression
-	Tags?:             [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::InstanceConnectEndpoint"
+	Properties!: close({
+		ClientToken?:      string | fn.#StringExpression
+		PreserveClientIp?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SecurityGroupIds?: list.MaxItems(16) & list.UniqueItems() & [...] & [...#SecurityGroupId] | fn.#ListExpression
+		SubnetId!:         string | fn.#StringExpression
+		Tags?:             [...#Tag] | fn.#ListExpression
+	})
+}
 
 #InstanceConnectEndpointDnsNames: close({
 	DnsName?:     string | fn.#StringExpression
@@ -42,7 +45,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::InstanceConnectEndpoint"
-	Properties!: #Properties
-}

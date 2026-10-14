@@ -16,16 +16,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The `AWS::Redshift::ScheduledAction` resource creates an Amazon Redshift Scheduled Action.
-#Properties: close({
-	Enable?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EndTime?:                    #timestamp | fn.#StringExpression
-	IamRole?:                    strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	Schedule?:                   strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	ScheduledActionDescription?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	ScheduledActionName!:        strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	StartTime?:                  #timestamp | fn.#StringExpression
-	TargetAction?:               #ScheduledActionType | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Redshift::ScheduledAction"
+	Properties!: close({
+		Enable?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EndTime?:  #timestamp | fn.#StringExpression
+		IamRole?:  strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		Schedule?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		ScheduledActionDescription?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		ScheduledActionName!:        strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		StartTime?:                  #timestamp | fn.#StringExpression
+		TargetAction?:               #ScheduledActionType | fn.#ObjectExpression
+	})
+}
 
 #PauseClusterMessage: close({ClusterIdentifier!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -63,7 +66,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #timestamp: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Redshift::ScheduledAction"
-	Properties!: #Properties
-}

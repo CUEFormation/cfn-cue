@@ -23,20 +23,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // rebooting.
 // If you apply a change to parameter group associated with a stopped DB
 // cluster, then the updated stack waits until the DB cluster is started.
-#Properties: close({
-	DBClusterParameterGroupName?: strings.MinRunes(1) & =~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9])*$" | fn.#StringExpression
-	Description!:                 string | fn.#StringExpression
-	Family!:                      string | fn.#StringExpression
-	Parameters!:                  fn.#Object & {...} | string | fn.#StringObjectExpression
-	Tags?:                        list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RDS::DBClusterParameterGroup"
+	Properties!: close({
+		DBClusterParameterGroupName?: strings.MinRunes(1) & =~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9])*$" | fn.#StringExpression
+		Description!:                 string | fn.#StringExpression
+		Family!:                      string | fn.#StringExpression
+		Parameters!:                  fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?:                        list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RDS::DBClusterParameterGroup"
-	Properties!: #Properties
-}

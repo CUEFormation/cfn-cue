@@ -18,23 +18,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceDiscovery::Service
-#Properties: close({
-	Description?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	DnsConfig?:               #DnsConfig | fn.#ObjectExpression
-	HealthCheckConfig?:       #HealthCheckConfig | fn.#ObjectExpression
-	HealthCheckCustomConfig?: #HealthCheckCustomConfig | fn.#ObjectExpression
-	Name?:                    string | fn.#StringExpression
-	NamespaceId?:             strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	ServiceAttributes?: struct.MaxFields(30) & close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ServiceDiscovery::Service"
+	Properties?: close({
+		Description?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		DnsConfig?:               #DnsConfig | fn.#ObjectExpression
+		HealthCheckConfig?:       #HealthCheckConfig | fn.#ObjectExpression
+		HealthCheckCustomConfig?: #HealthCheckCustomConfig | fn.#ObjectExpression
+		Name?:                    string | fn.#StringExpression
+		NamespaceId?:             strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		ServiceAttributes?: struct.MaxFields(30) & close({
 
-		{[=~"^[A-Za-z0-9_]{1,64}$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	Type?: "HTTP" | fn.#StringExpression
-	if HealthCheckConfig != _|_ {
-		HealthCheckCustomConfig?: error("HealthCheckCustomConfig cannot be used with HealthCheckConfig")
-	}
-})
+			{[=~"^[A-Za-z0-9_]{1,64}$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Type?: "HTTP" | fn.#StringExpression
+		if HealthCheckConfig != _|_ {
+			HealthCheckCustomConfig?: error("HealthCheckCustomConfig cannot be used with HealthCheckConfig")
+		}
+	})
+}
 
 #DnsConfig: close({
 	DnsRecords!:    [...#DnsRecord] | fn.#ListExpression
@@ -123,7 +126,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceDiscovery::Service"
-	Properties?: #Properties
-}

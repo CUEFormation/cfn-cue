@@ -13,26 +13,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::TaskTemplate.
-#Properties: close({
-	ClientToken?: #ClientToken
-	Constraints?: close({
-		InvisibleFields?: #InvisibleTaskTemplateFields
-		ReadOnlyFields?:  #ReadOnlyTaskTemplateFields
-		RequiredFields?:  #RequiredTaskTemplateFields
-	}) |
-	fn.#ObjectExpression
-	ContactFlowArn?: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" |
-		fn.#StringExpression
-	Defaults?:    list.MaxItems(50) & [...#DefaultFieldValue] | fn.#ListExpression
-	Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	Fields?:      list.MaxItems(50) & [...#Field] | fn.#ListExpression
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Name?:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	SelfAssignContactFlowArn?: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" |
-		fn.#StringExpression
-	Status?: #Status
-	Tags?:   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::TaskTemplate"
+	Properties!: close({
+		ClientToken?: #ClientToken
+		Constraints?: close({
+			InvisibleFields?: #InvisibleTaskTemplateFields
+			ReadOnlyFields?:  #ReadOnlyTaskTemplateFields
+			RequiredFields?:  #RequiredTaskTemplateFields
+		}) |
+		fn.#ObjectExpression
+		ContactFlowArn?: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" |
+			fn.#StringExpression
+		Defaults?:    list.MaxItems(50) & [...#DefaultFieldValue] | fn.#ListExpression
+		Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		Fields?:      list.MaxItems(50) & [...#Field] | fn.#ListExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Name?:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		SelfAssignContactFlowArn?: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" |
+			fn.#StringExpression
+		Status?: #Status
+		Tags?:   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ClientToken: strings.MaxRunes(500) &
 strings.MinRunes(0) &
@@ -95,7 +98,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::TaskTemplate"
-	Properties!: #Properties
-}

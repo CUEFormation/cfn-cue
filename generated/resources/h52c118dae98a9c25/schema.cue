@@ -15,23 +15,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A conformance pack is a collection of AWS Config rules and remediation
 // actions that can be easily deployed as a single entity in an account and a
 // region or across an entire AWS Organization.
-#Properties: close({
-	ConformancePackInputParameters?: list.MaxItems(60) & [...] & [...#ConformancePackInputParameter] |
-		fn.#ListExpression
-	ConformancePackName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*" | fn.#StringExpression
-	DeliveryS3Bucket?:    strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
-	DeliveryS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:                list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	TemplateBody?:        strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
-	TemplateS3Uri?:       strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" | fn.#StringExpression
-	TemplateSSMDocumentDetails?: close({
-		DocumentName?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Config::ConformancePack"
+	Properties!: close({
+		ConformancePackInputParameters?: list.MaxItems(60) & [...] & [...#ConformancePackInputParameter] |
+			fn.#ListExpression
+		ConformancePackName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*" |
 		fn.#StringExpression
-		DocumentVersion?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([$]LATEST|[$]DEFAULT|^[1-9][0-9]*$)$" |
-		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-})
+		DeliveryS3Bucket?:    strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
+		DeliveryS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Tags?:                list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TemplateBody?:        strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
+		TemplateS3Uri?:       strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" | fn.#StringExpression
+		TemplateSSMDocumentDetails?: close({
+			DocumentName?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" |
+			fn.#StringExpression
+			DocumentVersion?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([$]LATEST|[$]DEFAULT|^[1-9][0-9]*$)$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+	})
+}
 
 #ConformancePackInputParameter: close({
 	ParameterName!:  #ParameterName
@@ -48,7 +52,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Config::ConformancePack"
-	Properties!: #Properties
-}

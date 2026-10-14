@@ -17,30 +17,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KinesisFirehose::DeliveryStream
-#Properties: close({
-	AmazonOpenSearchServerlessDestinationConfiguration?: #AmazonOpenSearchServerlessDestinationConfiguration
-	AmazonopensearchserviceDestinationConfiguration?:    #AmazonopensearchserviceDestinationConfiguration
-	DatabaseSourceConfiguration?:                        #DatabaseSourceConfiguration
-	DeliveryStreamEncryptionConfigurationInput?:         #DeliveryStreamEncryptionConfigurationInput
-	DeliveryStreamName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9._-]+" | fn.#StringExpression
-	DeliveryStreamType?: "DatabaseAsSource" |
-		"DirectPut" |
-		"KinesisStreamAsSource" |
-		"MSKAsSource" |
-		fn.#StringExpression
-	DirectPutSourceConfiguration?:          #DirectPutSourceConfiguration
-	ElasticsearchDestinationConfiguration?: #ElasticsearchDestinationConfiguration
-	ExtendedS3DestinationConfiguration?:    #ExtendedS3DestinationConfiguration
-	HttpEndpointDestinationConfiguration?:  #HttpEndpointDestinationConfiguration
-	IcebergDestinationConfiguration?:       #IcebergDestinationConfiguration
-	KinesisStreamSourceConfiguration?:      #KinesisStreamSourceConfiguration
-	MSKSourceConfiguration?:                #MSKSourceConfiguration
-	RedshiftDestinationConfiguration?:      #RedshiftDestinationConfiguration
-	S3DestinationConfiguration?:            #S3DestinationConfiguration
-	SnowflakeDestinationConfiguration?:     #SnowflakeDestinationConfiguration
-	SplunkDestinationConfiguration?:        #SplunkDestinationConfiguration
-	Tags?:                                  list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KinesisFirehose::DeliveryStream"
+	Properties?: close({
+		AmazonOpenSearchServerlessDestinationConfiguration?: #AmazonOpenSearchServerlessDestinationConfiguration
+		AmazonopensearchserviceDestinationConfiguration?:    #AmazonopensearchserviceDestinationConfiguration
+		DatabaseSourceConfiguration?:                        #DatabaseSourceConfiguration
+		DeliveryStreamEncryptionConfigurationInput?:         #DeliveryStreamEncryptionConfigurationInput
+		DeliveryStreamName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9._-]+" | fn.#StringExpression
+		DeliveryStreamType?: "DatabaseAsSource" |
+			"DirectPut" |
+			"KinesisStreamAsSource" |
+			"MSKAsSource" |
+			fn.#StringExpression
+		DirectPutSourceConfiguration?:          #DirectPutSourceConfiguration
+		ElasticsearchDestinationConfiguration?: #ElasticsearchDestinationConfiguration
+		ExtendedS3DestinationConfiguration?:    #ExtendedS3DestinationConfiguration
+		HttpEndpointDestinationConfiguration?:  #HttpEndpointDestinationConfiguration
+		IcebergDestinationConfiguration?:       #IcebergDestinationConfiguration
+		KinesisStreamSourceConfiguration?:      #KinesisStreamSourceConfiguration
+		MSKSourceConfiguration?:                #MSKSourceConfiguration
+		RedshiftDestinationConfiguration?:      #RedshiftDestinationConfiguration
+		S3DestinationConfiguration?:            #S3DestinationConfiguration
+		SnowflakeDestinationConfiguration?:     #SnowflakeDestinationConfiguration
+		SplunkDestinationConfiguration?:        #SplunkDestinationConfiguration
+		Tags?:                                  list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AmazonOpenSearchServerlessBufferingHints: close({
 	IntervalInSeconds?: int & <=900 & >=0 |
@@ -1153,7 +1156,3 @@ fn.#ObjectExpression
 strings.MinRunes(47) &
 =~"([a-zA-Z0-9\\-\\_]+\\.){2,3}vpce\\.[a-zA-Z0-9\\-]*\\.vpce-svc\\-[a-zA-Z0-9\\-]{17}$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KinesisFirehose::DeliveryStream"
-	Properties?: #Properties
-}

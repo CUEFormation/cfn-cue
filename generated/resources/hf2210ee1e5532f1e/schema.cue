@@ -28,14 +28,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // to monitor costs and
 // [](https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html)
 // to manage API requests.
-#Properties: close({
-	ApiStages?:     list.UniqueItems() & [...#ApiStage] | fn.#ListExpression
-	Description?:   string | fn.#StringExpression
-	Quota?:         #QuotaSettings | fn.#ObjectExpression
-	Tags?:          [...#Tag] | fn.#ListExpression
-	Throttle?:      #ThrottleSettings | fn.#ObjectExpression
-	UsagePlanName?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGateway::UsagePlan"
+	Properties?: close({
+		ApiStages?:     list.UniqueItems() & [...#ApiStage] | fn.#ListExpression
+		Description?:   string | fn.#StringExpression
+		Quota?:         #QuotaSettings | fn.#ObjectExpression
+		Tags?:          [...#Tag] | fn.#ListExpression
+		Throttle?:      #ThrottleSettings | fn.#ObjectExpression
+		UsagePlanName?: string | fn.#StringExpression
+	})
+}
 
 #ApiStage: close({
 	ApiId?: string | fn.#StringExpression
@@ -125,7 +128,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::UsagePlan"
-	Properties?: #Properties
-}

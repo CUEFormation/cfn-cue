@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a Connector that connects AWS PrivateCA and your directory
-#Properties: close({
-	CertificateAuthorityArn!: strings.MaxRunes(200) &
-	strings.MinRunes(5) &
-	=~"^arn:[\\w-]+:acm-pca:[\\w-]+:[0-9]+:certificate-authority\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	DirectoryId!:    =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
-	Tags?:           #Tags
-	VpcInformation!: #VpcInformation
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PCAConnectorAD::Connector"
+	Properties!: close({
+		CertificateAuthorityArn!: strings.MaxRunes(200) &
+		strings.MinRunes(5) &
+		=~"^arn:[\\w-]+:acm-pca:[\\w-]+:[0-9]+:certificate-authority\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
+		fn.#StringExpression
+		DirectoryId!:    =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
+		Tags?:           #Tags
+		VpcInformation!: #VpcInformation
+	})
+}
 
 #Tags: close({
 
@@ -42,7 +45,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PCAConnectorAD::Connector"
-	Properties!: #Properties
-}

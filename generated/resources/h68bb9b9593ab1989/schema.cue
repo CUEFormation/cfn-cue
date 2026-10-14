@@ -13,32 +13,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a catalog in the Glue Data Catalog.
-#Properties: close({
-	AllowFullTableExternalDataAccess?: "True" | "False" | fn.#StringExpression
-	CatalogProperties?: close({
-		DataLakeAccessProperties?: close({
-			AllowFullTableExternalDataAccess?: "True" | "False" | fn.#StringExpression
-			CatalogType?:                      string | fn.#StringExpression
-			DataLakeAccess?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			DataTransferRole?: string | fn.#StringExpression
-			KmsKey?:           string | fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Catalog"
+	Properties!: close({
+		AllowFullTableExternalDataAccess?: "True" | "False" | fn.#StringExpression
+		CatalogProperties?: close({
+			DataLakeAccessProperties?: close({
+				AllowFullTableExternalDataAccess?: "True" | "False" | fn.#StringExpression
+				CatalogType?:                      string | fn.#StringExpression
+				DataLakeAccess?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+				DataTransferRole?: string | fn.#StringExpression
+				KmsKey?:           string | fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	CreateDatabaseDefaultPermissions?:             [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
-	CreateTableDefaultPermissions?:                [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
-	Description?:                                  strings.MaxRunes(2048) | fn.#StringExpression
-	FederatedCatalog?:                             #FederatedCatalog
-	Name!:                                         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	OverwriteChildResourcePermissionsWithDefault?: "Accept" | "Deny" | fn.#StringExpression
-	Parameters?: close({
+		CreateDatabaseDefaultPermissions?: [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
+		CreateTableDefaultPermissions?:    [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
+		Description?:                      strings.MaxRunes(2048) | fn.#StringExpression
+		FederatedCatalog?:                 #FederatedCatalog
+		Name!:                             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		OverwriteChildResourcePermissionsWithDefault?: "Accept" | "Deny" | fn.#StringExpression
+		Parameters?: close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TargetRedshiftCatalog?: #TargetRedshiftCatalog
-})
+			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetRedshiftCatalog?: #TargetRedshiftCatalog
+	})
+}
 
 #CatalogProperties: close({
 	CustomProperties?: close({
@@ -97,7 +100,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TargetRedshiftCatalog: close({CatalogArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Catalog"
-	Properties!: #Properties
-}

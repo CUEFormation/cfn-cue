@@ -19,31 +19,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Use the AWS::IoT::Job resource to declare an AWS IoT job. A job can be used
 // to define a set of remote operations that are sent to and run on one or more
 // devices (things or thing groups) connected to AWS IoT.
-#Properties: close({
-	AbortConfig?: #AbortConfig
-	Description?: strings.MaxRunes(2028) & strings.MinRunes(1) & =~"^[^\\p{C}]+$" | fn.#StringExpression
-	DestinationPackageVersions?: [
-		...strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Document?: strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
-	DocumentParameters?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::Job"
+	Properties!: close({
+		AbortConfig?: #AbortConfig
+		Description?: strings.MaxRunes(2028) & strings.MinRunes(1) & =~"^[^\\p{C}]+$" | fn.#StringExpression
+		DestinationPackageVersions?: [
+			...strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Document?: strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
+		DocumentParameters?: close({
 
-		{[=~"^[a-zA-Z0-9_-]+$"]: strings.MaxRunes(30720) & strings.MinRunes(1) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	DocumentSource?:             strings.MaxRunes(1350) & strings.MinRunes(1) | fn.#StringExpression
-	JobExecutionsRetryConfig?:   #JobExecutionsRetryConfig
-	JobExecutionsRolloutConfig?: #JobExecutionsRolloutConfig
-	JobId!:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	JobTemplateArn?:     strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" | fn.#StringExpression
-	PresignedUrlConfig?: #PresignedUrlConfig
-	SchedulingConfig?:   #SchedulingConfig
-	Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TargetSelection?:    "CONTINUOUS" | "SNAPSHOT" | fn.#StringExpression
-	Targets!: list.MinItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression] |
-	fn.#ListExpression
-	TimeoutConfig?: #TimeoutConfig
-})
+			{[=~"^[a-zA-Z0-9_-]+$"]: strings.MaxRunes(30720) & strings.MinRunes(1) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		DocumentSource?:             strings.MaxRunes(1350) & strings.MinRunes(1) | fn.#StringExpression
+		JobExecutionsRetryConfig?:   #JobExecutionsRetryConfig
+		JobExecutionsRolloutConfig?: #JobExecutionsRolloutConfig
+		JobId!:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		JobTemplateArn?:     strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" | fn.#StringExpression
+		PresignedUrlConfig?: #PresignedUrlConfig
+		SchedulingConfig?:   #SchedulingConfig
+		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetSelection?:    "CONTINUOUS" | "SNAPSHOT" | fn.#StringExpression
+		Targets!: list.MinItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression] |
+		fn.#ListExpression
+		TimeoutConfig?: #TimeoutConfig
+	})
+}
 
 #AbortConfig: close({CriteriaList!: list.MinItems(1) & [...#AbortCriteria] | fn.#ListExpression}) | fn.#ObjectExpression
 
@@ -282,7 +285,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::Job"
-	Properties!: #Properties
-}

@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::Dataset.
-#Properties: close({
-	DatasetConfig?: #DatasetConfig | fn.#ObjectExpression
-	DatasetDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	DatasetName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@.]+$" | fn.#StringExpression
-	DatasetSource?: #DatasetSource | fn.#ObjectExpression
-	DatasetType?:   "SESSION" | "CURATED" | "EXTERNAL" | fn.#StringExpression
-	Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	WorkspaceName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTSiteWise::Dataset"
+	Properties!: close({
+		DatasetConfig?: #DatasetConfig | fn.#ObjectExpression
+		DatasetDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
+		DatasetName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@.]+$" | fn.#StringExpression
+		DatasetSource?: #DatasetSource | fn.#ObjectExpression
+		DatasetType?:   "SESSION" | "CURATED" | "EXTERNAL" | fn.#StringExpression
+		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		WorkspaceName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	})
+}
 
 #DatasetConfig: close({Session?: #SessionConfig | fn.#ObjectExpression}) | fn.#ObjectExpression
 
@@ -57,7 +60,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSiteWise::Dataset"
-	Properties!: #Properties
-}

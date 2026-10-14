@@ -17,17 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A calculated attribute definition for Customer Profiles
-#Properties: close({
-	AttributeDetails!:        #AttributeDetails
-	CalculatedAttributeName!: #CalculatedAttributeName
-	Conditions?:              #Conditions
-	Description?:             #Description
-	DisplayName?:             #DisplayName
-	DomainName!:              #DomainName
-	Statistic!:               #Statistic
-	Tags?:                    #Tags
-	UseHistoricalData?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CustomerProfiles::CalculatedAttributeDefinition"
+	Properties!: close({
+		AttributeDetails!:        #AttributeDetails
+		CalculatedAttributeName!: #CalculatedAttributeName
+		Conditions?:              #Conditions
+		Description?:             #Description
+		DisplayName?:             #DisplayName
+		DomainName!:              #DomainName
+		Statistic!:               #Statistic
+		Tags?:                    #Tags
+		UseHistoricalData?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	})
+}
 
 #AttributeDetails: close({
 	Attributes!: #AttributeList
@@ -188,7 +191,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CustomerProfiles::CalculatedAttributeDefinition"
-	Properties!: #Properties
-}

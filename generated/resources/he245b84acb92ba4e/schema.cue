@@ -17,25 +17,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::Guardrail Resource Type
-#Properties: close({
-	AutomatedReasoningPolicyConfig?:  #AutomatedReasoningPolicyConfig
-	BlockedInputMessaging!:           strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	BlockedOutputsMessaging!:         strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	ContentPolicyConfig?:             #ContentPolicyConfig
-	ContextualGroundingPolicyConfig?: #ContextualGroundingPolicyConfig
-	CrossRegionConfig?:               #GuardrailCrossRegionConfig
-	Description?:                     strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_]+$" | fn.#StringExpression
-	SensitiveInformationPolicyConfig?: #SensitiveInformationPolicyConfig
-	Tags?:                             list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	TopicPolicyConfig?:                #TopicPolicyConfig
-	WordPolicyConfig?:                 #WordPolicyConfig
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::Guardrail"
+	Properties!: close({
+		AutomatedReasoningPolicyConfig?:  #AutomatedReasoningPolicyConfig
+		BlockedInputMessaging!:           strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		BlockedOutputsMessaging!:         strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		ContentPolicyConfig?:             #ContentPolicyConfig
+		ContextualGroundingPolicyConfig?: #ContextualGroundingPolicyConfig
+		CrossRegionConfig?:               #GuardrailCrossRegionConfig
+		Description?:                     strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_]+$" | fn.#StringExpression
+		SensitiveInformationPolicyConfig?: #SensitiveInformationPolicyConfig
+		Tags?:                             list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TopicPolicyConfig?:                #TopicPolicyConfig
+		WordPolicyConfig?:                 #WordPolicyConfig
+	})
+}
 
 #AutomatedReasoningPolicyConfig: close({
 	ConfidenceThreshold?: <=1 & >=0 |
@@ -263,7 +266,3 @@ fn.#ObjectExpression
 	WordsConfig?:            list.MaxItems(10000) & list.MinItems(1) & [...#WordConfig] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::Guardrail"
-	Properties!: #Properties
-}

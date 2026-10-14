@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Route53 Recovery Control Cluster resource schema
-#Properties: close({
-	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	NetworkType?: "IPV4" | "DUALSTACK" | fn.#StringExpression
-	Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
-	fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53RecoveryControl::Cluster"
+	Properties!: close({
+		Name!:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		NetworkType?: "IPV4" | "DUALSTACK" | fn.#StringExpression
+		Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
+}
 
 #ClusterEndpoint: close({
 	Endpoint?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -31,7 +34,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53RecoveryControl::Cluster"
-	Properties!: #Properties
-}

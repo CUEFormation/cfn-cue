@@ -13,12 +13,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A version for the specified customer-managed message template within the
 // specified knowledge base.
-#Properties: close({
-	MessageTemplateArn!: =~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})?$" |
-		fn.#StringExpression
-	MessageTemplateContentSha256?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Wisdom::MessageTemplateVersion"
-	Properties!: #Properties
+	Type!: "AWS::Wisdom::MessageTemplateVersion"
+	Properties!: close({
+		MessageTemplateArn!: =~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})?$" |
+			fn.#StringExpression
+		MessageTemplateContentSha256?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	})
 }

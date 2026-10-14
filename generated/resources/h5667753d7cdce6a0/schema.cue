@@ -23,7 +23,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // grant the source account permission to replicate. This permission is
 // controlled using a private registry permissions policy. For more
 // information, see ``AWS::ECR::RegistryPolicy``.
-#Properties: close({ReplicationConfiguration!: #ReplicationConfiguration | fn.#ObjectExpression})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::ECR::ReplicationConfiguration"
+	Properties!: close({ReplicationConfiguration!: #ReplicationConfiguration | fn.#ObjectExpression})
+}
 
 #Filter: strings.MaxRunes(256) &
 strings.MinRunes(2) &
@@ -56,7 +59,3 @@ fn.#ObjectExpression
 	FilterType!: #FilterType | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECR::ReplicationConfiguration"
-	Properties!: #Properties
-}

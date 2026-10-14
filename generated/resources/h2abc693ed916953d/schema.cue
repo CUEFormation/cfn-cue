@@ -15,12 +15,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Contains detailed information about a framework. Frameworks contain controls,
 // which evaluate and report on your backup events and resources. Frameworks
 // generate daily compliance results.
-#Properties: close({
-	FrameworkControls!:    list.UniqueItems() & [...#FrameworkControl] | fn.#ListExpression
-	FrameworkDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"\\S" | fn.#StringExpression
-	FrameworkName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][_a-zA-Z0-9]*" | fn.#StringExpression
-	FrameworkTags?: [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Backup::Framework"
+	Properties!: close({
+		FrameworkControls!:    list.UniqueItems() & [...#FrameworkControl] | fn.#ListExpression
+		FrameworkDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"\\S" | fn.#StringExpression
+		FrameworkName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][_a-zA-Z0-9]*" | fn.#StringExpression
+		FrameworkTags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ControlInputParameter: close({
 	ParameterName!:  string | fn.#StringExpression
@@ -45,7 +48,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Backup::Framework"
-	Properties!: #Properties
-}

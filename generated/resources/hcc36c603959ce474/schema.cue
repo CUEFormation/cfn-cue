@@ -20,14 +20,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // implementing policies. Data workers use their SSO corporate identities via
 // Identity Center to log into the Amazon DataZone Data Portal and access
 // projects where they have memberships.
-#Properties: close({
-	DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	SessionName?:      strings.MaxRunes(64) & strings.MinRunes(2) | fn.#StringExpression
-	Status?:           #UserProfileStatus
-	UserIdentifier!: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|^[a-zA-Z_0-9+=,.@-]+$|^arn:aws:iam::\\d{12}:.+$)" |
-		fn.#StringExpression
-	UserType?: #UserType
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataZone::UserProfile"
+	Properties!: close({
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		SessionName?:      strings.MaxRunes(64) & strings.MinRunes(2) | fn.#StringExpression
+		Status?:           #UserProfileStatus
+		UserIdentifier!: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|^[a-zA-Z_0-9+=,.@-]+$|^arn:aws:iam::\\d{12}:.+$)" |
+			fn.#StringExpression
+		UserType?: #UserType
+	})
+}
 
 #IamUserProfileDetails: close({
 	Arn?:            string | fn.#StringExpression
@@ -51,7 +54,3 @@ fn.#ValueExpression
 #UserProfileType: "IAM" | "SSO" | fn.#StringExpression
 
 #UserType: "IAM_USER" | "IAM_ROLE" | "SSO_USER" | "IAM_ROLE_SESSION" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::UserProfile"
-	Properties!: #Properties
-}

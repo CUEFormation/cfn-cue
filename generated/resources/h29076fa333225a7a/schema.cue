@@ -11,12 +11,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::EC2::TransitGatewayMulticastGroupSource registers and deregisters
 // members and sources (network interfaces) with the transit gateway multicast
 // group
-#Properties: close({
-	GroupIpAddress!:                  string | fn.#StringExpression
-	NetworkInterfaceId!:              string | fn.#StringExpression
-	TransitGatewayMulticastDomainId!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TransitGatewayMulticastGroupSource"
-	Properties!: #Properties
+	Type!: "AWS::EC2::TransitGatewayMulticastGroupSource"
+	Properties!: close({
+		GroupIpAddress!:                  string | fn.#StringExpression
+		NetworkInterfaceId!:              string | fn.#StringExpression
+		TransitGatewayMulticastDomainId!: string | fn.#StringExpression
+	})
 }

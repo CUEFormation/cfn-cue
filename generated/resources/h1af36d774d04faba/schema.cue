@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::IPAMPrefixListResolver
-#Properties: close({
-	AddressFamily!: "ipv4" | "ipv6" | fn.#StringExpression
-	Description?:   string | fn.#StringExpression
-	IpamId?:        string | fn.#StringExpression
-	Rules?:         [...#IpamPrefixListResolverRule] | fn.#ListExpression
-	Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::IPAMPrefixListResolver"
+	Properties!: close({
+		AddressFamily!: "ipv4" | "ipv6" | fn.#StringExpression
+		Description?:   string | fn.#StringExpression
+		IpamId?:        string | fn.#StringExpression
+		Rules?:         [...#IpamPrefixListResolverRule] | fn.#ListExpression
+		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #IpamPrefixListResolverRule: close({
 	Conditions?:   [...#IpamPrefixListResolverRuleCondition] | fn.#ListExpression
@@ -70,7 +73,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::IPAMPrefixListResolver"
-	Properties!: #Properties
-}

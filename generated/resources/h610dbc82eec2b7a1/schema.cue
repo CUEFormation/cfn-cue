@@ -12,13 +12,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticLoadBalancingV2::ListenerCertificate
-#Properties: close({
-	Certificates!: list.UniqueItems() & [...#Certificate] | fn.#ListExpression
-	ListenerArn!:  string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticLoadBalancingV2::ListenerCertificate"
+	Properties!: close({
+		Certificates!: list.UniqueItems() & [...#Certificate] | fn.#ListExpression
+		ListenerArn!:  string | fn.#StringExpression
+	})
+}
 
 #Certificate: close({CertificateArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticLoadBalancingV2::ListenerCertificate"
-	Properties!: #Properties
-}

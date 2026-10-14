@@ -14,18 +14,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::DocDBElastic::ClusterSnapshot. Creates a
 // manual snapshot of an Amazon DocumentDB elastic cluster.
-#Properties: close({
-	ClusterArn!:   string | fn.#StringExpression
-	SnapshotName!: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DocDBElastic::ClusterSnapshot"
+	Properties!: close({
+		ClusterArn!:   string | fn.#StringExpression
+		SnapshotName!: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DocDBElastic::ClusterSnapshot"
-	Properties!: #Properties
-}

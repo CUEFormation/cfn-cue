@@ -25,19 +25,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // filter, for same-account delivery.
 //
 // There can be as many as two subscription filters associated with a log group.
-#Properties: close({
-	ApplyOnTransformedLogs?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DestinationArn!:         strings.MinRunes(1) | fn.#StringExpression
-	Distribution?:           "Random" | "ByLogStream" | fn.#StringExpression
-	EmitSystemFields?:       [...string | fn.#StringExpression] | fn.#ListExpression
-	FieldSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-	FilterName?:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$" | fn.#StringExpression
-	FilterPattern!:          strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::SubscriptionFilter"
-	Properties!: #Properties
+	Type!: "AWS::Logs::SubscriptionFilter"
+	Properties!: close({
+		ApplyOnTransformedLogs?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DestinationArn!:         strings.MinRunes(1) | fn.#StringExpression
+		Distribution?:           "Random" | "ByLogStream" | fn.#StringExpression
+		EmitSystemFields?:       [...string | fn.#StringExpression] | fn.#ListExpression
+		FieldSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
+		FilterName?:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$" | fn.#StringExpression
+		FilterPattern!:          strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+		fn.#StringExpression
+	})
 }

@@ -13,17 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::AgentRegistry::Registry Resource Type
-#Properties: close({
-	ApprovalConfiguration?:   #ApprovalConfiguration
-	AuthorizerType?:          #RegistryAuthorizerType
-	AutoDetectionEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AutoDetectionScope?:      #AutoDetectionScope
-	Description?:             strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	DiscoveryConfiguration?:  #DiscoveryConfiguration
-	EncryptionConfiguration?: #EncryptionConfiguration
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_\\-\\.\\/]*$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AgentRegistry::Registry"
+	Properties!: close({
+		ApprovalConfiguration?:   #ApprovalConfiguration
+		AuthorizerType?:          #RegistryAuthorizerType
+		AutoDetectionEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AutoDetectionScope?:      #AutoDetectionScope
+		Description?:             strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+		DiscoveryConfiguration?:  #DiscoveryConfiguration
+		EncryptionConfiguration?: #EncryptionConfiguration
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_\\-\\.\\/]*$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ApprovalConfiguration: close({AutoApprovalRules?: list.MaxItems(10) & [...#AutoApprovalRule] | fn.#ListExpression}) |
 	fn.#ObjectExpression
@@ -105,7 +109,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AgentRegistry::Registry"
-	Properties!: #Properties
-}

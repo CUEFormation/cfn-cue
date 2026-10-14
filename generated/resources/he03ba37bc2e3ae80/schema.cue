@@ -16,29 +16,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::FlowEntitlement
-#Properties: close({
-	DataTransferSubscriberFeePercent?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Description!:       string | fn.#StringExpression
-	Encryption?:        #Encryption | fn.#ObjectExpression
-	EntitlementStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	FlowArn!:           string | fn.#StringExpression
-	Name!:              string | fn.#StringExpression
-	Subscribers!:       [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::FlowEntitlement"
+	Properties!: close({
+		DataTransferSubscriberFeePercent?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Description!:       string | fn.#StringExpression
+		Encryption?:        #Encryption | fn.#ObjectExpression
+		EntitlementStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		FlowArn!:           string | fn.#StringExpression
+		Name!:              string | fn.#StringExpression
+		Subscribers!:       [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Encryption: close({
 	Algorithm!:                    "aes128" | "aes192" | "aes256" | fn.#StringExpression
@@ -61,7 +66,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::FlowEntitlement"
-	Properties!: #Properties
-}

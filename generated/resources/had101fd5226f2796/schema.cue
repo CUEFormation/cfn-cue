@@ -13,33 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataSync::Agent.
-#Properties: close({
-	ActivationKey?: strings.MaxRunes(29) & strings.MinRunes(0) & =~"[A-Z0-9]{5}(-[A-Z0-9]{5}){4}" | fn.#StringExpression
-	AgentName?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
-	SecurityGroupArns?: list.MaxItems(1) & list.MinItems(1) & [
-		...strings.MaxRunes(128) &
-		strings.MinRunes(0) &
-		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataSync::Agent"
+	Properties?: close({
+		ActivationKey?: strings.MaxRunes(29) & strings.MinRunes(0) & =~"[A-Z0-9]{5}(-[A-Z0-9]{5}){4}" |
 		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	SubnetArns?: list.MaxItems(1) & list.MinItems(1) & [
-		...strings.MaxRunes(128) &
-		strings.MinRunes(0) &
-		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:subnet/.*$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	VpcEndpointId?: =~"^vpce-[0-9a-f]{17}$" | fn.#StringExpression
-})
+		AgentName?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
+		SecurityGroupArns?: list.MaxItems(1) & list.MinItems(1) & [
+			...strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/.*$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		SubnetArns?: list.MaxItems(1) & list.MinItems(1) & [
+			...strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:subnet/.*$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		VpcEndpointId?: =~"^vpce-[0-9a-f]{17}$" | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataSync::Agent"
-	Properties?: #Properties
-}

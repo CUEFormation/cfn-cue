@@ -13,12 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Cassandra::Keyspace
-#Properties: close({
-	ClientSideTimestampsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KeyspaceName?:                =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
-	ReplicationSpecification?:    #ReplicationSpecification
-	Tags?:                        list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cassandra::Keyspace"
+	Properties?: close({
+		ClientSideTimestampsEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		KeyspaceName?:             =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
+		ReplicationSpecification?: #ReplicationSpecification
+		Tags?:                     list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #RegionList: list.MaxItems(20) & list.MinItems(2) & list.UniqueItems() & [
 	...=~"^[a-z]{2,}-[a-z]+-[0-9]+$" | fn.#StringExpression
@@ -41,7 +51,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cassandra::Keyspace"
-	Properties?: #Properties
-}

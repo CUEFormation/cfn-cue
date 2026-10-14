@@ -17,17 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage wireless gateways, including LoRa gateways.
-#Properties: close({
-	Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	DestinationName!:      strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	LastUplinkReceivedAt?: string | fn.#StringExpression
-	LoRaWAN?:              #LoRaWANDevice | fn.#ObjectExpression
-	Name?:                 strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Positioning?:          "Enabled" | "Disabled" | fn.#StringExpression
-	Tags?:                 list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	ThingArn?:             string | fn.#StringExpression
-	Type!:                 "Sidewalk" | "LoRaWAN" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTWireless::WirelessDevice"
+	Properties!: close({
+		Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		DestinationName!:      strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+		LastUplinkReceivedAt?: string | fn.#StringExpression
+		LoRaWAN?:              #LoRaWANDevice | fn.#ObjectExpression
+		Name?:                 strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Positioning?:          "Enabled" | "Disabled" | fn.#StringExpression
+		Tags?:                 list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		ThingArn?:             string | fn.#StringExpression
+		Type!:                 "Sidewalk" | "LoRaWAN" | fn.#StringExpression
+	})
+}
 
 #AbpV10x: close({
 	DevAddr!:     =~"[a-fA-F0-9]{8}" | fn.#StringExpression
@@ -121,7 +124,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTWireless::WirelessDevice"
-	Properties!: #Properties
-}

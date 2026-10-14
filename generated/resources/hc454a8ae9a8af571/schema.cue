@@ -17,25 +17,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::MicrovmImage
-#Properties: close({
-	AdditionalOsCapabilities!: list.UniqueItems() & [..."ALL" | fn.#StringExpression] | fn.#ListExpression
-	BaseImageArn!:             strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	BaseImageVersion!:         strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	BuildRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-		fn.#StringExpression
-	CodeArtifact!:      #CodeArtifact | fn.#ObjectExpression
-	CpuConfigurations!: list.UniqueItems() & [...#CpuConfiguration] | fn.#ListExpression
-	Description!:       string | fn.#StringExpression
-	EgressNetworkConnectors!: list.MaxItems(10) & list.UniqueItems() & [...string | fn.#StringExpression] |
-		fn.#ListExpression
-	EnvironmentVariables!: list.MaxItems(50) & list.UniqueItems() & [...#EnvironmentVariable] | fn.#ListExpression
-	Hooks!:                #Hooks
-	Logging!:              #Logging | fn.#ObjectExpression
-	Name!:                 strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	Resources!:            list.MaxItems(1) & list.UniqueItems() & [...#Resources] | fn.#ListExpression
-	Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::MicrovmImage"
+	Properties!: close({
+		AdditionalOsCapabilities!: list.UniqueItems() & [..."ALL" | fn.#StringExpression] | fn.#ListExpression
+		BaseImageArn!:             strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
+		BaseImageVersion!:         strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
+		BuildRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+			fn.#StringExpression
+		CodeArtifact!:      #CodeArtifact | fn.#ObjectExpression
+		CpuConfigurations!: list.UniqueItems() & [...#CpuConfiguration] | fn.#ListExpression
+		Description!:       string | fn.#StringExpression
+		EgressNetworkConnectors!: list.MaxItems(10) & list.UniqueItems() & [...string | fn.#StringExpression] |
+			fn.#ListExpression
+		EnvironmentVariables!: list.MaxItems(50) & list.UniqueItems() & [...#EnvironmentVariable] | fn.#ListExpression
+		Hooks!:                #Hooks
+		Logging!:              #Logging | fn.#ObjectExpression
+		Name!:                 strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+		Resources!:            list.MaxItems(1) & list.UniqueItems() & [...#Resources] | fn.#ListExpression
+		Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CloudWatchLogging: close({
 	LogGroup?:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-/.#]+$" | fn.#StringExpression
@@ -228,7 +231,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::MicrovmImage"
-	Properties!: #Properties
-}

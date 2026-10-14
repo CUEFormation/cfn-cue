@@ -17,20 +17,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::NetworkManager::ConnectPeer Resource Type Definition.
-#Properties: close({
-	BgpOptions?: #BgpOptions | fn.#ObjectExpression
-	ConnectAttachmentId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^attachment-([0-9a-f]{8,17})$" |
-	fn.#StringExpression
-	CoreNetworkAddress?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	InsideCidrBlocks?: [...strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression] |
-	fn.#ListExpression
-	PeerAddress!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	SubnetArn?: strings.MaxRunes(500) &
-	strings.MinRunes(0) &
-	=~"^arn:[^:]{1,63}:ec2:[^:]{0,63}:[^:]{0,63}:subnet\\/subnet-[0-9a-f]{8,17}$|^$" |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkManager::ConnectPeer"
+	Properties!: close({
+		BgpOptions?: #BgpOptions | fn.#ObjectExpression
+		ConnectAttachmentId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^attachment-([0-9a-f]{8,17})$" |
+		fn.#StringExpression
+		CoreNetworkAddress?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		InsideCidrBlocks?: [...strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression] |
+		fn.#ListExpression
+		PeerAddress!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		SubnetArn?: strings.MaxRunes(500) &
+		strings.MinRunes(0) &
+		=~"^arn:[^:]{1,63}:ec2:[^:]{0,63}:[^:]{0,63}:subnet\\/subnet-[0-9a-f]{8,17}$|^$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #BgpOptions: close({
 	PeerAsn?: number |
@@ -115,7 +118,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TunnelProtocol: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkManager::ConnectPeer"
-	Properties!: #Properties
-}

@@ -12,43 +12,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::Stack
-#Properties: close({
-	VpcId?: _
-	if VpcId != _|_ {
-		DefaultSubnetId!: _
-	}
-	{}
-	AgentVersion?: string | fn.#StringExpression
-	Attributes?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
-		...
-	} | fn.#ObjectExpression
-	ChefConfiguration?:         #ChefConfiguration
-	CloneAppIds?:               list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	ClonePermissions?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ConfigurationManager?:      #StackConfigurationManager
-	CustomCookbooksSource?:     #Source
-	CustomJson?:                fn.#Object & {...} | string | fn.#StringObjectExpression
-	DefaultAvailabilityZone?:   string | fn.#StringExpression
-	DefaultInstanceProfileArn!: string | fn.#StringExpression
-	DefaultOs?:                 string | fn.#StringExpression
-	DefaultRootDeviceType?:     string | fn.#StringExpression
-	DefaultSshKeyName?:         string | fn.#StringExpression
-	DefaultSubnetId?:           string | fn.#StringExpression
-	EcsClusterArn?:             string | fn.#StringExpression
-	ElasticIps?:                list.UniqueItems() & [...#ElasticIp] | fn.#ListExpression
-	HostnameTheme?:             string | fn.#StringExpression
-	Name!:                      string | fn.#StringExpression
-	RdsDbInstances?:            list.UniqueItems() & [...#RdsDbInstance] | fn.#ListExpression
-	ServiceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SourceStackId?:             string | fn.#StringExpression
-	Tags?:                      [...#Tag] | fn.#ListExpression
-	UseCustomCookbooks?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	UseOpsworksSecurityGroups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	"VpcId"?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OpsWorks::Stack"
+	Properties!: close({
+		VpcId?: _
+		if VpcId != _|_ {
+			DefaultSubnetId!: _
+		}
+		{}
+		AgentVersion?: string | fn.#StringExpression
+		Attributes?: {
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+			...
+		} | fn.#ObjectExpression
+		ChefConfiguration?:       #ChefConfiguration
+		CloneAppIds?:             list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		ClonePermissions?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ConfigurationManager?:    #StackConfigurationManager
+		CustomCookbooksSource?:   #Source
+		CustomJson?:              fn.#Object & {...} | string | fn.#StringObjectExpression
+		DefaultAvailabilityZone?: string | fn.#StringExpression
+		DefaultInstanceProfileArn!: string | fn.#StringExpression
+		DefaultOs?:                 string | fn.#StringExpression
+		DefaultRootDeviceType?:     string | fn.#StringExpression
+		DefaultSshKeyName?:         string | fn.#StringExpression
+		DefaultSubnetId?:           string | fn.#StringExpression
+		EcsClusterArn?:             string | fn.#StringExpression
+		ElasticIps?:                list.UniqueItems() & [...#ElasticIp] | fn.#ListExpression
+		HostnameTheme?:             string | fn.#StringExpression
+		Name!:                      string | fn.#StringExpression
+		RdsDbInstances?:            list.UniqueItems() & [...#RdsDbInstance] | fn.#ListExpression
+		ServiceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		SourceStackId?:      string | fn.#StringExpression
+		Tags?:               [...#Tag] | fn.#ListExpression
+		UseCustomCookbooks?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		UseOpsworksSecurityGroups?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		"VpcId"?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	})
+}
 
 #ChefConfiguration: close({
 	BerkshelfVersion?: string | fn.#StringExpression
@@ -90,7 +100,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpsWorks::Stack"
-	Properties!: #Properties
-}

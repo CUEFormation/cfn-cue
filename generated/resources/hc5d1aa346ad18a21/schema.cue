@@ -17,83 +17,92 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GlobalAccelerator::EndpointGroup
-#Properties: close({
-	EndpointConfigurations?: list.MaxItems(10) & [...] & [...#EndpointConfiguration] | fn.#ListExpression
-	EndpointGroupRegion!:    strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	HealthCheckIntervalSeconds?: int & <=30 & >=10 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=30 &
-							>=10,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	HealthCheckPath?: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^/[-a-zA-Z0-9@:%_\\\\+.~#?&/=]*$" |
-	fn.#StringExpression
-	HealthCheckPort?: int & <=65535 & >=-1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=65535 &
-							>=-1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	HealthCheckProtocol?: "TCP" | "HTTP" | "HTTPS" | fn.#StringExpression
-	ListenerArn!:         strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	PortOverrides?:       list.MaxItems(10) & [...] & [...#PortOverride] | fn.#ListExpression
-	ThresholdCount?: int & <=10 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=10 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TrafficDialPercentage?: <=100 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GlobalAccelerator::EndpointGroup"
+	Properties!: close({
+		EndpointConfigurations?: list.MaxItems(10) & [...] & [...#EndpointConfiguration] | fn.#ListExpression
+		EndpointGroupRegion!:    strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		HealthCheckIntervalSeconds?: int & <=30 & >=10 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=30 &
+								>=10,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		HealthCheckPath?: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^/[-a-zA-Z0-9@:%_\\\\+.~#?&/=]*$" |
+		fn.#StringExpression
+		HealthCheckPort?: int & <=65535 & >=-1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=65535 &
+								>=-1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		HealthCheckProtocol?: "TCP" | "HTTP" | "HTTPS" | fn.#StringExpression
+		ListenerArn!:         strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		PortOverrides?:       list.MaxItems(10) & [...] & [...#PortOverride] | fn.#ListExpression
+		ThresholdCount?: int & <=10 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TrafficDialPercentage?: <=100 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=100 &
+								>=0,
+							"g",
+							-1,
 							64,
-						) &
-							<=100 &
-							>=0,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #EndpointConfiguration: close({
 	AttachmentArn?:               strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
@@ -140,7 +149,3 @@ fn.#ObjectExpression
 	ListenerPort!: #Port
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GlobalAccelerator::EndpointGroup"
-	Properties!: #Properties
-}

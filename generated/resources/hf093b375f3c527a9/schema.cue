@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::ComputationModel.
-#Properties: close({
-	ComputationModelConfiguration!: #ComputationModelConfiguration | fn.#ObjectExpression
-	ComputationModelDataBinding!:   #ComputationModelDataBinding | fn.#ObjectExpression
-	ComputationModelDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" |
-	fn.#StringExpression
-	ComputationModelName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTSiteWise::ComputationModel"
+	Properties!: close({
+		ComputationModelConfiguration!: #ComputationModelConfiguration | fn.#ObjectExpression
+		ComputationModelDataBinding!:   #ComputationModelDataBinding | fn.#ObjectExpression
+		ComputationModelDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" |
+		fn.#StringExpression
+		ComputationModelName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AnomalyDetectionComputationModelConfiguration: close({
 	InputProperties!: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^\\$\\{[a-z][a-z0-9_]*\\}$" | fn.#StringExpression
@@ -75,7 +78,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSiteWise::ComputationModel"
-	Properties!: #Properties
-}

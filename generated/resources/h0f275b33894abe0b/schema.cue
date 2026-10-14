@@ -12,13 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The resource schema for AWSLogs ResourcePolicy
-#Properties: close({
-	PolicyDocument!: fn.#Object & {...} |
-	strings.MaxRunes(51200) & strings.MinRunes(1) & =~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
-	fn.#StringObjectExpression
-	PolicyName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([^:*\\/]+\\/?)*[^:*\\/]+$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::ResourcePolicy"
-	Properties!: #Properties
+	Type!: "AWS::Logs::ResourcePolicy"
+	Properties!: close({
+		PolicyDocument!: fn.#Object & {...} |
+		strings.MaxRunes(51200) & strings.MinRunes(1) & =~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
+		fn.#StringObjectExpression
+		PolicyName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([^:*\\/]+\\/?)*[^:*\\/]+$" |
+		fn.#StringExpression
+	})
 }

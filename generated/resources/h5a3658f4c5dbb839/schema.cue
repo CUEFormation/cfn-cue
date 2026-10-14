@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an AWS Firewall Manager resource set.
-#Properties: close({
-	Description?: strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]*)$" | fn.#StringExpression
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" | fn.#StringExpression
-	ResourceTypeList!: list.UniqueItems() & [...#ResourceType] | fn.#ListExpression
-	Resources?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Resource"] | fn.#ListExpression
-	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FMS::ResourceSet"
+	Properties!: close({
+		Description?: strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]*)$" | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" | fn.#StringExpression
+		ResourceTypeList!: list.UniqueItems() & [...#ResourceType] | fn.#ListExpression
+		Resources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Resource"] | fn.#ListExpression
+		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Base62Id: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^([a-z0-9A-Z]*)$" | fn.#StringExpression
 
@@ -33,7 +36,3 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Resource": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]*)$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FMS::ResourceSet"
-	Properties!: #Properties
-}

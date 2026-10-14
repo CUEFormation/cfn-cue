@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::SchedulingPolicy
-#Properties: close({
-	FairsharePolicy?:  #FairsharePolicy
-	Name?:             =~"" | fn.#StringExpression
-	QuotaSharePolicy?: #QuotaSharePolicy
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Batch::SchedulingPolicy"
+	Properties?: close({
+		FairsharePolicy?:  #FairsharePolicy
+		Name?:             =~"" | fn.#StringExpression
+		QuotaSharePolicy?: #QuotaSharePolicy
+		Tags?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
 #FairsharePolicy: close({
 	ComputeReservation?: <=99 & >=0 |
@@ -97,7 +100,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Batch::SchedulingPolicy"
-	Properties?: #Properties
-}

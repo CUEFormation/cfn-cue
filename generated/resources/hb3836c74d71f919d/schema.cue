@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::Route
-#Properties: close({
-	MeshName!:          string | fn.#StringExpression
-	MeshOwner?:         string | fn.#StringExpression
-	RouteName?:         string | fn.#StringExpression
-	Spec!:              #RouteSpec
-	Tags?:              [...#Tag] | fn.#ListExpression
-	VirtualRouterName!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppMesh::Route"
+	Properties!: close({
+		MeshName!:          string | fn.#StringExpression
+		MeshOwner?:         string | fn.#StringExpression
+		RouteName?:         string | fn.#StringExpression
+		Spec!:              #RouteSpec
+		Tags?:              [...#Tag] | fn.#ListExpression
+		VirtualRouterName!: string | fn.#StringExpression
+	})
+}
 
 #Duration: close({
 	Unit!: string | fn.#StringExpression
@@ -328,7 +331,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppMesh::Route"
-	Properties!: #Properties
-}

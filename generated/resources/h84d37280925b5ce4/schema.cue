@@ -13,20 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::Application
-#Properties: close({
-	AppBlockArn!:        #Arn
-	AttributesToDelete?: list.UniqueItems() & [...#ApplicationAttribute] | fn.#ListExpression
-	Description?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DisplayName?:        strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	IconS3Location!:     #S3Location
-	InstanceFamilies!:   list.UniqueItems() & [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	LaunchParameters?:   strings.MinRunes(1) | fn.#StringExpression
-	LaunchPath!:         strings.MinRunes(1) | fn.#StringExpression
-	Name!:               =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
-	Platforms!:          list.MaxItems(4) & list.UniqueItems() & [...] & [...#PlatformType] | fn.#ListExpression
-	Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	WorkingDirectory?:   strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppStream::Application"
+	Properties!: close({
+		AppBlockArn!:        #Arn
+		AttributesToDelete?: list.UniqueItems() & [...#ApplicationAttribute] | fn.#ListExpression
+		Description?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		DisplayName?:        strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		IconS3Location!:     #S3Location
+		InstanceFamilies!:   list.UniqueItems() & [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		LaunchParameters?:   strings.MinRunes(1) | fn.#StringExpression
+		LaunchPath!:         strings.MinRunes(1) | fn.#StringExpression
+		Name!:               =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
+		Platforms!:          list.MaxItems(4) & list.UniqueItems() & [...] & [...#PlatformType] | fn.#ListExpression
+		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		WorkingDirectory?:   strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #ApplicationAttribute: string | fn.#StringExpression
 
@@ -57,7 +60,3 @@ fn.#ObjectExpression
 	TagValue!: string | fn.#StringExpression
 })]) |
 fn.#ValueExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppStream::Application"
-	Properties!: #Properties
-}

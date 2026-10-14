@@ -12,11 +12,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::HealthImaging::Datastore Resource Type
-#Properties: close({
-	DatastoreName?: #DatastoreName
-	KmsKeyArn?:     #KmsKeyArn
-	Tags?:          #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::HealthImaging::Datastore"
+	Properties?: close({
+		DatastoreName?: #DatastoreName
+		KmsKeyArn?:     #KmsKeyArn
+		Tags?:          #Tags
+	})
+}
 
 #CreatedAt: string | fn.#StringExpression
 
@@ -41,7 +44,3 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #UpdatedAt: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::HealthImaging::Datastore"
-	Properties?: #Properties
-}

@@ -13,30 +13,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The details of the repository creation template associated with the request.
-#Properties: close({
-	AppliedFor!: list.UniqueItems() & [...#AppliedForItem] | fn.#ListExpression
-	CustomRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[A-Za-z0-9+=,-.@_]*$" |
-	fn.#StringExpression
-	Description?:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	EncryptionConfiguration?: #EncryptionConfiguration | fn.#ObjectExpression
-	ImageTagMutability?: "MUTABLE" |
-		"IMMUTABLE" |
-		"IMMUTABLE_WITH_EXCLUSION" |
-		"MUTABLE_WITH_EXCLUSION" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECR::RepositoryCreationTemplate"
+	Properties!: close({
+		AppliedFor!: list.UniqueItems() & [...#AppliedForItem] | fn.#ListExpression
+		CustomRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[A-Za-z0-9+=,-.@_]*$" |
 		fn.#StringExpression
-	ImageTagMutabilityExclusionFilters?: list.MaxItems(5) & list.MinItems(1) & [...#ImageTagMutabilityExclusionFilter] |
-		fn.#ListExpression
-	LifecyclePolicy?: strings.MaxRunes(30720) & strings.MinRunes(100) | fn.#StringExpression
-	Prefix!: strings.MaxRunes(256) &
-	strings.MinRunes(1) &
-	=~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$" |
-	fn.#StringExpression
-	RepositoryPolicy?: strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringExpression
-	ResourceTags?:     list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+		Description?:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		EncryptionConfiguration?: #EncryptionConfiguration | fn.#ObjectExpression
+		ImageTagMutability?: "MUTABLE" |
+			"IMMUTABLE" |
+			"IMMUTABLE_WITH_EXCLUSION" |
+			"MUTABLE_WITH_EXCLUSION" |
+			fn.#StringExpression
+		ImageTagMutabilityExclusionFilters?: list.MaxItems(5) & list.MinItems(1) & [
+			...#ImageTagMutabilityExclusionFilter
+		] |
+			fn.#ListExpression
+		LifecyclePolicy?: strings.MaxRunes(30720) & strings.MinRunes(100) | fn.#StringExpression
+		Prefix!: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$" |
+		fn.#StringExpression
+		RepositoryPolicy?: strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringExpression
+		ResourceTags?:     list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AppliedForItem: "REPLICATION" | "PULL_THROUGH_CACHE" | "CREATE_ON_PUSH" | fn.#StringExpression
 
@@ -62,7 +67,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECR::RepositoryCreationTemplate"
-	Properties!: #Properties
-}

@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Enables a control on a specified target.
-#Properties: close({
-	ControlIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
-	fn.#StringExpression
-	Parameters?: list.MinItems(1) & [...#EnabledControlParameter] | fn.#ListExpression
-	Tags?:       list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	TargetIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ControlTower::EnabledControl"
+	Properties!: close({
+		ControlIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
+		fn.#StringExpression
+		Parameters?: list.MinItems(1) & [...#EnabledControlParameter] | fn.#ListExpression
+		Tags?:       list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		TargetIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
+		fn.#StringExpression
+	})
+}
 
 #EnabledControlParameter: close({
 	Key!: string | fn.#StringExpression
@@ -38,7 +41,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ControlTower::EnabledControl"
-	Properties!: #Properties
-}

@@ -12,14 +12,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Detective::MemberInvitation
-#Properties: close({
-	DisableEmailNotification?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	GraphArn!: =~"arn:aws(-[\\w]+)*:detective:(([a-z]+-)+[0-9]+):[0-9]{12}:graph:[0-9a-f]{32}" | fn.#StringExpression
-	MemberEmailAddress!: =~".*@.*" | fn.#StringExpression
-	MemberId!:           =~"[0-9]{12}" | fn.#StringExpression
-	Message?:            strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Detective::MemberInvitation"
-	Properties!: #Properties
+	Type!: "AWS::Detective::MemberInvitation"
+	Properties!: close({
+		DisableEmailNotification?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		GraphArn!: =~"arn:aws(-[\\w]+)*:detective:(([a-z]+-)+[0-9]+):[0-9]{12}:graph:[0-9a-f]{32}" |
+			fn.#StringExpression
+		MemberEmailAddress!: =~".*@.*" | fn.#StringExpression
+		MemberId!:           =~"[0-9]{12}" | fn.#StringExpression
+		Message?:            strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+	})
 }

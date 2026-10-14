@@ -19,52 +19,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::CloudWatch::CompositeAlarm type specifies an alarm which aggregates
 // the states of other Alarms (Metric or Composite Alarms) as defined by the
 // AlarmRule expression
-#Properties: close({
-	ActionsEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ActionsSuppressor?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	ActionsSuppressorExtensionPeriod?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ActionsSuppressorWaitPeriod?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	AlarmActions?: list.MaxItems(5) & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	AlarmName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	AlarmRule!:        strings.MaxRunes(10240) & strings.MinRunes(1) | fn.#StringExpression
-	InsufficientDataActions?: list.MaxItems(5) & [
-		...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	OKActions?: list.MaxItems(5) & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudWatch::CompositeAlarm"
+	Properties!: close({
+		ActionsEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ActionsSuppressor?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+		ActionsSuppressorExtensionPeriod?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ActionsSuppressorWaitPeriod?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		AlarmActions?: list.MaxItems(5) & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+		AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		AlarmName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		AlarmRule!:        strings.MaxRunes(10240) & strings.MinRunes(1) | fn.#StringExpression
+		InsufficientDataActions?: list.MaxItems(5) & [
+			...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		OKActions?: list.MaxItems(5) & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AlarmActionARN: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -73,7 +80,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudWatch::CompositeAlarm"
-	Properties!: #Properties
-}

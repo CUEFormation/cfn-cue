@@ -13,47 +13,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::ApiCache
-#Properties: close({
-	ApiCachingBehavior!: "FULL_REQUEST_CACHING" |
-		"OPERATION_LEVEL_CACHING" |
-		"PER_RESOLVER_CACHING" |
-		fn.#StringExpression
-	ApiId!:                    string | fn.#StringExpression
-	AtRestEncryptionEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HealthMetricsConfig?:      "DISABLED" | "ENABLED" | fn.#StringExpression
-	TransitEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Ttl!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Type!: "LARGE" |
-		"LARGE_12X" |
-		"LARGE_2X" |
-		"LARGE_4X" |
-		"LARGE_8X" |
-		"MEDIUM" |
-		"R4_2XLARGE" |
-		"R4_4XLARGE" |
-		"R4_8XLARGE" |
-		"R4_LARGE" |
-		"R4_XLARGE" |
-		"SMALL" |
-		"T2_MEDIUM" |
-		"T2_SMALL" |
-		"XLARGE" |
-		fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::ApiCache"
-	Properties!: #Properties
+	Type!: "AWS::AppSync::ApiCache"
+	Properties!: close({
+		ApiCachingBehavior!: "FULL_REQUEST_CACHING" |
+			"OPERATION_LEVEL_CACHING" |
+			"PER_RESOLVER_CACHING" |
+			fn.#StringExpression
+		ApiId!:                    string | fn.#StringExpression
+		AtRestEncryptionEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		HealthMetricsConfig?:      "DISABLED" | "ENABLED" | fn.#StringExpression
+		TransitEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Ttl!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Type!: "LARGE" |
+			"LARGE_12X" |
+			"LARGE_2X" |
+			"LARGE_4X" |
+			"LARGE_8X" |
+			"MEDIUM" |
+			"R4_2XLARGE" |
+			"R4_4XLARGE" |
+			"R4_8XLARGE" |
+			"R4_LARGE" |
+			"R4_XLARGE" |
+			"SMALL" |
+			"T2_MEDIUM" |
+			"T2_SMALL" |
+			"XLARGE" |
+			fn.#StringExpression
+	})
 }

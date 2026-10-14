@@ -14,19 +14,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Redshift::ClusterSubnetGroup. Specifies an
 // Amazon Redshift subnet group.
-#Properties: close({
-	Description!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	SubnetIds!: list.MaxItems(20) & [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] |
-	fn.#ListExpression
-	Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Redshift::ClusterSubnetGroup"
+	Properties!: close({
+		Description!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		SubnetIds!: list.MaxItems(20) & [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] |
+		fn.#ListExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Redshift::ClusterSubnetGroup"
-	Properties!: #Properties
-}

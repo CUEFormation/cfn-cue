@@ -17,12 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AppSync Api
-#Properties: close({
-	EventConfig?:  #EventConfig
-	Name!:         #ApiName
-	OwnerContact?: #OwnerContact
-	Tags?:         #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppSync::Api"
+	Properties!: close({
+		EventConfig?:  #EventConfig
+		Name!:         #ApiName
+		OwnerContact?: #OwnerContact
+		Tags?:         #Tags
+	})
+}
 
 #ApiName: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\-\\ ]+" | fn.#StringExpression
 
@@ -153,7 +156,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::Api"
-	Properties!: #Properties
-}

@@ -20,20 +20,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // exposes a Lambda web function over HTTPS and routes traffic to one or more
 // revisions. The endpoint type determines how traffic is served and routed
 // across Regions.
-#Properties: close({
-	AuthType!:     "ApplicationManaged" | "IamAuth" | fn.#StringExpression
-	Description?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	EndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	EndpointType!: "HomeRegion" | "MultiRegion" | "PerRegion" | fn.#StringExpression
-	FunctionName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Regions?: list.UniqueItems() & [
-		...strings.MaxRunes(50) & strings.MinRunes(1) & =~"^([a-z]{2,}-){2,}[0-9]$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	RevisionWeights?: list.MaxItems(2) & list.MinItems(1) & [...#RevisionWeight] | fn.#ListExpression
-	ScalingConfig?:   #ScalingConfig | fn.#ObjectExpression
-	ThrottleConfig?:  #ThrottleConfig | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::WebFunctionEndpoint"
+	Properties!: close({
+		AuthType!:     "ApplicationManaged" | "IamAuth" | fn.#StringExpression
+		Description?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		EndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		EndpointType!: "HomeRegion" | "MultiRegion" | "PerRegion" | fn.#StringExpression
+		FunctionName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Regions?: list.UniqueItems() & [
+			...strings.MaxRunes(50) & strings.MinRunes(1) & =~"^([a-z]{2,}-){2,}[0-9]$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		RevisionWeights?: list.MaxItems(2) & list.MinItems(1) & [...#RevisionWeight] | fn.#ListExpression
+		ScalingConfig?:   #ScalingConfig | fn.#ObjectExpression
+		ThrottleConfig?:  #ThrottleConfig | fn.#ObjectExpression
+	})
+}
 
 #RegionalEndpoint: close({
 	AuthType?:           "ApplicationManaged" | "IamAuth" | fn.#StringExpression
@@ -106,7 +109,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::WebFunctionEndpoint"
-	Properties!: #Properties
-}

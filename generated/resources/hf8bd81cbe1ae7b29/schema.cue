@@ -18,15 +18,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::GameLiftStreams::StreamGroup Resource Type
-#Properties: close({
-	DefaultApplication?: #DefaultApplication
-	Description!: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.!+@/][a-zA-Z0-9-_.!+@/ ]*$" |
-	fn.#StringExpression
-	LocationConfigurations!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...#LocationConfiguration] |
-		fn.#ListExpression
-	StreamClass!: #StreamClass
-	Tags?:        #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GameLiftStreams::StreamGroup"
+	Properties!: close({
+		DefaultApplication?: #DefaultApplication
+		Description!: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.!+@/][a-zA-Z0-9-_.!+@/ ]*$" |
+		fn.#StringExpression
+		LocationConfigurations!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
+			...#LocationConfiguration
+		] |
+			fn.#ListExpression
+		StreamClass!: #StreamClass
+		Tags?:        #Tags
+	})
+}
 
 #DefaultApplication: close({
 	Arn?: strings.MaxRunes(128) &
@@ -124,7 +129,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GameLiftStreams::StreamGroup"
-	Properties!: #Properties
-}

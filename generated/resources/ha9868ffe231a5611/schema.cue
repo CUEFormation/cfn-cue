@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::NotificationsContacts::EmailContact Resource Type
-#Properties: close({
-	EmailAddress!: strings.MaxRunes(254) & strings.MinRunes(6) & =~"^(.+)@(.+)$" | fn.#StringExpression
-	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w-.~]+" | fn.#StringExpression
-	Tags?:         #TagMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NotificationsContacts::EmailContact"
+	Properties!: close({
+		EmailAddress!: strings.MaxRunes(254) & strings.MinRunes(6) & =~"^(.+)@(.+)$" | fn.#StringExpression
+		Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w-.~]+" | fn.#StringExpression
+		Tags?:         #TagMap
+	})
+}
 
 #EmailContact: close({
 	Address!:      strings.MaxRunes(254) & strings.MinRunes(6) & =~"^(.+)@(.+)$" | fn.#StringExpression
@@ -38,7 +41,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TagMap: [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NotificationsContacts::EmailContact"
-	Properties!: #Properties
-}

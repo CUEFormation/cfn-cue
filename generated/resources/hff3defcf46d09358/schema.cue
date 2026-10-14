@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::Instance
-#Properties: close({
-	Attributes!:             #Attributes | fn.#ObjectExpression
-	DirectoryId?:            strings.MaxRunes(12) & strings.MinRunes(12) & =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
-	IdentityManagementType!: "SAML" | "CONNECT_MANAGED" | "EXISTING_DIRECTORY" | fn.#StringExpression
-	InstanceAlias?:          strings.MaxRunes(45) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::Instance"
+	Properties!: close({
+		Attributes!:  #Attributes | fn.#ObjectExpression
+		DirectoryId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
+		IdentityManagementType!: "SAML" | "CONNECT_MANAGED" | "EXISTING_DIRECTORY" | fn.#StringExpression
+		InstanceAlias?:          strings.MaxRunes(45) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Attributes: close({
 	AutoResolveBestVoices?:     #AutoResolveBestVoices
@@ -69,7 +72,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #UseCustomTTSVoices: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::Instance"
-	Properties!: #Properties
-}

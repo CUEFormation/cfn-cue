@@ -12,14 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::ServiceCatalog::ResourceUpdateConstraint
-#Properties: close({
-	AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	Description?:    strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-	PortfolioId!:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
-	ProductId!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
-	TagUpdateOnProvisionedProduct!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceCatalog::ResourceUpdateConstraint"
-	Properties!: #Properties
+	Type!: "AWS::ServiceCatalog::ResourceUpdateConstraint"
+	Properties!: close({
+		AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		Description?:    strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
+		PortfolioId!:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
+		ProductId!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
+		TagUpdateOnProvisionedProduct!: string | fn.#StringExpression
+	})
 }

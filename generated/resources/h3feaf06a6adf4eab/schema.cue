@@ -18,22 +18,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // artifacts. For more information, see [Amazon ECR private
 // repositories](https://docs.aws.amazon.com/AmazonECR/latest/userguide/Repositories.html)
 // in the *Amazon ECR User Guide*.
-#Properties: close({
-	EmptyOnDelete?:              #EmptyOnDelete | fn.#BooleanExpression
-	EncryptionConfiguration?:    #EncryptionConfiguration | fn.#ObjectExpression
-	ImageScanningConfiguration?: #ImageScanningConfiguration | fn.#ObjectExpression
-	ImageTagMutability?: "MUTABLE" |
-		"IMMUTABLE" |
-		"MUTABLE_WITH_EXCLUSION" |
-		"IMMUTABLE_WITH_EXCLUSION" |
-		fn.#StringExpression
-	ImageTagMutabilityExclusionFilters?: list.MaxItems(5) & list.MinItems(1) & [...#ImageTagMutabilityExclusionFilter] |
-		fn.#ListExpression
-	LifecyclePolicy?:      #LifecyclePolicy | fn.#ObjectExpression
-	RepositoryName?:       strings.MaxRunes(256) & strings.MinRunes(2) | fn.#StringExpression
-	RepositoryPolicyText?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECR::Repository"
+	Properties?: close({
+		EmptyOnDelete?:              #EmptyOnDelete | fn.#BooleanExpression
+		EncryptionConfiguration?:    #EncryptionConfiguration | fn.#ObjectExpression
+		ImageScanningConfiguration?: #ImageScanningConfiguration | fn.#ObjectExpression
+		ImageTagMutability?: "MUTABLE" |
+			"IMMUTABLE" |
+			"MUTABLE_WITH_EXCLUSION" |
+			"IMMUTABLE_WITH_EXCLUSION" |
+			fn.#StringExpression
+		ImageTagMutabilityExclusionFilters?: list.MaxItems(5) & list.MinItems(1) & [
+			...#ImageTagMutabilityExclusionFilter
+		] |
+			fn.#ListExpression
+		LifecyclePolicy?:      #LifecyclePolicy | fn.#ObjectExpression
+		RepositoryName?:       strings.MaxRunes(256) & strings.MinRunes(2) | fn.#StringExpression
+		RepositoryPolicyText?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #EmptyOnDelete: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
@@ -77,7 +82,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECR::Repository"
-	Properties?: #Properties
-}

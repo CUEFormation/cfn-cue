@@ -9,12 +9,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaLive::Network.
-#Properties: close({
-	IpPools!: [...#IpPool] | fn.#ListExpression
-	Name!:    string | fn.#StringExpression
-	Routes?:  [...#Route] | fn.#ListExpression
-	Tags?:    [...#Tags] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::Network"
+	Properties!: close({
+		IpPools!: [...#IpPool] | fn.#ListExpression
+		Name!:    string | fn.#StringExpression
+		Routes?:  [...#Route] | fn.#ListExpression
+		Tags?:    [...#Tags] | fn.#ListExpression
+	})
+}
 
 #IpPool: close({Cidr?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -40,7 +43,3 @@ fn.#ObjectExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::Network"
-	Properties!: #Properties
-}

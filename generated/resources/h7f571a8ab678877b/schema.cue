@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTAnalytics::Dataset
-#Properties: close({
-	Actions!:                 list.MaxItems(1) & list.MinItems(1) & [...#Action] | fn.#ListExpression
-	ContentDeliveryRules?:    list.MaxItems(20) & [...] & [...#DatasetContentDeliveryRule] | fn.#ListExpression
-	DatasetName?:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	LateDataRules?:           list.MaxItems(1) & list.MinItems(1) & [...#LateDataRule] | fn.#ListExpression
-	RetentionPeriod?:         #RetentionPeriod
-	Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	Triggers?:                list.MaxItems(5) & [...] & [...#Trigger] | fn.#ListExpression
-	VersioningConfiguration?: #VersioningConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTAnalytics::Dataset"
+	Properties!: close({
+		Actions!:                 list.MaxItems(1) & list.MinItems(1) & [...#Action] | fn.#ListExpression
+		ContentDeliveryRules?:    list.MaxItems(20) & [...] & [...#DatasetContentDeliveryRule] | fn.#ListExpression
+		DatasetName?:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		LateDataRules?:           list.MaxItems(1) & list.MinItems(1) & [...#LateDataRule] | fn.#ListExpression
+		RetentionPeriod?:         #RetentionPeriod
+		Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		Triggers?:                list.MaxItems(5) & [...] & [...#Trigger] | fn.#ListExpression
+		VersioningConfiguration?: #VersioningConfiguration
+	})
+}
 
 #Action: close({
 	ActionName!:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
@@ -245,7 +248,3 @@ fn.#ObjectExpression
 	Unlimited?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTAnalytics::Dataset"
-	Properties!: #Properties
-}

@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::ApplicationSettings
-#Properties: close({
-	ApplicationId!:            string | fn.#StringExpression
-	CampaignHook?:             #CampaignHook
-	CloudWatchMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Limits?:                   #Limits
-	QuietTime?:                #QuietTime
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Pinpoint::ApplicationSettings"
+	Properties!: close({
+		ApplicationId!:            string | fn.#StringExpression
+		CampaignHook?:             #CampaignHook
+		CloudWatchMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Limits?:                   #Limits
+		QuietTime?:                #QuietTime
+	})
+}
 
 #CampaignHook: close({
 	LambdaFunctionName?: string | fn.#StringExpression
@@ -93,7 +96,3 @@ fn.#ObjectExpression
 	Start!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pinpoint::ApplicationSettings"
-	Properties!: #Properties
-}

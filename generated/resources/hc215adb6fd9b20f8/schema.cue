@@ -17,11 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Associate a set of ECS Capacity Providers with a specified ECS Cluster
-#Properties: close({
-	CapacityProviders?:               #CapacityProviders
-	Cluster!:                         #Cluster
-	DefaultCapacityProviderStrategy!: #DefaultCapacityProviderStrategy
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECS::ClusterCapacityProviderAssociations"
+	Properties!: close({
+		CapacityProviders?:               #CapacityProviders
+		Cluster!:                         #Cluster
+		DefaultCapacityProviderStrategy!: #DefaultCapacityProviderStrategy
+	})
+}
 
 #CapacityProvider: "FARGATE" | "FARGATE_SPOT" | strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -67,7 +70,3 @@ fn.#ObjectExpression
 #Cluster: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
 #DefaultCapacityProviderStrategy: [...#CapacityProviderStrategy] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::ClusterCapacityProviderAssociations"
-	Properties!: #Properties
-}

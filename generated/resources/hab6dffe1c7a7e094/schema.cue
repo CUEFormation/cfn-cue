@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::FunctionDefinition
-#Properties: close({
-	InitialVersion?: #FunctionDefinitionVersion
-	Name!:           string | fn.#StringExpression
-	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Greengrass::FunctionDefinition"
+	Properties!: close({
+		InitialVersion?: #FunctionDefinitionVersion
+		Name!:           string | fn.#StringExpression
+		Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
+}
 
 #DefaultConfig: close({Execution!: #Execution}) | fn.#ObjectExpression
 
@@ -123,7 +126,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Greengrass::FunctionDefinition"
-	Properties!: #Properties
-}

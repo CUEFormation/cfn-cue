@@ -13,28 +13,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QuickSight::KnowledgeBase Resource Type
-#Properties: close({
-	AccessControlConfiguration?: #AccessControlConfiguration
-	AwsAccountId!:               strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]*$" | fn.#StringExpression
-	DataSourceArn!:              strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
-	Description?:                strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-	IsEmailNotificationOptedForIngestionFailures?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	KnowledgeBaseConfiguration!: #KnowledgeBaseConfiguration
-	KnowledgeBaseId!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$" | fn.#StringExpression
-	MediaExtractionConfiguration?: #MediaExtractionConfiguration
-	Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\p{L}\\p{N}][\\p{L}\\p{N} _\\-\\.]*$" |
-	fn.#StringExpression
-	Permissions?:     list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
-	PrimaryOwnerArn?: string | fn.#StringExpression
-	Tags?:            list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::KnowledgeBase"
+	Properties!: close({
+		AccessControlConfiguration?: #AccessControlConfiguration
+		AwsAccountId!:               strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]*$" | fn.#StringExpression
+		DataSourceArn!:              strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
+		Description?:                strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
+		IsEmailNotificationOptedForIngestionFailures?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		KnowledgeBaseConfiguration!: #KnowledgeBaseConfiguration
+		KnowledgeBaseId!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$" | fn.#StringExpression
+		MediaExtractionConfiguration?: #MediaExtractionConfiguration
+		Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\p{L}\\p{N}][\\p{L}\\p{N} _\\-\\.]*$" |
+		fn.#StringExpression
+		Permissions?:     list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+		PrimaryOwnerArn?: string | fn.#StringExpression
+		Tags?:            list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AccessControlConfiguration: close(
 	{IsACLEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -84,7 +87,3 @@ fn.#ObjectExpression
 #VideoExtractionStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #VideoExtractionType: "AUDIO_TRANSCRIPTION_ONLY" | "VISUAL_CONTENT_AND_AUDIO_TRANSCRIPTION" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::KnowledgeBase"
-	Properties!: #Properties
-}

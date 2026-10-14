@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppIntegrations::EventIntegration
-#Properties: close({
-	Description?:    strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	EventBridgeBus!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
-	EventFilter!:    #EventFilter | fn.#ObjectExpression
-	Name!:           strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
-	Tags?:           list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppIntegrations::EventIntegration"
+	Properties!: close({
+		Description?:    strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+		EventBridgeBus!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
+		EventFilter!:    #EventFilter | fn.#ObjectExpression
+		Name!:           strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
+		Tags?:           list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #EventFilter: close(
 	{Source!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^aws\\.(partner\\/.*|cases)$" | fn.#StringExpression},
@@ -37,7 +40,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppIntegrations::EventIntegration"
-	Properties!: #Properties
-}

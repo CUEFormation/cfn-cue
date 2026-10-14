@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::FlowAlias Resource Type
-#Properties: close({
-	ConcurrencyConfiguration?: #FlowAliasConcurrencyConfiguration
-	Description?:              strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	FlowArn!: strings.MaxRunes(2048) & =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:flow/[0-9a-zA-Z]{10}$" |
-	fn.#StringExpression
-	Name!: =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	RoutingConfiguration!: list.MaxItems(1) & list.MinItems(1) & [...#FlowAliasRoutingConfigurationListItem] |
-		fn.#ListExpression
-	Tags?: #TagsMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::FlowAlias"
+	Properties!: close({
+		ConcurrencyConfiguration?: #FlowAliasConcurrencyConfiguration
+		Description?:              strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		FlowArn!: strings.MaxRunes(2048) & =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:flow/[0-9a-zA-Z]{10}$" |
+		fn.#StringExpression
+		Name!: =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+		RoutingConfiguration!: list.MaxItems(1) & list.MinItems(1) & [...#FlowAliasRoutingConfigurationListItem] |
+			fn.#ListExpression
+		Tags?: #TagsMap
+	})
+}
 
 #ConcurrencyType: "Automatic" | "Manual" | fn.#StringExpression
 
@@ -66,7 +69,3 @@ fn.#ObjectExpression
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::FlowAlias"
-	Properties!: #Properties
-}

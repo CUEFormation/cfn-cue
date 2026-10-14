@@ -13,7 +13,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApplicationSignals::GroupingConfiguration
-#Properties: close({GroupingAttributeDefinitions!: #GroupingAttributeDefinitions})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::ApplicationSignals::GroupingConfiguration"
+	Properties!: close({GroupingAttributeDefinitions!: #GroupingAttributeDefinitions})
+}
 
 #AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 
@@ -29,7 +32,3 @@ fn.#ObjectExpression
 #GroupingString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+\\-=\\._:/@]*$" | fn.#StringExpression
 
 #Timestamp: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApplicationSignals::GroupingConfiguration"
-	Properties!: #Properties
-}

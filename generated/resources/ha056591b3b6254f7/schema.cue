@@ -13,32 +13,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for Metric Stream
-#Properties: matchN(2, [{
-	FirehoseArn!:  _
-	RoleArn!:      _
-	OutputFormat!: _
-	...
-}, matchN(1, [
-	{...},
-	{
-		IncludeFilters!: _
-		ExcludeFilters!: _
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudWatch::MetricStream"
+	Properties?: matchN(2, [{
+		FirehoseArn!:  _
+		RoleArn!:      _
+		OutputFormat!: _
 		...
-	}
-])]) & close({
-	ExcludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [...#MetricStreamFilter] | fn.#ListExpression
-	FirehoseArn?:    strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	IncludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [...#MetricStreamFilter] | fn.#ListExpression
-	IncludeLinkedAccountsMetrics?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name?:                         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	OutputFormat?: ("json" | "opentelemetry0.7" | "opentelemetry1.0") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-	StatisticsConfigurations?: list.MaxItems(100) & list.UniqueItems() & [...#MetricStreamStatisticsConfiguration] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+	}, matchN(1, [
+		{...},
+		{
+			IncludeFilters!: _
+			ExcludeFilters!: _
+			...
+		}
+	])]) & close({
+		ExcludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [...#MetricStreamFilter] | fn.#ListExpression
+		FirehoseArn?:    strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+		IncludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [...#MetricStreamFilter] | fn.#ListExpression
+		IncludeLinkedAccountsMetrics?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		OutputFormat?: ("json" | "opentelemetry0.7" | "opentelemetry1.0") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		fn.#StringExpression
+		StatisticsConfigurations?: list.MaxItems(100) & list.UniqueItems() & [...#MetricStreamStatisticsConfiguration] |
+			fn.#ListExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #MetricStreamFilter: close({
 	MetricNames?: list.MaxItems(999) & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
@@ -65,7 +75,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudWatch::MetricStream"
-	Properties?: #Properties
-}

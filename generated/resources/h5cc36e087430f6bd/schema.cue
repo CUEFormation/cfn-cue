@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DMS::Certificate
-#Properties: close({
-	CertificateIdentifier?: string | fn.#StringExpression
-	CertificatePem?:        string | fn.#StringExpression
-	CertificateWallet?:     string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DMS::Certificate"
-	Properties?: #Properties
+	Type!: "AWS::DMS::Certificate"
+	Properties?: close({
+		CertificateIdentifier?: string | fn.#StringExpression
+		CertificatePem?:        string | fn.#StringExpression
+		CertificateWallet?:     string | fn.#StringExpression
+	})
 }

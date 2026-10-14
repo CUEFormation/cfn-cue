@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::PaymentCredentialProvider
-#Properties: close({
-	CredentialProviderVendor!: #PaymentCredentialProviderVendorType
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
-	ProviderConfigurationInput?: #PaymentProviderConfigurationInput
-	Tags?:                       list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::PaymentCredentialProvider"
+	Properties!: close({
+		CredentialProviderVendor!: #PaymentCredentialProviderVendorType
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
+		ProviderConfigurationInput?: #PaymentProviderConfigurationInput
+		Tags?:                       list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CoinbaseCdpConfigurationInput: close({
 	ApiKeyId!:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
@@ -99,7 +102,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::PaymentCredentialProvider"
-	Properties!: #Properties
-}

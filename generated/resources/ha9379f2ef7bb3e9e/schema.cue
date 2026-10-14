@@ -14,16 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Retrieves information about the resource policy. The resource policy is an
 // IAM policy created by AWS RAM on behalf of the resource owner when they
 // share a resource.
-#Properties: close({
-	Policy!: fn.#Object & {...} |
-	strings.MaxRunes(10000) & strings.MinRunes(1) & =~"^.*\\S.*$" |
-	fn.#StringObjectExpression
-	ResourceArn!: strings.MaxRunes(200) &
-	strings.MinRunes(20) &
-	=~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:((servicenetwork/sn)|(service/svc)|(resourceconfiguration/rcfg))-[0-9a-z]{17}$" |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VpcLattice::ResourcePolicy"
-	Properties!: #Properties
+	Type!: "AWS::VpcLattice::ResourcePolicy"
+	Properties!: close({
+		Policy!: fn.#Object & {...} |
+		strings.MaxRunes(10000) & strings.MinRunes(1) & =~"^.*\\S.*$" |
+		fn.#StringObjectExpression
+		ResourceArn!: strings.MaxRunes(200) &
+		strings.MinRunes(20) &
+		=~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:((servicenetwork/sn)|(service/svc)|(resourceconfiguration/rcfg))-[0-9a-z]{17}$" |
+		fn.#StringExpression
+	})
 }

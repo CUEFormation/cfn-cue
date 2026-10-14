@@ -14,19 +14,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for a Bot Alias, which enables you to change the
 // version of a bot without updating applications that use the bot
-#Properties: close({
-	BotAliasLocaleSettings?:  #BotAliasLocaleSettingsList
-	BotAliasName!:            #Name
-	BotAliasTags?:            list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	BotId!:                   #Id
-	BotVersion?:              #BotVersion
-	ConversationLogSettings?: #ConversationLogSettings
-	Description?:             #Description
-	SentimentAnalysisSettings?: close(
-		{DetectSentiment!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-	) |
-		fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lex::BotAlias"
+	Properties!: close({
+		BotAliasLocaleSettings?:  #BotAliasLocaleSettingsList
+		BotAliasName!:            #Name
+		BotAliasTags?:            list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		BotId!:                   #Id
+		BotVersion?:              #BotVersion
+		ConversationLogSettings?: #ConversationLogSettings
+		Description?:             #Description
+		SentimentAnalysisSettings?: close(
+			{DetectSentiment!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+		) |
+			fn.#ObjectExpression
+	})
+}
 
 #Arn: strings.MaxRunes(1000) | fn.#StringExpression
 
@@ -117,7 +120,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TextLogSettings: list.MaxItems(1) & list.UniqueItems() & [...#TextLogSetting] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lex::BotAlias"
-	Properties!: #Properties
-}

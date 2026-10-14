@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EC2::IPAMScope Type
-#Properties: close({
-	Description?:                    string | fn.#StringExpression
-	ExternalAuthorityConfiguration?: #IpamScopeExternalAuthorityConfiguration
-	IpamId!:                         string | fn.#StringExpression
-	Tags?:                           list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::IPAMScope"
+	Properties!: close({
+		Description?:                    string | fn.#StringExpression
+		ExternalAuthorityConfiguration?: #IpamScopeExternalAuthorityConfiguration
+		IpamId!:                         string | fn.#StringExpression
+		Tags?:                           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #IpamScopeExternalAuthorityConfiguration: close({
 	ExternalResourceIdentifier!:     string | fn.#StringExpression
@@ -31,7 +34,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::IPAMScope"
-	Properties!: #Properties
-}

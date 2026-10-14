@@ -13,10 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAFRegional::SizeConstraintSet
-#Properties: close({
-	Name!:            string | fn.#StringExpression
-	SizeConstraints?: [...#SizeConstraint] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAFRegional::SizeConstraintSet"
+	Properties!: close({
+		Name!:            string | fn.#StringExpression
+		SizeConstraints?: [...#SizeConstraint] | fn.#ListExpression
+	})
+}
 
 #FieldToMatch: close({
 	Data?: string | fn.#StringExpression
@@ -44,7 +47,3 @@ fn.#ObjectExpression
 	TextTransformation!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAFRegional::SizeConstraintSet"
-	Properties!: #Properties
-}

@@ -14,7 +14,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // This schema provides construct and validation rules for AWS-XRay
 // TransactionSearchConfig resource parameters.
-#Properties: close({IndexingPercentage?: #IndexingPercentage})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::XRay::TransactionSearchConfig"
+	Properties?: close({IndexingPercentage?: #IndexingPercentage})
+}
 
 #AccountId: =~"^\\d{12}$" | fn.#StringExpression
 
@@ -38,7 +41,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::XRay::TransactionSearchConfig"
-	Properties?: #Properties
-}

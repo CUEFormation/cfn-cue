@@ -14,22 +14,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // This resource schema represents the RepositoryAssociation resource in the
 // Amazon CodeGuru Reviewer service.
-#Properties: close({
-	BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^\\S(.*\\S)?$" | fn.#StringExpression
-	ConnectionArn?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:aws(-[\\w]+)*:.+:.+:[0-9]{12}:.+" |
-	fn.#StringExpression
-	Name!:  strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\S[\\w.-]*$" | fn.#StringExpression
-	Owner?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\S(.*\\S)?$" | fn.#StringExpression
-	Tags?:  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-	Type!:  "CodeCommit" | "Bitbucket" | "GitHubEnterpriseServer" | "S3Bucket" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeGuruReviewer::RepositoryAssociation"
+	Properties!: close({
+		BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^\\S(.*\\S)?$" | fn.#StringExpression
+		ConnectionArn?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:aws(-[\\w]+)*:.+:.+:[0-9]{12}:.+" |
+		fn.#StringExpression
+		Name!:  strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\S[\\w.-]*$" | fn.#StringExpression
+		Owner?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\S(.*\\S)?$" | fn.#StringExpression
+		Tags?:  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		Type!:  "CodeCommit" | "Bitbucket" | "GitHubEnterpriseServer" | "S3Bucket" | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeGuruReviewer::RepositoryAssociation"
-	Properties!: #Properties
-}

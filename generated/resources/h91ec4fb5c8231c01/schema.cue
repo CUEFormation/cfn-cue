@@ -9,11 +9,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for Alexa::ASK::Skill
-#Properties: close({
-	AuthenticationConfiguration!: #AuthenticationConfiguration
-	SkillPackage!:                #SkillPackage
-	VendorId!:                    string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "Alexa::ASK::Skill"
+	Properties!: close({
+		AuthenticationConfiguration!: #AuthenticationConfiguration
+		SkillPackage!:                #SkillPackage
+		VendorId!:                    string | fn.#StringExpression
+	})
+}
 
 #AuthenticationConfiguration: close({
 	ClientId!:     string | fn.#StringExpression
@@ -32,7 +35,3 @@ fn.#ObjectExpression
 	S3ObjectVersion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "Alexa::ASK::Skill"
-	Properties!: #Properties
-}

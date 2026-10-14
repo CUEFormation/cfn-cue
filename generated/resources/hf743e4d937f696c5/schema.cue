@@ -12,13 +12,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkspacesInstances::VolumeAssociation
-#Properties: close({
-	Device!:              strings.MaxRunes(32) | fn.#StringExpression
-	DisassociateMode?:    "FORCE" | "NO_FORCE" | fn.#StringExpression
-	VolumeId!:            =~"^vol-[0-9a-zA-Z]{1,63}$" | fn.#StringExpression
-	WorkspaceInstanceId!: =~"^wsinst-[0-9a-zA-Z]{8,63}$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkspacesInstances::VolumeAssociation"
-	Properties!: #Properties
+	Type!: "AWS::WorkspacesInstances::VolumeAssociation"
+	Properties!: close({
+		Device!:              strings.MaxRunes(32) | fn.#StringExpression
+		DisassociateMode?:    "FORCE" | "NO_FORCE" | fn.#StringExpression
+		VolumeId!:            =~"^vol-[0-9a-zA-Z]{1,63}$" | fn.#StringExpression
+		WorkspaceInstanceId!: =~"^wsinst-[0-9a-zA-Z]{8,63}$" | fn.#StringExpression
+	})
 }

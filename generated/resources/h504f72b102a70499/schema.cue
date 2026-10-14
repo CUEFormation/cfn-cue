@@ -18,29 +18,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::Dashboard Resource Type.
-#Properties: close({
-	AwsAccountId!:            strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	DashboardId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	DashboardPublishOptions?: #DashboardPublishOptions
-	Definition?:              #DashboardVersionDefinition
-	FolderArns?:              list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	LinkEntities?: list.MaxItems(5) & [...] & [
-		...strings.MaxRunes(1024) &
-		strings.MinRunes(1) &
-		=~"^arn:aws[\\w\\-]*:quicksight:[\\w\\-]+:\\d+:analysis/[\\w\\-]{1,512}$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	LinkSharingConfiguration?: #LinkSharingConfiguration
-	Name!:                     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?:               #Parameters
-	Permissions?:              list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
-	SourceEntity?:             #DashboardSourceEntity
-	Tags?:                     list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	ThemeArn?:                 string | fn.#StringExpression
-	ValidationStrategy?:       #ValidationStrategy
-	VersionDescription?:       strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::Dashboard"
+	Properties!: close({
+		AwsAccountId!:            strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		DashboardId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+		DashboardPublishOptions?: #DashboardPublishOptions
+		Definition?:              #DashboardVersionDefinition
+		FolderArns?:              list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+		LinkEntities?: list.MaxItems(5) & [...] & [
+			...strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[\\w\\-]*:quicksight:[\\w\\-]+:\\d+:analysis/[\\w\\-]{1,512}$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		LinkSharingConfiguration?: #LinkSharingConfiguration
+		Name!:                     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Parameters?:               #Parameters
+		Permissions?:              list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+		SourceEntity?:             #DashboardSourceEntity
+		Tags?:                     list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		ThemeArn?:                 string | fn.#StringExpression
+		ValidationStrategy?:       #ValidationStrategy
+		VersionDescription?:       strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #AdHocFilteringOption: close({AvailabilityStatus?: #DashboardBehavior}) | fn.#ObjectExpression
 
@@ -6157,7 +6160,3 @@ fn.#ObjectExpression
 #WordCloudWordScaling: "EMPHASIZE" | "NORMAL" | fn.#StringExpression
 
 #YAxisOptions: close({YAxis!: #SingleYAxisOption}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::Dashboard"
-	Properties!: #Properties
-}

@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::FSx::Volume
-#Properties: close({
-	BackupId?:             string | fn.#StringExpression
-	Name!:                 string | fn.#StringExpression
-	OntapConfiguration?:   #OntapConfiguration
-	OpenZFSConfiguration?: #OpenZFSConfiguration
-	Tags?:                 [...#Tag] | fn.#ListExpression
-	VolumeType?:           string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FSx::Volume"
+	Properties!: close({
+		BackupId?:             string | fn.#StringExpression
+		Name!:                 string | fn.#StringExpression
+		OntapConfiguration?:   #OntapConfiguration
+		OpenZFSConfiguration?: #OpenZFSConfiguration
+		Tags?:                 [...#Tag] | fn.#ListExpression
+		VolumeType?:           string | fn.#StringExpression
+	})
+}
 
 #AggregateConfiguration: close({
 	Aggregates?: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -238,7 +241,3 @@ fn.#ObjectExpression
 	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FSx::Volume"
-	Properties!: #Properties
-}

@@ -17,31 +17,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ImageBuilder::ImageRecipe
-#Properties: close({
-	AdditionalInstanceConfiguration?: #AdditionalInstanceConfiguration | fn.#ObjectExpression
-	AmiTags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ImageBuilder::ImageRecipe"
+	Properties!: close({
+		AdditionalInstanceConfiguration?: #AdditionalInstanceConfiguration | fn.#ObjectExpression
+		AmiTags?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	AmiWatermarks?: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(128) &
-		strings.MinRunes(3) &
-		=~"^[A-Za-z0-9()\\[\\]./'@_\\-][A-Za-z0-9 ()\\[\\]./'@_\\-]{1,126}[A-Za-z0-9()\\[\\]./'@_\\-]$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	BlockDeviceMappings?: [...#InstanceBlockDeviceMapping] | fn.#ListExpression
-	Components?:          list.MinItems(1) & [...#ComponentConfiguration] | fn.#ListExpression
-	Description?:         strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:                =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-	ParentImage!:         strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: close({
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		AmiWatermarks?: list.MaxItems(5) & list.MinItems(1) & [
+			...strings.MaxRunes(128) &
+			strings.MinRunes(3) &
+			=~"^[A-Za-z0-9()\\[\\]./'@_\\-][A-Za-z0-9 ()\\[\\]./'@_\\-]{1,126}[A-Za-z0-9()\\[\\]./'@_\\-]$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		BlockDeviceMappings?: [...#InstanceBlockDeviceMapping] | fn.#ListExpression
+		Components?:          list.MinItems(1) & [...#ComponentConfiguration] | fn.#ListExpression
+		Description?:         strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:                =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+		ParentImage!:         strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Version!:          string | fn.#StringExpression
-	WorkingDirectory?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-})
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Version!:          string | fn.#StringExpression
+		WorkingDirectory?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #AdditionalInstanceConfiguration: close({
 	SystemsManagerAgent?: #SystemsManagerAgent | fn.#ObjectExpression
@@ -144,7 +147,3 @@ fn.#ObjectExpression
 	{UninstallAfterBuild?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ImageBuilder::ImageRecipe"
-	Properties!: #Properties
-}

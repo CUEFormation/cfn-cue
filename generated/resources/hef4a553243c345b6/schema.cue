@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An event trigger resource of Amazon Connect Customer Profiles
-#Properties: close({
-	Description?:            #Description
-	DomainName!:             #DomainName
-	EventTriggerConditions!: #EventTriggerConditions
-	EventTriggerLimits?:     #EventTriggerLimits
-	EventTriggerName!:       #EventTriggerName
-	ObjectTypeName!:         #ObjectTypeName
-	SegmentFilter?:          #SegmentFilter
-	Tags?:                   #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CustomerProfiles::EventTrigger"
+	Properties!: close({
+		Description?:            #Description
+		DomainName!:             #DomainName
+		EventTriggerConditions!: #EventTriggerConditions
+		EventTriggerLimits?:     #EventTriggerLimits
+		EventTriggerName!:       #EventTriggerName
+		ObjectTypeName!:         #ObjectTypeName
+		SegmentFilter?:          #SegmentFilter
+		Tags?:                   #Tags
+	})
+}
 
 #Description: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -147,7 +150,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CustomerProfiles::EventTrigger"
-	Properties!: #Properties
-}

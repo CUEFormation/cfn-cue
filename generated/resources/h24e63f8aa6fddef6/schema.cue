@@ -9,17 +9,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::PushTemplate
-#Properties: close({
-	ADM?:                  #AndroidPushNotificationTemplate
-	APNS?:                 #APNSPushNotificationTemplate
-	Baidu?:                #AndroidPushNotificationTemplate
-	Default?:              #DefaultPushNotificationTemplate
-	DefaultSubstitutions?: string | fn.#StringExpression
-	GCM?:                  #AndroidPushNotificationTemplate
-	Tags?:                 fn.#Object & {...} | string | fn.#StringObjectExpression
-	TemplateDescription?:  string | fn.#StringExpression
-	TemplateName!:         string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Pinpoint::PushTemplate"
+	Properties!: close({
+		ADM?:                  #AndroidPushNotificationTemplate
+		APNS?:                 #APNSPushNotificationTemplate
+		Baidu?:                #AndroidPushNotificationTemplate
+		Default?:              #DefaultPushNotificationTemplate
+		DefaultSubstitutions?: string | fn.#StringExpression
+		GCM?:                  #AndroidPushNotificationTemplate
+		Tags?:                 fn.#Object & {...} | string | fn.#StringObjectExpression
+		TemplateDescription?:  string | fn.#StringExpression
+		TemplateName!:         string | fn.#StringExpression
+	})
+}
 
 #APNSPushNotificationTemplate: close({
 	Action?:   string | fn.#StringExpression
@@ -51,7 +54,3 @@ fn.#ObjectExpression
 	Url?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pinpoint::PushTemplate"
-	Properties!: #Properties
-}

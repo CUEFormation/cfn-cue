@@ -21,17 +21,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // MediaLive. The channel continuously analyzes the content that it receives
 // and prepares it to be distributed to consumers via one or more origin
 // endpoints.</p>
-#Properties: close({
-	ChannelGroupName!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ChannelName!:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Description?:              strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	InputSwitchConfiguration?: #InputSwitchConfiguration
-	InputType?:                #InputType
-	MultiviewConfiguration?:   #MultiviewConfiguration
-	OutputHeaderConfiguration?: #OutputHeaderConfiguration
-	OutputLockingMode?:         #OutputLockingMode
-	Tags?:                      [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaPackageV2::Channel"
+	Properties!: close({
+		ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		ChannelName!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		InputSwitchConfiguration?:  #InputSwitchConfiguration
+		InputType?:                 #InputType
+		MultiviewConfiguration?:    #MultiviewConfiguration
+		OutputHeaderConfiguration?: #OutputHeaderConfiguration
+		OutputLockingMode?:         #OutputLockingMode
+		Tags?:                      [...#Tag] | fn.#ListExpression
+	})
+}
 
 #IngestEndpoint: close({
 	Id?:  string | fn.#StringExpression
@@ -91,7 +94,3 @@ fn.#ObjectExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaPackageV2::Channel"
-	Properties!: #Properties
-}

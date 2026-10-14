@@ -13,20 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::NeptuneGraph::PrivateGraphEndpoint resource creates an Amazon
 // NeptuneGraph PrivateGraphEndpoint.
-#Properties: close({
-	GraphIdentifier!: =~"^g-[a-z0-9]{10}$" | fn.#StringExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds?: list.MaxItems(6) & list.MinItems(1) & [...=~"^subnet-[a-z0-9]+$" | fn.#StringExpression] |
-		fn.#ListExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^vpc-[a-z0-9]+$" |
-		fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NeptuneGraph::PrivateGraphEndpoint"
-	Properties!: #Properties
+	Type!: "AWS::NeptuneGraph::PrivateGraphEndpoint"
+	Properties!: close({
+		GraphIdentifier!: =~"^g-[a-z0-9]{10}$" | fn.#StringExpression
+		SecurityGroupIds?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		SubnetIds?: list.MaxItems(6) & list.MinItems(1) & [...=~"^subnet-[a-z0-9]+$" | fn.#StringExpression] |
+			fn.#ListExpression
+		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^vpc-[a-z0-9]+$" |
+			fn.#StringExpression
+	})
 }

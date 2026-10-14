@@ -13,22 +13,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Omics::SequenceStore
-#Properties: close({
-	AccessLogLocation?: =~"^$|^s3://([a-z0-9][a-z0-9-.]{1,61}[a-z0-9])/?((.{1,800})/)?$" | fn.#StringExpression
-	Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
-	fn.#StringExpression
-	ETagAlgorithmFamily?: #ETagAlgorithmFamily
-	FallbackLocation?:    strings.MinRunes(0) | fn.#StringExpression
-	Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
-	fn.#StringExpression
-	PropagatedSetLevelTags?: list.MaxItems(50) & [...] & [
-		...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	S3AccessPolicy?: fn.#Object & {...} | fn.#ObjectExpression
-	SseConfig?:      #SseConfig
-	Tags?:           #TagMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Omics::SequenceStore"
+	Properties!: close({
+		AccessLogLocation?: =~"^$|^s3://([a-z0-9][a-z0-9-.]{1,61}[a-z0-9])/?((.{1,800})/)?$" | fn.#StringExpression
+		Description?: strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		fn.#StringExpression
+		ETagAlgorithmFamily?: #ETagAlgorithmFamily
+		FallbackLocation?:    strings.MinRunes(0) | fn.#StringExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		fn.#StringExpression
+		PropagatedSetLevelTags?: list.MaxItems(50) & [...] & [
+			...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		S3AccessPolicy?: fn.#Object & {...} | fn.#ObjectExpression
+		SseConfig?:      #SseConfig
+		Tags?:           #TagMap
+	})
+}
 
 #ETagAlgorithmFamily: "MD5up" | "SHA256up" | "SHA512up" | fn.#StringExpression
 
@@ -55,7 +60,3 @@ fn.#ObjectExpression
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Omics::SequenceStore"
-	Properties!: #Properties
-}

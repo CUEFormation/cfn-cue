@@ -17,34 +17,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS:AppIntegrations::Application
-#Properties: close({
-	ApplicationConfig?:       #ApplicationConfig | fn.#ObjectExpression
-	ApplicationSourceConfig!: close({ExternalUrlConfig!: #ExternalUrlConfig}) | fn.#ObjectExpression
-	ApplicationType?:         "STANDARD" | "SERVICE" | "MCP_SERVER" | fn.#StringExpression
-	Description?:             strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	IframeConfig?:            #IframeConfig | fn.#ObjectExpression
-	InitializationTimeout?: int & <=600000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=600000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	IsService?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\/\\._ \\-]+$" | fn.#StringExpression
-	Namespace!:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
-	Permissions?: list.MaxItems(150) & [...] & [...#Permissions] | fn.#ListExpression
-	Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppIntegrations::Application"
+	Properties!: close({
+		ApplicationConfig?:       #ApplicationConfig | fn.#ObjectExpression
+		ApplicationSourceConfig!: close({ExternalUrlConfig!: #ExternalUrlConfig}) | fn.#ObjectExpression
+		ApplicationType?:         "STANDARD" | "SERVICE" | "MCP_SERVER" | fn.#StringExpression
+		Description?:             strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+		IframeConfig?:            #IframeConfig | fn.#ObjectExpression
+		InitializationTimeout?: int & <=600000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=600000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		IsService?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Name!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\/\\._ \\-]+$" | fn.#StringExpression
+		Namespace!:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
+		Permissions?: list.MaxItems(150) & [...] & [...#Permissions] | fn.#ListExpression
+		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ApplicationConfig: close({ContactHandling?: #ContactHandling}) | fn.#ObjectExpression
 
@@ -77,7 +82,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppIntegrations::Application"
-	Properties!: #Properties
-}

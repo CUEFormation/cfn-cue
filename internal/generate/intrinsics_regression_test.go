@@ -79,7 +79,7 @@ func TestConditionalObjectThroughLocalReference(t *testing.T) {
 	if _, err := Generate(fixture(t), Options{Out: out, Regions: []string{"us-east-1"}}); err != nil {
 		t.Fatal(err)
 	}
-	schema := build(t, out, "./resources/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
+	schema := propertiesSchema(t, out, "./resources/htest")
 	for _, data := range []string{
 		`{Name:"one",Node:{"Fn::If":["Enabled",{Label:"a"},{Ref:"AWS::NoValue"}]}}`,
 		`{Name:"one",Node:{Children:[{"Fn::If":["Enabled",{Label:"a",Children:[{Label:"b"}]},{Ref:"AWS::NoValue"}]}]}}`,
@@ -114,7 +114,7 @@ func TestConditionalObjectThroughReferenceChain(t *testing.T) {
 	if _, err := Generate(source, Options{Out: out, Regions: []string{"us-east-1"}}); err != nil {
 		t.Fatal(err)
 	}
-	schema := build(t, out, "./resources/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
+	schema := propertiesSchema(t, out, "./resources/htest")
 	validate(t, schema, `{Name:"one",Alias:{"Fn::If":["Enabled",{Label:"a"},{Ref:"AWS::NoValue"}]},Any:{"Fn::If":["Enabled",{Nested:[1,"a",true]},{Ref:"AWS::NoValue"}]}}`, true)
 	validate(t, schema, `{Name:"one",Alias:{"Fn::If":["Enabled",[],{Ref:"AWS::NoValue"}]}}`, false)
 }

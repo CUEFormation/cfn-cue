@@ -14,17 +14,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource definition for AWS::BedrockAgentCore::BrowserCustom
-#Properties: close({
-	BrowserSigning?:       #BrowserSigning | fn.#ObjectExpression
-	Certificates?:         #CertificateList | fn.#ListExpression
-	Description?:          string | fn.#StringExpression
-	EnterprisePolicies?:   #BrowserEnterprisePolicies | fn.#ListExpression
-	ExecutionRoleArn?:     #RoleArn | fn.#StringExpression
-	Name!:                 string | fn.#StringExpression
-	NetworkConfiguration!: #BrowserNetworkConfiguration | fn.#ObjectExpression
-	RecordingConfig?:      #RecordingConfig | fn.#ObjectExpression
-	Tags?:                 #TagsMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::BrowserCustom"
+	Properties!: close({
+		BrowserSigning?:       #BrowserSigning | fn.#ObjectExpression
+		Certificates?:         #CertificateList | fn.#ListExpression
+		Description?:          string | fn.#StringExpression
+		EnterprisePolicies?:   #BrowserEnterprisePolicies | fn.#ListExpression
+		ExecutionRoleArn?:     #RoleArn | fn.#StringExpression
+		Name!:                 string | fn.#StringExpression
+		NetworkConfiguration!: #BrowserNetworkConfiguration | fn.#ObjectExpression
+		RecordingConfig?:      #RecordingConfig | fn.#ObjectExpression
+		Tags?:                 #TagsMap
+	})
+}
 
 #BrowserArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):browser(-custom)?\\/(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" |
 	fn.#StringExpression
@@ -116,7 +119,3 @@ fn.#ObjectExpression
 	Subnets!:        #Subnets
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::BrowserCustom"
-	Properties!: #Properties
-}

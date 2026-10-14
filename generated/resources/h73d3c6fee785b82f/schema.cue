@@ -14,37 +14,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::OAuth2CredentialProvider
-#Properties: close({
-	CredentialProviderVendor!: "GoogleOauth2" |
-		"GithubOauth2" |
-		"SlackOauth2" |
-		"SalesforceOauth2" |
-		"MicrosoftOauth2" |
-		"CustomOauth2" |
-		"AtlassianOauth2" |
-		"LinkedinOauth2" |
-		"XOauth2" |
-		"OktaOauth2" |
-		"OneLoginOauth2" |
-		"PingOneOauth2" |
-		"FacebookOauth2" |
-		"YandexOauth2" |
-		"RedditOauth2" |
-		"ZoomOauth2" |
-		"TwitchOauth2" |
-		"SpotifyOauth2" |
-		"DropboxOauth2" |
-		"NotionOauth2" |
-		"HubspotOauth2" |
-		"CyberArkOauth2" |
-		"FusionAuthOauth2" |
-		"Auth0Oauth2" |
-		"CognitoOauth2" |
-		fn.#StringExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
-	Oauth2ProviderConfigInput?: #Oauth2ProviderConfigInput | fn.#ObjectExpression
-	Tags?:                      list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::OAuth2CredentialProvider"
+	Properties!: close({
+		CredentialProviderVendor!: "GoogleOauth2" |
+			"GithubOauth2" |
+			"SlackOauth2" |
+			"SalesforceOauth2" |
+			"MicrosoftOauth2" |
+			"CustomOauth2" |
+			"AtlassianOauth2" |
+			"LinkedinOauth2" |
+			"XOauth2" |
+			"OktaOauth2" |
+			"OneLoginOauth2" |
+			"PingOneOauth2" |
+			"FacebookOauth2" |
+			"YandexOauth2" |
+			"RedditOauth2" |
+			"ZoomOauth2" |
+			"TwitchOauth2" |
+			"SpotifyOauth2" |
+			"DropboxOauth2" |
+			"NotionOauth2" |
+			"HubspotOauth2" |
+			"CyberArkOauth2" |
+			"FusionAuthOauth2" |
+			"Auth0Oauth2" |
+			"CognitoOauth2" |
+			fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
+		Oauth2ProviderConfigInput?: #Oauth2ProviderConfigInput | fn.#ObjectExpression
+		Tags?:                      list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AdditionalClaims: struct.MaxFields(10) & close({
 
@@ -268,7 +271,3 @@ fn.#ObjectExpression
 	ActorTokenScopes?:  [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::OAuth2CredentialProvider"
-	Properties!: #Properties
-}

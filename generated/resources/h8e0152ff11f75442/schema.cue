@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::EmailIdentity
-#Properties: close({
-	ConfigurationSetAttributes?: #ConfigurationSetAttributes
-	DkimAttributes?:             #DkimAttributes
-	DkimSigningAttributes?:      #DkimSigningAttributes
-	EmailIdentity!:              string | fn.#StringExpression
-	FeedbackAttributes?:         #FeedbackAttributes
-	MailFromAttributes?:         #MailFromAttributes
-	Tags?:                       list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::EmailIdentity"
+	Properties!: close({
+		ConfigurationSetAttributes?: #ConfigurationSetAttributes
+		DkimAttributes?:             #DkimAttributes
+		DkimSigningAttributes?:      #DkimSigningAttributes
+		EmailIdentity!:              string | fn.#StringExpression
+		FeedbackAttributes?:         #FeedbackAttributes
+		MailFromAttributes?:         #MailFromAttributes
+		Tags?:                       list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ConfigurationSetAttributes: close({ConfigurationSetName?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -53,7 +56,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::EmailIdentity"
-	Properties!: #Properties
-}

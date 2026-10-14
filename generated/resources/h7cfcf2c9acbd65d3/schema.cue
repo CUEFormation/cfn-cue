@@ -17,47 +17,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CertificateManager::Certificate
-#Properties: close({
-	CertificateAuthorityArn?:                  string | fn.#StringExpression
-	CertificateExport?:                        "ENABLED" | "DISABLED" | fn.#StringExpression
-	CertificateTransparencyLoggingPreference?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	DomainName!:                               string | fn.#StringExpression
-	DomainValidationOptions?:                  [...#DomainValidationOption] | fn.#ListExpression
-	Id?: null |
-	bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	number |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatFloat(
-					cfnScalarStrconv.ParseFloat(
-						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CertificateManager::Certificate"
+	Properties!: close({
+		CertificateAuthorityArn?:                  string | fn.#StringExpression
+		CertificateExport?:                        "ENABLED" | "DISABLED" | fn.#StringExpression
+		CertificateTransparencyLoggingPreference?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		DomainName!:                               string | fn.#StringExpression
+		DomainValidationOptions?:                  [...#DomainValidationOption] | fn.#ListExpression
+		Id?: null |
+		bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
 						64,
-					) &
-						number,
-					"g",
-					-1,
-					64,
-				))*0 + 1,
-			)
-	} |
-	=~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	[...] |
-	{...} |
-	fn.#ValueExpression
-	KeyAlgorithm?:            string | fn.#StringExpression
-	SubjectAlternativeNames?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	ValidationMethod?:        string | fn.#StringExpression
-})
+					))*0 + 1,
+				)
+		} |
+		=~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		[...] |
+		{...} |
+		fn.#ValueExpression
+		KeyAlgorithm?:            string | fn.#StringExpression
+		SubjectAlternativeNames?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		ValidationMethod?:        string | fn.#StringExpression
+	})
+}
 
 #DomainValidationOption: close({
 	DomainName?:       string | fn.#StringExpression
@@ -71,7 +74,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CertificateManager::Certificate"
-	Properties!: #Properties
-}

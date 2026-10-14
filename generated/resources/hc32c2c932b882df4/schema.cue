@@ -13,18 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Timestream::ScheduledQuery resource creates a Timestream Scheduled Query.
-#Properties: close({
-	ClientToken?:                    #ClientToken
-	ErrorReportConfiguration!:       #ErrorReportConfiguration
-	KmsKeyId?:                       #KmsKeyId
-	NotificationConfiguration!:      #NotificationConfiguration
-	QueryString!:                    #QueryString
-	ScheduleConfiguration!:          #ScheduleConfiguration
-	ScheduledQueryExecutionRoleArn!: #ScheduledQueryExecutionRoleArn
-	ScheduledQueryName?:             #ScheduledQueryName
-	Tags?:                           #Tags
-	TargetConfiguration?:            #TargetConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Timestream::ScheduledQuery"
+	Properties!: close({
+		ClientToken?:                    #ClientToken
+		ErrorReportConfiguration!:       #ErrorReportConfiguration
+		KmsKeyId?:                       #KmsKeyId
+		NotificationConfiguration!:      #NotificationConfiguration
+		QueryString!:                    #QueryString
+		ScheduleConfiguration!:          #ScheduleConfiguration
+		ScheduledQueryExecutionRoleArn!: #ScheduledQueryExecutionRoleArn
+		ScheduledQueryName?:             #ScheduledQueryName
+		Tags?:                           #Tags
+		TargetConfiguration?:            #TargetConfiguration
+	})
+}
 
 #Arn: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -162,7 +165,3 @@ fn.#ObjectExpression
 fn.#StringExpression
 
 #Value: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Timestream::ScheduledQuery"
-	Properties!: #Properties
-}

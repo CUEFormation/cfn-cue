@@ -17,53 +17,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An OpenSearch Ingestion Service Data Prepper pipeline running Data Prepper.
-#Properties: close({
-	BufferOptions?:           #BufferOptions
-	EncryptionAtRestOptions?: #EncryptionAtRestOptions
-	LogPublishingOptions?:    #LogPublishingOptions
-	MaxUnits!: int & <=384 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=384 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MinUnits!: int & <=384 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=384 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PipelineConfigurationBody!: strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression
-	PipelineName!: strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" | fn.#StringExpression
-	PipelineRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:(aws|aws\\-cn|aws\\-us\\-gov|aws\\-iso|aws\\-iso\\-b|aws\\-iso\\-e|aws\\-iso\\-f):iam::[0-9]+:role\\/.*$" |
-	fn.#StringExpression
-	ResourcePolicy?: #ResourcePolicy
-	Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VpcOptions?:     #VpcOptions
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OSIS::Pipeline"
+	Properties!: close({
+		BufferOptions?:           #BufferOptions
+		EncryptionAtRestOptions?: #EncryptionAtRestOptions
+		LogPublishingOptions?:    #LogPublishingOptions
+		MaxUnits!: int & <=384 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=384 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MinUnits!: int & <=384 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=384 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PipelineConfigurationBody!: strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression
+		PipelineName!: strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" | fn.#StringExpression
+		PipelineRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:(aws|aws\\-cn|aws\\-us\\-gov|aws\\-iso|aws\\-iso\\-b|aws\\-iso\\-e|aws\\-iso\\-f):iam::[0-9]+:role\\/.*$" |
+		fn.#StringExpression
+		ResourcePolicy?: #ResourcePolicy
+		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VpcOptions?:     #VpcOptions
+	})
+}
 
 #BufferOptions: close(
 	{PersistentBufferEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -124,7 +131,3 @@ fn.#ObjectExpression
 	VpcEndpointManagement?: "CUSTOMER" | "SERVICE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OSIS::Pipeline"
-	Properties!: #Properties
-}

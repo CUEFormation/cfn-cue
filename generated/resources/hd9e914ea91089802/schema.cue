@@ -17,12 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataBrew::Recipe.
-#Properties: close({
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Steps!:       [...#RecipeStep & fn.#Object & {...} | fn.#ObjectExpression] | fn.#ListExpression
-	Tags?:        [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataBrew::Recipe"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Steps!:       [...#RecipeStep & fn.#Object & {...} | fn.#ObjectExpression] | fn.#ListExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Action: close({
 	Operation!:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$" | fn.#StringExpression
@@ -215,7 +218,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataBrew::Recipe"
-	Properties!: #Properties
-}

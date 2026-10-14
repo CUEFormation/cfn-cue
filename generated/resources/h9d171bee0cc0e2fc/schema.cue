@@ -19,14 +19,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [object
 // quotas](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html)
 // in the *User Guide*.
-#Properties: close({
-	InstanceProfileName?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^([\\w+=,.@-]+)?$" | fn.#StringExpression
-	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
-	fn.#StringExpression
-	Roles!: list.MaxItems(1) & list.UniqueItems() & [...] & [...=~"[a-zA-Z0-9+=,.@\\-_]+" | fn.#StringExpression] |
-		fn.#ListExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IAM::InstanceProfile"
-	Properties!: #Properties
+	Type!: "AWS::IAM::InstanceProfile"
+	Properties!: close({
+		InstanceProfileName?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^([\\w+=,.@-]+)?$" | fn.#StringExpression
+		Path?: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
+		fn.#StringExpression
+		Roles!: list.MaxItems(1) & list.UniqueItems() & [...] & [...=~"[a-zA-Z0-9+=,.@\\-_]+" | fn.#StringExpression] |
+			fn.#ListExpression
+	})
 }

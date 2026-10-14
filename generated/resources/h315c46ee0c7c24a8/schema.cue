@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SageMaker::Device
-#Properties: close({
-	Device?: #Device | fn.#ObjectExpression
-	DeviceFleetName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*_*[a-zA-Z0-9])*$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Device"
+	Properties!: close({
+		Device?: #Device | fn.#ObjectExpression
+		DeviceFleetName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*_*[a-zA-Z0-9])*$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Device: close({
 	Description?:  strings.MaxRunes(40) & strings.MinRunes(1) & =~"[\\S\\s]+" | fn.#StringExpression
@@ -32,7 +35,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Device"
-	Properties!: #Properties
-}

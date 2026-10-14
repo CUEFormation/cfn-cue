@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::BridgeSource
-#Properties: close({
-	BridgeArn!:     string | fn.#StringExpression
-	FlowSource?:    #BridgeFlowSource
-	Name!:          string | fn.#StringExpression
-	NetworkSource?: #BridgeNetworkSource
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::BridgeSource"
+	Properties!: close({
+		BridgeArn!:     string | fn.#StringExpression
+		FlowSource?:    #BridgeFlowSource
+		Name!:          string | fn.#StringExpression
+		NetworkSource?: #BridgeNetworkSource
+	})
+}
 
 #BridgeFlowSource: close({
 	FlowArn!:                    string | fn.#StringExpression
@@ -53,7 +56,3 @@ fn.#ObjectExpression
 #ProtocolEnum: "rtp-fec" | "rtp" | "udp" | fn.#StringExpression
 
 #VpcInterfaceAttachment: close({VpcInterfaceName?: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::BridgeSource"
-	Properties!: #Properties
-}

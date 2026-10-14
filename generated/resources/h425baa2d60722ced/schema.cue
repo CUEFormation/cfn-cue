@@ -9,12 +9,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::SdiSource Resource Type
-#Properties: close({
-	Mode?: #SdiSourceMode
-	Name!: string | fn.#StringExpression
-	Tags?: [...#Tags] | fn.#ListExpression
-	Type!: #SdiSourceType
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::SdiSource"
+	Properties!: close({
+		Mode?: #SdiSourceMode
+		Name!: string | fn.#StringExpression
+		Tags?: [...#Tags] | fn.#ListExpression
+		Type!: #SdiSourceType
+	})
+}
 
 #SdiSourceMode: "QUADRANT" | "INTERLEAVE" | fn.#StringExpression
 
@@ -27,7 +30,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::SdiSource"
-	Properties!: #Properties
-}

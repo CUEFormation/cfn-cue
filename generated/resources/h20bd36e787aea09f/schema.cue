@@ -13,19 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The API Schema for AWS Route53 Recovery Readiness Cells.
-#Properties: close({
-	CellName?: strings.MaxRunes(64) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-	Cells?:    list.MaxItems(5) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
-	fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53RecoveryReadiness::Cell"
+	Properties?: close({
+		CellName?: strings.MaxRunes(64) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
+		Cells?:    list.MaxItems(5) & [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53RecoveryReadiness::Cell"
-	Properties?: #Properties
-}

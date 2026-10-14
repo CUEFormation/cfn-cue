@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaTailor::ChannelPolicy Resource Type
-#Properties: close({
-	ChannelName!: string | fn.#StringExpression
-	Policy!:      fn.#Object & {...} | string | fn.#StringObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaTailor::ChannelPolicy"
-	Properties!: #Properties
+	Type!: "AWS::MediaTailor::ChannelPolicy"
+	Properties!: close({
+		ChannelName!: string | fn.#StringExpression
+		Policy!:      fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
 }

@@ -18,20 +18,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::LicenseManager::License
-#Properties: close({
-	Beneficiary!:              string | fn.#StringExpression
-	ConsumptionConfiguration!: #ConsumptionConfiguration
-	Entitlements!:             list.UniqueItems() & [...#Entitlement] | fn.#ListExpression
-	HomeRegion!:               string | fn.#StringExpression
-	Issuer!:                   #IssuerData
-	LicenseMetadata?:          list.UniqueItems() & [...#Metadata] | fn.#ListExpression
-	LicenseName!:              string | fn.#StringExpression
-	ProductName!:              string | fn.#StringExpression
-	ProductSKU!:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Status?:                   #LicenseStatus
-	Tags?:                     [...#Tag] | fn.#ListExpression
-	Validity!:                 #ValidityDateFormat
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LicenseManager::License"
+	Properties!: close({
+		Beneficiary!:              string | fn.#StringExpression
+		ConsumptionConfiguration!: #ConsumptionConfiguration
+		Entitlements!:             list.UniqueItems() & [...#Entitlement] | fn.#ListExpression
+		HomeRegion!:               string | fn.#StringExpression
+		Issuer!:                   #IssuerData
+		LicenseMetadata?:          list.UniqueItems() & [...#Metadata] | fn.#ListExpression
+		LicenseName!:              string | fn.#StringExpression
+		ProductName!:              string | fn.#StringExpression
+		ProductSKU!:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Status?:                   #LicenseStatus
+		Tags?:                     [...#Tag] | fn.#ListExpression
+		Validity!:                 #ValidityDateFormat
+	})
+}
 
 #Arn: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 
@@ -162,7 +165,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LicenseManager::License"
-	Properties!: #Properties
-}

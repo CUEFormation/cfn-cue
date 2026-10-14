@@ -17,48 +17,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for LookoutEquipment InferenceScheduler.
-#Properties: close({
-	DataDelayOffsetInMinutes?: int & <=60 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=60 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	DataInputConfiguration!: close({
-		InferenceInputNameConfiguration?: #InputNameConfiguration
-		InputTimeZoneOffset?:             =~"^(\\+|\\-)[0-9]{2}\\:[0-9]{2}$" | fn.#StringExpression
-		S3InputConfiguration!:            #S3InputConfiguration
-	}) |
-	fn.#ObjectExpression
-	DataOutputConfiguration!: close({
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LookoutEquipment::InferenceScheduler"
+	Properties!: close({
+		DataDelayOffsetInMinutes?: int & <=60 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=60 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		DataInputConfiguration!: close({
+			InferenceInputNameConfiguration?: #InputNameConfiguration
+			InputTimeZoneOffset?:             =~"^(\\+|\\-)[0-9]{2}\\:[0-9]{2}$" | fn.#StringExpression
+			S3InputConfiguration!:            #S3InputConfiguration
+		}) |
+		fn.#ObjectExpression
+		DataOutputConfiguration!: close({
+			KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+			fn.#StringExpression
+			S3OutputConfiguration!: #S3OutputConfiguration
+		}) |
+		fn.#ObjectExpression
+		DataUploadFrequency!: "PT5M" | "PT10M" | "PT15M" | "PT30M" | "PT1H" | fn.#StringExpression
+		InferenceSchedulerName?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_-]{1,200}$" |
 		fn.#StringExpression
-		S3OutputConfiguration!: #S3OutputConfiguration
-	}) |
-	fn.#ObjectExpression
-	DataUploadFrequency!: "PT5M" | "PT10M" | "PT15M" | "PT30M" | "PT1H" | fn.#StringExpression
-	InferenceSchedulerName?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_-]{1,200}$" |
-	fn.#StringExpression
-	ModelName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_-]{1,200}$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
-	fn.#StringExpression
-	ServerSideKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:               list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+		ModelName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_-]{1,200}$" | fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
+		fn.#StringExpression
+		ServerSideKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:               list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Bucket: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" | fn.#StringExpression
 
@@ -88,7 +93,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\w+-=\\.:/@]*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LookoutEquipment::InferenceScheduler"
-	Properties!: #Properties
-}

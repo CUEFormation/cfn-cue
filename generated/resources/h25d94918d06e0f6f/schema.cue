@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GlobalAccelerator::Accelerator
-#Properties: close({
-	Enabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FlowLogsEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FlowLogsS3Bucket?: strings.MaxRunes(255) | fn.#StringExpression
-	FlowLogsS3Prefix?: strings.MaxRunes(255) | fn.#StringExpression
-	IpAddressType?:    "IPV4" | "DUAL_STACK" | fn.#StringExpression
-	IpAddresses?:      list.MaxItems(2) & [...] & [...#IpAddress] | fn.#ListExpression
-	Name!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
-	Tags?:             [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GlobalAccelerator::Accelerator"
+	Properties!: close({
+		Enabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		FlowLogsEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		FlowLogsS3Bucket?: strings.MaxRunes(255) | fn.#StringExpression
+		FlowLogsS3Prefix?: strings.MaxRunes(255) | fn.#StringExpression
+		IpAddressType?:    "IPV4" | "DUAL_STACK" | fn.#StringExpression
+		IpAddresses?:      list.MaxItems(2) & [...] & [...#IpAddress] | fn.#ListExpression
+		Name!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
+		Tags?:             [...#Tag] | fn.#ListExpression
+	})
+}
 
 #IpAddress: =~"^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$" | fn.#StringExpression
 
@@ -31,7 +34,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GlobalAccelerator::Accelerator"
-	Properties!: #Properties
-}

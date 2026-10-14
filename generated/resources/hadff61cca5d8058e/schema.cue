@@ -14,12 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::SSMQuickSetup::LifecycleAutomation that
 // executes SSM Automation documents in response to CloudFormation lifecycle
 // events.
-#Properties: close({
-	AutomationDocument!:   strings.MaxRunes(500) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-	AutomationParameters!: #AutomationParameters
-	ResourceKey!:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Tags?:                 #TagsMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSMQuickSetup::LifecycleAutomation"
+	Properties!: close({
+		AutomationDocument!:   strings.MaxRunes(500) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
+		AutomationParameters!: #AutomationParameters
+		ResourceKey!:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		Tags?:                 #TagsMap
+	})
+}
 
 #AutomationParameters: close({
 
@@ -31,7 +34,3 @@ fn.#ObjectExpression
 	{[=~"^[A-Za-z0-9 +=@_\\/:.-]+$"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9 +=@_\\/:.-]+$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSMQuickSetup::LifecycleAutomation"
-	Properties!: #Properties
-}

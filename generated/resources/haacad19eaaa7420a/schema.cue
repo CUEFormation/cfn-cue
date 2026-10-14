@@ -17,12 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS::S3Outposts::Bucket
-#Properties: close({
-	BucketName!:             strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	LifecycleConfiguration?: #LifecycleConfiguration | fn.#ObjectExpression
-	OutpostId!:              =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" | fn.#StringExpression
-	Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3Outposts::Bucket"
+	Properties!: close({
+		BucketName!:             strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+		LifecycleConfiguration?: #LifecycleConfiguration | fn.#ObjectExpression
+		OutpostId!:              =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" | fn.#StringExpression
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AbortIncompleteMultipartUpload: close({
 	DaysAfterInitiation!: int & >=0 |
@@ -118,7 +121,3 @@ fn.#ObjectExpression
 
 #iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Outposts::Bucket"
-	Properties!: #Properties
-}

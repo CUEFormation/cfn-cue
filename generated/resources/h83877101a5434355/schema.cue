@@ -19,80 +19,85 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a new Scheduled Query that allows you to define a Logs Insights query
 // that will run on a schedule and configure actions to take with the query
 // results.
-#Properties: close({
-	Description?:              strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	DestinationConfiguration?: #DestinationConfiguration
-	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
-	fn.#StringExpression
-	LogGroupIdentifiers?: list.MaxItems(50) & list.MinItems(1) & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\w#+=/:,.@-]*$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Name!:          strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-/.#]+$" | fn.#StringExpression
-	QueryLanguage!: "CWLI" | "PPL" | "SQL" | fn.#StringExpression
-	QueryString!:   strings.MaxRunes(10000) & strings.MinRunes(0) | fn.#StringExpression
-	ScheduleEndTime?: >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Logs::ScheduledQuery"
+	Properties!: close({
+		Description?:              strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		DestinationConfiguration?: #DestinationConfiguration
+		ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+		fn.#StringExpression
+		LogGroupIdentifiers?: list.MaxItems(50) & list.MinItems(1) & [
+			...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\w#+=/:,.@-]*$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Name!:          strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-/.#]+$" | fn.#StringExpression
+		QueryLanguage!: "CWLI" | "PPL" | "SQL" | fn.#StringExpression
+		QueryString!:   strings.MaxRunes(10000) & strings.MinRunes(0) | fn.#StringExpression
+		ScheduleEndTime?: >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								>=0,
+							"g",
+							-1,
 							64,
-						) &
-							>=0,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ScheduleExpression!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	ScheduleStartTime?: >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ScheduleExpression!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		ScheduleStartTime?: >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								>=0,
+							"g",
+							-1,
 							64,
-						) &
-							>=0,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	StartTimeOffset?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	State?: #ScheduledQueryState
-	Tags?: [...close({
-		Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Timezone?: strings.MinRunes(1) | fn.#StringExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		StartTimeOffset?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		State?: #ScheduledQueryState
+		Tags?: [...close({
+			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		Timezone?: strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #DestinationConfiguration: close({S3Configuration?: #S3Configuration}) | fn.#ObjectExpression
 
@@ -107,7 +112,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ScheduledQueryState: "ENABLED" | "DISABLED" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::ScheduledQuery"
-	Properties!: #Properties
-}

@@ -17,22 +17,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ImageBuilder::LifecyclePolicy
-#Properties: close({
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	ExecutionRole!: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	Name!:              =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-	PolicyDetails!:     list.MaxItems(3) & list.MinItems(1) & [...#PolicyDetail] | fn.#ListExpression
-	ResourceSelection!: #ResourceSelection | fn.#ObjectExpression
-	ResourceType!:      "AMI_IMAGE" | "CONTAINER_IMAGE" | fn.#StringExpression
-	Status?:            "DISABLED" | "ENABLED" | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ImageBuilder::LifecyclePolicy"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		ExecutionRole!: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		Name!:              =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+		PolicyDetails!:     list.MaxItems(3) & list.MinItems(1) & [...#PolicyDetail] | fn.#ListExpression
+		ResourceSelection!: #ResourceSelection | fn.#ObjectExpression
+		ResourceType!:      "AMI_IMAGE" | "CONTAINER_IMAGE" | fn.#StringExpression
+		Status?:            "DISABLED" | "ENABLED" | fn.#StringExpression
+		Tags?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
 #Action: close({
 	IncludeResources?: #IncludeResources
@@ -151,7 +154,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TimeUnit: "DAYS" | "WEEKS" | "MONTHS" | "YEARS" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ImageBuilder::LifecyclePolicy"
-	Properties!: #Properties
-}

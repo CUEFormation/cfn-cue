@@ -16,34 +16,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ImageBuilder::InfrastructureConfiguration
-#Properties: close({
-	Description?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceMetadataOptions?: #InstanceMetadataOptions | fn.#ObjectExpression
-	InstanceProfileName!:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	InstanceTypes?:           [...string | fn.#StringExpression] | fn.#ListExpression
-	KeyPair?:                 strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Logging?:                 #Logging | fn.#ObjectExpression
-	Name!:                    =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-	Placement?:               #Placement | fn.#ObjectExpression
-	ResourceTags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ImageBuilder::InfrastructureConfiguration"
+	Properties!: close({
+		Description?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceMetadataOptions?: #InstanceMetadataOptions | fn.#ObjectExpression
+		InstanceProfileName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+		InstanceTypes?:       [...string | fn.#StringExpression] | fn.#ListExpression
+		KeyPair?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Logging?:             #Logging | fn.#ObjectExpression
+		Name!:                =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+		Placement?:           #Placement | fn.#ObjectExpression
+		ResourceTags?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	SnsTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:aws[^:]*:sns:[^:]+:[0-9]{12}:[a-zA-Z0-9-_]{1,256}$" |
-		fn.#StringExpression
-	SubnetId?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: close({
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		SecurityGroupIds?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		SnsTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:aws[^:]*:sns:[^:]+:[0-9]{12}:[a-zA-Z0-9-_]{1,256}$" |
+			fn.#StringExpression
+		SubnetId?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	TerminateInstanceOnFailure?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		TerminateInstanceOnFailure?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+	})
+}
 
 #InstanceMetadataOptions: close({
 	HttpPutResponseHopLimit?: int & <=64 & >=1 |
@@ -87,7 +97,3 @@ fn.#ObjectExpression
 	TagValue?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ImageBuilder::InfrastructureConfiguration"
-	Properties!: #Properties
-}

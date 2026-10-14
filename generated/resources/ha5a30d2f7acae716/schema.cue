@@ -17,15 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a rule for the specified CON instance.
-#Properties: close({
-	Actions!:       #Actions | fn.#ObjectExpression
-	Function!:      string | fn.#StringExpression
-	InstanceArn!:   =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Name!:          =~"^[a-zA-Z0-9._-]{1,200}$" | fn.#StringExpression
-	PublishStatus!: "DRAFT" | "PUBLISHED" | fn.#StringExpression
-	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TriggerEventSource!: #RuleTriggerEventSource | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::Rule"
+	Properties!: close({
+		Actions!:     #Actions | fn.#ObjectExpression
+		Function!:    string | fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Name!:        =~"^[a-zA-Z0-9._-]{1,200}$" | fn.#StringExpression
+		PublishStatus!:      "DRAFT" | "PUBLISHED" | fn.#StringExpression
+		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TriggerEventSource!: #RuleTriggerEventSource | fn.#ObjectExpression
+	})
+}
 
 #Actions: close({
 	AssignContactCategoryActions?: #AssignContactCategoryActions | fn.#ListExpression
@@ -235,7 +238,3 @@ fn.#ObjectExpression
 
 #UserArn: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$|^\\$\\..+$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::Rule"
-	Properties!: #Properties
-}

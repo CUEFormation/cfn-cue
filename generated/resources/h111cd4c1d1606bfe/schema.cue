@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::LicenseManager::LicenseAssetGroup
-#Properties: close({
-	AssociatedLicenseAssetRulesetARNs!: [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
-	Description?:                       strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	LicenseAssetGroupConfigurations!:   [...#LicenseAssetGroupConfiguration] | fn.#ListExpression
-	Name!:                              strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Properties?:                        [...#LicenseAssetGroupProperty] | fn.#ListExpression
-	Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LicenseManager::LicenseAssetGroup"
+	Properties!: close({
+		AssociatedLicenseAssetRulesetARNs!: [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
+		Description?:                       strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		LicenseAssetGroupConfigurations!:   [...#LicenseAssetGroupConfiguration] | fn.#ListExpression
+		Name!:                              strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+		Properties?:                        [...#LicenseAssetGroupProperty] | fn.#ListExpression
+		Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #LicenseAssetGroupConfiguration: close({UsageDimension?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -35,7 +38,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LicenseManager::LicenseAssetGroup"
-	Properties!: #Properties
-}

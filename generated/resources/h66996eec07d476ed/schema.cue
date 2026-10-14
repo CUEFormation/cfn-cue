@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::B2BI::Capability Resource Type
-#Properties: close({
-	Configuration!:         #CapabilityConfiguration
-	InstructionsDocuments?: list.MaxItems(5) & [...] & [...#S3Location] | fn.#ListExpression
-	Name!:                  strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                  list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	Type!:                  #CapabilityType
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::B2BI::Capability"
+	Properties!: close({
+		Configuration!:         #CapabilityConfiguration
+		InstructionsDocuments?: list.MaxItems(5) & [...] & [...#S3Location] | fn.#ListExpression
+		Name!:                  strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                  list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Type!:                  #CapabilityType
+	})
+}
 
 #CapabilityConfiguration: close({Edi!: #EdiConfiguration}) | fn.#ValueExpression
 
@@ -407,7 +410,3 @@ fn.#ObjectExpression
 	"VERSION_5010" |
 	"VERSION_5010_HIPAA" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::B2BI::Capability"
-	Properties!: #Properties
-}

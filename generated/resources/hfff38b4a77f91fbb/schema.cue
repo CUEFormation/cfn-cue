@@ -15,16 +15,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::SecurityAgent::Integration. Creates a
 // connection between Security Agent and a third-party provider for code review
 // and remediation.
-#Properties: close({
-	DisplayName!: string | fn.#StringExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	PrivateConnectionName?: string | fn.#StringExpression
-	Provider!:              "GITHUB" | "GITLAB" | "BITBUCKET" | "CONFLUENCE" | fn.#StringExpression
-	ProviderInput?:         #ProviderInput
-	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityAgent::Integration"
+	Properties!: close({
+		DisplayName!: string | fn.#StringExpression
+		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
+			fn.#StringExpression
+		PrivateConnectionName?: string | fn.#StringExpression
+		Provider!:              "GITHUB" | "GITLAB" | "BITBUCKET" | "CONFLUENCE" | fn.#StringExpression
+		ProviderInput?:         #ProviderInput
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #BitbucketInput: close({
 	Code!:           string | fn.#StringExpression
@@ -72,7 +75,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityAgent::Integration"
-	Properties!: #Properties
-}

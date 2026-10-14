@@ -12,11 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53Resolver::ResolverConfig.
-#Properties: close({
-	AutodefinedReverseFlag!: "DISABLE" | fn.#StringExpression
-	ResourceId!:             strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53Resolver::ResolverConfig"
-	Properties!: #Properties
+	Type!: "AWS::Route53Resolver::ResolverConfig"
+	Properties!: close({
+		AutodefinedReverseFlag!: "DISABLE" | fn.#StringExpression
+		ResourceId!:             strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	})
 }

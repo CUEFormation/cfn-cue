@@ -18,69 +18,76 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::GameLift::ContainerGroupDefinition resource creates an Amazon
 // GameLift container group definition.
-#Properties: close({
-	ContainerGroupType?:            "GAME_SERVER" | "PER_INSTANCE" | fn.#StringExpression
-	GameServerContainerDefinition?: #GameServerContainerDefinition
-	Name!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	OperatingSystem!: "AMAZON_LINUX_2023" | fn.#StringExpression
-	SourceVersionNumber?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SupportContainerDefinitions?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		...#SupportContainerDefinition
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	TotalMemoryLimitMebibytes!: int & <=1024000 & >=4 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1024000 &
-							>=4,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TotalVcpuLimit?: <=10 & >=0.125 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GameLift::ContainerGroupDefinition"
+	Properties!: close({
+		ContainerGroupType?:            "GAME_SERVER" | "PER_INSTANCE" | fn.#StringExpression
+		GameServerContainerDefinition?: #GameServerContainerDefinition
+		Name!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		OperatingSystem!: "AMAZON_LINUX_2023" | fn.#StringExpression
+		SourceVersionNumber?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SupportContainerDefinitions?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
+			...#SupportContainerDefinition
+		] |
+			fn.#ListExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TotalMemoryLimitMebibytes!: int & <=1024000 & >=4 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1024000 &
+								>=4,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TotalVcpuLimit?: <=10 & >=0.125 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=10 &
+								>=0.125,
+							"g",
+							-1,
 							64,
-						) &
-							<=10 &
-							>=0.125,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	VersionDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		VersionDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #ContainerDependency: close({
 	Condition!:     "START" | "COMPLETE" | "SUCCESS" | "HEALTHY" | fn.#StringExpression
@@ -355,7 +362,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GameLift::ContainerGroupDefinition"
-	Properties!: #Properties
-}

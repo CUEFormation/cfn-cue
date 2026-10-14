@@ -18,13 +18,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The ``AWS::ApiGateway::Deployment`` resource deploys an API Gateway
 // ``RestApi`` resource to a stage so that clients can call the API over the
 // internet. The stage acts as an environment.
-#Properties: close({
-	DeploymentCanarySettings?: #DeploymentCanarySettings | fn.#ObjectExpression
-	Description?:              string | fn.#StringExpression
-	RestApiId!:                string | fn.#StringExpression
-	StageDescription?:         #StageDescription | fn.#ObjectExpression
-	StageName?:                string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGateway::Deployment"
+	Properties!: close({
+		DeploymentCanarySettings?: #DeploymentCanarySettings | fn.#ObjectExpression
+		Description?:              string | fn.#StringExpression
+		RestApiId!:                string | fn.#StringExpression
+		StageDescription?:         #StageDescription | fn.#ObjectExpression
+		StageName?:                string | fn.#StringExpression
+	})
+}
 
 #AccessLogSetting: close({
 	DestinationArn?: string | fn.#StringExpression
@@ -221,7 +224,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::Deployment"
-	Properties!: #Properties
-}

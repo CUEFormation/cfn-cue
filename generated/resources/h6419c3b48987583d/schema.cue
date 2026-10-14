@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaPackage::Channel
-#Properties: close({
-	Description?:      string | fn.#StringExpression
-	EgressAccessLogs?: #LogConfiguration | fn.#ObjectExpression
-	HlsIngest?: close({ingestEndpoints?: [...close({}) | fn.#ObjectExpression] | fn.#ListExpression}) |
-		fn.#ObjectExpression
-	Id!:                strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	IngressAccessLogs?: #LogConfiguration | fn.#ObjectExpression
-	Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaPackage::Channel"
+	Properties!: close({
+		Description?:      string | fn.#StringExpression
+		EgressAccessLogs?: #LogConfiguration | fn.#ObjectExpression
+		HlsIngest?: close({ingestEndpoints?: [...close({}) | fn.#ObjectExpression] | fn.#ListExpression}) |
+			fn.#ObjectExpression
+		Id!:                strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		IngressAccessLogs?: #LogConfiguration | fn.#ObjectExpression
+		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #HlsIngest: close({ingestEndpoints?: [...#IngestEndpoint] | fn.#ListExpression}) | fn.#ObjectExpression
 
@@ -41,7 +44,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaPackage::Channel"
-	Properties!: #Properties
-}

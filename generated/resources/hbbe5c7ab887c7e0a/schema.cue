@@ -17,12 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::NetworkConnector
-#Properties: close({
-	Configuration!: #Config
-	Name?:          #Name
-	OperatorRole?:  #RoleArn
-	Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::NetworkConnector"
+	Properties!: close({
+		Configuration!: #Config
+		Name?:          #Name
+		OperatorRole?:  #RoleArn
+		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: strings.MaxRunes(140) &
 strings.MinRunes(1) &
@@ -90,7 +93,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::NetworkConnector"
-	Properties!: #Properties
-}

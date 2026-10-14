@@ -9,10 +9,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::CoreDefinitionVersion
-#Properties: close({
-	CoreDefinitionId!: string | fn.#StringExpression
-	Cores!:            [...#Core] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Greengrass::CoreDefinitionVersion"
+	Properties!: close({
+		CoreDefinitionId!: string | fn.#StringExpression
+		Cores!:            [...#Core] | fn.#ListExpression
+	})
+}
 
 #Core: close({
 	CertificateArn!: string | fn.#StringExpression
@@ -21,7 +24,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ThingArn!:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Greengrass::CoreDefinitionVersion"
-	Properties!: #Properties
-}

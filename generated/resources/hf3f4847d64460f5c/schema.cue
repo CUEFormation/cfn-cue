@@ -49,14 +49,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see [Access
 // Management](https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html)
 // in the *General Reference*.
-#Properties: close({
-	HostedZoneConfig?:   #HostedZoneConfig | fn.#ObjectExpression
-	HostedZoneFeatures?: #HostedZoneFeatures | fn.#ObjectExpression
-	HostedZoneTags?:     list.UniqueItems() & [...#HostedZoneTag] | fn.#ListExpression
-	Name?:               strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	QueryLoggingConfig?: #QueryLoggingConfig | fn.#ObjectExpression
-	VPCs?:               list.UniqueItems() & [...#VPC] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53::HostedZone"
+	Properties?: close({
+		HostedZoneConfig?:   #HostedZoneConfig | fn.#ObjectExpression
+		HostedZoneFeatures?: #HostedZoneFeatures | fn.#ObjectExpression
+		HostedZoneTags?:     list.UniqueItems() & [...#HostedZoneTag] | fn.#ListExpression
+		Name?:               strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		QueryLoggingConfig?: #QueryLoggingConfig | fn.#ObjectExpression
+		VPCs?:               list.UniqueItems() & [...#VPC] | fn.#ListExpression
+	})
+}
 
 #HostedZoneConfig: close({Comment?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}) |
 fn.#ObjectExpression
@@ -80,7 +83,3 @@ fn.#ObjectExpression
 	VPCRegion!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53::HostedZone"
-	Properties?: #Properties
-}

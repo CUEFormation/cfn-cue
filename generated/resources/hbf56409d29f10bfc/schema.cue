@@ -14,15 +14,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Omics::AnnotationStore Resource Type
-#Properties: close({
-	Description?:  strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:         =~"^([a-z]){1}([a-z0-9_]){2,254}" | fn.#StringExpression
-	Reference?:    #ReferenceItem
-	SseConfig?:    #SseConfig
-	StoreFormat!:  #StoreFormat
-	StoreOptions?: #StoreOptions
-	Tags?:         #TagMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Omics::AnnotationStore"
+	Properties!: close({
+		Description?:  strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:         =~"^([a-z]){1}([a-z0-9_]){2,254}" | fn.#StringExpression
+		Reference?:    #ReferenceItem
+		SseConfig?:    #SseConfig
+		StoreFormat!:  #StoreFormat
+		StoreOptions?: #StoreOptions
+		Tags?:         #TagMap
+	})
+}
 
 #AnnotationType: "GENERIC" |
 	"CHR_POS" |
@@ -86,7 +89,3 @@ fn.#ObjectExpression
 	Schema?:         list.MaxItems(5000) & list.MinItems(1) & [...#SchemaItem] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Omics::AnnotationStore"
-	Properties!: #Properties
-}

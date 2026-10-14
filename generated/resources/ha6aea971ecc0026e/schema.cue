@@ -17,35 +17,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53Resolver::FirewallRuleGroupAssociation.
-#Properties: close({
-	FirewallRuleGroupId!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	MutationProtection?:  "ENABLED" | "DISABLED" | fn.#StringExpression
-	Name?:                strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	Priority!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(64) & strings.MinRunes(1)) |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53Resolver::FirewallRuleGroupAssociation"
+	Properties!: close({
+		FirewallRuleGroupId!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		MutationProtection?:  "ENABLED" | "DISABLED" | fn.#StringExpression
+		Name?:                strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+		Priority!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53Resolver::FirewallRuleGroupAssociation"
-	Properties!: #Properties
-}

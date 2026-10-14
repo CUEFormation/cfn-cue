@@ -14,25 +14,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Schema for AWS::CodeStarConnections::Connection resource which can be used to
 // connect external source providers with AWS CodePipeline
-#Properties: close({
-	ConnectionName!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	HostArn?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:aws(-[\\w]+)*:.+:.+:[0-9]{12}:.+" |
-	fn.#StringExpression
-	ProviderType?: "Bitbucket" |
-		"GitHub" |
-		"GitHubEnterpriseServer" |
-		"GitLab" |
-		"GitLabSelfManaged" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeStarConnections::Connection"
+	Properties!: close({
+		ConnectionName!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		HostArn?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:aws(-[\\w]+)*:.+:.+:[0-9]{12}:.+" |
 		fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+		ProviderType?: "Bitbucket" |
+			"GitHub" |
+			"GitHubEnterpriseServer" |
+			"GitLab" |
+			"GitLabSelfManaged" |
+			fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeStarConnections::Connection"
-	Properties!: #Properties
-}

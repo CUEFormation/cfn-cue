@@ -14,13 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // This resource schema represents the Profiling Group resource in the Amazon
 // CodeGuru Profiler service.
-#Properties: close({
-	AgentPermissions?: close({Principals!: [...#IamArn] | fn.#ListExpression}) | fn.#ObjectExpression
-	AnomalyDetectionNotificationConfiguration?: [...#Channel] | fn.#ListExpression
-	ComputePlatform?:                           "Default" | "AWSLambda" | fn.#StringExpression
-	ProfilingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\w-]+$" | fn.#StringExpression
-	Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeGuruProfiler::ProfilingGroup"
+	Properties!: close({
+		AgentPermissions?: close({Principals!: [...#IamArn] | fn.#ListExpression}) | fn.#ObjectExpression
+		AnomalyDetectionNotificationConfiguration?: [...#Channel] | fn.#ListExpression
+		ComputePlatform?:                           "Default" | "AWSLambda" | fn.#StringExpression
+		ProfilingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\w-]+$" | fn.#StringExpression
+		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Channel: {
 	channelId?:  #ChannelId
@@ -42,7 +45,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeGuruProfiler::ProfilingGroup"
-	Properties!: #Properties
-}

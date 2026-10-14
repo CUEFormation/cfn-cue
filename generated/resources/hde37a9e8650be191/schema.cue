@@ -11,19 +11,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::Neptune::DBSubnetGroup type creates an Amazon Neptune DB subnet
 // group. Subnet groups must contain at least two subnets in two different
 // Availability Zones in the same AWS Region.
-#Properties: close({
-	DBSubnetGroupDescription!: string | fn.#StringExpression
-	DBSubnetGroupName?:        string | fn.#StringExpression
-	SubnetIds!:                [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                     [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Neptune::DBSubnetGroup"
+	Properties!: close({
+		DBSubnetGroupDescription!: string | fn.#StringExpression
+		DBSubnetGroupName?:        string | fn.#StringExpression
+		SubnetIds!:                [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:                     [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Neptune::DBSubnetGroup"
-	Properties!: #Properties
-}

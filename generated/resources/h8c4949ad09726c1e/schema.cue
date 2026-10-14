@@ -17,14 +17,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::AppImageConfig
-#Properties: close({
-	AppImageConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
-	fn.#StringExpression
-	CodeEditorAppImageConfig?: #CodeEditorAppImageConfig | fn.#ObjectExpression
-	JupyterLabAppImageConfig?: #JupyterLabAppImageConfig | fn.#ObjectExpression
-	KernelGatewayImageConfig?: #KernelGatewayImageConfig | fn.#ObjectExpression
-	Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::AppImageConfig"
+	Properties!: close({
+		AppImageConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
+		fn.#StringExpression
+		CodeEditorAppImageConfig?: #CodeEditorAppImageConfig | fn.#ObjectExpression
+		JupyterLabAppImageConfig?: #JupyterLabAppImageConfig | fn.#ObjectExpression
+		KernelGatewayImageConfig?: #KernelGatewayImageConfig | fn.#ObjectExpression
+		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CodeEditorAppImageConfig: close({ContainerConfig?: #ContainerConfig | fn.#ObjectExpression}) | fn.#ObjectExpression
 
@@ -102,7 +105,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::AppImageConfig"
-	Properties!: #Properties
-}

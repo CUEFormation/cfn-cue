@@ -65,154 +65,163 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For a complete introduction to Lambda functions, see [What is
 // Lambda?](https://docs.aws.amazon.com/lambda/latest/dg/lambda-welcome.html)
 // in the *Lambda developer guide.*
-#Properties: close({
-	Architectures?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..."x86_64" | "arm64" | fn.#StringExpression
-	] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::Function"
+	Properties!: close({
+		Architectures?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
+			..."x86_64" | "arm64" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		CapacityProviderConfig?: #CapacityProviderConfig | fn.#ObjectExpression
+		Code!:                   #Code | fn.#ObjectExpression
+		CodeSigningConfigArn?: strings.MaxRunes(200) &
+		strings.MinRunes(0) &
+		=~"arn:(aws[a-zA-Z-]*)?:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:code-signing-config:csc-[a-z0-9]{17}" |
+		fn.#StringExpression
+		DeadLetterConfig?:  #DeadLetterConfig | fn.#ObjectExpression
+		Description?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		DurableConfig?:     #DurableConfig | fn.#ObjectExpression
+		Environment?:       #Environment | fn.#ObjectExpression
+		EphemeralStorage?:  #EphemeralStorage | fn.#ObjectExpression
+		FileSystemConfigs?: list.MaxItems(1) & [...] & [...#FileSystemConfig] | fn.#ListExpression
+		FunctionName?: strings.MinRunes(1) &
+		=~"^([a-zA-Z0-9_-]{1,64}|arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:function:[a-zA-Z0-9_-]{1,64})$" |
+		fn.#StringExpression
+		FunctionScalingConfig?: #FunctionScalingConfig | fn.#ObjectExpression
+		Handler?:               strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[^\\s]+$" | fn.#StringExpression
+		ImageConfig?:           #ImageConfig | fn.#ObjectExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(10000) &
+		strings.MinRunes(0) &
+		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+		fn.#StringExpression
+		Layers?: list.MaxItems(5) & list.UniqueItems() & [
+			...strings.MinRunes(1) &
+			=~"^(arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:layer:[a-zA-Z0-9-_]+:[0-9]+|arn:[a-zA-Z0-9-]+:lambda:::awslayer:[a-zA-Z0-9-_]+)$" |
+			fn.#StringExpression
+		] |
 		fn.#ListExpression
-	CapacityProviderConfig?: #CapacityProviderConfig | fn.#ObjectExpression
-	Code!:                   #Code | fn.#ObjectExpression
-	CodeSigningConfigArn?: strings.MaxRunes(200) &
-	strings.MinRunes(0) &
-	=~"arn:(aws[a-zA-Z-]*)?:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:code-signing-config:csc-[a-z0-9]{17}" |
-	fn.#StringExpression
-	DeadLetterConfig?:  #DeadLetterConfig | fn.#ObjectExpression
-	Description?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DurableConfig?:     #DurableConfig | fn.#ObjectExpression
-	Environment?:       #Environment | fn.#ObjectExpression
-	EphemeralStorage?:  #EphemeralStorage | fn.#ObjectExpression
-	FileSystemConfigs?: list.MaxItems(1) & [...] & [...#FileSystemConfig] | fn.#ListExpression
-	FunctionName?: strings.MinRunes(1) &
-	=~"^([a-zA-Z0-9_-]{1,64}|arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:function:[a-zA-Z0-9_-]{1,64})$" |
-	fn.#StringExpression
-	FunctionScalingConfig?: #FunctionScalingConfig | fn.#ObjectExpression
-	Handler?:               strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[^\\s]+$" | fn.#StringExpression
-	ImageConfig?:           #ImageConfig | fn.#ObjectExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(10000) &
-	strings.MinRunes(0) &
-	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
-	fn.#StringExpression
-	Layers?: list.MaxItems(5) & list.UniqueItems() & [
-		...strings.MinRunes(1) &
-		=~"^(arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:layer:[a-zA-Z0-9-_]+:[0-9]+|arn:[a-zA-Z0-9-]+:lambda:::awslayer:[a-zA-Z0-9-_]+)$" |
+		LoggingConfig?: #LoggingConfig | fn.#ObjectExpression
+		MemorySize?: int & <=32768 & >=128 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=32768 &
+								>=128,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PackageType?:              "Image" | "Zip" | fn.#StringExpression
+		PublishToLatestPublished?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RecursiveLoop?:            #RecursiveLoop | fn.#StringExpression
+		ReservedConcurrentExecutions?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Role!: strings.MaxRunes(10000) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	LoggingConfig?: #LoggingConfig | fn.#ObjectExpression
-	MemorySize?: int & <=32768 & >=128 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=32768 &
-							>=128,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PackageType?:              "Image" | "Zip" | fn.#StringExpression
-	PublishToLatestPublished?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RecursiveLoop?:            #RecursiveLoop | fn.#StringExpression
-	ReservedConcurrentExecutions?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Role!: strings.MaxRunes(10000) &
-	strings.MinRunes(0) &
-	=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	Runtime?: "dotnet10" |
-		"dotnet6" |
-		"dotnet8" |
-		"dotnetcore1.0" |
-		"dotnetcore2.0" |
-		"dotnetcore2.1" |
-		"dotnetcore3.1" |
-		"go1.x" |
-		"java11" |
-		"java11.al2023" |
-		"java17" |
-		"java17.al2023" |
-		"java21" |
-		"java25" |
-		"java8" |
-		"java8.al2" |
-		"java8.al2023" |
-		"nodejs" |
-		"nodejs10.x" |
-		"nodejs12.x" |
-		"nodejs14.x" |
-		"nodejs16.x" |
-		"nodejs18.x" |
-		"nodejs20.x" |
-		"nodejs22.x" |
-		"nodejs24.x" |
-		"nodejs26.x" |
-		"nodejs4.3" |
-		"nodejs4.3-edge" |
-		"nodejs6.10" |
-		"nodejs8.10" |
-		"provided" |
-		"provided.al2" |
-		"provided.al2023" |
-		"python2.7" |
-		"python3.10" |
-		"python3.11" |
-		"python3.12" |
-		"python3.13" |
-		"python3.14" |
-		"python3.15" |
-		"python3.6" |
-		"python3.7" |
-		"python3.8" |
-		"python3.9" |
-		"ruby2.5" |
-		"ruby2.7" |
-		"ruby3.2" |
-		"ruby3.3" |
-		"ruby3.4" |
-		"ruby4.0" |
-		fn.#StringExpression
-	RuntimeManagementConfig?: #RuntimeManagementConfig | fn.#ObjectExpression
-	SnapStart?:               #SnapStart | fn.#ObjectExpression
-	Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TenancyConfig?:           #TenancyConfig | fn.#ObjectExpression
-	Timeout?: int & <=5400 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=5400 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TracingConfig?: #TracingConfig | fn.#ObjectExpression
-	VpcConfig?:     #VpcConfig | fn.#ObjectExpression
-})
+		Runtime?: "dotnet10" |
+			"dotnet6" |
+			"dotnet8" |
+			"dotnetcore1.0" |
+			"dotnetcore2.0" |
+			"dotnetcore2.1" |
+			"dotnetcore3.1" |
+			"go1.x" |
+			"java11" |
+			"java11.al2023" |
+			"java17" |
+			"java17.al2023" |
+			"java21" |
+			"java25" |
+			"java8" |
+			"java8.al2" |
+			"java8.al2023" |
+			"nodejs" |
+			"nodejs10.x" |
+			"nodejs12.x" |
+			"nodejs14.x" |
+			"nodejs16.x" |
+			"nodejs18.x" |
+			"nodejs20.x" |
+			"nodejs22.x" |
+			"nodejs24.x" |
+			"nodejs26.x" |
+			"nodejs4.3" |
+			"nodejs4.3-edge" |
+			"nodejs6.10" |
+			"nodejs8.10" |
+			"provided" |
+			"provided.al2" |
+			"provided.al2023" |
+			"python2.7" |
+			"python3.10" |
+			"python3.11" |
+			"python3.12" |
+			"python3.13" |
+			"python3.14" |
+			"python3.15" |
+			"python3.6" |
+			"python3.7" |
+			"python3.8" |
+			"python3.9" |
+			"ruby2.5" |
+			"ruby2.7" |
+			"ruby3.2" |
+			"ruby3.3" |
+			"ruby3.4" |
+			"ruby4.0" |
+			fn.#StringExpression
+		RuntimeManagementConfig?: #RuntimeManagementConfig | fn.#ObjectExpression
+		SnapStart?:               #SnapStart | fn.#ObjectExpression
+		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TenancyConfig?:           #TenancyConfig | fn.#ObjectExpression
+		Timeout?: int & <=5400 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=5400 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TracingConfig?: #TracingConfig | fn.#ObjectExpression
+		VpcConfig?:     #VpcConfig | fn.#ObjectExpression
+	})
+}
 
 #CapacityProviderConfig: close({
 	LambdaManagedInstancesCapacityProviderConfig!: #LambdaManagedInstancesCapacityProviderConfig | fn.#ObjectExpression
@@ -460,7 +469,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::Function"
-	Properties!: #Properties
-}

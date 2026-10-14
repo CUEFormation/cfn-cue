@@ -17,29 +17,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a runtime environment that can run migrated mainframe applications.
-#Properties: close({
-	Description?:            strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	EngineType!:             #EngineType
-	EngineVersion?:          =~"^\\S{1,10}$" | fn.#StringExpression
-	HighAvailabilityConfig?: #HighAvailabilityConfig
-	InstanceType!:           =~"^\\S{1,20}$" | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & strings.MaxRunes(2048) |
-	fn.#StringExpression
-	Name!:                       =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	NetworkType?:                #NetworkType
-	PreferredMaintenanceWindow?: =~"^\\S{1,50}$" | fn.#StringExpression
-	PubliclyAccessible?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-			=~"^\\S{1,50}$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	StorageConfigurations?: [...#StorageConfiguration] | fn.#ListExpression
-	SubnetIds?:             [...=~"^\\S{1,50}$" | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                  #TagMap | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::M2::Environment"
+	Properties!: close({
+		Description?:            strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+		EngineType!:             #EngineType
+		EngineVersion?:          =~"^\\S{1,10}$" | fn.#StringExpression
+		HighAvailabilityConfig?: #HighAvailabilityConfig
+		InstanceType!:           =~"^\\S{1,20}$" | fn.#StringExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & strings.MaxRunes(2048) |
+		fn.#StringExpression
+		Name!:                       =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
+		NetworkType?:                #NetworkType
+		PreferredMaintenanceWindow?: =~"^\\S{1,50}$" | fn.#StringExpression
+		PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SecurityGroupIds?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+				=~"^\\S{1,50}$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		StorageConfigurations?: [...#StorageConfiguration] | fn.#ListExpression
+		SubnetIds?:             [...=~"^\\S{1,50}$" | fn.#StringExpression] | fn.#ListExpression
+		Tags?:                  #TagMap | fn.#ObjectExpression
+	})
+}
 
 #EfsStorageConfiguration: close({
 	FileSystemId!: =~"^\\S{1,200}$" | fn.#StringExpression
@@ -83,7 +86,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TagMap: struct.MaxFields(200) & struct.MinFields(0) & {...} | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::M2::Environment"
-	Properties!: #Properties
-}

@@ -15,15 +15,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a copy of an entire cluster or replication group as of the time
 // when the snapshot was taken.
-#Properties: close({
-	CacheClusterId?: string | fn.#StringExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	ReplicationGroupId?: string | fn.#StringExpression
-	SnapshotName!:       string | fn.#StringExpression
-	Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElastiCache::Snapshot"
+	Properties!: close({
+		CacheClusterId?: string | fn.#StringExpression
+		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
+			fn.#StringExpression
+		ReplicationGroupId?: string | fn.#StringExpression
+		SnapshotName!:       string | fn.#StringExpression
+		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #NodeSnapshot: close({
 	CacheClusterId?:      string | fn.#StringExpression
@@ -40,7 +43,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElastiCache::Snapshot"
-	Properties!: #Properties
-}

@@ -17,21 +17,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Evidently::Launch.
-#Properties: close({
-	Description?:     strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
-	ExecutionStatus?: #ExecutionStatusObject | fn.#ObjectExpression
-	Groups!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#LaunchGroupObject] | fn.#ListExpression
-	MetricMonitors?: list.MaxItems(3) & list.UniqueItems() & [...] & [...#MetricDefinitionObject] | fn.#ListExpression
-	Name!:           strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	Project!: strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)" |
-	fn.#StringExpression
-	RandomizationSalt?: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	ScheduledSplitsConfig!: list.MaxItems(6) & list.MinItems(1) & list.UniqueItems() & [...#StepConfig] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Evidently::Launch"
+	Properties!: close({
+		Description?:     strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
+		ExecutionStatus?: #ExecutionStatusObject | fn.#ObjectExpression
+		Groups!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#LaunchGroupObject] | fn.#ListExpression
+		MetricMonitors?: list.MaxItems(3) & list.UniqueItems() & [...] & [...#MetricDefinitionObject] |
+			fn.#ListExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+		Project!: strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)" |
+		fn.#StringExpression
+		RandomizationSalt?: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+		ScheduledSplitsConfig!: list.MaxItems(6) & list.MinItems(1) & list.UniqueItems() & [...#StepConfig] |
+			fn.#ListExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ExecutionStatusObject: close({
 	DesiredState?: string | fn.#StringExpression
@@ -111,7 +115,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Evidently::Launch"
-	Properties!: #Properties
-}

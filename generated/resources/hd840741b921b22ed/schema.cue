@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::VoiceID::Domain resource specifies an Amazon VoiceID Domain.
-#Properties: close({
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-%@]*)$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	ServerSideEncryptionConfiguration!: #ServerSideEncryptionConfiguration
-	Tags?:                              list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::VoiceID::Domain"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-%@]*)$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
+		ServerSideEncryptionConfiguration!: #ServerSideEncryptionConfiguration
+		Tags?:                              list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ServerSideEncryptionConfiguration: close({
 	KmsKeyId!: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -33,7 +36,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VoiceID::Domain"
-	Properties!: #Properties
-}

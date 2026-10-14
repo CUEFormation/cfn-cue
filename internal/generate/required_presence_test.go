@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/parser"
 )
@@ -65,7 +64,7 @@ func TestRequiredPresenceAlternatives(t *testing.T) {
 				t.Fatal(err)
 			}
 			for _, pkg := range []string{"./resources/htest", "./literal/htest"} {
-				schema := build(t, out, pkg).LookupPath(cue.MakePath(cue.Def("Properties")))
+				schema := propertiesSchema(t, out, pkg)
 				for _, data := range []string{`{Name:"one"}`, `{Count:2}`, `{Name:"one",Count:2}`} {
 					validate(t, schema, data, true)
 				}

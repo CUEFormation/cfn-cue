@@ -12,15 +12,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ControlTower::EnabledBaseline Resource Type
-#Properties: close({
-	BaselineIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
-	fn.#StringExpression
-	BaselineVersion!: =~"^\\d+(?:\\.\\d+){0,2}$" | fn.#StringExpression
-	Parameters?:      [...#Parameter] | fn.#ListExpression
-	Tags?:            [...#Tag] | fn.#ListExpression
-	TargetIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ControlTower::EnabledBaseline"
+	Properties!: close({
+		BaselineIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
+		fn.#StringExpression
+		BaselineVersion!: =~"^\\d+(?:\\.\\d+){0,2}$" | fn.#StringExpression
+		Parameters?:      [...#Parameter] | fn.#ListExpression
+		Tags?:            [...#Tag] | fn.#ListExpression
+		TargetIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
+		fn.#StringExpression
+	})
+}
 
 #AnyType: fn.#Object & {...} |
 bool |
@@ -40,7 +43,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ControlTower::EnabledBaseline"
-	Properties!: #Properties
-}

@@ -11,11 +11,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Associates a gateway with a route table. The gateway and route table must be
 // in the same VPC. This association causes the incoming traffic to the gateway
 // to be routed according to the routes in the route table.
-#Properties: close({
-	GatewayId!:    string | fn.#StringExpression
-	RouteTableId!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::GatewayRouteTableAssociation"
-	Properties!: #Properties
+	Type!: "AWS::EC2::GatewayRouteTableAssociation"
+	Properties!: close({
+		GatewayId!:    string | fn.#StringExpression
+		RouteTableId!: string | fn.#StringExpression
+	})
 }

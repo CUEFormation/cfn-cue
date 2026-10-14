@@ -14,30 +14,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // An Amazon Chime SDK Voice Connector configuration, including outbound host
 // name and encryption settings.
-#Properties: close({
-	AwsRegion?: "us-east-1" |
-		"us-west-2" |
-		"ca-central-1" |
-		"eu-central-1" |
-		"eu-west-1" |
-		"eu-west-2" |
-		"ap-northeast-2" |
-		"ap-northeast-1" |
-		"ap-southeast-1" |
-		"ap-southeast-2" |
-		fn.#StringExpression
-	Name!:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _.-]+$" | fn.#StringExpression
-	NetworkType?:       "IPV4_ONLY" | "DUAL_STACK" | fn.#StringExpression
-	RequireEncryption!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:              list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Chime::VoiceConnector"
+	Properties!: close({
+		AwsRegion?: "us-east-1" |
+			"us-west-2" |
+			"ca-central-1" |
+			"eu-central-1" |
+			"eu-west-1" |
+			"eu-west-2" |
+			"ap-northeast-2" |
+			"ap-northeast-1" |
+			"ap-southeast-1" |
+			"ap-southeast-2" |
+			fn.#StringExpression
+		Name!:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _.-]+$" | fn.#StringExpression
+		NetworkType?:       "IPV4_ONLY" | "DUAL_STACK" | fn.#StringExpression
+		RequireEncryption!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:              list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Chime::VoiceConnector"
-	Properties!: #Properties
-}

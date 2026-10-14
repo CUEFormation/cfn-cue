@@ -19,18 +19,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates a dynamic instrumentation configuration for a specific code or
 // endpoint location within a service and environment.
-#Properties: close({
-	AttributeFilters?:     list.MaxItems(10) & list.MinItems(1) & [...#AttributeFilterGroup] | fn.#ListExpression
-	CaptureConfiguration!: close({CodeCapture!: #CodeCaptureConfiguration}) | fn.#ObjectExpression
-	Description?:          strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	Environment!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9:/+=,.@_-]+$" | fn.#StringExpression
-	ExpiresAt?:   time.Time | fn.#StringExpression
-	InstrumentationType!: "BREAKPOINT" | "PROBE" | fn.#StringExpression
-	Location!:            close({CodeLocation!: #CodeLocation}) | fn.#ObjectExpression
-	Service!:    strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9:/+=,.@_-]+$" | fn.#StringExpression
-	SignalType!: "SNAPSHOT" | fn.#StringExpression
-	Tags?:       list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApplicationSignals::InstrumentationConfig"
+	Properties!: close({
+		AttributeFilters?:     list.MaxItems(10) & list.MinItems(1) & [...#AttributeFilterGroup] | fn.#ListExpression
+		CaptureConfiguration!: close({CodeCapture!: #CodeCaptureConfiguration}) | fn.#ObjectExpression
+		Description?:          strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+		Environment!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9:/+=,.@_-]+$" | fn.#StringExpression
+		ExpiresAt?:   time.Time | fn.#StringExpression
+		InstrumentationType!: "BREAKPOINT" | "PROBE" | fn.#StringExpression
+		Location!:            close({CodeLocation!: #CodeLocation}) | fn.#ObjectExpression
+		Service!:    strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9:/+=,.@_-]+$" | fn.#StringExpression
+		SignalType!: "SNAPSHOT" | fn.#StringExpression
+		Tags?:       list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AttributeFilterGroup: close({
 
@@ -209,7 +212,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApplicationSignals::InstrumentationConfig"
-	Properties!: #Properties
-}

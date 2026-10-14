@@ -15,23 +15,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::DevOpsAgent::Service resource registers external services (like
 // Dynatrace, MCP servers, GitLab) for integration with DevOpsAgent.
-#Properties: close({
-	ExchangeUrlPrivateConnectionName?: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
-	fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
-	fn.#StringExpression
-	Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N} _-]+$" | fn.#StringExpression
-	PrivateConnectionName?: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
-	fn.#StringExpression
-	ServiceDetails?: #ServiceDetails | fn.#ObjectExpression
-	ServiceType!:    #ServiceType | fn.#StringExpression
-	Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TargetUrlPrivateConnectionName?: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DevOpsAgent::Service"
+	Properties!: close({
+		ExchangeUrlPrivateConnectionName?: strings.MaxRunes(30) &
+		strings.MinRunes(3) &
+		=~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
+		fn.#StringExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N} _-]+$" | fn.#StringExpression
+		PrivateConnectionName?: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
+		fn.#StringExpression
+		ServiceDetails?: #ServiceDetails | fn.#ObjectExpression
+		ServiceType!:    #ServiceType | fn.#StringExpression
+		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetUrlPrivateConnectionName?: strings.MaxRunes(30) &
+		strings.MinRunes(3) &
+		=~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
+		fn.#StringExpression
+	})
+}
 
 #AdditionalServiceDetails: fn.#Object & {...} & matchN(1, [close(
 	{MCPServer!: #RegisteredMCPServerDetails},
@@ -357,7 +364,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DevOpsAgent::Service"
-	Properties!: #Properties
-}

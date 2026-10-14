@@ -14,39 +14,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A billing group is a set of linked account which belong to the same end
 // customer. It can be seen as a virtual consolidated billing family.
-#Properties: ({
-	AccountGrouping?: null |
-	bool |
-	number |
-	string |
-	[...] |
-	{
-		LinkedAccountIds!: _
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BillingConductor::BillingGroup"
+	Properties!: ({
+		AccountGrouping?: null |
+		bool |
+		number |
+		string |
+		[...] |
+		{
+			LinkedAccountIds!: _
+			...
+		} |
+		fn.#ValueExpression
+		PrimaryAccountId!: _
 		...
-	} |
-	fn.#ValueExpression
-	PrimaryAccountId!: _
-	...
-} | {
-	AccountGrouping!: null |
-	bool |
-	number |
-	string |
-	[...] |
-	{
-		ResponsibilityTransferArn!: _
+	} | {
+		AccountGrouping!: null |
+		bool |
+		number |
+		string |
+		[...] |
+		{
+			ResponsibilityTransferArn!: _
+			...
+		} |
+		fn.#ValueExpression
 		...
-	} |
-	fn.#ValueExpression
-	...
-}) & close({
-	AccountGrouping!:       #AccountGrouping
-	ComputationPreference!: #ComputationPreference
-	Description?:           strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
-	PrimaryAccountId?: =~"[0-9]{12}" | fn.#StringExpression
-	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+	}) & close({
+		AccountGrouping!:       #AccountGrouping
+		ComputationPreference!: #ComputationPreference
+		Description?:           strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
+		PrimaryAccountId?: =~"[0-9]{12}" | fn.#StringExpression
+		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AccountGrouping: close({
 	AutoAssociate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -72,7 +75,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BillingConductor::BillingGroup"
-	Properties!: #Properties
-}

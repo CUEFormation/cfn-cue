@@ -16,21 +16,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A destination encapsulates a physical resource (such as an Amazon Kinesis
 // data stream) and enables you to subscribe that resource to a stream of log
 // events.
-#Properties: close({
-	DestinationName!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]{1,512}$" | fn.#StringExpression
-	DestinationPolicy?: strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
-	fn.#StringExpression
-	Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TargetArn!: strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Logs::Destination"
+	Properties!: close({
+		DestinationName!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]{1,512}$" | fn.#StringExpression
+		DestinationPolicy?: strings.MinRunes(1) | fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+		fn.#StringExpression
+		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetArn!: strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::Destination"
-	Properties!: #Properties
-}

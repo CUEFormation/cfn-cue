@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::NetworkFirewall::VpcEndpointAssociation
-#Properties: close({
-	Description?:   #Description
-	FirewallArn!:   #ResourceArn
-	SubnetMapping!: #SubnetMapping
-	Tags?:          list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VpcId!:         #VpcId
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkFirewall::VpcEndpointAssociation"
+	Properties!: close({
+		Description?:   #Description
+		FirewallArn!:   #ResourceArn
+		SubnetMapping!: #SubnetMapping
+		Tags?:          list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VpcId!:         #VpcId
+	})
+}
 
 #Description: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
 
@@ -47,7 +50,3 @@ strings.MaxRunes(128) &
 strings.MinRunes(1) &
 =~"^vpc-[0-9a-f]+$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkFirewall::VpcEndpointAssociation"
-	Properties!: #Properties
-}

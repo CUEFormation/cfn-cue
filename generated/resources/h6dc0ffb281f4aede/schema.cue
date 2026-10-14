@@ -13,13 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This creates a Resource of UsageProfile type.
-#Properties: close({
-	Configuration?: #ProfileConfiguration & (null | bool | number | string | list.MinItems(1) | {...}) |
-	fn.#ValueExpression
-	Description?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\-\\:\\_]{1,64}" | fn.#StringExpression
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(5) | fn.#StringExpression
-	Tags?:        list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::UsageProfile"
+	Properties!: close({
+		Configuration?: #ProfileConfiguration & (null | bool | number | string | list.MinItems(1) | {...}) |
+		fn.#ValueExpression
+		Description?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\-\\:\\_]{1,64}" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(5) | fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ConfigurationObject: (null |
 bool |
@@ -86,7 +90,3 @@ fn.#ValueExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::UsageProfile"
-	Properties!: #Properties
-}

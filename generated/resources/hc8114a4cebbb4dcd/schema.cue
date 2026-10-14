@@ -22,43 +22,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // On January 1, 2016, the Swagger Specification was donated to the [OpenAPI
 // initiative](https://docs.aws.amazon.com/https://www.openapis.org/), becoming
 // the foundation of the OpenAPI Specification.
-#Properties: close({
-	ApiKeySourceType?:          string | fn.#StringExpression
-	BinaryMediaTypes?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Body?:                      fn.#Object & {...} | string | fn.#StringObjectExpression
-	BodyS3Location?:            #S3Location | fn.#ObjectExpression
-	CloneFrom?:                 string | fn.#StringExpression
-	Description?:               string | fn.#StringExpression
-	DisableExecuteApiEndpoint?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EndpointAccessMode?:        string | fn.#StringExpression
-	EndpointConfiguration?:     #EndpointConfiguration | fn.#ObjectExpression
-	FailOnWarnings?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MinimumCompressionSize?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Mode?: string | fn.#StringExpression
-	Name?: string | fn.#StringExpression
-	Parameters?: string |
-	close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGateway::RestApi"
+	Properties?: close({
+		ApiKeySourceType?: string | fn.#StringExpression
+		BinaryMediaTypes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Body?:             fn.#Object & {...} | string | fn.#StringObjectExpression
+		BodyS3Location?:   #S3Location | fn.#ObjectExpression
+		CloneFrom?:        string | fn.#StringExpression
+		Description?:      string | fn.#StringExpression
+		DisableExecuteApiEndpoint?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		EndpointAccessMode?:    string | fn.#StringExpression
+		EndpointConfiguration?: #EndpointConfiguration | fn.#ObjectExpression
+		FailOnWarnings?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		MinimumCompressionSize?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Mode?: string | fn.#StringExpression
+		Name?: string | fn.#StringExpression
+		Parameters?: string |
+		close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
-	fn.#StringObjectExpression
-	Policy?:         fn.#Object & {...} | string | fn.#StringObjectExpression
-	SecurityPolicy?: string | fn.#StringExpression
-	Tags?:           [...#Tag] | fn.#ListExpression
-	Version?:        string | fn.#StringExpression
-})
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		fn.#StringObjectExpression
+		Policy?:         fn.#Object & {...} | string | fn.#StringObjectExpression
+		SecurityPolicy?: string | fn.#StringExpression
+		Tags?:           [...#Tag] | fn.#ListExpression
+		Version?:        string | fn.#StringExpression
+	})
+}
 
 #EndpointConfiguration: close({
 	IpAddressType?:  string | fn.#StringExpression
@@ -80,7 +92,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::RestApi"
-	Properties?: #Properties
-}

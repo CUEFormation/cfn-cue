@@ -17,14 +17,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // HealthLake FHIR Datastore
-#Properties: close({
-	DatastoreName?:                 #DatastoreName
-	DatastoreTypeVersion!:          #DatastoreTypeVersion
-	IdentityProviderConfiguration?: #IdentityProviderConfiguration
-	PreloadDataConfig?:             #PreloadDataConfig
-	SseConfiguration?:              #SseConfiguration
-	Tags?:                          list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::HealthLake::FHIRDatastore"
+	Properties!: close({
+		DatastoreName?:                 #DatastoreName
+		DatastoreTypeVersion!:          #DatastoreTypeVersion
+		IdentityProviderConfiguration?: #IdentityProviderConfiguration
+		PreloadDataConfig?:             #PreloadDataConfig
+		SseConfiguration?:              #SseConfiguration
+		Tags?:                          list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CreatedAt: close({
 	Nanos!: int |
@@ -97,7 +100,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::HealthLake::FHIRDatastore"
-	Properties!: #Properties
-}

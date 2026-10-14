@@ -13,13 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Basic Request Validation for an API in API
 // Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-method-request-validation.html)
 // in the *API Gateway Developer Guide*.
-#Properties: close({
-	Name?:                      string | fn.#StringExpression
-	RestApiId!:                 string | fn.#StringExpression
-	ValidateRequestBody?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ValidateRequestParameters?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::RequestValidator"
-	Properties!: #Properties
+	Type!: "AWS::ApiGateway::RequestValidator"
+	Properties!: close({
+		Name?:                string | fn.#StringExpression
+		RestApiId!:           string | fn.#StringExpression
+		ValidateRequestBody?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ValidateRequestParameters?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+	})
 }

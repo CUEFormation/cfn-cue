@@ -16,13 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // named, stable reference to a specific version of a Harness that callers
 // invoke, allowing the underlying version to be updated without changing how
 // the agent is invoked.
-#Properties: close({
-	Description?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	EndpointName!:  =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-	HarnessId!:     =~"^[a-zA-Z][a-zA-Z0-9_]{0,39}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
-	Tags?:          list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-	TargetVersion?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,4})$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::HarnessEndpoint"
+	Properties!: close({
+		Description?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		EndpointName!:  =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+		HarnessId!:     =~"^[a-zA-Z][a-zA-Z0-9_]{0,39}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
+		Tags?:          list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		TargetVersion?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,4})$" | fn.#StringExpression
+	})
+}
 
 #HarnessEndpointStatus: "CREATING" |
 	"CREATE_FAILED" |
@@ -38,7 +41,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::HarnessEndpoint"
-	Properties!: #Properties
-}

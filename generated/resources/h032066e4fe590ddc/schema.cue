@@ -19,14 +19,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // An invoice unit is a set of mutually exclusive accounts that correspond to
 // your business entity. Invoice units allow you to separate AWS account costs
 // and configures your invoice for each business entity.
-#Properties: close({
-	Description?:            #Description
-	InvoiceReceiver!:        #InvoiceReceiver
-	Name!:                   #Name
-	ResourceTags?:           #ResourceTags
-	Rule!:                   #Rule
-	TaxInheritanceDisabled?: #TaxInheritanceDisabled
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Invoicing::InvoiceUnit"
+	Properties!: close({
+		Description?:            #Description
+		InvoiceReceiver!:        #InvoiceReceiver
+		Name!:                   #Name
+		ResourceTags?:           #ResourceTags
+		Rule!:                   #Rule
+		TaxInheritanceDisabled?: #TaxInheritanceDisabled
+	})
+}
 
 #Description: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
 
@@ -76,7 +79,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TaxInheritanceDisabled: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Invoicing::InvoiceUnit"
-	Properties!: #Properties
-}

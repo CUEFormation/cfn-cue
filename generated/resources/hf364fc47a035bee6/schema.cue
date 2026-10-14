@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Evidently::Project
-#Properties: close({
-	AppConfigResource?: #AppConfigResourceObject
-	DataDelivery?:      #DataDeliveryObject
-	Description?:       strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:              strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Evidently::Project"
+	Properties!: close({
+		AppConfigResource?: #AppConfigResourceObject
+		DataDelivery?:      #DataDeliveryObject
+		Description?:       strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:              strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AppConfigResourceObject: close({
 	ApplicationId!: =~"[a-z0-9]{4,7}" | fn.#StringExpression
@@ -47,7 +50,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Evidently::Project"
-	Properties!: #Properties
-}

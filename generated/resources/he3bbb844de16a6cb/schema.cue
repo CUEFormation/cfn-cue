@@ -17,27 +17,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KafkaConnect::Connector
-#Properties: close({
-	Capacity!: #Capacity
-	ConnectorConfiguration!: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KafkaConnect::Connector"
+	Properties!: close({
+		Capacity!: #Capacity
+		ConnectorConfiguration!: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	ConnectorDescription?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ConnectorName!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	KafkaCluster!:                     #KafkaCluster
-	KafkaClusterClientAuthentication!: #KafkaClusterClientAuthentication
-	KafkaClusterEncryptionInTransit!:  #KafkaClusterEncryptionInTransit
-	KafkaConnectVersion!:              string | fn.#StringExpression
-	LogDelivery?:                      #LogDelivery
-	NetworkType?:                      "IPV4" | "DUAL" | fn.#StringExpression
-	Plugins!:                          list.MinItems(1) & list.UniqueItems() & [...#Plugin] | fn.#ListExpression
-	ServiceExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"arn:(aws|aws-us-gov|aws-cn):iam:.*" |
-		fn.#StringExpression
-	Tags?:                list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	WorkerConfiguration?: #WorkerConfiguration
-})
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		ConnectorDescription?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		ConnectorName!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		KafkaCluster!:                     #KafkaCluster
+		KafkaClusterClientAuthentication!: #KafkaClusterClientAuthentication
+		KafkaClusterEncryptionInTransit!:  #KafkaClusterEncryptionInTransit
+		KafkaConnectVersion!:              string | fn.#StringExpression
+		LogDelivery?:                      #LogDelivery
+		NetworkType?:                      "IPV4" | "DUAL" | fn.#StringExpression
+		Plugins!:                          list.MinItems(1) & list.UniqueItems() & [...#Plugin] | fn.#ListExpression
+		ServiceExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"arn:(aws|aws-us-gov|aws-cn):iam:.*" |
+			fn.#StringExpression
+		Tags?:                list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		WorkerConfiguration?: #WorkerConfiguration
+	})
+}
 
 #ApacheKafkaCluster: close({
 	BootstrapServers!: string | fn.#StringExpression
@@ -262,7 +265,3 @@ fn.#ObjectExpression
 	S3?:             #S3LogDelivery
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KafkaConnect::Connector"
-	Properties!: #Properties
-}

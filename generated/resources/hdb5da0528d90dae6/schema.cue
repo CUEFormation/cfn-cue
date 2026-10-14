@@ -17,28 +17,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AnomalyDetector schema for cloudformation.
-#Properties: close({
-	Alias!:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Configuration!: #AnomalyDetectorConfiguration | fn.#ObjectExpression
-	EvaluationIntervalInSeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Labels?:            list.UniqueItems() & [...#Label] | fn.#ListExpression
-	MissingDataAction?: #MissingDataAction | fn.#ValueExpression
-	Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Workspace!: =~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::APS::AnomalyDetector"
+	Properties!: close({
+		Alias!:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Configuration!: #AnomalyDetectorConfiguration | fn.#ObjectExpression
+		EvaluationIntervalInSeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Labels?:            list.UniqueItems() & [...#Label] | fn.#ListExpression
+		MissingDataAction?: #MissingDataAction | fn.#ValueExpression
+		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Workspace!: =~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$" |
+			fn.#StringExpression
+	})
+}
 
 #AnomalyDetectorConfiguration: close({RandomCutForest!: #RandomCutForestConfiguration}) | fn.#ObjectExpression
 
@@ -120,7 +126,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::APS::AnomalyDetector"
-	Properties!: #Properties
-}

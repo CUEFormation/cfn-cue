@@ -13,94 +13,103 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeBuild::Project
-#Properties: close({
-	Artifacts!: #Artifacts
-	AutoRetryLimit?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeBuild::Project"
+	Properties!: close({
+		Artifacts!: #Artifacts
+		AutoRetryLimit?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
 							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	BadgeEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BuildBatchConfig?: #ProjectBuildBatchConfig
-	Cache?:            #ProjectCache
-	ConcurrentBuildLimit?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Description?:         string | fn.#StringExpression
-	EncryptionKey?:       string | fn.#StringExpression
-	Environment!:         #Environment
-	FileSystemLocations?: [...#ProjectFileSystemLocation] | fn.#ListExpression
-	LogsConfig?:          #LogsConfig
-	Name?:                string | fn.#StringExpression
-	QueuedTimeoutInMinutes?: int & <=480 & >=5 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=480 &
-							>=5,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ResourceAccessRole?:      string | fn.#StringExpression
-	SecondaryArtifacts?:      [...#Artifacts] | fn.#ListExpression
-	SecondarySourceVersions?: [...#ProjectSourceVersion] | fn.#ListExpression
-	SecondarySources?:        [...#Source] | fn.#ListExpression
-	ServiceRole!:             string | fn.#StringExpression
-	Source!:                  #Source
-	SourceVersion?:           string | fn.#StringExpression
-	Tags?:                    [...#Tag] | fn.#ListExpression
-	TimeoutInMinutes?: int & <=2160 & >=5 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2160 &
-							>=5,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Triggers?:   #ProjectTriggers
-	Visibility?: string | fn.#StringExpression
-	VpcConfig?:  #VpcConfig
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		BadgeEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		BuildBatchConfig?: #ProjectBuildBatchConfig
+		Cache?:            #ProjectCache
+		ConcurrentBuildLimit?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Description?:         string | fn.#StringExpression
+		EncryptionKey?:       string | fn.#StringExpression
+		Environment!:         #Environment
+		FileSystemLocations?: [...#ProjectFileSystemLocation] | fn.#ListExpression
+		LogsConfig?:          #LogsConfig
+		Name?:                string | fn.#StringExpression
+		QueuedTimeoutInMinutes?: int & <=480 & >=5 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=480 &
+								>=5,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ResourceAccessRole?:      string | fn.#StringExpression
+		SecondaryArtifacts?:      [...#Artifacts] | fn.#ListExpression
+		SecondarySourceVersions?: [...#ProjectSourceVersion] | fn.#ListExpression
+		SecondarySources?:        [...#Source] | fn.#ListExpression
+		ServiceRole!:             string | fn.#StringExpression
+		Source!:                  #Source
+		SourceVersion?:           string | fn.#StringExpression
+		Tags?:                    [...#Tag] | fn.#ListExpression
+		TimeoutInMinutes?: int & <=2160 & >=5 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=2160 &
+								>=5,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Triggers?:   #ProjectTriggers
+		Visibility?: string | fn.#StringExpression
+		VpcConfig?:  #VpcConfig
+	})
+}
 
 #Artifacts: close({
 	ArtifactIdentifier?:   string | fn.#StringExpression
@@ -324,7 +333,3 @@ fn.#ObjectExpression
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeBuild::Project"
-	Properties!: #Properties
-}

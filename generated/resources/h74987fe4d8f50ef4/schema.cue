@@ -17,18 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::Alias
-#Properties: close({
-	Description?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FunctionName!: string | fn.#StringExpression
-	FunctionVersion!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(\\$LATEST(\\.PUBLISHED)?|[0-9]*)$" |
-	fn.#StringExpression
-	Name!:                         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration | fn.#ObjectExpression
-	RoutingConfig?:                #AliasRoutingConfiguration | fn.#ObjectExpression
-	if ProvisionedConcurrencyConfig != _|_ {
-		RoutingConfig?: error("RoutingConfig cannot be used with ProvisionedConcurrencyConfig")
-	}
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::Alias"
+	Properties!: close({
+		Description?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		FunctionName!: string | fn.#StringExpression
+		FunctionVersion!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(\\$LATEST(\\.PUBLISHED)?|[0-9]*)$" |
+		fn.#StringExpression
+		Name!:                         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration | fn.#ObjectExpression
+		RoutingConfig?:                #AliasRoutingConfiguration | fn.#ObjectExpression
+		if ProvisionedConcurrencyConfig != _|_ {
+			RoutingConfig?: error("RoutingConfig cannot be used with ProvisionedConcurrencyConfig")
+		}
+	})
+}
 
 #AliasRoutingConfiguration: close(
 	{AdditionalVersionWeights?: list.UniqueItems() & [...#VersionWeight] | fn.#ListExpression},
@@ -76,7 +79,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::Alias"
-	Properties!: #Properties
-}

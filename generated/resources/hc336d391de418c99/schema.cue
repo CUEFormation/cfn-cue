@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AppSync ChannelNamespace
-#Properties: close({
-	ApiId!:              string | fn.#StringExpression
-	CodeHandlers?:       #Code
-	CodeS3Location?:     string | fn.#StringExpression
-	HandlerConfigs?:     #HandlerConfigs
-	Name!:               #Namespace
-	PublishAuthModes?:   #AuthModes | fn.#ListExpression
-	SubscribeAuthModes?: #AuthModes | fn.#ListExpression
-	Tags?:               #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppSync::ChannelNamespace"
+	Properties!: close({
+		ApiId!:              string | fn.#StringExpression
+		CodeHandlers?:       #Code
+		CodeS3Location?:     string | fn.#StringExpression
+		HandlerConfigs?:     #HandlerConfigs
+		Name!:               #Namespace
+		PublishAuthModes?:   #AuthModes | fn.#ListExpression
+		SubscribeAuthModes?: #AuthModes | fn.#ListExpression
+		Tags?:               #Tags
+	})
+}
 
 #AuthMode: close({AuthType?: #AuthenticationType}) | fn.#ObjectExpression
 
@@ -74,7 +77,3 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::ChannelNamespace"
-	Properties!: #Properties
-}

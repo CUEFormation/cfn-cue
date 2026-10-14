@@ -13,27 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DSQL::Cluster
-#Properties: close({
-	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KmsEncryptionKey?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/_-]+$" | fn.#StringExpression
-	MultiRegionProperties?: close({
-		Clusters?: list.UniqueItems() & [
-			...=~"^arn:aws(-[^:]+)?:dsql:[a-z0-9-]{1,20}:[0-9]{12}:cluster/[a-z0-9]{26}$" | fn.#StringExpression
-		] |
-			fn.#ListExpression
-		WitnessRegion?: strings.MaxRunes(50) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	PolicyDocument?: string | fn.#StringExpression
-	Tags?:           [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DSQL::Cluster"
+	Properties?: close({
+		DeletionProtectionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		KmsEncryptionKey?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/_-]+$" | fn.#StringExpression
+		MultiRegionProperties?: close({
+			Clusters?: list.UniqueItems() & [
+				...=~"^arn:aws(-[^:]+)?:dsql:[a-z0-9-]{1,20}:[0-9]{12}:cluster/[a-z0-9]{26}$" | fn.#StringExpression
+			] |
+				fn.#ListExpression
+			WitnessRegion?: strings.MaxRunes(50) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		PolicyDocument?: string | fn.#StringExpression
+		Tags?:           [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DSQL::Cluster"
-	Properties?: #Properties
-}

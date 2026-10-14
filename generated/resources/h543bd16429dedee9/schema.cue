@@ -12,36 +12,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::Asset
-#Properties: close({
-	AssetDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	AssetExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	fn.#StringExpression
-	AssetHierarchies?: [...close({
-		ChildAssetId!: string | fn.#StringExpression
-		ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTSiteWise::Asset"
+	Properties!: close({
+		AssetDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 		fn.#StringExpression
-		LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+		AssetExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
 		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	AssetModelId!: strings.MaxRunes(139) & strings.MinRunes(13) | fn.#StringExpression
-	AssetName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	AssetProperties?: [...close({
-		Alias?: string | fn.#StringExpression
-		ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+		AssetHierarchies?: [...close({
+			ChildAssetId!: string | fn.#StringExpression
+			ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+			fn.#StringExpression
+			LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		AssetModelId!: strings.MaxRunes(139) & strings.MinRunes(13) | fn.#StringExpression
+		AssetName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 		fn.#StringExpression
-		LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
-		fn.#StringExpression
-		NotificationState?: "ENABLED" | "DISABLED" | fn.#StringExpression
-		Unit?:              string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-})
+		AssetProperties?: [...close({
+			Alias?: string | fn.#StringExpression
+			ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+			fn.#StringExpression
+			LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+			fn.#StringExpression
+			NotificationState?: "ENABLED" | "DISABLED" | fn.#StringExpression
+			Unit?:              string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AssetHierarchy: close({
 	ChildAssetId!: string | fn.#StringExpression
@@ -76,7 +79,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSiteWise::Asset"
-	Properties!: #Properties
-}

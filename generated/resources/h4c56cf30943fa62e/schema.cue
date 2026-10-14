@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The resource schema to create a CodeArtifact package group.
-#Properties: close({
-	ContactInfo?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-	DomainName!: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" |
-	fn.#StringExpression
-	DomainOwner?:         strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12}" | fn.#StringExpression
-	OriginConfiguration?: #OriginConfiguration & fn.#Object & {...} | fn.#ObjectExpression
-	Pattern!:             strings.MaxRunes(520) & strings.MinRunes(2) | fn.#StringExpression
-	Tags?:                list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeArtifact::PackageGroup"
+	Properties!: close({
+		ContactInfo?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
+		DomainName!: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" |
+		fn.#StringExpression
+		DomainOwner?:         strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12}" | fn.#StringExpression
+		OriginConfiguration?: #OriginConfiguration & fn.#Object & {...} | fn.#ObjectExpression
+		Pattern!:             strings.MaxRunes(520) & strings.MinRunes(2) | fn.#StringExpression
+		Tags?:                list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #OriginConfiguration: close({Restrictions!: #Restrictions & fn.#Object & {...} | fn.#ObjectExpression}) |
 fn.#ObjectExpression
@@ -45,7 +48,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\P{C}*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeArtifact::PackageGroup"
-	Properties!: #Properties
-}

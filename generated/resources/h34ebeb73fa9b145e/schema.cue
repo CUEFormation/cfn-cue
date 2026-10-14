@@ -13,19 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::AgentRegistry::RegistryRecord Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	Descriptors!: #Descriptors
-	DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_\\-\\.\\/]*$" | fn.#StringExpression
-	RecordType!:    #RecordType
-	RecordVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9.-]+$" | fn.#StringExpression
-	RegistryId?: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^(arn:aws(-[^:]+)?:agent-registry:[a-z0-9-]+:[0-9]{12}:registry/)?[a-zA-Z0-9]{12,16}$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AgentRegistry::RegistryRecord"
+	Properties!: close({
+		Description?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+		Descriptors!: #Descriptors
+		DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_\\-\\.\\/]*$" |
+		fn.#StringExpression
+		RecordType!:    #RecordType
+		RecordVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9.-]+$" | fn.#StringExpression
+		RegistryId?: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^(arn:aws(-[^:]+)?:agent-registry:[a-z0-9-]+:[0-9]{12}:registry/)?[a-zA-Z0-9]{12,16}$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #A2aAgentCardDescriptor: close({
 	Data?:              #DescriptorData
@@ -162,7 +166,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AgentRegistry::RegistryRecord"
-	Properties!: #Properties
-}

@@ -23,173 +23,186 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // appropriately. Any actions associated with the new state are then executed.
 // When you update an existing alarm, its state is left unchanged, but the
 // update completely overwrites the previous configuration of the alarm.
-#Properties: close({
-	ActionsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AlarmActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	AlarmName?:        strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	ComparisonOperator?: "GreaterThanOrEqualToThreshold" |
-		"GreaterThanThreshold" |
-		"GreaterThanUpperThreshold" |
-		"LessThanLowerOrGreaterThanUpperThreshold" |
-		"LessThanLowerThreshold" |
-		"LessThanOrEqualToThreshold" |
-		"LessThanThreshold" |
-		fn.#StringExpression
-	DatapointsToAlarm?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Dimensions?:                       list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
-	EvaluateLowSampleCountPercentile?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	EvaluationCriteria?:               #EvaluationCriteria | fn.#ObjectExpression
-	EvaluationInterval?: int & <=3600 & >=10 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=3600 &
-							>=10,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EvaluationPeriods?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EvaluationWindow?:  #EvaluationWindow | fn.#ObjectExpression
-	ExtendedStatistic?: string | fn.#StringExpression
-	InsufficientDataActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Metrics?:    list.UniqueItems() & [...#MetricDataQuery] | fn.#ListExpression
-	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
-	OKActions?:  [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Period?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Statistic?: "Average" | "Maximum" | "Minimum" | "SampleCount" | "Sum" | fn.#StringExpression
-	Tags?:      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Threshold?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudWatch::Alarm"
+	Properties?: close({
+		ActionsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AlarmActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+		AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		AlarmName?:        strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		ComparisonOperator?: "GreaterThanOrEqualToThreshold" |
+			"GreaterThanThreshold" |
+			"GreaterThanUpperThreshold" |
+			"LessThanLowerOrGreaterThanUpperThreshold" |
+			"LessThanLowerThreshold" |
+			"LessThanOrEqualToThreshold" |
+			"LessThanThreshold" |
+			fn.#StringExpression
+		DatapointsToAlarm?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Dimensions?:                       list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
+		EvaluateLowSampleCountPercentile?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		EvaluationCriteria?:               #EvaluationCriteria | fn.#ObjectExpression
+		EvaluationInterval?: int & <=3600 & >=10 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=3600 &
+								>=10,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EvaluationPeriods?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EvaluationWindow?:  #EvaluationWindow | fn.#ObjectExpression
+		ExtendedStatistic?: string | fn.#StringExpression
+		InsufficientDataActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+		MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Metrics?:    list.UniqueItems() & [...#MetricDataQuery] | fn.#ListExpression
+		Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
+		OKActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+		Period?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Statistic?: "Average" | "Maximum" | "Minimum" | "SampleCount" | "Sum" | fn.#StringExpression
+		Tags?:      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Threshold?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
 							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ThresholdMetricId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TreatMissingData?: ("breaching" | "ignore" | "missing" | "notBreaching") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	Unit?: "Bits" |
-		"Bits/Second" |
-		"Bytes" |
-		"Bytes/Second" |
-		"Count" |
-		"Count/Second" |
-		"Gigabits" |
-		"Gigabits/Second" |
-		"Gigabytes" |
-		"Gigabytes/Second" |
-		"Kilobits" |
-		"Kilobits/Second" |
-		"Kilobytes" |
-		"Kilobytes/Second" |
-		"Megabits" |
-		"Megabits/Second" |
-		"Megabytes" |
-		"Megabytes/Second" |
-		"Microseconds" |
-		"Milliseconds" |
-		"None" |
-		"Percent" |
-		"Seconds" |
-		"Terabits" |
-		"Terabits/Second" |
-		"Terabytes" |
-		"Terabytes/Second" |
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ThresholdMetricId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		TreatMissingData?: ("breaching" | "ignore" | "missing" | "notBreaching") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
 		fn.#StringExpression
-	WarmUpConfiguration?: #WarmUpConfiguration | fn.#ObjectExpression
-	if ExtendedStatistic != _|_ {
-		Statistic?: error("Statistic cannot be used with ExtendedStatistic")
-	}
-	if Metrics != _|_ {
-		MetricName?:        error("MetricName cannot be used with Metrics")
-		Dimensions?:        error("Dimensions cannot be used with Metrics")
-		Period?:            error("Period cannot be used with Metrics")
-		Namespace?:         error("Namespace cannot be used with Metrics")
-		Statistic?:         error("Statistic cannot be used with Metrics")
-		ExtendedStatistic?: error("ExtendedStatistic cannot be used with Metrics")
-		Unit?:              error("Unit cannot be used with Metrics")
-	}
-	if Threshold != _|_ {
-		ThresholdMetricId?: error("ThresholdMetricId cannot be used with Threshold")
-	}
-	if Metrics != _|_ {
-		MetricName?: error(
-			"MetricName cannot be used with Metrics; set exactly one of Metrics, MetricName, EvaluationCriteria",
-		)
-		EvaluationCriteria?: error(
-			"EvaluationCriteria cannot be used with Metrics; set exactly one of Metrics, MetricName, EvaluationCriteria",
-		)
-	}
-	if MetricName != _|_ {
-		EvaluationCriteria?: error(
-			"EvaluationCriteria cannot be used with MetricName; set exactly one of Metrics, MetricName, EvaluationCriteria",
-		)
-	}
-}) & matchN(>=1, [{Metrics!: _}, {MetricName!: _}, {EvaluationCriteria!: _}])
+		Unit?: "Bits" |
+			"Bits/Second" |
+			"Bytes" |
+			"Bytes/Second" |
+			"Count" |
+			"Count/Second" |
+			"Gigabits" |
+			"Gigabits/Second" |
+			"Gigabytes" |
+			"Gigabytes/Second" |
+			"Kilobits" |
+			"Kilobits/Second" |
+			"Kilobytes" |
+			"Kilobytes/Second" |
+			"Megabits" |
+			"Megabits/Second" |
+			"Megabytes" |
+			"Megabytes/Second" |
+			"Microseconds" |
+			"Milliseconds" |
+			"None" |
+			"Percent" |
+			"Seconds" |
+			"Terabits" |
+			"Terabits/Second" |
+			"Terabytes" |
+			"Terabytes/Second" |
+			fn.#StringExpression
+		WarmUpConfiguration?: #WarmUpConfiguration | fn.#ObjectExpression
+		if ExtendedStatistic != _|_ {
+			Statistic?: error("Statistic cannot be used with ExtendedStatistic")
+		}
+		if Metrics != _|_ {
+			MetricName?:        error("MetricName cannot be used with Metrics")
+			Dimensions?:        error("Dimensions cannot be used with Metrics")
+			Period?:            error("Period cannot be used with Metrics")
+			Namespace?:         error("Namespace cannot be used with Metrics")
+			Statistic?:         error("Statistic cannot be used with Metrics")
+			ExtendedStatistic?: error("ExtendedStatistic cannot be used with Metrics")
+			Unit?:              error("Unit cannot be used with Metrics")
+		}
+		if Threshold != _|_ {
+			ThresholdMetricId?: error("ThresholdMetricId cannot be used with Threshold")
+		}
+		if Metrics != _|_ {
+			MetricName?: error(
+				"MetricName cannot be used with Metrics; set exactly one of Metrics, MetricName, EvaluationCriteria",
+			)
+			EvaluationCriteria?: error(
+				"EvaluationCriteria cannot be used with Metrics; set exactly one of Metrics, MetricName, EvaluationCriteria",
+			)
+		}
+		if MetricName != _|_ {
+			EvaluationCriteria?: error(
+				"EvaluationCriteria cannot be used with MetricName; set exactly one of Metrics, MetricName, EvaluationCriteria",
+			)
+		}
+	}) & matchN(>=1, [{Metrics!: _}, {MetricName!: _}, {EvaluationCriteria!: _}])
+}
 
 #AlarmPromQLCriteria: close({
 	PendingPeriod?: int |
@@ -359,7 +372,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudWatch::Alarm"
-	Properties?: #Properties
-}

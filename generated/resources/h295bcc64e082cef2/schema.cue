@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Schema for SQS QueueInlinePolicy
-#Properties: close({
-	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Queue!:          string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SQS::QueueInlinePolicy"
-	Properties!: #Properties
+	Type!: "AWS::SQS::QueueInlinePolicy"
+	Properties!: close({
+		PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Queue!:          string | fn.#StringExpression
+	})
 }

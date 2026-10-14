@@ -9,11 +9,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::SubscriptionDefinition
-#Properties: close({
-	InitialVersion?: #SubscriptionDefinitionVersion
-	Name!:           string | fn.#StringExpression
-	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Greengrass::SubscriptionDefinition"
+	Properties!: close({
+		InitialVersion?: #SubscriptionDefinitionVersion
+		Name!:           string | fn.#StringExpression
+		Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
+}
 
 #Subscription: close({
 	Id!:      string | fn.#StringExpression
@@ -24,7 +27,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #SubscriptionDefinitionVersion: close({Subscriptions!: [...#Subscription] | fn.#ListExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Greengrass::SubscriptionDefinition"
-	Properties!: #Properties
-}

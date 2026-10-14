@@ -13,36 +13,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::View
-#Properties: close({
-	Actions!: list.MaxItems(1000) & [
-		...strings.MaxRunes(255) &
-		strings.MinRunes(1) &
-		=~"^([\\p{L}\\p{N}_.:\\/=+\\-@]+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::View"
+	Properties!: close({
+		Actions!: list.MaxItems(1000) & [
+			...strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			=~"^([\\p{L}\\p{N}_.:\\/=+\\-@]+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Description?: strings.MaxRunes(4096) &
+		strings.MinRunes(0) &
+		=~"^([\\p{L}\\p{N}_.:\\/=+\\-@,()']+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@,()']*)$" |
 		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Description?: strings.MaxRunes(4096) &
-	strings.MinRunes(0) &
-	=~"^([\\p{L}\\p{N}_.:\\/=+\\-@,()']+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@,()']*)$" |
-	fn.#StringExpression
-	InstanceArn!: strings.MaxRunes(100) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(512) &
-	strings.MinRunes(1) &
-	=~"^([\\p{L}\\p{N}_.:\\/=+\\-@()']+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@()']*)$" |
-	fn.#StringExpression
-	Tags?:     list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Template!: fn.#Object & {...} | string | fn.#StringObjectExpression
-})
+		InstanceArn!: strings.MaxRunes(100) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^([\\p{L}\\p{N}_.:\\/=+\\-@()']+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@()']*)$" |
+		fn.#StringExpression
+		Tags?:     list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Template!: fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::View"
-	Properties!: #Properties
-}

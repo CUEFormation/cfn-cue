@@ -13,28 +13,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::DataAutomationProject Resource Type
-#Properties: close({
-	CustomOutputConfiguration?: #CustomOutputConfiguration
-	KmsEncryptionContext?: close({
-		KmsEncryptionContext?: _
-		if KmsEncryptionContext != _|_ {
-			KmsKeyId!: _
-		}
-		{}
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::DataAutomationProject"
+	Properties!: close({
+		CustomOutputConfiguration?: #CustomOutputConfiguration
+		KmsEncryptionContext?: close({
+			KmsEncryptionContext?: _
+			if KmsEncryptionContext != _|_ {
+				KmsKeyId!: _
+			}
+			{}
 
-		{[=~"^.*$"]: string | fn.#StringExpression}
-	}) |
-	fn.#ObjectExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	OverrideConfiguration?: #OverrideConfiguration
-	ProjectDescription?:    string | fn.#StringExpression
-	ProjectName!:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	ProjectType?:           "ASYNC" | "SYNC" | fn.#StringExpression
-	StandardOutputConfiguration?: #StandardOutputConfiguration
-	Tags?:                        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+			{[=~"^.*$"]: string | fn.#StringExpression}
+		}) |
+		fn.#ObjectExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		OverrideConfiguration?: #OverrideConfiguration
+		ProjectDescription?:    string | fn.#StringExpression
+		ProjectName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+		ProjectType?: "ASYNC" | "SYNC" | fn.#StringExpression
+		StandardOutputConfiguration?: #StandardOutputConfiguration
+		Tags?:                        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AudioExtractionCategory: close({
 	State!:             #State
@@ -320,7 +323,3 @@ fn.#ObjectExpression
 	GenerativeField?: #VideoStandardGenerativeField
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::DataAutomationProject"
-	Properties!: #Properties
-}

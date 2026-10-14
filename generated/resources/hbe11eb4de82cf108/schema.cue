@@ -13,32 +13,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A custom terminology resource for Amazon Translate that enables customized translations.
-#Properties: close({
-	Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	EncryptionKey?: close({
-		Id!: strings.MaxRunes(400) &
-		strings.MinRunes(1) &
-		=~"^(arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:kms:)?([a-z]{2}-[a-z]+(-[a-z]+)?-\\d:)?(\\d{12}:)?(((key/)?[a-zA-Z0-9-_]+)|(alias/[a-zA-Z0-9:/_-]+))$" |
-		fn.#StringExpression
-		Type!: "KMS" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	MergeStrategy?: "OVERWRITE" | fn.#StringExpression
-	Name!:          strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([A-Za-z0-9-]_?)+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...close({
-		Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	TerminologyData?: close({
-		Directionality?: "UNI" | "MULTI" | fn.#StringExpression
-		File!:           string | fn.#StringExpression
-		Format!:         "CSV" | "TMX" | "TSV" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Translate::Terminology"
-	Properties!: #Properties
+	Type!: "AWS::Translate::Terminology"
+	Properties!: close({
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		EncryptionKey?: close({
+			Id!: strings.MaxRunes(400) &
+			strings.MinRunes(1) &
+			=~"^(arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:kms:)?([a-z]{2}-[a-z]+(-[a-z]+)?-\\d:)?(\\d{12}:)?(((key/)?[a-zA-Z0-9-_]+)|(alias/[a-zA-Z0-9:/_-]+))$" |
+			fn.#StringExpression
+			Type!: "KMS" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		MergeStrategy?: "OVERWRITE" | fn.#StringExpression
+		Name!:          strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([A-Za-z0-9-]_?)+$" | fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...close({
+			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		TerminologyData?: close({
+			Directionality?: "UNI" | "MULTI" | fn.#StringExpression
+			File!:           string | fn.#StringExpression
+			Format!:         "CSV" | "TMX" | "TSV" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+	})
 }

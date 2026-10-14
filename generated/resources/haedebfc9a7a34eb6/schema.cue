@@ -17,17 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::NetworkManager::ConnectAttachment Resource Type Definition
-#Properties: close({
-	CoreNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^core-network-([0-9a-f]{8,17})$" |
-	fn.#StringExpression
-	EdgeLocation!:             strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	NetworkFunctionGroupName?: string | fn.#StringExpression
-	Options!:                  #ConnectAttachmentOptions | fn.#ObjectExpression
-	RoutingPolicyLabel?:       strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TransportAttachmentId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^attachment-([0-9a-f]{8,17})$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkManager::ConnectAttachment"
+	Properties!: close({
+		CoreNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^core-network-([0-9a-f]{8,17})$" |
+		fn.#StringExpression
+		EdgeLocation!:             strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		NetworkFunctionGroupName?: string | fn.#StringExpression
+		Options!:                  #ConnectAttachmentOptions | fn.#ObjectExpression
+		RoutingPolicyLabel?:       strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TransportAttachmentId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^attachment-([0-9a-f]{8,17})$" |
+		fn.#StringExpression
+	})
+}
 
 #ConnectAttachmentOptions: close({Protocol?: "GRE" | "NO_ENCAP" | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -76,7 +79,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkManager::ConnectAttachment"
-	Properties!: #Properties
-}

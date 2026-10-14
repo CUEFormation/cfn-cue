@@ -17,20 +17,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSMContacts::Rotation.
-#Properties: close({
-	ContactIds!: list.MaxItems(30) & list.MinItems(1) & [
-		...strings.MaxRunes(2048) &
-		strings.MinRunes(1) &
-		=~"^arn:(aws|aws-cn|aws-us-gov):ssm-contacts:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSMContacts::Rotation"
+	Properties!: close({
+		ContactIds!: list.MaxItems(30) & list.MinItems(1) & [
+			...strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:(aws|aws-cn|aws-us-gov):ssm-contacts:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Name!:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]*$" | fn.#StringExpression
+		Recurrence!: #RecurrenceSettings
+		StartTime!:  =~"^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})$" | fn.#StringExpression
+		Tags?:       list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		TimeZoneId!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[:a-zA-Z0-9_\\-\\s\\.\\\\/]*$" |
 		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Name!:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]*$" | fn.#StringExpression
-	Recurrence!: #RecurrenceSettings
-	StartTime!:  =~"^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})$" | fn.#StringExpression
-	Tags?:       list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	TimeZoneId!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[:a-zA-Z0-9_\\-\\s\\.\\\\/]*$" | fn.#StringExpression
-})
+	})
+}
 
 #CoverageTime: close({
 	EndTime!:   #HandOffTime
@@ -136,7 +140,3 @@ fn.#ObjectExpression
 	HandOffTime!: #HandOffTime
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSMContacts::Rotation"
-	Properties!: #Properties
-}

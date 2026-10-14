@@ -162,7 +162,7 @@ func TestGeneratedScalarCompatibilityAndStrictLiterals(t *testing.T) {
 	for _, data := range []string{`{Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:"one",RefEnum:"2"}}}}`, `{Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:"one",ChoiceEnum:"2"}}}}`, `{Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:"one",ChoiceEnum:3}}}}`} {
 		validate(t, template, data, false)
 	}
-	literal := build(t, out, "./literal/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
+	literal := propertiesSchema(t, out, "./literal/htest")
 	validate(t, literal, `{Name:"one",Count:2,Enabled:true,Ratio:1.5,Ports:[22]}`, true)
 	for _, data := range []string{`{Name:"one",Count:"2"}`, `{Name:"one",Enabled:"true"}`, `{Name:"one",Ratio:"1.5"}`, `{Name:"one",Ports:["22"]}`} {
 		validate(t, literal, data, false)
@@ -244,7 +244,7 @@ func TestScalarCompatibilityInsideRequiredXorObjects(t *testing.T) {
 	for _, tc := range cases {
 		validate(t, template, tc.data, tc.valid)
 	}
-	literal := build(t, out, "./literal/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
+	literal := propertiesSchema(t, out, "./literal/htest")
 	validate(t, literal, `{Name:"one",CidrIp:"0.0.0.0/0",FromPort:22,Rules:[{SourceGroupId:"sg-example",FromPort:443}]}`, true)
 	validate(t, literal, `{Name:"one",CidrIp:"0.0.0.0/0",FromPort:"22"}`, false)
 }

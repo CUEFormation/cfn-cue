@@ -14,11 +14,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see
 // [](https://docs.aws.amazon.com/vpn/latest/s2svpn/VPC_VPN.html) in the *User
 // Guide*.
-#Properties: close({
-	DestinationCidrBlock!: string | fn.#StringExpression
-	VpnConnectionId!:      string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VPNConnectionRoute"
-	Properties!: #Properties
+	Type!: "AWS::EC2::VPNConnectionRoute"
+	Properties!: close({
+		DestinationCidrBlock!: string | fn.#StringExpression
+		VpnConnectionId!:      string | fn.#StringExpression
+	})
 }

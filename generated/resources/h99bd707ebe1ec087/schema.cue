@@ -13,19 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityLake::Subscriber
-#Properties: close({
-	AccessTypes!:           #AccessTypes
-	DataLakeArn!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Sources!:               [...#Source] | fn.#ListExpression
-	SubscriberDescription?: =~"^[\\\\\\w\\s\\-_:/,.@=+]*$" | fn.#StringExpression
-	SubscriberIdentity!: close({
-		ExternalId!: strings.MaxRunes(1224) & strings.MinRunes(2) & =~"^[\\w+=,.@:/-]*$" | fn.#StringExpression
-		Principal!:  =~"^([0-9]{12}|[a-z0-9\\.\\-]*\\.(amazonaws|amazon)\\.com)$" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	SubscriberName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\\\\\w\\s\\-_:/,.@=+]*$" | fn.#StringExpression
-	Tags?:           list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityLake::Subscriber"
+	Properties!: close({
+		AccessTypes!:           #AccessTypes
+		DataLakeArn!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Sources!:               [...#Source] | fn.#ListExpression
+		SubscriberDescription?: =~"^[\\\\\\w\\s\\-_:/,.@=+]*$" | fn.#StringExpression
+		SubscriberIdentity!: close({
+			ExternalId!: strings.MaxRunes(1224) & strings.MinRunes(2) & =~"^[\\w+=,.@:/-]*$" | fn.#StringExpression
+			Principal!:  =~"^([0-9]{12}|[a-z0-9\\.\\-]*\\.(amazonaws|amazon)\\.com)$" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		SubscriberName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\\\\\w\\s\\-_:/,.@=+]*$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AccessTypes: list.MinItems(1) & list.UniqueItems() & [..."LAKEFORMATION" | "S3" | fn.#StringExpression] |
 	fn.#ListExpression
@@ -63,7 +67,3 @@ fn.#ValueExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityLake::Subscriber"
-	Properties!: #Properties
-}

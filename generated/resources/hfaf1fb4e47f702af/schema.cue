@@ -9,14 +9,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::FSx::StorageVirtualMachine
-#Properties: close({
-	ActiveDirectoryConfiguration?: #ActiveDirectoryConfiguration
-	FileSystemId!:                 string | fn.#StringExpression
-	Name!:                         string | fn.#StringExpression
-	RootVolumeSecurityStyle?:      string | fn.#StringExpression
-	SvmAdminPassword?:             string | fn.#StringExpression
-	Tags?:                         [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FSx::StorageVirtualMachine"
+	Properties!: close({
+		ActiveDirectoryConfiguration?: #ActiveDirectoryConfiguration
+		FileSystemId!:                 string | fn.#StringExpression
+		Name!:                         string | fn.#StringExpression
+		RootVolumeSecurityStyle?:      string | fn.#StringExpression
+		SvmAdminPassword?:             string | fn.#StringExpression
+		Tags?:                         [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ActiveDirectoryConfiguration: close({
 	NetBiosName?:                             string | fn.#StringExpression
@@ -40,7 +43,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FSx::StorageVirtualMachine"
-	Properties!: #Properties
-}

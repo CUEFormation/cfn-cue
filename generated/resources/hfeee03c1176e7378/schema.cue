@@ -13,23 +13,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataSync::LocationFSxOpenZFS.
-#Properties: close({
-	FsxFilesystemArn?: strings.MaxRunes(128) &
-	strings.MinRunes(0) &
-	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):fsx:[a-z\\-0-9]+:[0-9]{12}:file-system/fs-[0-9a-f]+$" |
-	fn.#StringExpression
-	Protocol!: #Protocol
-	SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(128) &
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataSync::LocationFSxOpenZFS"
+	Properties!: close({
+		FsxFilesystemArn?: strings.MaxRunes(128) &
 		strings.MinRunes(0) &
-		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/sg-[a-f0-9]+$" |
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):fsx:[a-z\\-0-9]+:[0-9]{12}:file-system/fs-[0-9a-f]+$" |
 		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+		Protocol!: #Protocol
+		SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [
+			...strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/sg-[a-f0-9]+$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #MountOptions: close({Version?: "AUTOMATIC" | "NFS3" | "NFS4_0" | "NFS4_1" | "NFS4_2" | fn.#StringExpression}) |
 	fn.#ObjectExpression
@@ -43,7 +46,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataSync::LocationFSxOpenZFS"
-	Properties!: #Properties
-}

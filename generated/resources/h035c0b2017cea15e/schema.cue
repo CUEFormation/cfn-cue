@@ -13,19 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::Replicator
-#Properties: close({
-	Description?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	KafkaClusters!: list.MaxItems(2) & list.MinItems(2) & list.UniqueItems() & [...#KafkaCluster] | fn.#ListExpression
-	LogDelivery?:   #LogDelivery | fn.#ObjectExpression
-	ReplicationInfoList!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ReplicationInfo] |
-		fn.#ListExpression
-	ReplicatorName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z][0-9A-Za-z-]{0,}$" |
-	fn.#StringExpression
-	ServiceExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"arn:(aws|aws-us-gov|aws-cn):iam:.*" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MSK::Replicator"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		KafkaClusters!: list.MaxItems(2) & list.MinItems(2) & list.UniqueItems() & [...#KafkaCluster] |
+			fn.#ListExpression
+		LogDelivery?: #LogDelivery | fn.#ObjectExpression
+		ReplicationInfoList!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ReplicationInfo] |
+			fn.#ListExpression
+		ReplicatorName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z][0-9A-Za-z-]{0,}$" |
 		fn.#StringExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+		ServiceExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"arn:(aws|aws-us-gov|aws-cn):iam:.*" |
+			fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AmazonMskCluster: close({MskClusterArn!: =~"arn:(aws|aws-us-gov|aws-cn):kafka:.*" | fn.#StringExpression}) |
 	fn.#ObjectExpression
@@ -220,7 +224,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MSK::Replicator"
-	Properties!: #Properties
-}

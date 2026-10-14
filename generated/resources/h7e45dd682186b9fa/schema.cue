@@ -17,12 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Transfer::Workflow
-#Properties: close({
-	Description?:      strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w\\- ]*$" | fn.#StringExpression
-	OnExceptionSteps?: list.MaxItems(8) & list.UniqueItems() & [...] & [...#WorkflowStep] | fn.#ListExpression
-	Steps!:            list.MaxItems(8) & list.UniqueItems() & [...] & [...#WorkflowStep] | fn.#ListExpression
-	Tags?:             list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Transfer::Workflow"
+	Properties!: close({
+		Description?:      strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w\\- ]*$" | fn.#StringExpression
+		OnExceptionSteps?: list.MaxItems(8) & list.UniqueItems() & [...] & [...#WorkflowStep] | fn.#ListExpression
+		Steps!:            list.MaxItems(8) & list.UniqueItems() & [...] & [...#WorkflowStep] | fn.#ListExpression
+		Tags?:             list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #EfsInputFileLocation: close({
 	FileSystemId?: strings.MaxRunes(128) &
@@ -119,7 +122,3 @@ fn.#ObjectExpression
 	Type?: "COPY" | "CUSTOM" | "DECRYPT" | "DELETE" | "TAG" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Transfer::Workflow"
-	Properties!: #Properties
-}

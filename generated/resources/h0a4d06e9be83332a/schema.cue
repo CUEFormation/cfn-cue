@@ -17,11 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // values of a StartJobRun API request in a reusable template, so they can be
 // used to start a job run or to enforce certain values in a StartJobRun API
 // request.
-#Properties: close({
-	JobTemplateData!: #JobTemplateData
-	Name!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
-	Tags?:            list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMRContainers::JobTemplate"
+	Properties!: close({
+		JobTemplateData!: #JobTemplateData
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Configuration: close({
 	Classification!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
@@ -119,7 +122,3 @@ fn.#ObjectExpression
 	Type?:         "NUMBER" | "STRING" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMRContainers::JobTemplate"
-	Properties!: #Properties
-}

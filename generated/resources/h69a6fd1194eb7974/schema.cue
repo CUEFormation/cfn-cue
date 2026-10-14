@@ -23,7 +23,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // test CDN configuration
 // changes](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/continuous-deployment.html)
 // in the *Amazon CloudFront Developer Guide*.
-#Properties: close({ContinuousDeploymentPolicyConfig!: #ContinuousDeploymentPolicyConfig | fn.#ObjectExpression})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::CloudFront::ContinuousDeploymentPolicy"
+	Properties!: close({ContinuousDeploymentPolicyConfig!: #ContinuousDeploymentPolicyConfig | fn.#ObjectExpression})
+}
 
 #ContinuousDeploymentPolicyConfig: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -68,7 +71,3 @@ fn.#ObjectExpression
 	Type!:               "SingleWeight" | "SingleHeader" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::ContinuousDeploymentPolicy"
-	Properties!: #Properties
-}

@@ -13,18 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::PaymentManager
-#Properties: close({
-	AuthorizerConfiguration?: #AuthorizerConfiguration
-	AuthorizerType!:          #PaymentsAuthorizerType
-	Description?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s]+$" | fn.#StringExpression
-	Name!:        =~"^[a-zA-Z][a-zA-Z0-9]{0,47}$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::PaymentManager"
+	Properties!: close({
+		AuthorizerConfiguration?: #AuthorizerConfiguration
+		AuthorizerType!:          #PaymentsAuthorizerType
+		Description?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s]+$" | fn.#StringExpression
+		Name!:        =~"^[a-zA-Z][a-zA-Z0-9]{0,47}$" | fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AuthorizerConfiguration: close({CustomJWTAuthorizer!: #CustomJWTAuthorizerConfiguration}) | fn.#ObjectExpression
 
@@ -83,7 +86,3 @@ fn.#ObjectExpression
 	{WorkloadIdentityArn!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::PaymentManager"
-	Properties!: #Properties
-}

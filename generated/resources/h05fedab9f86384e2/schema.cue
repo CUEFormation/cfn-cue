@@ -15,10 +15,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Specifies a transformer on the log group to transform logs into consistent
 // structured and information rich format.
-#Properties: close({
-	LogGroupIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w#+=/:,.@-]*" | fn.#StringExpression
-	TransformerConfig!:  list.MaxItems(20) & list.MinItems(1) & [...#Processor] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Logs::Transformer"
+	Properties!: close({
+		LogGroupIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w#+=/:,.@-]*" | fn.#StringExpression
+		TransformerConfig!:  list.MaxItems(20) & list.MinItems(1) & [...#Processor] | fn.#ListExpression
+	})
+}
 
 #AddKeyEntry: close({
 	Key!:               #NonEmptyAndMaxLengthString
@@ -195,7 +198,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #WithKey: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::Transformer"
-	Properties!: #Properties
-}

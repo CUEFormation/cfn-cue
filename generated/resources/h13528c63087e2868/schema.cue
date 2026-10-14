@@ -17,51 +17,58 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::NeptuneGraph::Graph resource creates an Amazon NeptuneGraph Graph.
-#Properties: close({
-	DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	GraphName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
-	fn.#StringExpression
-	ImportTask?: #ImportTask | fn.#ObjectExpression
-	KmsKeyIdentifier?: strings.MaxRunes(1024) &
-	strings.MinRunes(1) &
-	=~"arn:aws(|-cn|-us-gov|-iso|-iso-b|-iso-e|-iso-f|-eusc):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}" |
-	fn.#StringExpression
-	ProvisionedMemory!: int & <=24576 & >=16 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=24576 &
-							>=16,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PublicConnectivity?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ReplicaCount?: int & <=2 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?:                      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VectorSearchConfiguration?: #VectorSearchConfiguration | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NeptuneGraph::Graph"
+	Properties!: close({
+		DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		GraphName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
+		fn.#StringExpression
+		ImportTask?: #ImportTask | fn.#ObjectExpression
+		KmsKeyIdentifier?: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"arn:aws(|-cn|-us-gov|-iso|-iso-b|-iso-e|-iso-f|-eusc):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}" |
+		fn.#StringExpression
+		ProvisionedMemory!: int & <=24576 & >=16 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=24576 &
+								>=16,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PublicConnectivity?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ReplicaCount?: int & <=2 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=2 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?:                      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VectorSearchConfiguration?: #VectorSearchConfiguration | fn.#ObjectExpression
+	})
+}
 
 #ImportOptions: close({Neptune?: #NeptuneImportOptions | fn.#ObjectExpression}) | fn.#ObjectExpression
 
@@ -143,7 +150,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NeptuneGraph::Graph"
-	Properties!: #Properties
-}

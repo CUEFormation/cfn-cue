@@ -17,15 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceDiscovery::PublicDnsNamespace
-#Properties: close({
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!: strings.MaxRunes(1024) &
-	strings.MinRunes(1) &
-	=~"^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?$" |
-	fn.#StringExpression
-	Properties?: _#defs."/$defs/Properties/definitions/Properties" | fn.#ObjectExpression
-	Tags?:       list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ServiceDiscovery::PublicDnsNamespace"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?$" |
+		fn.#StringExpression
+		Properties?: _#defs."/$defs/Properties/definitions/Properties" | fn.#ObjectExpression
+		Tags?:       list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #PublicDnsPropertiesMutable: close({SOA?: #SOA}) | fn.#ObjectExpression
 
@@ -61,7 +64,3 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Properties": close({DnsProperties?: #PublicDnsPropertiesMutable}) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceDiscovery::PublicDnsNamespace"
-	Properties!: #Properties
-}

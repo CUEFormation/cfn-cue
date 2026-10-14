@@ -17,11 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource for Greengrass component version.
-#Properties: close({
-	InlineRecipe?:   string | fn.#StringExpression
-	LambdaFunction?: #LambdaFunctionRecipeSource
-	Tags?:           struct.MaxFields(50) & {...} | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GreengrassV2::ComponentVersion"
+	Properties?: close({
+		InlineRecipe?:   string | fn.#StringExpression
+		LambdaFunction?: #LambdaFunctionRecipeSource
+		Tags?:           struct.MaxFields(50) & {...} | fn.#ObjectExpression
+	})
+}
 
 #ComponentDependencyRequirement: close({
 	DependencyType?:     "SOFT" | "HARD" | fn.#StringExpression
@@ -190,7 +193,3 @@ fn.#ObjectExpression
 	SourcePath?:      #FilesystemPath
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GreengrassV2::ComponentVersion"
-	Properties?: #Properties
-}

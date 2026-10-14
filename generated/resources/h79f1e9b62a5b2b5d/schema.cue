@@ -15,14 +15,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // rules](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-eips.html#vpc-eip-overview).
 // You must specify ``AllocationId`` and either ``InstanceId``,
 // ``NetworkInterfaceId``, or ``PrivateIpAddress``.
-#Properties: close({
-	AllocationId?:       string | fn.#StringExpression
-	EIP?:                string & string | fn.#StringExpression
-	InstanceId?:         string | fn.#StringExpression
-	NetworkInterfaceId?: string | fn.#StringExpression
-	PrivateIpAddress?:   string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::EIPAssociation"
-	Properties?: #Properties
+	Type!: "AWS::EC2::EIPAssociation"
+	Properties?: close({
+		AllocationId?:       string | fn.#StringExpression
+		EIP?:                string & string | fn.#StringExpression
+		InstanceId?:         string | fn.#StringExpression
+		NetworkInterfaceId?: string | fn.#StringExpression
+		PrivateIpAddress?:   string | fn.#StringExpression
+	})
 }

@@ -13,19 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Evidently::Segment
-#Properties: close({
-	Description?: strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	Pattern?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Evidently::Segment"
+	Properties!: close({
+		Description?: strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+		Pattern?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Evidently::Segment"
-	Properties!: #Properties
-}

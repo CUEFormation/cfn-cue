@@ -26,7 +26,7 @@ func TestFieldRules(t *testing.T) {
 		t.Fatal(e)
 	}
 	for _, pkg := range []string{"./resources/hrules", "./literal/hrules"} {
-		schema := build(t, out, pkg).LookupPath(cue.MakePath(cue.Def("Properties")))
+		schema := propertiesSchema(t, out, pkg)
 		if e := schema.Validate(); e != nil {
 			t.Fatalf("%s: definition does not validate on its own: %v", pkg, e)
 		}

@@ -9,12 +9,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::LakeFormation::Permissions
-#Properties: close({
-	DataLakePrincipal!:          #DataLakePrincipal
-	Permissions?:                [...string | fn.#StringExpression] | fn.#ListExpression
-	PermissionsWithGrantOption?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Resource!:                   _#defs."/$defs/Properties/definitions/Resource"
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LakeFormation::Permissions"
+	Properties!: close({
+		DataLakePrincipal!:          #DataLakePrincipal
+		Permissions?:                [...string | fn.#StringExpression] | fn.#ListExpression
+		PermissionsWithGrantOption?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Resource!:                   _#defs."/$defs/Properties/definitions/Resource"
+	})
+}
 
 #ColumnWildcard: close({ExcludedColumnNames?: [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
@@ -59,7 +62,3 @@ _#defs: "/$defs/Properties/definitions/Resource": close({
 	TableWithColumnsResource?: #TableWithColumnsResource
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LakeFormation::Permissions"
-	Properties!: #Properties
-}

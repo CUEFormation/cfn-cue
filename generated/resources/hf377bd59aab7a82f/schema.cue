@@ -17,11 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ObservabilityAdmin::TelemetryPipelines
-#Properties: close({
-	Configuration!: #TelemetryPipelineConfiguration
-	Name?:          strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" | fn.#StringExpression
-	Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ObservabilityAdmin::TelemetryPipelines"
+	Properties!: close({
+		Configuration!: #TelemetryPipelineConfiguration
+		Name?:          strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" | fn.#StringExpression
+		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -94,7 +97,3 @@ fn.#ObjectExpression
 #TelemetryPipelineStatusReason: close({Description?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Unit: close({}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ObservabilityAdmin::TelemetryPipelines"
-	Properties!: #Properties
-}

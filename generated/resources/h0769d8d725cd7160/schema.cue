@@ -18,20 +18,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BedrockAgentCore::GatewayRateLimit Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	DimensionKeys!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(80) &
-		strings.MinRunes(1) &
-		=~"^(targetName|toolName|qualifiedModelId|\\$\\.context\\.iam\\.principal|\\$\\.context\\.iam\\.sourceIdentity|\\$\\.context\\.jwt\\.[a-zA-Z_][a-zA-Z0-9_\\-\\.]{0,61}[a-zA-Z0-9_])$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::GatewayRateLimit"
+	Properties!: close({
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		DimensionKeys!: list.MaxItems(10) & list.MinItems(1) & [
+			...strings.MaxRunes(80) &
+			strings.MinRunes(1) &
+			=~"^(targetName|toolName|qualifiedModelId|\\$\\.context\\.iam\\.principal|\\$\\.context\\.iam\\.sourceIdentity|\\$\\.context\\.jwt\\.[a-zA-Z_][a-zA-Z0-9_\\-\\.]{0,61}[a-zA-Z0-9_])$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Entries!:           list.MaxItems(1000) & list.MinItems(1) & [...#LimitEntry] | fn.#ListExpression
+		GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
+		RateLimitId?: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_\\.]{0,62}[a-zA-Z0-9]$" |
 		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Entries!:           list.MaxItems(1000) & list.MinItems(1) & [...#LimitEntry] | fn.#ListExpression
-	GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
-	RateLimitId?: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_\\.]{0,62}[a-zA-Z0-9]$" |
-	fn.#StringExpression
-})
+	})
+}
 
 #Dimensions: struct.MaxFields(10) & struct.MinFields(1) & close({
 
@@ -75,7 +78,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::GatewayRateLimit"
-	Properties!: #Properties
-}

@@ -17,96 +17,107 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::MemoryDB::Cluster resource creates an Amazon MemoryDB Cluster.
-#Properties: close({
-	ACLName!:                 strings.MinRunes(1) & =~"[a-zA-Z][a-zA-Z0-9\\-]*" | fn.#StringExpression
-	AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ClusterEndpoint?:         close({}) | fn.#ObjectExpression
-	ClusterName!:             =~"[a-z][a-z0-9\\-]*" | fn.#StringExpression
-	DataTiering?:             #DataTieringStatus & fn.#Object & {...} | fn.#StringExpression
-	Description?:             string | fn.#StringExpression
-	Engine?:                  string | fn.#StringExpression
-	EngineVersion?:           string | fn.#StringExpression
-	FinalSnapshotName?:       string | fn.#StringExpression
-	IpDiscovery?:             #SupportedIpDiscoveryTypes & fn.#Object & {...} | fn.#StringExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	MaintenanceWindow?:      string | fn.#StringExpression
-	MultiRegionClusterName?: string | fn.#StringExpression
-	NetworkType?:            #SupportedNetworkTypes & fn.#Object & {...} | fn.#StringExpression
-	NodeType!:               string | fn.#StringExpression
-	NumReplicasPerShard?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	NumShards?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ParameterGroupName?: string | fn.#StringExpression
-	Port?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MemoryDB::Cluster"
+	Properties!: close({
+		ACLName!:                 strings.MinRunes(1) & =~"[a-zA-Z][a-zA-Z0-9\\-]*" | fn.#StringExpression
+		AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ClusterEndpoint?:         close({}) | fn.#ObjectExpression
+		ClusterName!:             =~"[a-z][a-z0-9\\-]*" | fn.#StringExpression
+		DataTiering?:             #DataTieringStatus & fn.#Object & {...} | fn.#StringExpression
+		Description?:             string | fn.#StringExpression
+		Engine?:                  string | fn.#StringExpression
+		EngineVersion?:           string | fn.#StringExpression
+		FinalSnapshotName?:       string | fn.#StringExpression
+		IpDiscovery?:             #SupportedIpDiscoveryTypes & fn.#Object & {...} | fn.#StringExpression
+		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
 			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SnapshotArns?: [...string | fn.#StringExpression] | fn.#ListExpression
-	SnapshotName?: string | fn.#StringExpression
-	SnapshotRetentionLimit?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SnapshotWindow?: string | fn.#StringExpression
-	SnsTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SnsTopicStatus?:  string | fn.#StringExpression
-	SubnetGroupName?: string | fn.#StringExpression
-	TLSEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+		MaintenanceWindow?:      string | fn.#StringExpression
+		MultiRegionClusterName?: string | fn.#StringExpression
+		NetworkType?:            #SupportedNetworkTypes & fn.#Object & {...} | fn.#StringExpression
+		NodeType!:               string | fn.#StringExpression
+		NumReplicasPerShard?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		NumShards?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ParameterGroupName?: string | fn.#StringExpression
+		Port?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SecurityGroupIds?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		SnapshotArns?: [...string | fn.#StringExpression] | fn.#ListExpression
+		SnapshotName?: string | fn.#StringExpression
+		SnapshotRetentionLimit?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SnapshotWindow?: string | fn.#StringExpression
+		SnsTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		SnsTopicStatus?:  string | fn.#StringExpression
+		SubnetGroupName?: string | fn.#StringExpression
+		TLSEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DataTieringStatus: "true" | "false" | fn.#StringExpression
 
@@ -138,7 +149,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MemoryDB::Cluster"
-	Properties!: #Properties
-}

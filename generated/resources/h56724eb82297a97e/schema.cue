@@ -9,27 +9,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::IdentityPoolRoleAttachment
-#Properties: close({
-	IdentityPoolId!: string | fn.#StringExpression
-	RoleMappings?: null |
-	bool |
-	number |
-	string |
-	[...] |
-	close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::IdentityPoolRoleAttachment"
+	Properties!: close({
+		IdentityPoolId!: string | fn.#StringExpression
+		RoleMappings?: null |
+		bool |
+		number |
+		string |
+		[...] |
+		close({
 
-		{[=~"^.+$"]: #RoleMapping}}) |
-	fn.#ValueExpression
-	Roles?: null |
-	bool |
-	number |
-	string |
-	[...] |
-	close({
+			{[=~"^.+$"]: #RoleMapping}}) |
+		fn.#ValueExpression
+		Roles?: null |
+		bool |
+		number |
+		string |
+		[...] |
+		close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
-	fn.#ValueExpression
-})
+			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		fn.#ValueExpression
+	})
+}
 
 #MappingRule: close({
 	Claim!:     string | fn.#StringExpression
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RulesConfigurationType: close({Rules!: [...#MappingRule] | fn.#ListExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::IdentityPoolRoleAttachment"
-	Properties!: #Properties
-}

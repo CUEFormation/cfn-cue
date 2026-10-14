@@ -13,7 +13,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource schema represents the ResourceCollection resource in the Amazon DevOps Guru.
-#Properties: close({ResourceCollectionFilter!: #ResourceCollectionFilter})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::DevOpsGuru::ResourceCollection"
+	Properties!: close({ResourceCollectionFilter!: #ResourceCollectionFilter})
+}
 
 #CloudFormationCollectionFilter: close({
 	StackNames?: list.MaxItems(1000) & list.MinItems(1) & [
@@ -39,7 +42,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TagCollections: [...#TagCollection] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DevOpsGuru::ResourceCollection"
-	Properties!: #Properties
-}

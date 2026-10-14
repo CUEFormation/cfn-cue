@@ -12,13 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::AppFlow::Connector
-#Properties: close({
-	ConnectorLabel?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[a-zA-Z0-9][\\w!@#.-]+" | fn.#StringExpression
-	ConnectorProvisioningConfig!: #ConnectorProvisioningConfig | fn.#ObjectExpression
-	ConnectorProvisioningType!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9][\\w!@#.-]+" |
-	fn.#StringExpression
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppFlow::Connector"
+	Properties!: close({
+		ConnectorLabel?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[a-zA-Z0-9][\\w!@#.-]+" | fn.#StringExpression
+		ConnectorProvisioningConfig!: #ConnectorProvisioningConfig | fn.#ObjectExpression
+		ConnectorProvisioningType!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9][\\w!@#.-]+" |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*" | fn.#StringExpression
+	})
+}
 
 #ConnectorProvisioningConfig: close({Lambda?: #LambdaConnectorProvisioningConfig | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
@@ -31,7 +34,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppFlow::Connector"
-	Properties!: #Properties
-}

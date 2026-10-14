@@ -12,14 +12,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::AmplifyUIBuilder::Theme Resource Type
-#Properties: close({
-	AppId?:           string | fn.#StringExpression
-	EnvironmentName?: string | fn.#StringExpression
-	Name?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Overrides?:       [...#ThemeValues] | fn.#ListExpression
-	Tags?:            #Tags
-	Values?:          [...#ThemeValues] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AmplifyUIBuilder::Theme"
+	Properties?: close({
+		AppId?:           string | fn.#StringExpression
+		EnvironmentName?: string | fn.#StringExpression
+		Name?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Overrides?:       [...#ThemeValues] | fn.#ListExpression
+		Tags?:            #Tags
+		Values?:          [...#ThemeValues] | fn.#ListExpression
+	})
+}
 
 #Tags: {...} | fn.#ObjectExpression
 
@@ -34,7 +37,3 @@ fn.#ObjectExpression
 	Value?: #ThemeValue
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AmplifyUIBuilder::Theme"
-	Properties?: #Properties
-}

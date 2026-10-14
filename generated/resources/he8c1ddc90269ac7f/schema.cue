@@ -17,70 +17,79 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataBrew::Job.
-#Properties: close({
-	DataCatalogOutputs?: list.MinItems(1) & [...#DataCatalogOutput] | fn.#ListExpression
-	DatabaseOutputs?:    list.MinItems(1) & [...#DatabaseOutput] | fn.#ListExpression
-	DatasetName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	EncryptionKeyArn?:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	EncryptionMode?:     "SSE-KMS" | "SSE-S3" | fn.#StringExpression
-	JobSample?:          #JobSample | fn.#ObjectExpression
-	LogSubscription?:    "ENABLE" | "DISABLE" | fn.#StringExpression
-	MaxCapacity?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaxRetries?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name!:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	OutputLocation?:       #OutputLocation | fn.#ObjectExpression
-	Outputs?:              list.MinItems(1) & [...#Output] | fn.#ListExpression
-	ProfileConfiguration?: #ProfileConfiguration | fn.#ObjectExpression
-	ProjectName?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Recipe?:               #Recipe
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-	Timeout?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Type!:                     "PROFILE" | "RECIPE" | fn.#StringExpression
-	ValidationConfigurations?: list.MinItems(1) & [...#ValidationConfiguration] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataBrew::Job"
+	Properties!: close({
+		DataCatalogOutputs?: list.MinItems(1) & [...#DataCatalogOutput] | fn.#ListExpression
+		DatabaseOutputs?:    list.MinItems(1) & [...#DatabaseOutput] | fn.#ListExpression
+		DatasetName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		EncryptionKeyArn?:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+		EncryptionMode?:     "SSE-KMS" | "SSE-S3" | fn.#StringExpression
+		JobSample?:          #JobSample | fn.#ObjectExpression
+		LogSubscription?:    "ENABLE" | "DISABLE" | fn.#StringExpression
+		MaxCapacity?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxRetries?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name!:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		OutputLocation?:       #OutputLocation | fn.#ObjectExpression
+		Outputs?:              list.MinItems(1) & [...#Output] | fn.#ListExpression
+		ProfileConfiguration?: #ProfileConfiguration | fn.#ObjectExpression
+		ProjectName?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Recipe?:               #Recipe
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+		Timeout?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Type!:                     "PROFILE" | "RECIPE" | fn.#StringExpression
+		ValidationConfigurations?: list.MinItems(1) & [...#ValidationConfiguration] | fn.#ListExpression
+	})
+}
 
 #AllowedStatistics: close({Statistics!: list.MinItems(1) & [...#Statistic] | fn.#ListExpression}) | fn.#ObjectExpression
 
@@ -255,7 +264,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ValidationMode: "CHECK_ALL" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataBrew::Job"
-	Properties!: #Properties
-}

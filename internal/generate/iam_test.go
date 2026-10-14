@@ -86,7 +86,7 @@ func TestIAMPlacement(t *testing.T) {
 	validate(t, org, `{Type:"AWS::Organizations::Policy",Properties:{Name:"n",Type:"TAG_POLICY",Content:{tags:{CostCenter:{tag_key:{"@@assign":"CostCenter"}}}}}}`, true)
 	validate(t, org, `{Type:"AWS::Organizations::Policy",Properties:{Name:"n",Type:{Ref:"PolicyType"},Content:{anything:true}}}`, true)
 	validate(t, org, `{Type:"AWS::Organizations::Policy",Properties:{Name:"n",Type:"TAG_POLICY"}}`, false)
-	literal := build(t, out, "./literal/hrole").LookupPath(cue.MakePath(cue.Def("Properties")))
+	literal := propertiesSchema(t, out, "./literal/hrole")
 	validate(t, literal, `{AssumeRolePolicyDocument:{Statement:[{Effect:"Allow",Action:"sts:AssumeRole"}]}}`, true)
 
 	out = filepath.Join(t.TempDir(), "provider")

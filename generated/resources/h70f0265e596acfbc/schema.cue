@@ -17,11 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IVS::Stage.
-#Properties: close({
-	AutoParticipantRecordingConfiguration?: #AutoParticipantRecordingConfiguration
-	Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IVS::Stage"
+	Properties?: close({
+		AutoParticipantRecordingConfiguration?: #AutoParticipantRecordingConfiguration
+		Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AutoParticipantRecordingConfiguration: close({
 	HlsConfiguration?: #HlsConfiguration
@@ -109,7 +112,3 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IVS::Stage"
-	Properties?: #Properties
-}

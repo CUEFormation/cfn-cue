@@ -19,35 +19,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTTwinMaker::ComponentType
-#Properties: close({
-	ComponentTypeId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\.\\-0-9:]+" | fn.#StringExpression
-	CompositeComponentTypes?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTTwinMaker::ComponentType"
+	Properties!: close({
+		ComponentTypeId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\.\\-0-9:]+" | fn.#StringExpression
+		CompositeComponentTypes?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: #CompositeComponentType}}) |
-	fn.#ObjectExpression
-	Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	ExtendsFrom?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [...#ParentComponentType] |
-		fn.#ListExpression
-	Functions?: close({
+			{[=~"[a-zA-Z_\\-0-9]+"]: #CompositeComponentType}}) |
+		fn.#ObjectExpression
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		ExtendsFrom?: list.MaxItems(256) & list.MinItems(1) & list.UniqueItems() & [...#ParentComponentType] |
+			fn.#ListExpression
+		Functions?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: #Function}}) |
-	fn.#ObjectExpression
-	IsSingleton?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PropertyDefinitions?: close({
+			{[=~"[a-zA-Z_\\-0-9]+"]: #Function}}) |
+		fn.#ObjectExpression
+		IsSingleton?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		PropertyDefinitions?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyDefinition}}) |
-	fn.#ObjectExpression
-	PropertyGroups?: close({
+			{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyDefinition}}) |
+		fn.#ObjectExpression
+		PropertyGroups?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyGroup}}) |
-	fn.#ObjectExpression
-	Tags?: struct.MaxFields(50) & close({
+			{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyGroup}}) |
+		fn.#ObjectExpression
+		Tags?: struct.MaxFields(50) & close({
 
-		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	WorkspaceId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_0-9][a-zA-Z_\\-0-9]*[a-zA-Z0-9]+" |
-	fn.#StringExpression
-})
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+			fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		WorkspaceId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_0-9][a-zA-Z_\\-0-9]*[a-zA-Z0-9]+" |
+		fn.#StringExpression
+	})
+}
 
 #CompositeComponentType: close(
 	{ComponentTypeId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\.\\-0-9:]+" | fn.#StringExpression},
@@ -205,7 +209,3 @@ fn.#ObjectExpression
 	State?: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "ERROR" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTTwinMaker::ComponentType"
-	Properties!: #Properties
-}

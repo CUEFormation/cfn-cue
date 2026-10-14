@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::ClusterPolicy
-#Properties: close({
-	ClusterArn!: string | fn.#StringExpression
-	Policy!:     fn.#Object & {...} | string | fn.#StringObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MSK::ClusterPolicy"
-	Properties!: #Properties
+	Type!: "AWS::MSK::ClusterPolicy"
+	Properties!: close({
+		ClusterArn!: string | fn.#StringExpression
+		Policy!:     fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
 }

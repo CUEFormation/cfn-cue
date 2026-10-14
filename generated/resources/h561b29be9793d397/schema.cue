@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::AgentAlias Resource Type
-#Properties: close({
-	AgentAliasName!:       =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	AgentId!:              =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
-	Description?:          strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	RoutingConfiguration?: list.MaxItems(1) & [...#AgentAliasRoutingConfigurationListItem] | fn.#ListExpression
-	Tags?:                 #TagsMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::AgentAlias"
+	Properties!: close({
+		AgentAliasName!:       =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+		AgentId!:              =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
+		Description?:          strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		RoutingConfiguration?: list.MaxItems(1) & [...#AgentAliasRoutingConfigurationListItem] | fn.#ListExpression
+		Tags?:                 #TagsMap
+	})
+}
 
 #AgentAliasHistoryEvent: close({
 	EndDate?:              string | fn.#StringExpression
@@ -41,7 +44,3 @@ fn.#ObjectExpression
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::AgentAlias"
-	Properties!: #Properties
-}

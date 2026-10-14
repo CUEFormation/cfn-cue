@@ -18,22 +18,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::Runtime
-#Properties: close({
-	AgentRuntimeArtifact!:          #AgentRuntimeArtifact | fn.#ObjectExpression
-	AgentRuntimeName!:              #AgentRuntimeName | fn.#StringExpression
-	AuthorizerConfiguration?:       #AuthorizerConfiguration | fn.#ObjectExpression
-	CapacityProviderConfiguration?: #CapacityProviderConfiguration | fn.#ObjectExpression
-	Description?:                   #Description | fn.#StringExpression
-	EnvironmentVariables?:          #EnvironmentVariablesMap | fn.#ObjectExpression
-	FilesystemConfigurations?:      #FilesystemConfigurations | fn.#ListExpression
-	LifecycleConfiguration?:        #LifecycleConfiguration | fn.#ObjectExpression
-	NetworkConfiguration?:          #NetworkConfiguration | fn.#ObjectExpression
-	PlatformVersion?:               #PlatformVersion | fn.#StringExpression
-	ProtocolConfiguration?:         #ProtocolConfiguration | fn.#StringExpression
-	RequestHeaderConfiguration?:    #RequestHeaderConfiguration | fn.#ObjectExpression
-	RoleArn!:                       #RoleArn | fn.#StringExpression
-	Tags?:                          #TagsMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::Runtime"
+	Properties!: close({
+		AgentRuntimeArtifact!:          #AgentRuntimeArtifact | fn.#ObjectExpression
+		AgentRuntimeName!:              #AgentRuntimeName | fn.#StringExpression
+		AuthorizerConfiguration?:       #AuthorizerConfiguration | fn.#ObjectExpression
+		CapacityProviderConfiguration?: #CapacityProviderConfiguration | fn.#ObjectExpression
+		Description?:                   #Description | fn.#StringExpression
+		EnvironmentVariables?:          #EnvironmentVariablesMap | fn.#ObjectExpression
+		FilesystemConfigurations?:      #FilesystemConfigurations | fn.#ListExpression
+		LifecycleConfiguration?:        #LifecycleConfiguration | fn.#ObjectExpression
+		NetworkConfiguration?:          #NetworkConfiguration | fn.#ObjectExpression
+		PlatformVersion?:               #PlatformVersion | fn.#StringExpression
+		ProtocolConfiguration?:         #ProtocolConfiguration | fn.#StringExpression
+		RequestHeaderConfiguration?:    #RequestHeaderConfiguration | fn.#ObjectExpression
+		RoleArn!:                       #RoleArn | fn.#StringExpression
+		Tags?:                          #TagsMap
+	})
+}
 
 #AgentManagedRuntimeType: "PYTHON_3_10" |
 	"PYTHON_3_11" |
@@ -353,7 +356,3 @@ fn.#ListExpression
 #WorkloadIdentityArn: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
 #WorkloadIdentityDetails: close({WorkloadIdentityArn!: #WorkloadIdentityArn}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::Runtime"
-	Properties!: #Properties
-}

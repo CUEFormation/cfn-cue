@@ -16,11 +16,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::ElasticBeanstalk::Application resource specifies an Elastic Beanstalk application.
-#Properties: close({
-	ApplicationName?:         strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:             strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	ResourceLifecycleConfig?: #ApplicationResourceLifecycleConfig | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticBeanstalk::Application"
+	Properties?: close({
+		ApplicationName?:         strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Description?:             strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+		ResourceLifecycleConfig?: #ApplicationResourceLifecycleConfig | fn.#ObjectExpression
+	})
+}
 
 #ApplicationResourceLifecycleConfig: close({
 	ServiceRole?:            string | fn.#StringExpression
@@ -73,7 +76,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticBeanstalk::Application"
-	Properties?: #Properties
-}

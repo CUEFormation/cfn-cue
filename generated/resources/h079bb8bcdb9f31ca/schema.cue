@@ -13,24 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Omics::RunCache Resource Type
-#Properties: close({
-	CacheBehavior?: ("CACHE_ON_FAILURE" | "CACHE_ALWAYS") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	CacheBucketOwnerId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]+$" | fn.#StringExpression
-	CacheS3Location?:    string | fn.#StringExpression
-	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
-	fn.#StringExpression
-	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Omics::RunCache"
+	Properties?: close({
+		CacheBehavior?: ("CACHE_ON_FAILURE" | "CACHE_ALWAYS") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		CacheBucketOwnerId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]+$" | fn.#StringExpression
+		CacheS3Location?:    string | fn.#StringExpression
+		Description?: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Omics::RunCache"
-	Properties?: #Properties
-}

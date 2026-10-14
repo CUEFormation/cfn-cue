@@ -17,133 +17,153 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::Fleet
-#Properties: close({
-	AttributesToDelete?: list.UniqueItems() & [
-		..."VPC_CONFIGURATION" |
-			"VPC_CONFIGURATION_SECURITY_GROUP_IDS" |
-			"DOMAIN_JOIN_INFO" |
-			"IAM_ROLE_ARN" |
-			"USB_DEVICE_FILTER_STRINGS" |
-			"SESSION_SCRIPT_S3_LOCATION" |
-			"MAX_SESSIONS_PER_INSTANCE" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppStream::Fleet"
+	Properties!: close({
+		AttributesToDelete?: list.UniqueItems() & [
+			..."VPC_CONFIGURATION" |
+				"VPC_CONFIGURATION_SECURITY_GROUP_IDS" |
+				"DOMAIN_JOIN_INFO" |
+				"IAM_ROLE_ARN" |
+				"USB_DEVICE_FILTER_STRINGS" |
+				"SESSION_SCRIPT_S3_LOCATION" |
+				"MAX_SESSIONS_PER_INSTANCE" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		ComputeCapacity?: #ComputeCapacity
+		Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		DisableIMDSV1?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DisconnectTimeoutInSeconds?: int & <=360000 & >=60 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=360000 &
+								>=60,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		DisplayName?:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		DomainJoinInfo?: #DomainJoinInfo
+		EnableDefaultInternetAccess?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		FleetType?: =~"^ALWAYS_ON$|^ON_DEMAND$|^ELASTIC$" | fn.#StringExpression
+		IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:aws(?:\\-cn|\\-iso\\-b|\\-iso|\\-us\\-gov)?:iam::[0-9]{12}:role/.+$" |
 			fn.#StringExpression
-	] |
+		IdleDisconnectTimeoutInSeconds?: int & <=3600 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=3600 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ImageArn?: strings.MaxRunes(1024) & =~"^arn:[a-z-]+:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:.+$" |
+		fn.#StringExpression
+		ImageName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" |
+		fn.#StringExpression
+		InstanceType!: strings.MinRunes(1) | fn.#StringExpression
+		MaxConcurrentSessions?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxSessionsPerInstance?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxUserDurationInSeconds?: int & <=360000 & >=600 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=360000 &
+								>=600,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Platform?: "AMAZON_LINUX2" |
+			"RHEL8" |
+			"ROCKY_LINUX8" |
+			"UBUNTU_PRO_2404" |
+			"WINDOWS" |
+			"WINDOWS_SERVER_2016" |
+			"WINDOWS_SERVER_2019" |
+			"WINDOWS_SERVER_2022" |
+			"WINDOWS_SERVER_2025" |
+			fn.#StringExpression
+		RootVolumeConfig?:        #VolumeConfig
+		SessionScriptS3Location?: #S3Location
+		StreamView?:              "APP" | "DESKTOP" | fn.#StringExpression
+		Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		UsbDeviceFilterStrings?: [
+			...strings.MaxRunes(100) &
+			strings.MinRunes(0) &
+			=~"^((\\w*)\\s*(\\w*)\\s*\\,\\s*(\\w*)\\s*\\,\\s*\\*?(\\w*)\\s*\\,\\s*\\*?(\\w*)\\s*\\,\\s*\\*?\\d*\\s*\\,\\s*\\*?\\d*\\s*\\,\\s*[0-1]\\s*\\,\\s*[0-1]\\s*)$" |
+			fn.#StringExpression
+		] |
 		fn.#ListExpression
-	ComputeCapacity?: #ComputeCapacity
-	Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	DisableIMDSV1?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DisconnectTimeoutInSeconds?: int & <=360000 & >=60 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=360000 &
-							>=60,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	DisplayName?:                 strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	DomainJoinInfo?:              #DomainJoinInfo
-	EnableDefaultInternetAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FleetType?:                   =~"^ALWAYS_ON$|^ON_DEMAND$|^ELASTIC$" | fn.#StringExpression
-	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:aws(?:\\-cn|\\-iso\\-b|\\-iso|\\-us\\-gov)?:iam::[0-9]{12}:role/.+$" |
-		fn.#StringExpression
-	IdleDisconnectTimeoutInSeconds?: int & <=3600 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=3600 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ImageArn?: strings.MaxRunes(1024) & =~"^arn:[a-z-]+:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:.+$" |
-	fn.#StringExpression
-	ImageName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" |
-	fn.#StringExpression
-	InstanceType!: strings.MinRunes(1) | fn.#StringExpression
-	MaxConcurrentSessions?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaxSessionsPerInstance?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaxUserDurationInSeconds?: int & <=360000 & >=600 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=360000 &
-							>=600,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Platform?: "AMAZON_LINUX2" |
-		"RHEL8" |
-		"ROCKY_LINUX8" |
-		"UBUNTU_PRO_2404" |
-		"WINDOWS" |
-		"WINDOWS_SERVER_2016" |
-		"WINDOWS_SERVER_2019" |
-		"WINDOWS_SERVER_2022" |
-		"WINDOWS_SERVER_2025" |
-		fn.#StringExpression
-	RootVolumeConfig?:        #VolumeConfig
-	SessionScriptS3Location?: #S3Location
-	StreamView?:              "APP" | "DESKTOP" | fn.#StringExpression
-	Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	UsbDeviceFilterStrings?: [
-		...strings.MaxRunes(100) &
-		strings.MinRunes(0) &
-		=~"^((\\w*)\\s*(\\w*)\\s*\\,\\s*(\\w*)\\s*\\,\\s*\\*?(\\w*)\\s*\\,\\s*\\*?(\\w*)\\s*\\,\\s*\\*?\\d*\\s*\\,\\s*\\*?\\d*\\s*\\,\\s*[0-1]\\s*\\,\\s*[0-1]\\s*)$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	VpcConfig?: #VpcConfig
-})
+		VpcConfig?: #VpcConfig
+	})
+}
 
 #ComputeCapacity: close({
 	DesiredInstances?: int |
@@ -222,7 +242,3 @@ fn.#ObjectExpression
 	SubnetIds?: [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppStream::Fleet"
-	Properties!: #Properties
-}

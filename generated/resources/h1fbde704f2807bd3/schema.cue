@@ -12,18 +12,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // <p>Represents a channel group that facilitates the grouping of multiple channels.</p>
-#Properties: close({
-	ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:             [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaPackageV2::ChannelGroup"
+	Properties!: close({
+		ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Tags?:             [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaPackageV2::ChannelGroup"
-	Properties!: #Properties
-}

@@ -16,11 +16,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for Logs Integration Resource
-#Properties: close({
-	IntegrationName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
-	IntegrationType!: "OPENSEARCH" | fn.#StringExpression
-	ResourceConfig!:  close({OpenSearchResourceConfig?: #OpenSearchResourceConfig}) | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Logs::Integration"
+	Properties!: close({
+		IntegrationName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
+		IntegrationType!: "OPENSEARCH" | fn.#StringExpression
+		ResourceConfig!:  close({OpenSearchResourceConfig?: #OpenSearchResourceConfig}) | fn.#ObjectExpression
+	})
+}
 
 #Arn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"[\\w#+=/:,.@-]*\\*?" | fn.#StringExpression
 
@@ -61,7 +64,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::Integration"
-	Properties!: #Properties
-}

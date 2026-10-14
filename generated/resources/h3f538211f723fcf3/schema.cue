@@ -20,25 +20,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Attribute](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-dependson.html)
 // in the ``AWS::EC2::Route`` resource to explicitly declare a dependency on
 // the ``AWS::EC2::TransitGatewayAttachment`` resource.
-#Properties: close({
-	CarrierGatewayId?:            string | fn.#StringExpression
-	CoreNetworkArn?:              string | fn.#StringExpression
-	DestinationCidrBlock?:        string | fn.#StringExpression
-	DestinationIpv6CidrBlock?:    string | fn.#StringExpression
-	DestinationPrefixListId?:     string | fn.#StringExpression
-	EgressOnlyInternetGatewayId?: string | fn.#StringExpression
-	GatewayId?:                   string | fn.#StringExpression
-	InstanceId?:                  string | fn.#StringExpression
-	LocalGatewayId?:              string | fn.#StringExpression
-	NatGatewayId?:                string | fn.#StringExpression
-	NetworkInterfaceId?:          string | fn.#StringExpression
-	OdbNetworkArn?:               string | fn.#StringExpression
-	RouteTableId!:                string | fn.#StringExpression
-	TransitGatewayId?:            string | fn.#StringExpression
-	VpcEndpointId?:               string | fn.#StringExpression
-	VpcPeeringConnectionId?:      string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::Route"
-	Properties!: #Properties
+	Type!: "AWS::EC2::Route"
+	Properties!: close({
+		CarrierGatewayId?:            string | fn.#StringExpression
+		CoreNetworkArn?:              string | fn.#StringExpression
+		DestinationCidrBlock?:        string | fn.#StringExpression
+		DestinationIpv6CidrBlock?:    string | fn.#StringExpression
+		DestinationPrefixListId?:     string | fn.#StringExpression
+		EgressOnlyInternetGatewayId?: string | fn.#StringExpression
+		GatewayId?:                   string | fn.#StringExpression
+		InstanceId?:                  string | fn.#StringExpression
+		LocalGatewayId?:              string | fn.#StringExpression
+		NatGatewayId?:                string | fn.#StringExpression
+		NetworkInterfaceId?:          string | fn.#StringExpression
+		OdbNetworkArn?:               string | fn.#StringExpression
+		RouteTableId!:                string | fn.#StringExpression
+		TransitGatewayId?:            string | fn.#StringExpression
+		VpcEndpointId?:               string | fn.#StringExpression
+		VpcPeeringConnectionId?:      string | fn.#StringExpression
+	})
 }

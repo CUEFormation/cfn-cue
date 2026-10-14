@@ -17,23 +17,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an AWS Firewall Manager policy.
-#Properties: close({
-	DeleteAllPolicyResources?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExcludeMap?:               #IEMap
-	ExcludeResourceTags!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IncludeMap?:               #IEMap
-	PolicyDescription?:        strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" | fn.#StringExpression
-	PolicyName!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" | fn.#StringExpression
-	RemediationEnabled!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResourceSetIds?:             list.UniqueItems() & [...#Base62Id] | fn.#ListExpression
-	ResourceTagLogicalOperator?: "AND" | "OR" | fn.#StringExpression
-	ResourceTags?:               list.MaxItems(50) & [...#ResourceTag] | fn.#ListExpression
-	ResourceType?:               #ResourceType
-	ResourceTypeList?:           [...#ResourceType] | fn.#ListExpression
-	ResourcesCleanUp?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SecurityServicePolicyData!:  #SecurityServicePolicyData
-	Tags?:                       [...#PolicyTag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FMS::Policy"
+	Properties!: close({
+		DeleteAllPolicyResources?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ExcludeMap?:               #IEMap
+		ExcludeResourceTags!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IncludeMap?:               #IEMap
+		PolicyDescription?:        strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" | fn.#StringExpression
+		PolicyName!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" |
+		fn.#StringExpression
+		RemediationEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ResourceSetIds?:     list.UniqueItems() & [...#Base62Id] | fn.#ListExpression
+		ResourceTagLogicalOperator?: "AND" | "OR" | fn.#StringExpression
+		ResourceTags?:               list.MaxItems(50) & [...#ResourceTag] | fn.#ListExpression
+		ResourceType?:               #ResourceType
+		ResourceTypeList?:           [...#ResourceType] | fn.#ListExpression
+		ResourcesCleanUp?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SecurityServicePolicyData!: #SecurityServicePolicyData
+		Tags?:                      [...#PolicyTag] | fn.#ListExpression
+	})
+}
 
 #AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^([0-9]*)$" | fn.#StringExpression
 
@@ -219,7 +223,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ThirdPartyFirewallPolicy: close({FirewallDeploymentModel!: #FirewallDeploymentModel}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FMS::Policy"
-	Properties!: #Properties
-}

@@ -12,13 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::ContentAssociation Resource Type
-#Properties: close({
-	Association!:     #ContentAssociationContents | fn.#ObjectExpression
-	AssociationType!: "AMAZON_CONNECT_GUIDE" | fn.#StringExpression
-	ContentId!:       =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
-	KnowledgeBaseId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
-	Tags?:            [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Wisdom::ContentAssociation"
+	Properties!: close({
+		Association!:     #ContentAssociationContents | fn.#ObjectExpression
+		AssociationType!: "AMAZON_CONNECT_GUIDE" | fn.#StringExpression
+		ContentId!:       =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
+		KnowledgeBaseId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
+		Tags?:            [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AmazonConnectGuideAssociationData: close({
 	FlowId?: strings.MaxRunes(2048) &
@@ -36,7 +39,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Wisdom::ContentAssociation"
-	Properties!: #Properties
-}

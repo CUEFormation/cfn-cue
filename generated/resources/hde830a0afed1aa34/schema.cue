@@ -14,12 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::DevOpsAgent::Association defining how the
 // AgentSpace interacts with external services like GitHub, Slack, AWS
 // accounts, and others.
-#Properties: close({
-	AgentSpaceId!:         #AgentSpaceId | fn.#StringExpression
-	Configuration!:        #ServiceConfiguration | fn.#ObjectExpression
-	LinkedAssociationIds?: [...#AssociationId] | fn.#ListExpression
-	ServiceId!:            #ServiceId | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DevOpsAgent::Association"
+	Properties!: close({
+		AgentSpaceId!:         #AgentSpaceId | fn.#StringExpression
+		Configuration!:        #ServiceConfiguration | fn.#ObjectExpression
+		LinkedAssociationIds?: [...#AssociationId] | fn.#ListExpression
+		ServiceId!:            #ServiceId | fn.#StringExpression
+	})
+}
 
 #AWSConfiguration: close({
 	AccountId!:   =~"\\d{12}" | fn.#StringExpression
@@ -246,7 +249,3 @@ fn.#ObjectExpression
 	Tags?:      #AWSTagList
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DevOpsAgent::Association"
-	Properties!: #Properties
-}

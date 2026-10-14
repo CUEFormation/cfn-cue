@@ -31,12 +31,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see [Launch an instance from a launch
 // template](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-launch-templates.html)
 // in the *Amazon EC2 User Guide*.
-#Properties: close({
-	LaunchTemplateData!: #LaunchTemplateData | fn.#ObjectExpression
-	LaunchTemplateName?: string | fn.#StringExpression
-	TagSpecifications?:  [...#LaunchTemplateTagSpecification] | fn.#ListExpression
-	VersionDescription?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::LaunchTemplate"
+	Properties!: close({
+		LaunchTemplateData!: #LaunchTemplateData | fn.#ObjectExpression
+		LaunchTemplateName?: string | fn.#StringExpression
+		TagSpecifications?:  [...#LaunchTemplateTagSpecification] | fn.#ListExpression
+		VersionDescription?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	})
+}
 
 #AcceleratorCount: close({
 	Max?: int |
@@ -1201,7 +1204,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::LaunchTemplate"
-	Properties!: #Properties
-}

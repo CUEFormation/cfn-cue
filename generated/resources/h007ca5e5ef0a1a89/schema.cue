@@ -12,11 +12,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::AccessPolicy
-#Properties: close({
-	AccessPolicyIdentity!:   #AccessPolicyIdentity | fn.#ObjectExpression
-	AccessPolicyPermission!: "ADMINISTRATOR" | "VIEWER" | fn.#StringExpression
-	AccessPolicyResource!:   #AccessPolicyResource | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTSiteWise::AccessPolicy"
+	Properties!: close({
+		AccessPolicyIdentity!:   #AccessPolicyIdentity | fn.#ObjectExpression
+		AccessPolicyPermission!: "ADMINISTRATOR" | "VIEWER" | fn.#StringExpression
+		AccessPolicyResource!:   #AccessPolicyResource | fn.#ObjectExpression
+	})
+}
 
 #AccessPolicyIdentity: close({
 	IamRole?: #IamRole
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 
 #User: close({id?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSiteWise::AccessPolicy"
-	Properties!: #Properties
-}

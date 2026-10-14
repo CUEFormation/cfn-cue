@@ -12,10 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::SecurityKey
-#Properties: close({
-	InstanceId!: #InstanceId
-	Key!:        #Key
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::SecurityKey"
+	Properties!: close({
+		InstanceId!: #InstanceId
+		Key!:        #Key
+	})
+}
 
 #AssociationId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-z0-9]*$" | fn.#StringExpression
 
@@ -25,7 +28,3 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 #Key: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::SecurityKey"
-	Properties!: #Properties
-}

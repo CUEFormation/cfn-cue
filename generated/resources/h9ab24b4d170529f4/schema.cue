@@ -14,27 +14,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for SSO PermissionSet
-#Properties: close({
-	CustomerManagedPolicyReferences?: list.MaxItems(25) & [...#CustomerManagedPolicyReference] | fn.#ListExpression
-	Description?: strings.MaxRunes(700) &
-	strings.MinRunes(1) &
-	=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*" |
-	fn.#StringExpression
-	InlinePolicy?: iam.#IdentityPolicyValue
-	InstanceArn!: strings.MaxRunes(1224) &
-	strings.MinRunes(10) &
-	=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |
-	fn.#StringExpression
-	ManagedPolicies?:     list.MaxItems(25) & [...#ManagedPolicyArn] | fn.#ListExpression
-	Name!:                strings.MaxRunes(32) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
-	PermissionsBoundary?: #PermissionsBoundary
-	RelayStateType?: strings.MaxRunes(240) &
-	strings.MinRunes(1) &
-	=~"[a-zA-Z0-9&amp;$@#\\/%?=~\\-_'&quot;|!:,.;*+\\[\\]\\ \\(\\)\\{\\}]+" |
-	fn.#StringExpression
-	SessionDuration?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:            list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSO::PermissionSet"
+	Properties!: close({
+		CustomerManagedPolicyReferences?: list.MaxItems(25) & [...#CustomerManagedPolicyReference] | fn.#ListExpression
+		Description?: strings.MaxRunes(700) &
+		strings.MinRunes(1) &
+		=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*" |
+		fn.#StringExpression
+		InlinePolicy?: iam.#IdentityPolicyValue
+		InstanceArn!: strings.MaxRunes(1224) &
+		strings.MinRunes(10) &
+		=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |
+		fn.#StringExpression
+		ManagedPolicies?:     list.MaxItems(25) & [...#ManagedPolicyArn] | fn.#ListExpression
+		Name!:                strings.MaxRunes(32) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
+		PermissionsBoundary?: #PermissionsBoundary
+		RelayStateType?: strings.MaxRunes(240) &
+		strings.MinRunes(1) &
+		=~"[a-zA-Z0-9&amp;$@#\\/%?=~\\-_'&quot;|!:,.;*+\\[\\]\\ \\(\\)\\{\\}]+" |
+		fn.#StringExpression
+		SessionDuration?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:            list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CustomerManagedPolicyReference: close({
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
@@ -55,7 +58,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w+=,.@-]+" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSO::PermissionSet"
-	Properties!: #Properties
-}

@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A real-time log configuration.
-#Properties: close({
-	EndPoints!:    list.MinItems(1) & [...#EndPoint] | fn.#ListExpression
-	Fields!:       list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Name!:         string | fn.#StringExpression
-	SamplingRate!: math.MultipleOf(1) & <=100 & >=1 | fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::RealtimeLogConfig"
+	Properties!: close({
+		EndPoints!:    list.MinItems(1) & [...#EndPoint] | fn.#ListExpression
+		Fields!:       list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+		Name!:         string | fn.#StringExpression
+		SamplingRate!: math.MultipleOf(1) & <=100 & >=1 | fn.#NumberExpression
+	})
+}
 
 #EndPoint: close({
 	KinesisStreamConfig!: #KinesisStreamConfig | fn.#ObjectExpression
@@ -32,7 +35,3 @@ fn.#ObjectExpression
 	StreamArn!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::RealtimeLogConfig"
-	Properties!: #Properties
-}

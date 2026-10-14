@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::SSM::MaintenanceWindowTarget
-#Properties: close({
-	Description?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:        strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
-	OwnerInformation?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ResourceType!:     "INSTANCE" | "RESOURCE_GROUP" | fn.#StringExpression
-	Targets!:          list.MaxItems(5) & [...] & [...#Targets] | fn.#ListExpression
-	WindowId!:         strings.MaxRunes(20) & strings.MinRunes(20) & =~"^mw-[0-9a-f]{17}$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSM::MaintenanceWindowTarget"
+	Properties!: close({
+		Description?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Name?:        strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
+		OwnerInformation?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		ResourceType!:     "INSTANCE" | "RESOURCE_GROUP" | fn.#StringExpression
+		Targets!:          list.MaxItems(5) & [...] & [...#Targets] | fn.#ListExpression
+		WindowId!:         strings.MaxRunes(20) & strings.MinRunes(20) & =~"^mw-[0-9a-f]{17}$" | fn.#StringExpression
+	})
+}
 
 #Targets: close({
 	Key!: strings.MaxRunes(163) &
@@ -30,7 +33,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Values!: list.MaxItems(50) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSM::MaintenanceWindowTarget"
-	Properties!: #Properties
-}

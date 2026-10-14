@@ -18,72 +18,75 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::WorkSpacesWeb::UserSettings Resource Type
-#Properties: close({
-	AdditionalEncryptionContext?: #EncryptionContextMap
-	BrandingConfiguration?: close({
-		ColorTheme?:       #ColorTheme
-		Favicon?:          string | fn.#StringExpression
-		LocalizedStrings?: #LocalizedBrandingStringMap
-		Logo?:             string | fn.#StringExpression
-		TermsOfService?:   strings.MaxRunes(153600) | fn.#StringExpression
-		Wallpaper?:        string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	CookieSynchronizationConfiguration?: #CookieSynchronizationConfiguration
-	CopyAllowed!:                        #EnabledType
-	CustomerManagedKey?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
-	fn.#StringExpression
-	DeepLinkAllowed?: #EnabledType
-	DisconnectTimeoutInMinutes?: <=600 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpacesWeb::UserSettings"
+	Properties!: close({
+		AdditionalEncryptionContext?: #EncryptionContextMap
+		BrandingConfiguration?: close({
+			ColorTheme?:       #ColorTheme
+			Favicon?:          string | fn.#StringExpression
+			LocalizedStrings?: #LocalizedBrandingStringMap
+			Logo?:             string | fn.#StringExpression
+			TermsOfService?:   strings.MaxRunes(153600) | fn.#StringExpression
+			Wallpaper?:        string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		CookieSynchronizationConfiguration?: #CookieSynchronizationConfiguration
+		CopyAllowed!:                        #EnabledType
+		CustomerManagedKey?: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
+		fn.#StringExpression
+		DeepLinkAllowed?: #EnabledType
+		DisconnectTimeoutInMinutes?: <=600 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=600 &
+								>=1,
+							"g",
+							-1,
 							64,
-						) &
-							<=600 &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	DownloadAllowed!: #EnabledType
-	IdleDisconnectTimeoutInMinutes?: <=60 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		DownloadAllowed!: #EnabledType
+		IdleDisconnectTimeoutInMinutes?: <=60 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=60 &
+								>=0,
+							"g",
+							-1,
 							64,
-						) &
-							<=60 &
-							>=0,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PasteAllowed!:         #EnabledType
-	PrintAllowed!:         #EnabledType
-	Tags?:                 list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	ToolbarConfiguration?: #ToolbarConfiguration
-	UploadAllowed!:        #EnabledType
-	WebAuthnAllowed?:      #EnabledType
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PasteAllowed!:         #EnabledType
+		PrintAllowed!:         #EnabledType
+		Tags?:                 list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		ToolbarConfiguration?: #ToolbarConfiguration
+		UploadAllowed!:        #EnabledType
+		WebAuthnAllowed?:      #EnabledType
+	})
+}
 
 #BrandingConfiguration: close({
 	ColorTheme?:        #ColorTheme
@@ -191,7 +194,3 @@ fn.#ObjectExpression
 #ToolbarType: "Floating" | "Docked" | fn.#StringExpression
 
 #VisualMode: "Dark" | "Light" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpacesWeb::UserSettings"
-	Properties!: #Properties
-}

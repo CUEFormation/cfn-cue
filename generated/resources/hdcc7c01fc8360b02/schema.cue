@@ -17,32 +17,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a router input in AWS Elemental MediaConnect that is used to
 // ingest content to be transmitted to router outputs
-#Properties: close({
-	AvailabilityZone?:                    string | fn.#StringExpression
-	Configuration!:                       #RouterInputConfiguration
-	ContentQualityAnalysisConfiguration?: #RouterContentQualityAnalysisConfiguration
-	MaintenanceConfiguration?:            #MaintenanceConfiguration
-	MaximumBitrate!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name!:              strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RegionName?:        string | fn.#StringExpression
-	RoutingScope!:      #RoutingScope
-	Tags?:              [...#Tag] | fn.#ListExpression
-	Tier!:              #RouterInputTier
-	TransitEncryption?: #RouterInputTransitEncryption
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::RouterInput"
+	Properties!: close({
+		AvailabilityZone?:                    string | fn.#StringExpression
+		Configuration!:                       #RouterInputConfiguration
+		ContentQualityAnalysisConfiguration?: #RouterContentQualityAnalysisConfiguration
+		MaintenanceConfiguration?:            #MaintenanceConfiguration
+		MaximumBitrate!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name!:              strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		RegionName?:        string | fn.#StringExpression
+		RoutingScope!:      #RoutingScope
+		Tags?:              [...#Tag] | fn.#ListExpression
+		Tier!:              #RouterInputTier
+		TransitEncryption?: #RouterInputTransitEncryption
+	})
+}
 
 #AutomaticEncryptionKeyConfiguration: close({}) | fn.#ObjectExpression
 
@@ -473,7 +478,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::RouterInput"
-	Properties!: #Properties
-}

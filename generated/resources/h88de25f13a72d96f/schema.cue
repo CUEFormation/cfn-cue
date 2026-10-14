@@ -12,31 +12,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::DataSource
-#Properties: close({
-	ApiId!:               string | fn.#StringExpression
-	Description?:         string | fn.#StringExpression
-	DynamoDBConfig?:      #DynamoDBConfig | fn.#ObjectExpression
-	ElasticsearchConfig?: #ElasticsearchConfig | fn.#ObjectExpression
-	EventBridgeConfig?:   #EventBridgeConfig | fn.#ObjectExpression
-	HttpConfig?:          #HttpConfig | fn.#ObjectExpression
-	LambdaConfig?:        #LambdaConfig | fn.#ObjectExpression
-	MetricsConfig?:       "DISABLED" | "ENABLED" | fn.#StringExpression
-	Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
-	OpenSearchServiceConfig?:  #OpenSearchServiceConfig | fn.#ObjectExpression
-	RelationalDatabaseConfig?: #RelationalDatabaseConfig | fn.#ObjectExpression
-	ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Type!: "AMAZON_BEDROCK_RUNTIME" |
-		"AMAZON_DYNAMODB" |
-		"AMAZON_ELASTICSEARCH" |
-		"AMAZON_EVENTBRIDGE" |
-		"AMAZON_OPENSEARCH_SERVICE" |
-		"AWS_LAMBDA" |
-		"HTTP" |
-		"NONE" |
-		"RELATIONAL_DATABASE" |
-		fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppSync::DataSource"
+	Properties!: close({
+		ApiId!:               string | fn.#StringExpression
+		Description?:         string | fn.#StringExpression
+		DynamoDBConfig?:      #DynamoDBConfig | fn.#ObjectExpression
+		ElasticsearchConfig?: #ElasticsearchConfig | fn.#ObjectExpression
+		EventBridgeConfig?:   #EventBridgeConfig | fn.#ObjectExpression
+		HttpConfig?:          #HttpConfig | fn.#ObjectExpression
+		LambdaConfig?:        #LambdaConfig | fn.#ObjectExpression
+		MetricsConfig?:       "DISABLED" | "ENABLED" | fn.#StringExpression
+		Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
+		OpenSearchServiceConfig?:  #OpenSearchServiceConfig | fn.#ObjectExpression
+		RelationalDatabaseConfig?: #RelationalDatabaseConfig | fn.#ObjectExpression
+		ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Type!: "AMAZON_BEDROCK_RUNTIME" |
+			"AMAZON_DYNAMODB" |
+			"AMAZON_ELASTICSEARCH" |
+			"AMAZON_EVENTBRIDGE" |
+			"AMAZON_OPENSEARCH_SERVICE" |
+			"AWS_LAMBDA" |
+			"HTTP" |
+			"NONE" |
+			"RELATIONAL_DATABASE" |
+			fn.#StringExpression
+	})
+}
 
 #AuthorizationConfig: close({
 	AuthorizationType!: "AWS_IAM" | fn.#StringExpression
@@ -102,7 +105,3 @@ fn.#ObjectExpression
 	RelationalDatabaseSourceType!: "RDS_HTTP_ENDPOINT" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::DataSource"
-	Properties!: #Properties
-}

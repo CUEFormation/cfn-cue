@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Schema for AWS::SNS::TopicInlinePolicy
-#Properties: close({
-	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
-	TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SNS::TopicInlinePolicy"
-	Properties!: #Properties
+	Type!: "AWS::SNS::TopicInlinePolicy"
+	Properties!: close({
+		PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
+		TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	})
 }

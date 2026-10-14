@@ -15,7 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // field-level encryption profile maps CloudFront public keys and provider
 // identities to the request-body field patterns that CloudFront encrypts with
 // them.
-#Properties: close({FieldLevelEncryptionProfileConfig!: #FieldLevelEncryptionProfileConfig})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::CloudFront::FieldLevelEncryptionProfile"
+	Properties!: close({FieldLevelEncryptionProfileConfig!: #FieldLevelEncryptionProfileConfig})
+}
 
 #EncryptionEntity: close({
 	FieldPatterns!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
@@ -31,7 +34,3 @@ fn.#ObjectExpression
 	Name!:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::FieldLevelEncryptionProfile"
-	Properties!: #Properties
-}

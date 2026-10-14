@@ -17,15 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataBrew::Dataset.
-#Properties: close({
-	Format?:        "CSV" | "JSON" | "PARQUET" | "EXCEL" | "ORC" | fn.#StringExpression
-	FormatOptions?: #FormatOptions | fn.#ObjectExpression
-	Input!:         #Input | fn.#ObjectExpression
-	Name!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	PathOptions?:   #PathOptions | fn.#ObjectExpression
-	Source?:        "S3" | "DATA-CATALOG" | "DATABASE" | fn.#StringExpression
-	Tags?:          [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataBrew::Dataset"
+	Properties!: close({
+		Format?:        "CSV" | "JSON" | "PARQUET" | "EXCEL" | "ORC" | fn.#StringExpression
+		FormatOptions?: #FormatOptions | fn.#ObjectExpression
+		Input!:         #Input | fn.#ObjectExpression
+		Name!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		PathOptions?:   #PathOptions | fn.#ObjectExpression
+		Source?:        "S3" | "DATA-CATALOG" | "DATABASE" | fn.#StringExpression
+		Tags?:          [...#Tag] | fn.#ListExpression
+	})
+}
 
 #BucketOwner: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 
@@ -182,7 +185,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataBrew::Dataset"
-	Properties!: #Properties
-}

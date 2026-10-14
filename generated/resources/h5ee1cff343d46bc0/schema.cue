@@ -13,20 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // gateway responses are reset. For more information, see [API Gateway
 // Responses](https://docs.aws.amazon.com/apigateway/latest/developerguide/customize-gateway-responses.html#api-gateway-gatewayResponse-definition)
 // in the *API Gateway Developer Guide*.
-#Properties: close({
-	ResponseParameters?: close({
-
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	ResponseTemplates?: close({
-
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	ResponseType!: string | fn.#StringExpression
-	RestApiId!:    string | fn.#StringExpression
-	StatusCode?:   string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::GatewayResponse"
-	Properties!: #Properties
+	Type!: "AWS::ApiGateway::GatewayResponse"
+	Properties!: close({
+		ResponseParameters?: close({
+
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		ResponseTemplates?: close({
+
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		ResponseType!: string | fn.#StringExpression
+		RestApiId!:    string | fn.#StringExpression
+		StatusCode?:   string | fn.#StringExpression
+	})
 }

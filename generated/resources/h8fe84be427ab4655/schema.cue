@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Rbin::Rule
-#Properties: close({
-	Description?:         strings.MaxRunes(255) & =~"^[\\S ]{0,255}$" | fn.#StringExpression
-	ExcludeResourceTags?: list.MaxItems(5) & list.UniqueItems() & [...] & [...#ResourceTag] | fn.#ListExpression
-	LockConfiguration?:   #UnlockDelay | fn.#ObjectExpression
-	ResourceTags?:        list.MaxItems(50) & list.UniqueItems() & [...] & [...#ResourceTag] | fn.#ListExpression
-	ResourceType!:        "EBS_SNAPSHOT" | "EC2_IMAGE" | "EBS_VOLUME" | fn.#StringExpression
-	RetentionPeriod!:     #RetentionPeriod | fn.#ObjectExpression
-	Status?:              =~"pending|available" | fn.#StringExpression
-	Tags?:                list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Rbin::Rule"
+	Properties!: close({
+		Description?:         strings.MaxRunes(255) & =~"^[\\S ]{0,255}$" | fn.#StringExpression
+		ExcludeResourceTags?: list.MaxItems(5) & list.UniqueItems() & [...] & [...#ResourceTag] | fn.#ListExpression
+		LockConfiguration?:   #UnlockDelay | fn.#ObjectExpression
+		ResourceTags?:        list.MaxItems(50) & list.UniqueItems() & [...] & [...#ResourceTag] | fn.#ListExpression
+		ResourceType!:        "EBS_SNAPSHOT" | "EC2_IMAGE" | "EBS_VOLUME" | fn.#StringExpression
+		RetentionPeriod!:     #RetentionPeriod | fn.#ObjectExpression
+		Status?:              =~"pending|available" | fn.#StringExpression
+		Tags?:                list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ResourceTag: close({
 	ResourceTagKey!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]{1,128}$" | fn.#StringExpression
@@ -81,7 +84,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Rbin::Rule"
-	Properties!: #Properties
-}

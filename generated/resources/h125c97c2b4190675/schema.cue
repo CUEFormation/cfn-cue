@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Workteam
-#Properties: close({
-	Description!:               strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	MemberDefinitions!:         list.MaxItems(10) & list.MinItems(1) & [...#MemberDefinition] | fn.#ListExpression
-	NotificationConfiguration?: #NotificationConfiguration | fn.#ObjectExpression
-	Tags?:                      list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	WorkforceName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9\\-]){0,62}$" |
-	fn.#StringExpression
-	WorkteamName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Workteam"
+	Properties!: close({
+		Description!:               strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+		MemberDefinitions!:         list.MaxItems(10) & list.MinItems(1) & [...#MemberDefinition] | fn.#ListExpression
+		NotificationConfiguration?: #NotificationConfiguration | fn.#ObjectExpression
+		Tags?:                      list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		WorkforceName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9\\-]){0,62}$" |
+		fn.#StringExpression
+		WorkteamName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
+	})
+}
 
 #CognitoMemberDefinition: close({
 	CognitoClientId!:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -55,7 +58,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Workteam"
-	Properties!: #Properties
-}

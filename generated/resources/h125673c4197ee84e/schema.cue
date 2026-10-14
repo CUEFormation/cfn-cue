@@ -20,13 +20,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // dashboards and create custom dashboards. You can manually refresh custom and
 // managed dashboards. For custom dashboards, you can also set up an automatic
 // refresh schedule and modify dashboard widgets.
-#Properties: close({
-	Name?:            strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
-	RefreshSchedule?: #RefreshSchedule | fn.#ObjectExpression
-	Tags?:            [...#Tag] | fn.#ListExpression
-	TerminationProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Widgets?:                      list.UniqueItems() & [...#Widget] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudTrail::Dashboard"
+	Properties?: close({
+		Name?:            strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
+		RefreshSchedule?: #RefreshSchedule | fn.#ObjectExpression
+		Tags?:            [...#Tag] | fn.#ListExpression
+		TerminationProtectionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Widgets?: list.UniqueItems() & [...#Widget] | fn.#ListExpression
+	})
+}
 
 #QueryParameter: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
 
@@ -74,7 +84,3 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudTrail::Dashboard"
-	Properties?: #Properties
-}

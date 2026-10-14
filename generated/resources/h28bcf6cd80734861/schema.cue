@@ -13,27 +13,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElastiCache::User
-#Properties: close({
-	AccessString?: =~"\\S" | fn.#StringExpression
-	AuthenticationMode?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElastiCache::User"
+	Properties!: close({
+		AccessString?: =~"\\S" | fn.#StringExpression
+		AuthenticationMode?: close({
+			Passwords?: list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+			Type!:      =~"(?i)^(?:iam|no-password-required|password)$" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Engine!:             "redis" | "valkey" | fn.#StringExpression
+		NoPasswordRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Passwords?: list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		Type!:      =~"(?i)^(?:iam|no-password-required|password)$" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Engine!:             "redis" | "valkey" | fn.#StringExpression
-	NoPasswordRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Passwords?:          list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	UserId!:             strings.MinRunes(1) & =~"[a-z][a-z0-9\\\\-]*" | fn.#StringExpression
-	UserName!:           strings.MinRunes(1) | fn.#StringExpression
-})
+		Tags?:      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		UserId!:    strings.MinRunes(1) & =~"[a-z][a-z0-9\\\\-]*" | fn.#StringExpression
+		UserName!:  strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElastiCache::User"
-	Properties!: #Properties
-}

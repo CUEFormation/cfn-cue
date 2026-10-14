@@ -17,31 +17,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkSpaces::Directory
-#Properties: close({
-	ActiveDirectoryConfig?:          #ActiveDirectoryConfig
-	CertificateBasedAuthProperties?: #CertificateBasedAuthProperties
-	EnableSelfService?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EndpointEncryptionMode?: "STANDARD_TLS" | "FIPS_VALIDATED" | fn.#StringExpression
-	IdcInstanceArn?:         string | fn.#StringExpression
-	IpGroupIds?:             [...=~"^wsipg-[0-9a-z]{8,63}$" | fn.#StringExpression] | fn.#ListExpression
-	MicrosoftEntraConfig?:   #MicrosoftEntraConfig
-	SamlProperties?:         #SamlProperties
-	SelfservicePermissions?: #SelfservicePermissions
-	StreamingProperties?:    #StreamingProperties
-	SubnetIds?: list.MaxItems(2) & [...] & [
-		...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^(subnet-([0-9a-f]{8}|[0-9a-f]{17}))$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Tenancy?:          "DEDICATED" | "SHARED" | fn.#StringExpression
-	UserIdentityType?: "CUSTOMER_MANAGED" | "AWS_DIRECTORY_SERVICE" | "AWS_IAM_IDENTITY_CENTER" | fn.#StringExpression
-	WorkspaceAccessProperties?:     #WorkspaceAccessProperties
-	WorkspaceCreationProperties?:   #DefaultWorkspaceCreationProperties
-	WorkspaceDirectoryDescription?: =~"^([a-zA-Z0-9_])[\\\\a-zA-Z0-9_@#%*+=:?./!\\s-]{1,255}$" | fn.#StringExpression
-	WorkspaceDirectoryName?:        =~"^[a-zA-Z0-9][a-zA-Z0-9_.\\s-]{1,64}$" | fn.#StringExpression
-	WorkspaceType?:                 "PERSONAL" | "POOLS" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpaces::Directory"
+	Properties?: close({
+		ActiveDirectoryConfig?:          #ActiveDirectoryConfig
+		CertificateBasedAuthProperties?: #CertificateBasedAuthProperties
+		EnableSelfService?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EndpointEncryptionMode?: "STANDARD_TLS" | "FIPS_VALIDATED" | fn.#StringExpression
+		IdcInstanceArn?:         string | fn.#StringExpression
+		IpGroupIds?:             [...=~"^wsipg-[0-9a-z]{8,63}$" | fn.#StringExpression] | fn.#ListExpression
+		MicrosoftEntraConfig?:   #MicrosoftEntraConfig
+		SamlProperties?:         #SamlProperties
+		SelfservicePermissions?: #SelfservicePermissions
+		StreamingProperties?:    #StreamingProperties
+		SubnetIds?: list.MaxItems(2) & [...] & [
+			...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^(subnet-([0-9a-f]{8}|[0-9a-f]{17}))$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Tags?:    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Tenancy?: "DEDICATED" | "SHARED" | fn.#StringExpression
+		UserIdentityType?: "CUSTOMER_MANAGED" |
+			"AWS_DIRECTORY_SERVICE" |
+			"AWS_IAM_IDENTITY_CENTER" |
+			fn.#StringExpression
+		WorkspaceAccessProperties?:   #WorkspaceAccessProperties
+		WorkspaceCreationProperties?: #DefaultWorkspaceCreationProperties
+		WorkspaceDirectoryDescription?: =~"^([a-zA-Z0-9_])[\\\\a-zA-Z0-9_@#%*+=:?./!\\s-]{1,255}$" |
+			fn.#StringExpression
+		WorkspaceDirectoryName?: =~"^[a-zA-Z0-9][a-zA-Z0-9_.\\s-]{1,64}$" | fn.#StringExpression
+		WorkspaceType?:          "PERSONAL" | "POOLS" | fn.#StringExpression
+	})
+}
 
 #AccessEndpoint: close({
 	AccessEndpointType?: "STREAMING_WSP" | fn.#StringExpression
@@ -183,7 +190,3 @@ fn.#ObjectExpression
 	DeviceTypeZeroClient?:           "ALLOW" | "DENY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpaces::Directory"
-	Properties?: #Properties
-}

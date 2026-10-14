@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a Connector that allows certificate issuance through Simple
 // Certificate Enrollment Protocol (SCEP)
-#Properties: close({
-	CertificateAuthorityArn!: strings.MaxRunes(200) &
-	strings.MinRunes(5) &
-	=~"^arn:aws(-[a-z]+)*:acm-pca:[a-z]+(-[a-z]+)+-[1-9]\\d*:\\d{12}:certificate-authority\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	MobileDeviceManagement?: #MobileDeviceManagement
-	Tags?:                   #Tags
-	VpcEndpointId?: strings.MaxRunes(200) & strings.MinRunes(5) & =~"^vpce-[0-9a-f]{8}([0-9a-f]{9})?$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PCAConnectorSCEP::Connector"
+	Properties!: close({
+		CertificateAuthorityArn!: strings.MaxRunes(200) &
+		strings.MinRunes(5) &
+		=~"^arn:aws(-[a-z]+)*:acm-pca:[a-z]+(-[a-z]+)+-[1-9]\\d*:\\d{12}:certificate-authority\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
+		fn.#StringExpression
+		MobileDeviceManagement?: #MobileDeviceManagement
+		Tags?:                   #Tags
+		VpcEndpointId?: strings.MaxRunes(200) & strings.MinRunes(5) & =~"^vpce-[0-9a-f]{8}([0-9a-f]{9})?$" |
+		fn.#StringExpression
+	})
+}
 
 #ConnectorType: "GENERAL_PURPOSE" | "INTUNE" | fn.#StringExpression
 
@@ -50,7 +53,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Unit: close({}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PCAConnectorSCEP::Connector"
-	Properties!: #Properties
-}

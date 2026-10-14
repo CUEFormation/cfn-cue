@@ -12,63 +12,66 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityAgent::AgentSpace
-#Properties: close({
-	AwsResources?:       #AWSResources
-	CodeReviewSettings?: #CodeReviewSettings
-	Description?:        string | fn.#StringExpression
-	IntegratedResources?: [...close({
-		Integration!: string | fn.#StringExpression
-		ProviderResources!: [...matchN(2, [matchN(1, [{
-			GitHubRepository!: _
-			...
-		}, {
-			GitLabRepository!: _
-			...
-		}, {
-			BitbucketRepository!: _
-			...
-		}, {
-			ConfluenceDocument!: _
-			...
-		}]), matchN(1, [{
-			GitHubCapabilities!: _
-			...
-		}, {
-			GitLabCapabilities!: _
-			...
-		}, {
-			BitbucketCapabilities!: _
-			...
-		}, {
-			ConfluenceCapabilities!: _
-			...
-		}])]) & close({
-			BitbucketCapabilities?:  #BitbucketCapabilitiesResource
-			BitbucketRepository?:    #BitbucketRepositoryResource
-			ConfluenceCapabilities?: #ConfluenceCapabilitiesResource
-			ConfluenceDocument?: close({
-				Name!:     string | fn.#StringExpression
-				PageId!:   string | fn.#StringExpression
-				SpaceKey!: string | fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityAgent::AgentSpace"
+	Properties!: close({
+		AwsResources?:       #AWSResources
+		CodeReviewSettings?: #CodeReviewSettings
+		Description?:        string | fn.#StringExpression
+		IntegratedResources?: [...close({
+			Integration!: string | fn.#StringExpression
+			ProviderResources!: [...matchN(2, [matchN(1, [{
+				GitHubRepository!: _
+				...
+			}, {
+				GitLabRepository!: _
+				...
+			}, {
+				BitbucketRepository!: _
+				...
+			}, {
+				ConfluenceDocument!: _
+				...
+			}]), matchN(1, [{
+				GitHubCapabilities!: _
+				...
+			}, {
+				GitLabCapabilities!: _
+				...
+			}, {
+				BitbucketCapabilities!: _
+				...
+			}, {
+				ConfluenceCapabilities!: _
+				...
+			}])]) & close({
+				BitbucketCapabilities?:  #BitbucketCapabilitiesResource
+				BitbucketRepository?:    #BitbucketRepositoryResource
+				ConfluenceCapabilities?: #ConfluenceCapabilitiesResource
+				ConfluenceDocument?: close({
+					Name!:     string | fn.#StringExpression
+					PageId!:   string | fn.#StringExpression
+					SpaceKey!: string | fn.#StringExpression
+				}) |
+				fn.#ObjectExpression
+				GitHubCapabilities?: #GitHubCapabilitiesResource
+				GitHubRepository?:   #GitHubRepositoryResource
+				GitLabCapabilities?: #GitLabCapabilitiesResource
+				GitLabRepository?:   #GitLabRepositoryResource
 			}) |
-			fn.#ObjectExpression
-			GitHubCapabilities?: #GitHubCapabilitiesResource
-			GitHubRepository?:   #GitHubRepositoryResource
-			GitLabCapabilities?: #GitLabCapabilitiesResource
-			GitLabRepository?:   #GitLabRepositoryResource
+			fn.#ObjectExpression] |
+			fn.#ListExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	Name!:            string | fn.#StringExpression
-	Tags?:            [...#Tag] | fn.#ListExpression
-	TargetDomainIds?: [...string | fn.#StringExpression] | fn.#ListExpression
-})
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		Name!:            string | fn.#StringExpression
+		Tags?:            [...#Tag] | fn.#ListExpression
+		TargetDomainIds?: [...string | fn.#StringExpression] | fn.#ListExpression
+	})
+}
 
 #AWSResources: close({
 	IamRoles?:           [...string | fn.#StringExpression] | fn.#ListExpression
@@ -194,7 +197,3 @@ fn.#ObjectExpression
 	VpcArn?:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityAgent::AgentSpace"
-	Properties!: #Properties
-}

@@ -13,118 +13,123 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::Instance
-#Properties: close({
-	AdditionalInfo?:      string | fn.#StringExpression
-	Affinity?:            "default" | "host" | fn.#StringExpression
-	AvailabilityZone?:    string | fn.#StringExpression
-	BlockDeviceMappings?: [...#BlockDeviceMapping] | fn.#ListExpression
-	CpuOptions?: close({
-		CoreCount?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		ThreadsPerCore?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-	}) |
-	fn.#ObjectExpression
-	CreditSpecification?:          close({CPUCredits?: string | fn.#StringExpression}) | fn.#ObjectExpression
-	DisableApiTermination?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EbsOptimized?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ElasticGpuSpecifications?:     [...#ElasticGpuSpecification] | fn.#ListExpression
-	ElasticInferenceAccelerators?: [...#ElasticInferenceAccelerator] | fn.#ListExpression
-	EnclaveOptions?: close(
-		{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-	) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::Instance"
+	Properties?: close({
+		AdditionalInfo?:      string | fn.#StringExpression
+		Affinity?:            "default" | "host" | fn.#StringExpression
+		AvailabilityZone?:    string | fn.#StringExpression
+		BlockDeviceMappings?: [...#BlockDeviceMapping] | fn.#ListExpression
+		CpuOptions?: close({
+			CoreCount?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ThreadsPerCore?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+		}) |
 		fn.#ObjectExpression
-	HibernationOptions?: close(
-		{Configured?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-	) |
-		fn.#ObjectExpression
-	HostId?:               string | fn.#StringExpression
-	HostResourceGroupArn?: string | fn.#StringExpression
-	IamInstanceProfile?:   string | fn.#StringExpression
-	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	InstanceInitiatedShutdownBehavior?: "stop" | "terminate" | fn.#StringExpression
-	InstanceType?:                      string | fn.#StringExpression
-	Ipv6AddressCount?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Ipv6Addresses?:         [...#InstanceIpv6Address] | fn.#ListExpression
-	KernelId?:              string | fn.#StringExpression
-	KeyName?:               string | fn.#StringExpression
-	LaunchTemplate?:        #LaunchTemplateSpecification & fn.#Object & {...} | fn.#ObjectExpression
-	LicenseSpecifications?: [...#LicenseSpecification] | fn.#ListExpression
-	MetadataOptions?:       #MetadataOptions & fn.#Object & {...} | fn.#ObjectExpression
-	Monitoring?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NetworkInterfaces?:     [...#NetworkInterface] | fn.#ListExpression
-	PlacementGroupName?:    string | fn.#StringExpression
-	PrivateDnsNameOptions?: #PrivateDnsNameOptions & fn.#Object & {...} | fn.#ObjectExpression
-	PrivateIpAddress?:      string | fn.#StringExpression
-	PropagateTagsToVolumeOnCreation?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	RamdiskId?: string | fn.#StringExpression
-	SecurityGroupIds?: [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
+		CreditSpecification?:      close({CPUCredits?: string | fn.#StringExpression}) | fn.#ObjectExpression
+		DisableApiTermination?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EbsOptimized?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ElasticGpuSpecifications?: [...#ElasticGpuSpecification] | fn.#ListExpression
+		ElasticInferenceAccelerators?: [...#ElasticInferenceAccelerator] | fn.#ListExpression
+		EnclaveOptions?: close(
+			{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+		) |
+			fn.#ObjectExpression
+		HibernationOptions?: close(
+			{Configured?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+		) |
+			fn.#ObjectExpression
+		HostId?:               string | fn.#StringExpression
+		HostResourceGroupArn?: string | fn.#StringExpression
+		IamInstanceProfile?:   string | fn.#StringExpression
+		ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SecurityGroups?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	SourceDestCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SsmAssociations?: [...#SsmAssociation] | fn.#ListExpression
-	SubnetId?:        string | fn.#StringExpression
-	Tags?:            [...#Tag] | fn.#ListExpression
-	Tenancy?:         string | fn.#StringExpression
-	UserData?:        string | fn.#StringExpression
-	Volumes?:         [...#Volume] | fn.#ListExpression
-	if NetworkInterfaces != _|_ {
-		SubnetId?: error("SubnetId cannot be used with NetworkInterfaces")
-	}
-})
+		InstanceInitiatedShutdownBehavior?: "stop" | "terminate" | fn.#StringExpression
+		InstanceType?:                      string | fn.#StringExpression
+		Ipv6AddressCount?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Ipv6Addresses?:         [...#InstanceIpv6Address] | fn.#ListExpression
+		KernelId?:              string | fn.#StringExpression
+		KeyName?:               string | fn.#StringExpression
+		LaunchTemplate?:        #LaunchTemplateSpecification & fn.#Object & {...} | fn.#ObjectExpression
+		LicenseSpecifications?: [...#LicenseSpecification] | fn.#ListExpression
+		MetadataOptions?:       #MetadataOptions & fn.#Object & {...} | fn.#ObjectExpression
+		Monitoring?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		NetworkInterfaces?:     [...#NetworkInterface] | fn.#ListExpression
+		PlacementGroupName?:    string | fn.#StringExpression
+		PrivateDnsNameOptions?: #PrivateDnsNameOptions & fn.#Object & {...} | fn.#ObjectExpression
+		PrivateIpAddress?:      string | fn.#StringExpression
+		PropagateTagsToVolumeOnCreation?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		RamdiskId?: string | fn.#StringExpression
+		SecurityGroupIds?: [...] & [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				string |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		SecurityGroups?:  [...string | fn.#StringExpression] | fn.#ListExpression
+		SourceDestCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SsmAssociations?: [...#SsmAssociation] | fn.#ListExpression
+		SubnetId?:        string | fn.#StringExpression
+		Tags?:            [...#Tag] | fn.#ListExpression
+		Tenancy?:         string | fn.#StringExpression
+		UserData?:        string | fn.#StringExpression
+		Volumes?:         [...#Volume] | fn.#ListExpression
+		if NetworkInterfaces != _|_ {
+			SubnetId?: error("SubnetId cannot be used with NetworkInterfaces")
+		}
+	})
+}
 
 #AssociationParameter: close({
 	Key!:   string | fn.#StringExpression
@@ -359,7 +364,3 @@ fn.#ObjectExpression
 	VolumeId!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::Instance"
-	Properties?: #Properties
-}

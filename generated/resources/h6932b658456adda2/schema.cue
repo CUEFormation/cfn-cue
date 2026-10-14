@@ -17,18 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaTailor::Function
-#Properties: close({
-	AwsServiceRequestConfiguration?:  #AwsServiceRequestConfiguration
-	ConcurrentExecutorConfiguration?: #ConcurrentExecutorConfiguration | fn.#ObjectExpression
-	CustomOutputConfiguration?:       #CustomOutputConfiguration
-	Description?:                     string | fn.#StringExpression
-	FunctionId!:                      string | fn.#StringExpression
-	FunctionType!:                    #FunctionType | fn.#StringExpression
-	HttpRequestConfiguration?:        #HttpRequestConfiguration
-	SequentialExecutorConfiguration?: #SequentialExecutorConfiguration
-	Tags?:                            list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VastRequestConfiguration?:        #VastRequestConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaTailor::Function"
+	Properties!: close({
+		AwsServiceRequestConfiguration?:  #AwsServiceRequestConfiguration
+		ConcurrentExecutorConfiguration?: #ConcurrentExecutorConfiguration | fn.#ObjectExpression
+		CustomOutputConfiguration?:       #CustomOutputConfiguration
+		Description?:                     string | fn.#StringExpression
+		FunctionId!:                      string | fn.#StringExpression
+		FunctionType!:                    #FunctionType | fn.#StringExpression
+		HttpRequestConfiguration?:        #HttpRequestConfiguration
+		SequentialExecutorConfiguration?: #SequentialExecutorConfiguration
+		Tags?:                            list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VastRequestConfiguration?:        #VastRequestConfiguration
+	})
+}
 
 #AwsServiceRequestConfiguration: close({
 	Body?: string | fn.#StringExpression
@@ -221,7 +224,3 @@ fn.#ObjectExpression
 	Url!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaTailor::Function"
-	Properties!: #Properties
-}

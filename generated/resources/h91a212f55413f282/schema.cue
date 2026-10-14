@@ -15,10 +15,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Authorizes the Shield Response Team (SRT) to use email and phone to notify
 // contacts about escalations to the SRT and to initiate proactive customer
 // support.
-#Properties: close({
-	EmergencyContactList!:      list.MaxItems(10) & list.MinItems(1) & [...#EmergencyContact] | fn.#ListExpression
-	ProactiveEngagementStatus!: "ENABLED" | "DISABLED" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Shield::ProactiveEngagement"
+	Properties!: close({
+		EmergencyContactList!:      list.MaxItems(10) & list.MinItems(1) & [...#EmergencyContact] | fn.#ListExpression
+		ProactiveEngagementStatus!: "ENABLED" | "DISABLED" | fn.#StringExpression
+	})
+}
 
 #EmergencyContact: close({
 	ContactNotes?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-,:/()+@]*$" | fn.#StringExpression
@@ -26,7 +29,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PhoneNumber?:  strings.MaxRunes(16) & strings.MinRunes(1) & =~"^\\+[1-9]\\d{1,14}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Shield::ProactiveEngagement"
-	Properties!: #Properties
-}

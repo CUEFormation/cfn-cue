@@ -12,8 +12,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53Resolver::ResolverDNSSECConfig.
-#Properties: close({ResourceId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression})
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Route53Resolver::ResolverDNSSECConfig"
-	Properties?: #Properties
+	Properties?: close({ResourceId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression})
 }

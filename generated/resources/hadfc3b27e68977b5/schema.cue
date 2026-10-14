@@ -25,33 +25,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // distribution to identify the requests that you want AWS WAF to filter. If
 // you add more than one Rule to a RuleGroup, a request needs to match only one
 // of the specifications to be allowed, blocked, or counted.
-#Properties: close({
-	AvailableLabels?: [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
-	Capacity!: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ConsumedLabels?:       [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
-	CustomResponseBodies?: #CustomResponseBodies
-	Description?:          #EntityDescription
-	MonetizationConfig?:   #MonetizationConfig
-	Name?:                 #EntityName
-	Rules?:                [...#Rule] | fn.#ListExpression
-	Scope!:                #Scope
-	Tags?:                 list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	VisibilityConfig!:     #VisibilityConfig
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAFv2::RuleGroup"
+	Properties!: close({
+		AvailableLabels?: [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
+		Capacity!: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ConsumedLabels?:       [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
+		CustomResponseBodies?: #CustomResponseBodies
+		Description?:          #EntityDescription
+		MonetizationConfig?:   #MonetizationConfig
+		Name?:                 #EntityName
+		Rules?:                [...#Rule] | fn.#ListExpression
+		Scope!:                #Scope
+		Tags?:                 list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		VisibilityConfig!:     #VisibilityConfig
+	})
+}
 
 #AllowAction: close({CustomRequestHandling?: #CustomRequestHandling}) | fn.#ObjectExpression
 
@@ -949,7 +954,3 @@ fn.#ObjectExpression
 	TextTransformations!:         list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAFv2::RuleGroup"
-	Properties!: #Properties
-}

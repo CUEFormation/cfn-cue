@@ -18,20 +18,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [IAM and
 // quotas](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html)
 // in the *IAM User Guide*.
-#Properties: close({
-	Groups?:       list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	LoginProfile?: #LoginProfile | fn.#ObjectExpression
-	ManagedPolicyArns?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
-	fn.#StringExpression
-	PermissionsBoundary?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	Policies?:            [...#Policy] | fn.#ListExpression
-	Tags?:                list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	UserName?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IAM::User"
+	Properties?: close({
+		Groups?:       list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+		LoginProfile?: #LoginProfile | fn.#ObjectExpression
+		ManagedPolicyArns?: list.MaxItems(20) & list.UniqueItems() & [...] & [
+			...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		Path?: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
+		fn.#StringExpression
+		PermissionsBoundary?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+		Policies?:            [...#Policy] | fn.#ListExpression
+		Tags?:                list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		UserName?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+	})
+}
 
 #LoginProfile: close({
 	Password!:              string | fn.#StringExpression
@@ -50,7 +55,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IAM::User"
-	Properties?: #Properties
-}

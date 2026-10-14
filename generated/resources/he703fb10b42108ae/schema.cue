@@ -16,70 +16,75 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EKS::Nodegroup
-#Properties: close({
-	AmiType?: "AL2023_ARM_64_NVIDIA" |
-		"AL2023_ARM_64_STANDARD" |
-		"AL2023_x86_64_NEURON" |
-		"AL2023_x86_64_NVIDIA" |
-		"AL2023_x86_64_STANDARD" |
-		"AL2_ARM_64" |
-		"AL2_x86_64" |
-		"AL2_x86_64_GPU" |
-		"BOTTLEROCKET_ARM_64" |
-		"BOTTLEROCKET_ARM_64_FIPS" |
-		"BOTTLEROCKET_ARM_64_NVIDIA" |
-		"BOTTLEROCKET_ARM_64_NVIDIA_FIPS" |
-		"BOTTLEROCKET_x86_64" |
-		"BOTTLEROCKET_x86_64_FIPS" |
-		"BOTTLEROCKET_x86_64_NVIDIA" |
-		"BOTTLEROCKET_x86_64_NVIDIA_FIPS" |
-		"CUSTOM" |
-		"WINDOWS_CORE_2019_x86_64" |
-		"WINDOWS_CORE_2022_x86_64" |
-		"WINDOWS_CORE_2025_x86_64" |
-		"WINDOWS_FULL_2019_x86_64" |
-		"WINDOWS_FULL_2022_x86_64" |
-		"WINDOWS_FULL_2025_x86_64" |
-		fn.#StringExpression
-	CapacityType?: "CAPACITY_BLOCK" | "ON_DEMAND" | "OnDemand" | "SPOT" | fn.#StringExpression
-	ClusterName!:  strings.MinRunes(1) | fn.#StringExpression
-	DiskSize?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ForceUpdateEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InstanceTypes?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	Labels?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EKS::Nodegroup"
+	Properties!: close({
+		AmiType?: "AL2023_ARM_64_NVIDIA" |
+			"AL2023_ARM_64_STANDARD" |
+			"AL2023_x86_64_NEURON" |
+			"AL2023_x86_64_NVIDIA" |
+			"AL2023_x86_64_STANDARD" |
+			"AL2_ARM_64" |
+			"AL2_x86_64" |
+			"AL2_x86_64_GPU" |
+			"BOTTLEROCKET_ARM_64" |
+			"BOTTLEROCKET_ARM_64_FIPS" |
+			"BOTTLEROCKET_ARM_64_NVIDIA" |
+			"BOTTLEROCKET_ARM_64_NVIDIA_FIPS" |
+			"BOTTLEROCKET_x86_64" |
+			"BOTTLEROCKET_x86_64_FIPS" |
+			"BOTTLEROCKET_x86_64_NVIDIA" |
+			"BOTTLEROCKET_x86_64_NVIDIA_FIPS" |
+			"CUSTOM" |
+			"WINDOWS_CORE_2019_x86_64" |
+			"WINDOWS_CORE_2022_x86_64" |
+			"WINDOWS_CORE_2025_x86_64" |
+			"WINDOWS_FULL_2019_x86_64" |
+			"WINDOWS_FULL_2022_x86_64" |
+			"WINDOWS_FULL_2025_x86_64" |
+			fn.#StringExpression
+		CapacityType?: "CAPACITY_BLOCK" | "ON_DEMAND" | "OnDemand" | "SPOT" | fn.#StringExpression
+		ClusterName!:  strings.MinRunes(1) | fn.#StringExpression
+		DiskSize?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ForceUpdateEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		InstanceTypes?:      [...string | fn.#StringExpression] | fn.#ListExpression
+		Labels?: close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	LaunchTemplate?:   #LaunchTemplateSpecification | fn.#ObjectExpression
-	NodeRepairConfig?: #NodeRepairConfig | fn.#ObjectExpression
-	NodeRole!:         string | fn.#StringExpression
-	NodegroupName?:    strings.MinRunes(1) | fn.#StringExpression
-	ReleaseVersion?:   string | fn.#StringExpression
-	RemoteAccess?:     #RemoteAccess | fn.#ObjectExpression
-	ScalingConfig?:    #ScalingConfig | fn.#ObjectExpression
-	Subnets!:          [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: close({
+			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		LaunchTemplate?:   #LaunchTemplateSpecification | fn.#ObjectExpression
+		NodeRepairConfig?: #NodeRepairConfig | fn.#ObjectExpression
+		NodeRole!:         string | fn.#StringExpression
+		NodegroupName?:    strings.MinRunes(1) | fn.#StringExpression
+		ReleaseVersion?:   string | fn.#StringExpression
+		RemoteAccess?:     #RemoteAccess | fn.#ObjectExpression
+		ScalingConfig?:    #ScalingConfig | fn.#ObjectExpression
+		Subnets!:          [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?: close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Taints?:         [...#Taint] | fn.#ListExpression
-	UpdateConfig?:   #UpdateConfig | fn.#ObjectExpression
-	Version?:        string | fn.#StringExpression
-	WarmPoolConfig?: #WarmPoolConfig | fn.#ObjectExpression
-})
+			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Taints?:         [...#Taint] | fn.#ListExpression
+		UpdateConfig?:   #UpdateConfig | fn.#ObjectExpression
+		Version?:        string | fn.#StringExpression
+		WarmPoolConfig?: #WarmPoolConfig | fn.#ObjectExpression
+	})
+}
 
 #LaunchTemplateSpecification: close({
 	Id?:      strings.MinRunes(1) | fn.#StringExpression
@@ -320,7 +325,3 @@ fn.#ObjectExpression
 	ReuseOnScaleIn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EKS::Nodegroup"
-	Properties!: #Properties
-}

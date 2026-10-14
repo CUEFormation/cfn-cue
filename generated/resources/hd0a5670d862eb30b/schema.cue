@@ -17,32 +17,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerRelay Resource Type
-#Properties: close({
-	Authentication!: #RelayAuthentication
-	RelayName?:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	ServerName!:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\.]+$" | fn.#StringExpression
-	ServerPort!: <=65535 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::MailManagerRelay"
+	Properties!: close({
+		Authentication!: #RelayAuthentication
+		RelayName?:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+		ServerName!:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\.]+$" | fn.#StringExpression
+		ServerPort!: <=65535 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=65535 &
+								>=1,
+							"g",
+							-1,
 							64,
-						) &
-							<=65535 &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #NoAuthentication: close({}) | fn.#ObjectExpression
 
@@ -59,7 +62,3 @@ fn.#ValueExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::MailManagerRelay"
-	Properties!: #Properties
-}

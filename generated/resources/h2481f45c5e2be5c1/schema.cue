@@ -16,65 +16,73 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::GraphQLApi
-#Properties: close({
-	AdditionalAuthenticationProviders?: list.UniqueItems() & [...#AdditionalAuthenticationProvider] | fn.#ListExpression
-	ApiType?:                           "GRAPHQL" | "MERGED" | fn.#StringExpression
-	AuthenticationType!: "AMAZON_COGNITO_USER_POOLS" |
-		"API_KEY" |
-		"AWS_IAM" |
-		"AWS_LAMBDA" |
-		"OPENID_CONNECT" |
-		fn.#StringExpression
-	EnhancedMetricsConfig?: #EnhancedMetricsConfig | fn.#ObjectExpression
-	EnvironmentVariables?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppSync::GraphQLApi"
+	Properties!: close({
+		AdditionalAuthenticationProviders?: list.UniqueItems() & [...#AdditionalAuthenticationProvider] |
+			fn.#ListExpression
+		ApiType?: "GRAPHQL" | "MERGED" | fn.#StringExpression
+		AuthenticationType!: "AMAZON_COGNITO_USER_POOLS" |
+			"API_KEY" |
+			"AWS_IAM" |
+			"AWS_LAMBDA" |
+			"OPENID_CONNECT" |
+			fn.#StringExpression
+		EnhancedMetricsConfig?: #EnhancedMetricsConfig | fn.#ObjectExpression
+		EnvironmentVariables?: close({
 
-		{[=~"^[A-Za-z]+\\w*$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	IntrospectionConfig?:    "DISABLED" | "ENABLED" | fn.#StringExpression
-	LambdaAuthorizerConfig?: #LambdaAuthorizerConfig | fn.#ObjectExpression
-	LogConfig?:              #LogConfig | fn.#ObjectExpression
-	MergedApiExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Name!:                string | fn.#StringExpression
-	OpenIDConnectConfig?: #OpenIDConnectConfig | fn.#ObjectExpression
-	OwnerContact?:        string | fn.#StringExpression
-	QueryDepthLimit?: int & <=75 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=75 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ResolverCountLimit?: int & <=10000 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=10000 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	UserPoolConfig?: #UserPoolConfig | fn.#ObjectExpression
-	Visibility?:     "GLOBAL" | "PRIVATE" | fn.#StringExpression
-	XrayEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
+			{[=~"^[A-Za-z]+\\w*$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		IntrospectionConfig?:    "DISABLED" | "ENABLED" | fn.#StringExpression
+		LambdaAuthorizerConfig?: #LambdaAuthorizerConfig | fn.#ObjectExpression
+		LogConfig?:              #LogConfig | fn.#ObjectExpression
+		MergedApiExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Name!:                string | fn.#StringExpression
+		OpenIDConnectConfig?: #OpenIDConnectConfig | fn.#ObjectExpression
+		OwnerContact?:        string | fn.#StringExpression
+		QueryDepthLimit?: int & <=75 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=75 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ResolverCountLimit?: int & <=10000 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10000 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		UserPoolConfig?: #UserPoolConfig | fn.#ObjectExpression
+		Visibility?:     "GLOBAL" | "PRIVATE" | fn.#StringExpression
+		XrayEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	})
+}
 
 #AdditionalAuthenticationProvider: close({
 	AuthenticationType!: "AMAZON_COGNITO_USER_POOLS" |
@@ -192,7 +200,3 @@ fn.#ObjectExpression
 	UserPoolId?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::GraphQLApi"
-	Properties!: #Properties
-}

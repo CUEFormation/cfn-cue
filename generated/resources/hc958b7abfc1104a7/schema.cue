@@ -12,14 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::ResourcePolicy
-#Properties: close({
-	Policy!: strings.MaxRunes(20480) & strings.MinRunes(1) | fn.#StringExpression
-	ResourceArn!: strings.MaxRunes(1011) &
-	strings.MinRunes(20) &
-	=~"^arn:[a-z0-9-]+:bedrock-agentcore:[a-z0-9-]*:[0-9]{12}:.+$" |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::ResourcePolicy"
-	Properties!: #Properties
+	Type!: "AWS::BedrockAgentCore::ResourcePolicy"
+	Properties!: close({
+		Policy!: strings.MaxRunes(20480) & strings.MinRunes(1) | fn.#StringExpression
+		ResourceArn!: strings.MaxRunes(1011) &
+		strings.MinRunes(20) &
+		=~"^arn:[a-z0-9-]+:bedrock-agentcore:[a-z0-9-]*:[0-9]{12}:.+$" |
+		fn.#StringExpression
+	})
 }

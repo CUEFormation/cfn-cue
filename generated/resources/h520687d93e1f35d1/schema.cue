@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This schema provides construct and validation rules for AWS-XRay Group resource parameters.
-#Properties: close({
-	FilterExpression?:      string | fn.#StringExpression
-	GroupName!:             strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
-	InsightsConfiguration?: #InsightsConfiguration
-	Tags?:                  #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::XRay::Group"
+	Properties!: close({
+		FilterExpression?:      string | fn.#StringExpression
+		GroupName!:             strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+		InsightsConfiguration?: #InsightsConfiguration
+		Tags?:                  #Tags
+	})
+}
 
 #InsightsConfiguration: close({
 	InsightsEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -33,7 +36,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::XRay::Group"
-	Properties!: #Properties
-}

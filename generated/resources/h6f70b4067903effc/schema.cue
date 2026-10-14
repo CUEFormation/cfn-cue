@@ -17,17 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::AccessAnalyzer::Analyzer type specifies an analyzer of the user's account
-#Properties: close({
-	AnalyzerConfiguration?: close({
-		InternalAccessConfiguration?: #InternalAccessConfiguration
-		UnusedAccessConfiguration?:   #UnusedAccessConfiguration
-	}) |
-	fn.#ObjectExpression
-	AnalyzerName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z_][A-Za-z0-9_.-]*$" | fn.#StringExpression
-	ArchiveRules?: [...#ArchiveRule] | fn.#ListExpression
-	Tags?:         list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Type!:         strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AccessAnalyzer::Analyzer"
+	Properties!: close({
+		AnalyzerConfiguration?: close({
+			InternalAccessConfiguration?: #InternalAccessConfiguration
+			UnusedAccessConfiguration?:   #UnusedAccessConfiguration
+		}) |
+		fn.#ObjectExpression
+		AnalyzerName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z_][A-Za-z0-9_.-]*$" |
+		fn.#StringExpression
+		ArchiveRules?: [...#ArchiveRule] | fn.#ListExpression
+		Tags?:         list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type!:         strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	})
+}
 
 #AnalysisRuleCriteria: close({
 	AccountIds?:   [...string | fn.#StringExpression] | fn.#ListExpression
@@ -91,7 +95,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AccessAnalyzer::Analyzer"
-	Properties!: #Properties
-}

@@ -15,24 +15,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates an archive rule for the specified analyzer. Archive rules
 // automatically archive new findings that meet the criteria you define when
 // you create the rule.
-#Properties: close({
-	AnalyzerName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$" | fn.#StringExpression
-	Filter!: close({
-
-		{
-			[=~"^.+$"]: close({
-				Contains?: list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] |
-					fn.#ListExpression
-				Eq?:     list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-				Exists?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-				Neq?:    list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-			}) |
-			fn.#ObjectExpression
-		}}) |
-	fn.#ObjectExpression
-	RuleName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AccessAnalyzer::ArchiveRule"
-	Properties!: #Properties
+	Type!: "AWS::AccessAnalyzer::ArchiveRule"
+	Properties!: close({
+		AnalyzerName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$" |
+		fn.#StringExpression
+		Filter!: close({
+
+			{
+				[=~"^.+$"]: close({
+					Contains?: list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] |
+						fn.#ListExpression
+					Eq?: list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+					Exists?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+					Neq?: list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+				}) |
+				fn.#ObjectExpression
+			}}) |
+		fn.#ObjectExpression
+		RuleName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$" | fn.#StringExpression
+	})
 }

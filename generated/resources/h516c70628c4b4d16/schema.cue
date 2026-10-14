@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::PaymentCryptography::Key Resource Type
-#Properties: close({
-	DeriveKeyUsage?:         #DeriveKeyUsage
-	Enabled?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Exportable!:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KeyAttributes!:          #KeyAttributes
-	KeyCheckValueAlgorithm?: #KeyCheckValueAlgorithm
-	Policy?: strings.MaxRunes(20480) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
-	fn.#StringExpression
-	ReplicationRegions?: [...=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$" | fn.#StringExpression] | fn.#ListExpression
-	Tags?:               list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PaymentCryptography::Key"
+	Properties!: close({
+		DeriveKeyUsage?:         #DeriveKeyUsage
+		Enabled?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Exportable!:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		KeyAttributes!:          #KeyAttributes
+		KeyCheckValueAlgorithm?: #KeyCheckValueAlgorithm
+		Policy?: strings.MaxRunes(20480) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
+		fn.#StringExpression
+		ReplicationRegions?: [...=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$" | fn.#StringExpression] | fn.#ListExpression
+		Tags?:               list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DeriveKeyUsage: "TR31_B0_BASE_DERIVATION_KEY" |
 	"TR31_C0_CARD_VERIFICATION_KEY" |
@@ -147,7 +150,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PaymentCryptography::Key"
-	Properties!: #Properties
-}

@@ -13,20 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticLoadBalancingV2::TrustStore
-#Properties: close({
-	CaCertificatesBundleS3Bucket?:        string | fn.#StringExpression
-	CaCertificatesBundleS3Key?:           string | fn.#StringExpression
-	CaCertificatesBundleS3ObjectVersion?: string | fn.#StringExpression
-	Name?: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^([a-zA-Z0-9]+-)*[a-zA-Z0-9]+$" | fn.#StringExpression
-	Tags?: list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticLoadBalancingV2::TrustStore"
+	Properties?: close({
+		CaCertificatesBundleS3Bucket?:        string | fn.#StringExpression
+		CaCertificatesBundleS3Key?:           string | fn.#StringExpression
+		CaCertificatesBundleS3ObjectVersion?: string | fn.#StringExpression
+		Name?: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^([a-zA-Z0-9]+-)*[a-zA-Z0-9]+$" | fn.#StringExpression
+		Tags?: list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticLoadBalancingV2::TrustStore"
-	Properties?: #Properties
-}

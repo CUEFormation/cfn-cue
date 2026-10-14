@@ -17,60 +17,67 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DirectConnect::TransitVirtualInterface
-#Properties: close({
-	AllocateTransitVirtualInterfaceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$" |
-		fn.#StringExpression
-	BgpPeers!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...close({
-		AddressFamily!:   =~"^(ipv4)|(ipv6)$" | fn.#StringExpression
-		AmazonAddress?:   =~"^[0-9a-fA-F:.]+/[0-9]+$" | fn.#StringExpression
-		Asn!:             =~"^[1-9][0-9]*$" | fn.#StringExpression
-		AuthKey?:         =~"^[A-Za-z0-9\\\\!\"#$%&'()*+,\\-./:;<=>?@\\[\\]\\^_`{|}~]{6,80}$" | fn.#StringExpression
-		CustomerAddress?: =~"^[0-9a-fA-F:.]+/[0-9]+$" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	ConnectionId!: string &
-		=~"^((arn:aws[a-z-]*:directconnect:[a-z0-9-]+:[0-9]{12}:(dxcon/dxcon|dxlag/dxlag))|dx(con|lag))-[a-z0-9A-Z]{8,21}$" |
-		fn.#StringExpression
-	DirectConnectGatewayId!: string &
-		=~"^(arn:aws[a-z-]*:directconnect::[0-9]{12}:dx-gateway/)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-		fn.#StringExpression
-	EnableSiteLink?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Mtu?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RateLimit?:            =~"^[0-9]+\\.?[0-9]*(Mbps|Gbps|Tbps)$" | fn.#StringExpression
-	Tags?:                 list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VirtualInterfaceName!: =~"^[\\w \\-_,\\/]{1,100}$" | fn.#StringExpression
-	Vlan!: int & <=4095 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=4095 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DirectConnect::TransitVirtualInterface"
+	Properties!: close({
+		AllocateTransitVirtualInterfaceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$" |
+			fn.#StringExpression
+		BgpPeers!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...close({
+			AddressFamily!:   =~"^(ipv4)|(ipv6)$" | fn.#StringExpression
+			AmazonAddress?:   =~"^[0-9a-fA-F:.]+/[0-9]+$" | fn.#StringExpression
+			Asn!:             =~"^[1-9][0-9]*$" | fn.#StringExpression
+			AuthKey?:         =~"^[A-Za-z0-9\\\\!\"#$%&'()*+,\\-./:;<=>?@\\[\\]\\^_`{|}~]{6,80}$" | fn.#StringExpression
+			CustomerAddress?: =~"^[0-9a-fA-F:.]+/[0-9]+$" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		ConnectionId!: string &
+			=~"^((arn:aws[a-z-]*:directconnect:[a-z0-9-]+:[0-9]{12}:(dxcon/dxcon|dxlag/dxlag))|dx(con|lag))-[a-z0-9A-Z]{8,21}$" |
+			fn.#StringExpression
+		DirectConnectGatewayId!: string &
+			=~"^(arn:aws[a-z-]*:directconnect::[0-9]{12}:dx-gateway/)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+			fn.#StringExpression
+		EnableSiteLink?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Mtu?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RateLimit?:            =~"^[0-9]+\\.?[0-9]*(Mbps|Gbps|Tbps)$" | fn.#StringExpression
+		Tags?:                 list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VirtualInterfaceName!: =~"^[\\w \\-_,\\/]{1,100}$" | fn.#StringExpression
+		Vlan!: int & <=4095 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=4095 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #BgpPeer: close({
 	AddressFamily!:   =~"^(ipv4)|(ipv6)$" | fn.#StringExpression
@@ -87,7 +94,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DirectConnect::TransitVirtualInterface"
-	Properties!: #Properties
-}

@@ -9,35 +9,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityAgent::Pentest
-#Properties: close({
-	AgentSpaceId!: string | fn.#StringExpression
-	Assets!: close({
-		Actors?: [...close({
-			Authentication?: #Authentication | fn.#ObjectExpression
-			Description?:    string | fn.#StringExpression
-			EnableEmailMfa?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			Identifier?:     string | fn.#StringExpression
-			Uris?:           [...string | fn.#StringExpression] | fn.#ListExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityAgent::Pentest"
+	Properties!: close({
+		AgentSpaceId!: string | fn.#StringExpression
+		Assets!: close({
+			Actors?: [...close({
+				Authentication?: #Authentication | fn.#ObjectExpression
+				Description?:    string | fn.#StringExpression
+				EnableEmailMfa?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+				Identifier?:     string | fn.#StringExpression
+				Uris?:           [...string | fn.#StringExpression] | fn.#ListExpression
+			}) |
+			fn.#ObjectExpression] |
+			fn.#ListExpression
+			Documents?:              [...#DocumentInfo] | fn.#ListExpression
+			Endpoints?:              [...#Endpoint] | fn.#ListExpression
+			IntegratedRepositories?: [...#IntegratedRepository] | fn.#ListExpression
+			SourceCode?:             [...#SourceCodeRepository] | fn.#ListExpression
+			TrustedCaCertificates?:  [...#TrustedCaCertificate] | fn.#ListExpression
 		}) |
-		fn.#ObjectExpression] |
-		fn.#ListExpression
-		Documents?:              [...#DocumentInfo] | fn.#ListExpression
-		Endpoints?:              [...#Endpoint] | fn.#ListExpression
-		IntegratedRepositories?: [...#IntegratedRepository] | fn.#ListExpression
-		SourceCode?:             [...#SourceCodeRepository] | fn.#ListExpression
-		TrustedCaCertificates?:  [...#TrustedCaCertificate] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	CleanUpStrategy?:         #CleanUpStrategy | fn.#StringExpression
-	CodeRemediationStrategy?: #CodeRemediationStrategy | fn.#StringExpression
-	DisableManagedSkills?:    [...#SkillType] | fn.#ListExpression
-	ExcludeRiskTypes?:        [...#RiskType] | fn.#ListExpression
-	LogConfig?:               #CloudWatchLog | fn.#ObjectExpression
-	NetworkTrafficConfig?:    #NetworkTrafficConfig | fn.#ObjectExpression
-	ServiceRole!:             string | fn.#StringExpression
-	Title?:                   string | fn.#StringExpression
-	VpcConfig?:               #VpcConfig | fn.#ObjectExpression
-})
+		fn.#ObjectExpression
+		CleanUpStrategy?:         #CleanUpStrategy | fn.#StringExpression
+		CodeRemediationStrategy?: #CodeRemediationStrategy | fn.#StringExpression
+		DisableManagedSkills?:    [...#SkillType] | fn.#ListExpression
+		ExcludeRiskTypes?:        [...#RiskType] | fn.#ListExpression
+		LogConfig?:               #CloudWatchLog | fn.#ObjectExpression
+		NetworkTrafficConfig?:    #NetworkTrafficConfig | fn.#ObjectExpression
+		ServiceRole!:             string | fn.#StringExpression
+		Title?:                   string | fn.#StringExpression
+		VpcConfig?:               #VpcConfig | fn.#ObjectExpression
+	})
+}
 
 #Actor: close({
 	Authentication?:       #Authentication | fn.#ObjectExpression
@@ -171,7 +174,3 @@ fn.#ObjectExpression
 	VpcArn?:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityAgent::Pentest"
-	Properties!: #Properties
-}

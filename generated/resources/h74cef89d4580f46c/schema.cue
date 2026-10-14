@@ -13,26 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an authorizer.
-#Properties: close({
-	AuthorizerFunctionArn!: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	AuthorizerName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+" | fn.#StringExpression
-	EnableCachingForHttp?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SigningDisabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Status?:                "ACTIVE" | "INACTIVE" | fn.#StringExpression
-	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TokenKeyName?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	TokenSigningPublicKeys?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::Authorizer"
+	Properties!: close({
+		AuthorizerFunctionArn!: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		AuthorizerName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+" | fn.#StringExpression
+		EnableCachingForHttp?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SigningDisabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Status?:                "ACTIVE" | "INACTIVE" | fn.#StringExpression
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TokenKeyName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		TokenSigningPublicKeys?: close({
 
-		{[=~"[a-zA-Z0-9:_-]+"]: strings.MaxRunes(5120) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~"[a-zA-Z0-9:_-]+"]: strings.MaxRunes(5120) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::Authorizer"
-	Properties!: #Properties
-}

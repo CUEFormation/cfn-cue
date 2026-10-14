@@ -16,13 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaLive::Multiplex
-#Properties: close({
-	AvailabilityZones!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Destinations?:      [...#MultiplexOutputDestination] | fn.#ListExpression
-	MultiplexSettings!: #MultiplexSettings | fn.#ObjectExpression
-	Name!:              string | fn.#StringExpression
-	Tags?:              [...#Tags] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::Multiplex"
+	Properties!: close({
+		AvailabilityZones!: [...string | fn.#StringExpression] | fn.#ListExpression
+		Destinations?:      [...#MultiplexOutputDestination] | fn.#ListExpression
+		MultiplexSettings!: #MultiplexSettings | fn.#ObjectExpression
+		Name!:              string | fn.#StringExpression
+		Tags?:              [...#Tags] | fn.#ListExpression
+	})
+}
 
 #MultiplexOutputDestination: close({
 	MultiplexMediaConnectOutputDestinationSettings?: null |
@@ -108,7 +111,3 @@ fn.#ObjectExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::Multiplex"
-	Properties!: #Properties
-}

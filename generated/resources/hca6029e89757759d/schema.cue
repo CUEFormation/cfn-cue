@@ -47,11 +47,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 //
 // *Regions*
 // KMS CloudFormation resources are available in all AWS-Regions in which KMS and CFN are supported.
-#Properties: close({
-	AliasName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(alias/)[a-zA-Z0-9:/_-]+$" | fn.#StringExpression
-	TargetKeyId!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KMS::Alias"
-	Properties!: #Properties
+	Type!: "AWS::KMS::Alias"
+	Properties!: close({
+		AliasName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(alias/)[a-zA-Z0-9:/_-]+$" | fn.#StringExpression
+		TargetKeyId!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	})
 }

@@ -15,38 +15,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // An Amazon Comprehend custom entity recognizer: a trained model that
 // identifies custom entity types in text, created via an asynchronous training
 // job.
-#Properties: close({
-	DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
-	fn.#StringExpression
-	InputDataConfig!: #EntityRecognizerInputDataConfig | fn.#ObjectExpression
-	LanguageCode!: "en" |
-		"es" |
-		"fr" |
-		"de" |
-		"it" |
-		"pt" |
-		"ar" |
-		"hi" |
-		"ja" |
-		"ko" |
-		"zh" |
-		"zh-TW" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Comprehend::EntityRecognizer"
+	Properties!: close({
+		DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
 		fn.#StringExpression
-	ModelKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^\\p{ASCII}+$" | fn.#StringExpression
-	ModelPolicy?: strings.MaxRunes(20000) &
-	strings.MinRunes(1) &
-	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
-	fn.#StringExpression
-	RecognizerName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
-	fn.#StringExpression
-	Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VersionName?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
-	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^\\p{ASCII}+$" | fn.#StringExpression
-	VpcConfig?:      #VpcConfig | fn.#ObjectExpression
-})
+		InputDataConfig!: #EntityRecognizerInputDataConfig | fn.#ObjectExpression
+		LanguageCode!: "en" |
+			"es" |
+			"fr" |
+			"de" |
+			"it" |
+			"pt" |
+			"ar" |
+			"hi" |
+			"ja" |
+			"ko" |
+			"zh" |
+			"zh-TW" |
+			fn.#StringExpression
+		ModelKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^\\p{ASCII}+$" | fn.#StringExpression
+		ModelPolicy?: strings.MaxRunes(20000) &
+		strings.MinRunes(1) &
+		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
+		fn.#StringExpression
+		RecognizerName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VersionName?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		fn.#StringExpression
+		VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^\\p{ASCII}+$" | fn.#StringExpression
+		VpcConfig?:      #VpcConfig | fn.#ObjectExpression
+	})
+}
 
 #AugmentedManifestsListItem: close({
 	AnnotationDataS3Uri?: strings.MaxRunes(1024) &
@@ -125,7 +129,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Comprehend::EntityRecognizer"
-	Properties!: #Properties
-}

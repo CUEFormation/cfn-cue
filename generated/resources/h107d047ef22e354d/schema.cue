@@ -17,12 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DevOpsAgent::PrivateConnection
-#Properties: close({
-	Certificate?:             strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
-	ConnectionConfiguration!: #ConnectionConfiguration | fn.#ObjectExpression
-	Name!: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DevOpsAgent::PrivateConnection"
+	Properties!: close({
+		Certificate?:             strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
+		ConnectionConfiguration!: #ConnectionConfiguration | fn.#ObjectExpression
+		Name!: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" | fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ConnectionConfiguration: fn.#Object & {...} & matchN(1, [
 	close({SelfManaged!: #SelfManagedMode}), close({ServiceManaged!: #ServiceManagedMode}),
@@ -85,7 +88,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DevOpsAgent::PrivateConnection"
-	Properties!: #Properties
-}

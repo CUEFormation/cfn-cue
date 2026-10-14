@@ -17,137 +17,152 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticLoadBalancingV2::TargetGroup
-#Properties: close({
-	HealthCheckEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HealthCheckIntervalSeconds?: int & <=300 & >=5 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=300 &
-							>=5,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	HealthCheckPath?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	HealthCheckPort?: string | fn.#StringExpression
-	HealthCheckProtocol?: "GENEVE" |
-		"HTTP" |
-		"HTTPS" |
-		"QUIC" |
-		"TCP" |
-		"TCP_QUIC" |
-		"TCP_UDP" |
-		"TLS" |
-		"UDP" |
-		fn.#StringExpression
-	HealthCheckTimeoutSeconds?: int & <=120 & >=2 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=120 &
-							>=2,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	HealthyThresholdCount?: int & <=10 & >=2 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=10 &
-							>=2,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	IpAddressType?: "ipv4" | "ipv6" | fn.#StringExpression
-	Matcher?:       #Matcher | fn.#ObjectExpression
-	Name?:          string | fn.#StringExpression
-	Port?: int & <=65535 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=65535 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Protocol?: "GENEVE" |
-		"HTTP" |
-		"HTTPS" |
-		"QUIC" |
-		"TCP" |
-		"TCP_QUIC" |
-		"TCP_UDP" |
-		"TLS" |
-		"UDP" |
-		fn.#StringExpression
-	ProtocolVersion?: string | fn.#StringExpression
-	Tags?:            [...#Tag] | fn.#ListExpression
-	TargetControlPort?: int & <=65535 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=65535 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TargetGroupAttributes?: list.UniqueItems() & [...#TargetGroupAttribute] | fn.#ListExpression
-	TargetType?:            "alb" | "instance" | "ip" | "lambda" | fn.#StringExpression
-	Targets?:               list.UniqueItems() & [...#TargetDescription] | fn.#ListExpression
-	UnhealthyThresholdCount?: int & <=10 & >=2 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=10 &
-							>=2,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticLoadBalancingV2::TargetGroup"
+	Properties?: close({
+		HealthCheckEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		HealthCheckIntervalSeconds?: int & <=300 & >=5 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=300 &
+								>=5,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		HealthCheckPath?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		HealthCheckPort?: string | fn.#StringExpression
+		HealthCheckProtocol?: "GENEVE" |
+			"HTTP" |
+			"HTTPS" |
+			"QUIC" |
+			"TCP" |
+			"TCP_QUIC" |
+			"TCP_UDP" |
+			"TLS" |
+			"UDP" |
+			fn.#StringExpression
+		HealthCheckTimeoutSeconds?: int & <=120 & >=2 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=120 &
+								>=2,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		HealthyThresholdCount?: int & <=10 & >=2 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10 &
+								>=2,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		IpAddressType?: "ipv4" | "ipv6" | fn.#StringExpression
+		Matcher?:       #Matcher | fn.#ObjectExpression
+		Name?:          string | fn.#StringExpression
+		Port?: int & <=65535 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=65535 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Protocol?: "GENEVE" |
+			"HTTP" |
+			"HTTPS" |
+			"QUIC" |
+			"TCP" |
+			"TCP_QUIC" |
+			"TCP_UDP" |
+			"TLS" |
+			"UDP" |
+			fn.#StringExpression
+		ProtocolVersion?: string | fn.#StringExpression
+		Tags?:            [...#Tag] | fn.#ListExpression
+		TargetControlPort?: int & <=65535 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=65535 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TargetGroupAttributes?: list.UniqueItems() & [...#TargetGroupAttribute] | fn.#ListExpression
+		TargetType?:            "alb" | "instance" | "ip" | "lambda" | fn.#StringExpression
+		Targets?:               list.UniqueItems() & [...#TargetDescription] | fn.#ListExpression
+		UnhealthyThresholdCount?: int & <=10 & >=2 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10 &
+								>=2,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	})
+}
 
 #Matcher: close({
 	GrpcCode?: string | fn.#StringExpression
@@ -189,7 +204,3 @@ fn.#ObjectExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticLoadBalancingV2::TargetGroup"
-	Properties?: #Properties
-}

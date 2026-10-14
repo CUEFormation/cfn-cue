@@ -17,20 +17,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Private certificate authority.
-#Properties: close({
-	CsrExtensions?: #CsrExtensions | fn.#ObjectExpression
-	KeyAlgorithm!:  string | fn.#StringExpression
-	KeyStorageSecurityStandard?: "CCPC_LEVEL_1_OR_HIGHER" |
-		"FIPS_140_2_LEVEL_2_OR_HIGHER" |
-		"FIPS_140_2_LEVEL_3_OR_HIGHER" |
-		fn.#StringExpression
-	RevocationConfiguration?: #RevocationConfiguration | fn.#ObjectExpression
-	SigningAlgorithm!:        string | fn.#StringExpression
-	Subject!:                 #Subject | fn.#ObjectExpression
-	Tags?:                    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	Type!:                    string | fn.#StringExpression
-	UsageMode?:               "GENERAL_PURPOSE" | "SHORT_LIVED_CERTIFICATE" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ACMPCA::CertificateAuthority"
+	Properties!: close({
+		CsrExtensions?: #CsrExtensions | fn.#ObjectExpression
+		KeyAlgorithm!:  string | fn.#StringExpression
+		KeyStorageSecurityStandard?: "CCPC_LEVEL_1_OR_HIGHER" |
+			"FIPS_140_2_LEVEL_2_OR_HIGHER" |
+			"FIPS_140_2_LEVEL_3_OR_HIGHER" |
+			fn.#StringExpression
+		RevocationConfiguration?: #RevocationConfiguration | fn.#ObjectExpression
+		SigningAlgorithm!:        string | fn.#StringExpression
+		Subject!:                 #Subject | fn.#ObjectExpression
+		Tags?:                    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Type!:                    string | fn.#StringExpression
+		UsageMode?:               "GENERAL_PURPOSE" | "SHORT_LIVED_CERTIFICATE" | fn.#StringExpression
+	})
+}
 
 #AccessDescription: close({
 	AccessLocation!: #GeneralName
@@ -184,7 +187,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #UniformResourceIdentifier: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ACMPCA::CertificateAuthority"
-	Properties!: #Properties
-}

@@ -13,11 +13,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // be routed according to the routes in the route table. A route table can be
 // associated with multiple subnets. To create a route table, see
 // [AWS::EC2::RouteTable](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-routetable.html).
-#Properties: close({
-	RouteTableId!: string | fn.#StringExpression
-	SubnetId!:     string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::SubnetRouteTableAssociation"
-	Properties!: #Properties
+	Type!: "AWS::EC2::SubnetRouteTableAssociation"
+	Properties!: close({
+		RouteTableId!: string | fn.#StringExpression
+		SubnetId!:     string | fn.#StringExpression
+	})
 }

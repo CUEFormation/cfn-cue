@@ -12,19 +12,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A trust store.
-#Properties: close({
-	CaCertificatesBundleSource?: #CaCertificatesBundleSource | fn.#ObjectExpression
-	Name!:                       string | fn.#StringExpression
-	Tags?:                       [...#Tag] | fn.#ListExpression
-	UseClientCertificateOCSPEndpoint?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::TrustStore"
+	Properties!: close({
+		CaCertificatesBundleSource?: #CaCertificatesBundleSource | fn.#ObjectExpression
+		Name!:                       string | fn.#StringExpression
+		Tags?:                       [...#Tag] | fn.#ListExpression
+		UseClientCertificateOCSPEndpoint?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+	})
+}
 
 #CaCertificatesBundleS3Location: close({
 	Bucket!:  string | fn.#StringExpression
@@ -44,7 +47,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::TrustStore"
-	Properties!: #Properties
-}

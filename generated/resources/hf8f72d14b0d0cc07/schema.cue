@@ -9,11 +9,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::ResourceDefinition
-#Properties: close({
-	InitialVersion?: #ResourceDefinitionVersion
-	Name!:           string | fn.#StringExpression
-	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Greengrass::ResourceDefinition"
+	Properties!: close({
+		InitialVersion?: #ResourceDefinitionVersion
+		Name!:           string | fn.#StringExpression
+		Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
+}
 
 #GroupOwnerSetting: close({
 	AutoAddGroupOwner!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -77,7 +80,3 @@ fn.#ObjectExpression
 	AdditionalStagingLabelsToDownload?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Greengrass::ResourceDefinition"
-	Properties!: #Properties
-}

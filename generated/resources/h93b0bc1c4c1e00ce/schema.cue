@@ -14,10 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::S3ObjectLambda::AccessPoint resource is an Amazon S3ObjectLambda
 // resource type that you can use to add computation to S3 actions
-#Properties: close({
-	Name?: strings.MaxRunes(45) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
-	ObjectLambdaConfiguration!: #ObjectLambdaConfiguration | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3ObjectLambda::AccessPoint"
+	Properties!: close({
+		Name?: strings.MaxRunes(45) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
+		ObjectLambdaConfiguration!: #ObjectLambdaConfiguration | fn.#ObjectExpression
+	})
+}
 
 #Action: string | fn.#StringExpression
 
@@ -58,7 +61,3 @@ fn.#ObjectExpression
 	ContentTransformation!: fn.#Object & {...} & close({AwsLambda!: #AwsLambda}) | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3ObjectLambda::AccessPoint"
-	Properties!: #Properties
-}

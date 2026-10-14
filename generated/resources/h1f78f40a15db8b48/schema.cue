@@ -17,35 +17,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cloud9::EnvironmentEC2
-#Properties: close({
-	AutomaticStopTimeMinutes?: int & <=20160 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=20160 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ConnectionType?: "CONNECT_SSH" | "CONNECT_SSM" | fn.#StringExpression
-	Description?:    strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	ImageId?:        strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	InstanceType?:   strings.MaxRunes(20) & strings.MinRunes(5) & =~"^[a-z]+[1-9][.][a-z0-9]+$" | fn.#StringExpression
-	Name?:           strings.MaxRunes(60) & strings.MinRunes(1) | fn.#StringExpression
-	OwnerArn?: =~"^arn:(aws|aws-cn|aws-us-gov|aws-iso|aws-iso-b):(iam|sts)::\\d+:(root|(user\\/[\\w+=/:,.@-]{1,64}|federated-user\\/[\\w+=/:,.@-]{2,32}|assumed-role\\/[\\w+=:,.@-]{1,64}\\/[\\w+=,.@-]{1,64}))$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cloud9::EnvironmentEC2"
+	Properties?: close({
+		AutomaticStopTimeMinutes?: int & <=20160 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=20160 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ConnectionType?: "CONNECT_SSH" | "CONNECT_SSM" | fn.#StringExpression
+		Description?:    strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		ImageId?:        strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		InstanceType?: strings.MaxRunes(20) & strings.MinRunes(5) & =~"^[a-z]+[1-9][.][a-z0-9]+$" | fn.#StringExpression
+		Name?:         strings.MaxRunes(60) & strings.MinRunes(1) | fn.#StringExpression
+		OwnerArn?: =~"^arn:(aws|aws-cn|aws-us-gov|aws-iso|aws-iso-b):(iam|sts)::\\d+:(root|(user\\/[\\w+=/:,.@-]{1,64}|federated-user\\/[\\w+=/:,.@-]{2,32}|assumed-role\\/[\\w+=:,.@-]{1,64}\\/[\\w+=,.@-]{1,64}))$" |
+			fn.#StringExpression
+		Repositories?: [...#Repository] | fn.#ListExpression
+		SubnetId?: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17})$" |
 		fn.#StringExpression
-	Repositories?: [...#Repository] | fn.#ListExpression
-	SubnetId?: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17})$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Repository: close({
 	PathComponent!: strings.MaxRunes(1000) | fn.#StringExpression
@@ -58,7 +63,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cloud9::EnvironmentEC2"
-	Properties?: #Properties
-}

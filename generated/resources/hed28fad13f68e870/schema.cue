@@ -13,18 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An label for fraud detector.
-#Properties: close({
-	Description?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
-	Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FraudDetector::Label"
+	Properties!: close({
+		Description?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
+		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FraudDetector::Label"
-	Properties!: #Properties
-}

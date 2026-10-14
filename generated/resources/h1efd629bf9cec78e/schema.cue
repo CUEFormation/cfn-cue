@@ -17,24 +17,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a capacity provider that manages compute resources for Lambda functions
-#Properties: close({
-	CapacityProviderName?: strings.MaxRunes(140) &
-	strings.MinRunes(1) &
-	=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:capacity-provider:[a-zA-Z0-9-_]+)|[a-zA-Z0-9-_]+$" |
-	fn.#StringExpression
-	CapacityProviderScalingConfig?: #CapacityProviderScalingConfig | fn.#ObjectExpression
-	InstanceRequirements?:          #InstanceRequirements | fn.#ObjectExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(10000) &
-	strings.MinRunes(0) &
-	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
-	fn.#StringExpression
-	PermissionsConfig!: #CapacityProviderPermissionsConfig | fn.#ObjectExpression
-	PropagateTags?:     #PropagateTagsConfig | fn.#ObjectExpression
-	Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TelemetryConfig?:   #CapacityProviderTelemetryConfig | fn.#ObjectExpression
-	VpcConfig!:         #CapacityProviderVpcConfig | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::CapacityProvider"
+	Properties!: close({
+		CapacityProviderName?: strings.MaxRunes(140) &
+		strings.MinRunes(1) &
+		=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:capacity-provider:[a-zA-Z0-9-_]+)|[a-zA-Z0-9-_]+$" |
+		fn.#StringExpression
+		CapacityProviderScalingConfig?: #CapacityProviderScalingConfig | fn.#ObjectExpression
+		InstanceRequirements?:          #InstanceRequirements | fn.#ObjectExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(10000) &
+		strings.MinRunes(0) &
+		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+		fn.#StringExpression
+		PermissionsConfig!: #CapacityProviderPermissionsConfig | fn.#ObjectExpression
+		PropagateTags?:     #PropagateTagsConfig | fn.#ObjectExpression
+		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TelemetryConfig?:   #CapacityProviderTelemetryConfig | fn.#ObjectExpression
+		VpcConfig!:         #CapacityProviderVpcConfig | fn.#ObjectExpression
+	})
+}
 
 #Architecture: "x86_64" | "arm64" | fn.#StringExpression
 
@@ -153,7 +156,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::CapacityProvider"
-	Properties!: #Properties
-}

@@ -17,21 +17,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RUM::AppMonitor
-#Properties: close({
-	AppMonitorConfiguration?:    #AppMonitorConfiguration
-	CustomEvents?:               #CustomEvents
-	CwLogEnabled?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DeobfuscationConfiguration?: #DeobfuscationConfiguration
-	Domain?:                     strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
-	DomainList?: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Name!:           strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
-	Platform?:       "Web" | "Android" | "iOS" | fn.#StringExpression
-	ResourcePolicy?: #ResourcePolicy
-	Tags?:           #TagDef
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RUM::AppMonitor"
+	Properties!: close({
+		AppMonitorConfiguration?: #AppMonitorConfiguration
+		CustomEvents?:            #CustomEvents
+		CwLogEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DeobfuscationConfiguration?: #DeobfuscationConfiguration
+		Domain?:                     strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
+		DomainList?: list.MaxItems(5) & list.MinItems(1) & [
+			...strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Name!:           strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
+		Platform?:       "Web" | "Android" | "iOS" | fn.#StringExpression
+		ResourcePolicy?: #ResourcePolicy
+		Tags?:           #TagDef
+	})
+}
 
 #AppMonitorConfiguration: close({
 	AllowCookies?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -135,7 +138,3 @@ fn.#ObjectExpression
 strings.MinRunes(1) &
 =~"https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RUM::AppMonitor"
-	Properties!: #Properties
-}

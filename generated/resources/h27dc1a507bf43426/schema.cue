@@ -13,24 +13,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::LicenseEndpoint
-#Properties: close({
-	SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-			=~"^sg-[\\w]{1,120}$" |
-			fn.#StringExpression
-	] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Deadline::LicenseEndpoint"
+	Properties!: close({
+		SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+				=~"^sg-[\\w]{1,120}$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		SubnetIds!: list.MaxItems(10) & list.MinItems(1) & [
+			...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^subnet-[\\w]{1,120}$" | fn.#StringExpression
+		] |
 		fn.#ListExpression
-	SubnetIds!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^subnet-[\\w]{1,120}$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(32) &
-	strings.MinRunes(1) &
-	=~"^vpc-[\\w]{1,120}$" |
-	fn.#StringExpression
-})
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"^vpc-[\\w]{1,120}$" |
+		fn.#StringExpression
+	})
+}
 
 #LicenseEndpointStatus: "CREATE_IN_PROGRESS" | "DELETE_IN_PROGRESS" | "READY" | "NOT_READY" | fn.#StringExpression
 
@@ -39,7 +42,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Deadline::LicenseEndpoint"
-	Properties!: #Properties
-}

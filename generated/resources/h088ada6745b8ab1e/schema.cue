@@ -12,17 +12,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Account level Launch Configuration Template for AWS Elastic Disaster Recovery.
-#Properties: close({
-	CopyPrivateIp?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CopyTags?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExportBucketArn?:          strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	LaunchDisposition?:        "STOPPED" | "STARTED" | fn.#StringExpression
-	LaunchIntoSourceInstance?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Licensing?:                #Licensing
-	PostLaunchEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                     [...#Tag] | fn.#ListExpression
-	TargetInstanceTypeRightSizingMethod?: "NONE" | "BASIC" | "IN_AWS" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DRS::LaunchConfigurationTemplate"
+	Properties?: close({
+		CopyPrivateIp?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		CopyTags?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ExportBucketArn?:          strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+		LaunchDisposition?:        "STOPPED" | "STARTED" | fn.#StringExpression
+		LaunchIntoSourceInstance?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Licensing?:                #Licensing
+		PostLaunchEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                     [...#Tag] | fn.#ListExpression
+		TargetInstanceTypeRightSizingMethod?: "NONE" | "BASIC" | "IN_AWS" | fn.#StringExpression
+	})
+}
 
 #Licensing: close({OsByol?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
@@ -32,7 +35,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DRS::LaunchConfigurationTemplate"
-	Properties?: #Properties
-}

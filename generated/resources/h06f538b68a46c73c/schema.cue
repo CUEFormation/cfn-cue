@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::TransitGatewayConnectPeer
-#Properties: close({
-	ConnectPeerConfiguration!: close({
-		InsideCidrBlocks!:      [...string | fn.#StringExpression] | fn.#ListExpression
-		PeerAddress!:           string | fn.#StringExpression
-		TransitGatewayAddress?: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?:                       [...#Tag] | fn.#ListExpression
-	TransitGatewayAttachmentId!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::TransitGatewayConnectPeer"
+	Properties!: close({
+		ConnectPeerConfiguration!: close({
+			InsideCidrBlocks!:      [...string | fn.#StringExpression] | fn.#ListExpression
+			PeerAddress!:           string | fn.#StringExpression
+			TransitGatewayAddress?: string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?:                       [...#Tag] | fn.#ListExpression
+		TransitGatewayAttachmentId!: string | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key?:   string | fn.#StringExpression
@@ -83,7 +86,3 @@ fn.#ObjectExpression
 	TransitGatewayAddress?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TransitGatewayConnectPeer"
-	Properties!: #Properties
-}

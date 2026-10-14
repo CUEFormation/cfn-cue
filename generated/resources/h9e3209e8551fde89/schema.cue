@@ -16,20 +16,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::FIS::ExperimentTemplate
-#Properties: close({
-	Actions?:                       #ExperimentTemplateActionMap
-	Description!:                   #ExperimentTemplateDescription
-	ExperimentOptions?:             #ExperimentTemplateExperimentOptions
-	ExperimentReportConfiguration?: #ExperimentTemplateExperimentReportConfiguration
-	LogConfiguration?:              #ExperimentTemplateLogConfiguration
-	RoleArn!:                       #RoleArn
-	StopConditions!:                #ExperimentTemplateStopConditionList
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FIS::ExperimentTemplate"
+	Properties!: close({
+		Actions?:                       #ExperimentTemplateActionMap
+		Description!:                   #ExperimentTemplateDescription
+		ExperimentOptions?:             #ExperimentTemplateExperimentOptions
+		ExperimentReportConfiguration?: #ExperimentTemplateExperimentReportConfiguration
+		LogConfiguration?:              #ExperimentTemplateLogConfiguration
+		RoleArn!:                       #RoleArn
+		StopConditions!:                #ExperimentTemplateStopConditionList
+		Tags?: close({
 
-		{[=~".{1,128}"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Targets!: #ExperimentTemplateTargetMap
-})
+			{[=~".{1,128}"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Targets!: #ExperimentTemplateTargetMap
+	})
+}
 
 #ActionId: strings.MaxRunes(64) | fn.#StringExpression
 
@@ -181,7 +184,3 @@ fn.#StringExpression
 #StopConditionSource: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression
 
 #StopConditionValue: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[\\s\\S]+$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FIS::ExperimentTemplate"
-	Properties!: #Properties
-}

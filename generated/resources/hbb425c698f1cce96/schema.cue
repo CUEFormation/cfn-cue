@@ -17,12 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RTBFabric::InboundExternalLink Resource Type
-#Properties: close({
-	GatewayId!:       #GatewayId
-	LinkAttributes?:  #LinkAttributes
-	LinkLogSettings!: #LinkLogSettings
-	Tags?:            #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RTBFabric::InboundExternalLink"
+	Properties!: close({
+		GatewayId!:       #GatewayId
+		LinkAttributes?:  #LinkAttributes
+		LinkLogSettings!: #LinkLogSettings
+		Tags?:            #Tags
+	})
+}
 
 #Arn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
@@ -151,7 +154,3 @@ fn.#ObjectExpression
 #Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 
 #UpdatedTimestamp: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RTBFabric::InboundExternalLink"
-	Properties!: #Properties
-}

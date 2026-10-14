@@ -9,18 +9,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::FSx::Snapshot
-#Properties: close({
-	Name!:     string | fn.#StringExpression
-	Tags?:     [...#Tag] | fn.#ListExpression
-	VolumeId!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FSx::Snapshot"
+	Properties!: close({
+		Name!:     string | fn.#StringExpression
+		Tags?:     [...#Tag] | fn.#ListExpression
+		VolumeId!: string | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FSx::Snapshot"
-	Properties!: #Properties
-}

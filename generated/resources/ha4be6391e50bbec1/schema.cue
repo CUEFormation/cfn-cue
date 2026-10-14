@@ -15,22 +15,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource type definition for AWS::SageMaker::Experiment. An experiment is a
 // collection of related trials used to organize and track machine learning
 // workflows.
-#Properties: close({
-	Description?: strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
-	DisplayName?: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
-	fn.#StringExpression
-	ExperimentName!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [...close({
-		Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
-		fn.#StringExpression
-		Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
-		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Experiment"
-	Properties!: #Properties
+	Type!: "AWS::SageMaker::Experiment"
+	Properties!: close({
+		Description?: strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
+		DisplayName?: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
+		fn.#StringExpression
+		ExperimentName!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...close({
+			Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
 }

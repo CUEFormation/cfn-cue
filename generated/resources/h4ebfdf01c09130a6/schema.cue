@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BCMDataExports::Export Resource Type
-#Properties: close({
-	Export!: close({
-		DataQuery!:   #DataQuery
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
-		DestinationConfigurations!: #DestinationConfigurations
-		Name!:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z\\-_]+$" | fn.#StringExpression
-		RefreshCadence!: #RefreshCadence
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BCMDataExports::Export"
+	Properties!: close({
+		Export!: close({
+			DataQuery!:   #DataQuery
+			Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
+			DestinationConfigurations!: #DestinationConfigurations
+			Name!:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z\\-_]+$" | fn.#StringExpression
+			RefreshCadence!: #RefreshCadence
+		}) |
+		fn.#ObjectExpression
+		Tags?: list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
+	})
+}
 
 #CompressionOption: "GZIP" | "PARQUET" | "ZIP" | fn.#StringExpression
 
@@ -90,7 +93,3 @@ fn.#ObjectExpression
 
 	{[=~"^[\\S\\s]*$"]: strings.MaxRunes(16384) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BCMDataExports::Export"
-	Properties!: #Properties
-}

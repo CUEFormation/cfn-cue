@@ -17,17 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DMS::DataMigration.
-#Properties: close({
-	DataMigrationIdentifier?:    strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	DataMigrationName?:          strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	DataMigrationSettings?:      #DataMigrationSettings | fn.#ObjectExpression
-	DataMigrationType!:          "full-load" | "cdc" | "full-load-and-cdc" | fn.#StringExpression
-	MigrationProjectIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ServiceAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(300) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	SourceDataSettings?: list.UniqueItems() & [...#SourceDataSettings] | fn.#ListExpression
-	Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DMS::DataMigration"
+	Properties!: close({
+		DataMigrationIdentifier?:    strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+		DataMigrationName?:          strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+		DataMigrationSettings?:      #DataMigrationSettings | fn.#ObjectExpression
+		DataMigrationType!:          "full-load" | "cdc" | "full-load-and-cdc" | fn.#StringExpression
+		MigrationProjectIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		ServiceAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(300) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		SourceDataSettings?: list.UniqueItems() & [...#SourceDataSettings] | fn.#ListExpression
+		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DataMigrationSettings: close({
 	CloudwatchLogsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -64,7 +67,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DMS::DataMigration"
-	Properties!: #Properties
-}

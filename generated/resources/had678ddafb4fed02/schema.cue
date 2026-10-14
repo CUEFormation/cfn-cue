@@ -17,148 +17,173 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	AllowVersionUpgrade?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AquaConfigurationStatus?: "auto" | "disabled" | "enabled" | fn.#StringExpression
-	AutomatedSnapshotRetentionPeriod?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	AvailabilityZone?:           strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	AvailabilityZoneRelocation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AvailabilityZoneRelocationStatus?: string | fn.#StringExpression
-	Classic?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ClusterIdentifier?:         strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
-	ClusterParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	ClusterSecurityGroups?: [...string & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) | fn.#StringExpression] |
-	fn.#ListExpression
-	ClusterSubnetGroupName?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	ClusterType!:            strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	ClusterVersion?:         strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	DBName!:                 strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	DeferMaintenance?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DeferMaintenanceDuration?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	DeferMaintenanceEndTime?:   string | fn.#StringExpression
-	DeferMaintenanceStartTime?: string | fn.#StringExpression
-	DestinationRegion?:         string | fn.#StringExpression
-	ElasticIp?:                 strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	Encrypted?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Endpoint?:                  close({}) | fn.#ObjectExpression
-	EnhancedVpcRouting?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HsmClientCertificateIdentifier?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	HsmConfigurationIdentifier?:     strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	IamRoles?: list.MaxItems(50) & [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] |
-	fn.#ListExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
-	fn.#StringExpression
-	LoggingProperties?:    #LoggingProperties
-	MaintenanceTrackName?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	ManageMasterPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ManualSnapshotRetentionPeriod?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MasterPasswordSecretKmsKeyId?: string & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) | fn.#StringExpression
-	MasterUserPassword?:           strings.MaxRunes(64) | fn.#StringExpression
-	MasterUsername!:               strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	MultiAZ?:                      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NamespaceResourcePolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
-	NodeType!:                     strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	NumberOfNodes?: int & <=100 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=100 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	OwnerAccount?: string | fn.#StringExpression
-	Port?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PreferredMaintenanceWindow?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	PubliclyAccessible?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResourceAction?:             string | fn.#StringExpression
-	RevisionTarget?:             string | fn.#StringExpression
-	RotateEncryptionKey?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SnapshotClusterIdentifier?:  string | fn.#StringExpression
-	SnapshotCopyGrantName?:      string | fn.#StringExpression
-	SnapshotCopyManual?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SnapshotCopyRetentionPeriod?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SnapshotIdentifier?: string | fn.#StringExpression
-	Tags?:               list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-	VpcSecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Redshift::Cluster"
+	Properties!: close({
+		AllowVersionUpgrade?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AquaConfigurationStatus?: "auto" | "disabled" | "enabled" | fn.#StringExpression
+		AutomatedSnapshotRetentionPeriod?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		AvailabilityZone?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		AvailabilityZoneRelocation?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		AvailabilityZoneRelocationStatus?: string | fn.#StringExpression
+		Classic?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ClusterIdentifier?: strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
+		ClusterParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		ClusterSecurityGroups?: [
+			...string & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		ClusterSubnetGroupName?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		ClusterType!:            strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		ClusterVersion?:         strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		DBName!:                 strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		DeferMaintenance?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DeferMaintenanceDuration?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		DeferMaintenanceEndTime?:   string | fn.#StringExpression
+		DeferMaintenanceStartTime?: string | fn.#StringExpression
+		DestinationRegion?:         string | fn.#StringExpression
+		ElasticIp?:                 strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		Encrypted?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Endpoint?:           close({}) | fn.#ObjectExpression
+		EnhancedVpcRouting?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		HsmClientCertificateIdentifier?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		HsmConfigurationIdentifier?:     strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		IamRoles?: list.MaxItems(50) & [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] |
+		fn.#ListExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
 		fn.#StringExpression
-	] |
-	fn.#ListExpression
-})
+		LoggingProperties?:    #LoggingProperties
+		MaintenanceTrackName?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		ManageMasterPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ManualSnapshotRetentionPeriod?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MasterPasswordSecretKmsKeyId?: string & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		fn.#StringExpression
+		MasterUserPassword?:      strings.MaxRunes(64) | fn.#StringExpression
+		MasterUsername!:          strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+		MultiAZ?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		NamespaceResourcePolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		NodeType!:                strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		NumberOfNodes?: int & <=100 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=100 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		OwnerAccount?: string | fn.#StringExpression
+		Port?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PreferredMaintenanceWindow?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		PubliclyAccessible?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ResourceAction?:      string | fn.#StringExpression
+		RevisionTarget?:      string | fn.#StringExpression
+		RotateEncryptionKey?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SnapshotClusterIdentifier?: string | fn.#StringExpression
+		SnapshotCopyGrantName?:     string | fn.#StringExpression
+		SnapshotCopyManual?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SnapshotCopyRetentionPeriod?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SnapshotIdentifier?: string | fn.#StringExpression
+		Tags?:               list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		VpcSecurityGroupIds?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+	})
+}
 
 #Endpoint: close({
 	Address?: string | fn.#StringExpression
@@ -179,7 +204,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Redshift::Cluster"
-	Properties!: #Properties
-}

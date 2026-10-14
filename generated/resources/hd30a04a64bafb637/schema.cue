@@ -12,11 +12,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityAgent::TargetDomain
-#Properties: close({
-	Tags?:               [...#Tag] | fn.#ListExpression
-	TargetDomainName!:   string | fn.#StringExpression
-	VerificationMethod!: "DNS_TXT" | "HTTP_ROUTE" | "PRIVATE_VPC" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityAgent::TargetDomain"
+	Properties!: close({
+		Tags?:               [...#Tag] | fn.#ListExpression
+		TargetDomainName!:   string | fn.#StringExpression
+		VerificationMethod!: "DNS_TXT" | "HTTP_ROUTE" | "PRIVATE_VPC" | fn.#StringExpression
+	})
+}
 
 #DnsVerification: close({
 	DnsRecordName?: string | fn.#StringExpression
@@ -43,7 +46,3 @@ fn.#ObjectExpression
 	Method?:    "DNS_TXT" | "HTTP_ROUTE" | "PRIVATE_VPC" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityAgent::TargetDomain"
-	Properties!: #Properties
-}

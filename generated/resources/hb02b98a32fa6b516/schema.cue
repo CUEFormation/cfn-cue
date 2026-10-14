@@ -17,18 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Information about a daemon resource.
-#Properties: close({
-	CapacityProviderArns?:    list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	ClusterArn?:              string | fn.#StringExpression
-	Critical?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DaemonName?:              string | fn.#StringExpression
-	DaemonTaskDefinitionArn?: string | fn.#StringExpression
-	DeploymentConfiguration?: #DaemonDeploymentConfiguration | fn.#ObjectExpression
-	EnableECSManagedTags?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableExecuteCommand?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PropagateTags?:           "DAEMON" | "NONE" | fn.#StringExpression
-	Tags?:                    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECS::Daemon"
+	Properties?: close({
+		CapacityProviderArns?:    list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+		ClusterArn?:              string | fn.#StringExpression
+		Critical?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DaemonName?:              string | fn.#StringExpression
+		DaemonTaskDefinitionArn?: string | fn.#StringExpression
+		DeploymentConfiguration?: #DaemonDeploymentConfiguration | fn.#ObjectExpression
+		EnableECSManagedTags?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnableExecuteCommand?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		PropagateTags?:           "DAEMON" | "NONE" | fn.#StringExpression
+		Tags?:                    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DaemonAlarmConfiguration: close({
 	AlarmNames?: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -84,7 +87,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::Daemon"
-	Properties?: #Properties
-}

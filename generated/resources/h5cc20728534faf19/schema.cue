@@ -13,12 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::AppRunner::ObservabilityConfiguration resource is an AWS App Runner
 // resource type that specifies an App Runner observability configuration
-#Properties: close({
-	ObservabilityConfigurationName?: strings.MaxRunes(32) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,31}" |
-	fn.#StringExpression
-	Tags?:               [...#Tag] | fn.#ListExpression
-	TraceConfiguration?: #TraceConfiguration | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppRunner::ObservabilityConfiguration"
+	Properties?: close({
+		ObservabilityConfigurationName?: strings.MaxRunes(32) &
+		strings.MinRunes(4) &
+		=~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,31}" |
+		fn.#StringExpression
+		Tags?:               [...#Tag] | fn.#ListExpression
+		TraceConfiguration?: #TraceConfiguration | fn.#ObjectExpression
+	})
+}
 
 #Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -27,7 +32,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #TraceConfiguration: close({Vendor!: "AWSXRAY" | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppRunner::ObservabilityConfiguration"
-	Properties?: #Properties
-}

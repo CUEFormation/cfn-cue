@@ -36,167 +36,189 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // source](https://docs.aws.amazon.com/lambda/latest/dg/kafka-smaa.html)
 // + [Configuring Amazon DocumentDB as an event
 // source](https://docs.aws.amazon.com/lambda/latest/dg/with-documentdb.html)
-#Properties: close({
-	AmazonManagedKafkaEventSourceConfig?: #AmazonManagedKafkaEventSourceConfig | fn.#ObjectExpression
-	BatchSize?: int & <=10000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=10000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	BisectBatchOnFunctionError?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DestinationConfig?:           #DestinationConfig | fn.#ObjectExpression
-	DocumentDBEventSourceConfig?: #DocumentDBEventSourceConfig | fn.#ObjectExpression
-	Enabled?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EventSourceArn?: strings.MaxRunes(1024) &
-	strings.MinRunes(12) &
-	=~"arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" |
-	fn.#StringExpression
-	FilterCriteria?: #FilterCriteria | fn.#ObjectExpression
-	FunctionName!: strings.MaxRunes(140) &
-	strings.MinRunes(1) &
-	=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?" |
-	fn.#StringExpression
-	FunctionResponseTypes?: list.MaxItems(1) & list.UniqueItems() & [...] & [
-		..."ReportBatchItemFailures" | fn.#StringExpression
-	] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::EventSourceMapping"
+	Properties!: close({
+		AmazonManagedKafkaEventSourceConfig?: #AmazonManagedKafkaEventSourceConfig | fn.#ObjectExpression
+		BatchSize?: int & <=10000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		BisectBatchOnFunctionError?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		DestinationConfig?:           #DestinationConfig | fn.#ObjectExpression
+		DocumentDBEventSourceConfig?: #DocumentDBEventSourceConfig | fn.#ObjectExpression
+		Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EventSourceArn?: strings.MaxRunes(1024) &
+		strings.MinRunes(12) &
+		=~"arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" |
+		fn.#StringExpression
+		FilterCriteria?: #FilterCriteria | fn.#ObjectExpression
+		FunctionName!: strings.MaxRunes(140) &
+		strings.MinRunes(1) &
+		=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?" |
+		fn.#StringExpression
+		FunctionResponseTypes?: list.MaxItems(1) & list.UniqueItems() & [...] & [
+			..."ReportBatchItemFailures" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(12) &
+		=~"(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()" |
+		fn.#StringExpression
+		LoggingConfig?: #LoggingConfig | fn.#ObjectExpression
+		MaximumBatchingWindowInSeconds?: int & <=300 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=300 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaximumRecordAgeInSeconds?: int & <=604800 & >=-1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=604800 &
+								>=-1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaximumRetryAttempts?: int & <=10000 & >=-1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10000 &
+								>=-1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MetricsConfig?: #MetricsConfig | fn.#ObjectExpression
+		ParallelizationFactor?: int & <=10 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ProvisionedPollerConfig?: #ProvisionedPollerConfig | fn.#ObjectExpression
+		Queues?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
+			...strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
+		] |
 		fn.#ListExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(12) &
-	=~"(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()" |
-	fn.#StringExpression
-	LoggingConfig?: #LoggingConfig | fn.#ObjectExpression
-	MaximumBatchingWindowInSeconds?: int & <=300 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=300 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaximumRecordAgeInSeconds?: int & <=604800 & >=-1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=604800 &
-							>=-1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaximumRetryAttempts?: int & <=10000 & >=-1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=10000 &
-							>=-1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MetricsConfig?: #MetricsConfig | fn.#ObjectExpression
-	ParallelizationFactor?: int & <=10 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=10 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ProvisionedPollerConfig?: #ProvisionedPollerConfig | fn.#ObjectExpression
-	Queues?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	ScalingConfig?:                     #ScalingConfig | fn.#ObjectExpression
-	SelfManagedEventSource?:            #SelfManagedEventSource | fn.#ObjectExpression
-	SelfManagedKafkaEventSourceConfig?: #SelfManagedKafkaEventSourceConfig | fn.#ObjectExpression
-	SourceAccessConfigurations?: list.MaxItems(29) & list.MinItems(1) & list.UniqueItems() & [
-		...#SourceAccessConfiguration
-	] |
-		fn.#ListExpression
-	StartingPosition?: strings.MaxRunes(12) & strings.MinRunes(6) & =~"(LATEST|TRIM_HORIZON|AT_TIMESTAMP)+" |
-	fn.#StringExpression
-	StartingPositionTimestamp?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+		ScalingConfig?:                     #ScalingConfig | fn.#ObjectExpression
+		SelfManagedEventSource?:            #SelfManagedEventSource | fn.#ObjectExpression
+		SelfManagedKafkaEventSourceConfig?: #SelfManagedKafkaEventSourceConfig | fn.#ObjectExpression
+		SourceAccessConfigurations?: list.MaxItems(29) & list.MinItems(1) & list.UniqueItems() & [
+			...#SourceAccessConfiguration
+		] |
+			fn.#ListExpression
+		StartingPosition?: strings.MaxRunes(12) & strings.MinRunes(6) & =~"(LATEST|TRIM_HORIZON|AT_TIMESTAMP)+" |
+		fn.#StringExpression
+		StartingPositionTimestamp?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
 							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Topics?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(249) & strings.MinRunes(1) & =~"^[^.]([a-zA-Z0-9\\-_.]+)" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	TumblingWindowInSeconds?: int & <=900 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=900 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Topics?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
+			...strings.MaxRunes(249) & strings.MinRunes(1) & =~"^[^.]([a-zA-Z0-9\\-_.]+)" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		TumblingWindowInSeconds?: int & <=900 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=900 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #AmazonManagedKafkaEventSourceConfig: close({
 	ConsumerGroupId?:      #ConsumerGroupId | fn.#StringExpression
@@ -370,7 +392,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::EventSourceMapping"
-	Properties!: #Properties
-}

@@ -15,22 +15,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // provides supplemental application context (free-form content) within an
 // Agent Profile, used to improve the quality of Well-Architected Agent
 // recommendations.
-#Properties: close({
-	Content!:     fn.#Object & {...} | fn.#ObjectExpression
-	ContextType!: #ContextType
-	ProfileArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws([a-z0-9-]+)?:wellarchitected:[a-z0-9-]{6,64}:[0-9]{12}:agent-profile/[a-zA-Z0-9_-]+$" |
-	fn.#StringExpression
-	Title!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\P{C}]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WellArchitected::AgentContext"
+	Properties!: close({
+		Content!:     fn.#Object & {...} | fn.#ObjectExpression
+		ContextType!: #ContextType
+		ProfileArn!: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws([a-z0-9-]+)?:wellarchitected:[a-z0-9-]{6,64}:[0-9]{12}:agent-profile/[a-zA-Z0-9_-]+$" |
+		fn.#StringExpression
+		Title!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\P{C}]+$" | fn.#StringExpression
+	})
+}
 
 #ApplicationType: "SAS" | "DESKTOP_APPLICATION" | "OTHER" | fn.#StringExpression
 
 #ContextType: "APPLICATION" | fn.#StringExpression
 
 #Criticality: "MISSION_CRITICAL" | "BUSINESS_CRITICAL" | "NON_CRITICAL" | "TEST_DEVELOPMENT" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WellArchitected::AgentContext"
-	Properties!: #Properties
-}

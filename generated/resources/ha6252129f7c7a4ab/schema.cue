@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // resource definition
-#Properties: close({
-	Artifact?:    #PackageVersionArtifact
-	Attributes?:  #ResourceAttributes
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" | fn.#StringExpression
-	PackageName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" | fn.#StringExpression
-	Recipe?:      strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
-	Sbom?:        #Sbom
-	Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VersionName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::SoftwarePackageVersion"
+	Properties!: close({
+		Artifact?:    #PackageVersionArtifact
+		Attributes?:  #ResourceAttributes
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" | fn.#StringExpression
+		PackageName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" | fn.#StringExpression
+		Recipe?:      strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
+		Sbom?:        #Sbom
+		Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VersionName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$" | fn.#StringExpression
+	})
+}
 
 #PackageVersionArtifact: close({S3Location!: #S3Location}) | fn.#ObjectExpression
 
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::SoftwarePackageVersion"
-	Properties!: #Properties
-}

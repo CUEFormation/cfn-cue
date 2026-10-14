@@ -18,23 +18,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [Using Amazon RDS Event
 // Notification](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Events.html)
 // in the *Amazon RDS User Guide*.
-#Properties: close({
-	Enabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EventCategories?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SnsTopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SourceIds?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SourceType?:       string | fn.#StringExpression
-	SubscriptionName?: strings.MaxRunes(255) | fn.#StringExpression
-	Tags?:             list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RDS::EventSubscription"
+	Properties!: close({
+		Enabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EventCategories?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		SnsTopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		SourceIds?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		SourceType?:       string | fn.#StringExpression
+		SubscriptionName?: strings.MaxRunes(255) | fn.#StringExpression
+		Tags?:             list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RDS::EventSubscription"
-	Properties!: #Properties
-}

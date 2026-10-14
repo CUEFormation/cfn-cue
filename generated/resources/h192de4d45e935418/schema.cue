@@ -17,13 +17,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::Url
-#Properties: close({
-	AuthType!:          "AWS_IAM" | "NONE" | fn.#StringExpression
-	Cors?:              #Cors
-	InvokeMode?:        "BUFFERED" | "RESPONSE_STREAM" | fn.#StringExpression
-	Qualifier?:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	TargetFunctionArn!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::Url"
+	Properties!: close({
+		AuthType!:          "AWS_IAM" | "NONE" | fn.#StringExpression
+		Cors?:              #Cors
+		InvokeMode?:        "BUFFERED" | "RESPONSE_STREAM" | fn.#StringExpression
+		Qualifier?:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		TargetFunctionArn!: string | fn.#StringExpression
+	})
+}
 
 #AllowHeaders: list.MaxItems(100) & list.MinItems(1) & [
 	...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
@@ -70,7 +73,3 @@ fn.#ObjectExpression
 	...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 ] |
 fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::Url"
-	Properties!: #Properties
-}

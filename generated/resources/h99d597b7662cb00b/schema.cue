@@ -14,12 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::GameLift::Alias resource creates an alias for an Amazon GameLift
 // (GameLift) fleet destination.
-#Properties: close({
-	Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:            strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	RoutingStrategy!: #RoutingStrategy | fn.#ObjectExpression
-	Tags?:            list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GameLift::Alias"
+	Properties!: close({
+		Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:            strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		RoutingStrategy!: #RoutingStrategy | fn.#ObjectExpression
+		Tags?:            list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #RoutingStrategy: close({
 	FleetId?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-z]*fleet-[a-zA-Z0-9\\-]+" | fn.#StringExpression
@@ -33,7 +36,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GameLift::Alias"
-	Properties!: #Properties
-}

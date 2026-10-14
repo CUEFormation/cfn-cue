@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::VerifiedAccessInstance resource creates an AWS EC2 Verified Access Instance.
-#Properties: close({
-	CidrEndpointsCustomSubDomain?: string | fn.#StringExpression
-	Description?:                  string | fn.#StringExpression
-	FipsEnabled?:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LoggingConfigurations?:        #VerifiedAccessLogs | fn.#ObjectExpression
-	Tags?:                         list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VerifiedAccessTrustProviderIds?: list.UniqueItems() & [...#VerifiedAccessTrustProviderId] | fn.#ListExpression
-	VerifiedAccessTrustProviders?:   list.UniqueItems() & [...#VerifiedAccessTrustProvider] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VerifiedAccessInstance"
+	Properties?: close({
+		CidrEndpointsCustomSubDomain?: string | fn.#StringExpression
+		Description?:                  string | fn.#StringExpression
+		FipsEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		LoggingConfigurations?: #VerifiedAccessLogs | fn.#ObjectExpression
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VerifiedAccessTrustProviderIds?: list.UniqueItems() & [...#VerifiedAccessTrustProviderId] | fn.#ListExpression
+		VerifiedAccessTrustProviders?:   list.UniqueItems() & [...#VerifiedAccessTrustProvider] | fn.#ListExpression
+	})
+}
 
 #Nameserver: string | fn.#StringExpression
 
@@ -64,7 +67,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VerifiedAccessTrustProviderId: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VerifiedAccessInstance"
-	Properties?: #Properties
-}

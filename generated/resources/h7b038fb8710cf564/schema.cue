@@ -9,10 +9,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KinesisAnalytics::ApplicationReferenceDataSource
-#Properties: close({
-	ApplicationName!:     string | fn.#StringExpression
-	ReferenceDataSource!: #ReferenceDataSource
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KinesisAnalytics::ApplicationReferenceDataSource"
+	Properties!: close({
+		ApplicationName!:     string | fn.#StringExpression
+		ReferenceDataSource!: #ReferenceDataSource
+	})
+}
 
 #CSVMappingParameters: close({
 	RecordColumnDelimiter!: string | fn.#StringExpression
@@ -62,7 +65,3 @@ fn.#ObjectExpression
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KinesisAnalytics::ApplicationReferenceDataSource"
-	Properties!: #Properties
-}

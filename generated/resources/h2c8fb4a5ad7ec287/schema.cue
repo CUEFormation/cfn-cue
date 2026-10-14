@@ -20,12 +20,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // defines a recurring set of time ranges, or a cron expression, during which
 // AWS-initiated maintenance events may be scheduled for the associated Amazon
 // EC2 instances or Dedicated Hosts.
-#Properties: close({
-	CronExpression?: string | fn.#StringExpression
-	Name?:           string | fn.#StringExpression
-	Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TimeRanges?:     [...#TimeRange] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::InstanceEventWindow"
+	Properties?: close({
+		CronExpression?: string | fn.#StringExpression
+		Name?:           string | fn.#StringExpression
+		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TimeRanges?:     [...#TimeRange] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -84,7 +87,3 @@ fn.#ObjectExpression
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::InstanceEventWindow"
-	Properties?: #Properties
-}

@@ -13,19 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::Transfer::HostKey
-#Properties: close({
-	Description?: strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	HostKeyBody?: strings.MaxRunes(4096) | fn.#StringExpression
-	ServerId!:    strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" | fn.#StringExpression
-	Tags?:        list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Transfer::HostKey"
+	Properties!: close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+		HostKeyBody?: strings.MaxRunes(4096) | fn.#StringExpression
+		ServerId!:    strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" | fn.#StringExpression
+		Tags?:        list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Transfer::HostKey"
-	Properties!: #Properties
-}

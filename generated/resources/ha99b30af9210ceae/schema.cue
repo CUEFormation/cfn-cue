@@ -17,42 +17,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::JobDefinition
-#Properties: close({
-	ConsumableResourceProperties?: #ConsumableResourceProperties
-	ContainerProperties?:          #ContainerProperties
-	EcsProperties?:                #EcsProperties
-	EksProperties?:                #EksProperties
-	JobDefinitionName?:            strings.MaxRunes(128) | fn.#StringExpression
-	NodeProperties?:               #NodeProperties
-	Parameters?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Batch::JobDefinition"
+	Properties!: close({
+		ConsumableResourceProperties?: #ConsumableResourceProperties
+		ContainerProperties?:          #ContainerProperties
+		EcsProperties?:                #EcsProperties
+		EksProperties?:                #EksProperties
+		JobDefinitionName?:            strings.MaxRunes(128) | fn.#StringExpression
+		NodeProperties?:               #NodeProperties
+		Parameters?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	PlatformCapabilities?: [...=~"(?i)^(?:ec2|fargate|managed_instances)$" | fn.#StringExpression] | fn.#ListExpression
-	PropagateTags?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResourceRetentionPolicy?: #ResourceRetentionPolicy
-	RetryStrategy?:           #RetryStrategy
-	SchedulingPriority?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: close({
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		PlatformCapabilities?: [...=~"(?i)^(?:ec2|fargate|managed_instances)$" | fn.#StringExpression] |
+			fn.#ListExpression
+		PropagateTags?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ResourceRetentionPolicy?: #ResourceRetentionPolicy
+		RetryStrategy?:           #RetryStrategy
+		SchedulingPriority?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Timeout?: #JobTimeout
-	Type!:    =~"(?i)^(?:container|multinode)$" | fn.#StringExpression
-})
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Timeout?: #JobTimeout
+		Type!:    =~"(?i)^(?:container|multinode)$" | fn.#StringExpression
+	})
+}
 
 #ConsumableResourceProperties: close(
 	{ConsumableResourceList!: list.UniqueItems() & [...#ConsumableResourceRequirement] | fn.#ListExpression},
@@ -743,7 +749,3 @@ fn.#ObjectExpression
 	S3FilesVolumeConfiguration?: #S3FilesVolumeConfiguration
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Batch::JobDefinition"
-	Properties!: #Properties
-}

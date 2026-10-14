@@ -13,18 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Associates a service with a service network.
-#Properties: close({
-	DnsEntry?: close({}) | fn.#ObjectExpression
-	ServiceIdentifier?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^((svc-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:service/svc-[0-9a-z]{17}))$" |
-	fn.#StringExpression
-	ServiceNetworkIdentifier?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^((sn-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetwork/sn-[0-9a-z]{17}))$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::VpcLattice::ServiceNetworkServiceAssociation"
+	Properties?: close({
+		DnsEntry?: close({}) | fn.#ObjectExpression
+		ServiceIdentifier?: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^((svc-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:service/svc-[0-9a-z]{17}))$" |
+		fn.#StringExpression
+		ServiceNetworkIdentifier?: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^((sn-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetwork/sn-[0-9a-z]{17}))$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DnsEntry: close({
 	DomainName?:   string | fn.#StringExpression
@@ -37,7 +40,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VpcLattice::ServiceNetworkServiceAssociation"
-	Properties?: #Properties
-}

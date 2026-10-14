@@ -12,27 +12,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Neptune::DBInstance resource creates an Amazon Neptune DB instance.
-#Properties: close({
-	AllowMajorVersionUpgrade?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AutoMinorVersionUpgrade?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AvailabilityZone?:           string | fn.#StringExpression
-	DBClusterIdentifier?:        string | fn.#StringExpression
-	DBInstanceClass!:            string | fn.#StringExpression
-	DBInstanceIdentifier?:       string | fn.#StringExpression
-	DBParameterGroupName?:       string | fn.#StringExpression
-	DBSnapshotIdentifier?:       string | fn.#StringExpression
-	DBSubnetGroupName?:          string | fn.#StringExpression
-	PreferredMaintenanceWindow?: string | fn.#StringExpression
-	PubliclyAccessible?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                       list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Neptune::DBInstance"
+	Properties!: close({
+		AllowMajorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AutoMinorVersionUpgrade?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AvailabilityZone?:         string | fn.#StringExpression
+		DBClusterIdentifier?:      string | fn.#StringExpression
+		DBInstanceClass!:          string | fn.#StringExpression
+		DBInstanceIdentifier?:     string | fn.#StringExpression
+		DBParameterGroupName?:     string | fn.#StringExpression
+		DBSnapshotIdentifier?:     string | fn.#StringExpression
+		DBSubnetGroupName?:        string | fn.#StringExpression
+		PreferredMaintenanceWindow?: string | fn.#StringExpression
+		PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Neptune::DBInstance"
-	Properties!: #Properties
-}

@@ -15,18 +15,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::GuardDuty::CustomDetectionRuleAssociation.
 // Associates a GuardDuty custom detection rule with the caller's account,
 // enabling the rule in either LIVE or DRY_RUN mode.
-#Properties: close({
-	Mode!:   "LIVE" | "DRY_RUN" | fn.#StringExpression
-	RuleId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9]+(-[a-z0-9]+)*$" | fn.#StringExpression
-	Tags?:   list.UniqueItems() & [...#TagItem] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GuardDuty::CustomDetectionRuleAssociation"
+	Properties!: close({
+		Mode!:   "LIVE" | "DRY_RUN" | fn.#StringExpression
+		RuleId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9]+(-[a-z0-9]+)*$" | fn.#StringExpression
+		Tags?:   list.UniqueItems() & [...#TagItem] | fn.#ListExpression
+	})
+}
 
 #TagItem: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GuardDuty::CustomDetectionRuleAssociation"
-	Properties!: #Properties
-}

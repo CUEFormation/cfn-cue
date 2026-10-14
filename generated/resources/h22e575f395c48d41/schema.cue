@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::VirtualRouter
-#Properties: close({
-	MeshName!:          string | fn.#StringExpression
-	MeshOwner?:         string | fn.#StringExpression
-	Spec!:              #VirtualRouterSpec
-	Tags?:              [...#Tag] | fn.#ListExpression
-	VirtualRouterName?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppMesh::VirtualRouter"
+	Properties!: close({
+		MeshName!:          string | fn.#StringExpression
+		MeshOwner?:         string | fn.#StringExpression
+		Spec!:              #VirtualRouterSpec
+		Tags?:              [...#Tag] | fn.#ListExpression
+		VirtualRouterName?: string | fn.#StringExpression
+	})
+}
 
 #PortMapping: close({
 	Port!: int |
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 #VirtualRouterListener: close({PortMapping!: #PortMapping}) | fn.#ObjectExpression
 
 #VirtualRouterSpec: close({Listeners!: [...#VirtualRouterListener] | fn.#ListExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppMesh::VirtualRouter"
-	Properties!: #Properties
-}

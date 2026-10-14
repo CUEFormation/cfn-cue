@@ -14,16 +14,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Location::APIKey Resource Type
-#Properties: close({
-	Description?:  strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	ExpireTime?:   #iso8601UTC
-	ForceDelete?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ForceUpdate?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KeyName!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
-	NoExpiry?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Restrictions!: #ApiKeyRestrictions
-	Tags?:         list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Location::APIKey"
+	Properties!: close({
+		Description?:  strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+		ExpireTime?:   #iso8601UTC
+		ForceDelete?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ForceUpdate?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		KeyName!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
+		NoExpiry?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Restrictions!: #ApiKeyRestrictions
+		Tags?:         list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AndroidApp: close({
 	CertificateFingerprint!: strings.MaxRunes(59) & strings.MinRunes(59) & =~"^([A-Fa-f0-9]{2}:){19}[A-Fa-f0-9]{2}$" |
@@ -77,7 +80,3 @@ fn.#ObjectExpression
 
 #iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Location::APIKey"
-	Properties!: #Properties
-}

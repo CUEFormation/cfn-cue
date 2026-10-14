@@ -15,14 +15,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::CE::CostCategory. Cost Category enables you
 // to map your cost and usage into meaningful categories. You can use Cost
 // Category to organize your costs using a rule-based engine.
-#Properties: close({
-	DefaultValue?:     strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:             strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	RuleVersion!:      "CostCategoryExpression.v1" | fn.#StringExpression
-	Rules!:            string | fn.#StringExpression
-	SplitChargeRules?: string | fn.#StringExpression
-	Tags?:             list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CE::CostCategory"
+	Properties!: close({
+		DefaultValue?:     strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:             strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+		RuleVersion!:      "CostCategoryExpression.v1" | fn.#StringExpression
+		Rules!:            string | fn.#StringExpression
+		SplitChargeRules?: string | fn.#StringExpression
+		Tags?:             list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
+	})
+}
 
 #ResourceTag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -34,7 +37,3 @@ fn.#ObjectExpression
 strings.MinRunes(20) &
 =~"^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(([+-]\\d\\d:\\d\\d)|Z)$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CE::CostCategory"
-	Properties!: #Properties
-}

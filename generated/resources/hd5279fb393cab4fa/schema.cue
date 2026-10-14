@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an application instance and deploys it to a device.
-#Properties: close({
-	ApplicationInstanceIdToReplace?: #ApplicationInstanceId | fn.#StringExpression
-	DefaultRuntimeContextDevice!:    #DefaultRuntimeContextDevice | fn.#StringExpression
-	Description?:                    #Description | fn.#StringExpression
-	ManifestOverridesPayload?:       #ManifestOverridesPayload | fn.#ObjectExpression
-	ManifestPayload!:                #ManifestPayload | fn.#ObjectExpression
-	Name?:                           #Name | fn.#StringExpression
-	RuntimeRoleArn?:                 #RuntimeRoleArn | fn.#StringExpression
-	Tags?:                           #TagList | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Panorama::ApplicationInstance"
+	Properties!: close({
+		ApplicationInstanceIdToReplace?: #ApplicationInstanceId | fn.#StringExpression
+		DefaultRuntimeContextDevice!:    #DefaultRuntimeContextDevice | fn.#StringExpression
+		Description?:                    #Description | fn.#StringExpression
+		ManifestOverridesPayload?:       #ManifestOverridesPayload | fn.#ObjectExpression
+		ManifestPayload!:                #ManifestPayload | fn.#ObjectExpression
+		Name?:                           #Name | fn.#StringExpression
+		RuntimeRoleArn?:                 #RuntimeRoleArn | fn.#StringExpression
+		Tags?:                           #TagList | fn.#ListExpression
+	})
+}
 
 #ApplicationInstanceArn: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -103,7 +106,3 @@ fn.#ObjectExpression
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Panorama::ApplicationInstance"
-	Properties!: #Properties
-}

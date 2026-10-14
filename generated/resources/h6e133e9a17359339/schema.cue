@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ManagedBlockchain::Member
-#Properties: close({
-	InvitationId?:         string | fn.#StringExpression
-	MemberConfiguration!:  #MemberConfiguration
-	NetworkConfiguration?: #NetworkConfiguration
-	NetworkId?:            string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ManagedBlockchain::Member"
+	Properties!: close({
+		InvitationId?:         string | fn.#StringExpression
+		MemberConfiguration!:  #MemberConfiguration
+		NetworkConfiguration?: #NetworkConfiguration
+		NetworkId?:            string | fn.#StringExpression
+	})
+}
 
 #ApprovalThresholdPolicy: close({
 	ProposalDurationInHours?: int |
@@ -83,7 +86,3 @@ fn.#ObjectExpression
 #NetworkFrameworkConfiguration: close({NetworkFabricConfiguration?: #NetworkFabricConfiguration}) | fn.#ObjectExpression
 
 #VotingPolicy: close({ApprovalThresholdPolicy?: #ApprovalThresholdPolicy}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ManagedBlockchain::Member"
-	Properties!: #Properties
-}

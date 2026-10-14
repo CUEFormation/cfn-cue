@@ -13,25 +13,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::ODB::OdbNetwork resource creates an ODB Network
-#Properties: close({
-	AvailabilityZone?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	AvailabilityZoneId?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	BackupSubnetCidr?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSubnetCidr?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	CrossRegionS3RestoreSources?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	CustomDomainName?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DefaultDnsPrefix?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DeleteAssociatedResources?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DisplayName?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	KmsAccess?:                   "ENABLED" | "DISABLED" | fn.#StringExpression
-	KmsPolicyDocument?:           strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
-	S3Access?:                    "ENABLED" | "DISABLED" | fn.#StringExpression
-	S3PolicyDocument?:            strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
-	StsAccess?:                   "ENABLED" | "DISABLED" | fn.#StringExpression
-	StsPolicyDocument?:           strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
-	Tags?:                        [...#Tag] | fn.#ListExpression
-	ZeroEtlAccess?:               "ENABLED" | "DISABLED" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ODB::OdbNetwork"
+	Properties?: close({
+		AvailabilityZone?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		AvailabilityZoneId?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		BackupSubnetCidr?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		ClientSubnetCidr?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		CrossRegionS3RestoreSources?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		CustomDomainName?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DefaultDnsPrefix?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DeleteAssociatedResources?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		DisplayName?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		KmsAccess?:         "ENABLED" | "DISABLED" | fn.#StringExpression
+		KmsPolicyDocument?: strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
+		S3Access?:          "ENABLED" | "DISABLED" | fn.#StringExpression
+		S3PolicyDocument?:  strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
+		StsAccess?:         "ENABLED" | "DISABLED" | fn.#StringExpression
+		StsPolicyDocument?: strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
+		Tags?:              [...#Tag] | fn.#ListExpression
+		ZeroEtlAccess?:     "ENABLED" | "DISABLED" | fn.#StringExpression
+	})
+}
 
 #CrossRegionS3RestoreSourcesAccess: close({
 	Ipv4Addresses?: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -92,7 +102,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ODB::OdbNetwork"
-	Properties?: #Properties
-}

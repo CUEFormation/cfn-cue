@@ -17,22 +17,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::CleanRoomsML::ConfiguredModelAlgorithmAssociation Resource Type
-#Properties: close({
-	ConfiguredModelAlgorithmArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[-a-z]*:cleanrooms-ml:[-a-z0-9]+:[0-9]{12}:configured-model-algorithm/[-a-zA-Z0-9_/.]+$" |
-	fn.#StringExpression
-	Description?: strings.MaxRunes(255) &
-	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
-	fn.#StringExpression
-	MembershipIdentifier!: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	Name!:                 strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	PrivacyConfiguration?: #PrivacyConfiguration
-	Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CleanRoomsML::ConfiguredModelAlgorithmAssociation"
+	Properties!: close({
+		ConfiguredModelAlgorithmArn!: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[-a-z]*:cleanrooms-ml:[-a-z0-9]+:[0-9]{12}:configured-model-algorithm/[-a-zA-Z0-9_/.]+$" |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(255) &
+		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		fn.#StringExpression
+		MembershipIdentifier!: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+		fn.#StringExpression
+		Name!:                 strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+		PrivacyConfiguration?: #PrivacyConfiguration
+		Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CustomEntityConfig: close({
 	CustomDataIdentifiers!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
@@ -187,7 +190,3 @@ fn.#ObjectExpression
 	MaxArtifactSize?:  #TrainedModelArtifactMaxSize
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CleanRoomsML::ConfiguredModelAlgorithmAssociation"
-	Properties!: #Properties
-}

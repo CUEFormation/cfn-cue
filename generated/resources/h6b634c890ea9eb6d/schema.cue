@@ -13,20 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::InAppTemplate
-#Properties: close({
-	Content?:      [...#InAppMessageContent] | fn.#ListExpression
-	CustomConfig?: fn.#Object & {...} | fn.#ObjectExpression
-	Layout?: "BOTTOM_BANNER" |
-		"TOP_BANNER" |
-		"OVERLAYS" |
-		"MOBILE_FEED" |
-		"MIDDLE_BANNER" |
-		"CAROUSEL" |
-		fn.#StringExpression
-	Tags?:                fn.#Object & {...} | string | fn.#StringObjectExpression
-	TemplateDescription?: string | fn.#StringExpression
-	TemplateName!:        string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Pinpoint::InAppTemplate"
+	Properties!: close({
+		Content?:      [...#InAppMessageContent] | fn.#ListExpression
+		CustomConfig?: fn.#Object & {...} | fn.#ObjectExpression
+		Layout?: "BOTTOM_BANNER" |
+			"TOP_BANNER" |
+			"OVERLAYS" |
+			"MOBILE_FEED" |
+			"MIDDLE_BANNER" |
+			"CAROUSEL" |
+			fn.#StringExpression
+		Tags?:                fn.#Object & {...} | string | fn.#StringObjectExpression
+		TemplateDescription?: string | fn.#StringExpression
+		TemplateName!:        string | fn.#StringExpression
+	})
+}
 
 #Alignment: "LEFT" | "CENTER" | "RIGHT" | fn.#StringExpression
 
@@ -92,7 +95,3 @@ fn.#ObjectExpression
 	Link?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pinpoint::InAppTemplate"
-	Properties!: #Properties
-}

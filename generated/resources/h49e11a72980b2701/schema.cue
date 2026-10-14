@@ -9,16 +9,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeStar::GitHubRepository
-#Properties: close({
-	Code?:                  #Code
-	ConnectionArn?:         string | fn.#StringExpression
-	EnableIssues?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IsPrivate?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RepositoryAccessToken?: string | fn.#StringExpression
-	RepositoryDescription?: string | fn.#StringExpression
-	RepositoryName!:        string | fn.#StringExpression
-	RepositoryOwner!:       string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeStar::GitHubRepository"
+	Properties!: close({
+		Code?:                  #Code
+		ConnectionArn?:         string | fn.#StringExpression
+		EnableIssues?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IsPrivate?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RepositoryAccessToken?: string | fn.#StringExpression
+		RepositoryDescription?: string | fn.#StringExpression
+		RepositoryName!:        string | fn.#StringExpression
+		RepositoryOwner!:       string | fn.#StringExpression
+	})
+}
 
 #Code: close({S3!: #S3}) | fn.#ObjectExpression
 
@@ -28,7 +31,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ObjectVersion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeStar::GitHubRepository"
-	Properties!: #Properties
-}

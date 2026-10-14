@@ -17,38 +17,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::MemoryDB::Multi Region Cluster resource creates an Amazon MemoryDB Multi Region Cluster.
-#Properties: close({
-	Description?:                   string | fn.#StringExpression
-	Engine?:                        string | fn.#StringExpression
-	EngineVersion?:                 string | fn.#StringExpression
-	MultiRegionClusterNameSuffix?:  =~"[a-z][a-z0-9\\-]*" | fn.#StringExpression
-	MultiRegionParameterGroupName?: string | fn.#StringExpression
-	NodeType!:                      string | fn.#StringExpression
-	NumShards?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TLSEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:           list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	UpdateStrategy?: "COORDINATED" | "UNCOORDINATED" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MemoryDB::MultiRegionCluster"
+	Properties!: close({
+		Description?:                   string | fn.#StringExpression
+		Engine?:                        string | fn.#StringExpression
+		EngineVersion?:                 string | fn.#StringExpression
+		MultiRegionClusterNameSuffix?:  =~"[a-z][a-z0-9\\-]*" | fn.#StringExpression
+		MultiRegionParameterGroupName?: string | fn.#StringExpression
+		NodeType!:                      string | fn.#StringExpression
+		NumShards?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TLSEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:           list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		UpdateStrategy?: "COORDINATED" | "UNCOORDINATED" | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MemoryDB::MultiRegionCluster"
-	Properties!: #Properties
-}

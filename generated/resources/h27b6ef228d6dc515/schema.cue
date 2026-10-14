@@ -13,10 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for a resource policy with specified policy
 // statements that attaches to a Lex bot or bot alias.
-#Properties: close({
-	Policy!:      #Policy
-	ResourceArn!: #ResourceArn
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lex::ResourcePolicy"
+	Properties!: close({
+		Policy!:      #Policy
+		ResourceArn!: #ResourceArn
+	})
+}
 
 #PhysicalId: string | fn.#StringExpression
 
@@ -25,7 +28,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #ResourceArn: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
 
 #RevisionId: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lex::ResourcePolicy"
-	Properties!: #Properties
-}

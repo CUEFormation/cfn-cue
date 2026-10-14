@@ -16,87 +16,98 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EMR::Cluster
-#Properties: close({
-	AdditionalInfo?:        fn.#Object & {...} | string | fn.#StringObjectExpression
-	Applications?:          list.UniqueItems() & [...#Application] | fn.#ListExpression
-	AutoScalingRole?:       string | fn.#StringExpression
-	AutoTerminationPolicy?: #AutoTerminationPolicy
-	BootstrapActions?:      list.UniqueItems() & [...#BootstrapActionConfig] | fn.#ListExpression
-	Configurations?:        list.UniqueItems() & [...#Configuration] | fn.#ListExpression
-	CustomAmiId?:           string | fn.#StringExpression
-	EbsRootVolumeIops?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EbsRootVolumeSize?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EbsRootVolumeThroughput?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Instances!:             #JobFlowInstancesConfig
-	JobFlowRole!:           string | fn.#StringExpression
-	KerberosAttributes?:    #KerberosAttributes
-	LogEncryptionKmsKeyId?: string | fn.#StringExpression
-	LogUri?:                string | fn.#StringExpression
-	ManagedScalingPolicy?:  #ManagedScalingPolicy
-	Name!:                  string | fn.#StringExpression
-	OSReleaseLabel?:        string | fn.#StringExpression
-	PlacementGroupConfigs?: list.UniqueItems() & [...#PlacementGroupConfig] | fn.#ListExpression
-	ReleaseLabel?:          string | fn.#StringExpression
-	ScaleDownBehavior?:     string | fn.#StringExpression
-	SecurityConfiguration?: string | fn.#StringExpression
-	ServiceRole!:           string | fn.#StringExpression
-	StepConcurrencyLevel?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Steps?:             list.UniqueItems() & [...#StepConfig] | fn.#ListExpression
-	Tags?:              [...#Tag] | fn.#ListExpression
-	VisibleToAllUsers?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMR::Cluster"
+	Properties!: close({
+		AdditionalInfo?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+		Applications?:          list.UniqueItems() & [...#Application] | fn.#ListExpression
+		AutoScalingRole?:       string | fn.#StringExpression
+		AutoTerminationPolicy?: #AutoTerminationPolicy
+		BootstrapActions?:      list.UniqueItems() & [...#BootstrapActionConfig] | fn.#ListExpression
+		Configurations?:        list.UniqueItems() & [...#Configuration] | fn.#ListExpression
+		CustomAmiId?:           string | fn.#StringExpression
+		EbsRootVolumeIops?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EbsRootVolumeSize?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EbsRootVolumeThroughput?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Instances!:             #JobFlowInstancesConfig
+		JobFlowRole!:           string | fn.#StringExpression
+		KerberosAttributes?:    #KerberosAttributes
+		LogEncryptionKmsKeyId?: string | fn.#StringExpression
+		LogUri?:                string | fn.#StringExpression
+		ManagedScalingPolicy?:  #ManagedScalingPolicy
+		Name!:                  string | fn.#StringExpression
+		OSReleaseLabel?:        string | fn.#StringExpression
+		PlacementGroupConfigs?: list.UniqueItems() & [...#PlacementGroupConfig] | fn.#ListExpression
+		ReleaseLabel?:          string | fn.#StringExpression
+		ScaleDownBehavior?:     string | fn.#StringExpression
+		SecurityConfiguration?: string | fn.#StringExpression
+		ServiceRole!:           string | fn.#StringExpression
+		StepConcurrencyLevel?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Steps?:             list.UniqueItems() & [...#StepConfig] | fn.#ListExpression
+		Tags?:              [...#Tag] | fn.#ListExpression
+		VisibleToAllUsers?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	})
+}
 
 #Application: close({
 	AdditionalInfo?: {
@@ -750,7 +761,3 @@ fn.#ObjectExpression
 	VolumeType!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMR::Cluster"
-	Properties!: #Properties
-}

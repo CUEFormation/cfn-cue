@@ -18,44 +18,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Redshift::UsageLimit. Creates a usage limit
 // for a specified Amazon Redshift feature on a cluster. The usage limit is
 // identified by the returned usage limit identifier.
-#Properties: close({
-	Amount!: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Redshift::UsageLimit"
+	Properties!: close({
+		Amount!: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
 							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	BreachAction?:      "log" | "emit-metric" | "disable" | fn.#StringExpression
-	ClusterIdentifier!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	FeatureType!: "spectrum" |
-		"concurrency-scaling" |
-		"cross-region-datasharing" |
-		"extra-compute-for-automatic-optimization" |
-		fn.#StringExpression
-	LimitType!: "time" | "data-scanned" | fn.#StringExpression
-	Period?:    "daily" | "weekly" | "monthly" | fn.#StringExpression
-	Tags?:      [...#Tag] | fn.#ListExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		BreachAction?:      "log" | "emit-metric" | "disable" | fn.#StringExpression
+		ClusterIdentifier!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		FeatureType!: "spectrum" |
+			"concurrency-scaling" |
+			"cross-region-datasharing" |
+			"extra-compute-for-automatic-optimization" |
+			fn.#StringExpression
+		LimitType!: "time" | "data-scanned" | fn.#StringExpression
+		Period?:    "daily" | "weekly" | "monthly" | fn.#StringExpression
+		Tags?:      [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Redshift::UsageLimit"
-	Properties!: #Properties
-}

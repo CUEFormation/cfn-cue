@@ -12,22 +12,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::ImageBuilder::Workflow
-#Properties: close({
-	ChangeDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Data?:              strings.MaxRunes(16000) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
-	Description?:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ImageBuilder::Workflow"
+	Properties!: close({
+		ChangeDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Data?:              strings.MaxRunes(16000) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
+		Description?:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+		Tags?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Type!:    "BUILD" | "TEST" | "DISTRIBUTION" | fn.#StringExpression
-	Uri?:     string | fn.#StringExpression
-	Version!: string | fn.#StringExpression
-})
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Type!:    "BUILD" | "TEST" | "DISTRIBUTION" | fn.#StringExpression
+		Uri?:     string | fn.#StringExpression
+		Version!: string | fn.#StringExpression
+	})
+}
 
 #LatestVersion: close({
 	Arn?:   string | fn.#StringExpression
@@ -36,7 +39,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Patch?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ImageBuilder::Workflow"
-	Properties!: #Properties
-}

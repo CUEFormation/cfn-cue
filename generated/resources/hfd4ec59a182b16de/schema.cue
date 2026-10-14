@@ -9,17 +9,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::PinpointEmail::DedicatedIpPool
-#Properties: close({
-	PoolName?: string | fn.#StringExpression
-	Tags?:     [...#Tags] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PinpointEmail::DedicatedIpPool"
+	Properties?: close({
+		PoolName?: string | fn.#StringExpression
+		Tags?:     [...#Tags] | fn.#ListExpression
+	})
+}
 
 #Tags: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PinpointEmail::DedicatedIpPool"
-	Properties?: #Properties
-}

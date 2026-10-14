@@ -10,12 +10,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::NetworkManager::LinkAssociation type associates a link to a device.
 // The device and link must be in the same global network and the same site.
-#Properties: close({
-	DeviceId!:        string | fn.#StringExpression
-	GlobalNetworkId!: string | fn.#StringExpression
-	LinkId!:          string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkManager::LinkAssociation"
-	Properties!: #Properties
+	Type!: "AWS::NetworkManager::LinkAssociation"
+	Properties!: close({
+		DeviceId!:        string | fn.#StringExpression
+		GlobalNetworkId!: string | fn.#StringExpression
+		LinkId!:          string | fn.#StringExpression
+	})
 }

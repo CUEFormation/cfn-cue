@@ -16,14 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeDeploy::DeploymentConfig
-#Properties: close({
-	ComputePlatform?: "ECS" | "Lambda" | "Server" | fn.#StringExpression
-	DeploymentConfigName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
-	fn.#StringExpression
-	MinimumHealthyHosts?:  #MinimumHealthyHosts | fn.#ObjectExpression
-	TrafficRoutingConfig?: #TrafficRoutingConfig | fn.#ObjectExpression
-	ZonalConfig?:          #ZonalConfig | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeDeploy::DeploymentConfig"
+	Properties?: close({
+		ComputePlatform?: "ECS" | "Lambda" | "Server" | fn.#StringExpression
+		DeploymentConfigName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
+		fn.#StringExpression
+		MinimumHealthyHosts?:  #MinimumHealthyHosts | fn.#ObjectExpression
+		TrafficRoutingConfig?: #TrafficRoutingConfig | fn.#ObjectExpression
+		ZonalConfig?:          #ZonalConfig | fn.#ObjectExpression
+	})
+}
 
 #MinimumHealthyHosts: close({
 	Type!: "FLEET_PERCENT" | "HOST_COUNT" | fn.#StringExpression
@@ -166,7 +169,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeDeploy::DeploymentConfig"
-	Properties?: #Properties
-}

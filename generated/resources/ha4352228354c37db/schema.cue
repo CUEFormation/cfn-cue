@@ -14,16 +14,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::EventsV2::EventSource. A managed event source that
 // forwards AWS service events or partner events onto a custom event bus.
-#Properties: close({
-	Configuration!: #EventSourceConfiguration | fn.#ObjectExpression
-	Description?:   strings.MaxRunes(512) | fn.#StringExpression
-	EventBusArn!: strings.MaxRunes(1011) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EventsV2::EventSource"
+	Properties!: close({
+		Configuration!: #EventSourceConfiguration | fn.#ObjectExpression
+		Description?:   strings.MaxRunes(512) | fn.#StringExpression
+		EventBusArn!: strings.MaxRunes(1011) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AwsServiceEventsConfiguration: close({
 	AwsService!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^aws\\.[a-z0-9\\-]+$" | fn.#StringExpression
@@ -67,7 +70,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EventsV2::EventSource"
-	Properties!: #Properties
-}

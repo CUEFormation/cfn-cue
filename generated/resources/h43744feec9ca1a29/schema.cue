@@ -16,13 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // An account association links a managed integrations connector destination to
 // a third-party (cloud-to-cloud) account so that managed things can be
 // discovered and controlled.
-#Properties: close({
-	ConnectorDestinationId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" | fn.#StringExpression
-	Description?:            strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	GeneralAuthorization?:   #GeneralAuthorization
-	Name?:                   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	Tags?:                   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTManagedIntegrations::AccountAssociation"
+	Properties!: close({
+		ConnectorDestinationId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
+		GeneralAuthorization?: #GeneralAuthorization
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #GeneralAuthorization: close(
 	{AuthMaterialName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9=_+/-]+$" | fn.#StringExpression},
@@ -34,7 +38,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTManagedIntegrations::AccountAssociation"
-	Properties!: #Properties
-}

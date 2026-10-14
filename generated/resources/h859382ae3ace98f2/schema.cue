@@ -16,18 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AWS::LicenseManagerLinuxSubscriptions::SubscriptionProvider. Registers a
 // third-party Linux subscription provider so that License Manager can retrieve
 // subscription details for the discovered Linux instances in an account.
-#Properties: close({
-	SecretArn!:                  string | fn.#StringExpression
-	SubscriptionProviderSource!: "RedHat" | fn.#StringExpression
-	Tags?:                       list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LicenseManagerLinuxSubscriptions::SubscriptionProvider"
+	Properties!: close({
+		SecretArn!:                  string | fn.#StringExpression
+		SubscriptionProviderSource!: "RedHat" | fn.#StringExpression
+		Tags?:                       list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LicenseManagerLinuxSubscriptions::SubscriptionProvider"
-	Properties!: #Properties
-}

@@ -17,36 +17,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Version: None. Resource Type definition for AWS::DynamoDB::GlobalTable
-#Properties: matchIf({
-	LocalSecondaryIndexes!: _
-	...
-}, {
-	AttributeDefinitions?: null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
-	KeySchema?:            null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
-	...
-}, _) & {...} & close({
-	AttributeDefinitions?:   list.MinItems(1) & list.UniqueItems() & [...#AttributeDefinition] | fn.#ListExpression
-	BillingMode?:            "PAY_PER_REQUEST" | "PROVISIONED" | fn.#StringExpression
-	GlobalSecondaryIndexes?: list.UniqueItems() & [...#GlobalSecondaryIndex] | fn.#ListExpression
-	GlobalTableSourceArn?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	GlobalTableWitnesses?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#GlobalTableWitness] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DynamoDB::GlobalTable"
+	Properties!: matchIf({
+		LocalSecondaryIndexes!: _
+		...
+	}, {
+		AttributeDefinitions?: null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
+		KeySchema?:            null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
+		...
+	}, _) & {...} & close({
+		AttributeDefinitions?:   list.MinItems(1) & list.UniqueItems() & [...#AttributeDefinition] | fn.#ListExpression
+		BillingMode?:            "PAY_PER_REQUEST" | "PROVISIONED" | fn.#StringExpression
+		GlobalSecondaryIndexes?: list.UniqueItems() & [...#GlobalSecondaryIndex] | fn.#ListExpression
+		GlobalTableSourceArn?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		GlobalTableWitnesses?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#GlobalTableWitness] |
+			fn.#ListExpression
+		KeySchema?: #KeySchema & (null | bool | number | string | list.MaxItems(2) & list.MinItems(1) | {...}) |
 		fn.#ListExpression
-	KeySchema?: #KeySchema & (null | bool | number | string | list.MaxItems(2) & list.MinItems(1) | {...}) |
-	fn.#ListExpression
-	LocalSecondaryIndexes?:             list.UniqueItems() & [...#LocalSecondaryIndex] | fn.#ListExpression
-	MultiRegionConsistency?:            "EVENTUAL" | "STRONG" | fn.#StringExpression
-	ReadOnDemandThroughputSettings?:    #ReadOnDemandThroughputSettings
-	ReadProvisionedThroughputSettings?: #GlobalReadProvisionedThroughputSettings
-	Replicas!:                list.MinItems(1) & list.UniqueItems() & [...#ReplicaSpecification] | fn.#ListExpression
-	SSESpecification?:        #SSESpecification
-	StreamSpecification?:     #StreamSpecification
-	TableName?:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	TimeToLiveSpecification?: #TimeToLiveSpecification
-	VectorIndexes?:           list.MinItems(1) & list.UniqueItems() & [...#VectorIndex] | fn.#ListExpression
-	WarmThroughput?:          #WarmThroughput
-	WriteOnDemandThroughputSettings?:    #WriteOnDemandThroughputSettings
-	WriteProvisionedThroughputSettings?: #WriteProvisionedThroughputSettings
-})
+		LocalSecondaryIndexes?:             list.UniqueItems() & [...#LocalSecondaryIndex] | fn.#ListExpression
+		MultiRegionConsistency?:            "EVENTUAL" | "STRONG" | fn.#StringExpression
+		ReadOnDemandThroughputSettings?:    #ReadOnDemandThroughputSettings
+		ReadProvisionedThroughputSettings?: #GlobalReadProvisionedThroughputSettings
+		Replicas!:            list.MinItems(1) & list.UniqueItems() & [...#ReplicaSpecification] | fn.#ListExpression
+		SSESpecification?:    #SSESpecification
+		StreamSpecification?: #StreamSpecification
+		TableName?:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		TimeToLiveSpecification?:         #TimeToLiveSpecification
+		VectorIndexes?:                   list.MinItems(1) & list.UniqueItems() & [...#VectorIndex] | fn.#ListExpression
+		WarmThroughput?:                  #WarmThroughput
+		WriteOnDemandThroughputSettings?: #WriteOnDemandThroughputSettings
+		WriteProvisionedThroughputSettings?: #WriteProvisionedThroughputSettings
+	})
+}
 
 #AttributeDefinition: close({
 	AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -473,7 +476,3 @@ fn.#ObjectExpression
 
 #WriteProvisionedThroughputSettings: close({WriteCapacityAutoScalingSettings?: #CapacityAutoScalingSettings}) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DynamoDB::GlobalTable"
-	Properties!: #Properties
-}

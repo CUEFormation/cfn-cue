@@ -14,44 +14,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::PartnerApp
-#Properties: close({
-	AppVersion?:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ApplicationConfig?: #PartnerAppConfig | fn.#ObjectExpression
-	AuthType!:          "IAM" | fn.#StringExpression
-	ClientToken?:       strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	EnableAutoMinorVersionUpgrade?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	EnableIamSessionBasedIdentity?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~".*" |
-	fn.#StringExpression
-	MaintenanceConfig?: #PartnerAppMaintenanceConfig | fn.#ObjectExpression
-	Name!:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+" | fn.#StringExpression
-	Tags?:              list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	Tier!:              strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Type!:              "lakera-guard" | "comet" | "deepchecks-llm-evaluation" | "fiddler" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::PartnerApp"
+	Properties!: close({
+		AppVersion?:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		ApplicationConfig?: #PartnerAppConfig | fn.#ObjectExpression
+		AuthType!:          "IAM" | fn.#StringExpression
+		ClientToken?:       strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		EnableAutoMinorVersionUpgrade?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		EnableIamSessionBasedIdentity?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~".*" |
+		fn.#StringExpression
+		MaintenanceConfig?: #PartnerAppMaintenanceConfig | fn.#ObjectExpression
+		Name!:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+" | fn.#StringExpression
+		Tags?:              list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Tier!:              strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		Type!:              "lakera-guard" | "comet" | "deepchecks-llm-evaluation" | "fiddler" | fn.#StringExpression
+	})
+}
 
 #PartnerAppAdminUserList: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -74,7 +77,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::PartnerApp"
-	Properties!: #Properties
-}

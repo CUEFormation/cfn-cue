@@ -16,27 +16,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Workflow
-#Properties: close({
-	DefaultRunProperties?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Description?:          strings.MaxRunes(120000) & strings.MinRunes(0) | fn.#StringExpression
-	MaxConcurrentRuns?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Workflow"
-	Properties?: #Properties
+	Type!: "AWS::Glue::Workflow"
+	Properties?: close({
+		DefaultRunProperties?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Description?:          strings.MaxRunes(120000) & strings.MinRunes(0) | fn.#StringExpression
+		MaxConcurrentRuns?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
 }

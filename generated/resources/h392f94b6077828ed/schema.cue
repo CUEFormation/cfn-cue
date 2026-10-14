@@ -14,11 +14,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::SSM::ServiceSetting. ServiceSetting is an
 // account-level setting for an AWS service that defines how a user interacts
 // with or uses a service or feature.
-#Properties: close({
-	SettingId!:    strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	SettingValue!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSM::ServiceSetting"
-	Properties!: #Properties
+	Type!: "AWS::SSM::ServiceSetting"
+	Properties!: close({
+		SettingId!:    strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+		SettingValue!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	})
 }

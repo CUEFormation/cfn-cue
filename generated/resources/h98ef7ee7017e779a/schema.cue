@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Amazon OpenSearchServerless collection resource
-#Properties: close({
-	CollectionGroupName?: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]+$" | fn.#StringExpression
-	DeletionProtection?:  #DeletionProtection
-	Description?:         strings.MaxRunes(1000) | fn.#StringExpression
-	EncryptionConfig?:    #EncryptionConfig
-	Name!:                strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,63}$" | fn.#StringExpression
-	StandbyReplicas?:     #StandbyReplicas
-	Tags?:                list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	Type?:                #CollectionType
-	VectorOptions?:       #VectorOptions
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OpenSearchServerless::Collection"
+	Properties!: close({
+		CollectionGroupName?: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]+$" | fn.#StringExpression
+		DeletionProtection?:  #DeletionProtection
+		Description?:         strings.MaxRunes(1000) | fn.#StringExpression
+		EncryptionConfig?:    #EncryptionConfig
+		Name!:            strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,63}$" | fn.#StringExpression
+		StandbyReplicas?: #StandbyReplicas
+		Tags?:            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Type?:            #CollectionType
+		VectorOptions?:   #VectorOptions
+	})
+}
 
 #CollectionType: "SEARCH" | "TIMESERIES" | "VECTORSEARCH" | fn.#StringExpression
 
@@ -53,7 +56,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VectorOptions: close({ServerlessVectorAcceleration?: #ServerlessVectorAcceleration}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpenSearchServerless::Collection"
-	Properties!: #Properties
-}

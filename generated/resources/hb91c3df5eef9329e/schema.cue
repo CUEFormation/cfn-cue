@@ -17,19 +17,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a dataset group that holds a collection of related datasets
-#Properties: close({
-	DatasetArns?:      [...#Arn] | fn.#ListExpression
-	DatasetGroupName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" | fn.#StringExpression
-	Domain!: "RETAIL" |
-		"CUSTOM" |
-		"INVENTORY_PLANNING" |
-		"EC2_CAPACITY" |
-		"WORK_FORCE" |
-		"WEB_TRAFFIC" |
-		"METRICS" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Forecast::DatasetGroup"
+	Properties!: close({
+		DatasetArns?: [...#Arn] | fn.#ListExpression
+		DatasetGroupName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" |
 		fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+		Domain!: "RETAIL" |
+			"CUSTOM" |
+			"INVENTORY_PLANNING" |
+			"EC2_CAPACITY" |
+			"WORK_FORCE" |
+			"WEB_TRAFFIC" |
+			"METRICS" |
+			fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$" | fn.#StringExpression
 
@@ -57,7 +61,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Forecast::DatasetGroup"
-	Properties!: #Properties
-}

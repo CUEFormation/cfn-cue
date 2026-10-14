@@ -18,11 +18,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTAnalytics::Pipeline
-#Properties: close({
-	PipelineActivities!: list.MaxItems(25) & list.MinItems(1) & [...#Activity] | fn.#ListExpression
-	PipelineName?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-	Tags?:               list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTAnalytics::Pipeline"
+	Properties!: close({
+		PipelineActivities!: list.MaxItems(25) & list.MinItems(1) & [...#Activity] | fn.#ListExpression
+		PipelineName?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
+		Tags?:               list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Activity: close({
 	AddAttributes?:        #AddAttributes
@@ -144,7 +147,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTAnalytics::Pipeline"
-	Properties!: #Properties
-}

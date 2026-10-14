@@ -12,12 +12,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a custom dictionary for improving transcription accuracy
-#Properties: close({
-	Entries?:  strings.MaxRunes(40960) | fn.#StringExpression
-	Language!: #DictionaryLanguage
-	Name!:     =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" | fn.#StringExpression
-	Tags?:     #TagMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElementalInference::Dictionary"
+	Properties!: close({
+		Entries?:  strings.MaxRunes(40960) | fn.#StringExpression
+		Language!: #DictionaryLanguage
+		Name!:     =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" | fn.#StringExpression
+		Tags?:     #TagMap
+	})
+}
 
 #DictionaryLanguage: "eng" | "fra" | "ita" | "deu" | "spa" | "por" | fn.#StringExpression
 
@@ -25,7 +28,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 	{[=~".+"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElementalInference::Dictionary"
-	Properties!: #Properties
-}

@@ -13,32 +13,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS::Forecast::Dataset
-#Properties: close({
-	DataFrequency?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^Y|M|W|D|H|30min|15min|10min|5min|1min$" |
-	fn.#StringExpression
-	DatasetName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" | fn.#StringExpression
-	DatasetType!: "TARGET_TIME_SERIES" | "RELATED_TIME_SERIES" | "ITEM_METADATA" | fn.#StringExpression
-	Domain!: "RETAIL" |
-		"CUSTOM" |
-		"INVENTORY_PLANNING" |
-		"EC2_CAPACITY" |
-		"WORK_FORCE" |
-		"WEB_TRAFFIC" |
-		"METRICS" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Forecast::Dataset"
+	Properties!: close({
+		DataFrequency?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^Y|M|W|D|H|30min|15min|10min|5min|1min$" |
 		fn.#StringExpression
-	EncryptionConfig?: close({
-		KmsKeyArn?: #KmsKeyArn
-		RoleArn?:   #RoleArn
-	}) |
-	fn.#ObjectExpression
-	Schema!: close({Attributes?: #Attributes}) | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [...close({
-		Key!:   #Key
-		Value!: #Value
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-})
+		DatasetName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" | fn.#StringExpression
+		DatasetType!: "TARGET_TIME_SERIES" | "RELATED_TIME_SERIES" | "ITEM_METADATA" | fn.#StringExpression
+		Domain!: "RETAIL" |
+			"CUSTOM" |
+			"INVENTORY_PLANNING" |
+			"EC2_CAPACITY" |
+			"WORK_FORCE" |
+			"WEB_TRAFFIC" |
+			"METRICS" |
+			fn.#StringExpression
+		EncryptionConfig?: close({
+			KmsKeyArn?: #KmsKeyArn
+			RoleArn?:   #RoleArn
+		}) |
+		fn.#ObjectExpression
+		Schema!: close({Attributes?: #Attributes}) | fn.#ObjectExpression
+		Tags?: list.MaxItems(200) & [...] & [...close({
+			Key!:   #Key
+			Value!: #Value
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
+}
 
 #Attributes: list.MaxItems(100) & list.MinItems(1) & [...close({
 	AttributeName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" | fn.#StringExpression
@@ -62,7 +65,3 @@ strings.MinRunes(0) &
 fn.#StringExpression
 
 #Value: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Forecast::Dataset"
-	Properties!: #Properties
-}

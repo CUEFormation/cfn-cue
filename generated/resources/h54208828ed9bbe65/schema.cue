@@ -16,40 +16,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::Cluster
-#Properties: close({
-	BrokerNodeGroupInfo!:  #BrokerNodeGroupInfo
-	ClientAuthentication?: #ClientAuthentication
-	ClusterName!:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ConfigurationInfo?:    #ConfigurationInfo
-	EncryptionInfo?:       #EncryptionInfo
-	EnhancedMonitoring?: ("DEFAULT" | "PER_BROKER" | "PER_TOPIC_PER_BROKER" | "PER_TOPIC_PER_PARTITION") & (strings.MaxRunes(23) & strings.MinRunes(7)) |
-	fn.#StringExpression
-	KafkaVersion!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	LoggingInfo?:  #LoggingInfo
-	NumberOfBrokerNodes!: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	OpenMonitoring?: #OpenMonitoring
-	Rebalancing?:    #Rebalancing
-	StorageMode?:    ("LOCAL" | "TIERED") & (strings.MaxRunes(6) & strings.MinRunes(5)) | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MSK::Cluster"
+	Properties!: close({
+		BrokerNodeGroupInfo!:  #BrokerNodeGroupInfo
+		ClientAuthentication?: #ClientAuthentication
+		ClusterName!:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		ConfigurationInfo?:    #ConfigurationInfo
+		EncryptionInfo?:       #EncryptionInfo
+		EnhancedMonitoring?: ("DEFAULT" | "PER_BROKER" | "PER_TOPIC_PER_BROKER" | "PER_TOPIC_PER_PARTITION") & (strings.MaxRunes(23) & strings.MinRunes(7)) |
+		fn.#StringExpression
+		KafkaVersion!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		LoggingInfo?:  #LoggingInfo
+		NumberOfBrokerNodes!: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		OpenMonitoring?: #OpenMonitoring
+		Rebalancing?:    #Rebalancing
+		StorageMode?:    ("LOCAL" | "TIERED") & (strings.MaxRunes(6) & strings.MinRunes(5)) | fn.#StringExpression
+		Tags?: close({
 
-		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	ZookeeperAccess?: #ZookeeperAccess
-})
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		ZookeeperAccess?: #ZookeeperAccess
+	})
+}
 
 #AuthorizerLogs: close({
 	CloudWatchLogs?: #CloudWatchLogs
@@ -273,7 +278,3 @@ fn.#ObjectExpression
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MSK::Cluster"
-	Properties!: #Properties
-}

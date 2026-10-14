@@ -12,15 +12,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticBeanstalk::ConfigurationTemplate
-#Properties: close({
-	ApplicationName!:     strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:         strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	EnvironmentId?:       string | fn.#StringExpression
-	OptionSettings?:      [...#ConfigurationOptionSetting] | fn.#ListExpression
-	PlatformArn?:         string | fn.#StringExpression
-	SolutionStackName?:   string | fn.#StringExpression
-	SourceConfiguration?: #SourceConfiguration | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticBeanstalk::ConfigurationTemplate"
+	Properties!: close({
+		ApplicationName!:     strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Description?:         strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+		EnvironmentId?:       string | fn.#StringExpression
+		OptionSettings?:      [...#ConfigurationOptionSetting] | fn.#ListExpression
+		PlatformArn?:         string | fn.#StringExpression
+		SolutionStackName?:   string | fn.#StringExpression
+		SourceConfiguration?: #SourceConfiguration | fn.#ObjectExpression
+	})
+}
 
 #ConfigurationOptionSetting: close({
 	Namespace!:    string | fn.#StringExpression
@@ -35,7 +38,3 @@ fn.#ObjectExpression
 	TemplateName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticBeanstalk::ConfigurationTemplate"
-	Properties!: #Properties
-}

@@ -14,16 +14,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Location::GeofenceCollection Resource Type
-#Properties: close({
-	CollectionName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
-	Description?:    strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	PricingPlan?:           #PricingPlan
-	PricingPlanDataSource?: string | fn.#StringExpression
-	Tags?:                  list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Location::GeofenceCollection"
+	Properties!: close({
+		CollectionName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
+		Description?:    strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		PricingPlan?:           #PricingPlan
+		PricingPlanDataSource?: string | fn.#StringExpression
+		Tags?:                  list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #PricingPlan: "RequestBasedUsage" | fn.#StringExpression
 
@@ -43,7 +46,3 @@ fn.#ObjectExpression
 
 #iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Location::GeofenceCollection"
-	Properties!: #Properties
-}

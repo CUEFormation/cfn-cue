@@ -19,16 +19,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // services are listed as Supported [V2 Permissions] in the table at [Enabling
 // logging from AWS
 // services](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AWS-logs-and-resource-policy.html).
-#Properties: close({
-	DeliverySourceConfiguration?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Logs::DeliverySource"
+	Properties!: close({
+		DeliverySourceConfiguration?: close({
 
-		{[=~"^.{1,255}$"]: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	LogType?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
-	Name!:        strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
-	ResourceArn?: #Arn | fn.#StringExpression
-	Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+			{[=~"^.{1,255}$"]: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		LogType?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
+		Name!:        strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
+		ResourceArn?: #Arn | fn.#StringExpression
+		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" | fn.#StringExpression
 
@@ -37,7 +40,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::DeliverySource"
-	Properties!: #Properties
-}

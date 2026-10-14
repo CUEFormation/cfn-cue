@@ -28,40 +28,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // See [Update Behaviors of Stack
 // Resources](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html)
 // in the *User Guide*.
-#Properties: close({
-	ApiId!:          string | fn.#StringExpression
-	CachingConfig?:  #CachingConfig | fn.#ObjectExpression
-	Code?:           strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
-	CodeS3Location?: string | fn.#StringExpression
-	DataSourceName?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
-	FieldName!:      strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
-	Kind?:           "PIPELINE" | "UNIT" | fn.#StringExpression
-	MaxBatchSize?: int & <=2000 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2000 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MetricsConfig?:                     "ENABLED" | "DISABLED" | fn.#StringExpression
-	PipelineConfig?:                    #PipelineConfig | fn.#ObjectExpression
-	RequestMappingTemplate?:            strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
-	RequestMappingTemplateS3Location?:  string | fn.#StringExpression
-	ResponseMappingTemplate?:           strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
-	ResponseMappingTemplateS3Location?: string | fn.#StringExpression
-	Runtime?:                           #AppSyncRuntime | fn.#ObjectExpression
-	SyncConfig?:                        #SyncConfig | fn.#ObjectExpression
-	TypeName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppSync::Resolver"
+	Properties!: close({
+		ApiId!:          string | fn.#StringExpression
+		CachingConfig?:  #CachingConfig | fn.#ObjectExpression
+		Code?:           strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
+		CodeS3Location?: string | fn.#StringExpression
+		DataSourceName?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" |
+		fn.#StringExpression
+		FieldName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
+		Kind?:      "PIPELINE" | "UNIT" | fn.#StringExpression
+		MaxBatchSize?: int & <=2000 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=2000 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MetricsConfig?:                     "ENABLED" | "DISABLED" | fn.#StringExpression
+		PipelineConfig?:                    #PipelineConfig | fn.#ObjectExpression
+		RequestMappingTemplate?:            strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
+		RequestMappingTemplateS3Location?:  string | fn.#StringExpression
+		ResponseMappingTemplate?:           strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
+		ResponseMappingTemplateS3Location?: string | fn.#StringExpression
+		Runtime?:                           #AppSyncRuntime | fn.#ObjectExpression
+		SyncConfig?:                        #SyncConfig | fn.#ObjectExpression
+		TypeName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
+	})
+}
 
 #AppSyncRuntime: close({
 	Name!:           "APPSYNC_JS" | fn.#StringExpression
@@ -103,7 +109,3 @@ fn.#ObjectExpression
 	LambdaConflictHandlerConfig?: #LambdaConflictHandlerConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::Resolver"
-	Properties!: #Properties
-}

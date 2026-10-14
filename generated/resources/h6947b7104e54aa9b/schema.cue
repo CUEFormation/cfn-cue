@@ -15,12 +15,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A layout in the Cases domain. Layouts define the following configuration in
 // the top section and More Info tab of the Cases user interface: Fields to
 // display to the users and Field ordering.
-#Properties: close({
-	Content!:  #LayoutContent
-	DomainId?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-	Tags?:     #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cases::Layout"
+	Properties!: close({
+		Content!:  #LayoutContent
+		DomainId?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
+		Tags?:     #Tags
+	})
+}
 
 #BasicLayout: close({
 	MoreInfo?: #LayoutSections
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cases::Layout"
-	Properties!: #Properties
-}

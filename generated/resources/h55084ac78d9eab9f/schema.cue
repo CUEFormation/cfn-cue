@@ -18,11 +18,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoT::TopicRule
-#Properties: close({
-	RuleName?:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
-	Tags?:             [...#Tag] | fn.#ListExpression
-	TopicRulePayload!: #TopicRulePayload
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::TopicRule"
+	Properties!: close({
+		RuleName?:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
+		Tags?:             [...#Tag] | fn.#ListExpression
+		TopicRulePayload!: #TopicRulePayload
+	})
+}
 
 #Action: close({
 	CloudwatchAlarm?:  #CloudwatchAlarmAction
@@ -510,7 +513,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::TopicRule"
-	Properties!: #Properties
-}

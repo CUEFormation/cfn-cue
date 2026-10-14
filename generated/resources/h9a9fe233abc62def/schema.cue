@@ -16,12 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAF::WebACL
-#Properties: close({
-	DefaultAction!: #WafAction
-	MetricName!:    string | fn.#StringExpression
-	Name!:          string | fn.#StringExpression
-	Rules?:         list.UniqueItems() & [...#ActivatedRule] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAF::WebACL"
+	Properties!: close({
+		DefaultAction!: #WafAction
+		MetricName!:    string | fn.#StringExpression
+		Name!:          string | fn.#StringExpression
+		Rules?:         list.UniqueItems() & [...#ActivatedRule] | fn.#ListExpression
+	})
+}
 
 #ActivatedRule: close({
 	Action?: #WafAction
@@ -44,7 +47,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #WafAction: close({Type!: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAF::WebACL"
-	Properties!: #Properties
-}

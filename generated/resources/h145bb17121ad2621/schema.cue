@@ -13,28 +13,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // An AWS Support App resource that creates, updates, lists and deletes Slack
 // channel configurations.
-#Properties: close({
-	ChannelId!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-	ChannelName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	ChannelRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(31) &
-	=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role\\/(.+)$" |
-	fn.#StringExpression
-	NotifyOnAddCorrespondenceToCase?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	NotifyOnCaseSeverity!:       "none" | "all" | "high" | fn.#StringExpression
-	NotifyOnCreateOrReopenCase?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NotifyOnResolveCase?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TeamId!:                     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SupportApp::SlackChannelConfiguration"
-	Properties!: #Properties
+	Type!: "AWS::SupportApp::SlackChannelConfiguration"
+	Properties!: close({
+		ChannelId!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
+		ChannelName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+		ChannelRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(31) &
+		=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role\\/(.+)$" |
+		fn.#StringExpression
+		NotifyOnAddCorrespondenceToCase?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		NotifyOnCaseSeverity!: "none" | "all" | "high" | fn.#StringExpression
+		NotifyOnCreateOrReopenCase?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		NotifyOnResolveCase?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		TeamId!:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
+	})
 }

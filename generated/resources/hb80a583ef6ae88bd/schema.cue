@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGatewayV2::Deployment`` resource creates a deployment for an API.
-#Properties: close({
-	ApiId!:       string | fn.#StringExpression
-	Description?: string | fn.#StringExpression
-	StageName?:   string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::Deployment"
-	Properties!: #Properties
+	Type!: "AWS::ApiGatewayV2::Deployment"
+	Properties!: close({
+		ApiId!:       string | fn.#StringExpression
+		Description?: string | fn.#StringExpression
+		StageName?:   string | fn.#StringExpression
+	})
 }

@@ -19,13 +19,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A target group is a collection of targets, or compute resources, that run
 // your application or service. A target group can only be used by a single
 // service.
-#Properties: close({
-	Config?:  #TargetGroupConfig
-	Name?:    strings.MaxRunes(128) & strings.MinRunes(3) | fn.#StringExpression
-	Tags?:    list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	Targets?: list.MaxItems(100) & [...] & [...#Target] | fn.#ListExpression
-	Type!:    "IP" | "LAMBDA" | "INSTANCE" | "ALB" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::VpcLattice::TargetGroup"
+	Properties!: close({
+		Config?:  #TargetGroupConfig
+		Name?:    strings.MaxRunes(128) & strings.MinRunes(3) | fn.#StringExpression
+		Tags?:    list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Targets?: list.MaxItems(100) & [...] & [...#Target] | fn.#ListExpression
+		Type!:    "IP" | "LAMBDA" | "INSTANCE" | "ALB" | fn.#StringExpression
+	})
+}
 
 #HealthCheckConfig: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -172,7 +175,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VpcLattice::TargetGroup"
-	Properties!: #Properties
-}

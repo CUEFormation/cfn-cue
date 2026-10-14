@@ -15,26 +15,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The ``AWS::EFS::MountTarget`` resource is an Amazon EFS resource that creates
 // a mount target for an EFS file system. You can then mount the file system on
 // Amazon EC2 instances or other resources by using the mount target.
-#Properties: close({
-	FileSystemId!: strings.MaxRunes(128) &
-	strings.MinRunes(0) &
-	=~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
-	fn.#StringExpression
-	IpAddress?: strings.MaxRunes(15) & strings.MinRunes(7) & =~"^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$" |
-	fn.#StringExpression
-	IpAddressType?: "IPV4_ONLY" | "IPV6_ONLY" | "DUAL_STACK" | fn.#StringExpression
-	Ipv6Address?:   strings.MaxRunes(39) & strings.MinRunes(3) | fn.#StringExpression
-	SecurityGroups!: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		strings.MaxRunes(43) &
-		strings.MinRunes(11) &
-		=~"^sg-[0-9a-f]{8,40}$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	SubnetId!: strings.MaxRunes(47) & strings.MinRunes(15) & =~"^subnet-[0-9a-f]{8,40}$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EFS::MountTarget"
-	Properties!: #Properties
+	Type!: "AWS::EFS::MountTarget"
+	Properties!: close({
+		FileSystemId!: strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
+		fn.#StringExpression
+		IpAddress?: strings.MaxRunes(15) & strings.MinRunes(7) & =~"^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$" |
+		fn.#StringExpression
+		IpAddressType?: "IPV4_ONLY" | "IPV6_ONLY" | "DUAL_STACK" | fn.#StringExpression
+		Ipv6Address?:   strings.MaxRunes(39) & strings.MinRunes(3) | fn.#StringExpression
+		SecurityGroups!: list.MaxItems(100) & list.UniqueItems() & [...] & [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			strings.MaxRunes(43) &
+			strings.MinRunes(11) &
+			=~"^sg-[0-9a-f]{8,40}$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		SubnetId!: strings.MaxRunes(47) & strings.MinRunes(15) & =~"^subnet-[0-9a-f]{8,40}$" | fn.#StringExpression
+	})
 }

@@ -13,66 +13,70 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An environment created within the EVS service
-#Properties: close({
-	ConnectivityInfo?: close({
-		PrivateRouteServerPeerings!: list.MaxItems(2) & list.MinItems(2) & [...#RouteServerPeering] | fn.#ListExpression
-	}) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EVS::Environment"
+	Properties!: close({
+		ConnectivityInfo?: close({
+			PrivateRouteServerPeerings!: list.MaxItems(2) & list.MinItems(2) & [...#RouteServerPeering] |
+				fn.#ListExpression
+		}) |
+			fn.#ObjectExpression
+		EnvironmentName?: =~"^[a-zA-Z0-9_-]{1,100}$" | fn.#StringExpression
+		Hosts?:           list.MaxItems(4) & list.MinItems(4) & [...#HostInfoForCreate] | fn.#ListExpression
+		InitialVlans?: close({
+			EdgeVTep!:        #InitialVlanInfo
+			ExpansionVlan1!:  #InitialVlanInfo
+			ExpansionVlan2!:  #InitialVlanInfo
+			Hcx!:             #InitialVlanInfo
+			HcxNetworkAclId?: #NetworkAclId
+			IsHcxPublic?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			NsxUpLink!:       #InitialVlanInfo
+			VMotion!:         #InitialVlanInfo
+			VSan!:            #InitialVlanInfo
+			VTep!:            #InitialVlanInfo
+			VmManagement!:    #InitialVlanInfo
+			VmkManagement!:   #InitialVlanInfo
+		}) |
 		fn.#ObjectExpression
-	EnvironmentName?: =~"^[a-zA-Z0-9_-]{1,100}$" | fn.#StringExpression
-	Hosts?:           list.MaxItems(4) & list.MinItems(4) & [...#HostInfoForCreate] | fn.#ListExpression
-	InitialVlans?: close({
-		EdgeVTep!:        #InitialVlanInfo
-		ExpansionVlan1!:  #InitialVlanInfo
-		ExpansionVlan2!:  #InitialVlanInfo
-		Hcx!:             #InitialVlanInfo
-		HcxNetworkAclId?: #NetworkAclId
-		IsHcxPublic?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		NsxUpLink!:       #InitialVlanInfo
-		VMotion!:         #InitialVlanInfo
-		VSan!:            #InitialVlanInfo
-		VTep!:            #InitialVlanInfo
-		VmManagement!:    #InitialVlanInfo
-		VmkManagement!:   #InitialVlanInfo
-	}) |
-	fn.#ObjectExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
+		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
+			fn.#StringExpression
+		LicenseInfo?: close({
+			SolutionKey!: =~"^[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}$" |
+				fn.#StringExpression
+			VsanKey!: =~"^[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}$" |
+				fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		ServiceAccessSecurityGroups?: close(
+			{SecurityGroups?: list.MaxItems(2) & [...#SecurityGroupId] | fn.#ListExpression},
+		) |
+			fn.#ObjectExpression
+		ServiceAccessSubnetId!: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[a-f0-9]{8}([a-f0-9]{9})?$" |
 		fn.#StringExpression
-	LicenseInfo?: close({
-		SolutionKey!: =~"^[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}$" |
-			fn.#StringExpression
-		VsanKey!: =~"^[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}-[a-zA-Z0-9]{5}$" |
-			fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	ServiceAccessSecurityGroups?: close(
-		{SecurityGroups?: list.MaxItems(2) & [...#SecurityGroupId] | fn.#ListExpression},
-	) |
+		SiteId?:        string | fn.#StringExpression
+		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TermsAccepted!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		VcfHostnames?: close({
+			CloudBuilder!: #HostName
+			Nsx!:          #HostName
+			NsxEdge1!:     #HostName
+			NsxEdge2!:     #HostName
+			NsxManager1!:  #HostName
+			NsxManager2!:  #HostName
+			NsxManager3!:  #HostName
+			SddcManager!:  #HostName
+			VCenter!:      #HostName
+		}) |
 		fn.#ObjectExpression
-	ServiceAccessSubnetId!: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[a-f0-9]{8}([a-f0-9]{9})?$" |
-	fn.#StringExpression
-	SiteId?:        string | fn.#StringExpression
-	Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TermsAccepted!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	VcfHostnames?: close({
-		CloudBuilder!: #HostName
-		Nsx!:          #HostName
-		NsxEdge1!:     #HostName
-		NsxEdge2!:     #HostName
-		NsxManager1!:  #HostName
-		NsxManager2!:  #HostName
-		NsxManager3!:  #HostName
-		SddcManager!:  #HostName
-		VCenter!:      #HostName
-	}) |
-	fn.#ObjectExpression
-	VcfVersion!: "VCF-5.2.1" | "VCF-5.2.2" | "SELF_DEPLOYED" | fn.#StringExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(21) &
-	strings.MinRunes(12) &
-	=~"^vpc-[a-f0-9]{8}([a-f0-9]{9})?$" |
-	fn.#StringExpression
-})
+		VcfVersion!: "VCF-5.2.1" | "VCF-5.2.2" | "SELF_DEPLOYED" | fn.#StringExpression
+		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(21) &
+		strings.MinRunes(12) &
+		=~"^vpc-[a-f0-9]{8}([a-f0-9]{9})?$" |
+		fn.#StringExpression
+	})
+}
 
 #Check: close({
 	ImpairedSince?: string | fn.#StringExpression
@@ -134,7 +138,3 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #Timestamp: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EVS::Environment"
-	Properties!: #Properties
-}

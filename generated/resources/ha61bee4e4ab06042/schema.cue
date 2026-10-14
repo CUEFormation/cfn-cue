@@ -18,12 +18,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a Test Case that can be captured and executed
-#Properties: close({
-	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        =~"^[A-Za-z][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	Steps!:       list.MaxItems(20) & list.MinItems(1) & [...#Step] | fn.#ListExpression
-	Tags?:        #TagMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppTest::TestCase"
+	Properties!: close({
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        =~"^[A-Za-z][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
+		Steps!:       list.MaxItems(20) & list.MinItems(1) & [...#Step] | fn.#ListExpression
+		Tags?:        #TagMap
+	})
+}
 
 #Batch: close({
 	BatchJobName!:       =~"^\\S{1,1000}$" | fn.#StringExpression
@@ -223,7 +226,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TestCaseLifecycle: "Active" | "Deleting" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppTest::TestCase"
-	Properties!: #Properties
-}

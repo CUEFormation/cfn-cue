@@ -15,27 +15,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A notify configuration defines the settings used to send templated messages
 // with AWS End User Messaging SMS managed messaging, including the display
 // name, use case, enabled channels, and enabled countries.
-#Properties: close({
-	DefaultTemplateId?:         strings.MaxRunes(256) & =~"^[A-Za-z0-9_-]*$" | fn.#StringExpression
-	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DisplayName!: strings.MaxRunes(15) & strings.MinRunes(1) & =~"^[A-Za-z0-9_ -]+$" | fn.#StringExpression
-	EnabledChannels!: list.MaxItems(4) & list.MinItems(1) & [..."SMS" | "VOICE" | "MMS" | "RCS" | fn.#StringExpression] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SMSVOICE::NotifyConfiguration"
+	Properties!: close({
+		DefaultTemplateId?: strings.MaxRunes(256) & =~"^[A-Za-z0-9_-]*$" | fn.#StringExpression
+		DeletionProtectionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		DisplayName!: strings.MaxRunes(15) & strings.MinRunes(1) & =~"^[A-Za-z0-9_ -]+$" | fn.#StringExpression
+		EnabledChannels!: list.MaxItems(4) & list.MinItems(1) & [
+			..."SMS" | "VOICE" | "MMS" | "RCS" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		EnabledCountries?: list.MaxItems(300) & [
+			...strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[A-Z]{2}$" | fn.#StringExpression
+		] |
 		fn.#ListExpression
-	EnabledCountries?: list.MaxItems(300) & [
-		...strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[A-Z]{2}$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	PoolId?:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
-	Tags?:    list.MaxItems(200) & [...#Tag] | fn.#ListExpression
-	UseCase!: "CODE_VERIFICATION" | fn.#StringExpression
-})
+		PoolId?:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
+		Tags?:    list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+		UseCase!: "CODE_VERIFICATION" | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SMSVOICE::NotifyConfiguration"
-	Properties!: #Properties
-}

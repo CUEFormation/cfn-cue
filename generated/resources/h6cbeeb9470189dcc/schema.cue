@@ -17,17 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SES::ConfigurationSet.
-#Properties: close({
-	ArchivingOptions?:   #ArchivingOptions
-	DeliveryOptions?:    #DeliveryOptions
-	Name?:               =~"^[a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
-	ReputationOptions?:  #ReputationOptions
-	SendingOptions?:     #SendingOptions
-	SuppressionOptions?: #SuppressionOptions
-	Tags?:               list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	TrackingOptions?:    #TrackingOptions
-	VdmOptions?:         #VdmOptions
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::ConfigurationSet"
+	Properties?: close({
+		ArchivingOptions?:   #ArchivingOptions
+		DeliveryOptions?:    #DeliveryOptions
+		Name?:               =~"^[a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
+		ReputationOptions?:  #ReputationOptions
+		SendingOptions?:     #SendingOptions
+		SuppressionOptions?: #SuppressionOptions
+		Tags?:               list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		TrackingOptions?:    #TrackingOptions
+		VdmOptions?:         #VdmOptions
+	})
+}
 
 #ArchivingOptions: close({ArchiveArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -104,7 +107,3 @@ fn.#ObjectExpression
 	GuardianOptions?:  #GuardianOptions
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::ConfigurationSet"
-	Properties?: #Properties
-}

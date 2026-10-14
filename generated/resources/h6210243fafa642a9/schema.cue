@@ -15,11 +15,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for bot versions, a numbered snapshot of your work
 // that you can publish for use in different parts of your workflow, such as
 // development, beta deployment, and production.
-#Properties: close({
-	BotId!:                         #Id
-	BotVersionLocaleSpecification!: #BotVersionLocaleSpecificationList
-	Description?:                   #Description
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lex::BotVersion"
+	Properties!: close({
+		BotId!:                         #Id
+		BotVersionLocaleSpecification!: #BotVersionLocaleSpecificationList
+		Description?:                   #Description
+	})
+}
 
 #BotVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$" | fn.#StringExpression
 
@@ -38,7 +41,3 @@ fn.#ObjectExpression
 #Id: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
 
 #LocaleId: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lex::BotVersion"
-	Properties!: #Properties
-}

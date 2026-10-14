@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a Device Farm TestGrid Project
-#Properties: close({
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Tags?:        [...#Tag] | fn.#ListExpression
-	VpcConfig?:   #VpcConfig
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DeviceFarm::TestGridProject"
+	Properties!: close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+		VpcConfig?:   #VpcConfig
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -46,7 +49,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DeviceFarm::TestGridProject"
-	Properties!: #Properties
-}

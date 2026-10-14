@@ -18,42 +18,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Specifies a listener for an Application Load Balancer, Network Load Balancer,
 // or Gateway Load Balancer.
-#Properties: close({
-	AlpnPolicy?:           [...string | fn.#StringExpression] | fn.#ListExpression
-	Certificates?:         list.UniqueItems() & [...#Certificate] | fn.#ListExpression
-	DefaultActions!:       list.UniqueItems() & [...#Action] | fn.#ListExpression
-	ListenerAttributes?:   list.UniqueItems() & [...#ListenerAttribute] | fn.#ListExpression
-	LoadBalancerArn!:      string | fn.#StringExpression
-	MutualAuthentication?: #MutualAuthentication | fn.#ObjectExpression
-	Port?: int & <=65535 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=65535 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Protocol?: "GENEVE" |
-		"HTTP" |
-		"HTTPS" |
-		"QUIC" |
-		"TCP" |
-		"TCP_QUIC" |
-		"TCP_UDP" |
-		"TLS" |
-		"UDP" |
-		fn.#StringExpression
-	SslPolicy?: string | fn.#StringExpression
-	Tags?:      list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticLoadBalancingV2::Listener"
+	Properties!: close({
+		AlpnPolicy?:           [...string | fn.#StringExpression] | fn.#ListExpression
+		Certificates?:         list.UniqueItems() & [...#Certificate] | fn.#ListExpression
+		DefaultActions!:       list.UniqueItems() & [...#Action] | fn.#ListExpression
+		ListenerAttributes?:   list.UniqueItems() & [...#ListenerAttribute] | fn.#ListExpression
+		LoadBalancerArn!:      string | fn.#StringExpression
+		MutualAuthentication?: #MutualAuthentication | fn.#ObjectExpression
+		Port?: int & <=65535 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=65535 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Protocol?: "GENEVE" |
+			"HTTP" |
+			"HTTPS" |
+			"QUIC" |
+			"TCP" |
+			"TCP_QUIC" |
+			"TCP_UDP" |
+			"TLS" |
+			"UDP" |
+			fn.#StringExpression
+		SslPolicy?: string | fn.#StringExpression
+		Tags?:      list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Action: close({
 	AuthenticateCognitoConfig?: #AuthenticateCognitoConfig | fn.#ObjectExpression
@@ -226,7 +231,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticLoadBalancingV2::Listener"
-	Properties!: #Properties
-}

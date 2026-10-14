@@ -17,28 +17,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::NetworkFirewall::RuleGroup
-#Properties: close({
-	Capacity!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Description?:          strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	RuleGroup?:            #RuleGroup
-	RuleGroupName!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	SummaryConfiguration?: close({RuleOptions?: [...#SummaryRuleOption] | fn.#ListExpression}) | fn.#ObjectExpression
-	Tags?:                 list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	Type!:                 "STATELESS" | "STATEFUL" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkFirewall::RuleGroup"
+	Properties!: close({
+		Capacity!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Description?:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+		RuleGroup?:     #RuleGroup
+		RuleGroupName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		SummaryConfiguration?: close({RuleOptions?: [...#SummaryRuleOption] | fn.#ListExpression}) |
+			fn.#ObjectExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Type!: "STATELESS" | "STATEFUL" | fn.#StringExpression
+	})
+}
 
 #ActionDefinition: close({PublishMetricAction?: #PublishMetricAction}) | fn.#ObjectExpression
 
@@ -267,7 +273,3 @@ fn.#ObjectExpression
 #TargetType: "TLS_SNI" | "HTTP_HOST" | fn.#StringExpression
 
 #VariableDefinition: strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkFirewall::RuleGroup"
-	Properties!: #Properties
-}

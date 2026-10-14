@@ -12,12 +12,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for an IP access control group for Amazon WorkSpaces.
-#Properties: close({
-	GroupDesc?: string | fn.#StringExpression
-	GroupName!: string | fn.#StringExpression
-	Tags?:      [...#Tag] | fn.#ListExpression
-	UserRules?: [...#IpRuleItem] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpaces::WorkspaceIpGroup"
+	Properties!: close({
+		GroupDesc?: string | fn.#StringExpression
+		GroupName!: string | fn.#StringExpression
+		Tags?:      [...#Tag] | fn.#ListExpression
+		UserRules?: [...#IpRuleItem] | fn.#ListExpression
+	})
+}
 
 #IpRuleItem: close({
 	IpRule!:   string | fn.#StringExpression
@@ -30,7 +33,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpaces::WorkspaceIpGroup"
-	Properties!: #Properties
-}

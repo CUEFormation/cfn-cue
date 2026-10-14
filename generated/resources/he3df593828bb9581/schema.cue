@@ -13,13 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Oam::Link Resource Type
-#Properties: close({
-	LabelTemplate?:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	LinkConfiguration?: #LinkConfiguration
-	ResourceTypes!:  list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#ResourceType] | fn.#ListExpression
-	SinkIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:           {...} | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Oam::Link"
+	Properties!: close({
+		LabelTemplate?:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		LinkConfiguration?: #LinkConfiguration
+		ResourceTypes!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#ResourceType] |
+			fn.#ListExpression
+		SinkIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:           {...} | fn.#ObjectExpression
+	})
+}
 
 #LinkConfiguration: close({
 	LogGroupConfiguration?: #LinkFilter
@@ -38,7 +42,3 @@ fn.#ObjectExpression
 	"AWS::ApplicationSignals::Service" |
 	"AWS::ApplicationSignals::ServiceLevelObjective" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Oam::Link"
-	Properties!: #Properties
-}

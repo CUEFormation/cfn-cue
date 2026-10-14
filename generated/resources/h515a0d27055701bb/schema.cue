@@ -17,28 +17,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Disk
-#Properties: close({
-	AddOns?:           [...#AddOn] | fn.#ListExpression
-	AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	DiskName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
-	fn.#StringExpression
-	Location?: close({}) | fn.#ObjectExpression
-	SizeInGb!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lightsail::Disk"
+	Properties!: close({
+		AddOns?:           [...#AddOn] | fn.#ListExpression
+		AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		DiskName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
+		fn.#StringExpression
+		Location?: close({}) | fn.#ObjectExpression
+		SizeInGb!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AddOn: close({
 	AddOnType!: ("AutoSnapshot" | "StopInstanceOnIdle") & (strings.MaxRunes(128) & strings.MinRunes(1)) |
@@ -68,7 +73,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::Disk"
-	Properties!: #Properties
-}

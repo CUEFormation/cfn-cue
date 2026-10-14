@@ -12,10 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::ApprovedOrigin
-#Properties: close({
-	InstanceId!: #InstanceId
-	Origin!:     #Origin
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::ApprovedOrigin"
+	Properties!: close({
+		InstanceId!: #InstanceId
+		Origin!:     #Origin
+	})
+}
 
 #InstanceId: strings.MaxRunes(100) &
 strings.MinRunes(1) &
@@ -23,7 +26,3 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 #Origin: strings.MaxRunes(267) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::ApprovedOrigin"
-	Properties!: #Properties
-}

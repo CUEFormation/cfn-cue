@@ -22,8 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AWS-Regions, we recommend using
 // [mappings](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/mappings-section-structure.html).
 // Tags aren't supported for this resource.
-#Properties: close({AdminAccountId!: =~"^[0-9]{12}$" | fn.#StringExpression})
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SecurityHub::DelegatedAdmin"
-	Properties!: #Properties
+	Properties!: close({AdminAccountId!: =~"^[0-9]{12}$" | fn.#StringExpression})
 }

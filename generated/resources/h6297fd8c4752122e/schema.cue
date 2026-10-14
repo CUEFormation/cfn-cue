@@ -12,17 +12,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for a Redshift-managed VPC endpoint.
-#Properties: close({
-	ClusterIdentifier!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	EndpointName!:      string | fn.#StringExpression
-	ResourceOwner?:     strings.MaxRunes(2147483647) & strings.MinRunes(0) & =~"^\\d{12}$" | fn.#StringExpression
-	SubnetGroupName!:   string | fn.#StringExpression
-	VpcSecurityGroupIds!: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Redshift::EndpointAccess"
+	Properties!: close({
+		ClusterIdentifier!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		EndpointName!:      string | fn.#StringExpression
+		ResourceOwner?:     strings.MaxRunes(2147483647) & strings.MinRunes(0) & =~"^\\d{12}$" | fn.#StringExpression
+		SubnetGroupName!:   string | fn.#StringExpression
+		VpcSecurityGroupIds!: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+	})
+}
 
 #NetworkInterface: close({
 	AvailabilityZone?:   string | fn.#StringExpression
@@ -38,7 +41,3 @@ fn.#ObjectExpression
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Redshift::EndpointAccess"
-	Properties!: #Properties
-}

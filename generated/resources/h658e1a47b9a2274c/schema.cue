@@ -13,35 +13,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::ContactFlow
-#Properties: close({
-	Content!:     strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
-	Description?: strings.MaxRunes(500) | fn.#StringExpression
-	InstanceArn!: strings.MaxRunes(256) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression
-	Name!:  strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	State?: "ACTIVE" | "ARCHIVED" | fn.#StringExpression
-	Tags?:  list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Type!: "CONTACT_FLOW" |
-		"CUSTOMER_QUEUE" |
-		"CUSTOMER_HOLD" |
-		"CUSTOMER_WHISPER" |
-		"AGENT_HOLD" |
-		"AGENT_WHISPER" |
-		"OUTBOUND_WHISPER" |
-		"AGENT_TRANSFER" |
-		"QUEUE_TRANSFER" |
-		"CAMPAIGN" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::ContactFlow"
+	Properties!: close({
+		Content!:     strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(500) | fn.#StringExpression
+		InstanceArn!: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
 		fn.#StringExpression
-})
+		Name!:  strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+		State?: "ACTIVE" | "ARCHIVED" | fn.#StringExpression
+		Tags?:  list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type!: "CONTACT_FLOW" |
+			"CUSTOMER_QUEUE" |
+			"CUSTOMER_HOLD" |
+			"CUSTOMER_WHISPER" |
+			"AGENT_HOLD" |
+			"AGENT_WHISPER" |
+			"OUTBOUND_WHISPER" |
+			"AGENT_TRANSFER" |
+			"QUEUE_TRANSFER" |
+			"CAMPAIGN" |
+			fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::ContactFlow"
-	Properties!: #Properties
-}

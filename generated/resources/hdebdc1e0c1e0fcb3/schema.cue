@@ -13,20 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ARCZonalShift::ZonalAutoshiftConfiguration Resource Type
-#Properties: {
-	ResourceIdentifier!: _
-	...
-} & matchN(>=1, [{
-	ZonalAutoshiftStatus!: _
-	...
-}, {
-	PracticeRunConfiguration!: _
-	...
-}]) & close({
-	PracticeRunConfiguration?: #PracticeRunConfiguration
-	ResourceIdentifier?:       strings.MaxRunes(1024) & strings.MinRunes(8) | fn.#StringExpression
-	ZonalAutoshiftStatus?:     #ZonalAutoshiftStatus
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ARCZonalShift::ZonalAutoshiftConfiguration"
+	Properties?: {
+		ResourceIdentifier!: _
+		...
+	} & matchN(>=1, [{
+		ZonalAutoshiftStatus!: _
+		...
+	}, {
+		PracticeRunConfiguration!: _
+		...
+	}]) & close({
+		PracticeRunConfiguration?: #PracticeRunConfiguration
+		ResourceIdentifier?:       strings.MaxRunes(1024) & strings.MinRunes(8) | fn.#StringExpression
+		ZonalAutoshiftStatus?:     #ZonalAutoshiftStatus
+	})
+}
 
 #ControlCondition: close({
 	AlarmIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(8) & =~"^.*$" | fn.#StringExpression
@@ -54,7 +57,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ZonalAutoshiftStatus: "ENABLED" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ARCZonalShift::ZonalAutoshiftConfiguration"
-	Properties?: #Properties
-}

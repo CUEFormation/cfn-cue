@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::IoTFleetWise::ModelManifest Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	Name!:             strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
-	Nodes?:            list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SignalCatalogArn!: string | fn.#StringExpression
-	Status?:           #ManifestStatus
-	Tags?:             list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTFleetWise::ModelManifest"
+	Properties!: close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
+		Name!:  strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
+		Nodes?: list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		SignalCatalogArn!: string | fn.#StringExpression
+		Status?:           #ManifestStatus
+		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ManifestStatus: "ACTIVE" | "DRAFT" | fn.#StringExpression
 
@@ -30,7 +33,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTFleetWise::ModelManifest"
-	Properties!: #Properties
-}

@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The resource schema for AWSLogs QueryDefinition
-#Properties: close({
-	LogGroupNames?: [...#LogGroup | fn.#StringExpression] | fn.#ListExpression
-	Name!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?:    list.MaxItems(20) & [...] & [...#QueryParameter] | fn.#ListExpression
-	QueryLanguage?: "CWLI" | "SQL" | "PPL" | fn.#StringExpression
-	QueryString!:   strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Logs::QueryDefinition"
+	Properties!: close({
+		LogGroupNames?: [...#LogGroup | fn.#StringExpression] | fn.#ListExpression
+		Name!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Parameters?:    list.MaxItems(20) & [...] & [...#QueryParameter] | fn.#ListExpression
+		QueryLanguage?: "CWLI" | "SQL" | "PPL" | fn.#StringExpression
+		QueryString!:   strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #LogGroup: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
 
@@ -29,7 +32,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::QueryDefinition"
-	Properties!: #Properties
-}

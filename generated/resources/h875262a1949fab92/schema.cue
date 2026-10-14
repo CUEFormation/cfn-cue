@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Synthetics::Group
-#Properties: close({
-	Name!:         =~"^[0-9a-z_\\-]{1,64}$" | fn.#StringExpression
-	ResourceArns?: list.MaxItems(10) & list.UniqueItems() & [...#ResourceArn] | fn.#ListExpression
-	Tags?:         [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Synthetics::Group"
+	Properties!: close({
+		Name!:         =~"^[0-9a-z_\\-]{1,64}$" | fn.#StringExpression
+		ResourceArns?: list.MaxItems(10) & list.UniqueItems() & [...#ResourceArn] | fn.#ListExpression
+		Tags?:         [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ResourceArn: =~"arn:(aws[a-zA-Z-]*)?:synthetics:[a-z]{2}((-gov)|(-iso(b|e|f?)))?-[a-z]+-\\d{1}:\\d{12}:canary:[0-9a-z_\\-]" |
 	fn.#StringExpression
@@ -27,7 +30,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([a-zA-Z\\d\\s_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Synthetics::Group"
-	Properties!: #Properties
-}

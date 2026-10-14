@@ -49,31 +49,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // these tools automatically sign the requests for you, with the access key
 // that you specify when you configure the tools. When you use these tools, you
 // don't have to sign requests yourself.
-#Properties: close({
-	ContainerDefinitions?: list.UniqueItems() & [...#ContainerDefinition] | fn.#ListExpression
-	Cpu?:                  string | fn.#StringExpression
-	EnableFaultInjection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EphemeralStorage?:     #EphemeralStorage | fn.#ObjectExpression
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Family?:                string | fn.#StringExpression
-	InferenceAccelerators?: list.UniqueItems() & [...#InferenceAccelerator] | fn.#ListExpression
-	IpcMode?:               "host" | "none" | "task" | fn.#StringExpression
-	Memory?:                string | fn.#StringExpression
-	NetworkMode?:           "awsvpc" | "bridge" | "host" | "none" | fn.#StringExpression
-	PidMode?:               "host" | "task" | fn.#StringExpression
-	PlacementConstraints?:  list.UniqueItems() & [...#TaskDefinitionPlacementConstraint] | fn.#ListExpression
-	ProxyConfiguration?:    #ProxyConfiguration | fn.#ObjectExpression
-	RequiresCompatibilities?: list.UniqueItems() & [
-		..."EC2" | "EXTERNAL" | "FARGATE" | "MANAGED_INSTANCES" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	RuntimePlatform?: #RuntimePlatform | fn.#ObjectExpression
-	Tags?:            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Volumes?: list.UniqueItems() & [...#Volume] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECS::TaskDefinition"
+	Properties?: close({
+		ContainerDefinitions?: list.UniqueItems() & [...#ContainerDefinition] | fn.#ListExpression
+		Cpu?:                  string | fn.#StringExpression
+		EnableFaultInjection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EphemeralStorage?:     #EphemeralStorage | fn.#ObjectExpression
+		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Family?:                string | fn.#StringExpression
+		InferenceAccelerators?: list.UniqueItems() & [...#InferenceAccelerator] | fn.#ListExpression
+		IpcMode?:               "host" | "none" | "task" | fn.#StringExpression
+		Memory?:                string | fn.#StringExpression
+		NetworkMode?:           "awsvpc" | "bridge" | "host" | "none" | fn.#StringExpression
+		PidMode?:               "host" | "task" | fn.#StringExpression
+		PlacementConstraints?:  list.UniqueItems() & [...#TaskDefinitionPlacementConstraint] | fn.#ListExpression
+		ProxyConfiguration?:    #ProxyConfiguration | fn.#ObjectExpression
+		RequiresCompatibilities?: list.UniqueItems() & [
+			..."EC2" | "EXTERNAL" | "FARGATE" | "MANAGED_INSTANCES" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		RuntimePlatform?: #RuntimePlatform | fn.#ObjectExpression
+		Tags?:            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Volumes?: list.UniqueItems() & [...#Volume] | fn.#ListExpression
+	})
+}
 
 #AuthorizationConfig: close({
 	AccessPointId?: string | fn.#StringExpression
@@ -679,7 +682,3 @@ fn.#ObjectExpression
 	SourceContainer?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::TaskDefinition"
-	Properties?: #Properties
-}

@@ -17,60 +17,63 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53Resolver::FirewallRuleGroup.
-#Properties: close({
-	FirewallRules?: list.UniqueItems() & [...close({
-		Action!:               "ALLOW" | "BLOCK" | "ALERT" | fn.#StringExpression
-		BlockOverrideDnsType?: "CNAME" | fn.#StringExpression
-		BlockOverrideDomain?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		BlockOverrideTtl?: int & <=604800 & >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=604800 &
-								>=0,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		BlockResponse?:        "NODATA" | "NXDOMAIN" | "OVERRIDE" | fn.#StringExpression
-		ConfidenceThreshold?:  "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
-		DnsThreatProtection?:  "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression
-		FirewallDomainListId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		FirewallDomainRedirectionAction?: "INSPECT_REDIRECTION_DOMAIN" |
-			"TRUST_REDIRECTION_DOMAIN" |
-			fn.#StringExpression
-		FirewallRuleType?: #FirewallRuleType | fn.#ObjectExpression
-		Priority!: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		Qtype?: strings.MaxRunes(16) & strings.MinRunes(1) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Name?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53Resolver::FirewallRuleGroup"
+	Properties?: close({
+		FirewallRules?: list.UniqueItems() & [...close({
+			Action!:               "ALLOW" | "BLOCK" | "ALERT" | fn.#StringExpression
+			BlockOverrideDnsType?: "CNAME" | fn.#StringExpression
+			BlockOverrideDomain?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+			BlockOverrideTtl?: int & <=604800 & >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=604800 &
+									>=0,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			BlockResponse?:        "NODATA" | "NXDOMAIN" | "OVERRIDE" | fn.#StringExpression
+			ConfidenceThreshold?:  "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
+			DnsThreatProtection?:  "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression
+			FirewallDomainListId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+			FirewallDomainRedirectionAction?: "INSPECT_REDIRECTION_DOMAIN" |
+				"TRUST_REDIRECTION_DOMAIN" |
+				fn.#StringExpression
+			FirewallRuleType?: #FirewallRuleType | fn.#ObjectExpression
+			Priority!: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			Qtype?: strings.MaxRunes(16) & strings.MinRunes(1) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #FirewallAdvancedContentCategoryConfig: close(
 	{Category!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
@@ -159,7 +162,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53Resolver::FirewallRuleGroup"
-	Properties?: #Properties
-}

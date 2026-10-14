@@ -12,7 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Notifications::NotificationHub
-#Properties: close({Region!: #Region})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::Notifications::NotificationHub"
+	Properties!: close({Region!: #Region})
+}
 
 #NotificationHubStatus: "ACTIVE" | "REGISTERING" | "DEREGISTERING" | "INACTIVE" | fn.#StringExpression
 
@@ -23,7 +26,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Region: strings.MaxRunes(25) & strings.MinRunes(2) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Notifications::NotificationHub"
-	Properties!: #Properties
-}

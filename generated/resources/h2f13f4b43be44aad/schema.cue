@@ -12,22 +12,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS::S3Outposts::AccessPoint
-#Properties: close({
-	Bucket!: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:[^:]+:s3-outposts:[a-zA-Z0-9\\-]+:\\d{12}:outpost\\/[^:]+\\/bucket\\/[^:]+$" |
-	fn.#StringExpression
-	Name!:   strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\\\-]*[a-z0-9])?$" | fn.#StringExpression
-	Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	VpcConfiguration!: #VpcConfiguration | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3Outposts::AccessPoint"
+	Properties!: close({
+		Bucket!: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[^:]+:s3-outposts:[a-zA-Z0-9\\-]+:\\d{12}:outpost\\/[^:]+\\/bucket\\/[^:]+$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\\\-]*[a-z0-9])?$" |
+		fn.#StringExpression
+		Policy?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		VpcConfiguration!: #VpcConfiguration | fn.#ObjectExpression
+	})
+}
 
 #VpcConfiguration: close({
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Outposts::AccessPoint"
-	Properties!: #Properties
-}

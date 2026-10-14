@@ -17,18 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An entity that defines the scope of audit evidence collected by AWS Audit Manager.
-#Properties: close({
-	AssessmentReportsDestination?: #AssessmentReportsDestination
-	AwsAccount?:                   #AWSAccount
-	Delegations?:                  [...#Delegation] | fn.#ListExpression
-	Description?:                  #AssessmentDescription
-	FrameworkId?:                  #FrameworkId
-	Name?:                         #AssessmentName
-	Roles?:                        [...#Role] | fn.#ListExpression
-	Scope?:                        #Scope
-	Status?:                       #AssessmentStatus
-	Tags?:                         [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AuditManager::Assessment"
+	Properties?: close({
+		AssessmentReportsDestination?: #AssessmentReportsDestination
+		AwsAccount?:                   #AWSAccount
+		Delegations?:                  [...#Delegation] | fn.#ListExpression
+		Description?:                  #AssessmentDescription
+		FrameworkId?:                  #FrameworkId
+		Name?:                         #AssessmentName
+		Roles?:                        [...#Role] | fn.#ListExpression
+		Scope?:                        #Scope
+		Status?:                       #AssessmentStatus
+		Tags?:                         [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AWSAccount: close({
 	EmailAddress?: #EmailAddress
@@ -144,7 +147,3 @@ fn.#ObjectExpression
 
 #UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AuditManager::Assessment"
-	Properties?: #Properties
-}

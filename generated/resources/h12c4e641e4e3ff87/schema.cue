@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaTailor::Program
-#Properties: close({
-	AdBreaks?:              [...#AdBreak] | fn.#ListExpression
-	AudienceMedia?:         [...#AudienceMedia] | fn.#ListExpression
-	ChannelName!:           string | fn.#StringExpression
-	LiveSourceName?:        string | fn.#StringExpression
-	ProgramName!:           string | fn.#StringExpression
-	ScheduleConfiguration?: #ScheduleConfiguration | fn.#ObjectExpression
-	SourceLocationName!:    string | fn.#StringExpression
-	VodSourceName?:         string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaTailor::Program"
+	Properties!: close({
+		AdBreaks?:              [...#AdBreak] | fn.#ListExpression
+		AudienceMedia?:         [...#AudienceMedia] | fn.#ListExpression
+		ChannelName!:           string | fn.#StringExpression
+		LiveSourceName?:        string | fn.#StringExpression
+		ProgramName!:           string | fn.#StringExpression
+		ScheduleConfiguration?: #ScheduleConfiguration | fn.#ObjectExpression
+		SourceLocationName!:    string | fn.#StringExpression
+		VodSourceName?:         string | fn.#StringExpression
+	})
+}
 
 #AdBreak: close({
 	AdBreakMetadata?: [...#KeyValuePair] | fn.#ListExpression
@@ -340,7 +343,3 @@ fn.#ObjectExpression
 	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaTailor::Program"
-	Properties!: #Properties
-}

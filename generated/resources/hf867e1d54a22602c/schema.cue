@@ -18,16 +18,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BedrockAgentCore::GatewayTarget Resource Type
-#Properties: close({
-	CredentialProviderConfigurations?: list.MaxItems(1) & list.MinItems(1) & [...#CredentialProviderConfiguration] |
-		fn.#ListExpression
-	Description?:           strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	GatewayIdentifier?:     =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
-	MetadataConfiguration?: #MetadataConfiguration
-	Name?:                  =~"^([0-9a-zA-Z][-]?){1,100}$" | fn.#StringExpression
-	PrivateEndpoint?:       #PrivateEndpoint
-	TargetConfiguration!:   #TargetConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::GatewayTarget"
+	Properties!: close({
+		CredentialProviderConfigurations?: list.MaxItems(1) & list.MinItems(1) & [...#CredentialProviderConfiguration] |
+			fn.#ListExpression
+		Description?:           strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		GatewayIdentifier?:     =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
+		MetadataConfiguration?: #MetadataConfiguration
+		Name?:                  =~"^([0-9a-zA-Z][-]?){1,100}$" | fn.#StringExpression
+		PrivateEndpoint?:       #PrivateEndpoint
+		TargetConfiguration!:   #TargetConfiguration
+	})
+}
 
 #ApiGatewayTargetConfiguration: close({
 	ApiGatewayToolConfiguration!: #ApiGatewayToolConfiguration
@@ -440,7 +443,3 @@ fn.#ObjectExpression
 	close({S3!: #S3Configuration}), close({InlinePayload!: [...#ToolDefinition] | fn.#ListExpression}),
 ]) |
 fn.#ValueExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::GatewayTarget"
-	Properties!: #Properties
-}

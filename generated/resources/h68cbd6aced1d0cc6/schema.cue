@@ -13,18 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS::ResilienceHub::App.
-#Properties: close({
-	AppAssessmentSchedule?: "Disabled" | "Daily" | fn.#StringExpression
-	AppTemplateBody!: strings.MaxRunes(409600) & strings.MinRunes(0) & =~"^[\\w\\s:,-\\.'\\/{}\\[\\]:\"]+$" |
-	fn.#StringExpression
-	Description?:         strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	EventSubscriptions?:  list.MaxItems(10) & [...] & [...#EventSubscription] | fn.#ListExpression
-	Name!:                =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	PermissionModel?:     #PermissionModel
-	ResiliencyPolicyArn?: string | fn.#StringExpression
-	ResourceMappings!:    [...#ResourceMapping] | fn.#ListExpression
-	Tags?:                #TagMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ResilienceHub::App"
+	Properties!: close({
+		AppAssessmentSchedule?: "Disabled" | "Daily" | fn.#StringExpression
+		AppTemplateBody!: strings.MaxRunes(409600) & strings.MinRunes(0) & =~"^[\\w\\s:,-\\.'\\/{}\\[\\]:\"]+$" |
+		fn.#StringExpression
+		Description?:         strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+		EventSubscriptions?:  list.MaxItems(10) & [...] & [...#EventSubscription] | fn.#ListExpression
+		Name!:                =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
+		PermissionModel?:     #PermissionModel
+		ResiliencyPolicyArn?: string | fn.#StringExpression
+		ResourceMappings!:    [...#ResourceMapping] | fn.#ListExpression
+		Tags?:                #TagMap
+	})
+}
 
 #EventSubscription: close({
 	EventType!: "ScheduledAssessmentFailure" | "DriftDetected" | fn.#StringExpression
@@ -69,7 +72,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TagValue: strings.MaxRunes(256) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ResilienceHub::App"
-	Properties!: #Properties
-}

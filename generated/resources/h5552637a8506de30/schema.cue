@@ -13,29 +13,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaLive::Input
-#Properties: close({
-	Destinations?:         [...#InputDestinationRequest] | fn.#ListExpression
-	InputDevices?:         [...#InputDeviceSettings] | fn.#ListExpression
-	InputNetworkLocation?: string | fn.#StringExpression
-	InputSecurityGroups?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::Input"
+	Properties?: close({
+		Destinations?:         [...#InputDestinationRequest] | fn.#ListExpression
+		InputDevices?:         [...#InputDeviceSettings] | fn.#ListExpression
+		InputNetworkLocation?: string | fn.#StringExpression
+		InputSecurityGroups?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		MediaConnectFlows?: [...#MediaConnectFlowRequest] | fn.#ListExpression
+		MulticastSettings?: #MulticastSettingsCreateRequest
+		Name?:              string | fn.#StringExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	MediaConnectFlows?: [...#MediaConnectFlowRequest] | fn.#ListExpression
-	MulticastSettings?: #MulticastSettingsCreateRequest
-	Name?:              string | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	RouterSettings?:                 #RouterSettings
-	SdiSources?:                     [...string | fn.#StringExpression] | fn.#ListExpression
-	Smpte2110ReceiverGroupSettings?: #Smpte2110ReceiverGroupSettings
-	Sources?:                        [...#InputSourceRequest] | fn.#ListExpression
-	SrtSettings?:                    #SrtSettingsRequest
-	Tags?:                           fn.#Object & {...} | string | fn.#StringObjectExpression
-	Type?:                           string | fn.#StringExpression
-	Vpc?:                            #InputVpcRequest
-})
+		RouterSettings?:                 #RouterSettings
+		SdiSources?:                     [...string | fn.#StringExpression] | fn.#ListExpression
+		Smpte2110ReceiverGroupSettings?: #Smpte2110ReceiverGroupSettings
+		Sources?:                        [...#InputSourceRequest] | fn.#ListExpression
+		SrtSettings?:                    #SrtSettingsRequest
+		Tags?:                           fn.#Object & {...} | string | fn.#StringObjectExpression
+		Type?:                           string | fn.#StringExpression
+		Vpc?:                            #InputVpcRequest
+	})
+}
 
 #InputDestinationRequest: close({
 	Network?:         string | fn.#StringExpression
@@ -180,7 +183,3 @@ fn.#ObjectExpression
 	SrtListenerSettings?: #SrtListenerSettingsRequest
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::Input"
-	Properties?: #Properties
-}

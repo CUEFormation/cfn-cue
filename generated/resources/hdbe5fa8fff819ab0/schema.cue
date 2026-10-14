@@ -13,20 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoT::Policy
-#Properties: close({
-	PolicyDocument!: fn.#Object & {...} |
-	strings.MaxRunes(404600) & strings.MinRunes(1) & =~"^[\\s\\S]*$" |
-	fn.#StringObjectExpression
-	PolicyName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::Policy"
+	Properties!: close({
+		PolicyDocument!: fn.#Object & {...} |
+		strings.MaxRunes(404600) & strings.MinRunes(1) & =~"^[\\s\\S]*$" |
+		fn.#StringObjectExpression
+		PolicyName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+		Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::Policy"
-	Properties!: #Properties
-}

@@ -14,18 +14,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MWAAServerless::Workflow resource
-#Properties: close({
-	Code?:                    #Code
-	DefinitionS3Location!:    #S3Location
-	Description?:             #Description
-	EncryptionConfiguration?: #EncryptionConfiguration
-	LoggingConfiguration?:    #LoggingConfiguration
-	Name?:                    #Name
-	NetworkConfiguration?:    #NetworkConfiguration
-	RoleArn!:                 #RoleArn
-	Tags?:                    #Tags
-	TriggerMode?:             #TriggerMode
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MWAAServerless::Workflow"
+	Properties!: close({
+		Code?:                    #Code
+		DefinitionS3Location!:    #S3Location
+		Description?:             #Description
+		EncryptionConfiguration?: #EncryptionConfiguration
+		LoggingConfiguration?:    #LoggingConfiguration
+		Name?:                    #Name
+		NetworkConfiguration?:    #NetworkConfiguration
+		RoleArn!:                 #RoleArn
+		Tags?:                    #Tags
+		TriggerMode?:             #TriggerMode
+	})
+}
 
 #Arn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
@@ -96,7 +99,3 @@ fn.#ObjectExpression
 #WorkflowStatus: "READY" | "DELETING" | fn.#StringExpression
 
 #WorkflowVersion: strings.MaxRunes(32) & strings.MinRunes(32) & =~"^[a-z0-9]{32}$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MWAAServerless::Workflow"
-	Properties!: #Properties
-}

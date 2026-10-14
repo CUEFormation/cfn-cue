@@ -17,29 +17,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IVS::RecordingConfiguration
-#Properties: close({
-	DestinationConfiguration!: #DestinationConfiguration
-	Name?:                     strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-	RecordingReconnectWindowSeconds?: int & <=300 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=300 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RenditionConfiguration?: #RenditionConfiguration
-	Tags?:                   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	ThumbnailConfiguration?: #ThumbnailConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IVS::RecordingConfiguration"
+	Properties!: close({
+		DestinationConfiguration!: #DestinationConfiguration
+		Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
+		RecordingReconnectWindowSeconds?: int & <=300 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=300 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RenditionConfiguration?: #RenditionConfiguration
+		Tags?:                   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		ThumbnailConfiguration?: #ThumbnailConfiguration
+	})
+}
 
 #DestinationConfiguration: close({S3?: #S3DestinationConfiguration}) | fn.#ObjectExpression
 
@@ -86,7 +91,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IVS::RecordingConfiguration"
-	Properties!: #Properties
-}

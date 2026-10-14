@@ -12,17 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::CloudWatchAlarmTemplateGroup Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	Tags?:        #TagMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::CloudWatchAlarmTemplateGroup"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
+		Tags?:        #TagMap
+	})
+}
 
 #TagMap: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::CloudWatchAlarmTemplateGroup"
-	Properties!: #Properties
-}

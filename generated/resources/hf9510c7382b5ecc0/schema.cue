@@ -17,36 +17,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies an Application Load Balancer, a Network Load Balancer, or a Gateway Load Balancer.
-#Properties: close({
-	EnableCapacityReservationProvisionStabilize?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	EnablePrefixForIpv6SourceNat?:                         "off" | "on" | fn.#StringExpression
-	EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic?: string | fn.#StringExpression
-	IpAddressType?:               "dualstack" | "dualstack-without-public-ipv4" | "ipv4" | fn.#StringExpression
-	Ipv4IpamPoolId?:              string | fn.#StringExpression
-	LoadBalancerAttributes?:      list.UniqueItems() & [...#LoadBalancerAttribute] | fn.#ListExpression
-	MinimumLoadBalancerCapacity?: #MinimumLoadBalancerCapacity & fn.#Object & {...} | fn.#ObjectExpression
-	Name?:                        string | fn.#StringExpression
-	Scheme?:                      "internal" | "internet-facing" | fn.#StringExpression
-	SecurityGroups?: list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetMappings?: list.UniqueItems() & [...#SubnetMapping] | fn.#ListExpression
-	Subnets?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:           [...#Tag] | fn.#ListExpression
-	Type?:           "application" | "gateway" | "network" | fn.#StringExpression
-	if Subnets != _|_ {
-		SubnetMappings?: error("SubnetMappings cannot be used with Subnets; set exactly one of Subnets, SubnetMappings")
-	}
-}) & matchN(>=1, [{Subnets!: _}, {SubnetMappings!: _}])
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+	Properties?: close({
+		EnableCapacityReservationProvisionStabilize?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		EnablePrefixForIpv6SourceNat?:                         "off" | "on" | fn.#StringExpression
+		EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic?: string | fn.#StringExpression
+		IpAddressType?:               "dualstack" | "dualstack-without-public-ipv4" | "ipv4" | fn.#StringExpression
+		Ipv4IpamPoolId?:              string | fn.#StringExpression
+		LoadBalancerAttributes?:      list.UniqueItems() & [...#LoadBalancerAttribute] | fn.#ListExpression
+		MinimumLoadBalancerCapacity?: #MinimumLoadBalancerCapacity & fn.#Object & {...} | fn.#ObjectExpression
+		Name?:                        string | fn.#StringExpression
+		Scheme?:                      "internal" | "internet-facing" | fn.#StringExpression
+		SecurityGroups?: list.UniqueItems() & [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		SubnetMappings?: list.UniqueItems() & [...#SubnetMapping] | fn.#ListExpression
+		Subnets?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:           [...#Tag] | fn.#ListExpression
+		Type?:           "application" | "gateway" | "network" | fn.#StringExpression
+		if Subnets != _|_ {
+			SubnetMappings?: error(
+				"SubnetMappings cannot be used with Subnets; set exactly one of Subnets, SubnetMappings",
+			)
+		}
+	}) & matchN(>=1, [{Subnets!: _}, {SubnetMappings!: _}])
+}
 
 #LoadBalancerAttribute: close({
 	Key?:   string | fn.#StringExpression
@@ -86,7 +91,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticLoadBalancingV2::LoadBalancer"
-	Properties?: #Properties
-}

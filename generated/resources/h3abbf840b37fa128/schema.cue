@@ -13,27 +13,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Macie FindingsFilter resource schema.
-#Properties: close({
-	Action?:          #FindingFilterAction | fn.#StringExpression
-	Description?:     string | fn.#StringExpression
-	FindingCriteria!: #FindingCriteria | fn.#ObjectExpression
-	Name!:            string | fn.#StringExpression
-	Position?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Macie::FindingsFilter"
+	Properties!: close({
+		Action?:          #FindingFilterAction | fn.#StringExpression
+		Description?:     string | fn.#StringExpression
+		FindingCriteria!: #FindingCriteria | fn.#ObjectExpression
+		Name!:            string | fn.#StringExpression
+		Position?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Criterion: close({
 
@@ -117,7 +122,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Macie::FindingsFilter"
-	Properties!: #Properties
-}

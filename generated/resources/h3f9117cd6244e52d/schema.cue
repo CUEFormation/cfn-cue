@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTManagedIntegrations::ProvisioningProfile
-#Properties: close({
-	CaCertificate?: =~"""
-		^-----BEGIN CERTIFICATE-----.*(.|\\
-		)*-----END CERTIFICATE-----\\n?$
-		""" |
-		fn.#StringExpression
-	ClaimCertificate?: string | fn.#StringExpression
-	Name?:             strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
-	ProvisioningType!: #ProvisioningType
-	Tags?:             #TagsMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTManagedIntegrations::ProvisioningProfile"
+	Properties!: close({
+		CaCertificate?: =~"""
+			^-----BEGIN CERTIFICATE-----.*(.|\\
+			)*-----END CERTIFICATE-----\\n?$
+			""" |
+			fn.#StringExpression
+		ClaimCertificate?: string | fn.#StringExpression
+		Name?:             strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
+		ProvisioningType!: #ProvisioningType
+		Tags?:             #TagsMap
+	})
+}
 
 #ProvisioningType: "FLEET_PROVISIONING" | "JITR" | fn.#StringExpression
 
@@ -40,7 +43,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Unit: close({}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTManagedIntegrations::ProvisioningProfile"
-	Properties!: #Properties
-}

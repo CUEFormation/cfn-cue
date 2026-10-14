@@ -12,7 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for EKS CertificateAuthority.
-#Properties: close({ClusterName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::EKS::CertificateAuthority"
+	Properties!: close({ClusterName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression})
+}
 
 #ScheduledEvents: close({
 	FinalAutoActivation?: string | fn.#StringExpression
@@ -25,7 +28,3 @@ fn.#ObjectExpression
 	NotBefore?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EKS::CertificateAuthority"
-	Properties!: #Properties
-}

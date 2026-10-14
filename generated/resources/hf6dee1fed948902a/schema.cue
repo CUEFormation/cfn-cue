@@ -14,24 +14,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::Comprehend::Flywheel resource creates an Amazon Comprehend Flywheel
 // that enables customer to train their model.
-#Properties: close({
-	ActiveModelArn?: strings.MaxRunes(256) &
-	strings.MinRunes(0) &
-	=~"arn:aws(-[^:]+)?:comprehend:[a-zA-Z0-9-]*:[0-9]{12}:(document-classifier|entity-recognizer)/[a-zA-Z0-9](-*[a-zA-Z0-9])*(/version/[a-zA-Z0-9](-*[a-zA-Z0-9])*)?" |
-	fn.#StringExpression
-	DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
-	fn.#StringExpression
-	DataLakeS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?" |
-	fn.#StringExpression
-	DataSecurityConfig?: #DataSecurityConfig
-	FlywheelName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
-	ModelType?:    "DOCUMENT_CLASSIFIER" | "ENTITY_RECOGNIZER" | fn.#StringExpression
-	Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TaskConfig?:   #TaskConfig
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Comprehend::Flywheel"
+	Properties!: close({
+		ActiveModelArn?: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"arn:aws(-[^:]+)?:comprehend:[a-zA-Z0-9-]*:[0-9]{12}:(document-classifier|entity-recognizer)/[a-zA-Z0-9](-*[a-zA-Z0-9])*(/version/[a-zA-Z0-9](-*[a-zA-Z0-9])*)?" |
+		fn.#StringExpression
+		DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
+		fn.#StringExpression
+		DataLakeS3Uri!: strings.MaxRunes(512) &
+		strings.MinRunes(0) &
+		=~"s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?" |
+		fn.#StringExpression
+		DataSecurityConfig?: #DataSecurityConfig
+		FlywheelName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		fn.#StringExpression
+		ModelType?:  "DOCUMENT_CLASSIFIER" | "ENTITY_RECOGNIZER" | fn.#StringExpression
+		Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TaskConfig?: #TaskConfig
+	})
+}
 
 #DataSecurityConfig: close({
 	DataLakeKmsKeyId?: #KmsKeyId
@@ -89,7 +95,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Comprehend::Flywheel"
-	Properties!: #Properties
-}

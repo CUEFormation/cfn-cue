@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SystemsManagerSAP::Application
-#Properties: close({
-	ApplicationId!:     =~"[\\w\\d\\.-]{1,60}" | fn.#StringExpression
-	ApplicationType!:   "HANA" | "SAP_ABAP" | fn.#StringExpression
-	ComponentsInfo?:    list.MinItems(1) & [...#ComponentInfo] | fn.#ListExpression
-	Credentials?:       list.MinItems(1) & [...#Credential] | fn.#ListExpression
-	DatabaseArn?:       =~"^arn:(.+:){2,4}.+$|^arn:(.+:){1,3}.+\\/.+$" | fn.#StringExpression
-	Instances?:         list.MinItems(1) & [...#Instance] | fn.#ListExpression
-	SapInstanceNumber?: =~"[0-9]{2}" | fn.#StringExpression
-	Sid?:               =~"[A-Z][A-Z0-9]{2}" | fn.#StringExpression
-	Tags?:              [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SystemsManagerSAP::Application"
+	Properties!: close({
+		ApplicationId!:     =~"[\\w\\d\\.-]{1,60}" | fn.#StringExpression
+		ApplicationType!:   "HANA" | "SAP_ABAP" | fn.#StringExpression
+		ComponentsInfo?:    list.MinItems(1) & [...#ComponentInfo] | fn.#ListExpression
+		Credentials?:       list.MinItems(1) & [...#Credential] | fn.#ListExpression
+		DatabaseArn?:       =~"^arn:(.+:){2,4}.+$|^arn:(.+:){1,3}.+\\/.+$" | fn.#StringExpression
+		Instances?:         list.MinItems(1) & [...#Instance] | fn.#ListExpression
+		SapInstanceNumber?: =~"[0-9]{2}" | fn.#StringExpression
+		Sid?:               =~"[A-Z][A-Z0-9]{2}" | fn.#StringExpression
+		Tags?:              [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ComponentInfo: {
 	ComponentType?: "HANA" | "HANA_NODE" | "ABAP" | "ASCS" | "DIALOG" | "WEBDISP" | "WD" | "ERS" | fn.#StringExpression
@@ -46,7 +49,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SystemsManagerSAP::Application"
-	Properties!: #Properties
-}

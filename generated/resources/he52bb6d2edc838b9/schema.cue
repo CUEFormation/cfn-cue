@@ -12,16 +12,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::RAM::ResourceShare
-#Properties: close({
-	AllowExternalPrincipals?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:                       string | fn.#StringExpression
-	PermissionArns?:             [...string | fn.#StringExpression] | fn.#ListExpression
-	Principals?:                 [...string | fn.#StringExpression] | fn.#ListExpression
-	ResourceArns?:               [...string | fn.#StringExpression] | fn.#ListExpression
-	ResourceShareConfiguration?: #ResourceShareConfiguration | fn.#ObjectExpression
-	Sources?:                    [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                       list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RAM::ResourceShare"
+	Properties!: close({
+		AllowExternalPrincipals?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Name!:                    string | fn.#StringExpression
+		PermissionArns?:          [...string | fn.#StringExpression] | fn.#ListExpression
+		Principals?:              [...string | fn.#StringExpression] | fn.#ListExpression
+		ResourceArns?:            [...string | fn.#StringExpression] | fn.#ListExpression
+		ResourceShareConfiguration?: #ResourceShareConfiguration | fn.#ObjectExpression
+		Sources?:                    [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:                       list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #PermissionArnTemplateParameters: close({
 	PermissionArn!:                string | fn.#StringExpression
@@ -53,7 +56,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RAM::ResourceShare"
-	Properties!: #Properties
-}

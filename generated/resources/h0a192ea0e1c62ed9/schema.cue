@@ -13,13 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::NotebookInstanceLifecycleConfig
-#Properties: close({
-	NotebookInstanceLifecycleConfigName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
-	fn.#StringExpression
-	OnCreate?: list.MaxItems(1) & [...] & [...#NotebookInstanceLifecycleHook] | fn.#ListExpression
-	OnStart?:  list.MaxItems(1) & [...] & [...#NotebookInstanceLifecycleHook] | fn.#ListExpression
-	Tags?:     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::NotebookInstanceLifecycleConfig"
+	Properties?: close({
+		NotebookInstanceLifecycleConfigName?: strings.MaxRunes(63) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		fn.#StringExpression
+		OnCreate?: list.MaxItems(1) & [...] & [...#NotebookInstanceLifecycleHook] | fn.#ListExpression
+		OnStart?:  list.MaxItems(1) & [...] & [...#NotebookInstanceLifecycleHook] | fn.#ListExpression
+		Tags?:     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #NotebookInstanceLifecycleHook: close(
 	{Content?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\S\\s]+$" | fn.#StringExpression},
@@ -31,7 +36,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::NotebookInstanceLifecycleConfig"
-	Properties?: #Properties
-}

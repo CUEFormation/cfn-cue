@@ -9,11 +9,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::DeviceDefinition
-#Properties: close({
-	InitialVersion?: #DeviceDefinitionVersion
-	Name!:           string | fn.#StringExpression
-	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Greengrass::DeviceDefinition"
+	Properties!: close({
+		InitialVersion?: #DeviceDefinitionVersion
+		Name!:           string | fn.#StringExpression
+		Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+	})
+}
 
 #Device: close({
 	CertificateArn!: string | fn.#StringExpression
@@ -24,7 +27,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #DeviceDefinitionVersion: close({Devices!: [...#Device] | fn.#ListExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Greengrass::DeviceDefinition"
-	Properties!: #Properties
-}

@@ -12,20 +12,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::VPCEncryptionControl
-#Properties: close({
-	EgressOnlyInternetGatewayExclusionInput?: "enable" | "disable" | fn.#StringExpression
-	ElasticFileSystemExclusionInput?:         "enable" | "disable" | fn.#StringExpression
-	InternetGatewayExclusionInput?:           "enable" | "disable" | fn.#StringExpression
-	LambdaExclusionInput?:                    "enable" | "disable" | fn.#StringExpression
-	Mode?:                                    "monitor" | "enforce" | fn.#StringExpression
-	NatGatewayExclusionInput?:                "enable" | "disable" | fn.#StringExpression
-	Tags?:                                    [...#Tag] | fn.#ListExpression
-	VirtualPrivateGatewayExclusionInput?:     "enable" | "disable" | fn.#StringExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	VpcLatticeExclusionInput?: "enable" | "disable" | fn.#StringExpression
-	VpcPeeringExclusionInput?: "enable" | "disable" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VPCEncryptionControl"
+	Properties?: close({
+		EgressOnlyInternetGatewayExclusionInput?: "enable" | "disable" | fn.#StringExpression
+		ElasticFileSystemExclusionInput?:         "enable" | "disable" | fn.#StringExpression
+		InternetGatewayExclusionInput?:           "enable" | "disable" | fn.#StringExpression
+		LambdaExclusionInput?:                    "enable" | "disable" | fn.#StringExpression
+		Mode?:                                    "monitor" | "enforce" | fn.#StringExpression
+		NatGatewayExclusionInput?:                "enable" | "disable" | fn.#StringExpression
+		Tags?:                                    [...#Tag] | fn.#ListExpression
+		VirtualPrivateGatewayExclusionInput?:     "enable" | "disable" | fn.#StringExpression
+		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		VpcLatticeExclusionInput?: "enable" | "disable" | fn.#StringExpression
+		VpcPeeringExclusionInput?: "enable" | "disable" | fn.#StringExpression
+	})
+}
 
 #ResourceExclusions: close({
 	EgressOnlyInternetGateway?: #VpcEncryptionControlExclusion
@@ -50,7 +53,3 @@ fn.#ObjectExpression
 	StateMessage?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VPCEncryptionControl"
-	Properties?: #Properties
-}

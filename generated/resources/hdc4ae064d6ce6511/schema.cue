@@ -20,29 +20,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // see [HTTP
 // APIs](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api.html)
 // in the *API Gateway Developer Guide.*
-#Properties: close({
-	ApiKeySelectionExpression?: string | fn.#StringExpression
-	BasePath?:                  string | fn.#StringExpression
-	Body?:                      fn.#Object & {...} | string | fn.#StringObjectExpression
-	BodyS3Location?:            #BodyS3Location | fn.#ObjectExpression
-	CorsConfiguration?:         #Cors | fn.#ObjectExpression
-	CredentialsArn?:            string | fn.#StringExpression
-	Description?:               string | fn.#StringExpression
-	DisableExecuteApiEndpoint?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DisableSchemaValidation?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FailOnWarnings?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IpAddressType?:             string | fn.#StringExpression
-	Name?:                      string | fn.#StringExpression
-	ProtocolType?:              string | fn.#StringExpression
-	RouteKey?:                  string | fn.#StringExpression
-	RouteSelectionExpression?:  string | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::Api"
+	Properties?: close({
+		ApiKeySelectionExpression?: string | fn.#StringExpression
+		BasePath?:                  string | fn.#StringExpression
+		Body?:                      fn.#Object & {...} | string | fn.#StringObjectExpression
+		BodyS3Location?:            #BodyS3Location | fn.#ObjectExpression
+		CorsConfiguration?:         #Cors | fn.#ObjectExpression
+		CredentialsArn?:            string | fn.#StringExpression
+		Description?:               string | fn.#StringExpression
+		DisableExecuteApiEndpoint?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		DisableSchemaValidation?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		FailOnWarnings?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IpAddressType?:            string | fn.#StringExpression
+		Name?:                     string | fn.#StringExpression
+		ProtocolType?:             string | fn.#StringExpression
+		RouteKey?:                 string | fn.#StringExpression
+		RouteSelectionExpression?: string | fn.#StringExpression
+		Tags?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Target?:  string | fn.#StringExpression
-	Version?: string | fn.#StringExpression
-})
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Target?:  string | fn.#StringExpression
+		Version?: string | fn.#StringExpression
+	})
+}
 
 #BodyS3Location: close({
 	Bucket?:  string | fn.#StringExpression
@@ -74,7 +84,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::Api"
-	Properties?: #Properties
-}

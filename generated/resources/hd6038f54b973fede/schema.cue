@@ -13,22 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::QLDB::Stream.
-#Properties: close({
-	ExclusiveEndTime?:     string | fn.#StringExpression
-	InclusiveStartTime!:   string | fn.#StringExpression
-	KinesisConfiguration!: #KinesisConfiguration
-	LedgerName!:           string | fn.#StringExpression
-	RoleArn!: #Arn &
-	(null |
-	bool |
-	number |
-	=~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	[...] |
-	{...}) |
-	fn.#StringExpression
-	StreamName!: string | fn.#StringExpression
-	Tags?:       list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QLDB::Stream"
+	Properties!: close({
+		ExclusiveEndTime?:     string | fn.#StringExpression
+		InclusiveStartTime!:   string | fn.#StringExpression
+		KinesisConfiguration!: #KinesisConfiguration
+		LedgerName!:           string | fn.#StringExpression
+		RoleArn!: #Arn &
+		(null |
+		bool |
+		number |
+		=~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+		[...] |
+		{...}) |
+		fn.#StringExpression
+		StreamName!: string | fn.#StringExpression
+		Tags?:       list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
 
@@ -43,7 +46,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QLDB::Stream"
-	Properties!: #Properties
-}

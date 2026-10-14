@@ -10,13 +10,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::NetworkManager::CustomerGatewayAssociation type associates a
 // customer gateway with a device and optionally, with a link.
-#Properties: close({
-	CustomerGatewayArn!: string | fn.#StringExpression
-	DeviceId!:           string | fn.#StringExpression
-	GlobalNetworkId!:    string | fn.#StringExpression
-	LinkId?:             string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkManager::CustomerGatewayAssociation"
-	Properties!: #Properties
+	Type!: "AWS::NetworkManager::CustomerGatewayAssociation"
+	Properties!: close({
+		CustomerGatewayArn!: string | fn.#StringExpression
+		DeviceId!:           string | fn.#StringExpression
+		GlobalNetworkId!:    string | fn.#StringExpression
+		LinkId?:             string | fn.#StringExpression
+	})
 }

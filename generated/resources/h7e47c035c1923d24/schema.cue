@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An object representing an Amazon EKS AccessEntry.
-#Properties: close({
-	AccessPolicies?:   list.MaxItems(20) & list.UniqueItems() & [...#AccessPolicy] | fn.#ListExpression
-	ClusterName!:      strings.MinRunes(1) | fn.#StringExpression
-	KubernetesGroups?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	PrincipalArn!:     strings.MinRunes(1) | fn.#StringExpression
-	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Type?:             string | fn.#StringExpression
-	Username?:         string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EKS::AccessEntry"
+	Properties!: close({
+		AccessPolicies?:   list.MaxItems(20) & list.UniqueItems() & [...#AccessPolicy] | fn.#ListExpression
+		ClusterName!:      strings.MinRunes(1) | fn.#StringExpression
+		KubernetesGroups?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		PrincipalArn!:     strings.MinRunes(1) | fn.#StringExpression
+		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type?:             string | fn.#StringExpression
+		Username?:         string | fn.#StringExpression
+	})
+}
 
 #AccessPolicy: close({
 	AccessScope!: #AccessScope
@@ -40,7 +43,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EKS::AccessEntry"
-	Properties!: #Properties
-}

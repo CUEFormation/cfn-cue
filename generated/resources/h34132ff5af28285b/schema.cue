@@ -17,19 +17,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::APS::Workspace
-#Properties: close({
-	AlertManagerDefinition?: string | fn.#StringExpression
-	Alias?:                  strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[-a-z]*:kms:[-a-z0-9]+:[0-9]{12}:key/.+$" |
-	fn.#StringExpression
-	LoggingConfiguration?:      #LoggingConfiguration
-	QueryLoggingConfiguration?: #QueryLoggingConfiguration
-	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	WorkspaceConfiguration?:    #WorkspaceConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::APS::Workspace"
+	Properties?: close({
+		AlertManagerDefinition?: string | fn.#StringExpression
+		Alias?:                  strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[-a-z]*:kms:[-a-z0-9]+:[0-9]{12}:key/.+$" |
+		fn.#StringExpression
+		LoggingConfiguration?:      #LoggingConfiguration
+		QueryLoggingConfiguration?: #QueryLoggingConfiguration
+		Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		WorkspaceConfiguration?:    #WorkspaceConfiguration
+	})
+}
 
 #CloudWatchLogDestination: close({LogGroupArn!: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression}) |
 fn.#ObjectExpression
@@ -153,7 +156,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::APS::Workspace"
-	Properties?: #Properties
-}

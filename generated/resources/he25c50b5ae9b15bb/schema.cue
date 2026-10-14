@@ -12,13 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::RoboMaker::Robot resource creates an AWS RoboMaker Robot.
-#Properties: close({
-	Architecture!:      "X86_64" | "ARM64" | "ARMHF" | fn.#StringExpression
-	Fleet?:             strings.MaxRunes(1224) & strings.MinRunes(1) | fn.#StringExpression
-	GreengrassGroupId!: strings.MaxRunes(1224) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:              #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RoboMaker::Robot"
+	Properties!: close({
+		Architecture!:      "X86_64" | "ARM64" | "ARMHF" | fn.#StringExpression
+		Fleet?:             strings.MaxRunes(1224) & strings.MinRunes(1) | fn.#StringExpression
+		GreengrassGroupId!: strings.MaxRunes(1224) & strings.MinRunes(1) | fn.#StringExpression
+		Name?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:              #Tags
+	})
+}
 
 #Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
 
@@ -26,7 +29,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 	{[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RoboMaker::Robot"
-	Properties!: #Properties
-}

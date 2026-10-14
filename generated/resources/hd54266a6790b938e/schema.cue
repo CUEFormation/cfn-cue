@@ -13,41 +13,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EMR::Studio
-#Properties: close({
-	AuthMode!:          "SSO" | "IAM" | fn.#StringExpression
-	DefaultS3Location!: strings.MaxRunes(10280) & strings.MinRunes(6) & =~"^s3://.*" | fn.#StringExpression
-	Description?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	EncryptionKeyArn?:  #Arn | fn.#StringExpression
-	EngineSecurityGroupId!: strings.MaxRunes(256) & strings.MinRunes(4) & =~"^sg-[a-zA-Z0-9\\-._]+$" |
-	fn.#StringExpression
-	IdcInstanceArn?:    strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	IdcUserAssignment?: "REQUIRED" | "OPTIONAL" | fn.#StringExpression
-	IdpAuthUrl?: strings.MaxRunes(4096) &
-	strings.MinRunes(0) &
-	=~"^https://[0-9a-zA-Z]([-.\\w]*[0-9a-zA-Z])(:[0-9]*)*([?/#].*)?$" |
-	fn.#StringExpression
-	IdpRelayStateParameterName?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:                       strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
-	ServiceRole!:                #Arn | fn.#StringExpression
-	SubnetIds!:                  list.MinItems(1) & [...#SubnetId] | fn.#ListExpression
-	Tags?:                       #Tags | fn.#ListExpression
-	TrustedIdentityPropagationEnabled?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	UserRole?: #Arn | fn.#StringExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(256) &
-	strings.MinRunes(0) &
-	=~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$" |
-	fn.#StringExpression
-	WorkspaceSecurityGroupId!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^sg-[a-zA-Z0-9\\-._]+$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMR::Studio"
+	Properties!: close({
+		AuthMode!:          "SSO" | "IAM" | fn.#StringExpression
+		DefaultS3Location!: strings.MaxRunes(10280) & strings.MinRunes(6) & =~"^s3://.*" | fn.#StringExpression
+		Description?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		EncryptionKeyArn?:  #Arn | fn.#StringExpression
+		EngineSecurityGroupId!: strings.MaxRunes(256) & strings.MinRunes(4) & =~"^sg-[a-zA-Z0-9\\-._]+$" |
+		fn.#StringExpression
+		IdcInstanceArn?:    strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+		IdcUserAssignment?: "REQUIRED" | "OPTIONAL" | fn.#StringExpression
+		IdpAuthUrl?: strings.MaxRunes(4096) &
+		strings.MinRunes(0) &
+		=~"^https://[0-9a-zA-Z]([-.\\w]*[0-9a-zA-Z])(:[0-9]*)*([?/#].*)?$" |
+		fn.#StringExpression
+		IdpRelayStateParameterName?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
+		ServiceRole!: #Arn | fn.#StringExpression
+		SubnetIds!:   list.MinItems(1) & [...#SubnetId] | fn.#ListExpression
+		Tags?:        #Tags | fn.#ListExpression
+		TrustedIdentityPropagationEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		UserRole?: #Arn | fn.#StringExpression
+		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$" |
+		fn.#StringExpression
+		WorkspaceSecurityGroupId!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^sg-[a-zA-Z0-9\\-._]+$" |
+		fn.#StringExpression
+	})
+}
 
 #Arn: strings.MaxRunes(10280) &
 strings.MinRunes(0) &
@@ -63,7 +66,3 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMR::Studio"
-	Properties!: #Properties
-}

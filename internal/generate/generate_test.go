@@ -111,7 +111,7 @@ func TestRegionalGenerationAndValidation(t *testing.T) {
 	} {
 		validate(t, schema, data, false)
 	}
-	literal := build(t, out, "./literal/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
+	literal := propertiesSchema(t, out, "./literal/htest")
 	validate(t, literal, `{Name:"one",Status:"available",Node:{State:"readable"}}`, true)
 	validate(t, literal, `{Name:{Ref:"P"}}`, false)
 	// Provider definitions are package-level definitions other packages can
@@ -210,4 +210,17 @@ func TestIntrinsicBuild(t *testing.T) {
 	if e = v.Err(); e != nil {
 		t.Fatal(e)
 	}
+}
+
+// propertiesSchema returns a generated package's properties schema: #Properties in
+// literal packages, or the Properties inlined in #Resource. CUE does not select
+// optional or required fields, so the field is made regular first.
+func propertiesSchema(t *testing.T, dir, pkg string) cue.Value {
+	t.Helper()
+	v := build(t, dir, pkg)
+	if p := v.LookupPath(cue.MakePath(cue.Def("Properties"))); p.Exists() {
+		return p
+	}
+	resource := v.LookupPath(cue.MakePath(cue.Def("Resource")))
+	return resource.Unify(v.Context().CompileString("{Properties: _}")).LookupPath(cue.MakePath(cue.Str("Properties")))
 }

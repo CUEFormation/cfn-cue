@@ -9,13 +9,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53Profiles::ProfileResourceAssociation
-#Properties: close({
-	Name!:               string | fn.#StringExpression
-	ProfileId!:          string | fn.#StringExpression
-	ResourceArn!:        string | fn.#StringExpression
-	ResourceProperties?: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53Profiles::ProfileResourceAssociation"
-	Properties!: #Properties
+	Type!: "AWS::Route53Profiles::ProfileResourceAssociation"
+	Properties!: close({
+		Name!:               string | fn.#StringExpression
+		ProfileId!:          string | fn.#StringExpression
+		ResourceArn!:        string | fn.#StringExpression
+		ResourceProperties?: string | fn.#StringExpression
+	})
 }

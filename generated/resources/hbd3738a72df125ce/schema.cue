@@ -9,13 +9,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates and manages an Amazon FPGA Image (AFI) from a design checkpoint (DCP).
-#Properties: close({
-	Description?:          string | fn.#StringExpression
-	InputStorageLocation?: #StorageLocation | fn.#ObjectExpression
-	LogsStorageLocation?:  #StorageLocation | fn.#ObjectExpression
-	Name?:                 string | fn.#StringExpression
-	Tags?:                 [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::FpgaImage"
+	Properties?: close({
+		Description?:          string | fn.#StringExpression
+		InputStorageLocation?: #StorageLocation | fn.#ObjectExpression
+		LogsStorageLocation?:  #StorageLocation | fn.#ObjectExpression
+		Name?:                 string | fn.#StringExpression
+		Tags?:                 [...#Tag] | fn.#ListExpression
+	})
+}
 
 #StorageLocation: close({
 	Bucket?: string | fn.#StringExpression
@@ -28,7 +31,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::FpgaImage"
-	Properties?: #Properties
-}

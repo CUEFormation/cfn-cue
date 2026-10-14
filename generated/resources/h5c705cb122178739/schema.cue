@@ -13,18 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Config::OrganizationConformancePack.
-#Properties: close({
-	ConformancePackInputParameters?: list.MaxItems(60) & [...] & [...#ConformancePackInputParameter] |
-		fn.#ListExpression
-	DeliveryS3Bucket?:    strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
-	DeliveryS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ExcludedAccounts?:    list.MaxItems(1000) & [...] & [...#AccountId] | fn.#ListExpression
-	OrganizationConformancePackName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*" |
-	fn.#StringExpression
-	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	TemplateBody?:  strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
-	TemplateS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Config::OrganizationConformancePack"
+	Properties!: close({
+		ConformancePackInputParameters?: list.MaxItems(60) & [...] & [...#ConformancePackInputParameter] |
+			fn.#ListExpression
+		DeliveryS3Bucket?:    strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
+		DeliveryS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		ExcludedAccounts?:    list.MaxItems(1000) & [...] & [...#AccountId] | fn.#ListExpression
+		OrganizationConformancePackName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*" |
+		fn.#StringExpression
+		Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TemplateBody?:  strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
+		TemplateS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" | fn.#StringExpression
+	})
+}
 
 #AccountId: =~"^\\d{12}$" | fn.#StringExpression
 
@@ -43,7 +46,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Config::OrganizationConformancePack"
-	Properties!: #Properties
-}

@@ -16,19 +16,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // more information, see
 // [vpclink:create](https://docs.aws.amazon.com/apigateway/latest/api/API_CreateVpcLink.html)
 // in the ``Amazon API Gateway REST API Reference``.
-#Properties: close({
-	Description?: string | fn.#StringExpression
-	Name!:        string | fn.#StringExpression
-	Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TargetArns!:  [...string | fn.#StringExpression] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGateway::VpcLink"
+	Properties!: close({
+		Description?: string | fn.#StringExpression
+		Name!:        string | fn.#StringExpression
+		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetArns!:  [...string | fn.#StringExpression] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::VpcLink"
-	Properties!: #Properties
-}

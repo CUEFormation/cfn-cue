@@ -17,12 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::NetworkFirewall::FirewallPolicy
-#Properties: close({
-	Description?:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	FirewallPolicy!:     #FirewallPolicy
-	FirewallPolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Tags?:               list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkFirewall::FirewallPolicy"
+	Properties!: close({
+		Description?:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+		FirewallPolicy!:     #FirewallPolicy
+		FirewallPolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		Tags?:               list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ActionDefinition: close({PublishMetricAction?: #PublishMetricAction}) | fn.#ObjectExpression
 
@@ -134,7 +137,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VariableDefinition: strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkFirewall::FirewallPolicy"
-	Properties!: #Properties
-}

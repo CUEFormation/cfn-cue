@@ -14,15 +14,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::S3::AccessGrant resource is an Amazon S3 resource type representing
 // permissions to a specific S3 bucket or prefix hosted in an S3 Access Grants
 // instance.
-#Properties: close({
-	AccessGrantsLocationConfiguration?: #AccessGrantsLocationConfiguration | fn.#ObjectExpression
-	AccessGrantsLocationId!:            string | fn.#StringExpression
-	ApplicationArn?:                    string | fn.#StringExpression
-	Grantee!:                           #Grantee | fn.#ObjectExpression
-	Permission!:                        "READ" | "WRITE" | "READWRITE" | fn.#StringExpression
-	S3PrefixType?:                      "Object" | fn.#StringExpression
-	Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3::AccessGrant"
+	Properties!: close({
+		AccessGrantsLocationConfiguration?: #AccessGrantsLocationConfiguration | fn.#ObjectExpression
+		AccessGrantsLocationId!:            string | fn.#StringExpression
+		ApplicationArn?:                    string | fn.#StringExpression
+		Grantee!:                           #Grantee | fn.#ObjectExpression
+		Permission!:                        "READ" | "WRITE" | "READWRITE" | fn.#StringExpression
+		S3PrefixType?:                      "Object" | fn.#StringExpression
+		Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AccessGrantArn: string | fn.#StringExpression
 
@@ -39,7 +42,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3::AccessGrant"
-	Properties!: #Properties
-}

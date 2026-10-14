@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::ApplicationInferenceProfile Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([0-9a-zA-Z:.][ _-]?)+$" | fn.#StringExpression
-	InferenceProfileName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][ _-]?)+$" |
-	fn.#StringExpression
-	ModelSource?: #InferenceProfileModelSource
-	Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::ApplicationInferenceProfile"
+	Properties!: close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([0-9a-zA-Z:.][ _-]?)+$" | fn.#StringExpression
+		InferenceProfileName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][ _-]?)+$" |
+		fn.#StringExpression
+		ModelSource?: #InferenceProfileModelSource
+		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #InferenceProfileModel: close({
 	ModelArn?: =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}::foundation-model/[a-z0-9-]{1,63}[.]{1}([a-z0-9-]{1,63}[.]){0,2}[a-z0-9-]{1,63}([:][a-z0-9-]{1,63}){0,2}$" |
@@ -46,7 +49,3 @@ fn.#ValueExpression
 fn.#ObjectExpression
 
 #Unit: close({}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::ApplicationInferenceProfile"
-	Properties!: #Properties
-}

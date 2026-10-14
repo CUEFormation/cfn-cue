@@ -16,30 +16,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::Instance
-#Properties: close({
-	AgentVersion?: string | fn.#StringExpression
-	AmiId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Architecture?:         string | fn.#StringExpression
-	AutoScalingType?:      string | fn.#StringExpression
-	AvailabilityZone?:     string | fn.#StringExpression
-	BlockDeviceMappings?:  list.UniqueItems() & [...#BlockDeviceMapping] | fn.#ListExpression
-	EbsOptimized?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ElasticIps?:           list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Hostname?:             string | fn.#StringExpression
-	InstallUpdatesOnBoot?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InstanceType!:         string | fn.#StringExpression
-	LayerIds!:             [...string | fn.#StringExpression] | fn.#ListExpression
-	Os?:                   string | fn.#StringExpression
-	RootDeviceType?:       string | fn.#StringExpression
-	SshKeyName?:           string | fn.#StringExpression
-	StackId!:              string | fn.#StringExpression
-	SubnetId?:             string | fn.#StringExpression
-	Tenancy?:              string | fn.#StringExpression
-	TimeBasedAutoScaling?: #TimeBasedAutoScaling
-	VirtualizationType?:   string | fn.#StringExpression
-	Volumes?:              list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OpsWorks::Instance"
+	Properties!: close({
+		AgentVersion?: string | fn.#StringExpression
+		AmiId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Architecture?:         string | fn.#StringExpression
+		AutoScalingType?:      string | fn.#StringExpression
+		AvailabilityZone?:     string | fn.#StringExpression
+		BlockDeviceMappings?:  list.UniqueItems() & [...#BlockDeviceMapping] | fn.#ListExpression
+		EbsOptimized?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ElasticIps?:           list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Hostname?:             string | fn.#StringExpression
+		InstallUpdatesOnBoot?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		InstanceType!:         string | fn.#StringExpression
+		LayerIds!:             [...string | fn.#StringExpression] | fn.#ListExpression
+		Os?:                   string | fn.#StringExpression
+		RootDeviceType?:       string | fn.#StringExpression
+		SshKeyName?:           string | fn.#StringExpression
+		StackId!:              string | fn.#StringExpression
+		SubnetId?:             string | fn.#StringExpression
+		Tenancy?:              string | fn.#StringExpression
+		TimeBasedAutoScaling?: #TimeBasedAutoScaling
+		VirtualizationType?:   string | fn.#StringExpression
+		Volumes?:              list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	})
+}
 
 #BlockDeviceMapping: close({
 	DeviceName?:  string | fn.#StringExpression
@@ -122,7 +125,3 @@ fn.#ObjectExpression
 	} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpsWorks::Instance"
-	Properties!: #Properties
-}

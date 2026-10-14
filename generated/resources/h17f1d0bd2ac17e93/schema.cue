@@ -17,22 +17,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Events::Rule
-#Properties: close({
-	Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	EventBusName?: strings.MaxRunes(1600) &
-	strings.MinRunes(1) &
-	=~"^(arn:aws[\\w-]*:events:[a-z]{2}-[a-z]+-[\\w-]+:[0-9]{12}:event-bus\\/)?[/\\.\\-_A-Za-z0-9]+$" |
-	fn.#StringExpression
-	EventPattern?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Name?:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	ScheduleExpression?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(rate\\(.+\\)|cron\\(.+\\))?$" |
-	fn.#StringExpression
-	State?:   "DISABLED" | "ENABLED" | "ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS" | fn.#StringExpression
-	Tags?:    [...#Tag] | fn.#ListExpression
-	Targets?: list.MaxItems(5) & list.UniqueItems() & [...#Target] | fn.#ListExpression
-}) & matchN(>=1, [{EventPattern!: _}, {ScheduleExpression!: _}])
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Events::Rule"
+	Properties?: close({
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		EventBusName?: strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		=~"^(arn:aws[\\w-]*:events:[a-z]{2}-[a-z]+-[\\w-]+:[0-9]{12}:event-bus\\/)?[/\\.\\-_A-Za-z0-9]+$" |
+		fn.#StringExpression
+		EventPattern?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Name?:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" | fn.#StringExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		ScheduleExpression?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(rate\\(.+\\)|cron\\(.+\\))?$" |
+		fn.#StringExpression
+		State?:   "DISABLED" | "ENABLED" | "ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS" | fn.#StringExpression
+		Tags?:    [...#Tag] | fn.#ListExpression
+		Targets?: list.MaxItems(5) & list.UniqueItems() & [...#Target] | fn.#ListExpression
+	}) & matchN(>=1, [{EventPattern!: _}, {ScheduleExpression!: _}])
+}
 
 #AppSyncParameters: close({GraphQLOperation!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -311,7 +314,3 @@ fn.#ObjectExpression
 	SqsParameters?:               #SqsParameters
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Events::Rule"
-	Properties?: #Properties
-}

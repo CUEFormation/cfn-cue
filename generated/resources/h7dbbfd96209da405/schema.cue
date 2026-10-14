@@ -19,36 +19,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a listener rule. Each listener has a default rule for checking
 // connection requests, but you can define additional rules. Each rule consists
 // of a priority, one or more actions, and one or more conditions.
-#Properties: close({
-	Action!: #Action
-	ListenerIdentifier?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^((listener-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}/listener/listener-[0-9a-z]{17}))$" |
-	fn.#StringExpression
-	Match!: #Match
-	Name?:  strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	Priority!: int & <=2000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ServiceIdentifier?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^((svc-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}))$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::VpcLattice::Rule"
+	Properties!: close({
+		Action!: #Action
+		ListenerIdentifier?: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^((listener-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}/listener/listener-[0-9a-z]{17}))$" |
+		fn.#StringExpression
+		Match!: #Match
+		Name?:  strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+		Priority!: int & <=2000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=2000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ServiceIdentifier?: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^((svc-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}))$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Action: close({
 	FixedResponse?: #FixedResponse
@@ -143,7 +148,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VpcLattice::Rule"
-	Properties!: #Properties
-}

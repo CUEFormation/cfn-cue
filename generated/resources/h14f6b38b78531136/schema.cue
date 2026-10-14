@@ -13,30 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::VerifiedAccessTrustProvider type describes a verified access trust provider
-#Properties: close({
-	Description?:                  string | fn.#StringExpression
-	DeviceOptions?:                #DeviceOptions
-	DeviceTrustProviderType?:      "crowdstrike" | "jamf" | "jumpcloud" | fn.#StringExpression
-	NativeApplicationOidcOptions?: #NativeApplicationOidcOptions
-	OidcOptions?:                  #OidcOptions
-	PolicyReferenceName!:          string | fn.#StringExpression
-	SseSpecification?: close({
-		CustomerManagedKeyEnabled?: bool |
-			"true" |
-			"True" |
-			"TRUE" |
-			"false" |
-			"False" |
-			"FALSE" |
-			fn.#BooleanExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TrustProviderType!:     "device" | "user" | fn.#StringExpression
-	UserTrustProviderType?: "iam-identity-center" | "oidc" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VerifiedAccessTrustProvider"
+	Properties!: close({
+		Description?:                  string | fn.#StringExpression
+		DeviceOptions?:                #DeviceOptions
+		DeviceTrustProviderType?:      "crowdstrike" | "jamf" | "jumpcloud" | fn.#StringExpression
+		NativeApplicationOidcOptions?: #NativeApplicationOidcOptions
+		OidcOptions?:                  #OidcOptions
+		PolicyReferenceName!:          string | fn.#StringExpression
+		SseSpecification?: close({
+			CustomerManagedKeyEnabled?: bool |
+				"true" |
+				"True" |
+				"TRUE" |
+				"false" |
+				"False" |
+				"FALSE" |
+				fn.#BooleanExpression
+			KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TrustProviderType!:     "device" | "user" | fn.#StringExpression
+		UserTrustProviderType?: "iam-identity-center" | "oidc" | fn.#StringExpression
+	})
+}
 
 #DeviceOptions: close({
 	PublicSigningKeyUrl?: string | fn.#StringExpression
@@ -74,7 +77,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VerifiedAccessTrustProvider"
-	Properties!: #Properties
-}

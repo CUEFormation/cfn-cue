@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an association between an ID namespace and a collaboration
-#Properties: close({
-	Description?: strings.MaxRunes(255) &
-	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
-	fn.#StringExpression
-	IdMappingConfig?:      #IdMappingConfig
-	InputReferenceConfig!: #IdNamespaceAssociationInputReferenceConfig
-	MembershipIdentifier!: #UUID
-	Name!:                 strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CleanRooms::IdNamespaceAssociation"
+	Properties!: close({
+		Description?: strings.MaxRunes(255) &
+		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		fn.#StringExpression
+		IdMappingConfig?:      #IdMappingConfig
+		InputReferenceConfig!: #IdNamespaceAssociationInputReferenceConfig
+		MembershipIdentifier!: #UUID
+		Name!:                 strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Document: fn.#Object & {...} | string | fn.#StringObjectExpression
 
@@ -53,7 +56,3 @@ fn.#ObjectExpression
 
 #UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CleanRooms::IdNamespaceAssociation"
-	Properties!: #Properties
-}

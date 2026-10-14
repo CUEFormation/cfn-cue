@@ -18,22 +18,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::Analysis Resource Type.
-#Properties: close({
-	AnalysisId!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	AwsAccountId!:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Definition?:         #AnalysisDefinition
-	Errors?:             list.MinItems(1) & [...#AnalysisError] | fn.#ListExpression
-	FolderArns?:         list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Name!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?:         #Parameters
-	Permissions?:        list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
-	Sheets?:             list.MaxItems(20) & [...] & [...#Sheet] | fn.#ListExpression
-	SourceEntity?:       #AnalysisSourceEntity
-	Status?:             #ResourceStatus
-	Tags?:               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	ThemeArn?:           string | fn.#StringExpression
-	ValidationStrategy?: #ValidationStrategy
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::Analysis"
+	Properties!: close({
+		AnalysisId!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+		AwsAccountId!:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		Definition?:         #AnalysisDefinition
+		Errors?:             list.MinItems(1) & [...#AnalysisError] | fn.#ListExpression
+		FolderArns?:         list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+		Name!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Parameters?:         #Parameters
+		Permissions?:        list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+		Sheets?:             list.MaxItems(20) & [...] & [...#Sheet] | fn.#ListExpression
+		SourceEntity?:       #AnalysisSourceEntity
+		Status?:             #ResourceStatus
+		Tags?:               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		ThemeArn?:           string | fn.#StringExpression
+		ValidationStrategy?: #ValidationStrategy
+	})
+}
 
 #AggregationFunction: close({
 	AttributeAggregationFunction?:   #AttributeAggregationFunction
@@ -6063,7 +6066,3 @@ fn.#ObjectExpression
 #WordCloudWordScaling: "EMPHASIZE" | "NORMAL" | fn.#StringExpression
 
 #YAxisOptions: close({YAxis!: #SingleYAxisOption}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::Analysis"
-	Properties!: #Properties
-}

@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage wireless gateways, including LoRa gateways.
-#Properties: close({
-	Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	LastUplinkReceivedAt?: string | fn.#StringExpression
-	LoRaWAN!:              #LoRaWANGateway | fn.#ObjectExpression
-	Name?:                 strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:                 list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	ThingArn?:             string | fn.#StringExpression
-	ThingName?:            string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTWireless::WirelessGateway"
+	Properties!: close({
+		Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		LastUplinkReceivedAt?: string | fn.#StringExpression
+		LoRaWAN!:              #LoRaWANGateway | fn.#ObjectExpression
+		Name?:                 strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Tags?:                 list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		ThingArn?:             string | fn.#StringExpression
+		ThingName?:            string | fn.#StringExpression
+	})
+}
 
 #LoRaWANGateway: close({
 	GatewayEui!: =~"^(([0-9A-Fa-f]{2}-){7}|([0-9A-Fa-f]{2}:){7}|([0-9A-Fa-f]{2}\\s){7}|([0-9A-Fa-f]{2}){7})([0-9A-Fa-f]{2})$" |
@@ -35,7 +38,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTWireless::WirelessGateway"
-	Properties!: #Properties
-}

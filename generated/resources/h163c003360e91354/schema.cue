@@ -19,23 +19,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::BedrockAgentCore::OnlineEvaluationConfig -
 // Creates an online evaluation configuration for continuous monitoring of
 // agent performance.
-#Properties: close({
-	ClusteringConfig?: #ClusteringConfig | fn.#ObjectExpression
-	DataSourceConfig!: #DataSourceConfig | fn.#ObjectExpression
-	Description?:      strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	EvaluationExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
-	fn.#StringExpression
-	Evaluators?:                 list.MaxItems(25) & [...] & [...#EvaluatorReference] | fn.#ListExpression
-	ExecutionStatus?:            #ExecutionStatus | fn.#StringExpression
-	Insights?:                   list.MaxItems(10) & [...] & [...#Insight] | fn.#ListExpression
-	OnlineEvaluationConfigName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-	OutputConfig?:               #OutputConfig | fn.#ObjectExpression
-	Rule!:                       #Rule | fn.#ObjectExpression
-	Tags?:                       [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::OnlineEvaluationConfig"
+	Properties!: close({
+		ClusteringConfig?: #ClusteringConfig | fn.#ObjectExpression
+		DataSourceConfig!: #DataSourceConfig | fn.#ObjectExpression
+		Description?:      strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		EvaluationExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
+		fn.#StringExpression
+		Evaluators?:                 list.MaxItems(25) & [...] & [...#EvaluatorReference] | fn.#ListExpression
+		ExecutionStatus?:            #ExecutionStatus | fn.#StringExpression
+		Insights?:                   list.MaxItems(10) & [...] & [...#Insight] | fn.#ListExpression
+		OnlineEvaluationConfigName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+		OutputConfig?:               #OutputConfig | fn.#ObjectExpression
+		Rule!:                       #Rule | fn.#ObjectExpression
+		Tags?:                       [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CloudWatchLogsInputConfig: close({
 	LogGroupNamePrefixes?: list.MaxItems(5) & list.MinItems(1) & [
@@ -191,7 +194,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::OnlineEvaluationConfig"
-	Properties!: #Properties
-}

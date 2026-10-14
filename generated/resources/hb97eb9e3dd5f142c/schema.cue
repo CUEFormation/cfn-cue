@@ -14,13 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Chatbot::CustomAction Resource Type
-#Properties: close({
-	ActionName!:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
-	AliasName?:   strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" | fn.#StringExpression
-	Attachments?: [...#CustomActionAttachment] | fn.#ListExpression
-	Definition!:  #CustomActionDefinition
-	Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Chatbot::CustomAction"
+	Properties!: close({
+		ActionName!:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
+		AliasName?:   strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" | fn.#StringExpression
+		Attachments?: [...#CustomActionAttachment] | fn.#ListExpression
+		Definition!:  #CustomActionDefinition
+		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CustomActionAttachment: close({
 	ButtonText?:       strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\S\\s]+$" | fn.#StringExpression
@@ -52,7 +55,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Chatbot::CustomAction"
-	Properties!: #Properties
-}

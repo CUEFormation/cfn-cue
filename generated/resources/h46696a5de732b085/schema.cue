@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Inspector CodeSecurityScanConfiguration resource schema
-#Properties: close({
-	Configuration?: #CodeSecurityScanConfiguration | fn.#ObjectExpression
-	Level?:         #ConfigurationLevel | fn.#StringExpression
-	Name?:          strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" | fn.#StringExpression
-	ScopeSettings?: #ScopeSettings | fn.#ObjectExpression
-	Tags?:          #TagMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::InspectorV2::CodeSecurityScanConfiguration"
+	Properties?: close({
+		Configuration?: #CodeSecurityScanConfiguration | fn.#ObjectExpression
+		Level?:         #ConfigurationLevel | fn.#StringExpression
+		Name?:          strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" | fn.#StringExpression
+		ScopeSettings?: #ScopeSettings | fn.#ObjectExpression
+		Tags?:          #TagMap
+	})
+}
 
 #CodeSecurityScanConfiguration: close({
 	continuousIntegrationScanConfiguration?: #ContinuousIntegrationScanConfiguration
@@ -55,7 +58,3 @@ fn.#ObjectExpression
 
 	{[=~"^.{2,127}$"]: =~"^.{1,255}$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::InspectorV2::CodeSecurityScanConfiguration"
-	Properties?: #Properties
-}

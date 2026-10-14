@@ -17,33 +17,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Domain
-#Properties: close({
-	AppNetworkAccessType?:       "PublicInternetOnly" | "VpcOnly" | fn.#StringExpression
-	AppSecurityGroupManagement?: "Service" | "Customer" | fn.#StringExpression
-	AuthMode!:                   "SSO" | "IAM" | fn.#StringExpression
-	DefaultSpaceSettings?:       #DefaultSpaceSettings | fn.#ObjectExpression
-	DefaultUserSettings!:        #UserSettings | fn.#ObjectExpression
-	DomainName!:                 strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
-	DomainSettings?:             #DomainSettings
-	HomeEfsFileSystemCreation?:  "Enabled" | "Disabled" | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~".*" |
-	fn.#StringExpression
-	SubnetIds?: list.MaxItems(16) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	TagPropagation?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?:           list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(32) &
-	strings.MinRunes(0) &
-	=~"[-0-9a-zA-Z]+" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Domain"
+	Properties!: close({
+		AppNetworkAccessType?:       "PublicInternetOnly" | "VpcOnly" | fn.#StringExpression
+		AppSecurityGroupManagement?: "Service" | "Customer" | fn.#StringExpression
+		AuthMode!:                   "SSO" | "IAM" | fn.#StringExpression
+		DefaultSpaceSettings?:       #DefaultSpaceSettings | fn.#ObjectExpression
+		DefaultUserSettings!:        #UserSettings | fn.#ObjectExpression
+		DomainName!:                 strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
+		DomainSettings?:             #DomainSettings
+		HomeEfsFileSystemCreation?:  "Enabled" | "Disabled" | fn.#StringExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~".*" |
+		fn.#StringExpression
+		SubnetIds?: list.MaxItems(16) & list.MinItems(1) & [
+			...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		TagPropagation?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		Tags?:           list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+" |
+		fn.#StringExpression
+	})
+}
 
 #AppInstanceType: "system" |
 	"ml.t3.micro" |
@@ -633,7 +636,3 @@ fn.#ObjectExpression
 	StudioWebPortalSettings?: #StudioWebPortalSettings
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Domain"
-	Properties!: #Properties
-}

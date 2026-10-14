@@ -12,11 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For an example snippet, see [Declaring an
 // policy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-iam.html#scenario-sns-policy)
 // in the *User Guide*.
-#Properties: close({
-	PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Topics!:         [...string | fn.#StringExpression] | fn.#ListExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SNS::TopicPolicy"
-	Properties!: #Properties
+	Type!: "AWS::SNS::TopicPolicy"
+	Properties!: close({
+		PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Topics!:         [...string | fn.#StringExpression] | fn.#ListExpression
+	})
 }

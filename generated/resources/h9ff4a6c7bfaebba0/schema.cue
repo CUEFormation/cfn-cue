@@ -12,23 +12,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::App
-#Properties: close({
-	AppSource?: #Source
-	Attributes?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
-		...
-	} | fn.#ObjectExpression
-	DataSources?:      list.UniqueItems() & [...#DataSource] | fn.#ListExpression
-	Description?:      string | fn.#StringExpression
-	Domains?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	EnableSsl?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Environment?:      [...#EnvironmentVariable] | fn.#ListExpression
-	Name!:             string | fn.#StringExpression
-	Shortname?:        string | fn.#StringExpression
-	SslConfiguration?: #SslConfiguration
-	StackId!:          string | fn.#StringExpression
-	Type!:             string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OpsWorks::App"
+	Properties!: close({
+		AppSource?: #Source
+		Attributes?: {
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+			...
+		} | fn.#ObjectExpression
+		DataSources?:      list.UniqueItems() & [...#DataSource] | fn.#ListExpression
+		Description?:      string | fn.#StringExpression
+		Domains?:          [...string | fn.#StringExpression] | fn.#ListExpression
+		EnableSsl?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Environment?:      [...#EnvironmentVariable] | fn.#ListExpression
+		Name!:             string | fn.#StringExpression
+		Shortname?:        string | fn.#StringExpression
+		SslConfiguration?: #SslConfiguration
+		StackId!:          string | fn.#StringExpression
+		Type!:             string | fn.#StringExpression
+	})
+}
 
 #DataSource: close({
 	Arn?:          string | fn.#StringExpression
@@ -60,7 +63,3 @@ fn.#ObjectExpression
 	PrivateKey?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpsWorks::App"
-	Properties!: #Properties
-}

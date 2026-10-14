@@ -14,46 +14,54 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This is a CloudFormation resource for the first-party AWS::Hooks::LambdaHook.
-#Properties: close({
-	Alias!:         string | fn.#StringExpression
-	AutoUpdate?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExecutionRole!: #Role | fn.#StringExpression
-	FailureMode!:   "FAIL" | "WARN" | fn.#StringExpression
-	HookStatus!:    "ENABLED" | "DISABLED" | fn.#StringExpression
-	LambdaFunction!: strings.MaxRunes(170) &
-	strings.MinRunes(1) &
-	=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}(-gov)?(-iso([a-z])?)?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?" |
-	fn.#StringExpression
-	LoggingConfig?: #LoggingConfig | fn.#ObjectExpression
-	StackFilters?: close({
-		FilteringCriteria!: "ALL" | "ANY" | fn.#StringExpression
-		StackNames?: struct.MinFields(1) & close({
-			Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackName] | fn.#ListExpression
-			Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackName] | fn.#ListExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFormation::LambdaHook"
+	Properties!: close({
+		Alias!:         string | fn.#StringExpression
+		AutoUpdate?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ExecutionRole!: #Role | fn.#StringExpression
+		FailureMode!:   "FAIL" | "WARN" | fn.#StringExpression
+		HookStatus!:    "ENABLED" | "DISABLED" | fn.#StringExpression
+		LambdaFunction!: strings.MaxRunes(170) &
+		strings.MinRunes(1) &
+		=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}(-gov)?(-iso([a-z])?)?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?" |
+		fn.#StringExpression
+		LoggingConfig?: #LoggingConfig | fn.#ObjectExpression
+		StackFilters?: close({
+			FilteringCriteria!: "ALL" | "ANY" | fn.#StringExpression
+			StackNames?: struct.MinFields(1) & close({
+				Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackName] |
+					fn.#ListExpression
+				Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackName] |
+					fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
+			StackRoles?: struct.MinFields(1) & close({
+				Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackRole] |
+					fn.#ListExpression
+				Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackRole] |
+					fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		StackRoles?: struct.MinFields(1) & close({
-			Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackRole] | fn.#ListExpression
-			Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackRole] | fn.#ListExpression
-		}) |
+		TargetFilters?: fn.#Object & {...} & matchN(1, [
+			struct.MinFields(1) & close({
+				Actions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Action] | fn.#ListExpression
+				InvocationPoints?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#InvocationPoint] |
+					fn.#ListExpression
+				TargetNames?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#TargetName] |
+					fn.#ListExpression
+			}),
+			close({
+				Targets!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#HookTarget] |
+					fn.#ListExpression
+			})
+		]) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	TargetFilters?: fn.#Object & {...} & matchN(1, [
-		struct.MinFields(1) & close({
-			Actions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Action] | fn.#ListExpression
-			InvocationPoints?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#InvocationPoint] |
-				fn.#ListExpression
-			TargetNames?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#TargetName] |
-				fn.#ListExpression
-		}),
-		close({
-			Targets!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#HookTarget] | fn.#ListExpression
-		})
-	]) |
-	fn.#ObjectExpression
-	TargetOperations!: list.UniqueItems() & [...#TargetOperation] | fn.#ListExpression
-})
+		TargetOperations!: list.UniqueItems() & [...#TargetOperation] | fn.#ListExpression
+	})
+}
 
 #Action: "CREATE" | "UPDATE" | "DELETE" | fn.#StringExpression
 
@@ -85,7 +93,3 @@ fn.#ObjectExpression
 #TargetName: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
 #TargetOperation: "RESOURCE" | "STACK" | "CHANGE_SET" | "CLOUD_CONTROL" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::LambdaHook"
-	Properties!: #Properties
-}

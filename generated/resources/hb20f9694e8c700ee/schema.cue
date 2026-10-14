@@ -9,13 +9,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeBuild::SourceCredential
-#Properties: close({
-	AuthType!:   string | fn.#StringExpression
-	ServerType!: string | fn.#StringExpression
-	Token!:      string | fn.#StringExpression
-	Username?:   string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeBuild::SourceCredential"
-	Properties!: #Properties
+	Type!: "AWS::CodeBuild::SourceCredential"
+	Properties!: close({
+		AuthType!:   string | fn.#StringExpression
+		ServerType!: string | fn.#StringExpression
+		Token!:      string | fn.#StringExpression
+		Username?:   string | fn.#StringExpression
+	})
 }

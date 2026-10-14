@@ -17,101 +17,107 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::PCS::ComputeNodeGroup resource creates an AWS PCS compute node group.
-#Properties: close({
-	AmiId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^ami-[a-z0-9]+$" |
-		fn.#StringExpression
-	ClusterId!: string | fn.#StringExpression
-	CustomLaunchTemplate?: close({
-		TemplateId?: string | fn.#StringExpression
-		Version!:    string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	IamInstanceProfileArn!: =~"^arn:aws([a-zA-Z-]{0,10})?:iam::[0-9]{12}:instance-profile/.{1,128}$" |
-		fn.#StringExpression
-	InstanceConfigs!:      [...#InstanceConfig] | fn.#ListExpression
-	Name?:                 string | fn.#StringExpression
-	NodeLifecycleActions?: #NodeLifecycleActions
-	PurchaseOption?: "ONDEMAND" |
-		"SPOT" |
-		"CAPACITY_BLOCK" |
-		"INTERRUPTIBLE_CAPACITY_RESERVATION" |
-		fn.#StringExpression
-	ScalingConfiguration!: close({
-		MaxInstanceCount!: int & >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								>=0,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		MinInstanceCount!: int & >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								>=0,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-	}) |
-	fn.#ObjectExpression
-	SlurmConfiguration?: close({
-		GresCustomSettings?: [...#GresCustomSetting] | fn.#ListExpression
-		ScaleDownIdleTimeInSeconds?: int & <=10000000 & >=1 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=10000000 &
-								>=1,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		SlurmCustomSettings?: [...#SlurmCustomSetting] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	SpotOptions?: close(
-		{AllocationStrategy?: "lowest-price" | "capacity-optimized" | "price-capacity-optimized" | fn.#StringExpression},
-	) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PCS::ComputeNodeGroup"
+	Properties!: close({
+		AmiId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^ami-[a-z0-9]+$" |
+			fn.#StringExpression
+		ClusterId!: string | fn.#StringExpression
+		CustomLaunchTemplate?: close({
+			TemplateId?: string | fn.#StringExpression
+			Version!:    string | fn.#StringExpression
+		}) |
 		fn.#ObjectExpression
-	SubnetIds!: [...#SubnetId] | fn.#ListExpression
-	Tags?: null |
-	bool |
-	number |
-	string |
-	[...] |
-	close({
+		IamInstanceProfileArn!: =~"^arn:aws([a-zA-Z-]{0,10})?:iam::[0-9]{12}:instance-profile/.{1,128}$" |
+			fn.#StringExpression
+		InstanceConfigs!:      [...#InstanceConfig] | fn.#ListExpression
+		Name?:                 string | fn.#StringExpression
+		NodeLifecycleActions?: #NodeLifecycleActions
+		PurchaseOption?: "ONDEMAND" |
+			"SPOT" |
+			"CAPACITY_BLOCK" |
+			"INTERRUPTIBLE_CAPACITY_RESERVATION" |
+			fn.#StringExpression
+		ScalingConfiguration!: close({
+			MaxInstanceCount!: int & >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									>=0,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			MinInstanceCount!: int & >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									>=0,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+		}) |
+		fn.#ObjectExpression
+		SlurmConfiguration?: close({
+			GresCustomSettings?: [...#GresCustomSetting] | fn.#ListExpression
+			ScaleDownIdleTimeInSeconds?: int & <=10000000 & >=1 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=10000000 &
+									>=1,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			SlurmCustomSettings?: [...#SlurmCustomSetting] | fn.#ListExpression
+		}) |
+		fn.#ObjectExpression
+		SpotOptions?: close({
+			AllocationStrategy?: "lowest-price" |
+				"capacity-optimized" |
+				"price-capacity-optimized" |
+				fn.#StringExpression
+		}) |
+			fn.#ObjectExpression
+		SubnetIds!: [...#SubnetId] | fn.#ListExpression
+		Tags?: null |
+		bool |
+		number |
+		string |
+		[...] |
+		close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
-	fn.#ValueExpression
-})
+			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		fn.#ValueExpression
+	})
+}
 
 #ErrorInfo: close({
 	Code?:    string | fn.#StringExpression
@@ -166,7 +172,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SubnetId: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PCS::ComputeNodeGroup"
-	Properties!: #Properties
-}

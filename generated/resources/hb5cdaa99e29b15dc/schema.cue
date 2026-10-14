@@ -19,13 +19,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource type definition for AWS::EventsV2::EventBus, an Amazon EventBridge
 // custom event bus that receives events and delivers them to matching
 // subscribers.
-#Properties: close({
-	Description?:             strings.MaxRunes(512) | fn.#StringExpression
-	EncryptionConfiguration?: #EncryptionConfiguration | fn.#ObjectExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" | fn.#StringExpression
-	StorageConfiguration?: #StorageConfiguration | fn.#ObjectExpression
-	Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EventsV2::EventBus"
+	Properties!: close({
+		Description?:             strings.MaxRunes(512) | fn.#StringExpression
+		EncryptionConfiguration?: #EncryptionConfiguration | fn.#ObjectExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" | fn.#StringExpression
+		StorageConfiguration?: #StorageConfiguration | fn.#ObjectExpression
+		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #EncryptionConfiguration: close(
 	{KmsKeyIdentifier?: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" | fn.#StringExpression},
@@ -57,7 +60,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EventsV2::EventBus"
-	Properties!: #Properties
-}

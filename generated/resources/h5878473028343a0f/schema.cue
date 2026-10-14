@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::LicenseManager::LicenseAssetRuleSet.
-#Properties: close({
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Rules!:       [...#LicenseAssetRule] | fn.#ListExpression
-	Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LicenseManager::LicenseAssetRuleSet"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+		Rules!:       [...#LicenseAssetRule] | fn.#ListExpression
+		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AndRuleStatement: close({MatchingRuleStatements?: [...#MatchingRuleStatement] | fn.#ListExpression}) |
 	fn.#ObjectExpression
@@ -68,7 +71,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LicenseManager::LicenseAssetRuleSet"
-	Properties!: #Properties
-}

@@ -17,35 +17,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::DHCPOptions
-#Properties: close({
-	DomainName?:        string | fn.#StringExpression
-	DomainNameServers?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Ipv6AddressPreferredLeaseTime?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	NetbiosNameServers?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	NetbiosNodeType?:    (==1 | ==2 | ==4 | ==8) & int | fn.#NumberExpression
-	NtpServers?:         [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:               [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::DHCPOptions"
+	Properties?: close({
+		DomainName?:        string | fn.#StringExpression
+		DomainNameServers?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Ipv6AddressPreferredLeaseTime?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		NetbiosNameServers?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		NetbiosNodeType?:    (==1 | ==2 | ==4 | ==8) & int | fn.#NumberExpression
+		NtpServers?:         [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:               [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::DHCPOptions"
-	Properties?: #Properties
-}

@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::Folder Resource Type.
-#Properties: close({
-	AwsAccountId?:    strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	FolderId?:        strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	FolderType?:      #FolderType
-	Name?:            strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	ParentFolderArn?: string | fn.#StringExpression
-	Permissions?:     list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
-	SharingModel?:    #SharingModel
-	Tags?:            list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::Folder"
+	Properties?: close({
+		AwsAccountId?:    strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		FolderId?:        strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+		FolderType?:      #FolderType
+		Name?:            strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		ParentFolderArn?: string | fn.#StringExpression
+		Permissions?:     list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+		SharingModel?:    #SharingModel
+		Tags?:            list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #FolderType: "SHARED" | "RESTRICTED" | fn.#StringExpression
 
@@ -39,7 +42,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::Folder"
-	Properties?: #Properties
-}

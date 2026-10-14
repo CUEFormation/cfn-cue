@@ -17,18 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Kendra DataSource
-#Properties: close({
-	CustomDocumentEnrichmentConfiguration?: #CustomDocumentEnrichmentConfiguration
-	DataSourceConfiguration?:               #DataSourceConfiguration
-	Description?:                           #Description
-	IndexId!:                               #IndexId
-	LanguageCode?:                          #LanguageCode
-	Name!:                                  #Name
-	RoleArn?:                               #RoleArn
-	Schedule?:                              #Schedule
-	Tags?:                                  #TagList | fn.#ListExpression
-	Type!:                                  #Type
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Kendra::DataSource"
+	Properties!: close({
+		CustomDocumentEnrichmentConfiguration?: #CustomDocumentEnrichmentConfiguration
+		DataSourceConfiguration?:               #DataSourceConfiguration
+		Description?:                           #Description
+		IndexId!:                               #IndexId
+		LanguageCode?:                          #LanguageCode
+		Name!:                                  #Name
+		RoleArn?:                               #RoleArn
+		Schedule?:                              #Schedule
+		Tags?:                                  #TagList | fn.#ListExpression
+		Type!:                                  #Type
+	})
+}
 
 #AccessControlListConfiguration: close({KeyPath?: #S3ObjectKey}) | fn.#ObjectExpression
 
@@ -1007,7 +1010,3 @@ fn.#ObjectExpression
 	UseChangeLog?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Kendra::DataSource"
-	Properties!: #Properties
-}

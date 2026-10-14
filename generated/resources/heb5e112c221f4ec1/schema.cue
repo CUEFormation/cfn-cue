@@ -14,12 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Bedrock::DataAutomationLibrary
-#Properties: close({
-	EncryptionConfiguration?: #EncryptionConfiguration
-	LibraryDescription?:      strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
-	LibraryName!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	Tags?:                    list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::DataAutomationLibrary"
+	Properties!: close({
+		EncryptionConfiguration?: #EncryptionConfiguration
+		LibraryDescription?:      strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
+		LibraryName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DataAutomationLibraryStatus: "ACTIVE" | "DELETING" | fn.#StringExpression
 
@@ -52,7 +55,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::DataAutomationLibrary"
-	Properties!: #Properties
-}

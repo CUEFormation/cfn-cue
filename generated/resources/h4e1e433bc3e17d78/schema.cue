@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::ServerlessCluster
-#Properties: close({
-	ClientAuthentication!: #ClientAuthentication
-	ClusterName!:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MSK::ServerlessCluster"
+	Properties!: close({
+		ClientAuthentication!: #ClientAuthentication
+		ClusterName!:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: close({
 
-		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	VpcConfigs!: list.UniqueItems() & [...#VpcConfig] | fn.#ListExpression
-})
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		VpcConfigs!: list.UniqueItems() & [...#VpcConfig] | fn.#ListExpression
+	})
+}
 
 #ClientAuthentication: close({Sasl!: #Sasl}) | fn.#ObjectExpression
 
@@ -39,7 +42,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SubnetIds!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MSK::ServerlessCluster"
-	Properties!: #Properties
-}

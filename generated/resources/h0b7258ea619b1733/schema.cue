@@ -15,10 +15,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::NetworkFlowMonitor::Scope. Creates a scope
 // to define the resources that Network Flow Monitor monitors for network
 // performance.
-#Properties: close({
-	Tags?:    list.MaxItems(200) & [...#Tag] | fn.#ListExpression
-	Targets!: list.MaxItems(100) & list.MinItems(1) & [...#TargetResource] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkFlowMonitor::Scope"
+	Properties!: close({
+		Tags?:    list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+		Targets!: list.MaxItems(100) & list.MinItems(1) & [...#TargetResource] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -40,7 +43,3 @@ fn.#ObjectExpression
 	TargetIdentifier!: #TargetIdentifier
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkFlowMonitor::Scope"
-	Properties!: #Properties
-}

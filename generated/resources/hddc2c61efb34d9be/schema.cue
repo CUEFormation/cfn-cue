@@ -17,75 +17,82 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A domain defined for 3rd party data source in Profile Service
-#Properties: close({
-	DataStore?: close({Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CustomerProfiles::Domain"
+	Properties!: close({
+		DataStore?: close(
+			{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+		) |
+			fn.#ObjectExpression
+		DeadLetterQueueUrl?:   strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		DefaultEncryptionKey?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		DefaultExpirationDays!: int & <=1098 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1098 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Matching?:   #Matching
+		RuleBasedMatching?: close({
+			AttributeTypesSelector?: #AttributeTypesSelector
+			ConflictResolution?:     #ConflictResolution
+			Enabled!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			ExportingConfig?: #ExportingConfig
+			MatchingRules?:   list.MaxItems(15) & list.MinItems(1) & [...#MatchingRule] | fn.#ListExpression
+			MaxAllowedRuleLevelForMatching?: int & <=15 & >=1 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=15 &
+									>=1,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			MaxAllowedRuleLevelForMerging?: int & <=15 & >=1 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=15 &
+									>=1,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+		}) |
 		fn.#ObjectExpression
-	DeadLetterQueueUrl?:   strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	DefaultEncryptionKey?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	DefaultExpirationDays!: int & <=1098 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1098 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Matching?:   #Matching
-	RuleBasedMatching?: close({
-		AttributeTypesSelector?: #AttributeTypesSelector
-		ConflictResolution?:     #ConflictResolution
-		Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ExportingConfig?:        #ExportingConfig
-		MatchingRules?:          list.MaxItems(15) & list.MinItems(1) & [...#MatchingRule] | fn.#ListExpression
-		MaxAllowedRuleLevelForMatching?: int & <=15 & >=1 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=15 &
-								>=1,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		MaxAllowedRuleLevelForMerging?: int & <=15 & >=1 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=15 &
-								>=1,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AttributeTypesSelector: close({
 	Address?: list.MaxItems(4) & list.MinItems(1) & [
@@ -338,7 +345,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CustomerProfiles::Domain"
-	Properties!: #Properties
-}

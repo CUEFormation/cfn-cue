@@ -17,21 +17,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	ActionThreshold!: #ActionThreshold
-	ActionType!:      "APPLY_IAM_POLICY" | "APPLY_SCP_POLICY" | "RUN_SSM_DOCUMENTS" | fn.#StringExpression
-	ApprovalModel?:   "AUTOMATIC" | "MANUAL" | fn.#StringExpression
-	BudgetName!:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Definition!:      #Definition
-	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(618) &
-	strings.MinRunes(32) &
-	=~"^arn:aws(-eusc|-cn|-us-gov|-iso|-iso-[a-z]{1})?:iam::\\d{12}:role(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}|\\x{002F})[\\w+=,.@-]+$" |
-	fn.#StringExpression
-	NotificationType!: "ACTUAL" | "FORECASTED" | fn.#StringExpression
-	ResourceTags?:     list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
-	Subscribers!:      list.MaxItems(11) & list.MinItems(1) & [...#Subscriber] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Budgets::BudgetsAction"
+	Properties!: close({
+		ActionThreshold!: #ActionThreshold
+		ActionType!:      "APPLY_IAM_POLICY" | "APPLY_SCP_POLICY" | "RUN_SSM_DOCUMENTS" | fn.#StringExpression
+		ApprovalModel?:   "AUTOMATIC" | "MANUAL" | fn.#StringExpression
+		BudgetName!:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Definition!:      #Definition
+		ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(618) &
+		strings.MinRunes(32) &
+		=~"^arn:aws(-eusc|-cn|-us-gov|-iso|-iso-[a-z]{1})?:iam::\\d{12}:role(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}|\\x{002F})[\\w+=,.@-]+$" |
+		fn.#StringExpression
+		NotificationType!: "ACTUAL" | "FORECASTED" | fn.#StringExpression
+		ResourceTags?:     list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
+		Subscribers!:      list.MaxItems(11) & list.MinItems(1) & [...#Subscriber] | fn.#ListExpression
+	})
+}
 
 #ActionThreshold: close({
 	Type!: "PERCENTAGE" | "ABSOLUTE_VALUE" | fn.#StringExpression
@@ -119,7 +122,3 @@ fn.#ObjectExpression
 	Type!:    "SNS" | "EMAIL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Budgets::BudgetsAction"
-	Properties!: #Properties
-}

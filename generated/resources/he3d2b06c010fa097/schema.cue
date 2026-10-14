@@ -17,13 +17,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceDiscovery::PrivateDnsNamespace
-#Properties: close({
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Properties?:  _#defs."/$defs/Properties/definitions/Properties" | fn.#ObjectExpression
-	Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	Vpc?:         strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ServiceDiscovery::PrivateDnsNamespace"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Properties?:  _#defs."/$defs/Properties/definitions/Properties" | fn.#ObjectExpression
+		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Vpc?:         strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+	})
+}
 
 #PrivateDnsPropertiesMutable: close({SOA?: #SOA}) | fn.#ObjectExpression
 
@@ -59,7 +62,3 @@ fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Properties": close({DnsProperties?: #PrivateDnsPropertiesMutable}) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceDiscovery::PrivateDnsNamespace"
-	Properties!: #Properties
-}

@@ -17,29 +17,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataSync::Task.
-#Properties: close({
-	CloudWatchLogGroupArn?: strings.MaxRunes(562) &
-	strings.MinRunes(0) &
-	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):logs:[a-z\\-0-9]*:[0-9]{12}:log-group:([^:\\*]*)(:\\*)?$" |
-	fn.#StringExpression
-	DestinationLocationArn!: strings.MaxRunes(128) &
-	strings.MinRunes(0) &
-	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:location/loc-[0-9a-z]{17}$" |
-	fn.#StringExpression
-	Excludes?:       list.MaxItems(1) & [...] & [...#FilterRule] | fn.#ListExpression
-	Includes?:       list.MaxItems(1) & [...] & [...#FilterRule] | fn.#ListExpression
-	ManifestConfig?: #ManifestConfig
-	Name?:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
-	Options?:        #Options
-	Schedule?:       #TaskSchedule
-	SourceLocationArn!: strings.MaxRunes(128) &
-	strings.MinRunes(0) &
-	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:location/loc-[0-9a-z]{17}$" |
-	fn.#StringExpression
-	Tags?:             list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	TaskMode?:         "BASIC" | "ENHANCED" | fn.#StringExpression
-	TaskReportConfig?: #TaskReportConfig
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataSync::Task"
+	Properties!: close({
+		CloudWatchLogGroupArn?: strings.MaxRunes(562) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):logs:[a-z\\-0-9]*:[0-9]{12}:log-group:([^:\\*]*)(:\\*)?$" |
+		fn.#StringExpression
+		DestinationLocationArn!: strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:location/loc-[0-9a-z]{17}$" |
+		fn.#StringExpression
+		Excludes?:       list.MaxItems(1) & [...] & [...#FilterRule] | fn.#ListExpression
+		Includes?:       list.MaxItems(1) & [...] & [...#FilterRule] | fn.#ListExpression
+		ManifestConfig?: #ManifestConfig
+		Name?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
+		Options?:  #Options
+		Schedule?: #TaskSchedule
+		SourceLocationArn!: strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:location/loc-[0-9a-z]{17}$" |
+		fn.#StringExpression
+		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TaskMode?:         "BASIC" | "ENHANCED" | fn.#StringExpression
+		TaskReportConfig?: #TaskReportConfig
+	})
+}
 
 #DestinationNetworkInterfaceArns: list.MaxItems(128) & [
 	...=~"^arn:aws[\\-a-z]{0,}:ec2:[a-z\\-0-9]*:[0-9]{12}:network-interface/eni-[0-9a-f]+$" | fn.#StringExpression
@@ -164,7 +167,3 @@ fn.#ObjectExpression
 	Status?: "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataSync::Task"
-	Properties!: #Properties
-}

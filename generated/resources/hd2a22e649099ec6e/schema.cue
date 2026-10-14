@@ -13,19 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an AWS account that is a part of a collaboration
-#Properties: close({
-	CollaborationIdentifier!: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
-	fn.#StringExpression
-	DefaultJobResultConfiguration?: #MembershipProtectedJobResultConfiguration
-	DefaultResultConfiguration?:    #MembershipProtectedQueryResultConfiguration
-	IsMetricsEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	JobLogStatus?:         #MembershipJobLogStatus
-	PaymentConfiguration?: #MembershipPaymentConfiguration
-	QueryLogStatus!:       #MembershipQueryLogStatus
-	Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CleanRooms::Membership"
+	Properties!: close({
+		CollaborationIdentifier!: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
+		fn.#StringExpression
+		DefaultJobResultConfiguration?: #MembershipProtectedJobResultConfiguration
+		DefaultResultConfiguration?:    #MembershipProtectedQueryResultConfiguration
+		IsMetricsEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		JobLogStatus?:         #MembershipJobLogStatus
+		PaymentConfiguration?: #MembershipPaymentConfiguration
+		QueryLogStatus!:       #MembershipQueryLogStatus
+		Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #MembershipJobComputePaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -117,7 +120,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CleanRooms::Membership"
-	Properties!: #Properties
-}

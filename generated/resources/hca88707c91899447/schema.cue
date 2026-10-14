@@ -23,7 +23,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // CloudFront sends a request when it can't find an object in its cache that
 // matches the request. If you want to send values to the origin and also
 // include them in the cache key, use ``CachePolicy``.
-#Properties: close({OriginRequestPolicyConfig!: #OriginRequestPolicyConfig | fn.#ObjectExpression})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::CloudFront::OriginRequestPolicy"
+	Properties!: close({OriginRequestPolicyConfig!: #OriginRequestPolicyConfig | fn.#ObjectExpression})
+}
 
 #CookiesConfig: close({
 	CookieBehavior!: =~"^(none|whitelist|all|allExcept)$" | fn.#StringExpression
@@ -51,7 +54,3 @@ fn.#ObjectExpression
 	QueryStrings?:        [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::OriginRequestPolicy"
-	Properties!: #Properties
-}

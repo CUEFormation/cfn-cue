@@ -17,13 +17,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EC2::NetworkInsightsAnalysis
-#Properties: close({
-	AdditionalAccounts?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	FilterInArns?:          [...#ResourceArn] | fn.#ListExpression
-	FilterOutArns?:         [...#ResourceArn] | fn.#ListExpression
-	NetworkInsightsPathId!: string | fn.#StringExpression
-	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::NetworkInsightsAnalysis"
+	Properties!: close({
+		AdditionalAccounts?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		FilterInArns?:          [...#ResourceArn] | fn.#ListExpression
+		FilterOutArns?:         [...#ResourceArn] | fn.#ListExpression
+		NetworkInsightsPathId!: string | fn.#StringExpression
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AdditionalDetail: close({
 	AdditionalDetailType?: string | fn.#StringExpression
@@ -286,7 +289,3 @@ fn.#ObjectExpression
 	State?:           string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::NetworkInsightsAnalysis"
-	Properties!: #Properties
-}

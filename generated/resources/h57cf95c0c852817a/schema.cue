@@ -9,11 +9,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for ManagedNotificationAccountContactAssociation
-#Properties: close({
-	ContactIdentifier!:                   #ContactIdentifier
-	IsSensitiveEventsSubscribed?:         #IsSensitiveEventsSubscribed
-	ManagedNotificationConfigurationArn!: #ManagedNotificationConfigurationArn
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Notifications::ManagedNotificationAccountContactAssociation"
+	Properties!: close({
+		ContactIdentifier!:                   #ContactIdentifier
+		IsSensitiveEventsSubscribed?:         #IsSensitiveEventsSubscribed
+		ManagedNotificationConfigurationArn!: #ManagedNotificationConfigurationArn
+	})
+}
 
 #ContactIdentifier: "ACCOUNT_PRIMARY" |
 	"ACCOUNT_ALTERNATE_SECURITY" |
@@ -25,7 +28,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #ManagedNotificationConfigurationArn: =~"^arn:[a-z-]{3,10}:notifications::([0-9]{12}|):managed-notification-configuration/category/[a-zA-Z0-9\\-]{3,64}/sub-category/[a-zA-Z0-9\\-]{3,64}$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Notifications::ManagedNotificationAccountContactAssociation"
-	Properties!: #Properties
-}

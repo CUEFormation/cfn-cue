@@ -18,29 +18,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // StackSet as a resource provides one-click experience for provisioning a
 // StackSet and StackInstances
-#Properties: close({
-	AdministrationRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-	AutoDeployment?:    #AutoDeployment | fn.#ObjectExpression
-	CallAs?:            "SELF" | "DELEGATED_ADMIN" | fn.#StringExpression
-	Capabilities?:      list.UniqueItems() & [...#Capability] | fn.#ListExpression
-	Description?:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	ExecutionRoleName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9+=,.@/-]+$" | fn.#StringExpression
-	ManagedExecution?:  close({Active?: #Active}) | fn.#ObjectExpression
-	OperationPreferences?: #OperationPreferences
-	Parameters?:           list.UniqueItems() & [...#Parameter] | fn.#ListExpression
-	PermissionModel!:      "SERVICE_MANAGED" | "SELF_MANAGED" | fn.#StringExpression
-	StackInstancesGroup?:  list.UniqueItems() & [...#StackInstances] | fn.#ListExpression
-	StackSetName!:         strings.MaxRunes(128) & =~"^[a-zA-Z][a-zA-Z0-9\\-]{0,127}$" | fn.#StringExpression
-	Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	TemplateBody?:         strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
-	TemplateURL?:          strings.MaxRunes(5120) & strings.MinRunes(1) | fn.#StringExpression
-	if TemplateURL != _|_ {
-		TemplateBody?: error(
-			"TemplateBody cannot be used with TemplateURL; set exactly one of TemplateURL, TemplateBody",
-		)
-	}
-}) & matchN(>=1, [{TemplateURL!: _}, {TemplateBody!: _}])
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFormation::StackSet"
+	Properties!: close({
+		AdministrationRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		fn.#StringExpression
+		AutoDeployment?: #AutoDeployment | fn.#ObjectExpression
+		CallAs?:         "SELF" | "DELEGATED_ADMIN" | fn.#StringExpression
+		Capabilities?:   list.UniqueItems() & [...#Capability] | fn.#ListExpression
+		Description?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		ExecutionRoleName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9+=,.@/-]+$" |
+		fn.#StringExpression
+		ManagedExecution?:     close({Active?: #Active}) | fn.#ObjectExpression
+		OperationPreferences?: #OperationPreferences
+		Parameters?:           list.UniqueItems() & [...#Parameter] | fn.#ListExpression
+		PermissionModel!:      "SERVICE_MANAGED" | "SELF_MANAGED" | fn.#StringExpression
+		StackInstancesGroup?:  list.UniqueItems() & [...#StackInstances] | fn.#ListExpression
+		StackSetName!:         strings.MaxRunes(128) & =~"^[a-zA-Z][a-zA-Z0-9\\-]{0,127}$" | fn.#StringExpression
+		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TemplateBody?:         strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
+		TemplateURL?:          strings.MaxRunes(5120) & strings.MinRunes(1) | fn.#StringExpression
+		if TemplateURL != _|_ {
+			TemplateBody?: error(
+				"TemplateBody cannot be used with TemplateURL; set exactly one of TemplateURL, TemplateBody",
+			)
+		}
+	}) & matchN(>=1, [{TemplateURL!: _}, {TemplateBody!: _}])
+}
 
 #Account: =~"^[0-9]{12}$" | fn.#StringExpression
 
@@ -160,7 +164,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::StackSet"
-	Properties!: #Properties
-}

@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Bucket
-#Properties: close({
-	AccessRules?: #AccessRules
-	BucketName!: strings.MaxRunes(54) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9-]{1,52}[a-z0-9]$" |
-	fn.#StringExpression
-	BundleId!:                 =~"\\S" | fn.#StringExpression
-	ObjectVersioning?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ReadOnlyAccessAccounts?:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	ResourcesReceivingAccess?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lightsail::Bucket"
+	Properties!: close({
+		AccessRules?: #AccessRules
+		BucketName!: strings.MaxRunes(54) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9-]{1,52}[a-z0-9]$" |
+		fn.#StringExpression
+		BundleId!:                 =~"\\S" | fn.#StringExpression
+		ObjectVersioning?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ReadOnlyAccessAccounts?:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		ResourcesReceivingAccess?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AccessRules: close({
 	AllowPublicOverrides?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -35,7 +38,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::Bucket"
-	Properties!: #Properties
-}

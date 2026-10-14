@@ -13,19 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppIntegrations::DataIntegration
-#Properties: close({
-	Description?:       strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	FileConfiguration?: #FileConfiguration | fn.#ObjectExpression
-	KmsKey!:            strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Name!:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
-	ObjectConfiguration?: #ObjectConfiguration | fn.#ObjectExpression
-	ScheduleConfig?:      #ScheduleConfig | fn.#ObjectExpression
-	SourceURI!: strings.MaxRunes(1000) &
-	strings.MinRunes(1) &
-	=~"^(\\w+\\:\\/\\/[\\w.-]+[\\w/!@#+=.-]+$)|(\\w+\\:\\/\\/[\\w.-]+[\\w/!@#+=.-]+[\\w/!@#+=.-]+[\\w/!@#+=.,-]+$)" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppIntegrations::DataIntegration"
+	Properties!: close({
+		Description?:       strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+		FileConfiguration?: #FileConfiguration | fn.#ObjectExpression
+		KmsKey!:            strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
+		ObjectConfiguration?: #ObjectConfiguration | fn.#ObjectExpression
+		ScheduleConfig?:      #ScheduleConfig | fn.#ObjectExpression
+		SourceURI!: strings.MaxRunes(1000) &
+		strings.MinRunes(1) &
+		=~"^(\\w+\\:\\/\\/[\\w.-]+[\\w/!@#+=.-]+$)|(\\w+\\:\\/\\/[\\w.-]+[\\w/!@#+=.-]+[\\w/!@#+=.-]+[\\w/!@#+=.,-]+$)" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #FileConfiguration: close({
 	Filters?: close({
@@ -67,7 +70,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppIntegrations::DataIntegration"
-	Properties!: #Properties
-}

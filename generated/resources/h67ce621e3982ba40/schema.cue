@@ -15,12 +15,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // connector establishes a connection between Security Hub CSPM and a
 // third-party cloud provider, enabling Security Hub CSPM to ingest security
 // findings and resource data from the connected environment.
-#Properties: close({
-	Description?: =~"\\S" | fn.#StringExpression
-	Name!:        =~"\\S" | fn.#StringExpression
-	Provider!:    #Provider | fn.#ObjectExpression
-	Tags?:        #Tags | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::Connector"
+	Properties!: close({
+		Description?: =~"\\S" | fn.#StringExpression
+		Name!:        =~"\\S" | fn.#StringExpression
+		Provider!:    #Provider | fn.#ObjectExpression
+		Tags?:        #Tags | fn.#ObjectExpression
+	})
+}
 
 #AzureProviderConfiguration: close({
 	AWSConfigConnectorArn!: string | fn.#StringExpression
@@ -55,7 +58,3 @@ fn.#ObjectExpression
 #Provider: close({Azure!: #AzureProviderConfiguration | fn.#ObjectExpression}) | fn.#ObjectExpression
 
 #Tags: {...} | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::Connector"
-	Properties!: #Properties
-}

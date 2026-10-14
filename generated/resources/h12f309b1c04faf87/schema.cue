@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::VerifiedPermissions::IdentitySource Resource Type
-#Properties: close({
-	Configuration!:       #IdentitySourceConfiguration
-	PolicyStoreId!:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
-	PrincipalEntityType?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::VerifiedPermissions::IdentitySource"
+	Properties!: close({
+		Configuration!:       #IdentitySourceConfiguration
+		PolicyStoreId!:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
+		PrincipalEntityType?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+	})
+}
 
 #CognitoGroupConfiguration: close({
 	GroupEntityType!: strings.MaxRunes(200) &
@@ -104,7 +107,3 @@ fn.#ObjectExpression
 fn.#ValueExpression
 
 #OpenIdIssuer: "COGNITO" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VerifiedPermissions::IdentitySource"
-	Properties!: #Properties
-}

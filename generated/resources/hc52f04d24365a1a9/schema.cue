@@ -13,32 +13,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QBusiness::Application Resource Type
-#Properties: close({
-	AttachmentsConfiguration?:      #AttachmentsConfiguration
-	AutoSubscriptionConfiguration?: #AutoSubscriptionConfiguration
-	ClientIdsForOIDC?: [
-		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.:/()*?=-]*$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	DisplayName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	EncryptionConfiguration?: #EncryptionConfiguration
-	IamIdentityProviderArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::\\d{12}:(oidc-provider|saml-provider)/[a-zA-Z0-9_\\.\\/@\\-]+$" |
-	fn.#StringExpression
-	IdentityCenterInstanceArn?: strings.MaxRunes(1224) &
-	strings.MinRunes(10) &
-	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
-	fn.#StringExpression
-	IdentityType?:                 #IdentityType
-	PersonalizationConfiguration?: #PersonalizationConfiguration
-	QAppsConfiguration?:           #QAppsConfiguration
-	QuickSightConfiguration?:      #QuickSightConfiguration
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QBusiness::Application"
+	Properties!: close({
+		AttachmentsConfiguration?:      #AttachmentsConfiguration
+		AutoSubscriptionConfiguration?: #AutoSubscriptionConfiguration
+		ClientIdsForOIDC?: [
+			...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.:/()*?=-]*$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		DisplayName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
+		fn.#StringExpression
+		EncryptionConfiguration?: #EncryptionConfiguration
+		IamIdentityProviderArn?: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::\\d{12}:(oidc-provider|saml-provider)/[a-zA-Z0-9_\\.\\/@\\-]+$" |
+		fn.#StringExpression
+		IdentityCenterInstanceArn?: strings.MaxRunes(1224) &
+		strings.MinRunes(10) &
+		=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
+		fn.#StringExpression
+		IdentityType?:                 #IdentityType
+		PersonalizationConfiguration?: #PersonalizationConfiguration
+		QAppsConfiguration?:           #QAppsConfiguration
+		QuickSightConfiguration?:      #QuickSightConfiguration
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ApplicationStatus: "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "UPDATING" | fn.#StringExpression
 
@@ -88,7 +92,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QBusiness::Application"
-	Properties!: #Properties
-}

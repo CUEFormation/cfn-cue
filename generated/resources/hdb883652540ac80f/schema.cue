@@ -13,23 +13,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Database
-#Properties: close({
-	AvailabilityZone?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	BackupRetention?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CaCertificateIdentifier?:    string | fn.#StringExpression
-	MasterDatabaseName!:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	MasterUserPassword?:         strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	MasterUsername!:             strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	PreferredBackupWindow?:      string | fn.#StringExpression
-	PreferredMaintenanceWindow?: string | fn.#StringExpression
-	PubliclyAccessible?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RelationalDatabaseBlueprintId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	RelationalDatabaseBundleId!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	RelationalDatabaseName!: strings.MaxRunes(255) & strings.MinRunes(2) & =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
-	RelationalDatabaseParameters?: list.UniqueItems() & [...#RelationalDatabaseParameter] | fn.#ListExpression
-	RotateMasterUserPassword?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                         list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lightsail::Database"
+	Properties!: close({
+		AvailabilityZone?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		BackupRetention?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		CaCertificateIdentifier?: string | fn.#StringExpression
+		MasterDatabaseName!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		MasterUserPassword?:      strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+		MasterUsername!:          strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+		PreferredBackupWindow?:   string | fn.#StringExpression
+		PreferredMaintenanceWindow?: string | fn.#StringExpression
+		PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RelationalDatabaseBlueprintId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		RelationalDatabaseBundleId!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		RelationalDatabaseName!: strings.MaxRunes(255) & strings.MinRunes(2) & =~"\\w[\\w\\-]*\\w" |
+		fn.#StringExpression
+		RelationalDatabaseParameters?: list.UniqueItems() & [...#RelationalDatabaseParameter] | fn.#ListExpression
+		RotateMasterUserPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #RelationalDatabaseParameter: close({
 	AllowedValues?:  string | fn.#StringExpression
@@ -48,7 +52,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::Database"
-	Properties!: #Properties
-}

@@ -17,25 +17,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::FSx::FileCache
-#Properties: close({
-	CopyTagsToDataRepositoryAssociations?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	DataRepositoryAssociations?: list.MaxItems(8) & [...] & [...#DataRepositoryAssociation] | fn.#ListExpression
-	FileCacheType!:              "LUSTRE" | fn.#StringExpression
-	FileCacheTypeVersion!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[0-9](\\.[0-9]*)*$" | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	LustreConfiguration?: close({
-		DeploymentType!:        "CACHE_1" | fn.#StringExpression
-		MetadataConfiguration!: #MetadataConfiguration
-		PerUnitStorageThroughput!: int & <=1000 & >=12 |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FSx::FileCache"
+	Properties!: close({
+		CopyTagsToDataRepositoryAssociations?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		DataRepositoryAssociations?: list.MaxItems(8) & [...] & [...#DataRepositoryAssociation] | fn.#ListExpression
+		FileCacheType!:              "LUSTRE" | fn.#StringExpression
+		FileCacheTypeVersion!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[0-9](\\.[0-9]*)*$" |
+		fn.#StringExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		LustreConfiguration?: close({
+			DeploymentType!:        "CACHE_1" | fn.#StringExpression
+			MetadataConfiguration!: #MetadataConfiguration
+			PerUnitStorageThroughput!: int & <=1000 & >=12 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=1000 &
+									>=12,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			WeeklyMaintenanceStartTime?: strings.MaxRunes(7) &
+			strings.MinRunes(7) &
+			=~"^[1-7]:([01]\\d|2[0-3]):?([0-5]\\d)$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		SecurityGroupIds?: list.MaxItems(50) & [...] & [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			strings.MaxRunes(20) &
+			strings.MinRunes(11) &
+			=~"^(sg-[0-9a-f]{8,})$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		StorageCapacity!: int & <=2147483647 & >=0 |
 			{
 				string &
 					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -46,49 +81,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
 							) &
 								int &
-								<=1000 &
-								>=12,
+								<=2147483647 &
+								>=0,
 							10,
 						))*0 + 1,
 					)
 			} |
 			fn.#NumberExpression
-		WeeklyMaintenanceStartTime?: strings.MaxRunes(7) &
-		strings.MinRunes(7) &
-		=~"^[1-7]:([01]\\d|2[0-3]):?([0-5]\\d)$" |
-		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	SecurityGroupIds?: list.MaxItems(50) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		strings.MaxRunes(20) &
-		strings.MinRunes(11) &
-		=~"^(sg-[0-9a-f]{8,})$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	StorageCapacity!: int & <=2147483647 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=2147483647 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SubnetIds!: list.MaxItems(50) & [...] & [
-		...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^(subnet-[0-9a-f]{8,})$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+		SubnetIds!: list.MaxItems(50) & [...] & [
+			...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^(subnet-[0-9a-f]{8,})$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DataRepositoryAssociation: close({
 	DataRepositoryPath!: strings.MaxRunes(4357) & strings.MinRunes(3) | fn.#StringExpression
@@ -153,7 +159,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FSx::FileCache"
-	Properties!: #Properties
-}

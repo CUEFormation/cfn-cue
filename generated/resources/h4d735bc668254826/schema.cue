@@ -12,13 +12,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::GuardrailVersion Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	GuardrailIdentifier!: strings.MaxRunes(2048) &
-	=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$" |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::GuardrailVersion"
-	Properties!: #Properties
+	Type!: "AWS::Bedrock::GuardrailVersion"
+	Properties!: close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		GuardrailIdentifier!: strings.MaxRunes(2048) &
+		=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$" |
+		fn.#StringExpression
+	})
 }

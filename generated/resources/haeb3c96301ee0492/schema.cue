@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Contains a list of IP addresses. This can be either IPV4 or IPV6. The list will be mutually
-#Properties: close({
-	Addresses!:        [...#IPAddress] | fn.#ListExpression
-	Description?:      #EntityDescription
-	IPAddressVersion!: #IPAddressVersion
-	Name?:             #EntityName
-	Scope!:            #Scope
-	Tags?:             list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAFv2::IPSet"
+	Properties!: close({
+		Addresses!:        [...#IPAddress] | fn.#ListExpression
+		Description?:      #EntityDescription
+		IPAddressVersion!: #IPAddressVersion
+		Name?:             #EntityName
+		Scope!:            #Scope
+		Tags?:             list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #EntityDescription: =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$" |
 	fn.#StringExpression
@@ -42,7 +45,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAFv2::IPSet"
-	Properties!: #Properties
-}

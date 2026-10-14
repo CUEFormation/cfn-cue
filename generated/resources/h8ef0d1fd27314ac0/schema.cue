@@ -20,19 +20,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // other OUs. Each OU can contain multiple accounts, and you can move accounts
 // from one OU to another. However, OU names must be unique within a parent OU
 // or root.
-#Properties: close({
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
-	ParentId!: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^(r-[0-9a-z]{4,32})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Organizations::OrganizationalUnit"
+	Properties!: close({
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
+		ParentId!: strings.MaxRunes(100) &
+		strings.MinRunes(0) &
+		=~"^(r-[0-9a-z]{4,32})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Organizations::OrganizationalUnit"
-	Properties!: #Properties
-}

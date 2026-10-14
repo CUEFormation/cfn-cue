@@ -19,34 +19,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Pipes::Pipe Resource Type
-#Properties: close({
-	Description?:  strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
-	DesiredState?: #RequestedPipeState
-	Enrichment?: strings.MaxRunes(1600) &
-	strings.MinRunes(0) &
-	=~"^$|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)$" |
-	fn.#StringExpression
-	EnrichmentParameters?: #PipeEnrichmentParameters
-	KmsKeyIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-/:]*$" | fn.#StringExpression
-	LogConfiguration?: #PipeLogConfiguration
-	Name?:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(1600) &
-	strings.MinRunes(1) &
-	=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	Source!: strings.MaxRunes(1600) &
-	strings.MinRunes(1) &
-	=~"^smk://(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9]):[0-9]{1,5}|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)$" |
-	fn.#StringExpression
-	SourceParameters?: #PipeSourceParameters
-	Tags?:             #TagMap
-	Target!: strings.MaxRunes(1600) &
-	strings.MinRunes(1) &
-	=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)$" |
-	fn.#StringExpression
-	TargetParameters?: #PipeTargetParameters
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Pipes::Pipe"
+	Properties!: close({
+		Description?:  strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
+		DesiredState?: #RequestedPipeState
+		Enrichment?: strings.MaxRunes(1600) &
+		strings.MinRunes(0) &
+		=~"^$|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)$" |
+		fn.#StringExpression
+		EnrichmentParameters?: #PipeEnrichmentParameters
+		KmsKeyIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-/:]*$" |
+		fn.#StringExpression
+		LogConfiguration?: #PipeLogConfiguration
+		Name?:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" | fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		Source!: strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		=~"^smk://(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9]):[0-9]{1,5}|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)$" |
+		fn.#StringExpression
+		SourceParameters?: #PipeSourceParameters
+		Tags?:             #TagMap
+		Target!: strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)$" |
+		fn.#StringExpression
+		TargetParameters?: #PipeTargetParameters
+	})
+}
 
 #AssignPublicIp: "ENABLED" | "DISABLED" | fn.#StringExpression
 
@@ -1076,7 +1080,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TimeFieldType: "EPOCH" | "TIMESTAMP_FORMAT" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pipes::Pipe"
-	Properties!: #Properties
-}

@@ -10,11 +10,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Wickr::Network. Creates and manages an AWS
 // Wickr network for secure enterprise communications.
-#Properties: close({
-	AccessLevel!: "STANDARD" | "PREMIUM" | fn.#StringExpression
-	NetworkName!: =~"^[\\S\\s]*$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Wickr::Network"
-	Properties!: #Properties
+	Type!: "AWS::Wickr::Network"
+	Properties!: close({
+		AccessLevel!: "STANDARD" | "PREMIUM" | fn.#StringExpression
+		NetworkName!: =~"^[\\S\\s]*$" | fn.#StringExpression
+	})
 }

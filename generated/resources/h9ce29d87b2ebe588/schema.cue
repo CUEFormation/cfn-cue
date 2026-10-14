@@ -15,15 +15,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Registers a custom connection type in Glue based on the configuration
 // provided. This enables customers to configure custom connectors for any data
 // source with REST-based APIs.
-#Properties: close({
-	ConnectionProperties?:                 #ConnectionPropertiesConfiguration
-	ConnectionType!:                       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ConnectorAuthenticationConfiguration?: #ConnectorAuthenticationConfiguration
-	Description?:                          strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	IntegrationType?:                      "REST" | fn.#StringExpression
-	RestConfiguration!:                    #RestConfiguration
-	Tags?:                                 list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::ConnectionType"
+	Properties!: close({
+		ConnectionProperties?:                 #ConnectionPropertiesConfiguration
+		ConnectionType!:                       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		ConnectorAuthenticationConfiguration?: #ConnectorAuthenticationConfiguration
+		Description?:                          strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		IntegrationType?:                      "REST" | fn.#StringExpression
+		RestConfiguration!:                    #RestConfiguration
+		Tags?:                                 list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #BasicAuthenticationProperties: close({
 	Password?: #SecretConnectorProperty
@@ -260,7 +263,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::ConnectionType"
-	Properties!: #Properties
-}

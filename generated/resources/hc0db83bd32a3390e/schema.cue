@@ -12,14 +12,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This schema is for testing purpose only.
-#Properties: close({
-	CurrentRevisionId?:  strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
-	Environment?:        string | fn.#StringExpression
-	Name?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	RobotSoftwareSuite!: #RobotSoftwareSuite
-	Sources?:            [...#SourceConfig] | fn.#ListExpression
-	Tags?:               #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RoboMaker::RobotApplication"
+	Properties!: close({
+		CurrentRevisionId?:  strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
+		Environment?:        string | fn.#StringExpression
+		Name?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		RobotSoftwareSuite!: #RobotSoftwareSuite
+		Sources?:            [...#SourceConfig] | fn.#ListExpression
+		Tags?:               #Tags
+	})
+}
 
 #Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
 
@@ -40,7 +43,3 @@ fn.#ObjectExpression
 
 	{[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RoboMaker::RobotApplication"
-	Properties!: #Properties
-}

@@ -17,12 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTAnalytics::Channel
-#Properties: close({
-	ChannelName?:     strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ChannelStorage?:  #ChannelStorage
-	RetentionPeriod?: #RetentionPeriod
-	Tags?:            list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTAnalytics::Channel"
+	Properties?: close({
+		ChannelName?:     strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		ChannelStorage?:  #ChannelStorage
+		RetentionPeriod?: #RetentionPeriod
+		Tags?:            list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ChannelStorage: close({
 	CustomerManagedS3?: #CustomerManagedS3
@@ -66,7 +69,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTAnalytics::Channel"
-	Properties?: #Properties
-}

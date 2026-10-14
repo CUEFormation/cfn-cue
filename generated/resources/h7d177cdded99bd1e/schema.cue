@@ -18,15 +18,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The ``AWS::ECS::Cluster`` resource creates an Amazon Elastic Container
 // Service (Amazon ECS) cluster.
-#Properties: close({
-	CapacityProviders?:               [...string | fn.#StringExpression] | fn.#ListExpression
-	ClusterName?:                     string | fn.#StringExpression
-	ClusterSettings?:                 [...#ClusterSettings] | fn.#ListExpression
-	Configuration?:                   #ClusterConfiguration | fn.#ObjectExpression
-	DefaultCapacityProviderStrategy?: [...#CapacityProviderStrategyItem] | fn.#ListExpression
-	ServiceConnectDefaults?:          #ServiceConnectDefaults | fn.#ObjectExpression
-	Tags?:                            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECS::Cluster"
+	Properties?: close({
+		CapacityProviders?:               [...string | fn.#StringExpression] | fn.#ListExpression
+		ClusterName?:                     string | fn.#StringExpression
+		ClusterSettings?:                 [...#ClusterSettings] | fn.#ListExpression
+		Configuration?:                   #ClusterConfiguration | fn.#ObjectExpression
+		DefaultCapacityProviderStrategy?: [...#CapacityProviderStrategyItem] | fn.#ListExpression
+		ServiceConnectDefaults?:          #ServiceConnectDefaults | fn.#ObjectExpression
+		Tags?:                            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CapacityProviderStrategyItem: close({
 	Base?: int & <=100000 & >=0 |
@@ -110,7 +113,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::Cluster"
-	Properties?: #Properties
-}

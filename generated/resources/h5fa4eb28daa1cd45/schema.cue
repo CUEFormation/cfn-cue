@@ -17,59 +17,62 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::DataZone::ProjectProfile Resource Type
-#Properties: close({
-	AllowCustomProjectResourceTags?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	Description?:          strings.MaxRunes(2048) | fn.#StringExpression
-	DomainIdentifier?:     =~"^dzd[_-][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	DomainUnitIdentifier?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" | fn.#StringExpression
-	EnvironmentConfigurations?: [...close({
-		AwsAccount?: #AwsAccount
-		AwsRegion!:  #Region
-		ConfigurationParameters?: close({
-			ParameterOverrides?: [...#EnvironmentConfigurationParameter] | fn.#ListExpression
-			SsmPath?:            strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		}) |
-		fn.#ObjectExpression
-		DeploymentMode?: #DeploymentMode
-		DeploymentOrder?: <=16 & >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatFloat(
-							cfnScalarStrconv.ParseFloat(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataZone::ProjectProfile"
+	Properties!: close({
+		AllowCustomProjectResourceTags?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Description?:          strings.MaxRunes(2048) | fn.#StringExpression
+		DomainIdentifier?:     =~"^dzd[_-][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		DomainUnitIdentifier?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" | fn.#StringExpression
+		EnvironmentConfigurations?: [...close({
+			AwsAccount?: #AwsAccount
+			AwsRegion!:  #Region
+			ConfigurationParameters?: close({
+				ParameterOverrides?: [...#EnvironmentConfigurationParameter] | fn.#ListExpression
+				SsmPath?:            strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
+			DeploymentMode?: #DeploymentMode
+			DeploymentOrder?: <=16 & >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatFloat(
+								cfnScalarStrconv.ParseFloat(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+									64,
+								) &
+									<=16 &
+									>=0,
+								"g",
+								-1,
 								64,
-							) &
-								<=16 &
-								>=0,
-							"g",
-							-1,
-							64,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		Description?:            strings.MaxRunes(2048) | fn.#StringExpression
-		EnvironmentBlueprintId!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		Name!:                   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Name!:                           strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-	ProjectResourceTags?:            list.MaxItems(25) & [...#ResourceTagParameter] | fn.#ListExpression
-	ProjectResourceTagsDescription?: strings.MaxRunes(2048) | fn.#StringExpression
-	Status?:                         #Status
-	UseDefaultConfigurations?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			Description?:            strings.MaxRunes(2048) | fn.#StringExpression
+			EnvironmentBlueprintId!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+			Name!:                   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		Name!:                strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
+		ProjectResourceTags?: list.MaxItems(25) & [...#ResourceTagParameter] | fn.#ListExpression
+		ProjectResourceTagsDescription?: strings.MaxRunes(2048) | fn.#StringExpression
+		Status?:                         #Status
+		UseDefaultConfigurations?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	})
+}
 
 #AwsAccount: close({AwsAccountId!: =~"^\\d{12}$" | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -146,7 +149,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Status: "ENABLED" | "DISABLED" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::ProjectProfile"
-	Properties!: #Properties
-}

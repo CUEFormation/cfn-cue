@@ -17,7 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [Restricting access to an
 // origin](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-origin.html)
 // in the *Amazon CloudFront Developer Guide*.
-#Properties: close({OriginAccessControlConfig!: #OriginAccessControlConfig | fn.#ObjectExpression})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::CloudFront::OriginAccessControl"
+	Properties!: close({OriginAccessControlConfig!: #OriginAccessControlConfig | fn.#ObjectExpression})
+}
 
 #OriginAccessControlConfig: close({
 	Description?:                   string | fn.#StringExpression
@@ -27,7 +30,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SigningProtocol!:               =~"^(sigv4|sigv4a)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::OriginAccessControl"
-	Properties!: #Properties
-}

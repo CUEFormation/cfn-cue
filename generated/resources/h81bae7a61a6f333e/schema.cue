@@ -21,27 +21,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // subscription that delivers events from an event bus to a target. Canonical
 // identity is the combination of bus, name, and target. Replacement uses
 // delete_then_create.
-#Properties: close({
-	BatchConfiguration?: #BatchConfiguration | fn.#ObjectExpression
-	Description?:        strings.MaxRunes(512) | fn.#StringExpression
-	EventBusArn!: strings.MaxRunes(1011) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
-	fn.#StringExpression
-	FilterConfiguration?: #FilterConfiguration | fn.#ObjectExpression
-	InvokeConfiguration!: #InvokeConfiguration | fn.#ObjectExpression
-	LogConfiguration?:    #LogConfiguration | fn.#ObjectExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" | fn.#StringExpression
-	OnFailureConfiguration?:   #OnFailureConfiguration | fn.#ObjectExpression
-	PointInTimeConfiguration?: #PointInTimeConfiguration | fn.#ObjectExpression
-	ResumePosition?:           "LAST_PROCESSED" | "LATEST" | fn.#StringExpression
-	RetryPolicy?:              #RetryPolicy | fn.#ObjectExpression
-	StartingPosition?:         "LATEST" | "POINT_IN_TIME" | fn.#StringExpression
-	State?:                    "RUNNING" | "STOPPED" | fn.#StringExpression
-	Tags?:                     list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Transformer?:              #Transformer | fn.#ObjectExpression
-	Type?:                     "FIFO" | "UNORDERED" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EventsV2::Subscriber"
+	Properties!: close({
+		BatchConfiguration?: #BatchConfiguration | fn.#ObjectExpression
+		Description?:        strings.MaxRunes(512) | fn.#StringExpression
+		EventBusArn!: strings.MaxRunes(1011) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
+		fn.#StringExpression
+		FilterConfiguration?: #FilterConfiguration | fn.#ObjectExpression
+		InvokeConfiguration!: #InvokeConfiguration | fn.#ObjectExpression
+		LogConfiguration?:    #LogConfiguration | fn.#ObjectExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" | fn.#StringExpression
+		OnFailureConfiguration?:   #OnFailureConfiguration | fn.#ObjectExpression
+		PointInTimeConfiguration?: #PointInTimeConfiguration | fn.#ObjectExpression
+		ResumePosition?:           "LAST_PROCESSED" | "LATEST" | fn.#StringExpression
+		RetryPolicy?:              #RetryPolicy | fn.#ObjectExpression
+		StartingPosition?:         "LATEST" | "POINT_IN_TIME" | fn.#StringExpression
+		State?:                    "RUNNING" | "STOPPED" | fn.#StringExpression
+		Tags?:                     list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Transformer?:              #Transformer | fn.#ObjectExpression
+		Type?:                     "FIFO" | "UNORDERED" | fn.#StringExpression
+	})
+}
 
 #BatchConfiguration: close({
 	MaxBatchSize?: int & <=500 & >=1 |
@@ -582,7 +585,3 @@ fn.#ObjectExpression
 	Type?:                 "RAW" | "WITH_METADATA" | "JSONATA" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EventsV2::Subscriber"
-	Properties!: #Properties
-}

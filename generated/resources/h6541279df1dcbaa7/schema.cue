@@ -19,33 +19,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::IoT::JobTemplate. Job templates enable you
 // to preconfigure jobs so that you can deploy them to multiple sets of target
 // devices.
-#Properties: close({
-	AbortConfig?: close({CriteriaList!: list.MinItems(1) & [...#AbortCriteria] | fn.#ListExpression}) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::JobTemplate"
+	Properties!: close({
+		AbortConfig?: close({CriteriaList!: list.MinItems(1) & [...#AbortCriteria] | fn.#ListExpression}) |
+			fn.#ObjectExpression
+		Description!: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"[^\\p{C}]+" | fn.#StringExpression
+		DestinationPackageVersions?: [...#DestinationPackageVersion] | fn.#ListExpression
+		Document?:                   strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
+		DocumentSource?:             strings.MaxRunes(1350) & strings.MinRunes(1) | fn.#StringExpression
+		JobArn?:                     string | fn.#StringExpression
+		JobExecutionsRetryConfig?: close(
+			{RetryCriteriaList?: list.MaxItems(2) & list.MinItems(1) & [...#RetryCriteria] | fn.#ListExpression},
+		) |
+			fn.#ObjectExpression
+		JobExecutionsRolloutConfig?: close({
+			ExponentialRolloutRate?: #ExponentialRolloutRate | fn.#ObjectExpression
+			MaximumPerMinute?:       #MaximumPerMinute | fn.#NumberExpression
+		}) |
 		fn.#ObjectExpression
-	Description!:                strings.MaxRunes(2028) & strings.MinRunes(0) & =~"[^\\p{C}]+" | fn.#StringExpression
-	DestinationPackageVersions?: [...#DestinationPackageVersion] | fn.#ListExpression
-	Document?:                   strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
-	DocumentSource?:             strings.MaxRunes(1350) & strings.MinRunes(1) | fn.#StringExpression
-	JobArn?:                     string | fn.#StringExpression
-	JobExecutionsRetryConfig?: close(
-		{RetryCriteriaList?: list.MaxItems(2) & list.MinItems(1) & [...#RetryCriteria] | fn.#ListExpression},
-	) |
+		JobTemplateId!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
+		MaintenanceWindows?: [...#MaintenanceWindow] | fn.#ListExpression
+		PresignedUrlConfig?: close({
+			ExpiresInSec?: #ExpiresInSec
+			RoleArn!:      #RoleArn
+		}) |
 		fn.#ObjectExpression
-	JobExecutionsRolloutConfig?: close({
-		ExponentialRolloutRate?: #ExponentialRolloutRate | fn.#ObjectExpression
-		MaximumPerMinute?:       #MaximumPerMinute | fn.#NumberExpression
-	}) |
-	fn.#ObjectExpression
-	JobTemplateId!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
-	MaintenanceWindows?: [...#MaintenanceWindow] | fn.#ListExpression
-	PresignedUrlConfig?: close({
-		ExpiresInSec?: #ExpiresInSec
-		RoleArn!:      #RoleArn
-	}) |
-	fn.#ObjectExpression
-	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TimeoutConfig?: close({InProgressTimeoutInMinutes!: #InProgressTimeoutInMinutes}) | fn.#ObjectExpression
-})
+		Tags?:          list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TimeoutConfig?: close({InProgressTimeoutInMinutes!: #InProgressTimeoutInMinutes}) | fn.#ObjectExpression
+	})
+}
 
 #AbortCriteria: close({
 	Action!:                    #Action | fn.#StringExpression
@@ -281,7 +284,3 @@ fn.#ObjectExpression
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::JobTemplate"
-	Properties!: #Properties
-}

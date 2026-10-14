@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::QueueFleetAssociation
-#Properties: close({
-	FarmId!:  =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-	FleetId!: =~"^fleet-[0-9a-f]{32}$" | fn.#StringExpression
-	QueueId!: =~"^queue-[0-9a-f]{32}$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Deadline::QueueFleetAssociation"
-	Properties!: #Properties
+	Type!: "AWS::Deadline::QueueFleetAssociation"
+	Properties!: close({
+		FarmId!:  =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+		FleetId!: =~"^fleet-[0-9a-f]{32}$" | fn.#StringExpression
+		QueueId!: =~"^queue-[0-9a-f]{32}$" | fn.#StringExpression
+	})
 }

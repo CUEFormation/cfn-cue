@@ -12,18 +12,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	IdentityName!:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	IdentityType!:     "USER" | "GROUP" | fn.#StringExpression
-	SessionPolicyArn!: #IamPolicyArn | fn.#StringExpression
-	StudioId!:         strings.MaxRunes(256) & strings.MinRunes(4) & =~"^es-[0-9A-Z]+" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMR::StudioSessionMapping"
+	Properties!: close({
+		IdentityName!:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		IdentityType!:     "USER" | "GROUP" | fn.#StringExpression
+		SessionPolicyArn!: #IamPolicyArn | fn.#StringExpression
+		StudioId!:         strings.MaxRunes(256) & strings.MinRunes(4) & =~"^es-[0-9A-Z]+" | fn.#StringExpression
+	})
+}
 
 #IamPolicyArn: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^arn:aws(-(cn|us-gov|iso-f|iso-e))?:iam::([0-9]{12})?:policy\\/[^.]+$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMR::StudioSessionMapping"
-	Properties!: #Properties
-}

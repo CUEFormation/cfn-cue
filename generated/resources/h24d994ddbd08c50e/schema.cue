@@ -17,14 +17,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a gateway task definition.
-#Properties: close({
-	AutoCreateTasks!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LoRaWANUpdateGatewayTaskEntry?: #LoRaWANUpdateGatewayTaskEntry | fn.#ObjectExpression
-	Name?:                          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	TaskDefinitionType?:            "UPDATE" | fn.#StringExpression
-	Update?:                        #UpdateWirelessGatewayTaskCreate | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTWireless::TaskDefinition"
+	Properties!: close({
+		AutoCreateTasks!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		LoRaWANUpdateGatewayTaskEntry?: #LoRaWANUpdateGatewayTaskEntry | fn.#ObjectExpression
+		Name?:                          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TaskDefinitionType?:            "UPDATE" | fn.#StringExpression
+		Update?:                        #UpdateWirelessGatewayTaskCreate | fn.#ObjectExpression
+	})
+}
 
 #LoRaWANGatewayVersion: close({
 	Model?:          strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
@@ -76,7 +79,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/_PropertyRefcde43015987bd6b3": "UPDATE" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTWireless::TaskDefinition"
-	Properties!: #Properties
-}

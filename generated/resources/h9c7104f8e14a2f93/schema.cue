@@ -9,13 +9,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Notifications::ChannelAssociation
-#Properties: close({
-	Arn!: =~"^arn:[a-z-]{3,10}:(chatbot|consoleapp|notifications-contacts):[a-zA-Z0-9-]*:[0-9]{12}:[a-zA-Z0-9-_.@]+/[a-zA-Z0-9/_.@:-]+$" |
-		fn.#StringExpression
-	NotificationConfigurationArn!: =~"^arn:[a-z-]{3,10}:notifications::[0-9]{12}:configuration/[a-z0-9]{27}$" |
-		fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Notifications::ChannelAssociation"
-	Properties!: #Properties
+	Type!: "AWS::Notifications::ChannelAssociation"
+	Properties!: close({
+		Arn!: =~"^arn:[a-z-]{3,10}:(chatbot|consoleapp|notifications-contacts):[a-zA-Z0-9-]*:[0-9]{12}:[a-zA-Z0-9-_.@]+/[a-zA-Z0-9/_.@:-]+$" |
+			fn.#StringExpression
+		NotificationConfigurationArn!: =~"^arn:[a-z-]{3,10}:notifications::[0-9]{12}:configuration/[a-z0-9]{27}$" |
+			fn.#StringExpression
+	})
 }

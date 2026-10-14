@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"path/filepath"
 	"testing"
-
-	"cuelang.org/go/cue"
 )
 
 func TestDeduplicateNormalizedAnyOf(t *testing.T) {
@@ -66,7 +64,7 @@ func TestArrayWithDuplicateNormalizedAlternatives(t *testing.T) {
 	if formatWarnings != 2 { // retain a diagnostic for each unsupported source format
 		t.Fatalf("lost unsupported-format diagnostics: got %d want 2", formatWarnings)
 	}
-	template := build(t, out, "./resources/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
+	template := propertiesSchema(t, out, "./resources/htest")
 	for _, data := range []string{
 		`{Name:"one",SecurityGroupIds:[{Ref:"SecurityGroup"}]}`,
 		`{Name:"one",SecurityGroupIds:["sg-1234abcd"]}`,
@@ -81,7 +79,7 @@ func TestArrayWithDuplicateNormalizedAlternatives(t *testing.T) {
 	} {
 		validate(t, template, data, false)
 	}
-	literal := build(t, out, "./literal/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
+	literal := propertiesSchema(t, out, "./literal/htest")
 	validate(t, literal, `{Name:"one",SecurityGroupIds:["sg-1234abcd"]}`, true)
 	validate(t, literal, `{Name:"one",SecurityGroupIds:[{Ref:"SecurityGroup"}]}`, false)
 	validate(t, literal, `{Name:"one",Exclusive:"matches-both"}`, false)

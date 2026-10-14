@@ -16,12 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // storage solution or application, or a partner event data source), and
 // delivers the events to one or more event data stores. You use channels to
 // ingest events into CloudTrail from sources outside AWS.
-#Properties: close({
-	Destinations?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#Destination] | fn.#ListExpression
-	Name?:         #ChannelName
-	Source?:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"(.*)" | fn.#StringExpression
-	Tags?:         list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudTrail::Channel"
+	Properties?: close({
+		Destinations?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#Destination] |
+			fn.#ListExpression
+		Name?:   #ChannelName
+		Source?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"(.*)" | fn.#StringExpression
+		Tags?:   list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ChannelArn: strings.MaxRunes(256) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._/\\-:]+$)" | fn.#StringExpression
 
@@ -42,7 +46,3 @@ fn.#ObjectExpression
 #Timestamp: string | fn.#StringExpression
 
 #UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"(^[a-f0-9\\-]+$)" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudTrail::Channel"
-	Properties?: #Properties
-}

@@ -13,18 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::Customization Resource Type.
-#Properties: close({
-	DefaultTheme!: string | fn.#StringExpression
-	Namespace!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]*$" | fn.#StringExpression
-	Tags?:         list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::Customization"
+	Properties!: close({
+		DefaultTheme!: string | fn.#StringExpression
+		Namespace!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]*$" | fn.#StringExpression
+		Tags?:         list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::Customization"
-	Properties!: #Properties
-}

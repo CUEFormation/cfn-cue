@@ -18,33 +18,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTTwinMaker::Entity
-#Properties: close({
-	Components?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTTwinMaker::Entity"
+	Properties!: close({
+		Components?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: #Component}}) |
-	fn.#ObjectExpression
-	CompositeComponents?: close({
+			{[=~"[a-zA-Z_\\-0-9]+"]: #Component}}) |
+		fn.#ObjectExpression
+		CompositeComponents?: close({
 
-		{[=~"[a-zA-Z_\\-0-9/]+"]: #CompositeComponent}}) |
-	fn.#ObjectExpression
-	Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	EntityId?: strings.MaxRunes(128) &
-	strings.MinRunes(1) &
-	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|^[a-zA-Z0-9][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9]+" |
-	fn.#StringExpression
-	EntityName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_0-9-.][a-zA-Z_0-9-. ]*[a-zA-Z0-9]+" |
-	fn.#StringExpression
-	ParentEntityId?: strings.MaxRunes(128) &
-	strings.MinRunes(1) &
-	=~"\\$ROOT|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|^[a-zA-Z0-9][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9]+" |
-	fn.#StringExpression
-	Tags?: close({
+			{[=~"[a-zA-Z_\\-0-9/]+"]: #CompositeComponent}}) |
+		fn.#ObjectExpression
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		EntityId?: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|^[a-zA-Z0-9][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9]+" |
+		fn.#StringExpression
+		EntityName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_0-9-.][a-zA-Z_0-9-. ]*[a-zA-Z0-9]+" |
+		fn.#StringExpression
+		ParentEntityId?: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"\\$ROOT|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|^[a-zA-Z0-9][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9]+" |
+		fn.#StringExpression
+		Tags?: close({
 
-		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	WorkspaceId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_0-9][a-zA-Z_\\-0-9]*[a-zA-Z0-9]+" |
-	fn.#StringExpression
-})
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+			fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		WorkspaceId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_0-9][a-zA-Z_\\-0-9]*[a-zA-Z0-9]+" |
+		fn.#StringExpression
+	})
+}
 
 #Component: close({
 	ComponentName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression
@@ -215,7 +219,3 @@ fn.#ObjectExpression
 	State?: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "ERROR" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTTwinMaker::Entity"
-	Properties!: #Properties
-}

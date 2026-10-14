@@ -13,10 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a Lattice Domain Verification
-#Properties: close({
-	DomainName!: strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	Tags?:       list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::VpcLattice::DomainVerification"
+	Properties!: close({
+		DomainName!: strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
+		Tags?:       list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -29,7 +32,3 @@ fn.#ObjectExpression
 	value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VpcLattice::DomainVerification"
-	Properties!: #Properties
-}

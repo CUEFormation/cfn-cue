@@ -13,13 +13,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a key signing key (KSK) associated with a hosted zone. You can
 // only have two KSKs per hosted zone.
-#Properties: close({
-	HostedZoneId!:            =~"^[A-Z0-9]{1,32}$" | fn.#StringExpression
-	KeyManagementServiceArn!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:                    =~"^[a-zA-Z0-9_]{3,128}$" | fn.#StringExpression
-	Status!: ("ACTIVE" | "INACTIVE") & (strings.MaxRunes(150) & strings.MinRunes(5)) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53::KeySigningKey"
-	Properties!: #Properties
+	Type!: "AWS::Route53::KeySigningKey"
+	Properties!: close({
+		HostedZoneId!:            =~"^[A-Z0-9]{1,32}$" | fn.#StringExpression
+		KeyManagementServiceArn!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:                    =~"^[a-zA-Z0-9_]{3,128}$" | fn.#StringExpression
+		Status!: ("ACTIVE" | "INACTIVE") & (strings.MaxRunes(150) & strings.MinRunes(5)) | fn.#StringExpression
+	})
 }

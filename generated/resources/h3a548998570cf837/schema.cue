@@ -17,27 +17,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS Route53 Recovery Control basic constructs and validation rules.
-#Properties: matchN(1, [{
-	AssertionRule!:   _
-	Name!:            _
-	ControlPanelArn!: _
-	RuleConfig!:      _
-	...
-}, {
-	GatingRule!:      _
-	Name!:            _
-	ControlPanelArn!: _
-	RuleConfig!:      _
-	...
-}]) & close({
-	AssertionRule?:   #AssertionRule
-	ControlPanelArn?: string | fn.#StringExpression
-	GatingRule?:      #GatingRule
-	Name?:            #SafetyRuleName
-	RuleConfig?:      #RuleConfig
-	Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
-	fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53RecoveryControl::SafetyRule"
+	Properties?: matchN(1, [{
+		AssertionRule!:   _
+		Name!:            _
+		ControlPanelArn!: _
+		RuleConfig!:      _
+		...
+	}, {
+		GatingRule!:      _
+		Name!:            _
+		ControlPanelArn!: _
+		RuleConfig!:      _
+		...
+	}]) & close({
+		AssertionRule?:   #AssertionRule
+		ControlPanelArn?: string | fn.#StringExpression
+		GatingRule?:      #GatingRule
+		Name?:            #SafetyRuleName
+		RuleConfig?:      #RuleConfig
+		Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
+}
 
 #AssertionRule: close({
 	AssertedControls!: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -107,7 +110,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53RecoveryControl::SafetyRule"
-	Properties?: #Properties
-}

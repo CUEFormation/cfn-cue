@@ -20,34 +20,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource type definition for AWS::SageMaker::TrialComponent. A trial
 // component is a stage of a machine learning trial, such as a preprocessing
 // job, training job, or batch transform job.
-#Properties: close({
-	DisplayName?: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
-	fn.#StringExpression
-	InputArtifacts?: struct.MaxFields(60) & close({
-
-		{[=~".{1,128}"]: #TrialComponentArtifact}}) |
-	fn.#ObjectExpression
-	MetadataProperties?: #MetadataProperties
-	OutputArtifacts?: struct.MaxFields(60) & close({
-
-		{[=~".{1,128}"]: #TrialComponentArtifact}}) |
-	fn.#ObjectExpression
-	Parameters?: struct.MaxFields(300) & close({
-
-		{[=~".{1,320}"]: #TrialComponentParameterValue}}) |
-	fn.#ObjectExpression
-	Status?: #TrialComponentStatus
-	Tags?: list.MaxItems(50) & [...] & [...close({
-		Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::TrialComponent"
+	Properties!: close({
+		DisplayName?: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
 		fn.#StringExpression
-		Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+		InputArtifacts?: struct.MaxFields(60) & close({
+
+			{[=~".{1,128}"]: #TrialComponentArtifact}}) |
+		fn.#ObjectExpression
+		MetadataProperties?: #MetadataProperties
+		OutputArtifacts?: struct.MaxFields(60) & close({
+
+			{[=~".{1,128}"]: #TrialComponentArtifact}}) |
+		fn.#ObjectExpression
+		Parameters?: struct.MaxFields(300) & close({
+
+			{[=~".{1,320}"]: #TrialComponentParameterValue}}) |
+		fn.#ObjectExpression
+		Status?: #TrialComponentStatus
+		Tags?: list.MaxItems(50) & [...] & [...close({
+			Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		TrialComponentName!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
 		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	TrialComponentName!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
-	fn.#StringExpression
-})
+	})
+}
 
 #MetadataProperties: close({
 	CommitId?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
@@ -92,7 +95,3 @@ fn.#ObjectExpression
 	PrimaryStatus?: "InProgress" | "Completed" | "Failed" | "Stopping" | "Stopped" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::TrialComponent"
-	Properties!: #Properties
-}

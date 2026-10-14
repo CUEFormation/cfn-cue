@@ -12,15 +12,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::Policy
-#Properties: close({
-	Definition!:      #PolicyDefinition
-	Description?:     strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	EnforcementMode?: #EnforcementMode
-	Name!:            strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]*$" | fn.#StringExpression
-	PolicyEngineId!: strings.MaxRunes(59) & strings.MinRunes(12) & =~"^[A-Za-z][A-Za-z0-9_]*-[a-z0-9_]{10}$" |
-	fn.#StringExpression
-	ValidationMode?: #PolicyValidationMode
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::Policy"
+	Properties!: close({
+		Definition!:      #PolicyDefinition
+		Description?:     strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+		EnforcementMode?: #EnforcementMode
+		Name!: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]*$" | fn.#StringExpression
+		PolicyEngineId!: strings.MaxRunes(59) & strings.MinRunes(12) & =~"^[A-Za-z][A-Za-z0-9_]*-[a-z0-9_]{10}$" |
+		fn.#StringExpression
+		ValidationMode?: #PolicyValidationMode
+	})
+}
 
 #CedarPolicy: close({Statement!: strings.MaxRunes(10000) & strings.MinRunes(35) | fn.#StringExpression}) |
 fn.#ObjectExpression
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #PolicyValidationMode: "FAIL_ON_ANY_FINDINGS" | "IGNORE_ALL_FINDINGS" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::Policy"
-	Properties!: #Properties
-}

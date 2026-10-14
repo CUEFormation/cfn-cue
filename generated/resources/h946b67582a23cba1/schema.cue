@@ -13,16 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::WorkSpacesWeb::BrowserSettings Resource Type
-#Properties: close({
-	AdditionalEncryptionContext?: #EncryptionContextMap
-	BrowserPolicy?: strings.MaxRunes(131072) & strings.MinRunes(2) & =~"^\\{[\\S\\s]*\\}\\s*$" | fn.#StringExpression
-	CustomerManagedKey?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
-	fn.#StringExpression
-	Tags?:                      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	WebContentFilteringPolicy?: #WebContentFilteringPolicy
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpacesWeb::BrowserSettings"
+	Properties?: close({
+		AdditionalEncryptionContext?: #EncryptionContextMap
+		BrowserPolicy?: strings.MaxRunes(131072) & strings.MinRunes(2) & =~"^\\{[\\S\\s]*\\}\\s*$" |
+		fn.#StringExpression
+		CustomerManagedKey?: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
+		fn.#StringExpression
+		Tags?:                      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		WebContentFilteringPolicy?: #WebContentFilteringPolicy
+	})
+}
 
 #Category: "Cults" |
 	"Gambling" |
@@ -80,7 +84,3 @@ fn.#ObjectExpression
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpacesWeb::BrowserSettings"
-	Properties?: #Properties
-}

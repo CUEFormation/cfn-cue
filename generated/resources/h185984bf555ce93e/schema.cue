@@ -17,17 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::HoursOfOperation
-#Properties: close({
-	ChildHoursOfOperations?: [...#HoursOfOperationsIdentifier] | fn.#ListExpression
-	Config!:      list.MaxItems(100) & list.UniqueItems() & [...] & [...#HoursOfOperationConfig] | fn.#ListExpression
-	Description?: strings.MaxRunes(250) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,250}$" | fn.#StringExpression
-	HoursOfOperationOverrides?: list.MaxItems(50) & [...#HoursOfOperationOverride] | fn.#ListExpression
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Name!:        strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,127}$" | fn.#StringExpression
-	ParentHoursOfOperations?: [...#HoursOfOperationsIdentifier] | fn.#ListExpression
-	Tags?:                    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TimeZone!:                string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::HoursOfOperation"
+	Properties!: close({
+		ChildHoursOfOperations?: [...#HoursOfOperationsIdentifier] | fn.#ListExpression
+		Config!: list.MaxItems(100) & list.UniqueItems() & [...] & [...#HoursOfOperationConfig] | fn.#ListExpression
+		Description?: strings.MaxRunes(250) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,250}$" |
+		fn.#StringExpression
+		HoursOfOperationOverrides?: list.MaxItems(50) & [...#HoursOfOperationOverride] | fn.#ListExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,127}$" | fn.#StringExpression
+		ParentHoursOfOperations?: [...#HoursOfOperationsIdentifier] | fn.#ListExpression
+		Tags?:                    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TimeZone!:                string | fn.#StringExpression
+	})
+}
 
 #EffectiveFrom: =~"^\\d{4}-\\d{2}-\\d{2}$" | fn.#StringExpression
 
@@ -240,7 +244,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::HoursOfOperation"
-	Properties!: #Properties
-}

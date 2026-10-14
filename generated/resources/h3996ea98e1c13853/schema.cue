@@ -17,24 +17,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource represents a schema of Glue Schema Registry.
-#Properties: close({
-	CheckpointVersion?: #SchemaVersion
-	Compatibility!: "NONE" |
-		"DISABLED" |
-		"BACKWARD" |
-		"BACKWARD_ALL" |
-		"FORWARD" |
-		"FORWARD_ALL" |
-		"FULL" |
-		"FULL_ALL" |
-		fn.#StringExpression
-	DataFormat!:       "AVRO" | "JSON" | "PROTOBUF" | fn.#StringExpression
-	Description?:      strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Registry?:         #Registry
-	SchemaDefinition?: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Tags?:             list.MaxItems(10) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Schema"
+	Properties!: close({
+		CheckpointVersion?: #SchemaVersion
+		Compatibility!: "NONE" |
+			"DISABLED" |
+			"BACKWARD" |
+			"BACKWARD_ALL" |
+			"FORWARD" |
+			"FORWARD_ALL" |
+			"FULL" |
+			"FULL_ALL" |
+			fn.#StringExpression
+		DataFormat!:       "AVRO" | "JSON" | "PROTOBUF" | fn.#StringExpression
+		Description?:      strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Registry?:         #Registry
+		SchemaDefinition?: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		Tags?:             list.MaxItems(10) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Registry: close({
 	Arn?:  =~"arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:.*" | fn.#StringExpression
@@ -68,7 +71,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Schema"
-	Properties!: #Properties
-}

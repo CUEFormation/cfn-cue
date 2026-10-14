@@ -13,20 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IAM::VirtualMFADevice
-#Properties: close({
-	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F})" |
-	fn.#StringExpression
-	Tags?:                 list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	Users!:                [...string | fn.#StringExpression] | fn.#ListExpression
-	VirtualMfaDeviceName?: strings.MaxRunes(226) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IAM::VirtualMFADevice"
+	Properties!: close({
+		Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F})" |
+		fn.#StringExpression
+		Tags?:                 list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Users!:                [...string | fn.#StringExpression] | fn.#ListExpression
+		VirtualMfaDeviceName?: strings.MaxRunes(226) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IAM::VirtualMFADevice"
-	Properties!: #Properties
-}

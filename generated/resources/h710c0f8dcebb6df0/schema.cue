@@ -17,35 +17,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SecurityHub::AutomationRuleV2
-#Properties: close({
-	Actions!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#AutomationRulesActionV2] |
-		fn.#ListExpression
-	Criteria!:    #Criteria
-	Description!: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	RuleName!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	RuleOrder!: <=1000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::AutomationRuleV2"
+	Properties!: close({
+		Actions!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#AutomationRulesActionV2] |
+			fn.#ListExpression
+		Criteria!:    #Criteria
+		Description!: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		RuleName!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		RuleOrder!: <=1000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=1000 &
+								>=1,
+							"g",
+							-1,
 							64,
-						) &
-							<=1000 &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RuleStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?:       #Tags
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RuleStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		Tags?:       #Tags
+	})
+}
 
 #AllowedOperators: "AND" | "OR" | fn.#StringExpression
 
@@ -300,7 +303,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: {...} | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::AutomationRuleV2"
-	Properties!: #Properties
-}

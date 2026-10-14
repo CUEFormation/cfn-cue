@@ -9,10 +9,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudFront::StreamingDistribution
-#Properties: close({
-	StreamingDistributionConfig!: #StreamingDistributionConfig
-	Tags!:                        [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::StreamingDistribution"
+	Properties!: close({
+		StreamingDistributionConfig!: #StreamingDistributionConfig
+		Tags!:                        [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Logging: close({
 	Bucket!:  string | fn.#StringExpression
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 	Enabled!:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::StreamingDistribution"
-	Properties!: #Properties
-}

@@ -13,20 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for AWS::EKS::Addon
-#Properties: close({
-	AddonName!:           strings.MinRunes(1) | fn.#StringExpression
-	AddonVersion?:        strings.MinRunes(1) | fn.#StringExpression
-	ClusterName!:         strings.MinRunes(1) | fn.#StringExpression
-	ConfigurationValues?: strings.MinRunes(1) | fn.#StringExpression
-	NamespaceConfig?: close({Namespace!: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression}) |
-	fn.#ObjectExpression
-	PodIdentityAssociations?: list.UniqueItems() & [...#PodIdentityAssociation] | fn.#ListExpression
-	PreserveOnDelete?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResolveConflicts?:        ("NONE" | "OVERWRITE" | "PRESERVE") & strings.MinRunes(1) | fn.#StringExpression
-	ServiceAccountRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EKS::Addon"
+	Properties!: close({
+		AddonName!:           strings.MinRunes(1) | fn.#StringExpression
+		AddonVersion?:        strings.MinRunes(1) | fn.#StringExpression
+		ClusterName!:         strings.MinRunes(1) | fn.#StringExpression
+		ConfigurationValues?: strings.MinRunes(1) | fn.#StringExpression
+		NamespaceConfig?: close({Namespace!: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression}) |
+		fn.#ObjectExpression
+		PodIdentityAssociations?: list.UniqueItems() & [...#PodIdentityAssociation] | fn.#ListExpression
+		PreserveOnDelete?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ResolveConflicts?:        ("NONE" | "OVERWRITE" | "PRESERVE") & strings.MinRunes(1) | fn.#StringExpression
+		ServiceAccountRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #PodIdentityAssociation: close({
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -41,7 +44,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EKS::Addon"
-	Properties!: #Properties
-}

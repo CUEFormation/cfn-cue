@@ -13,19 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The resource schema to create a CodeArtifact domain.
-#Properties: close({
-	DomainName!: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" |
-	fn.#StringExpression
-	PermissionsPolicyDocument?: fn.#Object & {...} | fn.#ObjectExpression
-	Tags?:                      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeArtifact::Domain"
+	Properties!: close({
+		DomainName!: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" |
+		fn.#StringExpression
+		PermissionsPolicyDocument?: fn.#Object & {...} | fn.#ObjectExpression
+		Tags?:                      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\P{C}+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\P{C}*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeArtifact::Domain"
-	Properties!: #Properties
-}

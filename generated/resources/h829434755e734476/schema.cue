@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::S3::AccessPoint resource is an Amazon S3 resource type that you can
 // use to access buckets.
-#Properties: close({
-	Bucket!:          strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	BucketAccountId?: strings.MaxRunes(64) & =~"^\\d{12}$" | fn.#StringExpression
-	Name?:   strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
-	Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration | fn.#ObjectExpression
-	Tags?:                           [...#Tag] | fn.#ListExpression
-	VpcConfiguration?:               #VpcConfiguration | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3::AccessPoint"
+	Properties!: close({
+		Bucket!:          strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
+		BucketAccountId?: strings.MaxRunes(64) & =~"^\\d{12}$" | fn.#StringExpression
+		Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
+		Policy?:                         fn.#Object & {...} | string | fn.#StringObjectExpression
+		PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration | fn.#ObjectExpression
+		Tags?:                           [...#Tag] | fn.#ListExpression
+		VpcConfiguration?:               #VpcConfiguration | fn.#ObjectExpression
+	})
+}
 
 #Arn: string | fn.#StringExpression
 
@@ -44,7 +47,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 	...
 } | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3::AccessPoint"
-	Properties!: #Properties
-}

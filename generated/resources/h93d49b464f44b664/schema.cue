@@ -9,8 +9,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource used to control (enable/disable) DNSSEC in a specific hosted zone.
-#Properties: close({HostedZoneId!: =~"^[A-Z0-9]{1,32}$" | fn.#StringExpression})
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Route53::DNSSEC"
-	Properties!: #Properties
+	Properties!: close({HostedZoneId!: =~"^[A-Z0-9]{1,32}$" | fn.#StringExpression})
 }

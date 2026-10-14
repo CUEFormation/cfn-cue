@@ -15,10 +15,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A resource schema representing a Lake Formation Tag Association. While tag
 // associations are not explicit Lake Formation resources, this CloudFormation
 // resource can be used to associate tags with Lake Formation entities.
-#Properties: close({
-	LFTags!:   #LFTagsList | fn.#ListExpression
-	Resource!: _#defs."/$defs/Properties/definitions/Resource" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LakeFormation::TagAssociation"
+	Properties!: close({
+		LFTags!:   #LFTagsList | fn.#ListExpression
+		Resource!: _#defs."/$defs/Properties/definitions/Resource" | fn.#ObjectExpression
+	})
+}
 
 #CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
 
@@ -82,7 +85,3 @@ _#defs: "/$defs/Properties/definitions/Resource": close({
 	TableWithColumns?: #TableWithColumnsResource
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LakeFormation::TagAssociation"
-	Properties!: #Properties
-}

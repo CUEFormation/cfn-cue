@@ -14,13 +14,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AWS::RoboMaker::SimulationApplicationVersion resource creates an AWS
 // RoboMaker SimulationApplicationVersion. This helps you control which code
 // your simulation uses.
-#Properties: close({
-	Application!:       #Arn
-	CurrentRevisionId?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]*" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RoboMaker::SimulationApplicationVersion"
+	Properties!: close({
+		Application!:       #Arn
+		CurrentRevisionId?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]*" | fn.#StringExpression
+	})
+}
 
 #Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RoboMaker::SimulationApplicationVersion"
-	Properties!: #Properties
-}

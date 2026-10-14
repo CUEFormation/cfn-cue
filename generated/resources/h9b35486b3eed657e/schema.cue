@@ -16,10 +16,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a generated template from existing resources using the CloudFormation IaC Generator.
-#Properties: close({
-	GeneratedTemplateName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	TemplateConfiguration?: #TemplateConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFormation::GeneratedTemplate"
+	Properties!: close({
+		GeneratedTemplateName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		TemplateConfiguration?: #TemplateConfiguration
+	})
+}
 
 #TemplateConfiguration: close({
 	DeletionPolicy?:      "DELETE" | "RETAIN" | fn.#StringExpression
@@ -86,7 +89,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::GeneratedTemplate"
-	Properties!: #Properties
-}

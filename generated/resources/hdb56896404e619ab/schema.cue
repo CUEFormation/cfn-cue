@@ -15,42 +15,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates and manages a multi-cloud connector for Amazon Inspector, enabling
 // vulnerability scanning of Azure resources.
-#Properties: close({
-	Description?: strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}_-]+$" | fn.#StringExpression
-	Provider!:    #CloudProvider | fn.#StringExpression
-	ProviderConfiguration!: close({
-		Azure!: close({
-			AutoInstallVMScanner?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			AwsConfigConnectorArn!: strings.MaxRunes(512) &
-			strings.MinRunes(1) &
-			=~"arn:([^:]+):config:([^:]+):([^:]+):connector/([^/]+)/([^/]+)/([^/:\\s]+)" |
-			fn.#StringExpression
-			AzureRegions!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-			ScopeConfiguration!: close({
-				ContainerImageScanning?: close({
-					ScopeType!:   #ScopeType
-					ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
-				}) |
-				fn.#ObjectExpression
-				ServerlessScanning?: close({
-					ScopeType!:   #ScopeType
-					ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
-				}) |
-				fn.#ObjectExpression
-				VmScanning?: close({
-					ScopeType!:   #ScopeType
-					ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::InspectorV2::Connector"
+	Properties!: close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}_-]+$" | fn.#StringExpression
+		Provider!:    #CloudProvider | fn.#StringExpression
+		ProviderConfiguration!: close({
+			Azure!: close({
+				AutoInstallVMScanner?: bool |
+					"true" |
+					"True" |
+					"TRUE" |
+					"false" |
+					"False" |
+					"FALSE" |
+					fn.#BooleanExpression
+				AwsConfigConnectorArn!: strings.MaxRunes(512) &
+				strings.MinRunes(1) &
+				=~"arn:([^:]+):config:([^:]+):([^:]+):connector/([^/]+)/([^/]+)/([^/:\\s]+)" |
+				fn.#StringExpression
+				AzureRegions!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+				ScopeConfiguration!: close({
+					ContainerImageScanning?: close({
+						ScopeType!:   #ScopeType
+						ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
+					}) |
+					fn.#ObjectExpression
+					ServerlessScanning?: close({
+						ScopeType!:   #ScopeType
+						ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
+					}) |
+					fn.#ObjectExpression
+					VmScanning?: close({
+						ScopeType!:   #ScopeType
+						ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
+					}) |
+					fn.#ObjectExpression
 				}) |
 				fn.#ObjectExpression
 			}) |
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AzureProviderConfiguration: close({
 	AutoInstallVMScanner?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -116,7 +126,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::InspectorV2::Connector"
-	Properties!: #Properties
-}

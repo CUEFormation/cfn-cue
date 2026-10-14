@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource definition for AWS::BedrockAgentCore::RuntimeEndpoint
-#Properties: close({
-	AgentRuntimeId!:      #AgentRuntimeId | fn.#StringExpression
-	AgentRuntimeVersion?: #AgentRuntimeVersion | fn.#StringExpression
-	Description?:         #AgentEndpointDescription | fn.#StringExpression
-	Name!:                #EndpointName | fn.#StringExpression
-	Tags?:                #TagsMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::RuntimeEndpoint"
+	Properties!: close({
+		AgentRuntimeId!:      #AgentRuntimeId | fn.#StringExpression
+		AgentRuntimeVersion?: #AgentRuntimeVersion | fn.#StringExpression
+		Description?:         #AgentEndpointDescription | fn.#StringExpression
+		Name!:                #EndpointName | fn.#StringExpression
+		Tags?:                #TagsMap
+	})
+}
 
 #AgentEndpointDescription: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -53,7 +56,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::RuntimeEndpoint"
-	Properties!: #Properties
-}

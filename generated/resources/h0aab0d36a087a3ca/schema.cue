@@ -13,34 +13,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	AllowedOperations?: list.MaxItems(8) & list.MinItems(1) & list.UniqueItems() & [
-		..."CheckInLicense" |
-			"CheckoutBorrowLicense" |
-			"CheckoutLicense" |
-			"CreateGrant" |
-			"CreateToken" |
-			"ExtendConsumptionLicense" |
-			"ListPurchasedLicenses" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LicenseManager::Grant"
+	Properties?: close({
+		AllowedOperations?: list.MaxItems(8) & list.MinItems(1) & list.UniqueItems() & [
+			..."CheckInLicense" |
+				"CheckoutBorrowLicense" |
+				"CheckoutLicense" |
+				"CreateGrant" |
+				"CreateToken" |
+				"ExtendConsumptionLicense" |
+				"ListPurchasedLicenses" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		GrantName?:  string | fn.#StringExpression
+		HomeRegion?: string | fn.#StringExpression
+		LicenseArn?: #Arn | fn.#StringExpression
+		Principals?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#Arn] | fn.#ListExpression
+		Status?: "ACTIVE" |
+			"DELETED" |
+			"DISABLED" |
+			"FAILED_WORKFLOW" |
+			"PENDING_ACCEPT" |
+			"PENDING_DELETE" |
+			"PENDING_WORKFLOW" |
+			"REJECTED" |
+			"WORKFLOW_COMPLETED" |
 			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	GrantName?:  string | fn.#StringExpression
-	HomeRegion?: string | fn.#StringExpression
-	LicenseArn?: #Arn | fn.#StringExpression
-	Principals?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#Arn] | fn.#ListExpression
-	Status?: "ACTIVE" |
-		"DELETED" |
-		"DISABLED" |
-		"FAILED_WORKFLOW" |
-		"PENDING_ACCEPT" |
-		"PENDING_DELETE" |
-		"PENDING_WORKFLOW" |
-		"REJECTED" |
-		"WORKFLOW_COMPLETED" |
-		fn.#StringExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-})
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 
@@ -49,7 +52,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LicenseManager::Grant"
-	Properties?: #Properties
-}

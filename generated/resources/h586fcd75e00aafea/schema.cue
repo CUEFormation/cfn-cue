@@ -17,17 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::Prompt Resource Type
-#Properties: close({
-	CustomerEncryptionKeyArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
-	fn.#StringExpression
-	DefaultVariant?: =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	Description?:    strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:           =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	Tags?:           #TagsMap
-	Variants?:       list.MaxItems(3) & [...] & [...#PromptVariant] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::Prompt"
+	Properties!: close({
+		CustomerEncryptionKeyArn?: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		fn.#StringExpression
+		DefaultVariant?: =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+		Description?:    strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:           =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+		Tags?:           #TagsMap
+		Variants?:       list.MaxItems(3) & [...] & [...#PromptVariant] | fn.#ListExpression
+	})
+}
 
 #AdditionalModelRequestFields: fn.#Object & {...} | fn.#ObjectExpression
 
@@ -226,7 +229,3 @@ fn.#ObjectExpression
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::Prompt"
-	Properties!: #Properties
-}

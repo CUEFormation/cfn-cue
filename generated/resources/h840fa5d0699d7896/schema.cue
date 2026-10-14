@@ -17,37 +17,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for an Amazon Chime SDK Media Pipeline Kinesis Video Stream Pool
-#Properties: close({
-	PoolName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
-	StreamConfiguration!: close({
-		DataRetentionInHours?: int & >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								>=0,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		Region!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^([a-z]+-){2,}\\d+$" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [...close({
-		Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Chime::MediaPipelineKinesisVideoStreamPool"
-	Properties!: #Properties
+	Type!: "AWS::Chime::MediaPipelineKinesisVideoStreamPool"
+	Properties!: close({
+		PoolName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
+		StreamConfiguration!: close({
+			DataRetentionInHours?: int & >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									>=0,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			Region!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^([a-z]+-){2,}\\d+$" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?: list.MaxItems(200) & [...] & [...close({
+			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
 }

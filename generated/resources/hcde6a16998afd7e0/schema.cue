@@ -14,13 +14,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for
 // AWS::NetworkManager::CoreNetworkPrefixListAssociation which associates a
 // prefix list with a core network.
-#Properties: close({
-	CoreNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^core-network-([0-9a-f]{8,17})$" |
-	fn.#StringExpression
-	PrefixListAlias!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	PrefixListArn!:   strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkManager::CoreNetworkPrefixListAssociation"
-	Properties!: #Properties
+	Type!: "AWS::NetworkManager::CoreNetworkPrefixListAssociation"
+	Properties!: close({
+		CoreNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^core-network-([0-9a-f]{8,17})$" |
+		fn.#StringExpression
+		PrefixListAlias!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		PrefixListArn!:   strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	})
 }

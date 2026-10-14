@@ -14,141 +14,141 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates a custom vocabulary filter that you can use to mask, delete, or flag
 // specific words from your transcript.
-#Properties: close({
-	DataAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-	LanguageCode!: "ab-GE" |
-		"af-ZA" |
-		"am-ET" |
-		"ar-AE" |
-		"ar-SA" |
-		"ast-ES" |
-		"az-AZ" |
-		"ba-RU" |
-		"be-BY" |
-		"bg-BG" |
-		"bn-IN" |
-		"bs-BA" |
-		"ca-ES" |
-		"ckb-IQ" |
-		"ckb-IR" |
-		"cs-CZ" |
-		"cy-GB" |
-		"cy-WL" |
-		"da-DK" |
-		"de-CH" |
-		"de-DE" |
-		"el-GR" |
-		"en-AB" |
-		"en-AU" |
-		"en-GB" |
-		"en-IE" |
-		"en-IN" |
-		"en-NZ" |
-		"en-US" |
-		"en-WL" |
-		"en-ZA" |
-		"es-ES" |
-		"es-MX" |
-		"es-US" |
-		"et-EE" |
-		"et-ET" |
-		"eu-ES" |
-		"fa-AF" |
-		"fa-IR" |
-		"fi-FI" |
-		"fr-CA" |
-		"fr-FR" |
-		"ga-IE" |
-		"gd-GB" |
-		"gl-ES" |
-		"gu-IN" |
-		"ha-NG" |
-		"he-IL" |
-		"hi-IN" |
-		"hr-HR" |
-		"ht-HT" |
-		"hu-HU" |
-		"hy-AM" |
-		"id-ID" |
-		"is-IS" |
-		"it-IT" |
-		"ja-JP" |
-		"jv-ID" |
-		"ka-GE" |
-		"kab-DZ" |
-		"kk-KZ" |
-		"km-KH" |
-		"kn-IN" |
-		"ko-KR" |
-		"ky-KG" |
-		"lg-IN" |
-		"lt-LT" |
-		"lv-LV" |
-		"mhr-RU" |
-		"mi-NZ" |
-		"mk-MK" |
-		"ml-IN" |
-		"mn-MN" |
-		"mr-IN" |
-		"ms-MY" |
-		"mt-MT" |
-		"my-MM" |
-		"ne-NP" |
-		"nl-NL" |
-		"no-NO" |
-		"or-IN" |
-		"pa-IN" |
-		"pl-PL" |
-		"ps-AF" |
-		"pt-BR" |
-		"pt-PT" |
-		"ro-RO" |
-		"ru-RU" |
-		"rw-RW" |
-		"si-LK" |
-		"sk-SK" |
-		"sl-SI" |
-		"so-SO" |
-		"sq-AL" |
-		"sr-RS" |
-		"su-ID" |
-		"sv-SE" |
-		"sw-BI" |
-		"sw-KE" |
-		"sw-RW" |
-		"sw-TZ" |
-		"sw-UG" |
-		"ta-IN" |
-		"te-IN" |
-		"th-TH" |
-		"tl-PH" |
-		"tr-TR" |
-		"tt-RU" |
-		"ug-CN" |
-		"uk-UA" |
-		"uz-UZ" |
-		"vi-VN" |
-		"wo-SN" |
-		"zh-CN" |
-		"zh-HK" |
-		"zh-TW" |
-		"zu-ZA" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Transcribe::VocabularyFilter"
+	Properties!: close({
+		DataAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 		fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	VocabularyFilterFileUri?: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^(s3://|http(s*)://).+$" |
-	fn.#StringExpression
-	VocabularyFilterName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
-	Words?: list.MinItems(1) & [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-})
+		LanguageCode!: "ab-GE" |
+			"af-ZA" |
+			"am-ET" |
+			"ar-AE" |
+			"ar-SA" |
+			"ast-ES" |
+			"az-AZ" |
+			"ba-RU" |
+			"be-BY" |
+			"bg-BG" |
+			"bn-IN" |
+			"bs-BA" |
+			"ca-ES" |
+			"ckb-IQ" |
+			"ckb-IR" |
+			"cs-CZ" |
+			"cy-GB" |
+			"cy-WL" |
+			"da-DK" |
+			"de-CH" |
+			"de-DE" |
+			"el-GR" |
+			"en-AB" |
+			"en-AU" |
+			"en-GB" |
+			"en-IE" |
+			"en-IN" |
+			"en-NZ" |
+			"en-US" |
+			"en-WL" |
+			"en-ZA" |
+			"es-ES" |
+			"es-MX" |
+			"es-US" |
+			"et-EE" |
+			"et-ET" |
+			"eu-ES" |
+			"fa-AF" |
+			"fa-IR" |
+			"fi-FI" |
+			"fr-CA" |
+			"fr-FR" |
+			"ga-IE" |
+			"gd-GB" |
+			"gl-ES" |
+			"gu-IN" |
+			"ha-NG" |
+			"he-IL" |
+			"hi-IN" |
+			"hr-HR" |
+			"ht-HT" |
+			"hu-HU" |
+			"hy-AM" |
+			"id-ID" |
+			"is-IS" |
+			"it-IT" |
+			"ja-JP" |
+			"jv-ID" |
+			"ka-GE" |
+			"kab-DZ" |
+			"kk-KZ" |
+			"km-KH" |
+			"kn-IN" |
+			"ko-KR" |
+			"ky-KG" |
+			"lg-IN" |
+			"lt-LT" |
+			"lv-LV" |
+			"mhr-RU" |
+			"mi-NZ" |
+			"mk-MK" |
+			"ml-IN" |
+			"mn-MN" |
+			"mr-IN" |
+			"ms-MY" |
+			"mt-MT" |
+			"my-MM" |
+			"ne-NP" |
+			"nl-NL" |
+			"no-NO" |
+			"or-IN" |
+			"pa-IN" |
+			"pl-PL" |
+			"ps-AF" |
+			"pt-BR" |
+			"pt-PT" |
+			"ro-RO" |
+			"ru-RU" |
+			"rw-RW" |
+			"si-LK" |
+			"sk-SK" |
+			"sl-SI" |
+			"so-SO" |
+			"sq-AL" |
+			"sr-RS" |
+			"su-ID" |
+			"sv-SE" |
+			"sw-BI" |
+			"sw-KE" |
+			"sw-RW" |
+			"sw-TZ" |
+			"sw-UG" |
+			"ta-IN" |
+			"te-IN" |
+			"th-TH" |
+			"tl-PH" |
+			"tr-TR" |
+			"tt-RU" |
+			"ug-CN" |
+			"uk-UA" |
+			"uz-UZ" |
+			"vi-VN" |
+			"wo-SN" |
+			"zh-CN" |
+			"zh-HK" |
+			"zh-TW" |
+			"zu-ZA" |
+			fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		VocabularyFilterFileUri?: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^(s3://|http(s*)://).+$" |
+		fn.#StringExpression
+		VocabularyFilterName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" |
+		fn.#StringExpression
+		Words?: list.MinItems(1) & [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Transcribe::VocabularyFilter"
-	Properties!: #Properties
-}

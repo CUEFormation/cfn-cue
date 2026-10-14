@@ -9,23 +9,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::TransitGatewayMulticastDomain type
-#Properties: close({
-	Options?: close({
-		AutoAcceptSharedAssociations?: "disable" | "enable" | fn.#StringExpression
-		Igmpv2Support?:                "disable" | "enable" | fn.#StringExpression
-		StaticSourcesSupport?:         "disable" | "enable" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?:             [...#Tag] | fn.#ListExpression
-	TransitGatewayId!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::TransitGatewayMulticastDomain"
+	Properties!: close({
+		Options?: close({
+			AutoAcceptSharedAssociations?: "disable" | "enable" | fn.#StringExpression
+			Igmpv2Support?:                "disable" | "enable" | fn.#StringExpression
+			StaticSourcesSupport?:         "disable" | "enable" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?:             [...#Tag] | fn.#ListExpression
+		TransitGatewayId!: string | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TransitGatewayMulticastDomain"
-	Properties!: #Properties
-}

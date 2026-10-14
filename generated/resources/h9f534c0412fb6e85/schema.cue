@@ -13,20 +13,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A domain is an organizing entity for connecting together assets, users, and their projects
-#Properties: close({
-	Description?: string | fn.#StringExpression
-	DomainExecutionRole?: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataZone::Domain"
+	Properties!: close({
+		Description?: string | fn.#StringExpression
+		DomainExecutionRole?: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
+			fn.#StringExpression
+		DomainVersion?: "V1" | "V2" | fn.#StringExpression
+		KmsKeyIdentifier?: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
 		fn.#StringExpression
-	DomainVersion?: "V1" | "V2" | fn.#StringExpression
-	KmsKeyIdentifier?: strings.MaxRunes(1024) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
-	fn.#StringExpression
-	Name!:        string | fn.#StringExpression
-	ServiceRole?: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" | fn.#StringExpression
-	SingleSignOn?: #SingleSignOn | fn.#ObjectExpression
-	Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+		Name!: string | fn.#StringExpression
+		ServiceRole?: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
+			fn.#StringExpression
+		SingleSignOn?: #SingleSignOn | fn.#ObjectExpression
+		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AuthType: "IAM_IDC" | "DISABLED" | fn.#StringExpression
 
@@ -57,7 +61,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #UserAssignment: "AUTOMATIC" | "MANUAL" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::Domain"
-	Properties!: #Properties
-}

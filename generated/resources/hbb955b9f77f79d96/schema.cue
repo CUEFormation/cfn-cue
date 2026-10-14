@@ -17,12 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A connection between a source computer and a destination device using AWS IoT Secure Tunneling.
-#Properties: close({
-	Description?:       string | fn.#StringExpression
-	DestinationConfig?: #DestinationConfig | fn.#ObjectExpression
-	Tags?:              [...#Tag] | fn.#ListExpression
-	TimeoutConfig?:     #TimeoutConfig | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTSecureTunneling::Tunnel"
+	Properties?: close({
+		Description?:       string | fn.#StringExpression
+		DestinationConfig?: #DestinationConfig | fn.#ObjectExpression
+		Tags?:              [...#Tag] | fn.#ListExpression
+		TimeoutConfig?:     #TimeoutConfig | fn.#ObjectExpression
+	})
+}
 
 #DestinationConfig: close({
 	Services!: list.MinItems(1) & [
@@ -58,7 +61,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSecureTunneling::Tunnel"
-	Properties?: #Properties
-}

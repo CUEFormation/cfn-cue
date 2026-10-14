@@ -18,27 +18,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::CodePipeline::Pipeline resource creates a CodePipeline pipeline that
 // describes how software changes go through a release process.
-#Properties: close({
-	ArtifactStore?:                  #ArtifactStore | fn.#ObjectExpression
-	ArtifactStores?:                 list.UniqueItems() & [...#ArtifactStoreMap] | fn.#ListExpression
-	DisableInboundStageTransitions?: list.UniqueItems() & [...#StageTransition] | fn.#ListExpression
-	ExecutionMode?:                  "QUEUED" | "SUPERSEDED" | "PARALLEL" | fn.#StringExpression
-	Name?:                           string | fn.#StringExpression
-	PipelineType?:                   "V1" | "V2" | fn.#StringExpression
-	RestartExecutionOnUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
-		fn.#StringExpression
-	Stages!:    list.MinItems(2) & list.UniqueItems() & [...#StageDeclaration] | fn.#ListExpression
-	Tags?:      [...#Tag] | fn.#ListExpression
-	Triggers?:  list.UniqueItems() & [...#PipelineTriggerDeclaration] | fn.#ListExpression
-	Variables?: list.UniqueItems() & [...#VariableDeclaration] | fn.#ListExpression
-	if ArtifactStore != _|_ {
-		ArtifactStores?: error(
-			"ArtifactStores cannot be used with ArtifactStore; set exactly one of ArtifactStore, ArtifactStores",
-		)
-	}
-}) & matchN(>=1, [{ArtifactStore!: _}, {ArtifactStores!: _}])
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodePipeline::Pipeline"
+	Properties!: close({
+		ArtifactStore?:                  #ArtifactStore | fn.#ObjectExpression
+		ArtifactStores?:                 list.UniqueItems() & [...#ArtifactStoreMap] | fn.#ListExpression
+		DisableInboundStageTransitions?: list.UniqueItems() & [...#StageTransition] | fn.#ListExpression
+		ExecutionMode?:                  "QUEUED" | "SUPERSEDED" | "PARALLEL" | fn.#StringExpression
+		Name?:                           string | fn.#StringExpression
+		PipelineType?:                   "V1" | "V2" | fn.#StringExpression
+		RestartExecutionOnUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
+			fn.#StringExpression
+		Stages!:    list.MinItems(2) & list.UniqueItems() & [...#StageDeclaration] | fn.#ListExpression
+		Tags?:      [...#Tag] | fn.#ListExpression
+		Triggers?:  list.UniqueItems() & [...#PipelineTriggerDeclaration] | fn.#ListExpression
+		Variables?: list.UniqueItems() & [...#VariableDeclaration] | fn.#ListExpression
+		if ArtifactStore != _|_ {
+			ArtifactStores?: error(
+				"ArtifactStores cannot be used with ArtifactStore; set exactly one of ArtifactStore, ArtifactStores",
+			)
+		}
+	}) & matchN(>=1, [{ArtifactStore!: _}, {ArtifactStores!: _}])
+}
 
 #ActionDeclaration: close({
 	ActionTypeId!:         #ActionTypeId
@@ -247,7 +250,3 @@ fn.#ObjectExpression
 	Name!:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodePipeline::Pipeline"
-	Properties!: #Properties
-}

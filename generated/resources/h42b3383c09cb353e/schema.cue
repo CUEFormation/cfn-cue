@@ -13,19 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::ContactFlowModule.
-#Properties: close({
-	Content!:                         strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:                     strings.MaxRunes(500) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
-	ExternalInvocationConfiguration?: close({Enabled?: #Enabled}) | fn.#ObjectExpression
-	InstanceArn!: strings.MaxRunes(256) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression
-	Name!:     strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Settings?: strings.MaxRunes(256000) | fn.#StringExpression
-	State?:    strings.MaxRunes(500) | fn.#StringExpression
-	Tags?:     list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::ContactFlowModule"
+	Properties!: close({
+		Content!:     strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
+		ExternalInvocationConfiguration?: close({Enabled?: #Enabled}) | fn.#ObjectExpression
+		InstanceArn!: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		fn.#StringExpression
+		Name!:     strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		Settings?: strings.MaxRunes(256000) | fn.#StringExpression
+		State?:    strings.MaxRunes(500) | fn.#StringExpression
+		Tags?:     list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Enabled: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
@@ -34,7 +37,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::ContactFlowModule"
-	Properties!: #Properties
-}

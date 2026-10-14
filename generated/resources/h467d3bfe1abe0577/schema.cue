@@ -17,122 +17,133 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::ODB::CloudVmCluster resource creates a Cloud VM Cluster
-#Properties: close({
-	CloudExadataInfrastructureId?: strings.MaxRunes(2048) &
-	strings.MinRunes(6) &
-	=~"^(arn:(?:aws|aws-cn|aws-us-gov|aws-iso-{0,1}[a-z]{0,1}):[a-z0-9-]+:[a-z0-9-]*:[0-9]+:[a-z0-9-]+/[a-zA-Z0-9_~.-]{6,64}|[a-zA-Z0-9_~.-]{6,64})$" |
-	fn.#StringExpression
-	ClusterName?: strings.MaxRunes(11) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9-]*$" | fn.#StringExpression
-	CpuCoreCount?: int & <=368 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=368 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	DataCollectionOptions?: #DataCollectionOptions | fn.#ObjectExpression
-	DataStorageSizeInTBs?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ODB::CloudVmCluster"
+	Properties?: close({
+		CloudExadataInfrastructureId?: strings.MaxRunes(2048) &
+		strings.MinRunes(6) &
+		=~"^(arn:(?:aws|aws-cn|aws-us-gov|aws-iso-{0,1}[a-z]{0,1}):[a-z0-9-]+:[a-z0-9-]*:[0-9]+:[a-z0-9-]+/[a-zA-Z0-9_~.-]{6,64}|[a-zA-Z0-9_~.-]{6,64})$" |
+		fn.#StringExpression
+		ClusterName?: strings.MaxRunes(11) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9-]*$" | fn.#StringExpression
+		CpuCoreCount?: int & <=368 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=368 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		DataCollectionOptions?: #DataCollectionOptions | fn.#ObjectExpression
+		DataStorageSizeInTBs?: number |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								number,
+							"g",
+							-1,
 							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	DbNodeStorageSizeInGBs?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	DbNodes?: list.UniqueItems() & [...close({
-		DbServerId!: string | fn.#StringExpression
-		Tags?:       [...#Tag] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	DbServers?:   list.MaxItems(1024) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	GiVersion?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Hostname?: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]$" |
-	fn.#StringExpression
-	IamRoles?: list.UniqueItems() & [...close({
-		AwsIntegration?: string | fn.#StringExpression
-		IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	IsLocalBackupEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IsSparseDiskgroupEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LicenseModel?:             "BRING_YOUR_OWN_LICENSE" | "LICENSE_INCLUDED" | fn.#StringExpression
-	MemorySizeInGBs?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	OdbNetworkId?: strings.MaxRunes(2048) &
-	strings.MinRunes(6) &
-	=~"^(arn:(?:aws|aws-cn|aws-us-gov|aws-iso-{0,1}[a-z]{0,1}):[a-z0-9-]+:[a-z0-9-]*:[0-9]+:[a-z0-9-]+/[a-zA-Z0-9_~.-]{6,64}|[a-zA-Z0-9_~.-]{6,64})$" |
-	fn.#StringExpression
-	ScanListenerPortTcp?: int & <=8999 & >=1024 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=8999 &
-							>=1024,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SshPublicKeys?: list.MaxItems(1024) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	SystemVersion?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:          [...#Tag] | fn.#ListExpression
-	TimeZone?:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		DbNodeStorageSizeInGBs?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		DbNodes?: list.UniqueItems() & [...close({
+			DbServerId!: string | fn.#StringExpression
+			Tags?:       [...#Tag] | fn.#ListExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		DbServers?:   list.MaxItems(1024) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+		DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		GiVersion?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Hostname?: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]$" |
+		fn.#StringExpression
+		IamRoles?: list.UniqueItems() & [...close({
+			AwsIntegration?: string | fn.#StringExpression
+			IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		IsLocalBackupEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IsSparseDiskgroupEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		LicenseModel?:             "BRING_YOUR_OWN_LICENSE" | "LICENSE_INCLUDED" | fn.#StringExpression
+		MemorySizeInGBs?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		OdbNetworkId?: strings.MaxRunes(2048) &
+		strings.MinRunes(6) &
+		=~"^(arn:(?:aws|aws-cn|aws-us-gov|aws-iso-{0,1}[a-z]{0,1}):[a-z0-9-]+:[a-z0-9-]*:[0-9]+:[a-z0-9-]+/[a-zA-Z0-9_~.-]{6,64}|[a-zA-Z0-9_~.-]{6,64})$" |
+		fn.#StringExpression
+		ScanListenerPortTcp?: int & <=8999 & >=1024 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=8999 &
+								>=1024,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SshPublicKeys?: list.MaxItems(1024) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+		SystemVersion?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:          [...#Tag] | fn.#ListExpression
+		TimeZone?:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #DataCollectionOptions: close({
 	IsDiagnosticsEventsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -213,7 +224,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ODB::CloudVmCluster"
-	Properties?: #Properties
-}

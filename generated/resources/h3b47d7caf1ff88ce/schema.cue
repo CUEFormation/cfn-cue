@@ -9,15 +9,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::Cluster Resource Type
-#Properties: close({
-	ClusterType?: #ClusterType
-	InstanceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:.+:iam:.+:role/.+$" |
-		fn.#StringExpression
-	Name?:            string | fn.#StringExpression
-	NetworkSettings?: #ClusterNetworkSettings
-	Tags?:            [...#Tags] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::Cluster"
+	Properties?: close({
+		ClusterType?: #ClusterType
+		InstanceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:.+:iam:.+:role/.+$" |
+			fn.#StringExpression
+		Name?:            string | fn.#StringExpression
+		NetworkSettings?: #ClusterNetworkSettings
+		Tags?:            [...#Tags] | fn.#ListExpression
+	})
+}
 
 #ClusterNetworkSettings: close({
 	DefaultRoute?:      string | fn.#StringExpression
@@ -46,7 +49,3 @@ fn.#ObjectExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::Cluster"
-	Properties?: #Properties
-}

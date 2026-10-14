@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Policy Statement defined in AWS Entity Resolution Service
-#Properties: close({
-	Action?:      #StatementActionList
-	Arn!:         #VeniceGlobalArn
-	Condition?:   #StatementCondition
-	Effect?:      #StatementEffect
-	Principal?:   #StatementPrincipalList
-	StatementId!: #StatementId
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EntityResolution::PolicyStatement"
+	Properties!: close({
+		Action?:      #StatementActionList
+		Arn!:         #VeniceGlobalArn
+		Condition?:   #StatementCondition
+		Effect?:      #StatementEffect
+		Principal?:   #StatementPrincipalList
+		StatementId!: #StatementId
+	})
+}
 
 #StatementAction: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^(entityresolution:[a-zA-Z0-9]+)$" |
 fn.#StringExpression
@@ -40,7 +43,3 @@ fn.#StringExpression
 
 #VeniceGlobalArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:((schemamapping|matchingworkflow|idmappingworkflow|idnamespace)/[a-zA-Z_0-9-]{1,255})$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EntityResolution::PolicyStatement"
-	Properties!: #Properties
-}

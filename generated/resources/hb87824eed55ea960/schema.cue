@@ -18,21 +18,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource for Greengrass V2 deployment.
-#Properties: close({
-	Components?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GreengrassV2::Deployment"
+	Properties!: close({
+		Components?: close({
 
-		{[=~".+"]: #ComponentDeploymentSpecification}}) |
-	fn.#ObjectExpression
-	DeploymentName?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	DeploymentPolicies?:  #DeploymentPolicies
-	IotJobConfiguration?: #DeploymentIoTJobConfiguration
-	ParentTargetArn?:     =~"arn:[^:]*:iot:[^:]*:[0-9]+:thinggroup/.+" | fn.#StringExpression
-	Tags?: struct.MaxFields(200) & close({
+			{[=~".+"]: #ComponentDeploymentSpecification}}) |
+		fn.#ObjectExpression
+		DeploymentName?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		DeploymentPolicies?:  #DeploymentPolicies
+		IotJobConfiguration?: #DeploymentIoTJobConfiguration
+		ParentTargetArn?:     =~"arn:[^:]*:iot:[^:]*:[0-9]+:thinggroup/.+" | fn.#StringExpression
+		Tags?: struct.MaxFields(200) & close({
 
-		{[=~".*"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	TargetArn!: =~"arn:[^:]*:iot:[^:]*:[0-9]+:(thing|thinggroup)/.+" | fn.#StringExpression
-})
+			{[=~".*"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		TargetArn!: =~"arn:[^:]*:iot:[^:]*:[0-9]+:(thing|thinggroup)/.+" | fn.#StringExpression
+	})
+}
 
 #ComponentConfigurationUpdate: close({
 	Merge?: strings.MaxRunes(10485760) & strings.MinRunes(1) | fn.#StringExpression
@@ -296,7 +299,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GreengrassV2::Deployment"
-	Properties!: #Properties
-}

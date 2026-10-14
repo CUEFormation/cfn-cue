@@ -16,13 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Backup::BackupPlan
-#Properties: close({
-	BackupPlan!: #BackupPlanResourceType
-	BackupPlanTags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Backup::BackupPlan"
+	Properties!: close({
+		BackupPlan!: #BackupPlanResourceType
+		BackupPlanTags?: close({
 
-		{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
 #AdvancedBackupSettingResourceType: close({
 	BackupOptions!: fn.#Object & {...} | string | fn.#StringObjectExpression
@@ -173,7 +176,3 @@ fn.#ObjectExpression
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Backup::BackupPlan"
-	Properties!: #Properties
-}

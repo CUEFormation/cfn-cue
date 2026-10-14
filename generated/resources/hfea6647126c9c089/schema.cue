@@ -12,12 +12,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoT::TopicRuleDestination
-#Properties: close({
-	HttpUrlProperties?:  #HttpUrlDestinationSummary | fn.#ObjectExpression
-	InfluxDBProperties?: #InfluxDBDestinationProperties | fn.#ObjectExpression
-	Status?:             #TopicRuleDestinationStatus | fn.#StringExpression
-	VpcProperties?:      #VpcDestinationProperties | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::TopicRuleDestination"
+	Properties?: close({
+		HttpUrlProperties?:  #HttpUrlDestinationSummary | fn.#ObjectExpression
+		InfluxDBProperties?: #InfluxDBDestinationProperties | fn.#ObjectExpression
+		Status?:             #TopicRuleDestinationStatus | fn.#StringExpression
+		VpcProperties?:      #VpcDestinationProperties | fn.#ObjectExpression
+	})
+}
 
 #HttpUrlDestinationSummary: close({ConfirmationUrl?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -45,7 +48,3 @@ fn.#ObjectExpression
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::TopicRuleDestination"
-	Properties?: #Properties
-}

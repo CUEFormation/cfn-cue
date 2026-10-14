@@ -16,10 +16,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticLoadBalancingV2::TrustStoreRevocation
-#Properties: close({
-	RevocationContents?: list.UniqueItems() & [...#RevocationContent] | fn.#ListExpression
-	TrustStoreArn?:      string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticLoadBalancingV2::TrustStoreRevocation"
+	Properties?: close({
+		RevocationContents?: list.UniqueItems() & [...#RevocationContent] | fn.#ListExpression
+		TrustStoreArn?:      string | fn.#StringExpression
+	})
+}
 
 #RevocationContent: close({
 	RevocationType?:  "CRL" | fn.#StringExpression
@@ -51,7 +54,3 @@ fn.#ObjectExpression
 	TrustStoreArn?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticLoadBalancingV2::TrustStoreRevocation"
-	Properties?: #Properties
-}

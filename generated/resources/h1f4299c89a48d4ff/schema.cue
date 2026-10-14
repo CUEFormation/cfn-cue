@@ -16,33 +16,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::CapacityReservationFleet
-#Properties: close({
-	AllocationStrategy?:    string | fn.#StringExpression
-	EndDate?:               string | fn.#StringExpression
-	InstanceMatchCriteria?: "open" | fn.#StringExpression
-	InstanceTypeSpecifications?: list.MaxItems(50) & list.UniqueItems() & [...#InstanceTypeSpecification] |
-		fn.#ListExpression
-	NoRemoveEndDate?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RemoveEndDate?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TagSpecifications?: [...#TagSpecification] | fn.#ListExpression
-	Tenancy?:           "default" | fn.#StringExpression
-	TotalTargetCapacity?: int & <=25000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=25000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::CapacityReservationFleet"
+	Properties?: close({
+		AllocationStrategy?:    string | fn.#StringExpression
+		EndDate?:               string | fn.#StringExpression
+		InstanceMatchCriteria?: "open" | fn.#StringExpression
+		InstanceTypeSpecifications?: list.MaxItems(50) & list.UniqueItems() & [...#InstanceTypeSpecification] |
+			fn.#ListExpression
+		NoRemoveEndDate?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RemoveEndDate?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		TagSpecifications?: [...#TagSpecification] | fn.#ListExpression
+		Tenancy?:           "default" | fn.#StringExpression
+		TotalTargetCapacity?: int & <=25000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=25000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #InstanceTypeSpecification: close({
 	AvailabilityZone?:   string | fn.#StringExpression
@@ -230,7 +235,3 @@ fn.#ObjectExpression
 	Tags?: [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::CapacityReservationFleet"
-	Properties?: #Properties
-}

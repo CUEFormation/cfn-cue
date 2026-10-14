@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::VirtualNode
-#Properties: close({
-	MeshName!:        string | fn.#StringExpression
-	MeshOwner?:       string | fn.#StringExpression
-	Spec!:            #VirtualNodeSpec
-	Tags?:            [...#Tag] | fn.#ListExpression
-	VirtualNodeName?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppMesh::VirtualNode"
+	Properties!: close({
+		MeshName!:        string | fn.#StringExpression
+		MeshOwner?:       string | fn.#StringExpression
+		Spec!:            #VirtualNodeSpec
+		Tags?:            [...#Tag] | fn.#ListExpression
+		VirtualNodeName?: string | fn.#StringExpression
+	})
+}
 
 #AccessLog: close({File?: #FileAccessLog}) | fn.#ObjectExpression
 
@@ -469,7 +472,3 @@ fn.#ObjectExpression
 	VirtualServiceName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppMesh::VirtualNode"
-	Properties!: #Properties
-}

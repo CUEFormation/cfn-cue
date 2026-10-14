@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Schema for AWS::EMR::Step
-#Properties: close({
-	ActionOnFailure!:  string | fn.#StringExpression
-	EncryptionKeyArn?: string | fn.#StringExpression
-	HadoopJarStep!:    #HadoopJarStepConfig | fn.#ObjectExpression
-	JobFlowId!:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	LogUri?:           string | fn.#StringExpression
-	Name!:             string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMR::Step"
+	Properties!: close({
+		ActionOnFailure!:  string | fn.#StringExpression
+		EncryptionKeyArn?: string | fn.#StringExpression
+		HadoopJarStep!:    #HadoopJarStepConfig | fn.#ObjectExpression
+		JobFlowId!:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		LogUri?:           string | fn.#StringExpression
+		Name!:             string | fn.#StringExpression
+	})
+}
 
 #HadoopJarStepConfig: close({
 	Args?:           [...string | fn.#StringExpression] | fn.#ListExpression
@@ -35,7 +38,3 @@ fn.#ObjectExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMR::Step"
-	Properties!: #Properties
-}

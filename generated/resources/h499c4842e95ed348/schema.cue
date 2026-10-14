@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::Assistant Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
-	Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Type!:                              #AssistantType
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Wisdom::Assistant"
+	Properties!: close({
+		Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
+		Name!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
+		ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
+		Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type!:                              #AssistantType
+	})
+}
 
 #AssistantType: "AGENT" | fn.#StringExpression
 
@@ -35,7 +38,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Wisdom::Assistant"
-	Properties!: #Properties
-}

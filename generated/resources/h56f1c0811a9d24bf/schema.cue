@@ -16,13 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // workload configuration that defines datasets, data sources and benchmark
 // tool settings for consistent performance testing of generative AI inference
 // deployments on Amazon SageMaker AI.
-#Properties: close({
-	AIWorkloadConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9](-*[a-z0-9]){0,62}$" |
-	fn.#StringExpression
-	AIWorkloadConfigs?: #AIWorkloadConfigs | fn.#ObjectExpression
-	DatasetConfig?:     #AIDatasetConfig | fn.#ObjectExpression
-	Tags?:              list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::AIWorkloadConfig"
+	Properties!: close({
+		AIWorkloadConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9](-*[a-z0-9]){0,62}$" |
+		fn.#StringExpression
+		AIWorkloadConfigs?: #AIWorkloadConfigs | fn.#ObjectExpression
+		DatasetConfig?:     #AIDatasetConfig | fn.#ObjectExpression
+		Tags?:              list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AIDatasetConfig: close({InputDataConfig!: [...#AIWorkloadInputDataConfig] | fn.#ListExpression}) | fn.#ObjectExpression
 
@@ -48,7 +51,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #WorkloadSpec: close({Inline!: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::AIWorkloadConfig"
-	Properties!: #Properties
-}

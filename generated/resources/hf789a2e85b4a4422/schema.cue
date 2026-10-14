@@ -22,31 +22,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // rule based on input parameters. For more information, see [Automation
 // rules](https://docs.aws.amazon.com/securityhub/latest/userguide/automation-rules.html)
 // in the *User Guide*.
-#Properties: close({
-	Actions!:     list.MaxItems(1) & list.MinItems(1) & [...#AutomationRulesAction] | fn.#ListExpression
-	Criteria!:    #AutomationRulesFindingFilters | fn.#ObjectExpression
-	Description!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	IsTerminal?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RuleName!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	RuleOrder!: int & <=1000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RuleStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?:       #Tags | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::AutomationRule"
+	Properties!: close({
+		Actions!:     list.MaxItems(1) & list.MinItems(1) & [...#AutomationRulesAction] | fn.#ListExpression
+		Criteria!:    #AutomationRulesFindingFilters | fn.#ObjectExpression
+		Description!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		IsTerminal?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RuleName!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		RuleOrder!: int & <=1000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RuleStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		Tags?:       #Tags | fn.#ObjectExpression
+	})
+}
 
 #AutomationRulesAction: {
 	FindingFieldsUpdate!: #AutomationRulesFindingFieldsUpdate | fn.#ObjectExpression
@@ -327,7 +332,3 @@ fn.#ObjectExpression
 #timestamp: time.Time &
 	=~"(\\d\\d\\d\\d)-[0-1](\\d)-[0-3](\\d)[Tt](?:[0-2](\\d):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?(?:[Zz]|[+-](\\d\\d)(?::?(\\d\\d))?)$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::AutomationRule"
-	Properties!: #Properties
-}

@@ -22,29 +22,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see [Quotas for your Application Load
 // Balancers](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-limits.html)
 // in the *User Guide for Application Load Balancers*.
-#Properties: close({
-	Actions!:     list.UniqueItems() & [...#Action] | fn.#ListExpression
-	Conditions!:  list.UniqueItems() & [...#RuleCondition] | fn.#ListExpression
-	ListenerArn?: string | fn.#StringExpression
-	Priority!: int & <=50000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=50000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?:       list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	Transforms?: list.UniqueItems() & [...#Transform] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticLoadBalancingV2::ListenerRule"
+	Properties!: close({
+		Actions!:     list.UniqueItems() & [...#Action] | fn.#ListExpression
+		Conditions!:  list.UniqueItems() & [...#RuleCondition] | fn.#ListExpression
+		ListenerArn?: string | fn.#StringExpression
+		Priority!: int & <=50000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=50000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?:       list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		Transforms?: list.UniqueItems() & [...#Transform] | fn.#ListExpression
+	})
+}
 
 #Action: close({
 	AuthenticateCognitoConfig?: #AuthenticateCognitoConfig | fn.#ObjectExpression
@@ -293,7 +298,3 @@ fn.#ObjectExpression
 	}
 }) & matchN(>=1, [{HostHeaderRewriteConfig!: _}, {UrlRewriteConfig!: _}]) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticLoadBalancingV2::ListenerRule"
-	Properties!: #Properties
-}

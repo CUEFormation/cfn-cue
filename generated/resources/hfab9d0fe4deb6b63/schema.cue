@@ -17,35 +17,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::DataSource Resource Type
-#Properties: close({
-	DataDeletionPolicy?: #DataDeletionPolicy
-	DataSourceConfiguration!: close({
-		ConfluenceConfiguration?:                    #ConfluenceDataSourceConfiguration
-		ManagedKnowledgeBaseConnectorConfiguration?: #ManagedKnowledgeBaseConnectorConfiguration
-		S3Configuration?:                            #S3DataSourceConfiguration
-		SalesforceConfiguration?:                    #SalesforceDataSourceConfiguration
-		SharePointConfiguration?:                    #SharePointDataSourceConfiguration
-		Type!:                                       #DataSourceType
-		WebConfiguration?: close({
-			CrawlerConfiguration?: close({
-				CrawlerLimits?:    #WebCrawlerLimits
-				ExclusionFilters?: #FilterList
-				InclusionFilters?: #FilterList
-				Scope?:            #WebScopeType
-				UserAgent?:        strings.MaxRunes(40) & strings.MinRunes(15) | fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::DataSource"
+	Properties!: close({
+		DataDeletionPolicy?: #DataDeletionPolicy
+		DataSourceConfiguration!: close({
+			ConfluenceConfiguration?:                    #ConfluenceDataSourceConfiguration
+			ManagedKnowledgeBaseConnectorConfiguration?: #ManagedKnowledgeBaseConnectorConfiguration
+			S3Configuration?:                            #S3DataSourceConfiguration
+			SalesforceConfiguration?:                    #SalesforceDataSourceConfiguration
+			SharePointConfiguration?:                    #SharePointDataSourceConfiguration
+			Type!:                                       #DataSourceType
+			WebConfiguration?: close({
+				CrawlerConfiguration?: close({
+					CrawlerLimits?:    #WebCrawlerLimits
+					ExclusionFilters?: #FilterList
+					InclusionFilters?: #FilterList
+					Scope?:            #WebScopeType
+					UserAgent?:        strings.MaxRunes(40) & strings.MinRunes(15) | fn.#StringExpression
+				}) |
+				fn.#ObjectExpression
+				SourceConfiguration!: #WebSourceConfiguration
 			}) |
 			fn.#ObjectExpression
-			SourceConfiguration!: #WebSourceConfiguration
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	Description?:                       strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	KnowledgeBaseId!:                   =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
-	Name!:                              =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
-	VectorIngestionConfiguration?:      #VectorIngestionConfiguration
-})
+		Description?:                       strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		KnowledgeBaseId!:                   =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
+		Name!:                              =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+		ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
+		VectorIngestionConfiguration?:      #VectorIngestionConfiguration
+	})
+}
 
 #AudioExtractionConfiguration: close({AudioExtractionStatus!: #EnabledOrDisabledState}) | fn.#ObjectExpression
 
@@ -549,7 +552,3 @@ fn.#ObjectExpression
 #WebSourceConfiguration: close({UrlConfiguration!: #UrlConfiguration}) | fn.#ObjectExpression
 
 #WeeklySchedule: close({DayOfWeek!: #DayOfWeek}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::DataSource"
-	Properties!: #Properties
-}

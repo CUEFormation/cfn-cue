@@ -17,13 +17,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataBrew::Ruleset.
-#Properties: close({
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Rules!:       list.MinItems(1) & [...#Rule] | fn.#ListExpression
-	Tags?:        [...#Tag] | fn.#ListExpression
-	TargetArn!:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataBrew::Ruleset"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Rules!:       list.MinItems(1) & [...#Rule] | fn.#ListExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+		TargetArn!:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	})
+}
 
 #ColumnSelector: close({
 	Name?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -89,7 +92,3 @@ fn.#ObjectExpression
 	fn.#NumberExpression
 
 #ValuesMap: [...#SubstitutionValue] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataBrew::Ruleset"
-	Properties!: #Properties
-}

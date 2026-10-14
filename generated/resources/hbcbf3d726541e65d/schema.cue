@@ -17,42 +17,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Ground Station DataflowEndpointGroup schema for CloudFormation
-#Properties: close({
-	ContactPostPassDurationSeconds?: int & <=480 & >=30 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=480 &
-							>=30,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ContactPrePassDurationSeconds?: int & <=480 & >=30 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=480 &
-							>=30,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EndpointDetails!: list.MaxItems(500) & list.MinItems(1) & [...#EndpointDetails] | fn.#ListExpression
-	Tags?:            [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GroundStation::DataflowEndpointGroup"
+	Properties!: close({
+		ContactPostPassDurationSeconds?: int & <=480 & >=30 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=480 &
+								>=30,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ContactPrePassDurationSeconds?: int & <=480 & >=30 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=480 &
+								>=30,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EndpointDetails!: list.MaxItems(500) & list.MinItems(1) & [...#EndpointDetails] | fn.#ListExpression
+		Tags?:            [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AgentStatus: "SUCCESS" | "FAILED" | "ACTIVE" | "INACTIVE" | fn.#StringExpression
 
@@ -217,7 +224,3 @@ fn.#ObjectExpression
 	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GroundStation::DataflowEndpointGroup"
-	Properties!: #Properties
-}

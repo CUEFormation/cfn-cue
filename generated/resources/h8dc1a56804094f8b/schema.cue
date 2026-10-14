@@ -13,29 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Project
-#Properties: close({
-	ProjectDescription?: #ProjectDescription
-	ProjectName!:        #ProjectName
-	ServiceCatalogProvisionedProductDetails?: close({
-		ProvisionedProductId?:            #ProvisioningArtifactId
-		ProvisionedProductStatusMessage?: #ProvisionedProductStatusMessage
-	}) |
-	fn.#ObjectExpression
-	ServiceCatalogProvisioningDetails?: close({
-		PathId?:                 #PathId
-		ProductId!:              #ProductId
-		ProvisioningArtifactId?: #ProvisioningArtifactId
-		ProvisioningParameters?: [...#ProvisioningParameter] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?:                    list.MaxItems(40) & [...] & [...#Tag] | fn.#ListExpression
-	TemplateProviderDetails?: list.MaxItems(1) & list.MinItems(1) & [...#TemplateProviderDetail] | fn.#ListExpression
-	if ServiceCatalogProvisioningDetails != _|_ {
-		TemplateProviderDetails?: error(
-			"TemplateProviderDetails cannot be used with ServiceCatalogProvisioningDetails; set exactly one of ServiceCatalogProvisioningDetails, TemplateProviderDetails",
-		)
-	}
-}) & matchN(>=1, [{ServiceCatalogProvisioningDetails!: _}, {TemplateProviderDetails!: _}])
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Project"
+	Properties!: close({
+		ProjectDescription?: #ProjectDescription
+		ProjectName!:        #ProjectName
+		ServiceCatalogProvisionedProductDetails?: close({
+			ProvisionedProductId?:            #ProvisioningArtifactId
+			ProvisionedProductStatusMessage?: #ProvisionedProductStatusMessage
+		}) |
+		fn.#ObjectExpression
+		ServiceCatalogProvisioningDetails?: close({
+			PathId?:                 #PathId
+			ProductId!:              #ProductId
+			ProvisioningArtifactId?: #ProvisioningArtifactId
+			ProvisioningParameters?: [...#ProvisioningParameter] | fn.#ListExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?: list.MaxItems(40) & [...] & [...#Tag] | fn.#ListExpression
+		TemplateProviderDetails?: list.MaxItems(1) & list.MinItems(1) & [...#TemplateProviderDetail] |
+			fn.#ListExpression
+		if ServiceCatalogProvisioningDetails != _|_ {
+			TemplateProviderDetails?: error(
+				"TemplateProviderDetails cannot be used with ServiceCatalogProvisioningDetails; set exactly one of ServiceCatalogProvisioningDetails, TemplateProviderDetails",
+			)
+		}
+	}) & matchN(>=1, [{ServiceCatalogProvisioningDetails!: _}, {TemplateProviderDetails!: _}])
+}
 
 #CfnStackParameter: close({
 	Key!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -94,7 +98,3 @@ fn.#ObjectExpression
 	[{CfnTemplateProviderDetail!: _}],
 ) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Project"
-	Properties!: #Properties
-}

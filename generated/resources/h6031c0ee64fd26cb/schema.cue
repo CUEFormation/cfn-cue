@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaStore::Container
-#Properties: close({
-	AccessLoggingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ContainerName!:        string | fn.#StringExpression
-	CorsPolicy?:           [...#CorsRule] | fn.#ListExpression
-	LifecyclePolicy?:      string | fn.#StringExpression
-	MetricPolicy?:         #MetricPolicy
-	Policy?:               string | fn.#StringExpression
-	Tags?:                 [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaStore::Container"
+	Properties!: close({
+		AccessLoggingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ContainerName!:        string | fn.#StringExpression
+		CorsPolicy?:           [...#CorsRule] | fn.#ListExpression
+		LifecyclePolicy?:      string | fn.#StringExpression
+		MetricPolicy?:         #MetricPolicy
+		Policy?:               string | fn.#StringExpression
+		Tags?:                 [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CorsRule: close({
 	AllowedHeaders?: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -62,7 +65,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaStore::Container"
-	Properties!: #Properties
-}

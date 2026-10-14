@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::AppBlock
-#Properties: close({
-	Description?:            strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DisplayName?:            strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:                   =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
-	PackagingType?:          #PackagingType
-	PostSetupScriptDetails?: #ScriptDetails
-	SetupScriptDetails?:     #ScriptDetails
-	SourceS3Location!:       #S3Location
-	Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppStream::AppBlock"
+	Properties!: close({
+		Description?:            strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		DisplayName?:            strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:                   =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
+		PackagingType?:          #PackagingType
+		PostSetupScriptDetails?: #ScriptDetails
+		SetupScriptDetails?:     #ScriptDetails
+		SourceS3Location!:       #S3Location
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: string | fn.#StringExpression
 
@@ -67,7 +70,3 @@ fn.#ObjectExpression
 	TagValue!: string | fn.#StringExpression
 })]) |
 fn.#ValueExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppStream::AppBlock"
-	Properties!: #Properties
-}

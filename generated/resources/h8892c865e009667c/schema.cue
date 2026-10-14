@@ -9,22 +9,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElastiCache::ParameterGroup
-#Properties: close({
-	CacheParameterGroupFamily!: string | fn.#StringExpression
-	Description!:               string | fn.#StringExpression
-	Properties?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElastiCache::ParameterGroup"
+	Properties!: close({
+		CacheParameterGroupFamily!: string | fn.#StringExpression
+		Description!:               string | fn.#StringExpression
+		Properties?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-})
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElastiCache::ParameterGroup"
-	Properties!: #Properties
-}

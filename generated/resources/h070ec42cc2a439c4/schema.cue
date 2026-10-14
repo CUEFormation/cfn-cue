@@ -17,15 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::MonitoringSchedule
-#Properties: close({
-	EndpointName?:                   #EndpointName
-	FailureReason?:                  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	LastMonitoringExecutionSummary?: #MonitoringExecutionSummary | fn.#ObjectExpression
-	MonitoringScheduleConfig!:       #MonitoringScheduleConfig
-	MonitoringScheduleName!:         #MonitoringScheduleName
-	MonitoringScheduleStatus?:       "Pending" | "Failed" | "Scheduled" | "Stopped" | fn.#StringExpression
-	Tags?:                           list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::MonitoringSchedule"
+	Properties!: close({
+		EndpointName?:                   #EndpointName
+		FailureReason?:                  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		LastMonitoringExecutionSummary?: #MonitoringExecutionSummary | fn.#ObjectExpression
+		MonitoringScheduleConfig!:       #MonitoringScheduleConfig
+		MonitoringScheduleName!:         #MonitoringScheduleName
+		MonitoringScheduleStatus?:       "Pending" | "Failed" | "Scheduled" | "Stopped" | fn.#StringExpression
+		Tags?:                           list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #BaselineConfig: close({
 	ConstraintsResource?: #ConstraintsResource
@@ -282,7 +285,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::MonitoringSchedule"
-	Properties!: #Properties
-}

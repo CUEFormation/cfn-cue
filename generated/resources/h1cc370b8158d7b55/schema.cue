@@ -15,10 +15,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::Rekognition::Collection type creates an Amazon Rekognition
 // Collection. A collection is a logical grouping of information about detected
 // faces which can later be referenced for searches on the group
-#Properties: close({
-	CollectionId!: #CollectionId
-	Tags?:         list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Rekognition::Collection"
+	Properties!: close({
+		CollectionId!: #CollectionId
+		Tags?:         list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: strings.MaxRunes(2048) | fn.#StringExpression
 
@@ -29,7 +32,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Rekognition::Collection"
-	Properties!: #Properties
-}

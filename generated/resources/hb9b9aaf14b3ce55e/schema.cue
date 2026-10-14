@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::AWSExternalAnthropic::Workspace
-#Properties: close({
-	DataResidency?: #DataResidency
-	Name!:          strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AWSExternalAnthropic::Workspace"
+	Properties!: close({
+		DataResidency?: #DataResidency
+		Name!:          strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DataResidency: close({
 	AllowedInferenceGeos?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
@@ -31,7 +34,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AWSExternalAnthropic::Workspace"
-	Properties!: #Properties
-}

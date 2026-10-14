@@ -16,16 +16,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::SageMaker::Workforce. Use to create a
 // private workforce that you can use to label your training data using Amazon
 // SageMaker Ground Truth.
-#Properties: close({
-	CognitoConfig?:  #CognitoConfig
-	IpAddressType?:  "ipv4" | "dualstack" | fn.#StringExpression
-	OidcConfig?:     #OidcConfig
-	SourceIpConfig?: #SourceIpConfig
-	Tags?:           list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	WorkforceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9\\-]){0,62}$" |
-	fn.#StringExpression
-	WorkforceVpcConfig?: #WorkforceVpcConfigRequest
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Workforce"
+	Properties!: close({
+		CognitoConfig?:  #CognitoConfig
+		IpAddressType?:  "ipv4" | "dualstack" | fn.#StringExpression
+		OidcConfig?:     #OidcConfig
+		SourceIpConfig?: #SourceIpConfig
+		Tags?:           list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		WorkforceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9\\-]){0,62}$" |
+		fn.#StringExpression
+		WorkforceVpcConfig?: #WorkforceVpcConfigRequest
+	})
+}
 
 #CognitoConfig: close({
 	ClientId!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[ -~]+$" | fn.#StringExpression
@@ -88,7 +91,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Workforce"
-	Properties!: #Properties
-}

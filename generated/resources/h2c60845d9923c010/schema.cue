@@ -7,8 +7,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudFormation::WaitConditionHandle
-#Properties: close({})
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::CloudFormation::WaitConditionHandle"
-	Properties?: #Properties
+	Properties?: close({})
 }

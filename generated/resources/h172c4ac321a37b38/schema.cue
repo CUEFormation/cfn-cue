@@ -13,19 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A custom metric published by your devices to Device Defender.
-#Properties: close({
-	DisplayName?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	MetricName?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	MetricType!:  "string-list" | "ip-address-list" | "number-list" | "number" | fn.#StringExpression
-	Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::CustomMetric"
+	Properties!: close({
+		DisplayName?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+		MetricName?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
+		MetricType!:  "string-list" | "ip-address-list" | "number-list" | "number" | fn.#StringExpression
+		Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::CustomMetric"
-	Properties!: #Properties
-}

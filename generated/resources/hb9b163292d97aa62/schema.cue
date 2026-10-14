@@ -13,22 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage NetworkAnalyzerConfiguration resource.
-#Properties: close({
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	TraceContent?: close({
-		LogLevel?:                #LogLevel
-		WirelessDeviceFrameInfo?: #WirelessDeviceFrameInfo
-	}) |
-	fn.#ObjectExpression
-	WirelessDevices?: list.MaxItems(250) & [...] & [
-		...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	WirelessGateways?: list.MaxItems(250) & [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] |
-	fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTWireless::NetworkAnalyzerConfiguration"
+	Properties!: close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+		Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TraceContent?: close({
+			LogLevel?:                #LogLevel
+			WirelessDeviceFrameInfo?: #WirelessDeviceFrameInfo
+		}) |
+		fn.#ObjectExpression
+		WirelessDevices?: list.MaxItems(250) & [...] & [
+			...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		WirelessGateways?: list.MaxItems(250) & [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] |
+		fn.#ListExpression
+	})
+}
 
 #LogLevel: "INFO" | "ERROR" | "DISABLED" | fn.#StringExpression
 
@@ -39,7 +42,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #WirelessDeviceFrameInfo: "ENABLED" | "DISABLED" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTWireless::NetworkAnalyzerConfiguration"
-	Properties!: #Properties
-}

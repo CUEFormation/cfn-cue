@@ -17,22 +17,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::FSx::S3AccessPointAttachment
-#Properties: close({
-	Name!:                 strings.MaxRunes(50) & strings.MinRunes(3) | fn.#StringExpression
-	OntapConfiguration?:   #S3AccessPointOntapConfiguration | fn.#ObjectExpression
-	OpenZFSConfiguration?: #S3AccessPointOpenZFSConfiguration | fn.#ObjectExpression
-	S3AccessPoint?: close({
-		Policy?: fn.#Object & {...} | strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringObjectExpression
-		VpcConfiguration?: #S3AccessPointVpcConfiguration | fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	Type!: "OPENZFS" | "ONTAP" | fn.#StringExpression
-	if OntapConfiguration != _|_ {
-		OpenZFSConfiguration?: error(
-			"OpenZFSConfiguration cannot be used with OntapConfiguration; set exactly one of OntapConfiguration, OpenZFSConfiguration",
-		)
-	}
-}) & matchN(>=1, [{OntapConfiguration!: _}, {OpenZFSConfiguration!: _}])
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FSx::S3AccessPointAttachment"
+	Properties!: close({
+		Name!:                 strings.MaxRunes(50) & strings.MinRunes(3) | fn.#StringExpression
+		OntapConfiguration?:   #S3AccessPointOntapConfiguration | fn.#ObjectExpression
+		OpenZFSConfiguration?: #S3AccessPointOpenZFSConfiguration | fn.#ObjectExpression
+		S3AccessPoint?: close({
+			Policy?: fn.#Object & {...} | strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringObjectExpression
+			VpcConfiguration?: #S3AccessPointVpcConfiguration | fn.#ObjectExpression
+		}) |
+		fn.#ObjectExpression
+		Type!: "OPENZFS" | "ONTAP" | fn.#StringExpression
+		if OntapConfiguration != _|_ {
+			OpenZFSConfiguration?: error(
+				"OpenZFSConfiguration cannot be used with OntapConfiguration; set exactly one of OntapConfiguration, OpenZFSConfiguration",
+			)
+		}
+	}) & matchN(>=1, [{OntapConfiguration!: _}, {OpenZFSConfiguration!: _}])
+}
 
 #FileSystemGID: close({
 	Gid!: <=4294967295 & >=0 |
@@ -159,7 +162,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FSx::S3AccessPointAttachment"
-	Properties!: #Properties
-}

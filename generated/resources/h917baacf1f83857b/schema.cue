@@ -17,42 +17,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An object representing an Amazon EKS cluster.
-#Properties: close({
-	AccessConfig?:                 #AccessConfig
-	ActiveCertificateAuthorityId?: string | fn.#StringExpression
-	BootstrapSelfManagedAddons?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CertificateAuthority?:         close({Active?: close({}) | fn.#ObjectExpression}) | fn.#ObjectExpression
-	ComputeConfig?:                #ComputeConfig
-	ControlPlaneScalingConfig?:    #ControlPlaneScalingConfig
-	DeletionProtection?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EncryptionConfig?: list.MaxItems(1) & [...] & [
-		...#EncryptionConfig & (null | bool | number | string | list.MaxItems(1) | {...}) | fn.#ObjectExpression
-	] |
-	fn.#ListExpression
-	Force?:                       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KubeApiServerConfig?:         #KubeApiServerConfig
-	KubeControllerManagerConfig?: #KubeControllerManagerConfig
-	KubeSchedulerConfig?:         #KubeSchedulerConfig
-	KubernetesNetworkConfig?: close({
-		ElasticLoadBalancing?: #ElasticLoadBalancing | fn.#ObjectExpression
-		IpFamily?:             "ipv4" | "ipv6" | fn.#StringExpression
-		ServiceIpv4Cidr?:      string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Logging?: #Logging
-	Name?:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*" | fn.#StringExpression
-	OutpostConfig?:       #OutpostConfig
-	RemoteNetworkConfig?: #RemoteNetworkConfig
-	ResourcesVpcConfig!:  #ResourcesVpcConfig
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	RollbackConfig?:   #RollbackConfig
-	StorageConfig?:    #StorageConfig
-	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	UpgradePolicy?:    #UpgradePolicy
-	Version?:          =~"1\\.\\d\\d" | fn.#StringExpression
-	ZonalShiftConfig?: #ZonalShiftConfig
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EKS::Cluster"
+	Properties!: close({
+		AccessConfig?:                 #AccessConfig
+		ActiveCertificateAuthorityId?: string | fn.#StringExpression
+		BootstrapSelfManagedAddons?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		CertificateAuthority?:      close({Active?: close({}) | fn.#ObjectExpression}) | fn.#ObjectExpression
+		ComputeConfig?:             #ComputeConfig
+		ControlPlaneScalingConfig?: #ControlPlaneScalingConfig
+		DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EncryptionConfig?: list.MaxItems(1) & [...] & [
+			...#EncryptionConfig & (null | bool | number | string | list.MaxItems(1) | {...}) | fn.#ObjectExpression
+		] |
+		fn.#ListExpression
+		Force?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		KubeApiServerConfig?: #KubeApiServerConfig
+		KubeControllerManagerConfig?: #KubeControllerManagerConfig
+		KubeSchedulerConfig?:         #KubeSchedulerConfig
+		KubernetesNetworkConfig?: close({
+			ElasticLoadBalancing?: #ElasticLoadBalancing | fn.#ObjectExpression
+			IpFamily?:             "ipv4" | "ipv6" | fn.#StringExpression
+			ServiceIpv4Cidr?:      string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Logging?: #Logging
+		Name?:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*" | fn.#StringExpression
+		OutpostConfig?:       #OutpostConfig
+		RemoteNetworkConfig?: #RemoteNetworkConfig
+		ResourcesVpcConfig!:  #ResourcesVpcConfig
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		RollbackConfig?:   #RollbackConfig
+		StorageConfig?:    #StorageConfig
+		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		UpgradePolicy?:    #UpgradePolicy
+		Version?:          =~"1\\.\\d\\d" | fn.#StringExpression
+		ZonalShiftConfig?: #ZonalShiftConfig
+	})
+}
 
 #AccessConfig: close({
 	AuthenticationMode?: "CONFIG_MAP" | "API_AND_CONFIG_MAP" | "API" | fn.#StringExpression
@@ -306,7 +316,3 @@ fn.#ObjectExpression
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EKS::Cluster"
-	Properties!: #Properties
-}

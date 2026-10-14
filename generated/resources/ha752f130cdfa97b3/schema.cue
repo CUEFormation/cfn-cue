@@ -12,7 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A key group contains a list of public keys that you can use with [CloudFront
 // signed URLs and signed
 // cookies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html).
-#Properties: close({KeyGroupConfig!: #KeyGroupConfig | fn.#ObjectExpression})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::CloudFront::KeyGroup"
+	Properties!: close({KeyGroupConfig!: #KeyGroupConfig | fn.#ObjectExpression})
+}
 
 #KeyGroupConfig: close({
 	Comment?: string | fn.#StringExpression
@@ -20,7 +23,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::KeyGroup"
-	Properties!: #Properties
-}

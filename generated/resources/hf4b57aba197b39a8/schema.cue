@@ -17,18 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for an Amazon Chime SDK Media Insights Pipeline Configuration
-#Properties: close({
-	Elements!: [...#MediaInsightsPipelineConfigurationElement] | fn.#ListExpression
-	MediaInsightsPipelineConfigurationName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" |
-	fn.#StringExpression
-	RealTimeAlertConfiguration?: #RealTimeAlertConfiguration
-	ResourceAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(1024) &
-	strings.MinRunes(1) &
-	=~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Chime::MediaInsightsPipelineConfiguration"
+	Properties!: close({
+		Elements!: [...#MediaInsightsPipelineConfigurationElement] | fn.#ListExpression
+		MediaInsightsPipelineConfigurationName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" |
+		fn.#StringExpression
+		RealTimeAlertConfiguration?: #RealTimeAlertConfiguration
+		ResourceAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AmazonTranscribeCallAnalyticsProcessorConfiguration: close({
 	CallAnalyticsStreamCategories?: list.MaxItems(20) & list.MinItems(1) & [
@@ -204,7 +207,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Chime::MediaInsightsPipelineConfiguration"
-	Properties!: #Properties
-}

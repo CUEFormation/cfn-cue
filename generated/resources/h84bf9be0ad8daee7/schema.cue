@@ -12,20 +12,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticBeanstalk::Environment
-#Properties: close({
-	ApplicationName!:   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	CNAMEPrefix?:       strings.MaxRunes(63) & strings.MinRunes(4) | fn.#StringExpression
-	Description?:       strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	EnvironmentName?:   strings.MaxRunes(40) & strings.MinRunes(4) | fn.#StringExpression
-	OperationsRole?:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	OptionSettings?:    [...#OptionSetting] | fn.#ListExpression
-	PlatformArn?:       string | fn.#StringExpression
-	SolutionStackName?: string | fn.#StringExpression
-	Tags?:              [...#Tag] | fn.#ListExpression
-	TemplateName?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Tier?:              #Tier | fn.#ObjectExpression
-	VersionLabel?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticBeanstalk::Environment"
+	Properties!: close({
+		ApplicationName!:   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		CNAMEPrefix?:       strings.MaxRunes(63) & strings.MinRunes(4) | fn.#StringExpression
+		Description?:       strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+		EnvironmentName?:   strings.MaxRunes(40) & strings.MinRunes(4) | fn.#StringExpression
+		OperationsRole?:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		OptionSettings?:    [...#OptionSetting] | fn.#ListExpression
+		PlatformArn?:       string | fn.#StringExpression
+		SolutionStackName?: string | fn.#StringExpression
+		Tags?:              [...#Tag] | fn.#ListExpression
+		TemplateName?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Tier?:              #Tier | fn.#ObjectExpression
+		VersionLabel?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #OptionSetting: close({
 	Namespace!:    string | fn.#StringExpression
@@ -47,7 +50,3 @@ fn.#ObjectExpression
 	Version?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticBeanstalk::Environment"
-	Properties!: #Properties
-}

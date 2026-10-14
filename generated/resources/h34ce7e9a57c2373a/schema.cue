@@ -12,28 +12,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Amplify::Branch resource creates a new branch within an app.
-#Properties: close({
-	AppId!:           strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+" | fn.#StringExpression
-	Backend?:         #Backend
-	BasicAuthConfig?: #BasicAuthConfig
-	BranchName!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
-	BuildSpec?:       strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
-	ComputeRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(1000) &
-	strings.MinRunes(0) &
-	=~"(?s).*" |
-	fn.#StringExpression
-	Description?:                strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
-	EnableAutoBuild?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnablePerformanceMode?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnablePullRequestPreview?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableSkewProtection?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnvironmentVariables?:       [...#EnvironmentVariable] | fn.#ListExpression
-	Framework?:                  strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
-	PullRequestEnvironmentName?: strings.MaxRunes(20) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
-	Stage?: "EXPERIMENTAL" | "BETA" | "PULL_REQUEST" | "PRODUCTION" | "DEVELOPMENT" | fn.#StringExpression
-	Tags?:  [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Amplify::Branch"
+	Properties!: close({
+		AppId!:           strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+" | fn.#StringExpression
+		Backend?:         #Backend
+		BasicAuthConfig?: #BasicAuthConfig
+		BranchName!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
+		BuildSpec?:       strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
+		ComputeRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(1000) &
+		strings.MinRunes(0) &
+		=~"(?s).*" |
+		fn.#StringExpression
+		Description?:              strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
+		EnableAutoBuild?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnablePerformanceMode?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnablePullRequestPreview?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnableSkewProtection?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnvironmentVariables?:     [...#EnvironmentVariable] | fn.#ListExpression
+		Framework?:                strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
+		PullRequestEnvironmentName?: strings.MaxRunes(20) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
+		Stage?: "EXPERIMENTAL" | "BETA" | "PULL_REQUEST" | "PRODUCTION" | "DEVELOPMENT" | fn.#StringExpression
+		Tags?:  [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Backend: close({
 	StackArn?: strings.MaxRunes(2048) &
@@ -61,7 +64,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Amplify::Branch"
-	Properties!: #Properties
-}

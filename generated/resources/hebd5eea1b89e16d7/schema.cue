@@ -12,12 +12,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RDS::DBSecurityGroup
-#Properties: close({
-	DBSecurityGroupIngress!: list.UniqueItems() & [...#Ingress] | fn.#ListExpression
-	EC2VpcId?:               string | fn.#StringExpression
-	GroupDescription!:       string | fn.#StringExpression
-	Tags?:                   [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RDS::DBSecurityGroup"
+	Properties!: close({
+		DBSecurityGroupIngress!: list.UniqueItems() & [...#Ingress] | fn.#ListExpression
+		EC2VpcId?:               string | fn.#StringExpression
+		GroupDescription!:       string | fn.#StringExpression
+		Tags?:                   [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Ingress: close({
 	CIDRIP?: string | fn.#StringExpression
@@ -33,7 +36,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RDS::DBSecurityGroup"
-	Properties!: #Properties
-}

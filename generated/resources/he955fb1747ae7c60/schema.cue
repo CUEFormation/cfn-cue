@@ -16,108 +16,131 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::ComputeEnvironment
-#Properties: close({
-	ComputeEnvironmentName?: string | fn.#StringExpression
-	ComputeResources?: close({
-		AllocationStrategy?: =~"(?i)^(?:best_fit|best_fit_progressive|best_fit_progressive_ordered|spot_capacity_optimized|spot_capacity_optimized_prioritized|spot_price_capacity_optimized)$" |
-			fn.#StringExpression
-		BidPercentage?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		CapacityTags?: close({
-
-			{[=~".*"]: string | fn.#StringExpression}}) |
-		fn.#ObjectExpression
-		DesiredvCpus?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		Ec2Configuration?: [...close({
-			ImageIdOverride?:        string | fn.#StringExpression
-			ImageKubernetesVersion?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-			ImageType!:              strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		}) |
-		fn.#ObjectExpression] |
-		fn.#ListExpression
-		Ec2KeyPair?: string | fn.#StringExpression
-		ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		InstanceRole?:             string | fn.#StringExpression
-		InstanceTypes?:            [...string | fn.#StringExpression] | fn.#ListExpression
-		LaunchTemplate?:           #LaunchTemplateSpecification
-		ManagedInstancesProvider?: #ManagedInstancesProvider
-		MaxvCpus!: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		MinvCpus?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		PlacementGroup?: string | fn.#StringExpression
-		ScalingPolicy?:  #ComputeScalingPolicy
-		SecurityGroupIds?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Batch::ComputeEnvironment"
+	Properties!: close({
+		ComputeEnvironmentName?: string | fn.#StringExpression
+		ComputeResources?: close({
+			AllocationStrategy?: =~"(?i)^(?:best_fit|best_fit_progressive|best_fit_progressive_ordered|spot_capacity_optimized|spot_capacity_optimized_prioritized|spot_price_capacity_optimized)$" |
 				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		SpotIamFleetRole?: string | fn.#StringExpression
-		Subnets?:          [...string | fn.#StringExpression] | fn.#ListExpression
-		Tags?: close({
+			BidPercentage?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			CapacityTags?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+				{[=~".*"]: string | fn.#StringExpression}}) |
+			fn.#ObjectExpression
+			DesiredvCpus?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			Ec2Configuration?: [...close({
+				ImageIdOverride?:        string | fn.#StringExpression
+				ImageKubernetesVersion?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+				ImageType!:              strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+			}) |
+			fn.#ObjectExpression] |
+			fn.#ListExpression
+			Ec2KeyPair?: string | fn.#StringExpression
+			ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+			InstanceRole?:             string | fn.#StringExpression
+			InstanceTypes?:            [...string | fn.#StringExpression] | fn.#ListExpression
+			LaunchTemplate?:           #LaunchTemplateSpecification
+			ManagedInstancesProvider?: #ManagedInstancesProvider
+			MaxvCpus!: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			MinvCpus?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			PlacementGroup?: string | fn.#StringExpression
+			ScalingPolicy?:  #ComputeScalingPolicy
+			SecurityGroupIds?: [
+				...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+					fn.#StringExpression
+			] |
+				fn.#ListExpression
+			SpotIamFleetRole?: string | fn.#StringExpression
+			Subnets?:          [...string | fn.#StringExpression] | fn.#ListExpression
+			Tags?: close({
+
+				{[=~".*"]: string | fn.#StringExpression}}) |
+			fn.#ObjectExpression
+			Type!: =~"(?i)^(?:ec2|ecs_managed_instances|fargate|fargate_spot|spot)$" | fn.#StringExpression
+			UpdateToLatestImageVersion?: bool |
+				"true" |
+				"True" |
+				"TRUE" |
+				"false" |
+				"False" |
+				"FALSE" |
+				fn.#BooleanExpression
+		}) |
 		fn.#ObjectExpression
-		Type!: =~"(?i)^(?:ec2|ecs_managed_instances|fargate|fargate_spot|spot)$" | fn.#StringExpression
-		UpdateToLatestImageVersion?: bool |
+		Context?:     string | fn.#StringExpression
+		EcsSettings?: #EcsSettings
+		EksConfiguration?: close({
+			AccessEntry?: close(
+				{DesiredState?: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$" | fn.#StringExpression},
+			) |
+				fn.#ObjectExpression
+			EksClusterArn!:       string | fn.#StringExpression
+			KubernetesNamespace!: string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		ReplaceComputeEnvironment?: bool |
 			"true" |
 			"True" |
 			"TRUE" |
@@ -125,41 +148,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-	}) |
-	fn.#ObjectExpression
-	Context?:     string | fn.#StringExpression
-	EcsSettings?: #EcsSettings
-	EksConfiguration?: close({
-		AccessEntry?: close({DesiredState?: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$" | fn.#StringExpression}) |
-			fn.#ObjectExpression
-		EksClusterArn!:       string | fn.#StringExpression
-		KubernetesNamespace!: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	ReplaceComputeEnvironment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ServiceRole?:               string | fn.#StringExpression
-	State?:                     string | fn.#StringExpression
-	Tags?: close({
+		ServiceRole?: string | fn.#StringExpression
+		State?:       string | fn.#StringExpression
+		Tags?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Type!: =~"(?i)^(?:managed|unmanaged)$" | fn.#StringExpression
-	UnmanagedvCpus?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	UpdatePolicy?: #UpdatePolicy
-})
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Type!: =~"(?i)^(?:managed|unmanaged)$" | fn.#StringExpression
+		UnmanagedvCpus?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		UpdatePolicy?: #UpdatePolicy
+	})
+}
 
 #CapacityReservations: close({
 	ReservationGroupArn?:   string | fn.#StringExpression
@@ -418,7 +432,3 @@ fn.#ObjectExpression
 	TerminateJobsOnUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Batch::ComputeEnvironment"
-	Properties!: #Properties
-}

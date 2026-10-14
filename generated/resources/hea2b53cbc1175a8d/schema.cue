@@ -18,71 +18,82 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::GameLift::MatchmakingConfiguration resource creates an Amazon
 // GameLift (GameLift) matchmaking configuration.
-#Properties: close({
-	AcceptanceRequired!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AcceptanceTimeoutSeconds?: int & <=600 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=600 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	AdditionalPlayerCount?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	BackfillMode?:    "AUTOMATIC" | "MANUAL" | fn.#StringExpression
-	CreationTime?:    string | fn.#StringExpression
-	CustomEventData?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	FlexMatchMode?:   "STANDALONE" | "WITH_QUEUE" | fn.#StringExpression
-	GameProperties?:  list.MaxItems(16) & list.UniqueItems() & [...] & [...#GameProperty] | fn.#ListExpression
-	GameSessionData?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	GameSessionQueueArns?: [...strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/-]+" | fn.#StringExpression] |
-	fn.#ListExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-\\.]*" | fn.#StringExpression
-	NotificationTarget?: strings.MaxRunes(300) & strings.MinRunes(0) & =~"[a-zA-Z0-9:_/-]*(.fifo)?" |
-	fn.#StringExpression
-	RequestTimeoutSeconds!: int & <=43200 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=43200 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RuleSetArn?:  =~"^arn:.*:matchmakingruleset\\/[a-zA-Z0-9-\\.]*" | fn.#StringExpression
-	RuleSetName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]*" | fn.#StringExpression
-	Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GameLift::MatchmakingConfiguration"
+	Properties!: close({
+		AcceptanceRequired!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AcceptanceTimeoutSeconds?: int & <=600 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=600 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		AdditionalPlayerCount?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		BackfillMode?:    "AUTOMATIC" | "MANUAL" | fn.#StringExpression
+		CreationTime?:    string | fn.#StringExpression
+		CustomEventData?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		FlexMatchMode?:   "STANDALONE" | "WITH_QUEUE" | fn.#StringExpression
+		GameProperties?:  list.MaxItems(16) & list.UniqueItems() & [...] & [...#GameProperty] | fn.#ListExpression
+		GameSessionData?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+		GameSessionQueueArns?: [
+			...strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/-]+" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-\\.]*" | fn.#StringExpression
+		NotificationTarget?: strings.MaxRunes(300) & strings.MinRunes(0) & =~"[a-zA-Z0-9:_/-]*(.fifo)?" |
+		fn.#StringExpression
+		RequestTimeoutSeconds!: int & <=43200 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=43200 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RuleSetArn?:  =~"^arn:.*:matchmakingruleset\\/[a-zA-Z0-9-\\.]*" | fn.#StringExpression
+		RuleSetName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]*" | fn.#StringExpression
+		Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #GameProperty: close({
 	Key!:   strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
@@ -95,7 +106,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GameLift::MatchmakingConfiguration"
-	Properties!: #Properties
-}

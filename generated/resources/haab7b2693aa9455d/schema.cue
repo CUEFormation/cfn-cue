@@ -17,57 +17,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::PCS::Cluster resource creates an AWS PCS cluster.
-#Properties: close({
-	Name?: string | fn.#StringExpression
-	Networking!: close({
-		NetworkType?:      "IPV4" | "IPV6" | fn.#StringExpression
-		SecurityGroupIds?: [...#SecurityGroupId] | fn.#ListExpression
-		SubnetIds?:        list.MinItems(1) & [...#SubnetId] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	Scheduler!: close({
-		Type!:    "SLURM" | fn.#StringExpression
-		Version!: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Size!: "SMALL" | "MEDIUM" | "LARGE" | fn.#StringExpression
-	SlurmConfiguration?: close({
-		Accounting?:           #Accounting
-		AuthKey?:              #AuthKey
-		CgroupCustomSettings?: [...#CgroupCustomSetting] | fn.#ListExpression
-		JwtAuth?:              #JwtAuth
-		ScaleDownIdleTimeInSeconds?: int & >=1 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								>=1,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		SlurmCustomSettings?:    [...#SlurmCustomSetting] | fn.#ListExpression
-		SlurmRest?:              #SlurmRest
-		SlurmdbdCustomSettings?: [...#SlurmdbdCustomSetting] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: null |
-	bool |
-	number |
-	string |
-	[...] |
-	close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PCS::Cluster"
+	Properties!: close({
+		Name?: string | fn.#StringExpression
+		Networking!: close({
+			NetworkType?:      "IPV4" | "IPV6" | fn.#StringExpression
+			SecurityGroupIds?: [...#SecurityGroupId] | fn.#ListExpression
+			SubnetIds?:        list.MinItems(1) & [...#SubnetId] | fn.#ListExpression
+		}) |
+		fn.#ObjectExpression
+		Scheduler!: close({
+			Type!:    "SLURM" | fn.#StringExpression
+			Version!: string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Size!: "SMALL" | "MEDIUM" | "LARGE" | fn.#StringExpression
+		SlurmConfiguration?: close({
+			Accounting?:           #Accounting
+			AuthKey?:              #AuthKey
+			CgroupCustomSettings?: [...#CgroupCustomSetting] | fn.#ListExpression
+			JwtAuth?:              #JwtAuth
+			ScaleDownIdleTimeInSeconds?: int & >=1 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									>=1,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			SlurmCustomSettings?:    [...#SlurmCustomSetting] | fn.#ListExpression
+			SlurmRest?:              #SlurmRest
+			SlurmdbdCustomSettings?: [...#SlurmdbdCustomSetting] | fn.#ListExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?: null |
+		bool |
+		number |
+		string |
+		[...] |
+		close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
-	fn.#ValueExpression
-})
+			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		fn.#ValueExpression
+	})
+}
 
 #Accounting: {
 	DefaultPurgeTimeInDays?: int & <=10000 & >=-1 |
@@ -150,7 +153,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PCS::Cluster"
-	Properties!: #Properties
-}

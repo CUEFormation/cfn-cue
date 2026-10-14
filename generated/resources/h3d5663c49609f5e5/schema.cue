@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::CodeSigningConfig.
-#Properties: close({
-	AllowedPublishers!:   #AllowedPublishers | fn.#ObjectExpression
-	CodeSigningPolicies?: #CodeSigningPolicies | fn.#ObjectExpression
-	Description?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:                list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::CodeSigningConfig"
+	Properties!: close({
+		AllowedPublishers!:   #AllowedPublishers | fn.#ObjectExpression
+		CodeSigningPolicies?: #CodeSigningPolicies | fn.#ObjectExpression
+		Description?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Tags?:                list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AllowedPublishers: close({
 	SigningProfileVersionArns!: list.MaxItems(20) & list.MinItems(1) & [
@@ -39,7 +42,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::CodeSigningConfig"
-	Properties!: #Properties
-}

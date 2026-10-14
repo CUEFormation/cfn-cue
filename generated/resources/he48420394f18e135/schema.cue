@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::VerifiedAccessGroup resource creates an AWS EC2 Verified Access Group.
-#Properties: close({
-	Description?:              string | fn.#StringExpression
-	PolicyDocument?:           string | fn.#StringExpression
-	PolicyEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SseSpecification?:         #SseSpecification | fn.#ObjectExpression
-	Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VerifiedAccessInstanceId!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VerifiedAccessGroup"
+	Properties!: close({
+		Description?:              string | fn.#StringExpression
+		PolicyDocument?:           string | fn.#StringExpression
+		PolicyEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SseSpecification?:         #SseSpecification | fn.#ObjectExpression
+		Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VerifiedAccessInstanceId!: string | fn.#StringExpression
+	})
+}
 
 #SseSpecification: close({
 	CustomerManagedKeyEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -34,7 +37,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VerifiedAccessGroup"
-	Properties!: #Properties
-}

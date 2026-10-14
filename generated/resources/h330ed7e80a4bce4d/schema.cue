@@ -9,8 +9,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Organizations::Organization
-#Properties: close({FeatureSet?: "ALL" | "CONSOLIDATED_BILLING" | fn.#StringExpression})
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Organizations::Organization"
-	Properties?: #Properties
+	Properties?: close({FeatureSet?: "ALL" | "CONSOLIDATED_BILLING" | fn.#StringExpression})
 }

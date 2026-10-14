@@ -17,21 +17,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a table that can be associated with collaborations
-#Properties: close({
-	AllowedColumns!: list.MaxItems(100) & list.MinItems(1) & [
-		...strings.MaxRunes(128) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	AnalysisMethod!: #AnalysisMethod
-	AnalysisRules?:  list.MaxItems(1) & list.MinItems(1) & [...#AnalysisRule] | fn.#ListExpression
-	Description?: strings.MaxRunes(255) &
-	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
-	fn.#StringExpression
-	Name!:                    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	SelectedAnalysisMethods?: #SelectedAnalysisMethods
-	TableReference!:          #TableReference
-	Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CleanRooms::ConfiguredTable"
+	Properties!: close({
+		AllowedColumns!: list.MaxItems(100) & list.MinItems(1) & [
+			...strings.MaxRunes(128) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		AnalysisMethod!: #AnalysisMethod
+		AnalysisRules?:  list.MaxItems(1) & list.MinItems(1) & [...#AnalysisRule] | fn.#ListExpression
+		Description?: strings.MaxRunes(255) &
+		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		fn.#StringExpression
+		Name!:                    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		SelectedAnalysisMethods?: #SelectedAnalysisMethods
+		TableReference!:          #TableReference
+		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AdditionalAnalyses: "ALLOWED" | "REQUIRED" | "NOT_ALLOWED" | fn.#StringExpression
 
@@ -320,7 +323,3 @@ fn.#ValueExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CleanRooms::ConfiguredTable"
-	Properties!: #Properties
-}

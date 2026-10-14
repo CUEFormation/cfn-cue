@@ -16,15 +16,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::Bridge
-#Properties: close({
-	EgressGatewayBridge?:  #EgressGatewayBridge & fn.#Object & {...} | fn.#ObjectExpression
-	IngressGatewayBridge?: #IngressGatewayBridge & fn.#Object & {...} | fn.#ObjectExpression
-	Name!:                 string | fn.#StringExpression
-	Outputs?:              list.MaxItems(2) & [...] & [...#BridgeOutput] | fn.#ListExpression
-	PlacementArn!:         string | fn.#StringExpression
-	SourceFailoverConfig?: #FailoverConfig
-	Sources!:              list.MaxItems(2) & [...] & [...#BridgeSource] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::Bridge"
+	Properties!: close({
+		EgressGatewayBridge?:  #EgressGatewayBridge & fn.#Object & {...} | fn.#ObjectExpression
+		IngressGatewayBridge?: #IngressGatewayBridge & fn.#Object & {...} | fn.#ObjectExpression
+		Name!:                 string | fn.#StringExpression
+		Outputs?:              list.MaxItems(2) & [...] & [...#BridgeOutput] | fn.#ListExpression
+		PlacementArn!:         string | fn.#StringExpression
+		SourceFailoverConfig?: #FailoverConfig
+		Sources!:              list.MaxItems(2) & [...] & [...#BridgeSource] | fn.#ListExpression
+	})
+}
 
 #BridgeFlowSource: close({
 	FlowArn!:                    string | fn.#StringExpression
@@ -181,7 +184,3 @@ fn.#ObjectExpression
 #SourcePriority: close({PrimarySource?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #VpcInterfaceAttachment: close({VpcInterfaceName?: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::Bridge"
-	Properties!: #Properties
-}

@@ -9,10 +9,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAFRegional::ByteMatchSet
-#Properties: close({
-	ByteMatchTuples?: [...#ByteMatchTuple] | fn.#ListExpression
-	Name!:            string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAFRegional::ByteMatchSet"
+	Properties!: close({
+		ByteMatchTuples?: [...#ByteMatchTuple] | fn.#ListExpression
+		Name!:            string | fn.#StringExpression
+	})
+}
 
 #ByteMatchTuple: close({
 	FieldToMatch!:         #FieldToMatch
@@ -28,7 +31,3 @@ fn.#ObjectExpression
 	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAFRegional::ByteMatchSet"
-	Properties!: #Properties
-}

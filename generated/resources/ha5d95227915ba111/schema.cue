@@ -17,30 +17,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::FSx::DataRepositoryAssociation
-#Properties: close({
-	BatchImportMetaDataOnCreate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DataRepositoryPath!:          strings.MaxRunes(4357) & strings.MinRunes(3) | fn.#StringExpression
-	FileSystemId!:   strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" | fn.#StringExpression
-	FileSystemPath!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	ImportedFileChunkSize?: int & <=512000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=512000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	S3?:   #S3 | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FSx::DataRepositoryAssociation"
+	Properties!: close({
+		BatchImportMetaDataOnCreate?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		DataRepositoryPath!: strings.MaxRunes(4357) & strings.MinRunes(3) | fn.#StringExpression
+		FileSystemId!:   strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" | fn.#StringExpression
+		FileSystemPath!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+		ImportedFileChunkSize?: int & <=512000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=512000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		S3?:   #S3 | fn.#ObjectExpression
+		Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AutoExportPolicy: close({Events!: #EventTypes}) | fn.#ObjectExpression
 
@@ -61,7 +73,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FSx::DataRepositoryAssociation"
-	Properties!: #Properties
-}

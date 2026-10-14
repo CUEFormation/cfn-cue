@@ -14,11 +14,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Vectors::VectorBucket
-#Properties: close({
-	EncryptionConfiguration?: #EncryptionConfiguration
-	Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VectorBucketName?:        #VectorBucketName
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3Vectors::VectorBucket"
+	Properties?: close({
+		EncryptionConfiguration?: #EncryptionConfiguration
+		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VectorBucketName?:        #VectorBucketName
+	})
+}
 
 #CreationTime: time.Time | fn.#StringExpression
 
@@ -41,7 +44,3 @@ fn.#ObjectExpression
 #VectorBucketArn: string | fn.#StringExpression
 
 #VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Vectors::VectorBucket"
-	Properties?: #Properties
-}

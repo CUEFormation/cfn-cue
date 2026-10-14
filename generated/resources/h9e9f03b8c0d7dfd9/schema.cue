@@ -14,15 +14,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::NetworkSecurityManager::Deployment. Creates
 // and manages a Network Security Manager deployment.
-#Properties: close({
-	AssociatedPolicyList?:    list.MaxItems(2) & list.MinItems(1) & [...#AssociatedPolicy] | fn.#ListExpression
-	AssociatedScopeList?:     list.MaxItems(1) & list.MinItems(1) & [...#AssociatedScope] | fn.#ListExpression
-	DeploymentConfiguration?: #DeploymentConfiguration
-	DeploymentDescription?:   strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
-	DeploymentName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkSecurityManager::Deployment"
+	Properties!: close({
+		AssociatedPolicyList?:    list.MaxItems(2) & list.MinItems(1) & [...#AssociatedPolicy] | fn.#ListExpression
+		AssociatedScopeList?:     list.MaxItems(1) & list.MinItems(1) & [...#AssociatedScope] | fn.#ListExpression
+		DeploymentConfiguration?: #DeploymentConfiguration
+		DeploymentDescription?:   strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
+		DeploymentName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AssociatedPolicy: close({PolicyArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -38,7 +41,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkSecurityManager::Deployment"
-	Properties!: #Properties
-}

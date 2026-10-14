@@ -14,52 +14,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This is a CloudFormation resource for activating the first-party AWS::Hooks::GuardHook.
-#Properties: close({
-	Alias!:         string | fn.#StringExpression
-	ExecutionRole!: #Role | fn.#StringExpression
-	FailureMode!:   "FAIL" | "WARN" | fn.#StringExpression
-	HookStatus!:    "ENABLED" | "DISABLED" | fn.#StringExpression
-	LogBucket?:     string | fn.#StringExpression
-	Options?: null |
-	bool |
-	number |
-	string |
-	[...] |
-	close({
-		InputParams?: matchN(1, [#S3Location, list.MaxItems(10) & list.MinItems(1) & [...#S3Location]]) |
-		fn.#ValueExpression
-	}) |
-	fn.#ValueExpression
-	RuleLocation!: #S3Location
-	StackFilters?: close({
-		FilteringCriteria!: "ALL" | "ANY" | fn.#StringExpression
-		StackNames?: struct.MinFields(1) & close({
-			Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackName] | fn.#ListExpression
-			Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackName] | fn.#ListExpression
-		}) |
-		fn.#ObjectExpression
-		StackRoles?: struct.MinFields(1) & close({
-			Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackRole] | fn.#ListExpression
-			Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackRole] | fn.#ListExpression
-		}) |
-		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	TargetFilters?: fn.#Object & {...} & matchN(1, [
-		struct.MinFields(1) & close({
-			Actions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Action] | fn.#ListExpression
-			InvocationPoints?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#InvocationPoint] |
-				fn.#ListExpression
-			TargetNames?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#TargetName] |
-				fn.#ListExpression
-		}),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFormation::GuardHook"
+	Properties!: close({
+		Alias!:         string | fn.#StringExpression
+		ExecutionRole!: #Role | fn.#StringExpression
+		FailureMode!:   "FAIL" | "WARN" | fn.#StringExpression
+		HookStatus!:    "ENABLED" | "DISABLED" | fn.#StringExpression
+		LogBucket?:     string | fn.#StringExpression
+		Options?: null |
+		bool |
+		number |
+		string |
+		[...] |
 		close({
-			Targets!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#HookTarget] | fn.#ListExpression
-		})
-	]) |
-	fn.#ObjectExpression
-	TargetOperations!: list.UniqueItems() & [...#TargetOperation] | fn.#ListExpression
-})
+			InputParams?: matchN(1, [#S3Location, list.MaxItems(10) & list.MinItems(1) & [...#S3Location]]) |
+			fn.#ValueExpression
+		}) |
+		fn.#ValueExpression
+		RuleLocation!: #S3Location
+		StackFilters?: close({
+			FilteringCriteria!: "ALL" | "ANY" | fn.#StringExpression
+			StackNames?: struct.MinFields(1) & close({
+				Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackName] |
+					fn.#ListExpression
+				Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackName] |
+					fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
+			StackRoles?: struct.MinFields(1) & close({
+				Exclude?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackRole] |
+					fn.#ListExpression
+				Include?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#StackRole] |
+					fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
+		}) |
+		fn.#ObjectExpression
+		TargetFilters?: fn.#Object & {...} & matchN(1, [
+			struct.MinFields(1) & close({
+				Actions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Action] | fn.#ListExpression
+				InvocationPoints?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#InvocationPoint] |
+					fn.#ListExpression
+				TargetNames?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#TargetName] |
+					fn.#ListExpression
+			}),
+			close({
+				Targets!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#HookTarget] |
+					fn.#ListExpression
+			})
+		]) |
+		fn.#ObjectExpression
+		TargetOperations!: list.UniqueItems() & [...#TargetOperation] | fn.#ListExpression
+	})
+}
 
 #Action: "CREATE" | "UPDATE" | "DELETE" | fn.#StringExpression
 
@@ -87,7 +95,3 @@ fn.#ObjectExpression
 #TargetName: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
 #TargetOperation: "RESOURCE" | "STACK" | "CHANGE_SET" | "CLOUD_CONTROL" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::GuardHook"
-	Properties!: #Properties
-}

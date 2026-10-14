@@ -20,16 +20,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // healthcare data from a source format (such as C-CDA or CSV) into FHIR R4. A
 // profile is immutable once created; to change its template content, replace
 // the resource. Only its tags can be updated in place.
-#Properties: close({
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	ProfileDescription?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	ProfileName!:        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Source?:             #Source
-	SourceFormat!:       "CCDA" | "CSV" | fn.#StringExpression
-	Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::HealthLake::DataTransformationProfile"
+	Properties!: close({
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		ProfileDescription?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+		ProfileName!:        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Source?:             #Source
+		SourceFormat!:       "CCDA" | "CSV" | fn.#StringExpression
+		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ExistingVersionedProfileSource: close({
 	ProfileId!: string | fn.#StringExpression
@@ -72,7 +75,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::HealthLake::DataTransformationProfile"
-	Properties!: #Properties
-}

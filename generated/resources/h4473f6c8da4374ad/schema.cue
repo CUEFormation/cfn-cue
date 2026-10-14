@@ -12,14 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Signer::ProfilePermission
-#Properties: close({
-	Action!:         string | fn.#StringExpression
-	Principal!:      string | fn.#StringExpression
-	ProfileName!:    =~"^[0-9a-zA-Z_]{2,64}$" | fn.#StringExpression
-	ProfileVersion?: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
-	StatementId!:    string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Signer::ProfilePermission"
-	Properties!: #Properties
+	Type!: "AWS::Signer::ProfilePermission"
+	Properties!: close({
+		Action!:         string | fn.#StringExpression
+		Principal!:      string | fn.#StringExpression
+		ProfileName!:    =~"^[0-9a-zA-Z_]{2,64}$" | fn.#StringExpression
+		ProfileVersion?: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
+		StatementId!:    string | fn.#StringExpression
+	})
 }

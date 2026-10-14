@@ -18,20 +18,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Connect::Metric, a custom metric configured
 // for an Amazon Connect instance
-#Properties: close({
-	Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	MetricCalculation!: close({
-		Calculation!:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		CalculationComponents!: list.MaxItems(5) & list.MinItems(1) & [...#CalculationComponent] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	Name!:                   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	PositiveTrendIndicator?: "POSITIVE" | "NEGATIVE" | "NEUTRAL" | fn.#StringExpression
-	Status!:                 "SAVED" | "PUBLISHED" | fn.#StringExpression
-	Tags?:                   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Unit!:                   "INTEGER" | "DOUBLE" | "PERCENT" | "SECONDS" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::Metric"
+	Properties!: close({
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		MetricCalculation!: close({
+			Calculation!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+			CalculationComponents!: list.MaxItems(5) & list.MinItems(1) & [...#CalculationComponent] |
+				fn.#ListExpression
+		}) |
+		fn.#ObjectExpression
+		Name!:                   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		PositiveTrendIndicator?: "POSITIVE" | "NEGATIVE" | "NEUTRAL" | fn.#StringExpression
+		Status!:                 "SAVED" | "PUBLISHED" | fn.#StringExpression
+		Tags?:                   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Unit!:                   "INTEGER" | "DOUBLE" | "PERCENT" | "SECONDS" | fn.#StringExpression
+	})
+}
 
 #AvailableFilter: close({
 	Id!:   string | fn.#StringExpression
@@ -102,7 +106,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::Metric"
-	Properties!: #Properties
-}

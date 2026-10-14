@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // VPC Route Server Propagation
-#Properties: close({
-	RouteServerId!: string | fn.#StringExpression
-	RouteTableId!:  string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::RouteServerPropagation"
-	Properties!: #Properties
+	Type!: "AWS::EC2::RouteServerPropagation"
+	Properties!: close({
+		RouteServerId!: string | fn.#StringExpression
+		RouteTableId!:  string | fn.#StringExpression
+	})
 }

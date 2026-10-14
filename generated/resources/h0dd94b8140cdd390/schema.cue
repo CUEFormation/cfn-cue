@@ -18,14 +18,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The ``AWS::RDS::OptionGroup`` resource creates or updates an option group, to
 // enable and configure features that are specific to a particular DB engine.
-#Properties: close({
-	EngineName!:             string | fn.#StringExpression
-	MajorEngineVersion!:     string | fn.#StringExpression
-	OptionConfigurations?:   [...#OptionConfiguration] | fn.#ListExpression
-	OptionGroupDescription!: string | fn.#StringExpression
-	OptionGroupName?:        string | fn.#StringExpression
-	Tags?:                   [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RDS::OptionGroup"
+	Properties!: close({
+		EngineName!:             string | fn.#StringExpression
+		MajorEngineVersion!:     string | fn.#StringExpression
+		OptionConfigurations?:   [...#OptionConfiguration] | fn.#ListExpression
+		OptionGroupDescription!: string | fn.#StringExpression
+		OptionGroupName?:        string | fn.#StringExpression
+		Tags?:                   [...#Tag] | fn.#ListExpression
+	})
+}
 
 #OptionConfiguration: close({
 	DBSecurityGroupMemberships?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
@@ -61,7 +64,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RDS::OptionGroup"
-	Properties!: #Properties
-}

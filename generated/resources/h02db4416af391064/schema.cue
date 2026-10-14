@@ -13,18 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSM::ResourceDataSync
-#Properties: close({
-	BucketName?:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	BucketPrefix?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	BucketRegion?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	KMSKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(512) & strings.MinRunes(0)) |
-	fn.#StringExpression
-	S3Destination?: #S3Destination
-	SyncFormat?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	SyncName!:      strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	SyncSource?:    #SyncSource
-	SyncType?:      strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSM::ResourceDataSync"
+	Properties!: close({
+		BucketName?:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		BucketPrefix?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+		BucketRegion?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		KMSKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(512) & strings.MinRunes(0)) |
+		fn.#StringExpression
+		S3Destination?: #S3Destination
+		SyncFormat?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		SyncName!:      strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		SyncSource?:    #SyncSource
+		SyncType?:      strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #AwsOrganizationsSource: close({
 	OrganizationSourceType!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
@@ -50,7 +53,3 @@ fn.#ObjectExpression
 	SourceType!:             strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSM::ResourceDataSync"
-	Properties!: #Properties
-}

@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::StorageProfile
-#Properties: close({
-	DisplayName!:         strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	FarmId!:              =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-	FileSystemLocations?: list.MaxItems(20) & [...] & [...#FileSystemLocation] | fn.#ListExpression
-	OsFamily!:            #StorageProfileOperatingSystemFamily
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Deadline::StorageProfile"
+	Properties!: close({
+		DisplayName!:         strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		FarmId!:              =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+		FileSystemLocations?: list.MaxItems(20) & [...] & [...#FileSystemLocation] | fn.#ListExpression
+		OsFamily!:            #StorageProfileOperatingSystemFamily
+	})
+}
 
 #FileSystemLocation: close({
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$" | fn.#StringExpression
@@ -30,7 +33,3 @@ fn.#ObjectExpression
 #FileSystemLocationType: "SHARED" | "LOCAL" | fn.#StringExpression
 
 #StorageProfileOperatingSystemFamily: "WINDOWS" | "LINUX" | "MACOS" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Deadline::StorageProfile"
-	Properties!: #Properties
-}

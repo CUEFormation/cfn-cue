@@ -18,41 +18,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Account level Launch Configuration Template for AWS Application Migration Service.
-#Properties: close({
-	AssociatePublicIpAddress?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BootMode?:                   "LEGACY_BIOS" | "UEFI" | "USE_SOURCE" | fn.#StringExpression
-	CopyPrivateIp?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CopyTags?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableMapAutoTagging?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableParametersEncryption?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LargeVolumeConf?:            #LaunchTemplateDiskConf
-	LaunchDisposition?:          "STOPPED" | "STARTED" | fn.#StringExpression
-	Licensing?:                  #Licensing
-	MapAutoTaggingMpeID?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	ParametersEncryptionKey?: strings.MaxRunes(276) &
-	strings.MinRunes(20) &
-	=~"^((arn:[\\w-]+:kms:([a-z]{2}-(gov-)?[a-z]+-\\d{1})?:(\\d{12})?:((alias|key)/[a-zA-Z0-9:/_-]{1,256}))|())$" |
-	fn.#StringExpression
-	PostLaunchActions?: #PostLaunchActions
-	SmallVolumeConf?:   #LaunchTemplateDiskConf
-	SmallVolumeMaxSize?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?:                                list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-	TargetInstanceTypeRightSizingMethod?: "NONE" | "BASIC" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MGN::LaunchConfigurationTemplate"
+	Properties?: close({
+		AssociatePublicIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		BootMode?:                 "LEGACY_BIOS" | "UEFI" | "USE_SOURCE" | fn.#StringExpression
+		CopyPrivateIp?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		CopyTags?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnableMapAutoTagging?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnableParametersEncryption?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		LargeVolumeConf?:     #LaunchTemplateDiskConf
+		LaunchDisposition?:   "STOPPED" | "STARTED" | fn.#StringExpression
+		Licensing?:           #Licensing
+		MapAutoTaggingMpeID?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		ParametersEncryptionKey?: strings.MaxRunes(276) &
+		strings.MinRunes(20) &
+		=~"^((arn:[\\w-]+:kms:([a-z]{2}-(gov-)?[a-z]+-\\d{1})?:(\\d{12})?:((alias|key)/[a-zA-Z0-9:/_-]{1,256}))|())$" |
+		fn.#StringExpression
+		PostLaunchActions?: #PostLaunchActions
+		SmallVolumeConf?:   #LaunchTemplateDiskConf
+		SmallVolumeMaxSize?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?:                                list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		TargetInstanceTypeRightSizingMethod?: "NONE" | "BASIC" | fn.#StringExpression
+	})
+}
 
 #LaunchTemplateDiskConf: struct.MinFields(1) & close({
 	Iops?: int & <=64000 & >=100 |
@@ -158,7 +170,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MGN::LaunchConfigurationTemplate"
-	Properties?: #Properties
-}

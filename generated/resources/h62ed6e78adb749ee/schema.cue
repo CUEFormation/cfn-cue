@@ -17,35 +17,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EMRContainers::Endpoint Type
-#Properties: close({
-	ConfigurationOverrides?: #ConfigurationOverrides | fn.#ObjectExpression
-	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$" |
-	fn.#StringExpression
-	Name?:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9A-Za-z][A-Za-z0-9\\-_]*" | fn.#StringExpression
-	ReleaseLabel!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-Za-z0-9._/-]+" | fn.#StringExpression
-	SessionIdleTimeoutInMinutes?: int & <=1440 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1440 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Type!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	VirtualClusterId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMRContainers::Endpoint"
+	Properties!: close({
+		ConfigurationOverrides?: #ConfigurationOverrides | fn.#ObjectExpression
+		ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$" |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9A-Za-z][A-Za-z0-9\\-_]*" | fn.#StringExpression
+		ReleaseLabel!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-Za-z0-9._/-]+" | fn.#StringExpression
+		SessionIdleTimeoutInMinutes?: int & <=1440 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1440 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		VirtualClusterId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z]+$" | fn.#StringExpression
+	})
+}
 
 #Certificate: close({
 	CertificateArn?:  string | fn.#StringExpression
@@ -117,7 +122,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMRContainers::Endpoint"
-	Properties!: #Properties
-}

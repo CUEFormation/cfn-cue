@@ -13,10 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Scheduler::ScheduleGroup Resource Type
-#Properties: close({
-	Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Scheduler::ScheduleGroup"
+	Properties?: close({
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$" | fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ScheduleGroupState: "ACTIVE" | "DELETING" | fn.#StringExpression
 
@@ -25,7 +28,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Scheduler::ScheduleGroup"
-	Properties?: #Properties
-}

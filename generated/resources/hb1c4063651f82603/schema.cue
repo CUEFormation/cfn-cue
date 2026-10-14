@@ -18,19 +18,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // compatible artifacts. For more information, see [Amazon ECR public
 // repositories](https://docs.aws.amazon.com/AmazonECR/latest/public/public-repositories.html)
 // in the *Amazon ECR Public User Guide*.
-#Properties: close({
-	RepositoryCatalogData?: close({
-		AboutText?:             #AboutText
-		Architectures?:         #ArchitectureList
-		OperatingSystems?:      #OperatingSystemList
-		RepositoryDescription?: #RepositoryDescription
-		UsageText?:             #UsageText
-	}) |
-	fn.#ObjectExpression
-	RepositoryName?:       strings.MaxRunes(256) & strings.MinRunes(2) | fn.#StringExpression
-	RepositoryPolicyText?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECR::PublicRepository"
+	Properties?: close({
+		RepositoryCatalogData?: close({
+			AboutText?:             #AboutText
+			Architectures?:         #ArchitectureList
+			OperatingSystems?:      #OperatingSystemList
+			RepositoryDescription?: #RepositoryDescription
+			UsageText?:             #UsageText
+		}) |
+		fn.#ObjectExpression
+		RepositoryName?:       strings.MaxRunes(256) & strings.MinRunes(2) | fn.#StringExpression
+		RepositoryPolicyText?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AboutText: strings.MaxRunes(10240) | fn.#StringExpression
 
@@ -53,7 +56,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #UsageText: strings.MaxRunes(10240) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECR::PublicRepository"
-	Properties?: #Properties
-}

@@ -16,20 +16,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::AmplifyUIBuilder::Form Resource Type
-#Properties: close({
-	AppId?:             string | fn.#StringExpression
-	Cta?:               #FormCTA
-	DataType?:          #FormDataTypeConfig
-	EnvironmentName?:   string | fn.#StringExpression
-	Fields?:            #FieldsMap
-	FormActionType?:    #FormActionType
-	LabelDecorator?:    #LabelDecorator
-	Name?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	SchemaVersion?:     string | fn.#StringExpression
-	SectionalElements?: #SectionalElementMap
-	Style?:             #FormStyle
-	Tags?:              #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AmplifyUIBuilder::Form"
+	Properties?: close({
+		AppId?:             string | fn.#StringExpression
+		Cta?:               #FormCTA
+		DataType?:          #FormDataTypeConfig
+		EnvironmentName?:   string | fn.#StringExpression
+		Fields?:            #FieldsMap
+		FormActionType?:    #FormActionType
+		LabelDecorator?:    #LabelDecorator
+		Name?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		SchemaVersion?:     string | fn.#StringExpression
+		SectionalElements?: #SectionalElementMap
+		Style?:             #FormStyle
+		Tags?:              #Tags
+	})
+}
 
 #FieldConfig: close({
 	Excluded?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -320,7 +323,3 @@ fn.#ObjectExpression
 	Values!:            [...#ValueMapping] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AmplifyUIBuilder::Form"
-	Properties?: #Properties
-}

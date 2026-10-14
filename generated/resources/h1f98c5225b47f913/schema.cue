@@ -14,17 +14,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates an app authorization within an app bundle, which allows AppFabric to
 // connect to an application.
-#Properties: close({
-	App!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	AppBundleIdentifier!: strings.MaxRunes(1011) &
-	strings.MinRunes(1) &
-	=~"^arn:.+$|^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
-	fn.#StringExpression
-	AuthType!:   "oauth2" | "apiKey" | fn.#StringExpression
-	Credential?: #Credential | fn.#ObjectExpression
-	Tags?:       list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	Tenant!:     #Tenant | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppFabric::AppAuthorization"
+	Properties!: close({
+		App!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		AppBundleIdentifier!: strings.MaxRunes(1011) &
+		strings.MinRunes(1) &
+		=~"^arn:.+$|^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+		fn.#StringExpression
+		AuthType!:   "oauth2" | "apiKey" | fn.#StringExpression
+		Credential?: #Credential | fn.#ObjectExpression
+		Tags?:       list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Tenant!:     #Tenant | fn.#ObjectExpression
+	})
+}
 
 #ApiKeyCredential: close({ApiKey!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
@@ -52,7 +55,3 @@ fn.#ObjectExpression
 	TenantIdentifier!:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppFabric::AppAuthorization"
-	Properties!: #Properties
-}

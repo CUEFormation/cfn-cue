@@ -9,10 +9,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::SqlHaStandbyDetectedInstance
-#Properties: close({
-	InstanceId!:           #InstanceId
-	SqlServerCredentials?: #SqlServerCredentials
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::SqlHaStandbyDetectedInstance"
+	Properties!: close({
+		InstanceId!:           #InstanceId
+		SqlServerCredentials?: #SqlServerCredentials
+	})
+}
 
 #HaStatus: "processing" | "active" | "standby" | "invalid" | fn.#StringExpression
 
@@ -23,7 +26,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #SqlServerCredentials: string | fn.#StringExpression
 
 #SqlServerLicenseUsage: "full" | "waived" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::SqlHaStandbyDetectedInstance"
-	Properties!: #Properties
-}

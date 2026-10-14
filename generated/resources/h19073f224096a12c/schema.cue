@@ -9,13 +9,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::TransitGatewayRoute
-#Properties: close({
-	Blackhole?:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DestinationCidrBlock!:       string | fn.#StringExpression
-	TransitGatewayAttachmentId?: string | fn.#StringExpression
-	TransitGatewayRouteTableId!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TransitGatewayRoute"
-	Properties!: #Properties
+	Type!: "AWS::EC2::TransitGatewayRoute"
+	Properties!: close({
+		Blackhole?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DestinationCidrBlock!: string | fn.#StringExpression
+		TransitGatewayAttachmentId?: string | fn.#StringExpression
+		TransitGatewayRouteTableId!: string | fn.#StringExpression
+	})
 }

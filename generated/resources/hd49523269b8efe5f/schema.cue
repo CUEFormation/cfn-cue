@@ -9,16 +9,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AMZN::SDC::Deployment
-#Properties: close({
-	ConfigName!:           string | fn.#StringExpression
-	Dimension!:            string | fn.#StringExpression
-	PipelineId?:           string | fn.#StringExpression
-	S3Bucket!:             string | fn.#StringExpression
-	S3Key!:                string | fn.#StringExpression
-	Stage!:                string | fn.#StringExpression
-	TargetRegionOverride?: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AMZN::SDC::Deployment"
-	Properties!: #Properties
+	Type!: "AMZN::SDC::Deployment"
+	Properties!: close({
+		ConfigName!:           string | fn.#StringExpression
+		Dimension!:            string | fn.#StringExpression
+		PipelineId?:           string | fn.#StringExpression
+		S3Bucket!:             string | fn.#StringExpression
+		S3Key!:                string | fn.#StringExpression
+		Stage!:                string | fn.#StringExpression
+		TargetRegionOverride?: string | fn.#StringExpression
+	})
 }

@@ -13,19 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SMSVOICE::SenderId
-#Properties: close({
-	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IsoCountryCode!:            =~"^[A-Z]{2}$" | fn.#StringExpression
-	SenderId!:                  =~"^[A-Z0-9_-]+$" | fn.#StringExpression
-	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SMSVOICE::SenderId"
+	Properties!: close({
+		DeletionProtectionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		IsoCountryCode!: =~"^[A-Z]{2}$" | fn.#StringExpression
+		SenderId!:       =~"^[A-Z0-9_-]+$" | fn.#StringExpression
+		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SMSVOICE::SenderId"
-	Properties!: #Properties
-}

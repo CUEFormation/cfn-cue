@@ -22,16 +22,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // To learn more, see [Mounting a file system using EFS access
 // points](https://docs.aws.amazon.com/efs/latest/ug/efs-access-points.html).
 // This operation requires permissions for the ``elasticfilesystem:CreateAccessPoint`` action.
-#Properties: close({
-	AccessPointTags?: list.UniqueItems() & [...#AccessPointTag] | fn.#ListExpression
-	ClientToken?:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	FileSystemId!: strings.MaxRunes(128) &
-	strings.MinRunes(0) &
-	=~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
-	fn.#StringExpression
-	PosixUser?:     #PosixUser | fn.#ObjectExpression
-	RootDirectory?: #RootDirectory | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EFS::AccessPoint"
+	Properties!: close({
+		AccessPointTags?: list.UniqueItems() & [...#AccessPointTag] | fn.#ListExpression
+		ClientToken?:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+		FileSystemId!: strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
+		fn.#StringExpression
+		PosixUser?:     #PosixUser | fn.#ObjectExpression
+		RootDirectory?: #RootDirectory | fn.#ObjectExpression
+	})
+}
 
 #AccessPointTag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -58,7 +61,3 @@ fn.#ObjectExpression
 	Path?:         strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EFS::AccessPoint"
-	Properties!: #Properties
-}

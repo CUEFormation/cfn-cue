@@ -13,44 +13,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Config::RemediationConfiguration
-#Properties: close({
-	Automatic?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ConfigRuleName!:    string | fn.#StringExpression
-	ExecutionControls?: #ExecutionControls
-	MaximumAutomaticAttempts?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Parameters?:   fn.#Object & {...} | string | fn.#StringObjectExpression
-	ResourceType?: string | fn.#StringExpression
-	RetryAttemptSeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TargetId!:      string | fn.#StringExpression
-	TargetType!:    string | fn.#StringExpression
-	TargetVersion?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Config::RemediationConfiguration"
+	Properties!: close({
+		Automatic?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ConfigRuleName!:    string | fn.#StringExpression
+		ExecutionControls?: #ExecutionControls
+		MaximumAutomaticAttempts?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Parameters?:   fn.#Object & {...} | string | fn.#StringObjectExpression
+		ResourceType?: string | fn.#StringExpression
+		RetryAttemptSeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		TargetId!:      string | fn.#StringExpression
+		TargetType!:    string | fn.#StringExpression
+		TargetVersion?: string | fn.#StringExpression
+	})
+}
 
 #ExecutionControls: close({SsmControls?: #SsmControls}) | fn.#ObjectExpression
 
@@ -85,7 +92,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Config::RemediationConfiguration"
-	Properties!: #Properties
-}

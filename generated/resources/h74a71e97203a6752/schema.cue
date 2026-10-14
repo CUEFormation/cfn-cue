@@ -17,11 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Device Profile's resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	LoRaWAN?: #LoRaWANDeviceProfile | fn.#ObjectExpression
-	Name?:    strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:    list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTWireless::DeviceProfile"
+	Properties?: close({
+		LoRaWAN?: #LoRaWANDeviceProfile | fn.#ObjectExpression
+		Name?:    strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Tags?:    list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #FactoryPresetFreq: int & <=16700000 & >=1000000 |
 	{
@@ -233,7 +236,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTWireless::DeviceProfile"
-	Properties?: #Properties
-}

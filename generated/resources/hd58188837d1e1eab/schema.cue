@@ -13,37 +13,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // VpcLattice ResourceConfiguration CFN resource
-#Properties: close({
-	AllowAssociationToSharableServiceNetwork?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	CustomDomainName?:     strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	DomainVerificationId?: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^dv-[a-fA-F0-9]{17}$" | fn.#StringExpression
-	GroupDomain?:          strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	Name!:                 strings.MaxRunes(40) & strings.MinRunes(3) | fn.#StringExpression
-	PortRanges?:           [...#PortRange] | fn.#ListExpression
-	ProtocolType?:         "TCP" | fn.#StringExpression
-	ResourceConfigurationAuthType?: "NONE" | "AWS_IAM" | fn.#StringExpression
-	ResourceConfigurationDefinition?: fn.#Object & {...} & matchN(1, [close(
-		{IpResource!: #IpResource},
-	), close(
-		{ArnResource!: #ArnResource},
-	), close(
-		{DnsResource!: #DnsResource},
-	), close(
-		{CidrResource!: #CidrResource},
-	)]) |
-	fn.#ObjectExpression
-	ResourceConfigurationGroupId?: #Id
-	ResourceConfigurationType!:    "GROUP" | "CHILD" | "SINGLE" | "ARN" | "CIDR" | fn.#StringExpression
-	ResourceGatewayId?:            string | fn.#StringExpression
-	Tags?:                         list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::VpcLattice::ResourceConfiguration"
+	Properties!: close({
+		AllowAssociationToSharableServiceNetwork?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		CustomDomainName?: strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
+		DomainVerificationId?: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^dv-[a-fA-F0-9]{17}$" |
+		fn.#StringExpression
+		GroupDomain?:                   strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
+		Name!:                          strings.MaxRunes(40) & strings.MinRunes(3) | fn.#StringExpression
+		PortRanges?:                    [...#PortRange] | fn.#ListExpression
+		ProtocolType?:                  "TCP" | fn.#StringExpression
+		ResourceConfigurationAuthType?: "NONE" | "AWS_IAM" | fn.#StringExpression
+		ResourceConfigurationDefinition?: fn.#Object & {...} & matchN(1, [close(
+			{IpResource!: #IpResource},
+		), close(
+			{ArnResource!: #ArnResource},
+		), close(
+			{DnsResource!: #DnsResource},
+		), close(
+			{CidrResource!: #CidrResource},
+		)]) |
+		fn.#ObjectExpression
+		ResourceConfigurationGroupId?: #Id
+		ResourceConfigurationType!:    "GROUP" | "CHILD" | "SINGLE" | "ARN" | "CIDR" | fn.#StringExpression
+		ResourceGatewayId?:            string | fn.#StringExpression
+		Tags?:                         list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ArnResource: strings.MaxRunes(1224) & =~"^arn.*" | fn.#StringExpression
 
@@ -72,7 +76,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VpcLattice::ResourceConfiguration"
-	Properties!: #Properties
-}

@@ -16,23 +16,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::SecurityGroup
-#Properties: close({
-	SecurityGroupEgress?: _
-	if SecurityGroupEgress != _|_ {
-		VpcId!: _
-	}
-	{}
-	GroupDescription!: strings.MaxRunes(255) &
-	strings.MinRunes(0) &
-	=~"^([a-z,A-Z,0-9,. _\\-:/()#,@[\\]+=&;\\{\\}!$*])*$" |
-	fn.#StringExpression
-	GroupName?:             string | fn.#StringExpression
-	"SecurityGroupEgress"?: [...#Egress] | fn.#ListExpression
-	SecurityGroupIngress?:  [...#Ingress] | fn.#ListExpression
-	Tags?:                  [...#Tag] | fn.#ListExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::SecurityGroup"
+	Properties!: close({
+		SecurityGroupEgress?: _
+		if SecurityGroupEgress != _|_ {
+			VpcId!: _
+		}
+		{}
+		GroupDescription!: strings.MaxRunes(255) &
+		strings.MinRunes(0) &
+		=~"^([a-z,A-Z,0-9,. _\\-:/()#,@[\\]+=&;\\{\\}!$*])*$" |
 		fn.#StringExpression
-})
+		GroupName?:             string | fn.#StringExpression
+		"SecurityGroupEgress"?: [...#Egress] | fn.#ListExpression
+		SecurityGroupIngress?:  [...#Ingress] | fn.#ListExpression
+		Tags?:                  [...#Tag] | fn.#ListExpression
+		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	})
+}
 
 #Egress: close({
 	CidrIp?:                  string | fn.#StringExpression
@@ -188,7 +191,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::SecurityGroup"
-	Properties!: #Properties
-}

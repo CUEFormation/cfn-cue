@@ -13,16 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EC2::IPAM Type
-#Properties: close({
-	DefaultResourceDiscoveryOrganizationalUnitExclusions?: list.UniqueItems() & [...#IpamOrganizationalUnitExclusion] |
-		fn.#ListExpression
-	Description?:      string | fn.#StringExpression
-	EnablePrivateGua?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MeteredAccount?:   "ipam-owner" | "resource-owner" | fn.#StringExpression
-	OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#IpamOperatingRegion] | fn.#ListExpression
-	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Tier?:             "free" | "advanced" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::IPAM"
+	Properties?: close({
+		DefaultResourceDiscoveryOrganizationalUnitExclusions?: list.UniqueItems() & [
+			...#IpamOrganizationalUnitExclusion
+		] |
+			fn.#ListExpression
+		Description?:      string | fn.#StringExpression
+		EnablePrivateGua?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		MeteredAccount?:   "ipam-owner" | "resource-owner" | fn.#StringExpression
+		OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#IpamOperatingRegion] |
+			fn.#ListExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Tier?: "free" | "advanced" | fn.#StringExpression
+	})
+}
 
 #IpamOperatingRegion: close({RegionName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -34,7 +40,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::IPAM"
-	Properties?: #Properties
-}

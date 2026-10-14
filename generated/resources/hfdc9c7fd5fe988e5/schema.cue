@@ -14,11 +14,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::AutomatedReasoningPolicyVersion Resource Type
-#Properties: close({
-	LastUpdatedDefinitionHash?: #DefinitionHash
-	PolicyArn!:                 #PolicyArn
-	Tags?:                      #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::AutomatedReasoningPolicyVersion"
+	Properties!: close({
+		LastUpdatedDefinitionHash?: #DefinitionHash
+		PolicyArn!:                 #PolicyArn
+		Tags?:                      #Tags
+	})
+}
 
 #CreatedAt: time.Time | fn.#StringExpression
 
@@ -46,7 +49,3 @@ fn.#ObjectExpression
 #UpdatedAt: time.Time | fn.#StringExpression
 
 #Version: strings.MaxRunes(12) & =~"^([1-9][0-9]{0,11})$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::AutomatedReasoningPolicyVersion"
-	Properties!: #Properties
-}

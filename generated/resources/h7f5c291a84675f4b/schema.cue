@@ -18,32 +18,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::GameLift::GameSessionQueue resource creates an Amazon GameLift
 // (GameLift) game session queue.
-#Properties: close({
-	CustomEventData?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
-	Destinations?:        [...#GameSessionQueueDestination] | fn.#ListExpression
-	FilterConfiguration?: #FilterConfiguration & fn.#Object & {...} | fn.#ObjectExpression
-	Name!:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-]+" | fn.#StringExpression
-	NotificationTarget?: strings.MaxRunes(300) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]*(\\.fifo)?" |
-	fn.#StringExpression
-	PlayerLatencyPolicies?: [...#PlayerLatencyPolicy] | fn.#ListExpression
-	PriorityConfiguration?: #PriorityConfiguration & fn.#Object & {...} | fn.#ObjectExpression
-	Tags?:                  list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	TimeoutInSeconds?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GameLift::GameSessionQueue"
+	Properties!: close({
+		CustomEventData?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
+		Destinations?:        [...#GameSessionQueueDestination] | fn.#ListExpression
+		FilterConfiguration?: #FilterConfiguration & fn.#Object & {...} | fn.#ObjectExpression
+		Name!:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-]+" | fn.#StringExpression
+		NotificationTarget?: strings.MaxRunes(300) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]*(\\.fifo)?" |
+		fn.#StringExpression
+		PlayerLatencyPolicies?: [...#PlayerLatencyPolicy] | fn.#ListExpression
+		PriorityConfiguration?: #PriorityConfiguration & fn.#Object & {...} | fn.#ObjectExpression
+		Tags?:                  list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TimeoutInSeconds?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #AllowedLocations: list.MaxItems(100) & list.MinItems(1) & [
 	...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z]+(-([a-z]+|\\d))*" | fn.#StringExpression
@@ -112,7 +117,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GameLift::GameSessionQueue"
-	Properties!: #Properties
-}

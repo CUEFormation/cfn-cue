@@ -17,36 +17,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::Stack
-#Properties: close({
-	AccessEndpoints?:         list.MaxItems(4) & list.MinItems(1) & [...#AccessEndpoint] | fn.#ListExpression
-	AgentAccessConfig?:       #AgentAccessConfig | fn.#ObjectExpression
-	ApplicationSettings?:     #ApplicationSettings | fn.#ObjectExpression
-	AttributesToDelete?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	ContentRedirection?:      #ContentRedirection | fn.#ObjectExpression
-	DeleteStorageConnectors?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Description?:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DisplayName?:             strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	EmbedHostDomains?: list.MaxItems(20) & list.MinItems(1) & [
-		...strings.MaxRunes(128) &
-		strings.MinRunes(0) &
-		=~"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	FeedbackURL?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	Name?:        =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
-	RedirectURL?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	StorageConnectors?: [...close({
-		ConnectorType!: "GOOGLE_DRIVE" | "HOMEFOLDERS" | "ONE_DRIVE" | fn.#StringExpression
-		Domains?: list.MaxItems(50) & [...] & [...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppStream::Stack"
+	Properties?: close({
+		AccessEndpoints?:         list.MaxItems(4) & list.MinItems(1) & [...#AccessEndpoint] | fn.#ListExpression
+		AgentAccessConfig?:       #AgentAccessConfig | fn.#ObjectExpression
+		ApplicationSettings?:     #ApplicationSettings | fn.#ObjectExpression
+		AttributesToDelete?:      [...string | fn.#StringExpression] | fn.#ListExpression
+		ContentRedirection?:      #ContentRedirection | fn.#ObjectExpression
+		DeleteStorageConnectors?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Description?:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		DisplayName?:             strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		EmbedHostDomains?: list.MaxItems(20) & list.MinItems(1) & [
+			...strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$" |
+			fn.#StringExpression
+		] |
 		fn.#ListExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	StreamingExperienceSettings?: #StreamingExperienceSettings | fn.#ObjectExpression
-	Tags?:                        [...#Tag] | fn.#ListExpression
-	UserSettings?:                list.MinItems(1) & [...#UserSetting] | fn.#ListExpression
-})
+		FeedbackURL?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+		Name?:        =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
+		RedirectURL?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+		StorageConnectors?: [...close({
+			ConnectorType!: "GOOGLE_DRIVE" | "HOMEFOLDERS" | "ONE_DRIVE" | fn.#StringExpression
+			Domains?: list.MaxItems(50) & [...] & [...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression] |
+			fn.#ListExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		StreamingExperienceSettings?: #StreamingExperienceSettings | fn.#ObjectExpression
+		Tags?:                        [...#Tag] | fn.#ListExpression
+		UserSettings?:                list.MinItems(1) & [...#UserSetting] | fn.#ListExpression
+	})
+}
 
 #AccessEndpoint: close({
 	EndpointType!: "STREAMING" | fn.#StringExpression
@@ -135,7 +138,3 @@ fn.#ObjectExpression
 	Permission!: "DISABLED" | "ENABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppStream::Stack"
-	Properties?: #Properties
-}

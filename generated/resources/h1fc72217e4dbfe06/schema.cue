@@ -53,16 +53,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resources with
 // Rules](https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config.html)
 // in the *Developer Guide*.
-#Properties: close({
-	Compliance?:                close({}) | fn.#ObjectExpression
-	ConfigRuleName?:            string | fn.#StringExpression
-	Description?:               strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	EvaluationModes?:           [...#EvaluationModeConfiguration | fn.#ObjectExpression] | fn.#ListExpression
-	InputParameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	MaximumExecutionFrequency?: string | fn.#StringExpression
-	Scope?:                     #Scope | fn.#ObjectExpression
-	Source!:                    #Source | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Config::ConfigRule"
+	Properties!: close({
+		Compliance?:                close({}) | fn.#ObjectExpression
+		ConfigRuleName?:            string | fn.#StringExpression
+		Description?:               strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		EvaluationModes?:           [...#EvaluationModeConfiguration | fn.#ObjectExpression] | fn.#ListExpression
+		InputParameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		MaximumExecutionFrequency?: string | fn.#StringExpression
+		Scope?:                     #Scope | fn.#ObjectExpression
+		Source!:                    #Source | fn.#ObjectExpression
+	})
+}
 
 #CustomPolicyDetails: close({
 	EnableDebugLogDelivery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -95,7 +98,3 @@ fn.#ObjectExpression
 	MessageType!:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Config::ConfigRule"
-	Properties!: #Properties
-}

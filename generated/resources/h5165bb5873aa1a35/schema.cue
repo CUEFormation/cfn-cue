@@ -19,15 +19,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // using your private certificate authority. For more information, see the
 // [IssueCertificate](https://docs.aws.amazon.com/privateca/latest/APIReference/API_IssueCertificate.html)
 // action.
-#Properties: close({
-	ApiPassthrough?:            #ApiPassthrough | fn.#ObjectExpression
-	CertificateAuthorityArn!:   #Arn | fn.#StringExpression
-	CertificateSigningRequest!: strings.MinRunes(1) | fn.#StringExpression
-	SigningAlgorithm!:          string | fn.#StringExpression
-	TemplateArn?:               #Arn | fn.#StringExpression
-	Validity!:                  #Validity | fn.#ObjectExpression
-	ValidityNotBefore?:         #Validity | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ACMPCA::Certificate"
+	Properties!: close({
+		ApiPassthrough?:            #ApiPassthrough | fn.#ObjectExpression
+		CertificateAuthorityArn!:   #Arn | fn.#StringExpression
+		CertificateSigningRequest!: strings.MinRunes(1) | fn.#StringExpression
+		SigningAlgorithm!:          string | fn.#StringExpression
+		TemplateArn?:               #Arn | fn.#StringExpression
+		Validity!:                  #Validity | fn.#ObjectExpression
+		ValidityNotBefore?:         #Validity | fn.#ObjectExpression
+	})
+}
 
 #ApiPassthrough: close({
 	Extensions?: #Extensions | fn.#ObjectExpression
@@ -180,7 +183,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ACMPCA::Certificate"
-	Properties!: #Properties
-}

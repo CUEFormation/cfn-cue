@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::DomainName
-#Properties: close({
-	CertificateArn!: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(3) &
-	=~"^arn:[a-z-]*:acm:[a-z0-9-]*:\\d{12}:certificate/[0-9A-Za-z_/-]*$" |
-	fn.#StringExpression
-	Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	DomainName!: strings.MaxRunes(253) & strings.MinRunes(1) & =~"^(\\*[a-z\\d-]*\\.)?([a-z\\d-]+\\.)+[a-z\\d-]+$" |
-	fn.#StringExpression
-	Tags?: #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppSync::DomainName"
+	Properties!: close({
+		CertificateArn!: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(3) &
+		=~"^arn:[a-z-]*:acm:[a-z0-9-]*:\\d{12}:certificate/[0-9A-Za-z_/-]*$" |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		DomainName!: strings.MaxRunes(253) & strings.MinRunes(1) & =~"^(\\*[a-z\\d-]*\\.)?([a-z\\d-]+\\.)+[a-z\\d-]+$" |
+		fn.#StringExpression
+		Tags?: #Tags
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -32,7 +35,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::DomainName"
-	Properties!: #Properties
-}

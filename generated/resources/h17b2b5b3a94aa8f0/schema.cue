@@ -17,17 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EC2::NetworkInsightsPath
-#Properties: close({
-	Destination?:         string | fn.#StringExpression
-	DestinationIp?:       #IpAddress
-	DestinationPort?:     #Port
-	FilterAtDestination?: #PathFilter
-	FilterAtSource?:      #PathFilter
-	Protocol!:            #Protocol
-	Source!:              string | fn.#StringExpression
-	SourceIp?:            #IpAddress
-	Tags?:                [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::NetworkInsightsPath"
+	Properties!: close({
+		Destination?:         string | fn.#StringExpression
+		DestinationIp?:       #IpAddress
+		DestinationPort?:     #Port
+		FilterAtDestination?: #PathFilter
+		FilterAtSource?:      #PathFilter
+		Protocol!:            #Protocol
+		Source!:              string | fn.#StringExpression
+		SourceIp?:            #IpAddress
+		Tags?:                [...#Tag] | fn.#ListExpression
+	})
+}
 
 #FilterPortRange: close({
 	FromPort?: int & <=65535 & >=0 |
@@ -101,7 +104,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::NetworkInsightsPath"
-	Properties!: #Properties
-}

@@ -20,66 +20,69 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // EFSlong (EFS). You must create a mount target
 // ([AWS::EFS::MountTarget](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-efs-mounttarget.html))
 // to mount your EFS file system on an EC2 or other AWS cloud compute resource.
-#Properties: close({
-	AvailabilityZoneName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	BackupPolicy?:         #BackupPolicy | fn.#ObjectExpression
-	BypassPolicyLockoutSafetyCheck?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	Encrypted?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FileSystemPolicy?:     fn.#Object & {...} | string | fn.#StringObjectExpression
-	FileSystemProtection?: #FileSystemProtection | fn.#ObjectExpression
-	FileSystemTags?:       list.UniqueItems() & [...#ElasticFileSystemTag] | fn.#ListExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+|(arn:aws[-a-z]*:kms:[a-z0-9-]+:\\d{12}:((key/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})|(key/mrk-[0-9a-f]{32})|(alias/[a-zA-Z0-9/_-]+))))$" |
-	fn.#StringExpression
-	LifecyclePolicies?: list.MaxItems(3) & list.UniqueItems() & [...] & [...#LifecyclePolicy] | fn.#ListExpression
-	PerformanceMode?:   "generalPurpose" | "maxIO" | fn.#StringExpression
-	ProvisionedThroughputInMibps?: >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EFS::FileSystem"
+	Properties?: close({
+		AvailabilityZoneName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+		BackupPolicy?:         #BackupPolicy | fn.#ObjectExpression
+		BypassPolicyLockoutSafetyCheck?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Encrypted?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		FileSystemPolicy?:     fn.#Object & {...} | string | fn.#StringObjectExpression
+		FileSystemProtection?: #FileSystemProtection | fn.#ObjectExpression
+		FileSystemTags?:       list.UniqueItems() & [...#ElasticFileSystemTag] | fn.#ListExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+|(arn:aws[-a-z]*:kms:[a-z0-9-]+:\\d{12}:((key/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})|(key/mrk-[0-9a-f]{32})|(alias/[a-zA-Z0-9/_-]+))))$" |
+		fn.#StringExpression
+		LifecyclePolicies?: list.MaxItems(3) & list.UniqueItems() & [...] & [...#LifecyclePolicy] | fn.#ListExpression
+		PerformanceMode?:   "generalPurpose" | "maxIO" | fn.#StringExpression
+		ProvisionedThroughputInMibps?: >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								>=1,
+							"g",
+							-1,
 							64,
-						) &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ReplicationConfiguration?: close({
-		Destinations?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...close({
-			AvailabilityZoneName?: string | fn.#StringExpression
-			FileSystemId?: =~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
-				fn.#StringExpression
-			KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				string |
-				fn.#StringExpression
-			Region?: string | fn.#StringExpression
-			RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ReplicationConfiguration?: close({
+			Destinations?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...close({
+				AvailabilityZoneName?: string | fn.#StringExpression
+				FileSystemId?: =~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
+					fn.#StringExpression
+				KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+					string |
+					fn.#StringExpression
+				Region?: string | fn.#StringExpression
+				RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+					fn.#StringExpression
+			}) |
+			fn.#ObjectExpression] |
+			fn.#ListExpression
 		}) |
-		fn.#ObjectExpression] |
-		fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	ThroughputMode?: "bursting" | "elastic" | "provisioned" | fn.#StringExpression
-})
+		fn.#ObjectExpression
+		ThroughputMode?: "bursting" | "elastic" | "provisioned" | fn.#StringExpression
+	})
+}
 
 #Arn: string | fn.#StringExpression
 
@@ -139,7 +142,3 @@ fn.#ObjectExpression
 	StatusMessage?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EFS::FileSystem"
-	Properties?: #Properties
-}

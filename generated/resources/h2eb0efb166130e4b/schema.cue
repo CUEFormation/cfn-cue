@@ -12,15 +12,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::Config::ConfigurationRecorder
-#Properties: close({
-	Name?:           string | fn.#StringExpression
-	RecordingGroup?: #RecordingGroup | fn.#ObjectExpression
-	RecordingMode?:  #RecordingMode | fn.#ObjectExpression
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role)\\/.*" |
-		fn.#StringExpression
-	StartedOnCreate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Config::ConfigurationRecorder"
+	Properties!: close({
+		Name?:           string | fn.#StringExpression
+		RecordingGroup?: #RecordingGroup | fn.#ObjectExpression
+		RecordingMode?:  #RecordingMode | fn.#ObjectExpression
+		RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role)\\/.*" |
+			fn.#StringExpression
+		StartedOnCreate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	})
+}
 
 #ExclusionByResourceTypes: close(
 	{ResourceTypes!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression},
@@ -50,7 +53,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RecordingStrategy: close({UseOnly!: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Config::ConfigurationRecorder"
-	Properties!: #Properties
-}

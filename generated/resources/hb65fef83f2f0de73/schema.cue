@@ -16,15 +16,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::InstanceStorageConfig
-#Properties: close({
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	KinesisFirehoseConfig?:    #KinesisFirehoseConfig
-	KinesisStreamConfig?:      #KinesisStreamConfig
-	KinesisVideoStreamConfig?: #KinesisVideoStreamConfig
-	ResourceType!:             #InstanceStorageResourceType
-	S3Config?:                 #S3Config
-	StorageType!:              #StorageType
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::InstanceStorageConfig"
+	Properties!: close({
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		KinesisFirehoseConfig?:    #KinesisFirehoseConfig
+		KinesisStreamConfig?:      #KinesisStreamConfig
+		KinesisVideoStreamConfig?: #KinesisVideoStreamConfig
+		ResourceType!:             #InstanceStorageResourceType
+		S3Config?:                 #S3Config
+		StorageType!:              #StorageType
+	})
+}
 
 #AssociationId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-z0-9]*$" | fn.#StringExpression
 
@@ -101,7 +104,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #StorageType: "S3" | "KINESIS_VIDEO_STREAM" | "KINESIS_STREAM" | "KINESIS_FIREHOSE" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::InstanceStorageConfig"
-	Properties!: #Properties
-}

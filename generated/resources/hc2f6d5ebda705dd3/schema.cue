@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	SuiteDefinitionConfiguration!: close({
-		DevicePermissionRoleArn!:  #DevicePermissionRoleArn
-		Devices?:                  #Devices
-		IntendedForQualification?: #IntendedForQualification
-		RootGroup!:                #RootGroup
-		SuiteDefinitionName?:      #SuiteDefinitionName
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTCoreDeviceAdvisor::SuiteDefinition"
+	Properties!: close({
+		SuiteDefinitionConfiguration!: close({
+			DevicePermissionRoleArn!:  #DevicePermissionRoleArn
+			Devices?:                  #Devices
+			IntendedForQualification?: #IntendedForQualification
+			RootGroup!:                #RootGroup
+			SuiteDefinitionName?:      #SuiteDefinitionName
+		}) |
+		fn.#ObjectExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DevicePermissionRoleArn: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 
@@ -46,7 +49,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTCoreDeviceAdvisor::SuiteDefinition"
-	Properties!: #Properties
-}

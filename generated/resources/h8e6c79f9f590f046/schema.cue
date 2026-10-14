@@ -13,20 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Route53 Recovery Readiness Recovery Group Schema and API specifications.
-#Properties: close({
-	Cells?: list.MaxItems(5) & [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	RecoveryGroupName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-	Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
-	fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53RecoveryReadiness::RecoveryGroup"
+	Properties?: close({
+		Cells?: list.MaxItems(5) & [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+		RecoveryGroupName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
+		Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53RecoveryReadiness::RecoveryGroup"
-	Properties?: #Properties
-}

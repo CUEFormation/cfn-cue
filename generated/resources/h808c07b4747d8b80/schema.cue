@@ -12,15 +12,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	Activate?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	ParameterObjects?: [...#ParameterObject] | fn.#ListExpression
-	ParameterValues?:  [...#ParameterValue] | fn.#ListExpression
-	PipelineObjects?:  [...#PipelineObject] | fn.#ListExpression
-	PipelineTags?:     [...#PipelineTag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataPipeline::Pipeline"
+	Properties!: close({
+		Activate?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		ParameterObjects?: [...#ParameterObject] | fn.#ListExpression
+		ParameterValues?:  [...#ParameterValue] | fn.#ListExpression
+		PipelineObjects?:  [...#PipelineObject] | fn.#ListExpression
+		PipelineTags?:     [...#PipelineTag] | fn.#ListExpression
+	})
+}
 
 #Field: close({
 	Key!:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -59,7 +62,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataPipeline::Pipeline"
-	Properties!: #Properties
-}

@@ -12,21 +12,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SSMQuickSetup::ConfigurationManager Resource Type
-#Properties: close({
-	ConfigurationDefinitions!: [...close({
-		LocalDeploymentAdministrationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		LocalDeploymentExecutionRoleName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Parameters!:                       #ConfigurationParametersMap
-		Type!:                             =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
-		TypeVersion?:                      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Description?: =~"^.{0,512}$" | fn.#StringExpression
-	Name?:        =~"^[ A-Za-z0-9_-]{1,50}$" | fn.#StringExpression
-	Tags?:        #TagsMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSMQuickSetup::ConfigurationManager"
+	Properties!: close({
+		ConfigurationDefinitions!: [...close({
+			LocalDeploymentAdministrationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+			LocalDeploymentExecutionRoleName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+			Parameters!:                       #ConfigurationParametersMap
+			Type!:                             =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
+			TypeVersion?:                      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		Description?: =~"^.{0,512}$" | fn.#StringExpression
+		Name?:        =~"^[ A-Za-z0-9_-]{1,50}$" | fn.#StringExpression
+		Tags?:        #TagsMap
+	})
+}
 
 #ConfigurationDefinition: close({
 	LocalDeploymentAdministrationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -77,7 +80,3 @@ fn.#ObjectExpression
 	{[=~"^[A-Za-z0-9 +=@_\\/:.-]+$"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9 +=@_\\/:.-]+$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSMQuickSetup::ConfigurationManager"
-	Properties!: #Properties
-}

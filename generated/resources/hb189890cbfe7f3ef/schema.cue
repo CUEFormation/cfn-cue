@@ -18,25 +18,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTManagedIntegrations::ManagedThing Resource Type
-#Properties: close({
-	AuthenticationMaterial?: strings.MaxRunes(512) &
-	strings.MinRunes(1) &
-	=~"^[0-9A-Za-z!#$%&()*\\+\\-;<=>?@^_`{|}~\\/: ]+$" |
-	fn.#StringExpression
-	AuthenticationMaterialType?: #AuthMaterialType
-	Brand?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	CapabilityReport?:   #CapabilityReport
-	Classification?:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	CredentialLockerId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
-	MetaData?:           #MetaData
-	Model?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	Name?:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z]+$" | fn.#StringExpression
-	Owner?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.,@-]+$" | fn.#StringExpression
-	Role!:               #Role
-	SerialNumber?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	Tags?:               #TagsMap
-	WiFiSimpleSetupConfiguration?: #WiFiSimpleSetupConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTManagedIntegrations::ManagedThing"
+	Properties!: close({
+		AuthenticationMaterial?: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[0-9A-Za-z!#$%&()*\\+\\-;<=>?@^_`{|}~\\/: ]+$" |
+		fn.#StringExpression
+		AuthenticationMaterialType?: #AuthMaterialType
+		Brand?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
+		CapabilityReport?:   #CapabilityReport
+		Classification?:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		CredentialLockerId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
+		MetaData?:           #MetaData
+		Model?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
+		Name?:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z]+$" | fn.#StringExpression
+		Owner?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.,@-]+$" | fn.#StringExpression
+		Role!:               #Role
+		SerialNumber?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
+		Tags?:               #TagsMap
+		WiFiSimpleSetupConfiguration?: #WiFiSimpleSetupConfiguration
+	})
+}
 
 #AuthMaterialType: "WIFI_SETUP_QR_BAR_CODE" | "ZWAVE_QR_BAR_CODE" | "ZIGBEE_QR_BAR_CODE" | fn.#StringExpression
 
@@ -124,7 +127,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTManagedIntegrations::ManagedThing"
-	Properties!: #Properties
-}

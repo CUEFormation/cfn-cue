@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerArchive Resource Type
-#Properties: close({
-	ArchiveName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$" |
-	fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:aws(|-cn|-us-gov|-eusc):kms:[a-z0-9-]{1,20}:[0-9]{12}:(key|alias)/.+$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::MailManagerArchive"
+	Properties?: close({
+		ArchiveName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$" |
 		fn.#StringExpression
-	Retention?: #ArchiveRetention
-	Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:aws(|-cn|-us-gov|-eusc):kms:[a-z0-9-]{1,20}:[0-9]{12}:(key|alias)/.+$" |
+			fn.#StringExpression
+		Retention?: #ArchiveRetention
+		Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ArchiveRetention: close({RetentionPeriod!: #RetentionPeriod}) | fn.#ValueExpression
 
@@ -50,7 +53,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::MailManagerArchive"
-	Properties?: #Properties
-}

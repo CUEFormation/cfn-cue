@@ -87,61 +87,68 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // actions listed above.
 // If you are experiencing active production issues related to this change,
 // contact AWS Support or your Technical Account Manager.
-#Properties: close({
-	AvailabilityZoneRebalancing?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	CapacityProviderStrategy?:    [...#CapacityProviderStrategyItem] | fn.#ListExpression
-	Cluster?:                     string | fn.#StringExpression
-	DeploymentConfiguration?:     #DeploymentConfiguration | fn.#ObjectExpression
-	DeploymentController?:        #DeploymentController | fn.#ObjectExpression
-	DesiredCount?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EnableECSManagedTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ForceNewDeployment?:   #ForceNewDeployment | fn.#ObjectExpression
-	HealthCheckGracePeriodSeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	LaunchType?:                  "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
-	LoadBalancers?:               [...#LoadBalancer] | fn.#ListExpression
-	Monitoring?:                  #MonitoringConfiguration | fn.#ObjectExpression
-	NetworkConfiguration?:        #NetworkConfiguration | fn.#ObjectExpression
-	PlacementConstraints?:        [...#PlacementConstraint] | fn.#ListExpression
-	PlacementStrategies?:         [...#PlacementStrategy] | fn.#ListExpression
-	PlatformVersion?:             string | fn.#StringExpression
-	PropagateTags?:               "SERVICE" | "TASK_DEFINITION" | fn.#StringExpression
-	Role?:                        string | fn.#StringExpression
-	SchedulingStrategy?:          "DAEMON" | "REPLICA" | fn.#StringExpression
-	ServiceConnectConfiguration?: #ServiceConnectConfiguration | fn.#ObjectExpression
-	ServiceName?:                 string | fn.#StringExpression
-	ServiceRegistries?:           [...#ServiceRegistry] | fn.#ListExpression
-	Tags?:                        list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	TaskDefinition?:              string | fn.#StringExpression
-	VolumeConfigurations?:        [...#ServiceVolumeConfiguration] | fn.#ListExpression
-	VpcLatticeConfigurations?:    [...#VpcLatticeConfiguration] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECS::Service"
+	Properties?: close({
+		AvailabilityZoneRebalancing?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		CapacityProviderStrategy?:    [...#CapacityProviderStrategyItem] | fn.#ListExpression
+		Cluster?:                     string | fn.#StringExpression
+		DeploymentConfiguration?:     #DeploymentConfiguration | fn.#ObjectExpression
+		DeploymentController?:        #DeploymentController | fn.#ObjectExpression
+		DesiredCount?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EnableECSManagedTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ForceNewDeployment?:   #ForceNewDeployment | fn.#ObjectExpression
+		HealthCheckGracePeriodSeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		LaunchType?:                  "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
+		LoadBalancers?:               [...#LoadBalancer] | fn.#ListExpression
+		Monitoring?:                  #MonitoringConfiguration | fn.#ObjectExpression
+		NetworkConfiguration?:        #NetworkConfiguration | fn.#ObjectExpression
+		PlacementConstraints?:        [...#PlacementConstraint] | fn.#ListExpression
+		PlacementStrategies?:         [...#PlacementStrategy] | fn.#ListExpression
+		PlatformVersion?:             string | fn.#StringExpression
+		PropagateTags?:               "SERVICE" | "TASK_DEFINITION" | fn.#StringExpression
+		Role?:                        string | fn.#StringExpression
+		SchedulingStrategy?:          "DAEMON" | "REPLICA" | fn.#StringExpression
+		ServiceConnectConfiguration?: #ServiceConnectConfiguration | fn.#ObjectExpression
+		ServiceName?:                 string | fn.#StringExpression
+		ServiceRegistries?:           [...#ServiceRegistry] | fn.#ListExpression
+		Tags?:                        list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		TaskDefinition?:              string | fn.#StringExpression
+		VolumeConfigurations?:        [...#ServiceVolumeConfiguration] | fn.#ListExpression
+		VpcLatticeConfigurations?:    [...#VpcLatticeConfiguration] | fn.#ListExpression
+	})
+}
 
 #AdvancedConfiguration: close({
 	AlternateTargetGroupArn!: string | fn.#StringExpression
@@ -729,7 +736,3 @@ fn.#ObjectExpression
 	TargetGroupArn!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::Service"
-	Properties?: #Properties
-}

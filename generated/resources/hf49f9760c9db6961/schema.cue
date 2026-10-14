@@ -17,18 +17,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::DataTable
-#Properties: close({
-	Description?: #Description | fn.#StringExpression
-	InstanceArn!: strings.MaxRunes(100) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression
-	Name!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\-_.:=@'|]+$" | fn.#StringExpression
-	Status!: "PUBLISHED" | fn.#StringExpression
-	Tags?:   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TimeZone!:       string | fn.#StringExpression
-	ValueLockLevel!: "NONE" | "DATA_TABLE" | "PRIMARY_VALUE" | "ATTRIBUTE" | "VALUE" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::DataTable"
+	Properties!: close({
+		Description?: #Description | fn.#StringExpression
+		InstanceArn!: strings.MaxRunes(100) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\-_.:=@'|]+$" |
+		fn.#StringExpression
+		Status!:         "PUBLISHED" | fn.#StringExpression
+		Tags?:           list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TimeZone!:       string | fn.#StringExpression
+		ValueLockLevel!: "NONE" | "DATA_TABLE" | "PRIMARY_VALUE" | "ATTRIBUTE" | "VALUE" | fn.#StringExpression
+	})
+}
 
 #Description: strings.MaxRunes(250) &
 strings.MinRunes(0) &
@@ -63,7 +67,3 @@ fn.#ObjectExpression
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::DataTable"
-	Properties!: #Properties
-}

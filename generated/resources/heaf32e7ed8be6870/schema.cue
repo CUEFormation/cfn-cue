@@ -15,26 +15,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::CloudWatch::AlarmMuteRule that allows
 // defining a rule and targeting alarms to mute their actions during the
 // specified window.
-#Properties: close({
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ExpireDate?:  string | fn.#StringExpression
-	MuteTargets?: close(
-		{AlarmNames!: list.MaxItems(500) & list.UniqueItems() & [...] & [...#AlarmName] | fn.#ListExpression},
-	) |
-		fn.#ObjectExpression
-	Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Rule!: close({
-		Schedule!: close({
-			Duration!:   strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-			Expression!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-			Timezone?:   strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudWatch::AlarmMuteRule"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		ExpireDate?:  string | fn.#StringExpression
+		MuteTargets?: close(
+			{AlarmNames!: list.MaxItems(500) & list.UniqueItems() & [...] & [...#AlarmName] | fn.#ListExpression},
+		) |
+			fn.#ObjectExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Rule!: close({
+			Schedule!: close({
+				Duration!:   strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+				Expression!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+				Timezone?:   strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	StartDate?: string | fn.#StringExpression
-	Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+		StartDate?: string | fn.#StringExpression
+		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AlarmName: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -43,7 +46,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudWatch::AlarmMuteRule"
-	Properties!: #Properties
-}

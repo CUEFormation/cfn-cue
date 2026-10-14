@@ -38,100 +38,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [Creating an queue
 // ()](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/create-queue-cloudformation.html)
 // in the *Developer Guide*.
-#Properties: close({
-	ContentBasedDeduplication?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DeduplicationScope?:        string | fn.#StringExpression
-	DelaySeconds?: int & <=900 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=900 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	FifoQueue?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FifoThroughputLimit?: string | fn.#StringExpression
-	KmsDataKeyReusePeriodSeconds?: int & <=86400 & >=60 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=86400 &
-							>=60,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	KmsMasterKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	MaximumMessageSize?: int & <=1048576 & >=1024 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1048576 &
-							>=1024,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MessageRetentionPeriod?: int & <=1209600 & >=60 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1209600 &
-							>=60,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	QueueName?: string | fn.#StringExpression
-	ReceiveMessageWaitTimeSeconds?: int & <=20 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=20 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RedriveAllowPolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	RedrivePolicy?: string |
-	close({
-		deadLetterTargetArn?: string | fn.#StringExpression
-		maxReceiveCount?: int |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SQS::Queue"
+	Properties?: close({
+		ContentBasedDeduplication?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		DeduplicationScope?: string | fn.#StringExpression
+		DelaySeconds?: int & <=900 & >=0 |
 			{
 				string &
 					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -141,40 +60,139 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							cfnScalarStrconv.Atoi(
 								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
 							) &
-								int,
+								int &
+								<=900 &
+								>=0,
 							10,
 						))*0 + 1,
 					)
 			} |
 			fn.#NumberExpression
-	}) |
-	fn.#StringObjectExpression
-	SqsManagedSseEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                 [...#Tag] | fn.#ListExpression
-	VisibilityTimeout?: int & <=43200 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=43200 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+		FifoQueue?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		FifoThroughputLimit?: string | fn.#StringExpression
+		KmsDataKeyReusePeriodSeconds?: int & <=86400 & >=60 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=86400 &
+								>=60,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		KmsMasterKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
+			fn.#StringExpression
+		MaximumMessageSize?: int & <=1048576 & >=1024 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1048576 &
+								>=1024,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MessageRetentionPeriod?: int & <=1209600 & >=60 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1209600 &
+								>=60,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		QueueName?: string | fn.#StringExpression
+		ReceiveMessageWaitTimeSeconds?: int & <=20 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=20 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RedriveAllowPolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		RedrivePolicy?: string |
+		close({
+			deadLetterTargetArn?: string | fn.#StringExpression
+			maxReceiveCount?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+		}) |
+		fn.#StringObjectExpression
+		SqsManagedSseEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                 [...#Tag] | fn.#ListExpression
+		VisibilityTimeout?: int & <=43200 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=43200 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SQS::Queue"
-	Properties?: #Properties
-}

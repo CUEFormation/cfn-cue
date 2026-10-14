@@ -13,30 +13,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Backup::RestoreTestingSelection
-#Properties: close({
-	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	ProtectedResourceArns?:       [...string | fn.#StringExpression] | fn.#ListExpression
-	ProtectedResourceConditions?: #ProtectedResourceConditions
-	ProtectedResourceType!:       string | fn.#StringExpression
-	RestoreMetadataOverrides?:    #SensitiveStringMap
-	RestoreTestingPlanName!:      string | fn.#StringExpression
-	RestoreTestingSelectionName!: string | fn.#StringExpression
-	ValidationWindowHours?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Backup::RestoreTestingSelection"
+	Properties!: close({
+		IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		ProtectedResourceArns?:       [...string | fn.#StringExpression] | fn.#ListExpression
+		ProtectedResourceConditions?: #ProtectedResourceConditions
+		ProtectedResourceType!:       string | fn.#StringExpression
+		RestoreMetadataOverrides?:    #SensitiveStringMap
+		RestoreTestingPlanName!:      string | fn.#StringExpression
+		RestoreTestingSelectionName!: string | fn.#StringExpression
+		ValidationWindowHours?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #KeyValue: close({
 	Key!:   string | fn.#StringExpression
@@ -54,7 +59,3 @@ fn.#ObjectExpression
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Backup::RestoreTestingSelection"
-	Properties!: #Properties
-}

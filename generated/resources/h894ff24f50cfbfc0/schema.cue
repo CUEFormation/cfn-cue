@@ -19,44 +19,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for an Amazon Lex conversational bot performing
 // automated tasks such as ordering a pizza, booking a hotel, and so on.
-#Properties: close({
-	AutoBuildBotLocales?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BotFileS3Location?:   #S3Location
-	BotLocales?:          list.UniqueItems() & [...#BotLocale] | fn.#ListExpression
-	BotMembers?:          list.MaxItems(10) & list.UniqueItems() & [...#BotMember] | fn.#ListExpression
-	BotTags?:             list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	BotType?:             "Bot" | "BotNetwork" | fn.#StringExpression
-	DataPrivacy!: close(
-		{ChildDirected!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-	) |
-		fn.#ObjectExpression
-	Description?: #Description
-	ErrorLogSettings?: close(
-		{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-	) |
-		fn.#ObjectExpression
-	IdleSessionTTLInSeconds!: int & <=86400 & >=60 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=86400 &
-							>=60,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name!:                 #Name
-	Replication?:          #Replication
-	RoleArn!:              #RoleArn
-	TestBotAliasSettings?: #TestBotAliasSettings
-	TestBotAliasTags?:     list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lex::Bot"
+	Properties!: close({
+		AutoBuildBotLocales?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		BotFileS3Location?:   #S3Location
+		BotLocales?:          list.UniqueItems() & [...#BotLocale] | fn.#ListExpression
+		BotMembers?:          list.MaxItems(10) & list.UniqueItems() & [...#BotMember] | fn.#ListExpression
+		BotTags?:             list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		BotType?:             "Bot" | "BotNetwork" | fn.#StringExpression
+		DataPrivacy!: close(
+			{ChildDirected!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+		) |
+			fn.#ObjectExpression
+		Description?: #Description
+		ErrorLogSettings?: close(
+			{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+		) |
+			fn.#ObjectExpression
+		IdleSessionTTLInSeconds!: int & <=86400 & >=60 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=86400 &
+								>=60,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name!:                 #Name
+		Replication?:          #Replication
+		RoleArn!:              #RoleArn
+		TestBotAliasSettings?: #TestBotAliasSettings
+		TestBotAliasTags?:     list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AdvancedRecognitionSetting: close({AudioRecognitionStrategy?: #AudioRecognitionStrategy}) | fn.#ObjectExpression
 
@@ -1285,7 +1290,3 @@ fn.#ObjectExpression
 	WaitingResponse!:      #ResponseSpecification
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lex::Bot"
-	Properties!: #Properties
-}

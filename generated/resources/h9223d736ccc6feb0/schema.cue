@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::VirtualGateway
-#Properties: close({
-	MeshName!:           string | fn.#StringExpression
-	MeshOwner?:          string | fn.#StringExpression
-	Spec!:               #VirtualGatewaySpec
-	Tags?:               [...#Tag] | fn.#ListExpression
-	VirtualGatewayName?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppMesh::VirtualGateway"
+	Properties!: close({
+		MeshName!:           string | fn.#StringExpression
+		MeshOwner?:          string | fn.#StringExpression
+		Spec!:               #VirtualGatewaySpec
+		Tags?:               [...#Tag] | fn.#ListExpression
+		VirtualGatewayName?: string | fn.#StringExpression
+	})
+}
 
 #JsonFormatRef: close({
 	Key!:   string | fn.#StringExpression
@@ -337,7 +340,3 @@ fn.#ObjectExpression
 	SDS?:  #VirtualGatewayTlsValidationContextSdsTrust
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppMesh::VirtualGateway"
-	Properties!: #Properties
-}

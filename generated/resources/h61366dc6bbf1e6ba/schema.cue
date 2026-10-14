@@ -13,21 +13,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::QuickSight::Agent
-#Properties: close({
-	ActionConnectors?:  list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	AgentId!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.+]+$" | fn.#StringExpression
-	AgentLifecycle?:    "PREVIEW" | "PUBLISHED" | fn.#StringExpression
-	AwsAccountId!:      strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	CustomPromptInput?: #CustomPromptInput
-	Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-	IconId?:            strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:              strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	Spaces?:            list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	StarterPrompts?: list.MaxItems(3) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression] |
-	fn.#ListExpression
-	Tags?:           list.MaxItems(200) & [...#AgentTag] | fn.#ListExpression
-	WelcomeMessage?: strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::Agent"
+	Properties!: close({
+		ActionConnectors?:  list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+		AgentId!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.+]+$" | fn.#StringExpression
+		AgentLifecycle?:    "PREVIEW" | "PUBLISHED" | fn.#StringExpression
+		AwsAccountId!:      strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		CustomPromptInput?: #CustomPromptInput
+		Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
+		IconId?:            strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:              strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+		Spaces?:            list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+		StarterPrompts?: list.MaxItems(3) & [...] & [
+			...strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Tags?:           list.MaxItems(200) & [...#AgentTag] | fn.#ListExpression
+		WelcomeMessage?: strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
+	})
+}
 
 #AgentTag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -73,7 +78,3 @@ fn.#ObjectExpression
 	SubscriptionId!:  strings.MaxRunes(32) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::Agent"
-	Properties!: #Properties
-}

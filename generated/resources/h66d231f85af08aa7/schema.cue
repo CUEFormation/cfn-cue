@@ -17,13 +17,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Inspector Filter resource schema
-#Properties: close({
-	Description?:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	FilterAction!:   #FilterAction | fn.#StringExpression
-	FilterCriteria!: #FilterCriteria | fn.#ObjectExpression
-	Name!:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:           #FilterTagMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::InspectorV2::Filter"
+	Properties!: close({
+		Description?:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+		FilterAction!:   #FilterAction | fn.#StringExpression
+		FilterCriteria!: #FilterCriteria | fn.#ObjectExpression
+		Name!:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:           #FilterTagMap
+	})
+}
 
 #DateFilter: close({
 	EndInclusive?:   #Timestamp
@@ -219,7 +222,3 @@ fn.#ListExpression
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::InspectorV2::Filter"
-	Properties!: #Properties
-}

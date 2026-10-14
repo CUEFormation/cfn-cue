@@ -59,6 +59,8 @@ Loading the region package takes about 2.7 s with either generator, so a full ed
 | 800 | not run | 900 ms |
 | 1,839 | not run | 2.7 s |
 
+Inlining each resource's properties schema into `#Resource` raised the full-region load to about 3.2 s (2.8 s before, three runs each). Validation time did not change.
+
 ### Per type, without the region
 
 `TestResourcePerformance` checks a resource against its own `#ResourceTypes` entry. It loads each resource package in 10 to 24 ms and validates one minimal resource in 1 to 3 ms (`AWS::S3::Bucket` is the slowest).

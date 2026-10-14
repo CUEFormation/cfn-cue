@@ -14,13 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::Textract::Adapter resource creates an Amazon Textract adapter, which
 // can be fine-tuned for enhanced performance on user-provided documents.
-#Properties: close({
-	AdapterName!:  #AdapterName
-	AutoUpdate?:   #AutoUpdate
-	Description?:  #AdapterDescription
-	FeatureTypes!: list.MinItems(1) & [...#FeatureType] | fn.#ListExpression
-	Tags?:         list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Textract::Adapter"
+	Properties!: close({
+		AdapterName!:  #AdapterName
+		AutoUpdate?:   #AutoUpdate
+		Description?:  #AdapterDescription
+		FeatureTypes!: list.MinItems(1) & [...#FeatureType] | fn.#ListExpression
+		Tags?:         list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AdapterDescription: strings.MaxRunes(256) &
 strings.MinRunes(1) &
@@ -38,7 +41,3 @@ fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Textract::Adapter"
-	Properties!: #Properties
-}

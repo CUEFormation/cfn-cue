@@ -14,12 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BcmPricingCalculator::WorkloadEstimate
-#Properties: close({
-	ExpiresAt?: time.Time | fn.#StringExpression
-	Name!:      strings.MaxRunes(64) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	RateType?:  #WorkloadEstimateRateType | fn.#StringExpression
-	Tags?:      list.MaxItems(200) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BcmPricingCalculator::WorkloadEstimate"
+	Properties!: close({
+		ExpiresAt?: time.Time | fn.#StringExpression
+		Name!:      strings.MaxRunes(64) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		RateType?:  #WorkloadEstimateRateType | fn.#StringExpression
+		Tags?:      list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CurrencyCode: "USD" | fn.#StringExpression
 
@@ -35,7 +38,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #WorkloadEstimateStatus: "UPDATING" | "VALID" | "INVALID" | "ACTION_NEEDED" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BcmPricingCalculator::WorkloadEstimate"
-	Properties!: #Properties
-}

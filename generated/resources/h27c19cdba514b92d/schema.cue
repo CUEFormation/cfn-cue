@@ -14,16 +14,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MGN::NetworkMigrationDefinition
-#Properties: close({
-	Description?: strings.MaxRunes(600) & strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression
-	Name!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\s\\x00]( *[^\\s\\x00])*$" | fn.#StringExpression
-	ScopeTags?:   #ScopeTagsMap | fn.#ObjectExpression
-	SourceConfigurations!:  list.MaxItems(2) & [...] & [...#SourceConfiguration] | fn.#ListExpression
-	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TargetDeployment?:      "SINGLE_ACCOUNT" | "MULTI_ACCOUNT" | fn.#StringExpression
-	TargetNetwork!:         #TargetNetwork | fn.#ObjectExpression
-	TargetS3Configuration!: #TargetS3Configuration | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MGN::NetworkMigrationDefinition"
+	Properties!: close({
+		Description?: strings.MaxRunes(600) & strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\s\\x00]( *[^\\s\\x00])*$" | fn.#StringExpression
+		ScopeTags?:             #ScopeTagsMap | fn.#ObjectExpression
+		SourceConfigurations!:  list.MaxItems(2) & [...] & [...#SourceConfiguration] | fn.#ListExpression
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetDeployment?:      "SINGLE_ACCOUNT" | "MULTI_ACCOUNT" | fn.#StringExpression
+		TargetNetwork!:         #TargetNetwork | fn.#ObjectExpression
+		TargetS3Configuration!: #TargetS3Configuration | fn.#ObjectExpression
+	})
+}
 
 #ScopeTagsMap: struct.MaxFields(40) & {...} | fn.#ObjectExpression
 
@@ -75,7 +78,3 @@ fn.#ObjectExpression
 	S3BucketOwner!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12,}" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MGN::NetworkMigrationDefinition"
-	Properties!: #Properties
-}

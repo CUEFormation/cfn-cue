@@ -19,61 +19,70 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::AutoScaling::ScalingPolicy resource specifies an Amazon EC2 Auto
 // Scaling scaling policy so that the Auto Scaling group can scale the number
 // of instances available for your application.
-#Properties: close({
-	AdjustmentType?: ("ChangeInCapacity" | "ExactCapacity" | "PercentChangeInCapacity") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Cooldown?:             string | fn.#StringExpression
-	EstimatedInstanceWarmup?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MetricAggregationType?: ("Average" | "Maximum" | "Minimum") & (strings.MaxRunes(32) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	MinAdjustmentMagnitude?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PolicyType?: ("PredictiveScaling" | "SimpleScaling" | "StepScaling" | "TargetTrackingScaling") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	PredictiveScalingConfiguration?: #PredictiveScalingConfiguration | fn.#ObjectExpression
-	ScalingAdjustment?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	StepAdjustments?:             list.UniqueItems() & [...#StepAdjustment] | fn.#ListExpression
-	TargetTrackingConfiguration?: #TargetTrackingConfiguration | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AutoScaling::ScalingPolicy"
+	Properties!: close({
+		AdjustmentType?: ("ChangeInCapacity" | "ExactCapacity" | "PercentChangeInCapacity") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Cooldown?:             string | fn.#StringExpression
+		EstimatedInstanceWarmup?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MetricAggregationType?: ("Average" | "Maximum" | "Minimum") & (strings.MaxRunes(32) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		MinAdjustmentMagnitude?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PolicyType?: ("PredictiveScaling" | "SimpleScaling" | "StepScaling" | "TargetTrackingScaling") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		PredictiveScalingConfiguration?: #PredictiveScalingConfiguration | fn.#ObjectExpression
+		ScalingAdjustment?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		StepAdjustments?:             list.UniqueItems() & [...#StepAdjustment] | fn.#ListExpression
+		TargetTrackingConfiguration?: #TargetTrackingConfiguration | fn.#ObjectExpression
+	})
+}
 
 #CustomizedMetricSpecification: close({
 	Dimensions?: list.UniqueItems() & [...#MetricDimension] | fn.#ListExpression
@@ -378,7 +387,3 @@ fn.#ObjectExpression
 	Unit?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AutoScaling::ScalingPolicy"
-	Properties!: #Properties
-}

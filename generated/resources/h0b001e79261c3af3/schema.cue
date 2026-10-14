@@ -9,11 +9,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::Mesh
-#Properties: close({
-	MeshName?: string | fn.#StringExpression
-	Spec?:     #MeshSpec
-	Tags?:     [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppMesh::Mesh"
+	Properties?: close({
+		MeshName?: string | fn.#StringExpression
+		Spec?:     #MeshSpec
+		Tags?:     [...#Tag] | fn.#ListExpression
+	})
+}
 
 #EgressFilter: close({Type!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -30,7 +33,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppMesh::Mesh"
-	Properties?: #Properties
-}

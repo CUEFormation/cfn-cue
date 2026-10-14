@@ -18,18 +18,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates an AWS Batch quota share. Each quota share operates as a virtual
 // queue with a configured compute capacity, resource sharing strategy, and
 // borrow limits.
-#Properties: close({
-	CapacityLimits!:               [...#QuotaShareCapacityLimit] | fn.#ListExpression
-	JobQueue!:                     string | fn.#StringExpression
-	PreemptionConfiguration!:      #QuotaSharePreemptionConfiguration | fn.#ObjectExpression
-	QuotaShareName!:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ResourceSharingConfiguration!: #QuotaShareResourceSharingConfiguration | fn.#ObjectExpression
-	State?:                        "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Batch::QuotaShare"
+	Properties!: close({
+		CapacityLimits!:               [...#QuotaShareCapacityLimit] | fn.#ListExpression
+		JobQueue!:                     string | fn.#StringExpression
+		PreemptionConfiguration!:      #QuotaSharePreemptionConfiguration | fn.#ObjectExpression
+		QuotaShareName!:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		ResourceSharingConfiguration!: #QuotaShareResourceSharingConfiguration | fn.#ObjectExpression
+		State?:                        "ENABLED" | "DISABLED" | fn.#StringExpression
+		Tags?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
 #QuotaShareCapacityLimit: close({
 	CapacityUnit!: string | fn.#StringExpression
@@ -76,7 +79,3 @@ fn.#ObjectExpression
 
 #ResourceArn: =~"^arn:aws[a-z\\-]*:batch:[a-z0-9\\-]+:[0-9]{12}:job-queue/[a-zA-Z0-9_\\-]{1,128}/quota-share/[a-zA-Z0-9_\\-]{1,128}$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Batch::QuotaShare"
-	Properties!: #Properties
-}

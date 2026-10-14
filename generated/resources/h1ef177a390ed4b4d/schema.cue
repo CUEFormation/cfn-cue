@@ -12,16 +12,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Chime::AppInstanceBot
-#Properties: close({
-	AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-	Configuration!:  #Configuration
-	Metadata?:       strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	Name?: strings.MaxRunes(256) &
-	strings.MinRunes(0) &
-	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{1000}0-\\x{10FF}FF]*$" |
-	fn.#StringExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Chime::AppInstanceBot"
+	Properties!: close({
+		AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
+		Configuration!:  #Configuration
+		Metadata?:       strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+		Name?: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{1000}0-\\x{10FF}FF]*$" |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Configuration: close({Lex!: #LexConfiguration}) | fn.#ObjectExpression
 
@@ -48,7 +51,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Chime::AppInstanceBot"
-	Properties!: #Properties
-}

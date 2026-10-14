@@ -17,27 +17,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::Queue
-#Properties: close({
-	AllowedStorageProfileIds?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		...=~"^sp-[0-9a-f]{32}$" | fn.#StringExpression
-	] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Deadline::Queue"
+	Properties!: close({
+		AllowedStorageProfileIds?: list.MaxItems(20) & list.UniqueItems() & [...] & [
+			...=~"^sp-[0-9a-f]{32}$" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		DefaultBudgetAction?:   #DefaultQueueBudgetAction
+		Description?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		DisplayName!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		FarmId!:                =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+		JobAttachmentSettings?: #JobAttachmentSettings
+		JobRunAsUser?:          #JobRunAsUser
+		RequiredFileSystemLocationNames?: list.MaxItems(20) & list.UniqueItems() & [...] & [
+			...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$" | fn.#StringExpression
+		] |
 		fn.#ListExpression
-	DefaultBudgetAction?:   #DefaultQueueBudgetAction
-	Description?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	DisplayName!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	FarmId!:                =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-	JobAttachmentSettings?: #JobAttachmentSettings
-	JobRunAsUser?:          #JobRunAsUser
-	RequiredFileSystemLocationNames?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" |
-		fn.#StringExpression
-	SchedulingConfiguration?: #SchedulingConfiguration
-	Tags?:                    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" |
+			fn.#StringExpression
+		SchedulingConfiguration?: #SchedulingConfiguration
+		Tags?:                    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DefaultQueueBudgetAction: "NONE" |
 	"STOP_SCHEDULING_AND_COMPLETE_TASKS" |
@@ -219,7 +222,3 @@ fn.#ObjectExpression
 	User!:        strings.MaxRunes(111) & strings.MinRunes(0) & =~"^[^\"'/\\[\\]:;|=,+*?<>\\s]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Deadline::Queue"
-	Properties!: #Properties
-}

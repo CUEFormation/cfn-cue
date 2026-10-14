@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Schema for ResourceGroups::Group
-#Properties: close({
-	Configuration?: #Configuration
-	Description?:   strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\sa-zA-Z0-9_\\.-]*$" | fn.#StringExpression
-	Name!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\.-]+$" | fn.#StringExpression
-	ResourceQuery?: #ResourceQuery
-	Resources?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:          [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ResourceGroups::Group"
+	Properties!: close({
+		Configuration?: #Configuration
+		Description?:   strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\sa-zA-Z0-9_\\.-]*$" | fn.#StringExpression
+		Name!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\.-]+$" | fn.#StringExpression
+		ResourceQuery?: #ResourceQuery
+		Resources?:     [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:          [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Configuration: list.MaxItems(2) & [...] & [...#ConfigurationItem] | fn.#ListExpression
 
@@ -61,7 +64,3 @@ fn.#ObjectExpression
 	Values?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ResourceGroups::Group"
-	Properties!: #Properties
-}

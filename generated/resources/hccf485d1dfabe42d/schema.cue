@@ -12,14 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates or updates the auth policy.
-#Properties: close({
-	Policy!: fn.#Object & {...} | strings.MaxRunes(36864) | fn.#StringObjectExpression
-	ResourceIdentifier!: strings.MaxRunes(200) &
-	strings.MinRunes(17) &
-	=~"^((((sn)|(svc))-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:((servicenetwork/sn)|(service/svc))-[0-9a-z]{17}))$" |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VpcLattice::AuthPolicy"
-	Properties!: #Properties
+	Type!: "AWS::VpcLattice::AuthPolicy"
+	Properties!: close({
+		Policy!: fn.#Object & {...} | strings.MaxRunes(36864) | fn.#StringObjectExpression
+		ResourceIdentifier!: strings.MaxRunes(200) &
+		strings.MinRunes(17) &
+		=~"^((((sn)|(svc))-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:((servicenetwork/sn)|(service/svc))-[0-9a-z]{17}))$" |
+		fn.#StringExpression
+	})
 }

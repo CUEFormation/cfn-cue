@@ -17,13 +17,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RolesAnywhere::TrustAnchor Resource Type.
-#Properties: close({
-	Enabled?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:                 strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9-_]*$" | fn.#StringExpression
-	NotificationSettings?: list.MaxItems(50) & [...] & [...#NotificationSetting] | fn.#ListExpression
-	Source!:               #Source
-	Tags?:                 list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RolesAnywhere::TrustAnchor"
+	Properties!: close({
+		Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Name!:    strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9-_]*$" | fn.#StringExpression
+		NotificationSettings?: list.MaxItems(50) & [...] & [...#NotificationSetting] | fn.#ListExpression
+		Source!:               #Source
+		Tags?:                 list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #NotificationChannel: "ALL" | fn.#StringExpression
 
@@ -74,7 +77,3 @@ fn.#ValueExpression
 fn.#ObjectExpression
 
 #TrustAnchorType: "AWS_ACM_PCA" | "CERTIFICATE_BUNDLE" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RolesAnywhere::TrustAnchor"
-	Properties!: #Properties
-}

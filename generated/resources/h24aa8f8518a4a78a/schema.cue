@@ -13,23 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // VpcLattice ServiceNetworkResourceAssociation CFN resource
-#Properties: close({
-	PrivateDnsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResourceConfigurationId?: strings.MaxRunes(2048) & strings.MinRunes(17) & =~"^rcfg-[0-9a-z]{17}$" |
-	fn.#StringExpression
-	ServiceNetworkId?: strings.MaxRunes(2048) &
-	strings.MinRunes(3) &
-	=~"^((sn-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetwork/sn-[0-9a-z]{17}))$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::VpcLattice::ServiceNetworkResourceAssociation"
+	Properties?: close({
+		PrivateDnsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ResourceConfigurationId?: strings.MaxRunes(2048) & strings.MinRunes(17) & =~"^rcfg-[0-9a-z]{17}$" |
+		fn.#StringExpression
+		ServiceNetworkId?: strings.MaxRunes(2048) &
+		strings.MinRunes(3) &
+		=~"^((sn-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetwork/sn-[0-9a-z]{17}))$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VpcLattice::ServiceNetworkResourceAssociation"
-	Properties?: #Properties
-}

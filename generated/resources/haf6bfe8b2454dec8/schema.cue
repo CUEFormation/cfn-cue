@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Associates a set of DHCP options with a VPC, or associates no DHCP options with the VPC.
-#Properties: close({
-	DhcpOptionsId!: string | fn.#StringExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VPCDHCPOptionsAssociation"
-	Properties!: #Properties
+	Type!: "AWS::EC2::VPCDHCPOptionsAssociation"
+	Properties!: close({
+		DhcpOptionsId!: string | fn.#StringExpression
+		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	})
 }

@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53Resolver::ResolverRule
-#Properties: close({
-	DelegationRecord?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	DomainName?:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:               strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	ResolverEndpointId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	RuleType!:           =~"(?i)^(?:delegate|forward|recursive|system)$" | fn.#StringExpression
-	Tags?:               list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	TargetIps?:          list.MinItems(1) & [...#TargetAddress] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53Resolver::ResolverRule"
+	Properties!: close({
+		DelegationRecord?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		DomainName?:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Name?:               strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+		ResolverEndpointId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		RuleType!:           =~"(?i)^(?:delegate|forward|recursive|system)$" | fn.#StringExpression
+		Tags?:               list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TargetIps?:          list.MinItems(1) & [...#TargetAddress] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -37,7 +40,3 @@ fn.#ObjectExpression
 	ServerNameIndication?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53Resolver::ResolverRule"
-	Properties!: #Properties
-}

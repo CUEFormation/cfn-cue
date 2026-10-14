@@ -17,15 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ModelCard.
-#Properties: close({
-	Content!:         #Content
-	CreatedBy?:       close({}) | fn.#ObjectExpression
-	LastModifiedBy?:  close({}) | fn.#ObjectExpression
-	ModelCardName!:   strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
-	ModelCardStatus!: "Draft" | "PendingReview" | "Approved" | "Archived" | fn.#StringExpression
-	SecurityConfig?:  #SecurityConfig
-	Tags?:            list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::ModelCard"
+	Properties!: close({
+		Content!:         #Content
+		CreatedBy?:       close({}) | fn.#ObjectExpression
+		LastModifiedBy?:  close({}) | fn.#ObjectExpression
+		ModelCardName!:   strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
+		ModelCardStatus!: "Draft" | "PendingReview" | "Approved" | "Archived" | fn.#StringExpression
+		SecurityConfig?:  #SecurityConfig
+		Tags?:            list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AdditionalInformation: close({
 	CaveatsAndRecommendations?: strings.MaxRunes(2048) | fn.#StringExpression
@@ -353,7 +356,3 @@ fn.#ObjectExpression
 	UserProfileName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::ModelCard"
-	Properties!: #Properties
-}

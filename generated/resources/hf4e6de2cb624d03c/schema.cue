@@ -16,52 +16,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53GlobalResolver::FirewallRule
-#Properties: close({
-	Action!:               #FirewallRuleAction
-	BlockOverrideDnsType?: #BlockOverrideDnsQueryType
-	BlockOverrideDomain?:  #Domain
-	BlockOverrideTtl?: int & <=604800 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=604800 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	BlockResponse?:         #FirewallBlockResponse
-	ClientToken?:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ConfidenceThreshold?:   #ConfidenceThreshold
-	Description?:           #ResourceDescription
-	DnsAdvancedProtection?: #DnsAdvancedProtection
-	DnsViewId!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-	FirewallDomainListId?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-	Name!:                  #ResourceName
-	Priority?: int & <=10000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=10000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	QType?: strings.MaxRunes(16) & strings.MinRunes(0) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53GlobalResolver::FirewallRule"
+	Properties!: close({
+		Action!:               #FirewallRuleAction
+		BlockOverrideDnsType?: #BlockOverrideDnsQueryType
+		BlockOverrideDomain?:  #Domain
+		BlockOverrideTtl?: int & <=604800 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=604800 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		BlockResponse?:         #FirewallBlockResponse
+		ClientToken?:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		ConfidenceThreshold?:   #ConfidenceThreshold
+		Description?:           #ResourceDescription
+		DnsAdvancedProtection?: #DnsAdvancedProtection
+		DnsViewId!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
+		FirewallDomainListId?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
+		Name!:                  #ResourceName
+		Priority?: int & <=10000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=10000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		QType?: strings.MaxRunes(16) & strings.MinRunes(0) | fn.#StringExpression
+	})
+}
 
 #BlockOverrideDnsQueryType: "CNAME" | fn.#StringExpression
 
@@ -80,7 +87,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
 #ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53GlobalResolver::FirewallRule"
-	Properties!: #Properties
-}

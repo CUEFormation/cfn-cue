@@ -17,19 +17,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudWatch::AnomalyDetector
-#Properties: close({
-	Configuration?:               #MetricConfiguration
-	Dimensions?:                  list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
-	MetricCharacteristics?:       #MetricCharacteristics
-	MetricMathAnomalyDetector?:   #MetricMathAnomalyDetector
-	MetricName?:                  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Namespace?:                   strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" | fn.#StringExpression
-	SingleMetricAnomalyDetector?: #SingleMetricAnomalyDetector
-	Stat?: strings.MaxRunes(50) &
-	strings.MinRunes(0) &
-	=~"^(Minimum|Maximum|Sum|Average|SampleCount|(p|tm)[0-9]{1,2}|(p|tm)[0-9]{1,2}\\.[0-9]{1,2}|(p|tm)100)$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudWatch::AnomalyDetector"
+	Properties?: close({
+		Configuration?:               #MetricConfiguration
+		Dimensions?:                  list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
+		MetricCharacteristics?:       #MetricCharacteristics
+		MetricMathAnomalyDetector?:   #MetricMathAnomalyDetector
+		MetricName?:                  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Namespace?:                   strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" | fn.#StringExpression
+		SingleMetricAnomalyDetector?: #SingleMetricAnomalyDetector
+		Stat?: strings.MaxRunes(50) &
+		strings.MinRunes(0) &
+		=~"^(Minimum|Maximum|Sum|Average|SampleCount|(p|tm)[0-9]{1,2}|(p|tm)[0-9]{1,2}\\.[0-9]{1,2}|(p|tm)100)$" |
+		fn.#StringExpression
+	})
+}
 
 #Dimension: close({
 	Name!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -126,7 +129,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudWatch::AnomalyDetector"
-	Properties?: #Properties
-}

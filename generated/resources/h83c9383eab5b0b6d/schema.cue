@@ -17,21 +17,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::RoutingProfile
-#Properties: close({
-	AgentAvailabilityTimer?: "TIME_SINCE_LAST_ACTIVITY" | "TIME_SINCE_LAST_INBOUND" | fn.#StringExpression
-	DefaultOutboundQueueArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$" |
-		fn.#StringExpression
-	Description!: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	ManualAssignmentQueueConfigs?: list.MaxItems(10) & list.MinItems(1) & [
-		...#RoutingProfileManualAssignmentQueueConfig
-	] |
-		fn.#ListExpression
-	MediaConcurrencies!: [...#MediaConcurrency] | fn.#ListExpression
-	Name!:               strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	QueueConfigs?:       list.MinItems(1) & [...#RoutingProfileQueueConfig] | fn.#ListExpression
-	Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::RoutingProfile"
+	Properties!: close({
+		AgentAvailabilityTimer?: "TIME_SINCE_LAST_ACTIVITY" | "TIME_SINCE_LAST_INBOUND" | fn.#StringExpression
+		DefaultOutboundQueueArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$" |
+			fn.#StringExpression
+		Description!: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		ManualAssignmentQueueConfigs?: list.MaxItems(10) & list.MinItems(1) & [
+			...#RoutingProfileManualAssignmentQueueConfig
+		] |
+			fn.#ListExpression
+		MediaConcurrencies!: [...#MediaConcurrency] | fn.#ListExpression
+		Name!:               strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+		QueueConfigs?:       list.MinItems(1) & [...#RoutingProfileQueueConfig] | fn.#ListExpression
+		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #BehaviorType: "ROUTE_CURRENT_CHANNEL_ONLY" | "ROUTE_ANY_CHANNEL" | fn.#StringExpression
 
@@ -121,7 +124,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::RoutingProfile"
-	Properties!: #Properties
-}

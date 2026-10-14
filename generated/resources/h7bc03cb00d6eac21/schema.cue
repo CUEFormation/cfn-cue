@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGateway::Resource`` resource creates a resource in an API.
-#Properties: close({
-	ParentId!:  string | fn.#StringExpression
-	PathPart!:  string | fn.#StringExpression
-	RestApiId!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::Resource"
-	Properties!: #Properties
+	Type!: "AWS::ApiGateway::Resource"
+	Properties!: close({
+		ParentId!:  string | fn.#StringExpression
+		PathPart!:  string | fn.#StringExpression
+		RestApiId!: string | fn.#StringExpression
+	})
 }

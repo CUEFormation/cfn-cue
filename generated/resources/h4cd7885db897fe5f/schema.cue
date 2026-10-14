@@ -19,25 +19,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Connections enables users to connect their DataZone resources (domains,
 // projects, and environments) to external resources/services (data, compute,
 // etc)
-#Properties: close({
-	AwsLocation?:      #AwsLocation
-	Configurations?:   [...#ConnectionConfiguration] | fn.#ListExpression
-	Description?:      strings.MaxRunes(128) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	DomainIdentifier!: =~"^dzd[_-][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	EnableTrustedIdentityPropagation?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	EnvironmentIdentifier?: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	Name!:                  strings.MaxRunes(64) & =~"^[\\w][\\w\\.\\-\\_]*$" | fn.#StringExpression
-	ProjectIdentifier?:     string | fn.#StringExpression
-	Props?:                 #ConnectionPropertiesInput
-	Scope?:                 "DOMAIN" | "PROJECT" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataZone::Connection"
+	Properties!: close({
+		AwsLocation?:      #AwsLocation
+		Configurations?:   [...#ConnectionConfiguration] | fn.#ListExpression
+		Description?:      strings.MaxRunes(128) & =~"^[\\S\\s]*$" | fn.#StringExpression
+		DomainIdentifier!: =~"^dzd[_-][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		EnableTrustedIdentityPropagation?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		EnvironmentIdentifier?: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		Name!:                  strings.MaxRunes(64) & =~"^[\\w][\\w\\.\\-\\_]*$" | fn.#StringExpression
+		ProjectIdentifier?:     string | fn.#StringExpression
+		Props?:                 #ConnectionPropertiesInput
+		Scope?:                 "DOMAIN" | "PROJECT" | fn.#StringExpression
+	})
+}
 
 #AmazonQPropertiesInput: close({
 	AuthMode?:  strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
@@ -396,7 +399,3 @@ fn.#ObjectExpression
 #WorkflowsMwaaPropertiesInput: close({MwaaEnvironmentName?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #WorkflowsServerlessPropertiesInput: close({}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::Connection"
-	Properties!: #Properties
-}

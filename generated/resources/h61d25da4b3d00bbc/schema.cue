@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::Node Resource Type
-#Properties: close({
-	ClusterId!:             string | fn.#StringExpression
-	Name?:                  string | fn.#StringExpression
-	NodeInterfaceMappings?: [...#NodeInterfaceMapping] | fn.#ListExpression
-	Role?:                  #NodeRole
-	SdiSourceMappings?:     [...#SdiSourceMapping] | fn.#ListExpression
-	Tags?:                  [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::Node"
+	Properties!: close({
+		ClusterId!:             string | fn.#StringExpression
+		Name?:                  string | fn.#StringExpression
+		NodeInterfaceMappings?: [...#NodeInterfaceMapping] | fn.#ListExpression
+		Role?:                  #NodeRole
+		SdiSourceMappings?:     [...#SdiSourceMapping] | fn.#ListExpression
+		Tags?:                  [...#Tag] | fn.#ListExpression
+	})
+}
 
 #NodeConnectionState: "CONNECTED" | "DISCONNECTED" | fn.#StringExpression
 
@@ -92,7 +95,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::Node"
-	Properties!: #Properties
-}

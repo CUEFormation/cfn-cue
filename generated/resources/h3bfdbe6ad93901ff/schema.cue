@@ -12,14 +12,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::EventBridgeRuleTemplate Resource Type
-#Properties: close({
-	Description?:     strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	EventTargets?:    [...#EventBridgeRuleTemplateTarget] | fn.#ListExpression
-	EventType!:       #EventBridgeRuleTemplateEventType
-	GroupIdentifier?: =~"^[^\\s]+$" | fn.#StringExpression
-	Name!:            strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	Tags?:            #TagMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::EventBridgeRuleTemplate"
+	Properties!: close({
+		Description?:     strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		EventTargets?:    [...#EventBridgeRuleTemplateTarget] | fn.#ListExpression
+		EventType!:       #EventBridgeRuleTemplateEventType
+		GroupIdentifier?: =~"^[^\\s]+$" | fn.#StringExpression
+		Name!:            strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
+		Tags?:            #TagMap
+	})
+}
 
 #EventBridgeRuleTemplateEventType: "MEDIALIVE_MULTIPLEX_ALERT" |
 	"MEDIALIVE_MULTIPLEX_STATE_CHANGE" |
@@ -45,7 +48,3 @@ fn.#ObjectExpression
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::EventBridgeRuleTemplate"
-	Properties!: #Properties
-}

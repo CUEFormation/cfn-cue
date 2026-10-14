@@ -14,13 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Configures the Device Defender audit settings for this account. Settings
 // include how audit notifications are sent and which audit checks are enabled
 // or disabled.
-#Properties: close({
-	AccountId!:                             strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
-	AuditCheckConfigurations!:              #AuditCheckConfigurations
-	AuditNotificationTargetConfigurations?: #AuditNotificationTargetConfigurations
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::AccountAuditConfiguration"
+	Properties!: close({
+		AccountId!:                             strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
+		AuditCheckConfigurations!:              #AuditCheckConfigurations
+		AuditNotificationTargetConfigurations?: #AuditNotificationTargetConfigurations
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		fn.#StringExpression
+	})
+}
 
 #AuditCheckConfiguration: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -75,7 +78,3 @@ fn.#ObjectExpression
 	Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::AccountAuditConfiguration"
-	Properties!: #Properties
-}

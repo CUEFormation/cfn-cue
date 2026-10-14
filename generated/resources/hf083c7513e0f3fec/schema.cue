@@ -16,13 +16,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // container association monitors container lifecycle events in your Amazon ECS
 // or Amazon EKS clusters and resolves running container addresses for use in
 // Network Firewall rules.
-#Properties: close({
-	ContainerAssociationName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	ContainerMonitoringConfigurations!: list.UniqueItems() & [...#ContainerMonitoringConfiguration] | fn.#ListExpression
-	Description?:                       strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Type!: "ECS" | "EKS" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkFirewall::ContainerAssociation"
+	Properties!: close({
+		ContainerAssociationName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+		fn.#StringExpression
+		ContainerMonitoringConfigurations!: list.UniqueItems() & [...#ContainerMonitoringConfiguration] |
+			fn.#ListExpression
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
+		Tags?:        list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type!:        "ECS" | "EKS" | fn.#StringExpression
+	})
+}
 
 #ContainerAttribute: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
@@ -41,7 +46,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkFirewall::ContainerAssociation"
-	Properties!: #Properties
-}

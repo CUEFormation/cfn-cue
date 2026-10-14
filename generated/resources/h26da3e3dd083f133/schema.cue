@@ -14,12 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A security control in Security Hub describes a security best practice related
 // to a specific resource.
-#Properties: close({
-	LastUpdateReason?:   =~"^([^\u0000-\u007f]|[-_ a-zA-Z0-9])+$" | fn.#StringExpression
-	Parameters!:         #Parameters | fn.#ObjectExpression
-	SecurityControlArn?: #NonEmptyString | fn.#StringExpression
-	SecurityControlId?:  #NonEmptyString | fn.#StringExpression
-}) & matchN(>=1, [{SecurityControlId!: _}, {SecurityControlArn!: _}])
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::SecurityControl"
+	Properties!: close({
+		LastUpdateReason?:   =~"^([^\u0000-\u007f]|[-_ a-zA-Z0-9])+$" | fn.#StringExpression
+		Parameters!:         #Parameters | fn.#ObjectExpression
+		SecurityControlArn?: #NonEmptyString | fn.#StringExpression
+		SecurityControlId?:  #NonEmptyString | fn.#StringExpression
+	}) & matchN(>=1, [{SecurityControlId!: _}, {SecurityControlArn!: _}])
+}
 
 #IntegerList: [
 	...int |
@@ -213,7 +216,3 @@ fn.#ObjectExpression
 
 	{[=~".*\\S.*"]: #ParameterConfiguration}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::SecurityControl"
-	Properties!: #Properties
-}

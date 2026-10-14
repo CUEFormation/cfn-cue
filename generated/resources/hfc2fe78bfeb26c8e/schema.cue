@@ -9,13 +9,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::IdentityPoolPrincipalTag
-#Properties: close({
-	IdentityPoolId!:       string | fn.#StringExpression
-	IdentityProviderName!: string | fn.#StringExpression
-	PrincipalTags?:        fn.#Object & {...} | fn.#ObjectExpression
-	UseDefaults?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::IdentityPoolPrincipalTag"
-	Properties!: #Properties
+	Type!: "AWS::Cognito::IdentityPoolPrincipalTag"
+	Properties!: close({
+		IdentityPoolId!:       string | fn.#StringExpression
+		IdentityProviderName!: string | fn.#StringExpression
+		PrincipalTags?:        fn.#Object & {...} | fn.#ObjectExpression
+		UseDefaults?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	})
 }

@@ -12,17 +12,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The distribution tenant.
-#Properties: close({
-	ConnectionGroupId?:         string | fn.#StringExpression
-	Customizations?:            #Customizations | fn.#ObjectExpression
-	DistributionId!:            string | fn.#StringExpression
-	Domains!:                   [...string | fn.#StringExpression] | fn.#ListExpression
-	Enabled?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ManagedCertificateRequest?: #ManagedCertificateRequest | fn.#ObjectExpression
-	Name!:                      string | fn.#StringExpression
-	Parameters?:                [...#Parameter] | fn.#ListExpression
-	Tags?:                      [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::DistributionTenant"
+	Properties!: close({
+		ConnectionGroupId?: string | fn.#StringExpression
+		Customizations?:    #Customizations | fn.#ObjectExpression
+		DistributionId!:    string | fn.#StringExpression
+		Domains!:           [...string | fn.#StringExpression] | fn.#ListExpression
+		Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ManagedCertificateRequest?: #ManagedCertificateRequest | fn.#ObjectExpression
+		Name!:                      string | fn.#StringExpression
+		Parameters?:                [...#Parameter] | fn.#ListExpression
+		Tags?:                      [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Certificate: close({Arn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -69,7 +72,3 @@ fn.#ObjectExpression
 	Arn?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::DistributionTenant"
-	Properties!: #Properties
-}

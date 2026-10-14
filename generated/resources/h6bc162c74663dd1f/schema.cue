@@ -9,12 +9,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A owner can set up authorization permissions on their resources.
-#Properties: close({
-	DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	EntityIdentifier!: string | fn.#StringExpression
-	EntityType!:       "DOMAIN_UNIT" | fn.#StringExpression
-	Owner!:            #OwnerProperties | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataZone::Owner"
+	Properties!: close({
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		EntityIdentifier!: string | fn.#StringExpression
+		EntityType!:       "DOMAIN_UNIT" | fn.#StringExpression
+		Owner!:            #OwnerProperties | fn.#ObjectExpression
+	})
+}
 
 #OwnerGroupProperties: close({
 	GroupIdentifier?: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r ]+)" |
@@ -42,7 +45,3 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #OwnerUserPropertiesOutput: close({UserId?: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::Owner"
-	Properties!: #Properties
-}

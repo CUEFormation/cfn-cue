@@ -9,27 +9,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::TransitGatewayAttachment
-#Properties: close({
-	Options?: close({
-		ApplianceModeSupport?:            "disable" | "enable" | fn.#StringExpression
-		DnsSupport?:                      "disable" | "enable" | fn.#StringExpression
-		Ipv6Support?:                     "disable" | "enable" | fn.#StringExpression
-		SecurityGroupReferencingSupport?: "disable" | "enable" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	SubnetIds!:        [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:             [...#Tag] | fn.#ListExpression
-	TransitGatewayId!: string | fn.#StringExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::TransitGatewayAttachment"
+	Properties!: close({
+		Options?: close({
+			ApplianceModeSupport?:            "disable" | "enable" | fn.#StringExpression
+			DnsSupport?:                      "disable" | "enable" | fn.#StringExpression
+			Ipv6Support?:                     "disable" | "enable" | fn.#StringExpression
+			SecurityGroupReferencingSupport?: "disable" | "enable" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		SubnetIds!:        [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:             [...#Tag] | fn.#ListExpression
+		TransitGatewayId!: string | fn.#StringExpression
+		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TransitGatewayAttachment"
-	Properties!: #Properties
-}

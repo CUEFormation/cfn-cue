@@ -13,30 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::Amplify::App resource creates Apps in the Amplify Console. An App is
 // a collection of branches.
-#Properties: close({
-	AccessToken?:              strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^(?s).+$" | fn.#StringExpression
-	AutoBranchCreationConfig?: #AutoBranchCreationConfig
-	BasicAuthConfig?:          #BasicAuthConfig
-	BuildSpec?:                strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
-	CacheConfig?:              #CacheConfig
-	ComputeRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(1000) &
-	strings.MinRunes(0) &
-	=~"(?s).*" |
-	fn.#StringExpression
-	CustomHeaders?:            strings.MaxRunes(25000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
-	CustomRules?:              [...#CustomRule] | fn.#ListExpression
-	Description?:              strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
-	EnableBranchAutoDeletion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnvironmentVariables?:     [...#EnvironmentVariable] | fn.#ListExpression
-	IAMServiceRole?:           strings.MaxRunes(1000) & strings.MinRunes(1) & =~"(?s).*" | fn.#StringExpression
-	JobConfig?:                #JobConfig
-	Name!:                     strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
-	OauthToken?:               strings.MaxRunes(4096) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
-	Platform?:                 "WEB" | "WEB_DYNAMIC" | "WEB_COMPUTE" | fn.#StringExpression
-	Repository?:               strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
-	Tags?:                     [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Amplify::App"
+	Properties!: close({
+		AccessToken?:              strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^(?s).+$" | fn.#StringExpression
+		AutoBranchCreationConfig?: #AutoBranchCreationConfig
+		BasicAuthConfig?:          #BasicAuthConfig
+		BuildSpec?:                strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
+		CacheConfig?:              #CacheConfig
+		ComputeRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(1000) &
+		strings.MinRunes(0) &
+		=~"(?s).*" |
+		fn.#StringExpression
+		CustomHeaders?:            strings.MaxRunes(25000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
+		CustomRules?:              [...#CustomRule] | fn.#ListExpression
+		Description?:              strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
+		EnableBranchAutoDeletion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnvironmentVariables?:     [...#EnvironmentVariable] | fn.#ListExpression
+		IAMServiceRole?:           strings.MaxRunes(1000) & strings.MinRunes(1) & =~"(?s).*" | fn.#StringExpression
+		JobConfig?:                #JobConfig
+		Name!:                     strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
+		OauthToken?:               strings.MaxRunes(4096) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
+		Platform?:                 "WEB" | "WEB_DYNAMIC" | "WEB_COMPUTE" | fn.#StringExpression
+		Repository?:               strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
+		Tags?:                     [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AutoBranchCreationConfig: close({
 	AutoBranchCreationPatterns?: [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] |
@@ -86,7 +89,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Amplify::App"
-	Properties!: #Properties
-}

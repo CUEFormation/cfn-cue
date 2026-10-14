@@ -13,19 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an AWS IoT SiteWise workspace that provides logical isolation for tasks and pipelines.
-#Properties: close({
-	EncryptionConfiguration!: #EncryptionConfiguration
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:[0-9]{12}:key/.+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-	WorkspaceDescription?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	WorkspaceName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTSiteWise::Workspace"
+	Properties!: close({
+		EncryptionConfiguration!: #EncryptionConfiguration
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:[0-9]{12}:key/.+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		WorkspaceDescription?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
+		WorkspaceName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	})
+}
 
 #EncryptionConfiguration: close(
 	{EncryptionType!: "SITEWISE_DEFAULT_ENCRYPTION" | "KMS_BASED_ENCRYPTION" | fn.#StringExpression},
@@ -37,7 +40,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSiteWise::Workspace"
-	Properties!: #Properties
-}

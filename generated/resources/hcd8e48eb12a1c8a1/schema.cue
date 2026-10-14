@@ -15,10 +15,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::Rekognition::Project type creates an Amazon Rekognition CustomLabels
 // Project. A project is a grouping of the resources needed to create and
 // manage Dataset and ProjectVersions.
-#Properties: close({
-	ProjectName!: #ProjectName
-	Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Rekognition::Project"
+	Properties!: close({
+		ProjectName!: #ProjectName
+		Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: strings.MaxRunes(2048) &
 =~"(^arn:[a-z\\d-]+:rekognition:[a-z\\d-]+:\\d{12}:project/[a-zA-Z0-9_.\\-]{1,255}/[0-9]+$)" |
@@ -31,7 +34,3 @@ fn.#StringExpression
 	Value!: strings.MaxRunes(256) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Rekognition::Project"
-	Properties!: #Properties
-}

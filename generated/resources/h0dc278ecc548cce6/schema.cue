@@ -17,61 +17,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MWAA::Environment
-#Properties: close({
-	AirflowConfigurationOptions?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	AirflowVersion?:              #AirflowVersion
-	DagS3Path?:                   #RelativePath
-	EndpointManagement?:          #EndpointManagement
-	EnvironmentClass?:            #EnvironmentClass
-	ExecutionRoleArn?:            #ExecutionRoleArn
-	KmsKey?:                      #KmsKey
-	LoggingConfiguration?: close({
-		DagProcessingLogs?: close({
-			Enabled?:  #LoggingEnabled
-			LogLevel?: #LoggingLevel
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MWAA::Environment"
+	Properties!: close({
+		AirflowConfigurationOptions?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		AirflowVersion?:              #AirflowVersion
+		DagS3Path?:                   #RelativePath
+		EndpointManagement?:          #EndpointManagement
+		EnvironmentClass?:            #EnvironmentClass
+		ExecutionRoleArn?:            #ExecutionRoleArn
+		KmsKey?:                      #KmsKey
+		LoggingConfiguration?: close({
+			DagProcessingLogs?: close({
+				Enabled?:  #LoggingEnabled
+				LogLevel?: #LoggingLevel
+			}) |
+			fn.#ObjectExpression
+			SchedulerLogs?: close({
+				Enabled?:  #LoggingEnabled
+				LogLevel?: #LoggingLevel
+			}) |
+			fn.#ObjectExpression
+			TaskLogs?: close({
+				Enabled?:  #LoggingEnabled
+				LogLevel?: #LoggingLevel
+			}) |
+			fn.#ObjectExpression
+			WebserverLogs?: close({
+				Enabled?:  #LoggingEnabled
+				LogLevel?: #LoggingLevel
+			}) |
+			fn.#ObjectExpression
+			WorkerLogs?: close({
+				Enabled?:  #LoggingEnabled
+				LogLevel?: #LoggingLevel
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		SchedulerLogs?: close({
-			Enabled?:  #LoggingEnabled
-			LogLevel?: #LoggingLevel
-		}) |
-		fn.#ObjectExpression
-		TaskLogs?: close({
-			Enabled?:  #LoggingEnabled
-			LogLevel?: #LoggingLevel
-		}) |
-		fn.#ObjectExpression
-		WebserverLogs?: close({
-			Enabled?:  #LoggingEnabled
-			LogLevel?: #LoggingLevel
-		}) |
-		fn.#ObjectExpression
-		WorkerLogs?: close({
-			Enabled?:  #LoggingEnabled
-			LogLevel?: #LoggingLevel
-		}) |
-		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	MaxWebservers?:                #MaxWebservers
-	MaxWorkers?:                   #MaxWorkers
-	MinWebservers?:                #MinWebservers
-	MinWorkers?:                   #MinWorkers
-	Name!:                         #EnvironmentName
-	NetworkConfiguration?:         #NetworkConfiguration
-	PluginsS3ObjectVersion?:       #S3ObjectVersion
-	PluginsS3Path?:                #RelativePath
-	RequirementsS3ObjectVersion?:  #S3ObjectVersion
-	RequirementsS3Path?:           #RelativePath
-	Schedulers?:                   #Schedulers
-	SourceBucketArn?:              #S3BucketArn
-	StartupScriptS3ObjectVersion?: #S3ObjectVersion
-	StartupScriptS3Path?:          #RelativePath
-	Tags?:                         fn.#Object & {...} | string | fn.#StringObjectExpression
-	WebserverAccessMode?:          #WebserverAccessMode
-	WeeklyMaintenanceWindowStart?: #WeeklyMaintenanceWindowStart
-	WorkerReplacementStrategy?:    #WorkerReplacementStrategy
-})
+		MaxWebservers?:                #MaxWebservers
+		MaxWorkers?:                   #MaxWorkers
+		MinWebservers?:                #MinWebservers
+		MinWorkers?:                   #MinWorkers
+		Name!:                         #EnvironmentName
+		NetworkConfiguration?:         #NetworkConfiguration
+		PluginsS3ObjectVersion?:       #S3ObjectVersion
+		PluginsS3Path?:                #RelativePath
+		RequirementsS3ObjectVersion?:  #S3ObjectVersion
+		RequirementsS3Path?:           #RelativePath
+		Schedulers?:                   #Schedulers
+		SourceBucketArn?:              #S3BucketArn
+		StartupScriptS3ObjectVersion?: #S3ObjectVersion
+		StartupScriptS3Path?:          #RelativePath
+		Tags?:                         fn.#Object & {...} | string | fn.#StringObjectExpression
+		WebserverAccessMode?:          #WebserverAccessMode
+		WeeklyMaintenanceWindowStart?: #WeeklyMaintenanceWindowStart
+		WorkerReplacementStrategy?:    #WorkerReplacementStrategy
+	})
+}
 
 #AirflowArn: strings.MaxRunes(1224) &
 strings.MinRunes(1) &
@@ -304,7 +307,3 @@ strings.MinRunes(1) &
 fn.#StringExpression
 
 #WorkerReplacementStrategy: "FORCED" | "GRACEFUL" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MWAA::Environment"
-	Properties!: #Properties
-}

@@ -15,13 +15,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates an ingestion destination, which specifies how an application's
 // ingested data is processed by Amazon Web Services AppFabric and where it's
 // delivered.
-#Properties: close({
-	AppBundleArn!:             strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression
-	DestinationConfiguration!: #DestinationConfiguration
-	IngestionArn!:             strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression
-	ProcessingConfiguration!:  #ProcessingConfiguration
-	Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppFabric::IngestionDestination"
+	Properties!: close({
+		AppBundleArn!:             strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression
+		DestinationConfiguration!: #DestinationConfiguration
+		IngestionArn!:             strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression
+		ProcessingConfiguration!:  #ProcessingConfiguration
+		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AuditLogDestinationConfiguration: close({Destination!: #Destination}) | fn.#ObjectExpression
 
@@ -60,7 +63,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppFabric::IngestionDestination"
-	Properties!: #Properties
-}

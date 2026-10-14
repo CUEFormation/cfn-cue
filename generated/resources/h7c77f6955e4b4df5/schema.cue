@@ -12,14 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceCatalog::LaunchNotificationConstraint
-#Properties: close({
-	AcceptLanguage?:   strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	Description?:      strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-	NotificationArns!: [...string | fn.#StringExpression] | fn.#ListExpression
-	PortfolioId!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
-	ProductId!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceCatalog::LaunchNotificationConstraint"
-	Properties!: #Properties
+	Type!: "AWS::ServiceCatalog::LaunchNotificationConstraint"
+	Properties!: close({
+		AcceptLanguage?:   strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		Description?:      strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
+		NotificationArns!: [...string | fn.#StringExpression] | fn.#ListExpression
+		PortfolioId!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
+		ProductId!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
+	})
 }

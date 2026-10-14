@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A connection function.
-#Properties: close({
-	AutoPublish?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ConnectionFunctionCode!:   string | fn.#StringExpression
-	ConnectionFunctionConfig!: #ConnectionFunctionConfig | fn.#ObjectExpression
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::ConnectionFunction"
+	Properties!: close({
+		AutoPublish?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ConnectionFunctionCode!:   string | fn.#StringExpression
+		ConnectionFunctionConfig!: #ConnectionFunctionConfig | fn.#ObjectExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ConnectionFunctionConfig: close({
 	Comment!:                   string | fn.#StringExpression
@@ -35,7 +38,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::ConnectionFunction"
-	Properties!: #Properties
-}

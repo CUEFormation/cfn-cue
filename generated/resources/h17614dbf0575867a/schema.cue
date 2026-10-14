@@ -17,38 +17,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Container
-#Properties: close({
-	ContainerServiceDeployment?: #ContainerServiceDeployment | fn.#ObjectExpression
-	IsDisabled?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Power!:                      "large" | "medium" | "micro" | "nano" | "small" | "xlarge" | fn.#StringExpression
-	PrivateRegistryAccess?: close({
-		EcrImagePullerRole?: close(
-			{IsActive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-		) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lightsail::Container"
+	Properties!: close({
+		ContainerServiceDeployment?: #ContainerServiceDeployment | fn.#ObjectExpression
+		IsDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Power!:      "large" | "medium" | "micro" | "nano" | "small" | "xlarge" | fn.#StringExpression
+		PrivateRegistryAccess?: close({
+			EcrImagePullerRole?: close(
+				{IsActive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
+			) |
+				fn.#ObjectExpression
+		}) |
 			fn.#ObjectExpression
-	}) |
-		fn.#ObjectExpression
-	PublicDomainNames?: list.UniqueItems() & [...#PublicDomainName] | fn.#ListExpression
-	Scale!: int & <=20 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=20 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ServiceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9]{1,2}|[a-z0-9][a-z0-9-]+[a-z0-9]$" |
-	fn.#StringExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+		PublicDomainNames?: list.UniqueItems() & [...#PublicDomainName] | fn.#ListExpression
+		Scale!: int & <=20 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=20 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ServiceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9]{1,2}|[a-z0-9][a-z0-9-]+[a-z0-9]$" |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Container: close({
 	Command?:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
@@ -179,7 +184,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::Container"
-	Properties!: #Properties
-}

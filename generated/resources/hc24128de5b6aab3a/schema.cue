@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Featured results are placed above all other results for certain queries. If
 // there's an exact match of a query, then one or more specific documents are
 // featured in the search results.
-#Properties: close({
-	Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-	FeaturedDocuments?: [...#FeaturedDocument] | fn.#ListExpression
-	FeaturedResultsSetName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][ a-zA-Z0-9_-]*$" |
-	fn.#StringExpression
-	IndexId!:    strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" | fn.#StringExpression
-	QueryTexts?: list.MaxItems(49) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Status?:     "ACTIVE" | "INACTIVE" | fn.#StringExpression
-	Tags?:       list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Kendra::FeaturedResultsSet"
+	Properties!: close({
+		Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
+		FeaturedDocuments?: [...#FeaturedDocument] | fn.#ListExpression
+		FeaturedResultsSetName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][ a-zA-Z0-9_-]*$" |
+		fn.#StringExpression
+		IndexId!:    strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" | fn.#StringExpression
+		QueryTexts?: list.MaxItems(49) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+		Status?:     "ACTIVE" | "INACTIVE" | fn.#StringExpression
+		Tags?:       list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #FeaturedDocument: close({Id?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
@@ -36,7 +39,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Kendra::FeaturedResultsSet"
-	Properties!: #Properties
-}

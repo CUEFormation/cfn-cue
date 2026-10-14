@@ -18,16 +18,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::IoTFleetWise::Vehicle Resource Type
-#Properties: close({
-	AssociationBehavior?: #VehicleAssociationBehavior
-	Attributes?:          #attributesMap
-	DecoderManifestArn!:  string | fn.#StringExpression
-	ModelManifestArn!:    string | fn.#StringExpression
-	Name!:                strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
-	StateTemplates?: list.MaxItems(20) & list.UniqueItems() & [...] & [...#StateTemplateAssociation] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTFleetWise::Vehicle"
+	Properties!: close({
+		AssociationBehavior?: #VehicleAssociationBehavior
+		Attributes?:          #attributesMap
+		DecoderManifestArn!:  string | fn.#StringExpression
+		ModelManifestArn!:    string | fn.#StringExpression
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
+		StateTemplates?: list.MaxItems(20) & list.UniqueItems() & [...] & [...#StateTemplateAssociation] |
+			fn.#ListExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #OnChangeStateTemplateUpdateStrategy: close({}) | fn.#ObjectExpression
 
@@ -82,7 +85,3 @@ fn.#ObjectExpression
 
 	{[=~"^[a-zA-Z0-9_.-]+$"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTFleetWise::Vehicle"
-	Properties!: #Properties
-}

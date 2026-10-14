@@ -17,14 +17,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A delivery destination is an AWS resource that represents an AWS service that
 // logs can be sent to CloudWatch Logs, Amazon S3, are supported as Kinesis
 // Data Firehose delivery destinations.
-#Properties: close({
-	DeliveryDestinationPolicy?: #DestinationPolicy & fn.#Object & {...} | fn.#ObjectExpression
-	DeliveryDestinationType?:   strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
-	DestinationResourceArn?:    #Arn | fn.#StringExpression
-	Name!:                      strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
-	OutputFormat?:              strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
-	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Logs::DeliveryDestination"
+	Properties!: close({
+		DeliveryDestinationPolicy?: #DestinationPolicy & fn.#Object & {...} | fn.#ObjectExpression
+		DeliveryDestinationType?: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
+		DestinationResourceArn?:  #Arn | fn.#StringExpression
+		Name!:                    strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
+		OutputFormat?:            strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
+		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" | fn.#StringExpression
 
@@ -39,7 +42,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::DeliveryDestination"
-	Properties!: #Properties
-}

@@ -34,121 +34,136 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [Migrate CloudFormation stacks from launch configurations to launch
 // templates](https://docs.aws.amazon.com/autoscaling/ec2/userguide/migrate-launch-configurations-with-cloudformation.html)
 // in the *Amazon EC2 Auto Scaling User Guide*.
-#Properties: close({
-	AutoScalingGroupName?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	AvailabilityZoneDistribution?: #AvailabilityZoneDistribution | fn.#ObjectExpression
-	AvailabilityZoneIds?: list.UniqueItems() & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	AvailabilityZoneImpairmentPolicy?: #AvailabilityZoneImpairmentPolicy | fn.#ObjectExpression
-	AvailabilityZones?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	CapacityRebalance?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CapacityReservationSpecification?: #CapacityReservationSpecification | fn.#ObjectExpression
-	Context?:                          string | fn.#StringExpression
-	Cooldown?:                         string | fn.#StringExpression
-	DefaultInstanceWarmup?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	DeletionProtection?:  "none" | "prevent-all-deletion" | "prevent-force-deletion" | fn.#StringExpression
-	DesiredCapacity?:     =~"^[0-9]+$" | fn.#StringExpression
-	DesiredCapacityType?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	HealthCheckGracePeriod?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	HealthCheckType?: strings.MaxRunes(32) &
-	strings.MinRunes(1) &
-	=~"^(EBS|EC2|ELB|VPC_LATTICE)(,(EBS|EC2|ELB|VPC_LATTICE))*,?$" |
-	fn.#StringExpression
-	InstanceId?:                     strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceLifecyclePolicy?:        #InstanceLifecyclePolicy | fn.#ObjectExpression
-	InstanceMaintenancePolicy?:      #InstanceMaintenancePolicy | fn.#ObjectExpression
-	LaunchConfigurationName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	LaunchTemplate?:                 #LaunchTemplateSpecification | fn.#ObjectExpression
-	LifecycleHookSpecificationList?: [...#LifecycleHookSpecification] | fn.#ListExpression
-	LoadBalancerNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	MaxInstanceLifetime?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaxSize!:              =~"^[0-9]+$" | fn.#StringExpression
-	MetricsCollection?:    [...#MetricsCollection] | fn.#ListExpression
-	MinSize!:              =~"^[0-9]+$" | fn.#StringExpression
-	MixedInstancesPolicy?: #MixedInstancesPolicy | fn.#ObjectExpression
-	NewInstancesProtectedFromScaleIn?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	NotificationConfiguration?:  #NotificationConfiguration | fn.#ObjectExpression
-	NotificationConfigurations?: [...#NotificationConfiguration] | fn.#ListExpression
-	PlacementGroup?:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ServiceLinkedRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	SkipZonalShiftValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                     [...#TagProperty] | fn.#ListExpression
-	TargetGroupARNs?:     [...strings.MaxRunes(511) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	TerminationPolicies?: [...strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	TrafficSources?:      list.UniqueItems() & [...#TrafficSourceIdentifier] | fn.#ListExpression
-	VPCZoneIdentifier?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	if InstanceId != _|_ {
-		LaunchConfigurationName?: error(
-			"LaunchConfigurationName cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
-		)
-		LaunchTemplate?: error(
-			"LaunchTemplate cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
-		)
-		MixedInstancesPolicy?: error(
-			"MixedInstancesPolicy cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
-		)
-	}
-	if LaunchConfigurationName != _|_ {
-		LaunchTemplate?: error(
-			"LaunchTemplate cannot be used with LaunchConfigurationName; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
-		)
-		MixedInstancesPolicy?: error(
-			"MixedInstancesPolicy cannot be used with LaunchConfigurationName; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
-		)
-	}
-	if LaunchTemplate != _|_ {
-		MixedInstancesPolicy?: error(
-			"MixedInstancesPolicy cannot be used with LaunchTemplate; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
-		)
-	}
-}) & matchN(>=1, [{InstanceId!: _}, {LaunchConfigurationName!: _}, {LaunchTemplate!: _}, {MixedInstancesPolicy!: _}])
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AutoScaling::AutoScalingGroup"
+	Properties!: close({
+		AutoScalingGroupName?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		AvailabilityZoneDistribution?: #AvailabilityZoneDistribution | fn.#ObjectExpression
+		AvailabilityZoneIds?: list.UniqueItems() & [
+			...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		AvailabilityZoneImpairmentPolicy?: #AvailabilityZoneImpairmentPolicy | fn.#ObjectExpression
+		AvailabilityZones?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		CapacityRebalance?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		CapacityReservationSpecification?: #CapacityReservationSpecification | fn.#ObjectExpression
+		Context?:                          string | fn.#StringExpression
+		Cooldown?:                         string | fn.#StringExpression
+		DefaultInstanceWarmup?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		DeletionProtection?:  "none" | "prevent-all-deletion" | "prevent-force-deletion" | fn.#StringExpression
+		DesiredCapacity?:     =~"^[0-9]+$" | fn.#StringExpression
+		DesiredCapacityType?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		HealthCheckGracePeriod?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		HealthCheckType?: strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"^(EBS|EC2|ELB|VPC_LATTICE)(,(EBS|EC2|ELB|VPC_LATTICE))*,?$" |
+		fn.#StringExpression
+		InstanceId?:                     strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceLifecyclePolicy?:        #InstanceLifecyclePolicy | fn.#ObjectExpression
+		InstanceMaintenancePolicy?:      #InstanceMaintenancePolicy | fn.#ObjectExpression
+		LaunchConfigurationName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		LaunchTemplate?:                 #LaunchTemplateSpecification | fn.#ObjectExpression
+		LifecycleHookSpecificationList?: [...#LifecycleHookSpecification] | fn.#ListExpression
+		LoadBalancerNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		MaxInstanceLifetime?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxSize!:              =~"^[0-9]+$" | fn.#StringExpression
+		MetricsCollection?:    [...#MetricsCollection] | fn.#ListExpression
+		MinSize!:              =~"^[0-9]+$" | fn.#StringExpression
+		MixedInstancesPolicy?: #MixedInstancesPolicy | fn.#ObjectExpression
+		NewInstancesProtectedFromScaleIn?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		NotificationConfiguration?:  #NotificationConfiguration | fn.#ObjectExpression
+		NotificationConfigurations?: [...#NotificationConfiguration] | fn.#ListExpression
+		PlacementGroup?:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		ServiceLinkedRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		SkipZonalShiftValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                     [...#TagProperty] | fn.#ListExpression
+		TargetGroupARNs?: [...strings.MaxRunes(511) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		TerminationPolicies?: [...strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+		TrafficSources?:    list.UniqueItems() & [...#TrafficSourceIdentifier] | fn.#ListExpression
+		VPCZoneIdentifier?: [...string | fn.#StringExpression] | fn.#ListExpression
+		if InstanceId != _|_ {
+			LaunchConfigurationName?: error(
+				"LaunchConfigurationName cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+			)
+			LaunchTemplate?: error(
+				"LaunchTemplate cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+			)
+			MixedInstancesPolicy?: error(
+				"MixedInstancesPolicy cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+			)
+		}
+		if LaunchConfigurationName != _|_ {
+			LaunchTemplate?: error(
+				"LaunchTemplate cannot be used with LaunchConfigurationName; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+			)
+			MixedInstancesPolicy?: error(
+				"MixedInstancesPolicy cannot be used with LaunchConfigurationName; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+			)
+		}
+		if LaunchTemplate != _|_ {
+			MixedInstancesPolicy?: error(
+				"MixedInstancesPolicy cannot be used with LaunchTemplate; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
+			)
+		}
+	}) & matchN(
+		>=1,
+		[{InstanceId!: _}, {LaunchConfigurationName!: _}, {LaunchTemplate!: _}, {MixedInstancesPolicy!: _}],
+	)
+}
 
 #AcceleratorCountRequest: close({
 	Max?: int & >=0 |
@@ -823,7 +838,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AutoScaling::AutoScalingGroup"
-	Properties!: #Properties
-}

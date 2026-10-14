@@ -15,11 +15,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for Local Gateway Route Table Virtual Interface
 // Group Association which describes a local gateway route table virtual
 // interface group association for a local gateway.
-#Properties: close({
-	LocalGatewayRouteTableId!:            string | fn.#StringExpression
-	LocalGatewayVirtualInterfaceGroupId!: string | fn.#StringExpression
-	Tags?:                                #Tags | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::LocalGatewayRouteTableVirtualInterfaceGroupAssociation"
+	Properties!: close({
+		LocalGatewayRouteTableId!:            string | fn.#StringExpression
+		LocalGatewayVirtualInterfaceGroupId!: string | fn.#StringExpression
+		Tags?:                                #Tags | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
@@ -28,7 +31,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::LocalGatewayRouteTableVirtualInterfaceGroupAssociation"
-	Properties!: #Properties
-}

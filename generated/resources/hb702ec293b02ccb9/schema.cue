@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::GatewayRoute
-#Properties: close({
-	GatewayRouteName?:   string | fn.#StringExpression
-	MeshName!:           string | fn.#StringExpression
-	MeshOwner?:          string | fn.#StringExpression
-	Spec!:               #GatewayRouteSpec
-	Tags?:               [...#Tag] | fn.#ListExpression
-	VirtualGatewayName!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppMesh::GatewayRoute"
+	Properties!: close({
+		GatewayRouteName?:   string | fn.#StringExpression
+		MeshName!:           string | fn.#StringExpression
+		MeshOwner?:          string | fn.#StringExpression
+		Spec!:               #GatewayRouteSpec
+		Tags?:               [...#Tag] | fn.#ListExpression
+		VirtualGatewayName!: string | fn.#StringExpression
+	})
+}
 
 #GatewayRouteHostnameMatch: close({
 	Exact?:  string | fn.#StringExpression
@@ -241,7 +244,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppMesh::GatewayRoute"
-	Properties!: #Properties
-}

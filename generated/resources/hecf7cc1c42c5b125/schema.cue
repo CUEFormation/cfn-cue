@@ -9,15 +9,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ExperimentTrialComponent
-#Properties: close({
-	DisplayName?:        string | fn.#StringExpression
-	EndTime?:            string | fn.#StringExpression
-	MetadataProperties?: #MetadataProperties
-	StartTime?:          string | fn.#StringExpression
-	Status?:             #Status
-	Tags?:               [...#TagsItems] | fn.#ListExpression
-	TrialComponentName!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::ExperimentTrialComponent"
+	Properties!: close({
+		DisplayName?:        string | fn.#StringExpression
+		EndTime?:            string | fn.#StringExpression
+		MetadataProperties?: #MetadataProperties
+		StartTime?:          string | fn.#StringExpression
+		Status?:             #Status
+		Tags?:               [...#TagsItems] | fn.#ListExpression
+		TrialComponentName!: string | fn.#StringExpression
+	})
+}
 
 #MetadataProperties: close({
 	CommitId?:    string | fn.#StringExpression
@@ -38,7 +41,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::ExperimentTrialComponent"
-	Properties!: #Properties
-}

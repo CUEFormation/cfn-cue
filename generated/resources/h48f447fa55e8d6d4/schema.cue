@@ -18,24 +18,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::Flow Resource Type
-#Properties: close({
-	CustomerEncryptionKeyArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
-	fn.#StringExpression
-	Definition?:              #FlowDefinition
-	DefinitionS3Location?:    #S3Location
-	DefinitionString?:        strings.MaxRunes(512000) | fn.#StringExpression
-	DefinitionSubstitutions?: #DefinitionSubstitutions
-	Description?:             strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/(service-role/)?.+$" |
-	fn.#StringExpression
-	Name!:          =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	Tags?:          #TagsMap
-	TestAliasTags?: #TagsMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::Flow"
+	Properties!: close({
+		CustomerEncryptionKeyArn?: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		fn.#StringExpression
+		Definition?:              #FlowDefinition
+		DefinitionS3Location?:    #S3Location
+		DefinitionString?:        strings.MaxRunes(512000) | fn.#StringExpression
+		DefinitionSubstitutions?: #DefinitionSubstitutions
+		Description?:             strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/(service-role/)?.+$" |
+		fn.#StringExpression
+		Name!:          =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+		Tags?:          #TagsMap
+		TestAliasTags?: #TagsMap
+	})
+}
 
 #AdditionalModelRequestFields: fn.#Object & {...} | fn.#ObjectExpression
 
@@ -502,7 +505,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VectorSearchRerankingConfigurationType: "BEDROCK_RERANKING_MODEL" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::Flow"
-	Properties!: #Properties
-}

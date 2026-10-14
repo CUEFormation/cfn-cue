@@ -17,27 +17,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The ``AWS::ApiGateway::Method`` resource creates API Gateway methods that
 // define the parameters and body that clients must send in their requests.
-#Properties: close({
-	ApiKeyRequired?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AuthorizationScopes?: [...string | fn.#StringExpression] | fn.#ListExpression
-	AuthorizationType?:   string | fn.#StringExpression
-	AuthorizerId?:        string | fn.#StringExpression
-	HttpMethod!:          string | fn.#StringExpression
-	Integration?:         #Integration | fn.#ObjectExpression
-	MethodResponses?:     list.UniqueItems() & [...#MethodResponse] | fn.#ListExpression
-	OperationName?:       string | fn.#StringExpression
-	RequestModels?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGateway::Method"
+	Properties!: close({
+		ApiKeyRequired?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AuthorizationScopes?: [...string | fn.#StringExpression] | fn.#ListExpression
+		AuthorizationType?:   string | fn.#StringExpression
+		AuthorizerId?:        string | fn.#StringExpression
+		HttpMethod!:          string | fn.#StringExpression
+		Integration?:         #Integration | fn.#ObjectExpression
+		MethodResponses?:     list.UniqueItems() & [...#MethodResponse] | fn.#ListExpression
+		OperationName?:       string | fn.#StringExpression
+		RequestModels?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	RequestParameters?: close({
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		RequestParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: bool | string | fn.#StringBooleanExpression}}) |
-	fn.#ObjectExpression
-	RequestValidatorId?: string | fn.#StringExpression
-	ResourceId!:         string | fn.#StringExpression
-	RestApiId!:          string | fn.#StringExpression
-})
+			{[=~"[a-zA-Z0-9]+"]: bool | string | fn.#StringBooleanExpression}}) |
+		fn.#ObjectExpression
+		RequestValidatorId?: string | fn.#StringExpression
+		ResourceId!:         string | fn.#StringExpression
+		RestApiId!:          string | fn.#StringExpression
+	})
+}
 
 #Integration: close({
 	CacheKeyParameters?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
@@ -106,7 +109,3 @@ fn.#ObjectExpression
 	StatusCode!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::Method"
-	Properties!: #Properties
-}

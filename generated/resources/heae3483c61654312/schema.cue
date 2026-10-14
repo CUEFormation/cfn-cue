@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::UserProfile
-#Properties: close({
-	DomainId!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" | fn.#StringExpression
-	SingleSignOnUserIdentifier?: =~"UserName" | fn.#StringExpression
-	SingleSignOnUserValue?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                       list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	UserProfileName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-	UserSettings?: #UserSettings & (null | bool | number | string | list.MaxItems(50) & [...] | {...}) |
-	fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::UserProfile"
+	Properties!: close({
+		DomainId!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" | fn.#StringExpression
+		SingleSignOnUserIdentifier?: =~"UserName" | fn.#StringExpression
+		SingleSignOnUserValue?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                       list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		UserProfileName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
+		UserSettings?: #UserSettings & (null | bool | number | string | list.MaxItems(50) & [...] | {...}) |
+		fn.#ObjectExpression
+	})
+}
 
 #AppInstanceType: "system" |
 	"ml.t3.micro" |
@@ -558,7 +561,3 @@ fn.#ObjectExpression
 	StudioWebPortalSettings?: #StudioWebPortalSettings
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::UserProfile"
-	Properties!: #Properties
-}

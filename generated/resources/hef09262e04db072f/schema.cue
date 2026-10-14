@@ -17,25 +17,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Instance
-#Properties: close({
-	AddOns?:           [...#AddOn] | fn.#ListExpression
-	AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	BlueprintId!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	BundleId!:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Hardware?:         close({Disks?: list.UniqueItems() & [...#Disk] | fn.#ListExpression}) | fn.#ObjectExpression
-	InstanceName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
-	fn.#StringExpression
-	KeyPairName?: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-	Location?:    close({}) | fn.#ObjectExpression
-	Networking?: close({
-		MonthlyTransfer?: close({}) | fn.#ObjectExpression
-		Ports!:           list.UniqueItems() & [...#Port] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	State?:    close({}) | fn.#ObjectExpression
-	Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	UserData?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lightsail::Instance"
+	Properties!: close({
+		AddOns?:           [...#AddOn] | fn.#ListExpression
+		AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		BlueprintId!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		BundleId!:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		Hardware?:         close({Disks?: list.UniqueItems() & [...#Disk] | fn.#ListExpression}) | fn.#ObjectExpression
+		InstanceName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
+		fn.#StringExpression
+		KeyPairName?: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
+		Location?:    close({}) | fn.#ObjectExpression
+		Networking?: close({
+			MonthlyTransfer?: close({}) | fn.#ObjectExpression
+			Ports!:           list.UniqueItems() & [...#Port] | fn.#ListExpression
+		}) |
+		fn.#ObjectExpression
+		State?:    close({}) | fn.#ObjectExpression
+		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		UserData?: string | fn.#StringExpression
+	})
+}
 
 #AddOn: close({
 	AddOnType!: ("AutoSnapshot" | "StopInstanceOnIdle") & (strings.MaxRunes(128) & strings.MinRunes(1)) |
@@ -196,7 +199,3 @@ fn.#ObjectExpression
 #cidrs: [...string | fn.#StringExpression] | fn.#ListExpression
 
 #ipv6Cidrs: [...string | fn.#StringExpression] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::Instance"
-	Properties!: #Properties
-}

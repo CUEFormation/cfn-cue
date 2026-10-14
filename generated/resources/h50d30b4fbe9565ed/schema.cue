@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::EnforcedGuardrailConfiguration Resource Type
-#Properties: close({
-	GuardrailIdentifier!: strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$" |
-	fn.#StringExpression
-	GuardrailVersion!:         =~"^[1-9][0-9]{0,7}$" | fn.#StringExpression
-	ModelEnforcement?:         #ModelEnforcement
-	SelectiveContentGuarding?: #SelectiveContentGuarding
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::EnforcedGuardrailConfiguration"
+	Properties!: close({
+		GuardrailIdentifier!: strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$" |
+		fn.#StringExpression
+		GuardrailVersion!:         =~"^[1-9][0-9]{0,7}$" | fn.#StringExpression
+		ModelEnforcement?:         #ModelEnforcement
+		SelectiveContentGuarding?: #SelectiveContentGuarding
+	})
+}
 
 #ConfigOwner: "ACCOUNT" | "ORGANIZATION" | fn.#StringExpression
 
@@ -44,7 +47,3 @@ fn.#ObjectExpression
 	System?:   "SELECTIVE" | "COMPREHENSIVE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::EnforcedGuardrailConfiguration"
-	Properties!: #Properties
-}

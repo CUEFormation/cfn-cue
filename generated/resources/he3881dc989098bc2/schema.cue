@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a metric attribution for reporting on recommendation impact in Amazon Personalize.
-#Properties: close({
-	DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^arn:([a-z\\d-]+):personalize:.*:.*:.+$" |
-	fn.#StringExpression
-	Metrics!:             list.MaxItems(10) & [...] & [...#MetricAttribute] | fn.#ListExpression
-	MetricsOutputConfig!: #MetricsOutputConfig
-	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Personalize::MetricAttribution"
+	Properties!: close({
+		DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^arn:([a-z\\d-]+):personalize:.*:.*:.+$" |
+		fn.#StringExpression
+		Metrics!:             list.MaxItems(10) & [...] & [...#MetricAttribute] | fn.#ListExpression
+		MetricsOutputConfig!: #MetricsOutputConfig
+		Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*$" | fn.#StringExpression
+	})
+}
 
 #MetricAttribute: close({
 	EventType!:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
@@ -47,7 +50,3 @@ fn.#ObjectExpression
 	Path!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(s3|http|https)://.+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Personalize::MetricAttribution"
-	Properties!: #Properties
-}

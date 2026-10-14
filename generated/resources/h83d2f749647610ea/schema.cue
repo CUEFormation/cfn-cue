@@ -20,31 +20,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates an Amazon Kinesis Data Analytics application. For information about
 // creating a Kinesis Data Analytics application, see [Creating an
 // Application](https://docs.aws.amazon.com/kinesisanalytics/latest/java/getting-started.html).
-#Properties: close({
-	ApplicationConfiguration?:            #ApplicationConfiguration | fn.#ObjectExpression
-	ApplicationDescription?:              strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ApplicationMaintenanceConfiguration?: #ApplicationMaintenanceConfiguration | fn.#ObjectExpression
-	ApplicationMode?:                     "INTERACTIVE" | "STREAMING" | fn.#StringExpression
-	ApplicationName?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	RunConfiguration?: #RunConfiguration | fn.#ObjectExpression
-	RuntimeEnvironment!: "FLINK-1_11" |
-		"FLINK-1_13" |
-		"FLINK-1_15" |
-		"FLINK-1_18" |
-		"FLINK-1_19" |
-		"FLINK-1_20" |
-		"FLINK-1_6" |
-		"FLINK-1_8" |
-		"FLINK-2_2" |
-		"FLINK-2_3" |
-		"SQL-1_0" |
-		"ZEPPELIN-FLINK-1_0" |
-		"ZEPPELIN-FLINK-2_0" |
-		"ZEPPELIN-FLINK-3_0" |
-		fn.#StringExpression
-	ServiceExecutionRole!: #Arn | fn.#StringExpression
-	Tags?:                 list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KinesisAnalyticsV2::Application"
+	Properties!: close({
+		ApplicationConfiguration?:            #ApplicationConfiguration | fn.#ObjectExpression
+		ApplicationDescription?:              strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		ApplicationMaintenanceConfiguration?: #ApplicationMaintenanceConfiguration | fn.#ObjectExpression
+		ApplicationMode?:                     "INTERACTIVE" | "STREAMING" | fn.#StringExpression
+		ApplicationName?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+		RunConfiguration?: #RunConfiguration | fn.#ObjectExpression
+		RuntimeEnvironment!: "FLINK-1_11" |
+			"FLINK-1_13" |
+			"FLINK-1_15" |
+			"FLINK-1_18" |
+			"FLINK-1_19" |
+			"FLINK-1_20" |
+			"FLINK-1_6" |
+			"FLINK-1_8" |
+			"FLINK-2_2" |
+			"FLINK-2_3" |
+			"SQL-1_0" |
+			"ZEPPELIN-FLINK-1_0" |
+			"ZEPPELIN-FLINK-2_0" |
+			"ZEPPELIN-FLINK-3_0" |
+			fn.#StringExpression
+		ServiceExecutionRole!: #Arn | fn.#StringExpression
+		Tags?:                 list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ApplicationCodeConfiguration: close({
 	CodeContent!:     #CodeContent | fn.#ObjectExpression
@@ -358,7 +361,3 @@ fn.#ObjectExpression
 
 #ZeppelinMonitoringConfiguration: close({LogLevel?: "DEBUG" | "INFO" | "WARN" | "ERROR" | fn.#StringExpression}) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KinesisAnalyticsV2::Application"
-	Properties!: #Properties
-}

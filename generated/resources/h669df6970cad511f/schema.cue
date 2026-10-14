@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SES::ContactList.
-#Properties: close({
-	ContactListName?: =~"^[a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
-	Description?:     strings.MaxRunes(500) | fn.#StringExpression
-	Tags?:            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	Topics?:          list.MaxItems(20) & [...] & [...#Topic] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::ContactList"
+	Properties?: close({
+		ContactListName?: =~"^[a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
+		Description?:     strings.MaxRunes(500) | fn.#StringExpression
+		Tags?:            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Topics?:          list.MaxItems(20) & [...] & [...#Topic] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -33,7 +36,3 @@ fn.#ObjectExpression
 	TopicName!:                 =~"^[a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::ContactList"
-	Properties?: #Properties
-}

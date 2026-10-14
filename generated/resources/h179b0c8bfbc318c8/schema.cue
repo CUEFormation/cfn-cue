@@ -18,16 +18,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::Theme Resource Type.
-#Properties: close({
-	AwsAccountId!:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	BaseThemeId!:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Configuration!:      #ThemeConfiguration
-	Name!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Permissions?:        list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
-	Tags?:               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	ThemeId!:            strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	VersionDescription?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::Theme"
+	Properties!: close({
+		AwsAccountId!:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		BaseThemeId!:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+		Configuration!:      #ThemeConfiguration
+		Name!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Permissions?:        list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+		Tags?:               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		ThemeId!:            strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+		VersionDescription?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #BorderStyle: close({
 	Color?: string | fn.#StringExpression
@@ -217,7 +220,3 @@ fn.#ObjectExpression
 	TextTransform?:     #TextTransform
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::Theme"
-	Properties!: #Properties
-}

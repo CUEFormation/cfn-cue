@@ -20,17 +20,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // activities that aren't included in the CodePipeline default actions, such as
 // running an internally developed build process or a test suite. You can use
 // these custom actions in the stage of a pipeline.
-#Properties: close({
-	Category!: "Approval" | "Build" | "Compute" | "Deploy" | "Invoke" | "Source" | "Test" | fn.#StringExpression
-	ConfigurationProperties?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#ConfigurationProperties] |
-		fn.#ListExpression
-	InputArtifactDetails!:  #ArtifactDetails | fn.#ObjectExpression
-	OutputArtifactDetails!: #ArtifactDetails | fn.#ObjectExpression
-	Provider!:              strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
-	Settings?:              #Settings | fn.#ObjectExpression
-	Tags?:                  [...#Tag] | fn.#ListExpression
-	Version!:               strings.MaxRunes(9) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodePipeline::CustomActionType"
+	Properties!: close({
+		Category!: "Approval" | "Build" | "Compute" | "Deploy" | "Invoke" | "Source" | "Test" | fn.#StringExpression
+		ConfigurationProperties?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#ConfigurationProperties] |
+			fn.#ListExpression
+		InputArtifactDetails!:  #ArtifactDetails | fn.#ObjectExpression
+		OutputArtifactDetails!: #ArtifactDetails | fn.#ObjectExpression
+		Provider!:              strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
+		Settings?:              #Settings | fn.#ObjectExpression
+		Tags?:                  [...#Tag] | fn.#ListExpression
+		Version!:               strings.MaxRunes(9) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
+	})
+}
 
 #ArtifactDetails: close({
 	MaximumCount!: int & <=5 & >=0 |
@@ -92,7 +95,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodePipeline::CustomActionType"
-	Properties!: #Properties
-}

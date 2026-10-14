@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::PaymentConnector
-#Properties: close({
-	ConnectorName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-	ConnectorType!: #PaymentConnectorType
-	CredentialProviderConfigurations?: list.MaxItems(1) & [...] & [...#CredentialsProviderConfiguration] |
-		fn.#ListExpression
-	Description?:      strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s]+$" | fn.#StringExpression
-	PaymentManagerId!: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
-	ProvisionMode?:    #PaymentConnectorProvisionMode | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::PaymentConnector"
+	Properties!: close({
+		ConnectorName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+		ConnectorType!: #PaymentConnectorType
+		CredentialProviderConfigurations?: list.MaxItems(1) & [...] & [...#CredentialsProviderConfiguration] |
+			fn.#ListExpression
+		Description?:      strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s]+$" | fn.#StringExpression
+		PaymentManagerId!: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
+		ProvisionMode?:    #PaymentConnectorProvisionMode | fn.#StringExpression
+	})
+}
 
 #CredentialsProviderConfiguration: close({
 	CoinbaseCDP?: #PaymentCredentialProviderConfiguration
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 
 #PaymentCredentialProviderConfiguration: close({CredentialProviderArn!: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::PaymentConnector"
-	Properties!: #Properties
-}

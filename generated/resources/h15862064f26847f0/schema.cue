@@ -9,13 +9,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::VirtualService
-#Properties: close({
-	MeshName!:           string | fn.#StringExpression
-	MeshOwner?:          string | fn.#StringExpression
-	Spec!:               #VirtualServiceSpec
-	Tags?:               [...#Tag] | fn.#ListExpression
-	VirtualServiceName!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppMesh::VirtualService"
+	Properties!: close({
+		MeshName!:           string | fn.#StringExpression
+		MeshOwner?:          string | fn.#StringExpression
+		Spec!:               #VirtualServiceSpec
+		Tags?:               [...#Tag] | fn.#ListExpression
+		VirtualServiceName!: string | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
@@ -34,7 +37,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VirtualServiceSpec: close({Provider?: #VirtualServiceProvider}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppMesh::VirtualService"
-	Properties!: #Properties
-}

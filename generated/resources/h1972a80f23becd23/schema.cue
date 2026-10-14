@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EMRContainers::SecurityConfiguration Type
-#Properties: close({
-	ContainerProvider?: #ContainerProvider | fn.#ObjectExpression
-	Name?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
-	SecurityConfigurationData!: #SecurityConfigurationData | fn.#ObjectExpression
-	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMRContainers::SecurityConfiguration"
+	Properties!: close({
+		ContainerProvider?: #ContainerProvider | fn.#ObjectExpression
+		Name?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
+		SecurityConfigurationData!: #SecurityConfigurationData | fn.#ObjectExpression
+		Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AtRestEncryptionConfiguration: close({
 	LocalDiskEncryptionConfiguration?: #LocalDiskEncryptionConfiguration
@@ -131,7 +134,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMRContainers::SecurityConfiguration"
-	Properties!: #Properties
-}

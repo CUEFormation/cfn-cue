@@ -18,34 +18,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a budget to set spending thresholds for your rendering activity.
-#Properties: close({
-	Actions!: list.MaxItems(10) & [...] & [...#BudgetActionToAdd] | fn.#ListExpression
-	ApproximateDollarLimit!: >=0.01 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Deadline::Budget"
+	Properties!: close({
+		Actions!: list.MaxItems(10) & [...] & [...#BudgetActionToAdd] | fn.#ListExpression
+		ApproximateDollarLimit!: >=0.01 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								>=0.01,
+							"g",
+							-1,
 							64,
-						) &
-							>=0.01,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Description?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	DisplayName!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	FarmId!:                =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-	Schedule!:              #BudgetSchedule
-	Tags?:                  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-	UsageTrackingResource!: #UsageTrackingResource
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Description?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		DisplayName!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		FarmId!:                =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+		Schedule!:              #BudgetSchedule
+		Tags?:                  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		UsageTrackingResource!: #UsageTrackingResource
+	})
+}
 
 #BudgetActionToAdd: close({
 	Description?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
@@ -88,7 +91,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #UsageTrackingResource: close({QueueId!: =~"^queue-[0-9a-f]{32}$" | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Deadline::Budget"
-	Properties!: #Properties
-}

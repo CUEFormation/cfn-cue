@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CustomerProfiles::DomainObjectType
-#Properties: close({
-	Description?:    #Description
-	DomainName!:     #DomainName
-	EncryptionKey?:  #EncryptionKey
-	Fields!:         #DomainObjectTypeFields
-	ObjectTypeName!: #ObjectTypeName
-	Tags?:           #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CustomerProfiles::DomainObjectType"
+	Properties!: close({
+		Description?:    #Description
+		DomainName!:     #DomainName
+		EncryptionKey?:  #EncryptionKey
+		Fields!:         #DomainObjectTypeFields
+		ObjectTypeName!: #ObjectTypeName
+		Tags?:           #Tags
+	})
+}
 
 #Description: strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -50,7 +53,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CustomerProfiles::DomainObjectType"
-	Properties!: #Properties
-}

@@ -17,19 +17,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::B2BI::Partnership Resource Type
-#Properties: close({
-	Capabilities!: [...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression] |
-	fn.#ListExpression
-	CapabilityOptions?: #CapabilityOptions
-	Email!: strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" | fn.#StringExpression
-	Name!:  strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
-	Phone?: strings.MaxRunes(22) &
-	strings.MinRunes(7) &
-	=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$" |
-	fn.#StringExpression
-	ProfileId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::B2BI::Partnership"
+	Properties!: close({
+		Capabilities!: [...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression] |
+		fn.#ListExpression
+		CapabilityOptions?: #CapabilityOptions
+		Email!: strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" | fn.#StringExpression
+		Name!:  strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
+		Phone?: strings.MaxRunes(22) &
+		strings.MinRunes(7) &
+		=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$" |
+		fn.#StringExpression
+		ProfileId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CapabilityOptions: close({
 	InboundEdi?:  #InboundEdiOptions
@@ -200,7 +203,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #X12TechnicalAcknowledgment: "DO_NOT_GENERATE" | "GENERATE_ALL_SEGMENTS" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::B2BI::Partnership"
-	Properties!: #Properties
-}

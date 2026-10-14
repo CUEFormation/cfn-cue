@@ -17,26 +17,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Athena::CapacityReservation
-#Properties: close({
-	CapacityAssignmentConfiguration?: #CapacityAssignmentConfiguration
-	Name!:                            =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
-	Tags?:                            list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TargetDpus!: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Athena::CapacityReservation"
+	Properties!: close({
+		CapacityAssignmentConfiguration?: #CapacityAssignmentConfiguration
+		Name!:                            =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
+		Tags?:                            list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetDpus!: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #Arn: string | fn.#StringExpression
 
@@ -63,7 +68,3 @@ fn.#ObjectExpression
 #WorkgroupName: =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
 
 #WorkgroupNames: [...#WorkgroupName] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Athena::CapacityReservation"
-	Properties!: #Properties
-}

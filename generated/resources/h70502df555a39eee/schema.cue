@@ -16,12 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Partition
-#Properties: close({
-	CatalogId!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DatabaseName!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	PartitionInput!: #PartitionInput
-	TableName!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Partition"
+	Properties!: close({
+		CatalogId!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DatabaseName!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		PartitionInput!: #PartitionInput
+		TableName!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #Column: close({
 	Comment?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
@@ -134,7 +137,3 @@ fn.#ObjectExpression
 	StoredAsSubDirectories?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Partition"
-	Properties!: #Properties
-}

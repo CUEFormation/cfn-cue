@@ -13,24 +13,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::IoTFleetWise::DecoderManifest Resource Type
-#Properties: close({
-	DefaultForUnmappedSignals?: #DefaultForUnmappedSignalsType
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	ModelManifestArn!: string | fn.#StringExpression
-	Name!:             strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
-	NetworkInterfaces?: list.MaxItems(5000) & list.MinItems(1) & [
-		...matchN(1, [#CanNetworkInterface, #ObdNetworkInterface, #CustomDecodingNetworkInterface]) |
-		fn.#ValueExpression
-	] |
-	fn.#ListExpression
-	SignalDecoders?: list.MaxItems(5000) & list.MinItems(1) & [
-		...matchN(1, [#CanSignalDecoder, #ObdSignalDecoder, #CustomDecodingSignalDecoder]) | fn.#ValueExpression
-	] |
-	fn.#ListExpression
-	Status?: #ManifestStatus
-	Tags?:   list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTFleetWise::DecoderManifest"
+	Properties!: close({
+		DefaultForUnmappedSignals?: #DefaultForUnmappedSignalsType
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
+		ModelManifestArn!: string | fn.#StringExpression
+		Name!:             strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
+		NetworkInterfaces?: list.MaxItems(5000) & list.MinItems(1) & [
+			...matchN(1, [#CanNetworkInterface, #ObdNetworkInterface, #CustomDecodingNetworkInterface]) |
+			fn.#ValueExpression
+		] |
+		fn.#ListExpression
+		SignalDecoders?: list.MaxItems(5000) & list.MinItems(1) & [
+			...matchN(1, [#CanSignalDecoder, #ObdSignalDecoder, #CustomDecodingSignalDecoder]) | fn.#ValueExpression
+		] |
+		fn.#ListExpression
+		Status?: #ManifestStatus
+		Tags?:   list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CanInterface: close({
 	Name!:            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
@@ -142,7 +145,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTFleetWise::DecoderManifest"
-	Properties!: #Properties
-}

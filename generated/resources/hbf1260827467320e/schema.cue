@@ -18,23 +18,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Scheduler::Schedule Resource Type
-#Properties: close({
-	Description?:        strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	EndDate?:            time.Time | fn.#StringExpression
-	FlexibleTimeWindow!: #FlexibleTimeWindow
-	GroupName?:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$" | fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[a-z-]*:kms:[a-z0-9\\-]+:\\d{12}:(key|alias)\\/[0-9a-zA-Z-_]*$" |
-	fn.#StringExpression
-	Name?:               strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$" | fn.#StringExpression
-	ScheduleExpression!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ScheduleExpressionTimezone?: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	StartDate?:                  time.Time | fn.#StringExpression
-	State?:                      #ScheduleState
-	Target!:                     #Target
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Scheduler::Schedule"
+	Properties!: close({
+		Description?:        strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		EndDate?:            time.Time | fn.#StringExpression
+		FlexibleTimeWindow!: #FlexibleTimeWindow
+		GroupName?:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$" | fn.#StringExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[a-z-]*:kms:[a-z0-9\\-]+:\\d{12}:(key|alias)\\/[0-9a-zA-Z-_]*$" |
+		fn.#StringExpression
+		Name?:               strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$" | fn.#StringExpression
+		ScheduleExpression!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		ScheduleExpressionTimezone?: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+		StartDate?:                  time.Time | fn.#StringExpression
+		State?:                      #ScheduleState
+		Target!:                     #Target
+	})
+}
 
 #AssignPublicIp: "ENABLED" | "DISABLED" | fn.#StringExpression
 
@@ -280,7 +283,3 @@ fn.#ObjectExpression
 	SqsParameters?:               #SqsParameters
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Scheduler::Schedule"
-	Properties!: #Properties
-}

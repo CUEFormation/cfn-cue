@@ -17,13 +17,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Table
-#Properties: close({
-	CatalogId!:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DatabaseName!:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	OpenTableFormatInput?: #OpenTableFormatInput | fn.#ObjectExpression
-	TableInput?:           #TableInput | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Table"
+	Properties!: close({
+		CatalogId!:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DatabaseName!:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		OpenTableFormatInput?: #OpenTableFormatInput | fn.#ObjectExpression
+		TableInput?:           #TableInput | fn.#ObjectExpression
+	})
+}
 
 #Column: close({
 	Comment?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
@@ -363,7 +366,3 @@ fn.#ObjectExpression
 	ViewOriginalText?:     strings.MaxRunes(409600) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Table"
-	Properties!: #Properties
-}

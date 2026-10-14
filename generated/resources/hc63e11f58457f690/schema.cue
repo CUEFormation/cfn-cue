@@ -13,58 +13,58 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::Transcribe::MedicalVocabulary
-#Properties: close({
-	LanguageCode!: "af-ZA" |
-		"ar-AE" |
-		"ar-SA" |
-		"da-DK" |
-		"de-CH" |
-		"de-DE" |
-		"en-AB" |
-		"en-AU" |
-		"en-GB" |
-		"en-IE" |
-		"en-IN" |
-		"en-US" |
-		"en-WL" |
-		"es-ES" |
-		"es-US" |
-		"fa-IR" |
-		"fr-CA" |
-		"fr-FR" |
-		"he-IL" |
-		"hi-IN" |
-		"id-ID" |
-		"it-IT" |
-		"ja-JP" |
-		"ko-KR" |
-		"ms-MY" |
-		"nl-NL" |
-		"pt-BR" |
-		"pt-PT" |
-		"ru-RU" |
-		"ta-IN" |
-		"te-IN" |
-		"tr-TR" |
-		"zh-CN" |
-		"zh-TW" |
-		"th-TH" |
-		"en-ZA" |
-		"en-NZ" |
-		"vi-VN" |
-		"sv-SE" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Transcribe::MedicalVocabulary"
+	Properties!: close({
+		LanguageCode!: "af-ZA" |
+			"ar-AE" |
+			"ar-SA" |
+			"da-DK" |
+			"de-CH" |
+			"de-DE" |
+			"en-AB" |
+			"en-AU" |
+			"en-GB" |
+			"en-IE" |
+			"en-IN" |
+			"en-US" |
+			"en-WL" |
+			"es-ES" |
+			"es-US" |
+			"fa-IR" |
+			"fr-CA" |
+			"fr-FR" |
+			"he-IL" |
+			"hi-IN" |
+			"id-ID" |
+			"it-IT" |
+			"ja-JP" |
+			"ko-KR" |
+			"ms-MY" |
+			"nl-NL" |
+			"pt-BR" |
+			"pt-PT" |
+			"ru-RU" |
+			"ta-IN" |
+			"te-IN" |
+			"tr-TR" |
+			"zh-CN" |
+			"zh-TW" |
+			"th-TH" |
+			"en-ZA" |
+			"en-NZ" |
+			"vi-VN" |
+			"sv-SE" |
+			fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		VocabularyFileUri?: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"(s3://|http(s*)://).+" |
 		fn.#StringExpression
-	Tags?:              list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	VocabularyFileUri?: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"(s3://|http(s*)://).+" | fn.#StringExpression
-	VocabularyName!:    strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
-})
+		VocabularyName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Transcribe::MedicalVocabulary"
-	Properties!: #Properties
-}

@@ -17,30 +17,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::CodeDeploy::DeploymentGroup
-#Properties: close({
-	AlarmConfiguration?: #AlarmConfiguration | fn.#ObjectExpression
-	ApplicationName!:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" | fn.#StringExpression
-	AutoRollbackConfiguration?:        #AutoRollbackConfiguration | fn.#ObjectExpression
-	AutoScalingGroups?:                list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	BlueGreenDeploymentConfiguration?: #BlueGreenDeploymentConfiguration | fn.#ObjectExpression
-	Deployment?:                       #Deployment | fn.#ObjectExpression
-	DeploymentConfigName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
-	fn.#StringExpression
-	DeploymentGroupName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" | fn.#StringExpression
-	DeploymentStyle?:     #DeploymentStyle | fn.#ObjectExpression
-	ECSServices?:         list.UniqueItems() & [...#ECSService] | fn.#ListExpression
-	Ec2TagFilters?:       list.UniqueItems() & [...#EC2TagFilter] | fn.#ListExpression
-	Ec2TagSet?:           #EC2TagSet | fn.#ObjectExpression
-	LoadBalancerInfo?:    #LoadBalancerInfo | fn.#ObjectExpression
-	OnPremisesInstanceTagFilters?: list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
-	OnPremisesTagSet?:             #OnPremisesTagSet | fn.#ObjectExpression
-	OutdatedInstancesStrategy?:    "IGNORE" | "UPDATE" | fn.#StringExpression
-	ServiceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeDeploy::DeploymentGroup"
+	Properties!: close({
+		AlarmConfiguration?: #AlarmConfiguration | fn.#ObjectExpression
+		ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" | fn.#StringExpression
+		AutoRollbackConfiguration?:        #AutoRollbackConfiguration | fn.#ObjectExpression
+		AutoScalingGroups?:                list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		BlueGreenDeploymentConfiguration?: #BlueGreenDeploymentConfiguration | fn.#ObjectExpression
+		Deployment?:                       #Deployment | fn.#ObjectExpression
+		DeploymentConfigName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
 		fn.#StringExpression
-	Tags?:                   [...#Tag] | fn.#ListExpression
-	TerminationHookEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TriggerConfigurations?:  list.UniqueItems() & [...#TriggerConfig] | fn.#ListExpression
-})
+		DeploymentGroupName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
+		fn.#StringExpression
+		DeploymentStyle?:              #DeploymentStyle | fn.#ObjectExpression
+		ECSServices?:                  list.UniqueItems() & [...#ECSService] | fn.#ListExpression
+		Ec2TagFilters?:                list.UniqueItems() & [...#EC2TagFilter] | fn.#ListExpression
+		Ec2TagSet?:                    #EC2TagSet | fn.#ObjectExpression
+		LoadBalancerInfo?:             #LoadBalancerInfo | fn.#ObjectExpression
+		OnPremisesInstanceTagFilters?: list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
+		OnPremisesTagSet?:             #OnPremisesTagSet | fn.#ObjectExpression
+		OutdatedInstancesStrategy?:    "IGNORE" | "UPDATE" | fn.#StringExpression
+		ServiceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Tags?:                   [...#Tag] | fn.#ListExpression
+		TerminationHookEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		TriggerConfigurations?:  list.UniqueItems() & [...#TriggerConfig] | fn.#ListExpression
+	})
+}
 
 #Alarm: close({Name?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -230,7 +234,3 @@ fn.#ObjectExpression
 	TriggerTargetArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeDeploy::DeploymentGroup"
-	Properties!: #Properties
-}

@@ -12,13 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::DirectoryConfig
-#Properties: close({
-	CertificateBasedAuthProperties?: #CertificateBasedAuthProperties
-	DirectoryName!:                  string | fn.#StringExpression
-	OrganizationalUnitDistinguishedNames!: [...strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression] |
-	fn.#ListExpression
-	ServiceAccountCredentials!: #ServiceAccountCredentials
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppStream::DirectoryConfig"
+	Properties!: close({
+		CertificateBasedAuthProperties?: #CertificateBasedAuthProperties
+		DirectoryName!:                  string | fn.#StringExpression
+		OrganizationalUnitDistinguishedNames!: [...strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression] |
+		fn.#ListExpression
+		ServiceAccountCredentials!: #ServiceAccountCredentials
+	})
+}
 
 #CertificateBasedAuthProperties: close({
 	CertificateAuthorityArn?: string | fn.#StringExpression
@@ -31,7 +34,3 @@ fn.#ObjectExpression
 	AccountPassword!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppStream::DirectoryConfig"
-	Properties!: #Properties
-}

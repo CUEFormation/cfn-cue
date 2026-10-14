@@ -20,26 +20,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // IPs to use for
 // allowlisting](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/request-static-ips.html)
 // in the *Amazon CloudFront Developer Guide*.
-#Properties: close({
-	IpAddressType?: #IpAddressType | fn.#StringExpression
-	IpCount!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	IpamCidrConfigs?: #IpamCidrConfigs | fn.#ListExpression
-	Name!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
-	Tags?:            #Tags | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::AnycastIpList"
+	Properties!: close({
+		IpAddressType?: #IpAddressType | fn.#StringExpression
+		IpCount!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		IpamCidrConfigs?: #IpamCidrConfigs | fn.#ListExpression
+		Name!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
+		Tags?:            #Tags | fn.#ObjectExpression
+	})
+}
 
 #AnycastIpList: close({
 	AnycastIps!:    [...string | fn.#StringExpression] | fn.#ListExpression
@@ -94,7 +99,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: close({Items?: [...#Tag] | fn.#ListExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::AnycastIpList"
-	Properties!: #Properties
-}

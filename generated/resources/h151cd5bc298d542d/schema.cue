@@ -14,14 +14,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpenSearchServerless::CollectionGroup
-#Properties: close({
-	CapacityLimits?:  #CapacityLimits
-	Description?:     strings.MaxRunes(1000) | fn.#StringExpression
-	Generation?:      "CLASSIC" | "NEXTGEN" | fn.#StringExpression
-	Name!:            strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" | fn.#StringExpression
-	StandbyReplicas!: "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OpenSearchServerless::CollectionGroup"
+	Properties!: close({
+		CapacityLimits?:  #CapacityLimits
+		Description?:     strings.MaxRunes(1000) | fn.#StringExpression
+		Generation?:      "CLASSIC" | "NEXTGEN" | fn.#StringExpression
+		Name!:            strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" | fn.#StringExpression
+		StandbyReplicas!: "ENABLED" | "DISABLED" | fn.#StringExpression
+		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CapacityLimits: close({
 	MaxIndexingCapacityInOcu?: math.MultipleOf(0.5) & >=1 | fn.#NumberExpression
@@ -36,7 +39,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpenSearchServerless::CollectionGroup"
-	Properties!: #Properties
-}

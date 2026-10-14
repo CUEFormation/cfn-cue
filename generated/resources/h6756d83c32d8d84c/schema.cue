@@ -16,18 +16,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource type definition for AWS::SageMaker::Artifact. An artifact is a
 // lineage tracking entity that represents a URI addressable object or data,
 // such as an S3 URI of a dataset or the ECR registry path of an image.
-#Properties: close({
-	ArtifactName?: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
-	fn.#StringExpression
-	ArtifactType!:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	MetadataProperties?: #MetadataProperties | fn.#ObjectExpression
-	Properties?: struct.MaxFields(30) & close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Artifact"
+	Properties!: close({
+		ArtifactName?: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
+		fn.#StringExpression
+		ArtifactType!:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		MetadataProperties?: #MetadataProperties | fn.#ObjectExpression
+		Properties?: struct.MaxFields(30) & close({
 
-		{[=~".+"]: strings.MaxRunes(4096) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Source!: #ArtifactSource | fn.#ObjectExpression
-	Tags?:   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+			{[=~".+"]: strings.MaxRunes(4096) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Source!: #ArtifactSource | fn.#ObjectExpression
+		Tags?:   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ArtifactSource: close({
 	SourceTypes?: [...#ArtifactSourceType] | fn.#ListExpression
@@ -54,7 +57,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Artifact"
-	Properties!: #Properties
-}

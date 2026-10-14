@@ -13,29 +13,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::VPCConnection Resource Type.
-#Properties: close({
-	AvailabilityStatus?: #VPCConnectionAvailabilityStatus
-	AwsAccountId?:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	DnsResolvers?: list.MaxItems(15) & [...] & [...strings.MaxRunes(15) & strings.MinRunes(7) | fn.#StringExpression] |
-	fn.#ListExpression
-	Name?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-	SecurityGroupIds?: list.MaxItems(16) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		strings.MaxRunes(255) &
-		strings.MinRunes(1) &
-		=~"^sg-[0-9a-z]*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::VPCConnection"
+	Properties?: close({
+		AvailabilityStatus?: #VPCConnectionAvailabilityStatus
+		AwsAccountId?:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		DnsResolvers?: list.MaxItems(15) & [...] & [
+			...strings.MaxRunes(15) & strings.MinRunes(7) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	SubnetIds?: list.MaxItems(15) & list.MinItems(2) & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[0-9a-z]*$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Tags?:            list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	VPCConnectionId?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\w\\-]+" | fn.#StringExpression
-})
+		SecurityGroupIds?: list.MaxItems(16) & list.MinItems(1) & [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			=~"^sg-[0-9a-z]*$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		SubnetIds?: list.MaxItems(15) & list.MinItems(2) & [
+			...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[0-9a-z]*$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Tags?:            list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		VPCConnectionId?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\w\\-]+" | fn.#StringExpression
+	})
+}
 
 #NetworkInterface: close({
 	AvailabilityZone?:   string | fn.#StringExpression
@@ -76,7 +81,3 @@ fn.#ObjectExpression
 	"DELETION_FAILED" |
 	"DELETED" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::VPCConnection"
-	Properties?: #Properties
-}

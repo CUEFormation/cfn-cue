@@ -19,30 +19,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::DataSet Resource Type.
-#Properties: close({
-	AwsAccountId?:               strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	ColumnGroups?:               list.MaxItems(8) & list.MinItems(1) & [...#ColumnGroup] | fn.#ListExpression
-	ColumnLevelPermissionRules?: list.MinItems(1) & [...#ColumnLevelPermissionRule] | fn.#ListExpression
-	DataPrepConfiguration?:      #DataPrepConfiguration
-	DataSetId?:                  string | fn.#StringExpression
-	DataSetRefreshProperties?:   #DataSetRefreshProperties
-	DataSetUsageConfiguration?:  #DataSetUsageConfiguration
-	DatasetParameters?:          list.MaxItems(32) & [...] & [...#DatasetParameter] | fn.#ListExpression
-	FieldFolders?:               #FieldFolderMap
-	FolderArns?:                 list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	ImportMode?:                 #DataSetImportMode
-	IngestionWaitPolicy?:        #IngestionWaitPolicy
-	LogicalTableMap?:            #LogicalTableMap
-	Name?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	PerformanceConfiguration?:   #PerformanceConfiguration
-	Permissions?:                list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
-	PhysicalTableMap?:           #PhysicalTableMap
-	RowLevelPermissionDataSet?:  #RowLevelPermissionDataSet
-	RowLevelPermissionTagConfiguration?: #RowLevelPermissionTagConfiguration
-	SemanticModelConfiguration?:         #SemanticModelConfiguration
-	Tags?:                               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	UseAs?:                              #DataSetUseAs
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::DataSet"
+	Properties?: close({
+		AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		ColumnGroups?: list.MaxItems(8) & list.MinItems(1) & [...#ColumnGroup] | fn.#ListExpression
+		ColumnLevelPermissionRules?: list.MinItems(1) & [...#ColumnLevelPermissionRule] | fn.#ListExpression
+		DataPrepConfiguration?:      #DataPrepConfiguration
+		DataSetId?:                  string | fn.#StringExpression
+		DataSetRefreshProperties?:   #DataSetRefreshProperties
+		DataSetUsageConfiguration?:  #DataSetUsageConfiguration
+		DatasetParameters?:          list.MaxItems(32) & [...] & [...#DatasetParameter] | fn.#ListExpression
+		FieldFolders?:               #FieldFolderMap
+		FolderArns?:                 list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+		ImportMode?:                 #DataSetImportMode
+		IngestionWaitPolicy?:        #IngestionWaitPolicy
+		LogicalTableMap?:            #LogicalTableMap
+		Name?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		PerformanceConfiguration?:   #PerformanceConfiguration
+		Permissions?:               list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+		PhysicalTableMap?:          #PhysicalTableMap
+		RowLevelPermissionDataSet?: #RowLevelPermissionDataSet
+		RowLevelPermissionTagConfiguration?: #RowLevelPermissionTagConfiguration
+		SemanticModelConfiguration?:         #SemanticModelConfiguration
+		Tags?:                               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		UseAs?:                              #DataSetUseAs
+	})
+}
 
 #AdditionalNotes: close({Text?: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression}) |
 fn.#ObjectExpression
@@ -1079,7 +1082,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ValueColumnConfiguration: close({AggregationFunction?: #DataPrepAggregationFunction}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::DataSet"
-	Properties?: #Properties
-}

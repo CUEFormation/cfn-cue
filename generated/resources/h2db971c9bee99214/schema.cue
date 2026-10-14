@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::GraphQLSchema
-#Properties: close({
-	ApiId!:                string | fn.#StringExpression
-	Definition?:           string | fn.#StringExpression
-	DefinitionS3Location?: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppSync::GraphQLSchema"
-	Properties!: #Properties
+	Type!: "AWS::AppSync::GraphQLSchema"
+	Properties!: close({
+		ApiId!:                string | fn.#StringExpression
+		Definition?:           string | fn.#StringExpression
+		DefinitionS3Location?: string | fn.#StringExpression
+	})
 }

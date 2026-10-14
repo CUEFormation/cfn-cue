@@ -9,10 +9,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityLake::SubscriberNotification
-#Properties: close({
-	NotificationConfiguration!: #NotificationConfiguration
-	SubscriberArn!:             =~"^arn:.*$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityLake::SubscriberNotification"
+	Properties!: close({
+		NotificationConfiguration!: #NotificationConfiguration
+		SubscriberArn!:             =~"^arn:.*$" | fn.#StringExpression
+	})
+}
 
 #HttpsNotificationConfiguration: close({
 	AuthorizationApiKeyName?:  string | fn.#StringExpression
@@ -37,7 +40,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SqsNotificationConfiguration: fn.#Object & {...} | string | fn.#StringObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityLake::SubscriberNotification"
-	Properties!: #Properties
-}

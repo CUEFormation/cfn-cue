@@ -17,28 +17,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::EC2Fleet
-#Properties: close({
-	Context?:                         string | fn.#StringExpression
-	ExcessCapacityTerminationPolicy?: "termination" | "no-termination" | fn.#StringExpression
-	LaunchTemplateConfigs!:     list.MaxItems(50) & [...] & [...#FleetLaunchTemplateConfigRequest] | fn.#ListExpression
-	OnDemandOptions?:           #OnDemandOptionsRequest
-	ReplaceUnhealthyInstances?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ReservedCapacityOptions?:   #ReservedCapacityOptionsRequest
-	SpotOptions?:               #SpotOptionsRequest
-	TagSpecifications?:         [...#TagSpecification] | fn.#ListExpression
-	TargetCapacitySpecification!: #TargetCapacitySpecificationRequest
-	TerminateInstancesWithExpiration?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	Type?:       "maintain" | "request" | "instant" | fn.#StringExpression
-	ValidFrom?:  string | fn.#StringExpression
-	ValidUntil?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::EC2Fleet"
+	Properties!: close({
+		Context?:                         string | fn.#StringExpression
+		ExcessCapacityTerminationPolicy?: "termination" | "no-termination" | fn.#StringExpression
+		LaunchTemplateConfigs!: list.MaxItems(50) & [...] & [...#FleetLaunchTemplateConfigRequest] | fn.#ListExpression
+		OnDemandOptions?:       #OnDemandOptionsRequest
+		ReplaceUnhealthyInstances?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		ReservedCapacityOptions?:     #ReservedCapacityOptionsRequest
+		SpotOptions?:                 #SpotOptionsRequest
+		TagSpecifications?:           [...#TagSpecification] | fn.#ListExpression
+		TargetCapacitySpecification!: #TargetCapacitySpecificationRequest
+		TerminateInstancesWithExpiration?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Type?:       "maintain" | "request" | "instant" | fn.#StringExpression
+		ValidFrom?:  string | fn.#StringExpression
+		ValidUntil?: string | fn.#StringExpression
+	})
+}
 
 #AcceleratorCountRequest: close({
 	Max?: int |
@@ -949,7 +959,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::EC2Fleet"
-	Properties!: #Properties
-}

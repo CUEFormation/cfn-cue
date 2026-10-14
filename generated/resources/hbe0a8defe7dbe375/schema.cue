@@ -12,14 +12,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Omics::ReferenceStore Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
-	fn.#StringExpression
-	SseConfig?: #SseConfig
-	Tags?:      #TagMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Omics::ReferenceStore"
+	Properties!: close({
+		Description?: strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		fn.#StringExpression
+		SseConfig?: #SseConfig
+		Tags?:      #TagMap
+	})
+}
 
 #EncryptionType: "KMS" | fn.#StringExpression
 
@@ -42,7 +47,3 @@ fn.#ObjectExpression
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Omics::ReferenceStore"
-	Properties!: #Properties
-}

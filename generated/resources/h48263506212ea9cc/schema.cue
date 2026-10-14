@@ -12,12 +12,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Classifier
-#Properties: close({
-	CsvClassifier?:  #CsvClassifier | fn.#ObjectExpression
-	GrokClassifier?: #GrokClassifier | fn.#ObjectExpression
-	JsonClassifier?: #JsonClassifier | fn.#ObjectExpression
-	XMLClassifier?:  #XMLClassifier | fn.#ObjectExpression
-}) & matchN(>=1, [{XMLClassifier!: _}, {CsvClassifier!: _}, {GrokClassifier!: _}, {JsonClassifier!: _}])
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Classifier"
+	Properties?: close({
+		CsvClassifier?:  #CsvClassifier | fn.#ObjectExpression
+		GrokClassifier?: #GrokClassifier | fn.#ObjectExpression
+		JsonClassifier?: #JsonClassifier | fn.#ObjectExpression
+		XMLClassifier?:  #XMLClassifier | fn.#ObjectExpression
+	}) & matchN(>=1, [{XMLClassifier!: _}, {CsvClassifier!: _}, {GrokClassifier!: _}, {JsonClassifier!: _}])
+}
 
 #CsvClassifier: close({
 	AllowSingleColumn?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -52,7 +55,3 @@ fn.#ObjectExpression
 	RowTag!:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Classifier"
-	Properties?: #Properties
-}

@@ -14,7 +14,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::ECR::SigningConfiguration resource creates or updates the signing
 // configuration for an Amazon ECR registry.
-#Properties: close({Rules!: list.MaxItems(50) & [...] & [...#Rule] | fn.#ListExpression})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::ECR::SigningConfiguration"
+	Properties!: close({Rules!: list.MaxItems(50) & [...] & [...#Rule] | fn.#ListExpression})
+}
 
 #Filter: strings.MaxRunes(256) &
 strings.MinRunes(1) &
@@ -36,7 +39,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECR::SigningConfiguration"
-	Properties!: #Properties
-}

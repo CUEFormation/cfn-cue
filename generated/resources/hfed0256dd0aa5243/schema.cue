@@ -9,26 +9,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::LakeFormation::DataLakeSettings
-#Properties: close({
-	Admins?:                     [...#DataLakePrincipal] | fn.#ListExpression
-	AllowExternalDataFiltering?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AllowFullTableExternalDataAccess?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	AuthorizedSessionTagValueList?:    [...string | fn.#StringExpression] | fn.#ListExpression
-	CreateDatabaseDefaultPermissions?: [...#PrincipalPermissions] | fn.#ListExpression
-	CreateTableDefaultPermissions?:    [...#PrincipalPermissions] | fn.#ListExpression
-	ExternalDataFilteringAllowList?:   [...#DataLakePrincipal] | fn.#ListExpression
-	MutationType?:                     string | fn.#StringExpression
-	Parameters?:                       fn.#Object & {...} | string | fn.#StringObjectExpression
-	ReadOnlyAdmins?:                   [...#DataLakePrincipal] | fn.#ListExpression
-	TrustedResourceOwners?:            [...string | fn.#StringExpression] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LakeFormation::DataLakeSettings"
+	Properties?: close({
+		Admins?: [...#DataLakePrincipal] | fn.#ListExpression
+		AllowExternalDataFiltering?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		AllowFullTableExternalDataAccess?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		AuthorizedSessionTagValueList?:    [...string | fn.#StringExpression] | fn.#ListExpression
+		CreateDatabaseDefaultPermissions?: [...#PrincipalPermissions] | fn.#ListExpression
+		CreateTableDefaultPermissions?:    [...#PrincipalPermissions] | fn.#ListExpression
+		ExternalDataFilteringAllowList?:   [...#DataLakePrincipal] | fn.#ListExpression
+		MutationType?:                     string | fn.#StringExpression
+		Parameters?:                       fn.#Object & {...} | string | fn.#StringObjectExpression
+		ReadOnlyAdmins?:                   [...#DataLakePrincipal] | fn.#ListExpression
+		TrustedResourceOwners?:            [...string | fn.#StringExpression] | fn.#ListExpression
+	})
+}
 
 #DataLakePrincipal: close({DataLakePrincipalIdentifier!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -37,7 +47,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Principal!:   #DataLakePrincipal
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LakeFormation::DataLakeSettings"
-	Properties?: #Properties
-}

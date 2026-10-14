@@ -16,15 +16,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::SupportAuthZ::SupportPermit. Represents a
 // support permit that grants AWS support time-bounded access to one or more
 // resources for a set of actions.
-#Properties: close({
-	Description?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{1,256}$" | fn.#StringExpression
-	Permit!:         #Permit
-	SigningKeyInfo!: #SigningKeyInfo
-	SupportCaseDisplayId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/-]{1,512}$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SupportAuthZ::SupportPermit"
+	Properties!: close({
+		Description?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{1,256}$" | fn.#StringExpression
+		Permit!:         #Permit
+		SigningKeyInfo!: #SigningKeyInfo
+		SupportCaseDisplayId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/-]{1,512}$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ActionSet: close({
 	Actions?: list.MaxItems(10) & list.MinItems(1) & [
@@ -67,7 +70,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SupportAuthZ::SupportPermit"
-	Properties!: #Properties
-}

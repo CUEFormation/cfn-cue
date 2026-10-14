@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An Event Stream resource of Amazon Connect Customer Profiles
-#Properties: close({
-	DomainName!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	EventStreamName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	Uri!:             #Uri
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CustomerProfiles::EventStream"
+	Properties!: close({
+		DomainName!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		EventStreamName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Uri!:             #Uri
+	})
+}
 
 #Status: "HEALTHY" | "UNHEALTHY" | fn.#StringExpression
 
@@ -29,7 +32,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Uri: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CustomerProfiles::EventStream"
-	Properties!: #Properties
-}

@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::ApplicationEntitlementAssociation
-#Properties: close({
-	ApplicationIdentifier!: string | fn.#StringExpression
-	EntitlementName!:       string | fn.#StringExpression
-	StackName!:             string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppStream::ApplicationEntitlementAssociation"
-	Properties!: #Properties
+	Type!: "AWS::AppStream::ApplicationEntitlementAssociation"
+	Properties!: close({
+		ApplicationIdentifier!: string | fn.#StringExpression
+		EntitlementName!:       string | fn.#StringExpression
+		StackName!:             string | fn.#StringExpression
+	})
 }

@@ -16,53 +16,58 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolDomain
-#Properties: matchN(2, [
-	matchIf({
-		CustomDomainConfig!: _
-		...
-	}, {
-		Domain?: null |
-		bool |
-		number |
-		=~"^[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?)+$" |
-		[...] |
-		{...} |
-		fn.#ValueExpression
-		...
-	}, _) & {...},
-	matchIf(matchN(0, [null | bool | number | string | [...] | {
-		CustomDomainConfig!: _
-		...
-	}]) & {...}, {
-		Domain?: null |
-		bool |
-		number |
-		=~"^[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?$" |
-		[...] |
-		{...} |
-		fn.#ValueExpression
-		...
-	}, _) & {...}
-]) & close({
-	CustomDomainConfig?: #CustomDomainConfigType
-	Domain!:             strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	ManagedLoginVersion?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Routing?:    #RoutingType
-	UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::UserPoolDomain"
+	Properties!: matchN(2, [
+		matchIf({
+			CustomDomainConfig!: _
+			...
+		}, {
+			Domain?: null |
+			bool |
+			number |
+			=~"^[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?)+$" |
+			[...] |
+			{...} |
+			fn.#ValueExpression
+			...
+		}, _) & {...},
+		matchIf(matchN(0, [null | bool | number | string | [...] | {
+			CustomDomainConfig!: _
+			...
+		}]) & {...}, {
+			Domain?: null |
+			bool |
+			number |
+			=~"^[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?$" |
+			[...] |
+			{...} |
+			fn.#ValueExpression
+			...
+		}, _) & {...}
+	]) & close({
+		CustomDomainConfig?: #CustomDomainConfigType
+		Domain!:             strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+		ManagedLoginVersion?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Routing?:    #RoutingType
+		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+	})
+}
 
 #CustomDomainConfigType: close({
 	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -81,7 +86,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RoutingType: close({Failover?: #FailoverType}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::UserPoolDomain"
-	Properties!: #Properties
-}

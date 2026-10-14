@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::ManagedLoginBranding
-#Properties: close({
-	Assets?:                   #AssetList
-	ClientId?:                 strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" | fn.#StringExpression
-	ReturnMergedResources?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Settings?:                 fn.#Object & {...} | fn.#ObjectExpression
-	UseCognitoProvidedValues?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::ManagedLoginBranding"
+	Properties!: close({
+		Assets?:                   #AssetList
+		ClientId?:                 strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" | fn.#StringExpression
+		ReturnMergedResources?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Settings?:                 fn.#Object & {...} | fn.#ObjectExpression
+		UseCognitoProvidedValues?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+	})
+}
 
 #AssetList: list.MaxItems(40) & [...] & [...#AssetType] | fn.#ListExpression
 
@@ -60,7 +63,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #ResourceIdType: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[\\w\\- ]+$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::ManagedLoginBranding"
-	Properties!: #Properties
-}

@@ -9,13 +9,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::Volume
-#Properties: close({
-	Ec2VolumeId!: string | fn.#StringExpression
-	MountPoint?:  string | fn.#StringExpression
-	Name?:        string | fn.#StringExpression
-	StackId!:     string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpsWorks::Volume"
-	Properties!: #Properties
+	Type!: "AWS::OpsWorks::Volume"
+	Properties!: close({
+		Ec2VolumeId!: string | fn.#StringExpression
+		MountPoint?:  string | fn.#StringExpression
+		Name?:        string | fn.#StringExpression
+		StackId!:     string | fn.#StringExpression
+	})
 }

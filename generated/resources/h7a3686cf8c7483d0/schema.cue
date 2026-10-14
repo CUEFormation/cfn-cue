@@ -18,46 +18,58 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Specifies a VPC flow log, which enables you to capture IP traffic for a
 // specific network interface, subnet, or VPC.
-#Properties: close({
-	DeliverCrossAccountRole?:  string | fn.#StringExpression
-	DeliverLogsPermissionArn?: string | fn.#StringExpression
-	DestinationOptions?: close({
-		FileFormat!:               "plain-text" | "parquet" | fn.#StringExpression
-		HiveCompatiblePartitions!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		PerHourPartition!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	}) |
-	fn.#ObjectExpression
-	LogDestination?:     string | fn.#StringExpression
-	LogDestinationType?: "cloud-watch-logs" | "s3" | "kinesis-data-firehose" | fn.#StringExpression
-	LogFormat?:          string | fn.#StringExpression
-	LogGroupName?:       string | fn.#StringExpression
-	MaxAggregationInterval?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ResourceId!: string | fn.#StringExpression
-	ResourceType!: "NetworkInterface" |
-		"Subnet" |
-		"VPC" |
-		"TransitGateway" |
-		"TransitGatewayAttachment" |
-		"RegionalNatGateway" |
-		fn.#StringExpression
-	TagFieldSpecifications?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [...#TagFieldSpecification] |
-		fn.#ListExpression
-	Tags?:        [...#Tag] | fn.#ListExpression
-	TrafficType?: "ACCEPT" | "ALL" | "REJECT" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::FlowLog"
+	Properties!: close({
+		DeliverCrossAccountRole?:  string | fn.#StringExpression
+		DeliverLogsPermissionArn?: string | fn.#StringExpression
+		DestinationOptions?: close({
+			FileFormat!: "plain-text" | "parquet" | fn.#StringExpression
+			HiveCompatiblePartitions!: bool |
+				"true" |
+				"True" |
+				"TRUE" |
+				"false" |
+				"False" |
+				"FALSE" |
+				fn.#BooleanExpression
+			PerHourPartition!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		}) |
+		fn.#ObjectExpression
+		LogDestination?:     string | fn.#StringExpression
+		LogDestinationType?: "cloud-watch-logs" | "s3" | "kinesis-data-firehose" | fn.#StringExpression
+		LogFormat?:          string | fn.#StringExpression
+		LogGroupName?:       string | fn.#StringExpression
+		MaxAggregationInterval?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ResourceId!: string | fn.#StringExpression
+		ResourceType!: "NetworkInterface" |
+			"Subnet" |
+			"VPC" |
+			"TransitGateway" |
+			"TransitGatewayAttachment" |
+			"RegionalNatGateway" |
+			fn.#StringExpression
+		TagFieldSpecifications?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [...#TagFieldSpecification] |
+			fn.#ListExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+		TrafficType?: "ACCEPT" | "ALL" | "REJECT" | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
@@ -73,7 +85,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::FlowLog"
-	Properties!: #Properties
-}

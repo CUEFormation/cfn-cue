@@ -13,18 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpenSearchServerless::Index
-#Properties: close({
-	CollectionEndpoint!: string | fn.#StringExpression
-	IndexName!:          string | fn.#StringExpression
-	Mappings?: close({
-		Properties?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OpenSearchServerless::Index"
+	Properties!: close({
+		CollectionEndpoint!: string | fn.#StringExpression
+		IndexName!:          string | fn.#StringExpression
+		Mappings?: close({
+			Properties?: close({
 
-			{[=~"^[A-Za-z0-9_.-]{1,64}$"]: #PropertyMapping | fn.#ObjectExpression}}) |
+				{[=~"^[A-Za-z0-9_.-]{1,64}$"]: #PropertyMapping | fn.#ObjectExpression}}) |
+			fn.#ObjectExpression
+		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	Settings?: #IndexSettings | fn.#ObjectExpression
-})
+		Settings?: #IndexSettings | fn.#ObjectExpression
+	})
+}
 
 #IndexSettings: close({
 	Analysis?: close({
@@ -138,7 +141,3 @@ fn.#ObjectExpression
 	Value?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpenSearchServerless::Index"
-	Properties!: #Properties
-}

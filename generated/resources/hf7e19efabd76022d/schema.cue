@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Express::DirectoryBucket.
-#Properties: close({
-	BucketEncryption?:        #BucketEncryption
-	BucketName?:              strings.MaxRunes(63) & =~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$" | fn.#StringExpression
-	DataRedundancy!:          "SingleAvailabilityZone" | "SingleLocalZone" | fn.#StringExpression
-	InventoryConfigurations?: list.UniqueItems() & [...#InventoryConfiguration] | fn.#ListExpression
-	LifecycleConfiguration?:  #LifecycleConfiguration | fn.#ObjectExpression
-	LocationName!:            string | fn.#StringExpression
-	MetricsConfigurations?:   list.UniqueItems() & [...#MetricsConfiguration] | fn.#ListExpression
-	Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3Express::DirectoryBucket"
+	Properties!: close({
+		BucketEncryption?:        #BucketEncryption
+		BucketName?:              strings.MaxRunes(63) & =~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$" | fn.#StringExpression
+		DataRedundancy!:          "SingleAvailabilityZone" | "SingleLocalZone" | fn.#StringExpression
+		InventoryConfigurations?: list.UniqueItems() & [...#InventoryConfiguration] | fn.#ListExpression
+		LifecycleConfiguration?:  #LifecycleConfiguration | fn.#ObjectExpression
+		LocationName!:            string | fn.#StringExpression
+		MetricsConfigurations?:   list.UniqueItems() & [...#MetricsConfiguration] | fn.#ListExpression
+		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AbortIncompleteMultipartUpload: close({
 	DaysAfterInitiation!: int & >=0 |
@@ -138,7 +141,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Express::DirectoryBucket"
-	Properties!: #Properties
-}

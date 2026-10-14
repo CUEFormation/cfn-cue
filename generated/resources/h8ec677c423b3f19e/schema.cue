@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::APS::Scraper
-#Properties: close({
-	Alias?:       strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][-.0-9A-Z_a-z]*$" | fn.#StringExpression
-	Destination!: #Destination
-	RoleConfiguration?:           #RoleConfiguration
-	ScrapeConfiguration!:         #ScrapeConfiguration
-	ScraperLoggingConfiguration?: #ScraperLoggingConfiguration
-	Source!:                      #Source
-	Tags?:                        list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::APS::Scraper"
+	Properties!: close({
+		Alias?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][-.0-9A-Z_a-z]*$" | fn.#StringExpression
+		Destination!:                 #Destination
+		RoleConfiguration?:           #RoleConfiguration
+		ScrapeConfiguration!:         #ScrapeConfiguration
+		ScraperLoggingConfiguration?: #ScraperLoggingConfiguration
+		Source!:                      #Source
+		Tags?:                        list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CloudWatchLogDestination: close({LogGroupArn?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression}) |
 fn.#ObjectExpression
@@ -112,7 +115,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::APS::Scraper"
-	Properties!: #Properties
-}

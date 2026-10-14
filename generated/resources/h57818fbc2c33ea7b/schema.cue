@@ -20,45 +20,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // queries. An event data store can include events that you have logged on your
 // account from the last 7 to 2557 or 3653 days (about seven or ten years)
 // depending on the selected BillingMode.
-#Properties: close({
-	AdvancedEventSelectors?: list.UniqueItems() & [...#AdvancedEventSelector] | fn.#ListExpression
-	BillingMode?:            "EXTENDABLE_RETENTION_PRICING" | "FIXED_RETENTION_PRICING" | fn.#StringExpression
-	ContextKeySelectors?: list.MaxItems(2) & list.UniqueItems() & [...] & [...#ContextKeySelector] | fn.#ListExpression
-	FederationEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FederationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudTrail::EventDataStore"
+	Properties?: close({
+		AdvancedEventSelectors?: list.UniqueItems() & [...#AdvancedEventSelector] | fn.#ListExpression
+		BillingMode?:            "EXTENDABLE_RETENTION_PRICING" | "FIXED_RETENTION_PRICING" | fn.#StringExpression
+		ContextKeySelectors?: list.MaxItems(2) & list.UniqueItems() & [...] & [...#ContextKeySelector] |
+			fn.#ListExpression
+		FederationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		FederationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		IngestionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		InsightSelectors?: list.UniqueItems() & [...#InsightSelector] | fn.#ListExpression
+		InsightsDestination?: strings.MaxRunes(256) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._/\\-:]+$" |
 		fn.#StringExpression
-	IngestionEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InsightSelectors?:    list.UniqueItems() & [...#InsightSelector] | fn.#ListExpression
-	InsightsDestination?: strings.MaxRunes(256) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._/\\-:]+$" | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(350) &
-	strings.MinRunes(1) &
-	=~"^[a-zA-Z0-9._/\\-:]+$" |
-	fn.#StringExpression
-	MaxEventSize?:        "Standard" | "Large" | fn.#StringExpression
-	MultiRegionEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name?:                strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._\\-]+$" | fn.#StringExpression
-	OrganizationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RetentionPeriod?: int & <=3653 & >=7 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=3653 &
-							>=7,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?:                         [...#Tag] | fn.#ListExpression
-	TerminationProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-})
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+		strings.MaxRunes(350) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9._/\\-:]+$" |
+		fn.#StringExpression
+		MaxEventSize?:       "Standard" | "Large" | fn.#StringExpression
+		MultiRegionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._\\-]+$" | fn.#StringExpression
+		OrganizationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RetentionPeriod?: int & <=3653 & >=7 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=3653 &
+								>=7,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+		TerminationProtectionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+	})
+}
 
 #AdvancedEventSelector: close({
 	FieldSelectors!: list.MinItems(1) & list.UniqueItems() & [...#AdvancedFieldSelector] | fn.#ListExpression
@@ -114,7 +128,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Timestamp: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudTrail::EventDataStore"
-	Properties?: #Properties
-}

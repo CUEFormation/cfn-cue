@@ -16,13 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::TableOptimizer
-#Properties: close({
-	CatalogId!:                   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DatabaseName!:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TableName!:                   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TableOptimizerConfiguration!: #TableOptimizerConfiguration | fn.#ObjectExpression
-	Type!:                        "compaction" | "orphan_file_deletion" | "retention" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::TableOptimizer"
+	Properties!: close({
+		CatalogId!:                   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DatabaseName!:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		TableName!:                   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		TableOptimizerConfiguration!: #TableOptimizerConfiguration | fn.#ObjectExpression
+		Type!:                        "compaction" | "orphan_file_deletion" | "retention" | fn.#StringExpression
+	})
+}
 
 #CompactionConfiguration: close({IcebergConfiguration?: #IcebergCompactionConfiguration | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
@@ -130,7 +133,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VpcConfiguration: close({GlueConnectionName?: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::TableOptimizer"
-	Properties!: #Properties
-}

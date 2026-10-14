@@ -18,30 +18,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::NetworkSecurityManager::Policy. Creates and
 // manages a Network Security Manager policy.
-#Properties: close({
-	AssociatedTemplateAndRuleList?: list.MaxItems(100) & [...] & [...#AssociatedTemplateAndRule] | fn.#ListExpression
-	FirewallType!:                  "WAF" | "SHIELD_ADVANCED" | fn.#StringExpression
-	PolicyConfiguration!:           #PolicyConfiguration | fn.#ObjectExpression
-	PolicyDescription?:             strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
-	PolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
-	fn.#StringExpression
-	Priority!: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkSecurityManager::Policy"
+	Properties!: close({
+		AssociatedTemplateAndRuleList?: list.MaxItems(100) & [...] & [...#AssociatedTemplateAndRule] |
+			fn.#ListExpression
+		FirewallType!:        "WAF" | "SHIELD_ADVANCED" | fn.#StringExpression
+		PolicyConfiguration!: #PolicyConfiguration | fn.#ObjectExpression
+		PolicyDescription?:   strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
+		PolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
+		fn.#StringExpression
+		Priority!: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AssociatedTemplateAndRule: close({
 	RuleArn?:     string | fn.#StringExpression
@@ -67,7 +73,3 @@ fn.#ObjectExpression
 	ExistingCustomerWebACLResolution!: "RETROFIT" | "OVERRIDE_ASSOCIATION" | "NO_REMEDIATION" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkSecurityManager::Policy"
-	Properties!: #Properties
-}

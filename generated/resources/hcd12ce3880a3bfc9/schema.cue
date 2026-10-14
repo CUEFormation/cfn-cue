@@ -9,12 +9,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolUserToGroupAttachment
-#Properties: close({
-	GroupName!:  string | fn.#StringExpression
-	UserPoolId!: string | fn.#StringExpression
-	Username!:   string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::UserPoolUserToGroupAttachment"
-	Properties!: #Properties
+	Type!: "AWS::Cognito::UserPoolUserToGroupAttachment"
+	Properties!: close({
+		GroupName!:  string | fn.#StringExpression
+		UserPoolId!: string | fn.#StringExpression
+		Username!:   string | fn.#StringExpression
+	})
 }

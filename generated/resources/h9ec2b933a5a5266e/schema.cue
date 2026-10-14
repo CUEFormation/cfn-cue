@@ -17,13 +17,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for StateMachineAlias
-#Properties: close({
-	DeploymentPreference?: #DeploymentPreference
-	Description?:          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:                 strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
-	RoutingConfiguration?: #RoutingConfiguration
-	StateMachineArn?:      strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-}) & matchN(>=1, [{RoutingConfiguration!: _}, {DeploymentPreference!: _}])
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::StepFunctions::StateMachineAlias"
+	Properties?: close({
+		DeploymentPreference?: #DeploymentPreference
+		Description?:          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Name?:                 strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
+		RoutingConfiguration?: #RoutingConfiguration
+		StateMachineArn?:      strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	}) & matchN(>=1, [{RoutingConfiguration!: _}, {DeploymentPreference!: _}])
+}
 
 #DeploymentPreference: close({
 	Alarms?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
@@ -90,7 +93,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::StepFunctions::StateMachineAlias"
-	Properties?: #Properties
-}

@@ -12,14 +12,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaTailor::SourceLocation Resource Type
-#Properties: close({
-	AccessConfiguration?:                 #AccessConfiguration
-	DefaultSegmentDeliveryConfiguration?: #DefaultSegmentDeliveryConfiguration
-	HttpConfiguration!:                   #HttpConfiguration
-	SegmentDeliveryConfigurations?:       [...#SegmentDeliveryConfiguration] | fn.#ListExpression
-	SourceLocationName!:                  string | fn.#StringExpression
-	Tags?:                                list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaTailor::SourceLocation"
+	Properties!: close({
+		AccessConfiguration?:                 #AccessConfiguration
+		DefaultSegmentDeliveryConfiguration?: #DefaultSegmentDeliveryConfiguration
+		HttpConfiguration!:                   #HttpConfiguration
+		SegmentDeliveryConfigurations?:       [...#SegmentDeliveryConfiguration] | fn.#ListExpression
+		SourceLocationName!:                  string | fn.#StringExpression
+		Tags?:                                list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AccessConfiguration: close({
 	AccessType?:                             #AccessType
@@ -51,7 +54,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaTailor::SourceLocation"
-	Properties!: #Properties
-}

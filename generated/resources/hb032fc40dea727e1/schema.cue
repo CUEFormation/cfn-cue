@@ -18,23 +18,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a template that defines certificate configurations, both for
 // issuance and client handling
-#Properties: close({
-	ConnectorArn!: strings.MaxRunes(200) &
-	strings.MinRunes(5) &
-	=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	Definition!: #TemplateDefinition
-	Name!:       strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ReenrollAllCertificateHolders?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	Tags?: #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PCAConnectorAD::Template"
+	Properties!: close({
+		ConnectorArn!: strings.MaxRunes(200) &
+		strings.MinRunes(5) &
+		=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
+		fn.#StringExpression
+		Definition!: #TemplateDefinition
+		Name!:       strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		ReenrollAllCertificateHolders?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Tags?: #Tags
+	})
+}
 
 #ApplicationPolicies: close({
 	Critical?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -536,7 +539,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ValidityPeriodType: "HOURS" | "DAYS" | "WEEKS" | "MONTHS" | "YEARS" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PCAConnectorAD::Template"
-	Properties!: #Properties
-}

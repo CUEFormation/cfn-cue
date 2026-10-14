@@ -13,23 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // AWS Datazone Environment Profile is pre-configured set of resources and
 // blueprints that provide reusable templates for creating environments.
-#Properties: close({
-	AwsAccountId!:                   =~"^\\d{12}$" | fn.#StringExpression
-	AwsAccountRegion!:               =~"^[a-z]{2}-[a-z]{4,10}-\\d$" | fn.#StringExpression
-	Description?:                    strings.MaxRunes(2048) | fn.#StringExpression
-	DomainIdentifier!:               =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	EnvironmentBlueprintIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	Name!:                           strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-	ProjectIdentifier!:              =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	UserParameters?:                 [...#EnvironmentParameter] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataZone::EnvironmentProfile"
+	Properties!: close({
+		AwsAccountId!:                   =~"^\\d{12}$" | fn.#StringExpression
+		AwsAccountRegion!:               =~"^[a-z]{2}-[a-z]{4,10}-\\d$" | fn.#StringExpression
+		Description?:                    strings.MaxRunes(2048) | fn.#StringExpression
+		DomainIdentifier!:               =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		EnvironmentBlueprintIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		Name!:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
+		ProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		UserParameters?:    [...#EnvironmentParameter] | fn.#ListExpression
+	})
+}
 
 #EnvironmentParameter: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::EnvironmentProfile"
-	Properties!: #Properties
-}

@@ -17,18 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppFlow::ConnectorProfile
-#Properties: close({
-	ConnectionMode!:         "Public" | "Private" | fn.#StringExpression
-	ConnectorLabel?:         strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w!@#.-]+" | fn.#StringExpression
-	ConnectorProfileConfig?: #ConnectorProfileConfig | fn.#ObjectExpression
-	ConnectorProfileName!:   strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" | fn.#StringExpression
-	ConnectorType!:          #ConnectorType | fn.#StringExpression
-	KMSArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"arn:aws:kms:.*:[0-9]+:.*" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppFlow::ConnectorProfile"
+	Properties!: close({
+		ConnectionMode!:         "Public" | "Private" | fn.#StringExpression
+		ConnectorLabel?:         strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w!@#.-]+" | fn.#StringExpression
+		ConnectorProfileConfig?: #ConnectorProfileConfig | fn.#ObjectExpression
+		ConnectorProfileName!:   strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" | fn.#StringExpression
+		ConnectorType!:          #ConnectorType | fn.#StringExpression
+		KMSArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"arn:aws:kms:.*:[0-9]+:.*" |
+		fn.#StringExpression
+	})
+}
 
 #AccessKeyId: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
 
@@ -511,7 +514,3 @@ fn.#ObjectExpression
 	InstanceUrl!: #InstanceUrl | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppFlow::ConnectorProfile"
-	Properties!: #Properties
-}

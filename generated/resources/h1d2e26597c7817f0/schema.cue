@@ -18,18 +18,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Personalize::Solution.
-#Properties: close({
-	DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
-	fn.#StringExpression
-	EventType?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:          strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*" | fn.#StringExpression
-	PerformAutoML?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PerformHPO?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RecipeArn?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
-	fn.#StringExpression
-	SolutionConfig?: #SolutionConfig
-	Tags?:           list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Personalize::Solution"
+	Properties!: close({
+		DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
+		fn.#StringExpression
+		EventType?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:      strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*" | fn.#StringExpression
+		PerformAutoML?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		PerformHPO?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RecipeArn?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
+		fn.#StringExpression
+		SolutionConfig?: #SolutionConfig
+		Tags?:           list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CategoricalHyperParameterRange: close({
 	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
@@ -168,7 +171,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Personalize::Solution"
-	Properties!: #Properties
-}

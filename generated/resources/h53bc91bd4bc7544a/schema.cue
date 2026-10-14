@@ -12,16 +12,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Publishes new or first hook version to AWS CloudFormation Registry.
-#Properties: close({
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(256) &
-	strings.MinRunes(1) &
-	=~"arn:.+:iam::[0-9]{12}:role/.+" |
-	fn.#StringExpression
-	LoggingConfig?:        #LoggingConfig | fn.#ObjectExpression
-	SchemaHandlerPackage!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	TypeName!:             =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFormation::HookVersion"
+	Properties!: close({
+		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"arn:.+:iam::[0-9]{12}:role/.+" |
+		fn.#StringExpression
+		LoggingConfig?:        #LoggingConfig | fn.#ObjectExpression
+		SchemaHandlerPackage!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+		TypeName!:             =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" | fn.#StringExpression
+	})
+}
 
 #LoggingConfig: close({
 	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
@@ -32,7 +35,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::HookVersion"
-	Properties!: #Properties
-}

@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::Terms
-#Properties: close({
-	ClientId?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" | fn.#StringExpression
-	Enforcement!: #TermsEnforcementType
-	Links!:       #LinksType
-	TermsName!:   #TermsNameType
-	TermsSource!: #TermsSourceType
-	UserPoolId!:  strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::Terms"
+	Properties!: close({
+		ClientId?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" | fn.#StringExpression
+		Enforcement!: #TermsEnforcementType
+		Links!:       #LinksType
+		TermsName!:   #TermsNameType
+		TermsSource!: #TermsSourceType
+		UserPoolId!:  strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+	})
+}
 
 #LinksType: struct.MaxFields(12) & struct.MinFields(1) & close({
 
@@ -38,7 +41,3 @@ fn.#ObjectExpression
 #TermsNameType: =~"^(terms-of-use|privacy-policy)$" | fn.#StringExpression
 
 #TermsSourceType: "LINK" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::Terms"
-	Properties!: #Properties
-}

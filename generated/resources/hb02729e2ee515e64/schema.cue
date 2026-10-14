@@ -13,19 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Amplify::Domain resource allows you to connect a custom domain to your app.
-#Properties: close({
-	AppId!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+" | fn.#StringExpression
-	AutoSubDomainCreationPatterns?: [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	AutoSubDomainIAMRole?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^$|^arn:.+:iam::\\d{12}:role.+" |
-	fn.#StringExpression
-	CertificateSettings?: #CertificateSettings
-	DomainName!:          strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	EnableAutoSubDomain?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SubDomainSettings!:   list.MaxItems(255) & [...] & [...#SubDomainSetting] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Amplify::Domain"
+	Properties!: close({
+		AppId!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+" | fn.#StringExpression
+		AutoSubDomainCreationPatterns?: [
+			...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		AutoSubDomainIAMRole?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^$|^arn:.+:iam::\\d{12}:role.+" |
+		fn.#StringExpression
+		CertificateSettings?: #CertificateSettings
+		DomainName!:          strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		EnableAutoSubDomain?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SubDomainSettings!:   list.MaxItems(255) & [...] & [...#SubDomainSetting] | fn.#ListExpression
+	})
+}
 
 #Certificate: close({
 	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -50,7 +53,3 @@ fn.#ObjectExpression
 	Prefix!:     strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Amplify::Domain"
-	Properties!: #Properties
-}

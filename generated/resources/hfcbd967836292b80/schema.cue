@@ -14,14 +14,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::NetworkSecurityManager::Template. Creates
 // and manages a Network Security Manager template.
-#Properties: close({
-	AssociatedRuleList?:  list.MaxItems(50) & list.MinItems(1) & [...#AssociatedRule] | fn.#ListExpression
-	FirewallType?:        "WAF" | "NETWORK_FIREWALL" | "NETWORK_FIREWALL_V2" | "IGW_FIREWALL" | fn.#StringExpression
-	Tags?:                list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TemplateDescription?: strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
-	TemplateName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkSecurityManager::Template"
+	Properties!: close({
+		AssociatedRuleList?:  list.MaxItems(50) & list.MinItems(1) & [...#AssociatedRule] | fn.#ListExpression
+		FirewallType?:        "WAF" | "NETWORK_FIREWALL" | "NETWORK_FIREWALL_V2" | "IGW_FIREWALL" | fn.#StringExpression
+		Tags?:                list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TemplateDescription?: strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
+		TemplateName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
+		fn.#StringExpression
+	})
+}
 
 #AssociatedRule: close({RuleArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -30,7 +33,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkSecurityManager::Template"
-	Properties!: #Properties
-}

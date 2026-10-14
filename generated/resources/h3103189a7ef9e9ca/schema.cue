@@ -14,26 +14,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Redshift::RedshiftIdcApplication. Creates
 // an Amazon Redshift application for use with IAM Identity Center.
-#Properties: close({
-	ApplicationType?:           "None" | "Lakehouse" | fn.#StringExpression
-	AuthorizedTokenIssuerList?: [...#AuthorizedTokenIssuer] | fn.#ListExpression
-	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2147483647) &
-	strings.MinRunes(0) &
-	=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" |
-	fn.#StringExpression
-	IdcDisplayName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	IdcInstanceArn!: strings.MaxRunes(2147483647) &
-	strings.MinRunes(0) &
-	=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" |
-	fn.#StringExpression
-	IdentityNamespace?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_+.#@$-]+$" | fn.#StringExpression
-	RedshiftIdcApplicationName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
-	fn.#StringExpression
-	ServiceIntegrations?: [...#ServiceIntegrationsUnion] | fn.#ListExpression
-	SsoTagKeys?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-	Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Redshift::RedshiftIdcApplication"
+	Properties!: close({
+		ApplicationType?:           "None" | "Lakehouse" | fn.#StringExpression
+		AuthorizedTokenIssuerList?: [...#AuthorizedTokenIssuer] | fn.#ListExpression
+		IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2147483647) &
+		strings.MinRunes(0) &
+		=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" |
+		fn.#StringExpression
+		IdcDisplayName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+		IdcInstanceArn!: strings.MaxRunes(2147483647) &
+		strings.MinRunes(0) &
+		=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" |
+		fn.#StringExpression
+		IdentityNamespace?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_+.#@$-]+$" |
+		fn.#StringExpression
+		RedshiftIdcApplicationName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
+		fn.#StringExpression
+		ServiceIntegrations?: [...#ServiceIntegrationsUnion] | fn.#ListExpression
+		SsoTagKeys?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
+		Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AuthorizedTokenIssuer: close({
 	AuthorizedAudiencesList?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] |
@@ -69,7 +73,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Redshift::RedshiftIdcApplication"
-	Properties!: #Properties
-}

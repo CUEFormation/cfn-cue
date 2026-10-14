@@ -13,19 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeCommit::Repository
-#Properties: close({
-	Code?: #Code | fn.#ObjectExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(100) &
-	strings.MinRunes(1) &
-	=~"^[a-zA-Z0-9:/_-]+$" |
-	fn.#StringExpression
-	RepositoryDescription?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	RepositoryName!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Triggers?:              [...#RepositoryTrigger] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeCommit::Repository"
+	Properties!: close({
+		Code?: #Code | fn.#ObjectExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+		strings.MaxRunes(100) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9:/_-]+$" |
+		fn.#StringExpression
+		RepositoryDescription?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+		RepositoryName!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Triggers?:              [...#RepositoryTrigger] | fn.#ListExpression
+	})
+}
 
 #Code: close({
 	BranchName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -55,7 +58,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeCommit::Repository"
-	Properties!: #Properties
-}

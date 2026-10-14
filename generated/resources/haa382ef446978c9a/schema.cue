@@ -19,14 +19,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS IoT Stream. A stream is a publicly
 // addressable resource that is an abstraction for a list of files that can be
 // transferred to an IoT device.
-#Properties: close({
-	Description?: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" | fn.#StringExpression
-	Files!:       list.MaxItems(50) & list.MinItems(1) & [...#StreamFile] | fn.#ListExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-	StreamId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Tags?:     [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::Stream"
+	Properties!: close({
+		Description?: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" | fn.#StringExpression
+		Files!:       list.MaxItems(50) & list.MinItems(1) & [...#StreamFile] | fn.#ListExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		fn.#StringExpression
+		StreamId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Tags?:     [...#Tag] | fn.#ListExpression
+	})
+}
 
 #S3Location: close({
 	Bucket?:  strings.MinRunes(1) | fn.#StringExpression
@@ -61,7 +64,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::Stream"
-	Properties!: #Properties
-}

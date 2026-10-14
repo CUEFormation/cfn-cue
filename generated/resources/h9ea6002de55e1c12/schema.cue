@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::MultiRegionEndpoint
-#Properties: close({
-	Details!:      #Details
-	EndpointName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" | fn.#StringExpression
-	Tags?:         #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::MultiRegionEndpoint"
+	Properties!: close({
+		Details!:      #Details
+		EndpointName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" | fn.#StringExpression
+		Tags?:         #Tags
+	})
+}
 
 #Details: close({RouteDetails!: #RouteDetails}) | fn.#ObjectExpression
 
@@ -35,7 +38,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::MultiRegionEndpoint"
-	Properties!: #Properties
-}

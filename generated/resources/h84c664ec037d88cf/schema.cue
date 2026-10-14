@@ -13,20 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // will automatically create a default connection group for you. When you
 // create a new distribution tenant and don't specify a connection group, the
 // default one will be associated with your distribution tenant.
-#Properties: close({
-	AnycastIpListId?: string | fn.#StringExpression
-	Enabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Ipv6Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:            string | fn.#StringExpression
-	Tags?:            [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudFront::ConnectionGroup"
+	Properties!: close({
+		AnycastIpListId?: string | fn.#StringExpression
+		Enabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Ipv6Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Name!:            string | fn.#StringExpression
+		Tags?:            [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::ConnectionGroup"
-	Properties!: #Properties
-}

@@ -13,29 +13,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SMSVOICE::Pool
-#Properties: close({
-	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MandatoryKeywords!: close({
-		HELP!: #MandatoryKeyword
-		STOP!: #MandatoryKeyword
-	}) |
-	fn.#ObjectExpression
-	OptOutListName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
-	OptionalKeywords?: list.UniqueItems() & [...#OptionalKeyword] | fn.#ListExpression
-	OriginationIdentities!: list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(256) & strings.MinRunes(20) & =~"^arn:\\S+" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	SelfManagedOptOutsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SharedRoutesEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TwoWay?: close({
-		ChannelArn?:  =~"^[ \\S]+" | fn.#StringExpression
-		ChannelRole?: =~"^arn:\\S+$" | fn.#StringExpression
-		Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	}) |
-	fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SMSVOICE::Pool"
+	Properties!: close({
+		DeletionProtectionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		MandatoryKeywords!: close({
+			HELP!: #MandatoryKeyword
+			STOP!: #MandatoryKeyword
+		}) |
+		fn.#ObjectExpression
+		OptOutListName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
+		OptionalKeywords?: list.UniqueItems() & [...#OptionalKeyword] | fn.#ListExpression
+		OriginationIdentities!: list.MinItems(1) & list.UniqueItems() & [
+			...strings.MaxRunes(256) & strings.MinRunes(20) & =~"^arn:\\S+" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		SelfManagedOptOutsEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		SharedRoutesEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TwoWay?: close({
+			ChannelArn?:  =~"^[ \\S]+" | fn.#StringExpression
+			ChannelRole?: =~"^arn:\\S+$" | fn.#StringExpression
+			Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		}) |
+		fn.#ObjectExpression
+	})
+}
 
 #MandatoryKeyword: close({Message!: strings.MaxRunes(1600) | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -51,7 +68,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SMSVOICE::Pool"
-	Properties!: #Properties
-}

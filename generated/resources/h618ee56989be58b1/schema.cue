@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ConnectCampaigns::Campaign Resource Type
-#Properties: close({
-	ConnectInstanceArn!: strings.MaxRunes(256) &
-	strings.MinRunes(0) &
-	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression
-	DialerConfig!:       #DialerConfig
-	Name!:               strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	OutboundCallConfig!: #OutboundCallConfig
-	Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ConnectCampaigns::Campaign"
+	Properties!: close({
+		ConnectInstanceArn!: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		fn.#StringExpression
+		DialerConfig!:       #DialerConfig
+		Name!:               strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+		OutboundCallConfig!: #OutboundCallConfig
+		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AgentlessDialerConfig: close({
 	DialingCapacity?: <=1 & >=0.01 |
@@ -183,7 +186,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ConnectCampaigns::Campaign"
-	Properties!: #Properties
-}

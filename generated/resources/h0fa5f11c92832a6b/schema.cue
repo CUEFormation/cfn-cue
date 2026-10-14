@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppConfig::Environment
-#Properties: close({
-	ApplicationId!:           =~"[a-z0-9]{4,7}" | fn.#StringExpression
-	DeletionProtectionCheck?: "ACCOUNT_DEFAULT" | "APPLY" | "BYPASS" | fn.#StringExpression
-	Description?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Monitors?:                list.MaxItems(5) & [...] & [...#Monitor] | fn.#ListExpression
-	Name!:                    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppConfig::Environment"
+	Properties!: close({
+		ApplicationId!:           =~"[a-z0-9]{4,7}" | fn.#StringExpression
+		DeletionProtectionCheck?: "ACCOUNT_DEFAULT" | "APPLY" | "BYPASS" | fn.#StringExpression
+		Description?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Monitors?:                list.MaxItems(5) & [...] & [...#Monitor] | fn.#ListExpression
+		Name!:                    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Monitor: close({
 	AlarmArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
@@ -37,7 +40,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppConfig::Environment"
-	Properties!: #Properties
-}

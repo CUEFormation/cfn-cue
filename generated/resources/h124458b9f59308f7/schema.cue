@@ -13,22 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::TrafficDistributionGroup
-#Properties: close({
-	Description?: strings.MaxRunes(250) & strings.MinRunes(1) & =~"(^[\\S].*[\\S]$)|(^[\\S]$)" | fn.#StringExpression
-	InstanceArn!: strings.MaxRunes(250) &
-	strings.MinRunes(1) &
-	=~"^arn:(aws|aws-us-gov):connect:[a-z]{2}-[a-z]+-[0-9]{1}:[0-9]{1,20}:instance/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"(^[\\S].*[\\S]$)|(^[\\S]$)" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::TrafficDistributionGroup"
+	Properties!: close({
+		Description?: strings.MaxRunes(250) & strings.MinRunes(1) & =~"(^[\\S].*[\\S]$)|(^[\\S]$)" |
+		fn.#StringExpression
+		InstanceArn!: strings.MaxRunes(250) &
+		strings.MinRunes(1) &
+		=~"^arn:(aws|aws-us-gov):connect:[a-z]{2}-[a-z]+-[0-9]{1}:[0-9]{1,20}:instance/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"(^[\\S].*[\\S]$)|(^[\\S]$)" | fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::TrafficDistributionGroup"
-	Properties!: #Properties
-}

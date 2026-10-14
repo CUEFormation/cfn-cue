@@ -12,12 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // the resource tags for telemetry feature in CloudWatch to enrich
 // infrastructure metrics with AWS resource tags. For more details:
 // https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/resource-tags-for-telemetry.html
-#Properties: close({Scope!: #Scope})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::ObservabilityAdmin::TelemetryEnrichment"
+	Properties!: close({Scope!: #Scope})
+}
 
 #Scope: "ACCOUNT" | fn.#StringExpression
 
 #Status: "RUNNING" | "STOPPED" | "IMPAIRED" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ObservabilityAdmin::TelemetryEnrichment"
-	Properties!: #Properties
-}

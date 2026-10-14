@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage partner account
-#Properties: close({
-	AccountLinked?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PartnerAccountId?: strings.MaxRunes(256) | fn.#StringExpression
-	PartnerType?:      "Sidewalk" | fn.#StringExpression
-	Sidewalk?:         #SidewalkAccountInfo | fn.#ObjectExpression
-	SidewalkResponse?: #SidewalkAccountInfoWithFingerprint | fn.#ObjectExpression
-	SidewalkUpdate?:   #SidewalkUpdateAccount | fn.#ObjectExpression
-	Tags?:             list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTWireless::PartnerAccount"
+	Properties?: close({
+		AccountLinked?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		PartnerAccountId?: strings.MaxRunes(256) | fn.#StringExpression
+		PartnerType?:      "Sidewalk" | fn.#StringExpression
+		Sidewalk?:         #SidewalkAccountInfo | fn.#ObjectExpression
+		SidewalkResponse?: #SidewalkAccountInfoWithFingerprint | fn.#ObjectExpression
+		SidewalkUpdate?:   #SidewalkUpdateAccount | fn.#ObjectExpression
+		Tags?:             list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #SidewalkAccountInfo: close(
 	{AppServerPrivateKey!: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[a-fA-F0-9]{64}" | fn.#StringExpression},
@@ -45,7 +48,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTWireless::PartnerAccount"
-	Properties?: #Properties
-}

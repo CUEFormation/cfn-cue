@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Config::OrganizationConfigRule
-#Properties: close({
-	ExcludedAccounts?: list.MaxItems(1000) & [...] & [...=~"^\\d{12}$" | fn.#StringExpression] | fn.#ListExpression
-	OrganizationConfigRuleName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" |
-	fn.#StringExpression
-	OrganizationCustomPolicyRuleMetadata?: #OrganizationCustomPolicyRuleMetadata | fn.#ObjectExpression
-	OrganizationCustomRuleMetadata?:       #OrganizationCustomRuleMetadata | fn.#ObjectExpression
-	OrganizationManagedRuleMetadata?:      #OrganizationManagedRuleMetadata | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Config::OrganizationConfigRule"
+	Properties!: close({
+		ExcludedAccounts?: list.MaxItems(1000) & [...] & [...=~"^\\d{12}$" | fn.#StringExpression] | fn.#ListExpression
+		OrganizationConfigRuleName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" |
+		fn.#StringExpression
+		OrganizationCustomPolicyRuleMetadata?: #OrganizationCustomPolicyRuleMetadata | fn.#ObjectExpression
+		OrganizationCustomRuleMetadata?:       #OrganizationCustomRuleMetadata | fn.#ObjectExpression
+		OrganizationManagedRuleMetadata?:      #OrganizationManagedRuleMetadata | fn.#ObjectExpression
+	})
+}
 
 #OrganizationCustomPolicyRuleMetadata: close({
 	DebugLogDeliveryAccounts?: list.MaxItems(1000) & [...] & [...=~"^\\d{12}$" | fn.#StringExpression] |
@@ -90,7 +93,3 @@ fn.#ObjectExpression
 	TagValueScope?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Config::OrganizationConfigRule"
-	Properties!: #Properties
-}

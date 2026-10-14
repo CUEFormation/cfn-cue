@@ -16,106 +16,119 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::FlowOutput
-#Properties: close({
-	CidrAllowList?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Description?:   string | fn.#StringExpression
-	Destination?:   string | fn.#StringExpression
-	Encryption?:    #Encryption | fn.#ObjectExpression
-	FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
-		fn.#StringExpression
-	MaxLatency?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MediaStreamOutputConfigurations?: [...#MediaStreamOutputConfiguration] | fn.#ListExpression
-	MinLatency?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name?:                    string | fn.#StringExpression
-	NdiOutputTimecodeSource?: "EMBEDDED_TIMECODE" | "UTC_SYSTEM_TIME" | fn.#StringExpression
-	NdiProgramName?:          string | fn.#StringExpression
-	NdiSpeedHqQuality?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	OutputStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	Port?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Protocol?: "zixi-push" |
-		"rtp-fec" |
-		"rtp" |
-		"zixi-pull" |
-		"rist" |
-		"srt-listener" |
-		"srt-caller" |
-		"st2110-jpegxs" |
-		"cdi" |
-		"ndi-speed-hq" |
-		fn.#StringExpression
-	RemoteId?:                           string | fn.#StringExpression
-	RouterIntegrationState?:             "ENABLED" | "DISABLED" | fn.#StringExpression
-	RouterIntegrationTransitEncryption?: #FlowTransitEncryption
-	SmoothingLatency?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	StreamId?:               string | fn.#StringExpression
-	Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VpcInterfaceAttachment?: #VpcInterfaceAttachment | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::FlowOutput"
+	Properties!: close({
+		CidrAllowList?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Description?:   string | fn.#StringExpression
+		Destination?:   string | fn.#StringExpression
+		Encryption?:    #Encryption | fn.#ObjectExpression
+		FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
+			fn.#StringExpression
+		MaxLatency?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MediaStreamOutputConfigurations?: [...#MediaStreamOutputConfiguration] | fn.#ListExpression
+		MinLatency?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name?:                    string | fn.#StringExpression
+		NdiOutputTimecodeSource?: "EMBEDDED_TIMECODE" | "UTC_SYSTEM_TIME" | fn.#StringExpression
+		NdiProgramName?:          string | fn.#StringExpression
+		NdiSpeedHqQuality?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		OutputStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		Port?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Protocol?: "zixi-push" |
+			"rtp-fec" |
+			"rtp" |
+			"zixi-pull" |
+			"rist" |
+			"srt-listener" |
+			"srt-caller" |
+			"st2110-jpegxs" |
+			"cdi" |
+			"ndi-speed-hq" |
+			fn.#StringExpression
+		RemoteId?:                           string | fn.#StringExpression
+		RouterIntegrationState?:             "ENABLED" | "DISABLED" | fn.#StringExpression
+		RouterIntegrationTransitEncryption?: #FlowTransitEncryption
+		SmoothingLatency?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		StreamId?:               string | fn.#StringExpression
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VpcInterfaceAttachment?: #VpcInterfaceAttachment | fn.#ObjectExpression
+	})
+}
 
 #AutomaticEncryptionKeyConfiguration: close({}) | fn.#ObjectExpression
 
@@ -215,7 +228,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VpcInterfaceAttachment: close({VpcInterfaceName?: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::FlowOutput"
-	Properties!: #Properties
-}

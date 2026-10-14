@@ -18,12 +18,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // to
 // Use](https://docs.aws.amazon.com/iotevents/latest/developerguide/how-to-use-iotevents.html)
 // in the *Developer Guide*.
-#Properties: close({
-	InputDefinition!:  #InputDefinition | fn.#ObjectExpression
-	InputDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	InputName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
-	Tags?:             [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTEvents::Input"
+	Properties!: close({
+		InputDefinition!:  #InputDefinition | fn.#ObjectExpression
+		InputDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		InputName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
+		Tags?:      [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Attribute: close({
 	JsonPath!: strings.MaxRunes(128) &
@@ -43,7 +46,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTEvents::Input"
-	Properties!: #Properties
-}

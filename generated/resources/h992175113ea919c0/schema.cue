@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::AppRunner::VpcIngressConnection resource is an App Runner resource
 // that specifies an App Runner VpcIngressConnection.
-#Properties: close({
-	IngressVpcConfiguration!: #IngressVpcConfiguration
-	ServiceArn!:              strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                    [...#Tag] | fn.#ListExpression
-	VpcIngressConnectionName?: strings.MaxRunes(40) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,39}" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppRunner::VpcIngressConnection"
+	Properties!: close({
+		IngressVpcConfiguration!: #IngressVpcConfiguration
+		ServiceArn!:              strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                    [...#Tag] | fn.#ListExpression
+		VpcIngressConnectionName?: strings.MaxRunes(40) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,39}" |
+		fn.#StringExpression
+	})
+}
 
 #IngressVpcConfiguration: close({
 	VpcEndpointId!: strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
@@ -33,7 +36,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppRunner::VpcIngressConnection"
-	Properties!: #Properties
-}

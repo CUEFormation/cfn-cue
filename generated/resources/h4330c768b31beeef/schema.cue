@@ -14,10 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A domain, which is a container for all case data, such as cases, fields,
 // templates and layouts. Each Amazon Connect instance can be associated with
 // only one Cases domain.
-#Properties: close({
-	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cases::Domain"
+	Properties!: close({
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DomainStatus: "Active" | "CreationInProgress" | "CreationFailed" | fn.#StringExpression
 
@@ -26,7 +29,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cases::Domain"
-	Properties!: #Properties
-}

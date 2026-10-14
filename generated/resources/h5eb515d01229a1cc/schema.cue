@@ -16,14 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Registers a package version.
-#Properties: close({
-	MarkLatest?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OwnerAccount?:              #PackageOwnerAccount | fn.#StringExpression
-	PackageId!:                 #NodePackageId | fn.#StringExpression
-	PackageVersion!:            #NodePackageVersion | fn.#StringExpression
-	PatchVersion!:              #NodePackagePatchVersion | fn.#StringExpression
-	UpdatedLatestPatchVersion?: #NodePackagePatchVersion | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Panorama::PackageVersion"
+	Properties!: close({
+		MarkLatest?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		OwnerAccount?:   #PackageOwnerAccount | fn.#StringExpression
+		PackageId!:      #NodePackageId | fn.#StringExpression
+		PackageVersion!: #NodePackageVersion | fn.#StringExpression
+		PatchVersion!:   #NodePackagePatchVersion | fn.#StringExpression
+		UpdatedLatestPatchVersion?: #NodePackagePatchVersion | fn.#StringExpression
+	})
+}
 
 #NodePackageArn: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -54,7 +57,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Panorama::PackageVersion"
-	Properties!: #Properties
-}

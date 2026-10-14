@@ -12,20 +12,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::CapacityManagerDataExport
-#Properties: close({
-	OutputFormat!:   "csv" | "parquet" | fn.#StringExpression
-	S3BucketName!:   string | fn.#StringExpression
-	S3BucketPrefix?: string | fn.#StringExpression
-	Schedule!:       "hourly" | fn.#StringExpression
-	Tags?:           [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::CapacityManagerDataExport"
+	Properties!: close({
+		OutputFormat!:   "csv" | "parquet" | fn.#StringExpression
+		S3BucketName!:   string | fn.#StringExpression
+		S3BucketPrefix?: string | fn.#StringExpression
+		Schedule!:       "hourly" | fn.#StringExpression
+		Tags?:           [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::CapacityManagerDataExport"
-	Properties!: #Properties
-}

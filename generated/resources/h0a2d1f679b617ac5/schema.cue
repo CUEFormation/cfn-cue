@@ -9,13 +9,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::UserProfile
-#Properties: close({
-	AllowSelfManagement?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IamUserArn!:          string | fn.#StringExpression
-	SshPublicKey?:        string | fn.#StringExpression
-	SshUsername?:         string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpsWorks::UserProfile"
-	Properties!: #Properties
+	Type!: "AWS::OpsWorks::UserProfile"
+	Properties!: close({
+		AllowSelfManagement?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IamUserArn!:          string | fn.#StringExpression
+		SshPublicKey?:        string | fn.#StringExpression
+		SshUsername?:         string | fn.#StringExpression
+	})
 }

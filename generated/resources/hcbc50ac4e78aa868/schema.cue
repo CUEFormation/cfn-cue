@@ -12,13 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ResourceExplorer2::View Resource Type
-#Properties: close({
-	Filters?:            #SearchFilter
-	IncludedProperties?: [...#IncludedProperty] | fn.#ListExpression
-	Scope?:              string | fn.#StringExpression
-	Tags?:               #TagMap
-	ViewName!:           =~"^[a-zA-Z0-9\\-]{1,64}$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ResourceExplorer2::View"
+	Properties!: close({
+		Filters?:            #SearchFilter
+		IncludedProperties?: [...#IncludedProperty] | fn.#ListExpression
+		Scope?:              string | fn.#StringExpression
+		Tags?:               #TagMap
+		ViewName!:           =~"^[a-zA-Z0-9\\-]{1,64}$" | fn.#StringExpression
+	})
+}
 
 #IncludedProperty: close({Name!: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
@@ -30,7 +33,3 @@ fn.#ObjectExpression
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ResourceExplorer2::View"
-	Properties!: #Properties
-}

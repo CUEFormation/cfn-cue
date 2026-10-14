@@ -15,13 +15,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AWS Cost Anomaly Detection leverages advanced Machine Learning technologies
 // to identify anomalous spend and root causes, so you can quickly take action.
 // You can use Cost Anomaly Detection by creating monitor.
-#Properties: close({
-	MonitorDimension?:     "SERVICE" | "LINKED_ACCOUNT" | "TAG" | "COST_CATEGORY" | fn.#StringExpression
-	MonitorName!:          strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
-	MonitorSpecification?: string | fn.#StringExpression
-	MonitorType!:          "DIMENSIONAL" | "CUSTOM" | fn.#StringExpression
-	ResourceTags?:         list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CE::AnomalyMonitor"
+	Properties!: close({
+		MonitorDimension?:     "SERVICE" | "LINKED_ACCOUNT" | "TAG" | "COST_CATEGORY" | fn.#StringExpression
+		MonitorName!:          strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
+		MonitorSpecification?: string | fn.#StringExpression
+		MonitorType!:          "DIMENSIONAL" | "CUSTOM" | fn.#StringExpression
+		ResourceTags?:         list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
+	})
+}
 
 #Arn: =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" | fn.#StringExpression
 
@@ -30,7 +33,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CE::AnomalyMonitor"
-	Properties!: #Properties
-}

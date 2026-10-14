@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::Project
-#Properties: close({
-	AssetIds?: list.UniqueItems() & [...#AssetId] | fn.#ListExpression
-	PortalId!: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression
-	ProjectDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	ProjectName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTSiteWise::Project"
+	Properties!: close({
+		AssetIds?: list.UniqueItems() & [...#AssetId] | fn.#ListExpression
+		PortalId!: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression
+		ProjectDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
+		ProjectName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AssetId: string | fn.#StringExpression
 
@@ -30,7 +33,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSiteWise::Project"
-	Properties!: #Properties
-}

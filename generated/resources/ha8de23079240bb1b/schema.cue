@@ -18,32 +18,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::GatewayRule
-#Properties: close({
-	Actions!:           list.MaxItems(2) & list.MinItems(1) & [...#Action] | fn.#ListExpression
-	Conditions?:        list.MaxItems(2) & [...] & [...#Condition] | fn.#ListExpression
-	Description?:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
-	Priority!: <=1000000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::GatewayRule"
+	Properties!: close({
+		Actions!:           list.MaxItems(2) & list.MinItems(1) & [...#Action] | fn.#ListExpression
+		Conditions?:        list.MaxItems(2) & [...] & [...#Condition] | fn.#ListExpression
+		Description?:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
+		Priority!: <=1000000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=1000000 &
+								>=1,
+							"g",
+							-1,
 							64,
-						) &
-							<=1000000 &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #Action: matchN(1, [
 	close({ConfigurationBundle!: #ConfigurationBundleAction}), close({RouteToTarget!: #RouteToTargetAction}),
@@ -178,7 +181,3 @@ fn.#ObjectExpression
 	{TrafficSplit!: list.MaxItems(2) & list.MinItems(2) & [...#TargetTrafficSplitEntry] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::GatewayRule"
-	Properties!: #Properties
-}

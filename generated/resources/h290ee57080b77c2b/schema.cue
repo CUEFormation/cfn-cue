@@ -12,12 +12,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::FIS::TargetAccountConfiguration
-#Properties: close({
-	AccountId!:            #TargetAccountId
-	Description?:          #TargetAccountConfigurationDescription
-	ExperimentTemplateId!: #TargetExperimentTemplateId
-	RoleArn!:              #TargetAccountRoleArn
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FIS::TargetAccountConfiguration"
+	Properties!: close({
+		AccountId!:            #TargetAccountId
+		Description?:          #TargetAccountConfigurationDescription
+		ExperimentTemplateId!: #TargetExperimentTemplateId
+		RoleArn!:              #TargetAccountRoleArn
+	})
+}
 
 #TargetAccountConfigurationDescription: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
 fn.#StringExpression
@@ -31,7 +34,3 @@ strings.MinRunes(20) &
 fn.#StringExpression
 
 #TargetExperimentTemplateId: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FIS::TargetAccountConfiguration"
-	Properties!: #Properties
-}

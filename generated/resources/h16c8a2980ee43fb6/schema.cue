@@ -13,12 +13,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // administrator account can create Organization Configuration resource in each
 // region and can opt-in to Central Configuration only in the aggregation
 // region of FindingAggregator.
-#Properties: close({
-	AutoEnable!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AutoEnableStandards?: "DEFAULT" | "NONE" | fn.#StringExpression
-	ConfigurationType?:   "CENTRAL" | "LOCAL" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::OrganizationConfiguration"
-	Properties!: #Properties
+	Type!: "AWS::SecurityHub::OrganizationConfiguration"
+	Properties!: close({
+		AutoEnable!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AutoEnableStandards?: "DEFAULT" | "NONE" | fn.#StringExpression
+		ConfigurationType?:   "CENTRAL" | "LOCAL" | fn.#StringExpression
+	})
 }

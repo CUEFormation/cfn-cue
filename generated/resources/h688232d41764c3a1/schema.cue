@@ -11,20 +11,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AWS::Neptune::DBParameterGroup creates a new DB parameter group. This type
 // can be declared in a template and referenced in the DBParameterGroupName
 // parameter of AWS::Neptune::DBInstance
-#Properties: close({
-	Description!: string | fn.#StringExpression
-	Family!:      string | fn.#StringExpression
-	Name?:        string | fn.#StringExpression
-	Parameters!:  fn.#Object & {...} | string | fn.#StringObjectExpression
-	Tags?:        [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Neptune::DBParameterGroup"
+	Properties!: close({
+		Description!: string | fn.#StringExpression
+		Family!:      string | fn.#StringExpression
+		Name?:        string | fn.#StringExpression
+		Parameters!:  fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Neptune::DBParameterGroup"
-	Properties!: #Properties
-}

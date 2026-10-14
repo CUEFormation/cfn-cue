@@ -9,10 +9,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ResourceExplorer2::Index Resource Type
-#Properties: close({
-	Tags?: #TagMap
-	Type!: #IndexType
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ResourceExplorer2::Index"
+	Properties!: close({
+		Tags?: #TagMap
+		Type!: #IndexType
+	})
+}
 
 #IndexState: "ACTIVE" | "CREATING" | "DELETING" | "DELETED" | "UPDATING" | fn.#StringExpression
 
@@ -22,7 +25,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ResourceExplorer2::Index"
-	Properties!: #Properties
-}

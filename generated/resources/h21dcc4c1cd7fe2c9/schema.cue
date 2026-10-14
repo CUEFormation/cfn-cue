@@ -16,45 +16,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Athena::WorkGroup
-#Properties: close({
-	Description?:           strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:                  =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
-	RecursiveDeleteOption?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	State?:                 "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?:                  #Tags | fn.#ListExpression
-	WorkGroupConfiguration?: close({
-		AdditionalConfiguration?:                #AdditionalConfiguration
-		BytesScannedCutoffPerQuery?:             #BytesScannedCutoffPerQuery
-		CustomerContentEncryptionConfiguration?: #CustomerContentEncryptionConfiguration
-		EnforceWorkGroupConfiguration?:          #EnforceWorkGroupConfiguration
-		EngineConfiguration?:                    #EngineConfiguration
-		EngineVersion?: close({SelectedEngineVersion?: #SelectedEngineVersion}) | fn.#ObjectExpression
-		ExecutionRole?: #ExecutionRole
-		ManagedQueryResultsConfiguration?: #ManagedQueryResultsConfiguration
-		MonitoringConfiguration?:          #MonitoringConfiguration
-		PublishCloudWatchMetricsEnabled?:  #PublishCloudWatchMetricsEnabled
-		RequesterPaysEnabled?:             #RequesterPaysEnabled
-		ResultConfiguration?:              #ResultConfiguration
-	}) |
-	fn.#ObjectExpression
-	WorkGroupConfigurationUpdates?: close({
-		AdditionalConfiguration?:                #AdditionalConfiguration
-		BytesScannedCutoffPerQuery?:             #BytesScannedCutoffPerQuery
-		CustomerContentEncryptionConfiguration?: #CustomerContentEncryptionConfiguration
-		EnforceWorkGroupConfiguration?:          #EnforceWorkGroupConfiguration
-		EngineConfiguration?:                    #EngineConfiguration
-		EngineVersion?: close({SelectedEngineVersion?: #SelectedEngineVersion}) | fn.#ObjectExpression
-		ExecutionRole?: #ExecutionRole
-		ManagedQueryResultsConfiguration?:             #ManagedQueryResultsConfiguration
-		MonitoringConfiguration?:                      #MonitoringConfiguration
-		PublishCloudWatchMetricsEnabled?:              #PublishCloudWatchMetricsEnabled
-		RemoveBytesScannedCutoffPerQuery?:             #RemoveBytesScannedCutoffPerQuery
-		RemoveCustomerContentEncryptionConfiguration?: #RemoveCustomerContentEncryptionConfiguration
-		RequesterPaysEnabled?:                         #RequesterPaysEnabled
-		ResultConfigurationUpdates?:                   #ResultConfigurationUpdates
-	}) |
-	fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Athena::WorkGroup"
+	Properties!: close({
+		Description?:           strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:                  =~"[a-zA-Z0-9._-]{1,128}" | fn.#StringExpression
+		RecursiveDeleteOption?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		State?:                 "ENABLED" | "DISABLED" | fn.#StringExpression
+		Tags?:                  #Tags | fn.#ListExpression
+		WorkGroupConfiguration?: close({
+			AdditionalConfiguration?:                #AdditionalConfiguration
+			BytesScannedCutoffPerQuery?:             #BytesScannedCutoffPerQuery
+			CustomerContentEncryptionConfiguration?: #CustomerContentEncryptionConfiguration
+			EnforceWorkGroupConfiguration?:          #EnforceWorkGroupConfiguration
+			EngineConfiguration?:                    #EngineConfiguration
+			EngineVersion?: close({SelectedEngineVersion?: #SelectedEngineVersion}) | fn.#ObjectExpression
+			ExecutionRole?: #ExecutionRole
+			ManagedQueryResultsConfiguration?: #ManagedQueryResultsConfiguration
+			MonitoringConfiguration?:          #MonitoringConfiguration
+			PublishCloudWatchMetricsEnabled?:  #PublishCloudWatchMetricsEnabled
+			RequesterPaysEnabled?:             #RequesterPaysEnabled
+			ResultConfiguration?:              #ResultConfiguration
+		}) |
+		fn.#ObjectExpression
+		WorkGroupConfigurationUpdates?: close({
+			AdditionalConfiguration?:                #AdditionalConfiguration
+			BytesScannedCutoffPerQuery?:             #BytesScannedCutoffPerQuery
+			CustomerContentEncryptionConfiguration?: #CustomerContentEncryptionConfiguration
+			EnforceWorkGroupConfiguration?:          #EnforceWorkGroupConfiguration
+			EngineConfiguration?:                    #EngineConfiguration
+			EngineVersion?: close({SelectedEngineVersion?: #SelectedEngineVersion}) | fn.#ObjectExpression
+			ExecutionRole?: #ExecutionRole
+			ManagedQueryResultsConfiguration?:             #ManagedQueryResultsConfiguration
+			MonitoringConfiguration?:                      #MonitoringConfiguration
+			PublishCloudWatchMetricsEnabled?:              #PublishCloudWatchMetricsEnabled
+			RemoveBytesScannedCutoffPerQuery?:             #RemoveBytesScannedCutoffPerQuery
+			RemoveCustomerContentEncryptionConfiguration?: #RemoveCustomerContentEncryptionConfiguration
+			RequesterPaysEnabled?:                         #RequesterPaysEnabled
+			ResultConfigurationUpdates?:                   #ResultConfigurationUpdates
+		}) |
+		fn.#ObjectExpression
+	})
+}
 
 #AclConfiguration: close({S3AclOption!: #S3AclOption}) | fn.#ObjectExpression
 
@@ -295,7 +298,3 @@ fn.#ObjectExpression
 	ResultConfigurationUpdates?:                   #ResultConfigurationUpdates
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Athena::WorkGroup"
-	Properties!: #Properties
-}

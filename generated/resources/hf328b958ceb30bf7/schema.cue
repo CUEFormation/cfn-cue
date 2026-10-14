@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SecurityHub::ConnectorV2
-#Properties: close({
-	Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~".*\\S.*" |
-	fn.#StringExpression
-	Name!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Provider!: #Provider
-	Tags?:     #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::ConnectorV2"
+	Properties!: close({
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~".*\\S.*" |
+		fn.#StringExpression
+		Name!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		Provider!: #Provider
+		Tags?:     #Tags
+	})
+}
 
 #AuthStatus: "ACTIVE" | "FAILED" | fn.#StringExpression
 
@@ -70,7 +73,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: {...} | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::ConnectorV2"
-	Properties!: #Properties
-}

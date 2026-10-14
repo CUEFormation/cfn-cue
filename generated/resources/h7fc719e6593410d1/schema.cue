@@ -13,24 +13,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::SecurityProfile
-#Properties: close({
-	AllowedAccessControlHierarchyGroupId?: strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-]*$" |
-	fn.#StringExpression
-	AllowedAccessControlTags?: list.MaxItems(4) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	AllowedFlowModules?:       list.MaxItems(10) & list.UniqueItems() & [...] & [...#FlowModule] | fn.#ListExpression
-	Applications?:             list.MaxItems(10) & list.UniqueItems() & [...] & [...#Application] | fn.#ListExpression
-	Description?:              strings.MaxRunes(250) & strings.MinRunes(0) | fn.#StringExpression
-	GranularAccessControlConfiguration?: close(
-		{DataTableAccessControlConfiguration?: #DataTableAccessControlConfiguration},
-	) |
-		fn.#ObjectExpression
-	HierarchyRestrictedResources?: list.MaxItems(10) & list.UniqueItems() & [...#ResourceName] | fn.#ListExpression
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Permissions?: list.MaxItems(500) & list.UniqueItems() & [...] & [...#Permission] | fn.#ListExpression
-	SecurityProfileName!:    strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_@-]+$" | fn.#StringExpression
-	TagRestrictedResources?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#ResourceName] | fn.#ListExpression
-	Tags?:                   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::SecurityProfile"
+	Properties!: close({
+		AllowedAccessControlHierarchyGroupId?: strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-]*$" |
+		fn.#StringExpression
+		AllowedAccessControlTags?: list.MaxItems(4) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		AllowedFlowModules?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#FlowModule] | fn.#ListExpression
+		Applications?:       list.MaxItems(10) & list.UniqueItems() & [...] & [...#Application] | fn.#ListExpression
+		Description?:        strings.MaxRunes(250) & strings.MinRunes(0) | fn.#StringExpression
+		GranularAccessControlConfiguration?: close(
+			{DataTableAccessControlConfiguration?: #DataTableAccessControlConfiguration},
+		) |
+			fn.#ObjectExpression
+		HierarchyRestrictedResources?: list.MaxItems(10) & list.UniqueItems() & [...#ResourceName] | fn.#ListExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Permissions?: list.MaxItems(500) & list.UniqueItems() & [...] & [...#Permission] | fn.#ListExpression
+		SecurityProfileName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_@-]+$" |
+		fn.#StringExpression
+		TagRestrictedResources?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#ResourceName] |
+			fn.#ListExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Application: close({
 	ApplicationPermissions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#ApplicationPermission] |
@@ -81,7 +86,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::SecurityProfile"
-	Properties!: #Properties
-}

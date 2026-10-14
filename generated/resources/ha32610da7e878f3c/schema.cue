@@ -17,28 +17,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::WorkSpacesThinClient::Environment.
-#Properties: close({
-	DesiredSoftwareSetId?: =~"^[0-9]{1,9}$" | fn.#StringExpression
-	DesktopArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[0-9]{0,12}:[a-zA-Z0-9\\-\\/\\._]+$" |
-	fn.#StringExpression
-	DesktopEndpoint?: strings.MaxRunes(1024) &
-	strings.MinRunes(1) &
-	=~"^(https:\\/\\/)[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,32}(:[0-9]{1,5})?(\\/.*)?$" |
-	fn.#StringExpression
-	DeviceCreationTags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[0-9]{0,12}:key\\/[a-zA-Z0-9-]+$" |
-	fn.#StringExpression
-	MaintenanceWindow?:         #MaintenanceWindow | fn.#ObjectExpression
-	Name?:                      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	SoftwareSetUpdateMode?:     "USE_LATEST" | "USE_DESIRED" | fn.#StringExpression
-	SoftwareSetUpdateSchedule?: "USE_MAINTENANCE_WINDOW" | "APPLY_IMMEDIATELY" | fn.#StringExpression
-	Tags?:                      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpacesThinClient::Environment"
+	Properties!: close({
+		DesiredSoftwareSetId?: =~"^[0-9]{1,9}$" | fn.#StringExpression
+		DesktopArn!: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[0-9]{0,12}:[a-zA-Z0-9\\-\\/\\._]+$" |
+		fn.#StringExpression
+		DesktopEndpoint?: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^(https:\\/\\/)[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,32}(:[0-9]{1,5})?(\\/.*)?$" |
+		fn.#StringExpression
+		DeviceCreationTags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[0-9]{0,12}:key\\/[a-zA-Z0-9-]+$" |
+		fn.#StringExpression
+		MaintenanceWindow?:         #MaintenanceWindow | fn.#ObjectExpression
+		Name?:                      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+		SoftwareSetUpdateMode?:     "USE_LATEST" | "USE_DESIRED" | fn.#StringExpression
+		SoftwareSetUpdateSchedule?: "USE_MAINTENANCE_WINDOW" | "APPLY_IMMEDIATELY" | fn.#StringExpression
+		Tags?:                      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DayOfWeek: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY" | fn.#StringExpression
 
@@ -92,7 +95,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpacesThinClient::Environment"
-	Properties!: #Properties
-}

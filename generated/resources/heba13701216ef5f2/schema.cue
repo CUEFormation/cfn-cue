@@ -13,18 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::ActionConnector Resource Type.
-#Properties: close({
-	ActionConnectorId!:    strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	AuthenticationConfig!: #AuthConfig
-	AwsAccountId!:         strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[A-Za-z0-9 _.,!?-]*$" | fn.#StringExpression
-	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9](?:[\\w- ]*[A-Za-z0-9])?$" |
-	fn.#StringExpression
-	Permissions?:      list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
-	Tags?:             list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	Type!:             #ActionConnectorType
-	VpcConnectionArn?: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::ActionConnector"
+	Properties!: close({
+		ActionConnectorId!:    strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+		AuthenticationConfig!: #AuthConfig
+		AwsAccountId!:         strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[A-Za-z0-9 _.,!?-]*$" | fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9](?:[\\w- ]*[A-Za-z0-9])?$" |
+		fn.#StringExpression
+		Permissions?:      list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+		Tags?:             list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		Type!:             #ActionConnectorType
+		VpcConnectionArn?: string | fn.#StringExpression
+	})
+}
 
 #APIKeyConnectionMetadata: close({
 	ApiKey!:       string | fn.#StringExpression
@@ -169,7 +172,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::ActionConnector"
-	Properties!: #Properties
-}

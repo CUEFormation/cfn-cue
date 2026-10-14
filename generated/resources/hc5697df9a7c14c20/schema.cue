@@ -13,22 +13,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::AppBlockBuilder.
-#Properties: close({
-	AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [...#AccessEndpoint] |
-		fn.#ListExpression
-	AppBlockArns?:                list.UniqueItems() & [...#Arn] | fn.#ListExpression
-	Description?:                 strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DisableIMDSV1?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DisplayName?:                 strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	EnableDefaultInternetAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	InstanceType!: strings.MinRunes(1) | fn.#StringExpression
-	Name!:         =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
-	Platform!:     #PlatformType
-	Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VpcConfig!:    #VpcConfig
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppStream::AppBlockBuilder"
+	Properties!: close({
+		AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [...#AccessEndpoint] |
+			fn.#ListExpression
+		AppBlockArns?:  list.UniqueItems() & [...#Arn] | fn.#ListExpression
+		Description?:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		DisableIMDSV1?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DisplayName?:   strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		EnableDefaultInternetAccess?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		InstanceType!: strings.MinRunes(1) | fn.#StringExpression
+		Name!:         =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
+		Platform!:     #PlatformType
+		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VpcConfig!:    #VpcConfig
+	})
+}
 
 #AccessEndpoint: close({
 	EndpointType!: "STREAMING" | fn.#StringExpression
@@ -55,7 +65,3 @@ fn.#ObjectExpression
 	SubnetIds?: [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppStream::AppBlockBuilder"
-	Properties!: #Properties
-}

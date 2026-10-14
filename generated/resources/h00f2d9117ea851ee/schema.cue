@@ -18,17 +18,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::Template Resource Type.
-#Properties: close({
-	AwsAccountId!:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Definition?:         #TemplateVersionDefinition
-	Name?:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Permissions?:        list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
-	SourceEntity?:       #TemplateSourceEntity
-	Tags?:               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	TemplateId!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	ValidationStrategy?: #ValidationStrategy
-	VersionDescription?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::Template"
+	Properties!: close({
+		AwsAccountId!:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		Definition?:         #TemplateVersionDefinition
+		Name?:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Permissions?:        list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+		SourceEntity?:       #TemplateSourceEntity
+		Tags?:               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		TemplateId!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+		ValidationStrategy?: #ValidationStrategy
+		VersionDescription?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #AggregationFunction: close({
 	AttributeAggregationFunction?:   #AttributeAggregationFunction
@@ -6025,7 +6028,3 @@ fn.#ObjectExpression
 #WordCloudWordScaling: "EMPHASIZE" | "NORMAL" | fn.#StringExpression
 
 #YAxisOptions: close({YAxis!: #SingleYAxisOption}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::Template"
-	Properties!: #Properties
-}

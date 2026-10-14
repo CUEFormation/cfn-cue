@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A module that has been registered in the CloudFormation registry.
-#Properties: close({
-	ModuleName!:    =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::MODULE" | fn.#StringExpression
-	ModulePackage!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFormation::ModuleVersion"
-	Properties!: #Properties
+	Type!: "AWS::CloudFormation::ModuleVersion"
+	Properties!: close({
+		ModuleName!:    =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::MODULE" | fn.#StringExpression
+		ModulePackage!: string | fn.#StringExpression
+	})
 }

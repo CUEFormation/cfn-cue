@@ -31,34 +31,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // endpoint?](https://docs.aws.amazon.com/premiumsupport/knowledge-center/connect-s3-vpc-endpoint)
 // An endpoint of type ``GatewayLoadBalancer`` provides private connectivity
 // between your VPC and virtual appliances from a service provider.
-#Properties: close({
-	DnsOptions?:               #DnsOptionsSpecification | fn.#ObjectExpression
-	IpAddressType?:            "ipv4" | "ipv6" | "dualstack" | "not-specified" | fn.#StringExpression
-	PolicyDocument?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	PrivateDnsEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResourceConfigurationArn?: string | fn.#StringExpression
-	RouteTableIds?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SecurityGroupIds?: list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-			string |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VPCEndpoint"
+	Properties!: close({
+		DnsOptions?:               #DnsOptionsSpecification | fn.#ObjectExpression
+		IpAddressType?:            "ipv4" | "ipv6" | "dualstack" | "not-specified" | fn.#StringExpression
+		PolicyDocument?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		PrivateDnsEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ResourceConfigurationArn?: string | fn.#StringExpression
+		RouteTableIds?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		SecurityGroupIds?: list.UniqueItems() & [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+				string |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		ServiceName?:       string | fn.#StringExpression
+		ServiceNetworkArn?: string | fn.#StringExpression
+		ServiceRegion?:     string | fn.#StringExpression
+		SubnetIds?:         list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:              [...#Tag] | fn.#ListExpression
+		VpcEndpointType?: "Interface" |
+			"Gateway" |
+			"GatewayLoadBalancer" |
+			"ServiceNetwork" |
+			"Resource" |
+			"Tunnel" |
 			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	ServiceName?:       string | fn.#StringExpression
-	ServiceNetworkArn?: string | fn.#StringExpression
-	ServiceRegion?:     string | fn.#StringExpression
-	SubnetIds?:         list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:              [...#Tag] | fn.#ListExpression
-	VpcEndpointType?: "Interface" |
-		"Gateway" |
-		"GatewayLoadBalancer" |
-		"ServiceNetwork" |
-		"Resource" |
-		"Tunnel" |
-		fn.#StringExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-})
+		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+	})
+}
 
 #DnsOptionsSpecification: close({
 	DnsRecordIpType?: "ipv4" | "ipv6" | "dualstack" | "service-defined" | "not-specified" | fn.#StringExpression
@@ -83,7 +86,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VPCEndpoint"
-	Properties!: #Properties
-}

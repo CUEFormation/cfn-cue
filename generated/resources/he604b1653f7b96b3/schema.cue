@@ -9,12 +9,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Macie AllowList resource schema
-#Properties: close({
-	Criteria!:    #Criteria | fn.#ObjectExpression
-	Description?: string | fn.#StringExpression
-	Name!:        string | fn.#StringExpression
-	Tags?:        [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Macie::AllowList"
+	Properties!: close({
+		Criteria!:    #Criteria | fn.#ObjectExpression
+		Description?: string | fn.#StringExpression
+		Name!:        string | fn.#StringExpression
+		Tags?:        [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Criteria: fn.#Object & {...} & matchN(1, [
 	close({Regex!: string | fn.#StringExpression}), close({S3WordsList!: #S3WordsList | fn.#ObjectExpression}),
@@ -44,7 +47,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Macie::AllowList"
-	Properties!: #Properties
-}

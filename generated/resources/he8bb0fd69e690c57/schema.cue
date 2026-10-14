@@ -14,12 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a router network interface in AWS Elemental MediaConnect that is
 // used to define a network boundary for router resources
-#Properties: close({
-	Configuration!: #RouterNetworkInterfaceConfiguration
-	Name!:          strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RegionName?:    string | fn.#StringExpression
-	Tags?:          [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::RouterNetworkInterface"
+	Properties!: close({
+		Configuration!: #RouterNetworkInterfaceConfiguration
+		Name!:          strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		RegionName?:    string | fn.#StringExpression
+		Tags?:          [...#Tag] | fn.#ListExpression
+	})
+}
 
 #PublicRouterNetworkInterfaceConfiguration: close(
 	{AllowRules!: list.MaxItems(10) & [...] & [...#PublicRouterNetworkInterfaceRule] | fn.#ListExpression},
@@ -60,7 +63,3 @@ fn.#ObjectExpression
 	SubnetId!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::RouterNetworkInterface"
-	Properties!: #Properties
-}

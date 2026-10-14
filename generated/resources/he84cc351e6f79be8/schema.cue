@@ -25,24 +25,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // identify the requests that you want AWS WAF to filter. If you add more than
 // one Rule to a WebACL, a request needs to match only one of the
 // specifications to be allowed, blocked, or counted.
-#Properties: close({
-	ApplicationConfig?:            #ApplicationConfig | fn.#ObjectExpression
-	AssociationConfig?:            #AssociationConfig
-	CaptchaConfig?:                #CaptchaConfig
-	ChallengeConfig?:              #ChallengeConfig
-	CustomResponseBodies?:         #CustomResponseBodies
-	DataProtectionConfig?:         #DataProtectionConfig | fn.#ObjectExpression
-	DefaultAction!:                #DefaultAction
-	Description?:                  #EntityDescription
-	MonetizationConfig?:           #MonetizationConfig
-	Name?:                         #EntityName
-	OnSourceDDoSProtectionConfig?: #OnSourceDDoSProtectionConfig
-	Rules?:                        [...#Rule] | fn.#ListExpression
-	Scope!:                        #Scope
-	Tags?:                         list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	TokenDomains?:                 #TokenDomains
-	VisibilityConfig!:             #VisibilityConfig
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAFv2::WebACL"
+	Properties!: close({
+		ApplicationConfig?:            #ApplicationConfig | fn.#ObjectExpression
+		AssociationConfig?:            #AssociationConfig
+		CaptchaConfig?:                #CaptchaConfig
+		ChallengeConfig?:              #ChallengeConfig
+		CustomResponseBodies?:         #CustomResponseBodies
+		DataProtectionConfig?:         #DataProtectionConfig | fn.#ObjectExpression
+		DefaultAction!:                #DefaultAction
+		Description?:                  #EntityDescription
+		MonetizationConfig?:           #MonetizationConfig
+		Name?:                         #EntityName
+		OnSourceDDoSProtectionConfig?: #OnSourceDDoSProtectionConfig
+		Rules?:                        [...#Rule] | fn.#ListExpression
+		Scope!:                        #Scope
+		Tags?:                         list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		TokenDomains?:                 #TokenDomains
+		VisibilityConfig!:             #VisibilityConfig
+	})
+}
 
 #AWSManagedRulesACFPRuleSet: close({
 	CreationPath!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
@@ -1206,7 +1209,3 @@ fn.#ObjectExpression
 	TextTransformations!:         list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAFv2::WebACL"
-	Properties!: #Properties
-}

@@ -15,13 +15,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A case rule. In the Amazon Connect admin website, case rules are known as
 // case field conditions. Case rules are used to define the situations under
 // which fields should have certain effects (such as required).
-#Properties: close({
-	Description?: strings.MaxRunes(255) | fn.#StringExpression
-	DomainId?:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-	Rule!:        #CaseRuleDetails
-	Tags?:        [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cases::CaseRule"
+	Properties!: close({
+		Description?: strings.MaxRunes(255) | fn.#StringExpression
+		DomainId?:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
+		Rule!:        #CaseRuleDetails
+		Tags?:        [...#Tag] | fn.#ListExpression
+	})
+}
 
 #BooleanCondition: matchN(1, [close({EqualTo!: #BooleanOperands}), close({NotEqualTo!: #BooleanOperands})]) |
 fn.#ValueExpression
@@ -68,7 +71,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cases::CaseRule"
-	Properties!: #Properties
-}

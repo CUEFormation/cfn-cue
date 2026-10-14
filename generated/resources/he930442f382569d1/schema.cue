@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // <p>Represents a resource policy that allows or denies access to an origin endpoint.</p>
-#Properties: close({
-	CdnAuthConfiguration?: #CdnAuthConfiguration
-	ChannelGroupName!:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ChannelName!:          strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	OriginEndpointName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Policy!:               fn.#Object & {...} | strings.MaxRunes(6144) | fn.#StringObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaPackageV2::OriginEndpointPolicy"
+	Properties!: close({
+		CdnAuthConfiguration?: #CdnAuthConfiguration
+		ChannelGroupName!:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		ChannelName!:          strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		OriginEndpointName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Policy!:               fn.#Object & {...} | strings.MaxRunes(6144) | fn.#StringObjectExpression
+	})
+}
 
 #CdnAuthConfiguration: close({
 	CdnIdentifierSecretArns!: list.MaxItems(100) & list.MinItems(1) & [
@@ -30,7 +33,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaPackageV2::OriginEndpointPolicy"
-	Properties!: #Properties
-}

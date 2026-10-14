@@ -13,21 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::App
-#Properties: close({
-	AppName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
-	AppType!: "JupyterServer" |
-		"KernelGateway" |
-		"RStudioServerPro" |
-		"RSessionGateway" |
-		"Canvas" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::App"
+	Properties!: close({
+		AppName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
 		fn.#StringExpression
-	DomainId!:     strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" | fn.#StringExpression
-	RecoveryMode?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResourceSpec?: #ResourceSpec | fn.#ObjectExpression
-	Tags?:         list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	UserProfileName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
-	fn.#StringExpression
-})
+		AppType!: "JupyterServer" |
+			"KernelGateway" |
+			"RStudioServerPro" |
+			"RSessionGateway" |
+			"Canvas" |
+			fn.#StringExpression
+		DomainId!:     strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" | fn.#StringExpression
+		RecoveryMode?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ResourceSpec?: #ResourceSpec | fn.#ObjectExpression
+		Tags?:         list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		UserProfileName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
+		fn.#StringExpression
+	})
+}
 
 #ResourceSpec: close({
 	InstanceType?: "system" |
@@ -214,7 +218,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::App"
-	Properties!: #Properties
-}

@@ -13,10 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AmazonMQ::ConfigurationAssociation
-#Properties: close({
-	Broker!:        string | fn.#StringExpression
-	Configuration!: #ConfigurationId
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AmazonMQ::ConfigurationAssociation"
+	Properties!: close({
+		Broker!:        string | fn.#StringExpression
+		Configuration!: #ConfigurationId
+	})
+}
 
 #ConfigurationId: close({
 	Id!: string | fn.#StringExpression
@@ -36,7 +39,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AmazonMQ::ConfigurationAssociation"
-	Properties!: #Properties
-}

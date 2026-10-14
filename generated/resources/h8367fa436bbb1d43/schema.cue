@@ -17,75 +17,78 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppConfig::ExperimentDefinition
-#Properties: close({
-	ApplicationIdentifier!:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	AudienceDescription?:            strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	AudienceRule!:                   strings.MaxRunes(16384) & strings.MinRunes(1) | fn.#StringExpression
-	ConfigurationProfileIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Control!: close({
-		AttributeValues?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppConfig::ExperimentDefinition"
+	Properties!: close({
+		ApplicationIdentifier!:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		AudienceDescription?:            strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		AudienceRule!:                   strings.MaxRunes(16384) & strings.MinRunes(1) | fn.#StringExpression
+		ConfigurationProfileIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Control!: close({
+			AttributeValues?: close({
 
-			{[=~"^[a-zA-Z0-9._-]+$"]: #AttributeValue}}) |
-		fn.#ObjectExpression
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Weight!: >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatFloat(
-							cfnScalarStrconv.ParseFloat(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+				{[=~"^[a-zA-Z0-9._-]+$"]: #AttributeValue}}) |
+			fn.#ObjectExpression
+			Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+			Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			Weight!: >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatFloat(
+								cfnScalarStrconv.ParseFloat(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+									64,
+								) &
+									>=0,
+								"g",
+								-1,
 								64,
-							) &
-								>=0,
-							"g",
-							-1,
-							64,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-	}) |
-	fn.#ObjectExpression
-	EnvironmentIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	FlagKey!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
-	Hypothesis?:     strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	LaunchCriteria?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:           strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Treatments!: list.MaxItems(5) & list.MinItems(1) & [...close({
-		AttributeValues?: close({
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+		}) |
+		fn.#ObjectExpression
+		EnvironmentIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		FlagKey!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
+		Hypothesis?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		LaunchCriteria?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:           strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Treatments!: list.MaxItems(5) & list.MinItems(1) & [...close({
+			AttributeValues?: close({
 
-			{[=~"^[a-zA-Z0-9._-]+$"]: #AttributeValue}}) |
-		fn.#ObjectExpression
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Weight!: >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatFloat(
-							cfnScalarStrconv.ParseFloat(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+				{[=~"^[a-zA-Z0-9._-]+$"]: #AttributeValue}}) |
+			fn.#ObjectExpression
+			Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+			Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			Weight!: >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatFloat(
+								cfnScalarStrconv.ParseFloat(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+									64,
+								) &
+									>=0,
+								"g",
+								-1,
 								64,
-							) &
-								>=0,
-							"g",
-							-1,
-							64,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-})
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
+}
 
 #AttributeValue: close({
 	BooleanValue?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -170,7 +173,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppConfig::ExperimentDefinition"
-	Properties!: #Properties
-}

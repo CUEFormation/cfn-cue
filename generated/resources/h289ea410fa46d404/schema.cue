@@ -9,11 +9,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::PinpointEmail::ConfigurationSetEventDestination
-#Properties: close({
-	ConfigurationSetName!: string | fn.#StringExpression
-	EventDestination?:     #EventDestination
-	EventDestinationName!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PinpointEmail::ConfigurationSetEventDestination"
+	Properties!: close({
+		ConfigurationSetName!: string | fn.#StringExpression
+		EventDestination?:     #EventDestination
+		EventDestinationName!: string | fn.#StringExpression
+	})
+}
 
 #CloudWatchDestination: close({DimensionConfigurations?: [...#DimensionConfiguration] | fn.#ListExpression}) |
 	fn.#ObjectExpression
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PinpointEmail::ConfigurationSetEventDestination"
-	Properties!: #Properties
-}

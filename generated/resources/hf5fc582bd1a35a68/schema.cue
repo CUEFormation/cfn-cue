@@ -16,14 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaLive::Multiplexprogram
-#Properties: close({
-	MultiplexId?:              string | fn.#StringExpression
-	MultiplexProgramSettings?: #MultiplexProgramSettings | fn.#ObjectExpression
-	PacketIdentifiersMap?:     #MultiplexProgramPacketIdentifiersMap | fn.#ObjectExpression
-	PipelineDetails?:          [...#MultiplexProgramPipelineDetail] | fn.#ListExpression
-	PreferredChannelPipeline?: #PreferredChannelPipeline | fn.#StringExpression
-	ProgramName?:              string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::Multiplexprogram"
+	Properties?: close({
+		MultiplexId?:              string | fn.#StringExpression
+		MultiplexProgramSettings?: #MultiplexProgramSettings | fn.#ObjectExpression
+		PacketIdentifiersMap?:     #MultiplexProgramPacketIdentifiersMap | fn.#ObjectExpression
+		PipelineDetails?:          [...#MultiplexProgramPipelineDetail] | fn.#ListExpression
+		PreferredChannelPipeline?: #PreferredChannelPipeline | fn.#StringExpression
+		ProgramName?:              string | fn.#StringExpression
+	})
+}
 
 #MultiplexProgramPacketIdentifiersMap: close({
 	AudioPids?: [
@@ -326,7 +329,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PreferredChannelPipeline: "CURRENTLY_ACTIVE" | "PIPELINE_0" | "PIPELINE_1" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::Multiplexprogram"
-	Properties?: #Properties
-}

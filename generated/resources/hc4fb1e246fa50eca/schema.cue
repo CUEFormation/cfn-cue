@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::Tenant
-#Properties: close({
-	ReputationEntity?:      #ReputationEntity | fn.#ObjectExpression
-	ResourceAssociations?:  [...] & [...#ResourceAssociation] | fn.#ListExpression
-	SuppressionAttributes?: #TenantSuppressionAttributes | fn.#ObjectExpression
-	Tags?:                  list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	TenantName!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::Tenant"
+	Properties!: close({
+		ReputationEntity?:      #ReputationEntity | fn.#ObjectExpression
+		ResourceAssociations?:  [...] & [...#ResourceAssociation] | fn.#ListExpression
+		SuppressionAttributes?: #TenantSuppressionAttributes | fn.#ObjectExpression
+		Tags?:                  list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		TenantName!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" | fn.#StringExpression
+	})
+}
 
 #ReputationEntity: close({Policy!: #ReputationPolicy}) | fn.#ObjectExpression
 
@@ -42,7 +45,3 @@ fn.#ObjectExpression
 	SuppressionScope!:  "ACCOUNT" | "TENANT" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::Tenant"
-	Properties!: #Properties
-}

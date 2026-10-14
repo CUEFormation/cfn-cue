@@ -12,18 +12,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::Gateway
-#Properties: close({
-	EgressCidrBlocks!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Name!:             string | fn.#StringExpression
-	Networks!:         list.MaxItems(4) & list.MinItems(1) & [...#GatewayNetwork] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaConnect::Gateway"
+	Properties!: close({
+		EgressCidrBlocks!: [...string | fn.#StringExpression] | fn.#ListExpression
+		Name!:             string | fn.#StringExpression
+		Networks!:         list.MaxItems(4) & list.MinItems(1) & [...#GatewayNetwork] | fn.#ListExpression
+	})
+}
 
 #GatewayNetwork: close({
 	CidrBlock!: string | fn.#StringExpression
 	Name!:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaConnect::Gateway"
-	Properties!: #Properties
-}

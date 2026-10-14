@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::SSMIncidents::ResponsePlan
-#Properties: close({
-	Actions?:          list.MaxItems(1) & list.UniqueItems() & [...#Action] | fn.#ListExpression
-	ChatChannel?:      #ChatChannel
-	DisplayName?:      strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Engagements?:      list.MaxItems(5) & list.UniqueItems() & [...#SSMContact] | fn.#ListExpression
-	IncidentTemplate!: #IncidentTemplate
-	Integrations?:     list.MaxItems(1) & list.UniqueItems() & [...#Integration] | fn.#ListExpression
-	Name!:             strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]*$" | fn.#StringExpression
-	Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSMIncidents::ResponsePlan"
+	Properties!: close({
+		Actions?:          list.MaxItems(1) & list.UniqueItems() & [...#Action] | fn.#ListExpression
+		ChatChannel?:      #ChatChannel
+		DisplayName?:      strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		Engagements?:      list.MaxItems(5) & list.UniqueItems() & [...#SSMContact] | fn.#ListExpression
+		IncidentTemplate!: #IncidentTemplate
+		Integrations?:     list.MaxItems(1) & list.UniqueItems() & [...#Integration] | fn.#ListExpression
+		Name!:             strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]*$" | fn.#StringExpression
+		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Action: close({SsmAutomation?: #SsmAutomation}) | fn.#ObjectExpression
 
@@ -118,7 +121,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VariableType: "INCIDENT_RECORD_ARN" | "INVOLVED_RESOURCES" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSMIncidents::ResponsePlan"
-	Properties!: #Properties
-}

@@ -16,11 +16,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Ground Station config resource type for CloudFormation.
-#Properties: close({
-	ConfigData!: #ConfigData
-	Name!:       =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
-	Tags?:       [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GroundStation::Config"
+	Properties!: close({
+		ConfigData!: #ConfigData
+		Name!:       =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
+		Tags?:       [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AntennaDownlinkConfig: close({SpectrumConfig?: #SpectrumConfig}) | fn.#ObjectExpression
 
@@ -204,7 +207,3 @@ fn.#ObjectExpression
 	Polarization?:    #Polarization
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GroundStation::Config"
-	Properties!: #Properties
-}

@@ -13,20 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MPA::IdentitySource.
-#Properties: close({
-	IdentitySourceParameters!: close({
-		IamIdentityCenter!: close({
-			InstanceArn!: strings.MaxRunes(2048) &
-			strings.MinRunes(20) &
-			=~"^arn:.+:sso:::instance/(?:sso)?ins-[a-zA-Z0-9-.]{16}$" |
-			fn.#StringExpression
-			Region!: strings.MaxRunes(1000) | fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MPA::IdentitySource"
+	Properties!: close({
+		IdentitySourceParameters!: close({
+			IamIdentityCenter!: close({
+				InstanceArn!: strings.MaxRunes(2048) &
+				strings.MinRunes(20) &
+				=~"^arn:.+:sso:::instance/(?:sso)?ins-[a-zA-Z0-9-.]{16}$" |
+				fn.#StringExpression
+				Region!: strings.MaxRunes(1000) | fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: #Tags
-})
+		Tags?: #Tags
+	})
+}
 
 #IamIdentityCenter: close({
 	ApprovalPortalUrl?: string | fn.#StringExpression
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MPA::IdentitySource"
-	Properties!: #Properties
-}

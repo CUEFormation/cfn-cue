@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // WebSocket API in API
 // Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-websocket-api-route-response.html)
 // in the *API Gateway Developer Guide*.
-#Properties: close({
-	ApiId!:                    string | fn.#StringExpression
-	ModelSelectionExpression?: string | fn.#StringExpression
-	ResponseModels?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	ResponseParameters?:       #RouteParameters | fn.#ValueExpression
-	RouteId!:                  string | fn.#StringExpression
-	RouteResponseKey!:         string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::RouteResponse"
+	Properties!: close({
+		ApiId!:                    string | fn.#StringExpression
+		ModelSelectionExpression?: string | fn.#StringExpression
+		ResponseModels?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		ResponseParameters?:       #RouteParameters | fn.#ValueExpression
+		RouteId!:                  string | fn.#StringExpression
+		RouteResponseKey!:         string | fn.#StringExpression
+	})
+}
 
 #ParameterConstraints: close(
 	{Required!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -36,7 +39,3 @@ close({
 
 	{[=~"^.+$"]: #ParameterConstraints}}) |
 fn.#ValueExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::RouteResponse"
-	Properties!: #Properties
-}

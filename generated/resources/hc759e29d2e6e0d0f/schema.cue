@@ -25,12 +25,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // embed in a user, see [IAM and
 // quotas](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html)
 // in the *IAM User Guide*.
-#Properties: close({
-	PolicyDocument?: iam.#IdentityPolicyValue
-	PolicyName!:     strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	UserName!:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IAM::UserPolicy"
-	Properties!: #Properties
+	Type!: "AWS::IAM::UserPolicy"
+	Properties!: close({
+		PolicyDocument?: iam.#IdentityPolicyValue
+		PolicyName!:     strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+		UserName!:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+	})
 }

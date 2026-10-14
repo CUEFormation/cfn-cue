@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::DLPSetting Resource Type.
-#Properties: close({
-	AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	DlpSettingId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
-	Enabled!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9](?:[\\w- &]*[A-Za-z0-9])?$" |
-	fn.#StringExpression
-	ProviderConfig!:       #ProviderConfig
-	ProviderOutageAction!: #DlpAction
-	ProviderType!:         #DlpProviderType
-	Tags?:                 list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::DLPSetting"
+	Properties!: close({
+		AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		DlpSettingId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
+		Enabled!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9](?:[\\w- &]*[A-Za-z0-9])?$" |
+		fn.#StringExpression
+		ProviderConfig!:       #ProviderConfig
+		ProviderOutageAction!: #DlpAction
+		ProviderType!:         #DlpProviderType
+		Tags?:                 list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DlpAction: "ALLOW" | "WARN" | "BLOCK" | fn.#StringExpression
 
@@ -57,7 +60,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::DLPSetting"
-	Properties!: #Properties
-}

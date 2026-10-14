@@ -15,33 +15,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::SSM::Document resource is an SSM document in AWS Systems Manager
 // that defines the actions that Systems Manager performs, which can be used to
 // set up and run commands on your instances.
-#Properties: close({
-	Attachments?:    list.MaxItems(20) & [...] & [...#AttachmentsSource] | fn.#ListExpression
-	Content!:        fn.#Object & {...} | strings.MinRunes(1) | fn.#StringObjectExpression
-	DocumentFormat?: "YAML" | "JSON" | "TEXT" | fn.#StringExpression
-	DocumentType?: "ApplicationConfiguration" |
-		"ApplicationConfigurationSchema" |
-		"Automation" |
-		"Automation.ChangeTemplate" |
-		"AutoApprovalPolicy" |
-		"ChangeCalendar" |
-		"CloudFormation" |
-		"Command" |
-		"DeploymentStrategy" |
-		"ManualApprovalPolicy" |
-		"Package" |
-		"Policy" |
-		"ProblemAnalysis" |
-		"ProblemAnalysisTemplate" |
-		"Session" |
-		fn.#StringExpression
-	Name?:         =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
-	Requires?:     list.MinItems(1) & [...#DocumentRequires] | fn.#ListExpression
-	Tags?:         list.MaxItems(1000) & [...] & [...#Tag] | fn.#ListExpression
-	TargetType?:   strings.MaxRunes(200) & strings.MinRunes(0) & =~"^\\/[\\w\\.\\-\\:\\/]*$" | fn.#StringExpression
-	UpdateMethod?: "Replace" | "NewVersion" | fn.#StringExpression
-	VersionName?:  =~"^[a-zA-Z0-9_\\-.]{1,128}$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSM::Document"
+	Properties!: close({
+		Attachments?:    list.MaxItems(20) & [...] & [...#AttachmentsSource] | fn.#ListExpression
+		Content!:        fn.#Object & {...} | strings.MinRunes(1) | fn.#StringObjectExpression
+		DocumentFormat?: "YAML" | "JSON" | "TEXT" | fn.#StringExpression
+		DocumentType?: "ApplicationConfiguration" |
+			"ApplicationConfigurationSchema" |
+			"Automation" |
+			"Automation.ChangeTemplate" |
+			"AutoApprovalPolicy" |
+			"ChangeCalendar" |
+			"CloudFormation" |
+			"Command" |
+			"DeploymentStrategy" |
+			"ManualApprovalPolicy" |
+			"Package" |
+			"Policy" |
+			"ProblemAnalysis" |
+			"ProblemAnalysisTemplate" |
+			"Session" |
+			fn.#StringExpression
+		Name?:         =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
+		Requires?:     list.MinItems(1) & [...#DocumentRequires] | fn.#ListExpression
+		Tags?:         list.MaxItems(1000) & [...] & [...#Tag] | fn.#ListExpression
+		TargetType?:   strings.MaxRunes(200) & strings.MinRunes(0) & =~"^\\/[\\w\\.\\-\\:\\/]*$" | fn.#StringExpression
+		UpdateMethod?: "Replace" | "NewVersion" | fn.#StringExpression
+		VersionName?:  =~"^[a-zA-Z0-9_\\-.]{1,128}$" | fn.#StringExpression
+	})
+}
 
 #AttachmentsSource: close({
 	Key?:  "SourceUrl" | "S3FileUrl" | "AttachmentReference" | fn.#StringExpression
@@ -64,7 +67,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSM::Document"
-	Properties!: #Properties
-}

@@ -17,11 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerRuleSet Resource Type
-#Properties: close({
-	RuleSetName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Rules!:       list.MaxItems(40) & [...] & [...#Rule] | fn.#ListExpression
-	Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::MailManagerRuleSet"
+	Properties!: close({
+		RuleSetName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+		Rules!:       list.MaxItems(40) & [...] & [...#Rule] | fn.#ListExpression
+		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ActionFailurePolicy: "CONTINUE" | "DROP" | fn.#StringExpression
 
@@ -383,7 +386,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::MailManagerRuleSet"
-	Properties!: #Properties
-}

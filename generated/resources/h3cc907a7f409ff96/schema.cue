@@ -43,19 +43,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // effects on each detector model's detector instances and version number
 // depend on whether the update succeeded or failed, with the results as
 // stated.
-#Properties: close({
-	DetectorModelDefinition!:  #DetectorModelDefinition | fn.#ObjectExpression
-	DetectorModelDescription?: strings.MaxRunes(1024) | fn.#StringExpression
-	DetectorModelName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	EvaluationMethod?:         "BATCH" | "SERIAL" | fn.#StringExpression
-	Key?: strings.MaxRunes(128) &
-	strings.MinRunes(1) &
-	=~"^((`[\\w\\- ]+`)|([\\w\\-]+))(\\.((`[\\w\\- ]+`)|([\\w\\-]+)))*$" |
-	fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTEvents::DetectorModel"
+	Properties!: close({
+		DetectorModelDefinition!:  #DetectorModelDefinition | fn.#ObjectExpression
+		DetectorModelDescription?: strings.MaxRunes(1024) | fn.#StringExpression
+		DetectorModelName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		EvaluationMethod?:  "BATCH" | "SERIAL" | fn.#StringExpression
+		Key?: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^((`[\\w\\- ]+`)|([\\w\\-]+))(\\.((`[\\w\\- ]+`)|([\\w\\-]+)))*$" |
+		fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Action: close({
 	ClearTimer?:      #ClearTimer | fn.#ObjectExpression
@@ -247,7 +250,3 @@ fn.#ObjectExpression
 	NextState!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTEvents::DetectorModel"
-	Properties!: #Properties
-}

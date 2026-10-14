@@ -18,47 +18,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::InferenceComponent
-#Properties: close({
-	DeploymentConfig?:       #InferenceComponentDeploymentConfig
-	EndpointArn?:            #EndpointArn
-	EndpointName!:           #EndpointName
-	InferenceComponentName?: #InferenceComponentName
-	RuntimeConfig?:          close({CopyCount?: #InferenceComponentCopyCount}) | fn.#ObjectExpression
-	Specification?: close({
-		BaseInferenceComponentName?:  #BaseInferenceComponentName
-		ComputeResourceRequirements?: #InferenceComponentComputeResourceRequirements
-		Container?: close({
-			ArtifactUrl?:            #Url
-			ContainerMetricsConfig?: #ContainerMetricsConfig
-			Environment?:            #EnvironmentMap
-			Image?:                  #ContainerImage
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::InferenceComponent"
+	Properties!: close({
+		DeploymentConfig?:       #InferenceComponentDeploymentConfig
+		EndpointArn?:            #EndpointArn
+		EndpointName!:           #EndpointName
+		InferenceComponentName?: #InferenceComponentName
+		RuntimeConfig?:          close({CopyCount?: #InferenceComponentCopyCount}) | fn.#ObjectExpression
+		Specification?: close({
+			BaseInferenceComponentName?:  #BaseInferenceComponentName
+			ComputeResourceRequirements?: #InferenceComponentComputeResourceRequirements
+			Container?: close({
+				ArtifactUrl?:            #Url
+				ContainerMetricsConfig?: #ContainerMetricsConfig
+				Environment?:            #EnvironmentMap
+				Image?:                  #ContainerImage
+			}) |
+			fn.#ObjectExpression
+			DataCacheConfig?:   #InferenceComponentDataCacheConfig
+			ModelName?:         #ModelName
+			SchedulingConfig?:  #InferenceComponentSchedulingConfig
+			StartupParameters?: #InferenceComponentStartupParameters
 		}) |
 		fn.#ObjectExpression
-		DataCacheConfig?:   #InferenceComponentDataCacheConfig
-		ModelName?:         #ModelName
-		SchedulingConfig?:  #InferenceComponentSchedulingConfig
-		StartupParameters?: #InferenceComponentStartupParameters
-	}) |
-	fn.#ObjectExpression
-	Specifications?: list.MaxItems(5) & list.MinItems(2) & [...close({
-		ComputeResourceRequirements?: #InferenceComponentComputeResourceRequirements
-		Container?:                   #InferenceComponentContainerSpecificationForInstanceType
-		DataCacheConfig?:             #InferenceComponentDataCacheConfig
-		InstanceType!:                #InstanceType
-		ModelName?:                   #ModelName
-		SchedulingConfig?:            #InferenceComponentSchedulingConfig
-		StartupParameters?:           #InferenceComponentStartupParameters
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Tags?:        #TagList
-	VariantName?: #VariantName
-	if Specification != _|_ {
-		Specifications?: error(
-			"Specifications cannot be used with Specification; set exactly one of Specification, Specifications",
-		)
-	}
-}) & matchN(>=1, [{Specification!: _}, {Specifications!: _}])
+		Specifications?: list.MaxItems(5) & list.MinItems(2) & [...close({
+			ComputeResourceRequirements?: #InferenceComponentComputeResourceRequirements
+			Container?:                   #InferenceComponentContainerSpecificationForInstanceType
+			DataCacheConfig?:             #InferenceComponentDataCacheConfig
+			InstanceType!:                #InstanceType
+			ModelName?:                   #ModelName
+			SchedulingConfig?:            #InferenceComponentSchedulingConfig
+			StartupParameters?:           #InferenceComponentStartupParameters
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		Tags?:        #TagList
+		VariantName?: #VariantName
+		if Specification != _|_ {
+			Specifications?: error(
+				"Specifications cannot be used with Specification; set exactly one of Specification, Specifications",
+			)
+		}
+	}) & matchN(>=1, [{Specification!: _}, {Specifications!: _}])
+}
 
 #Alarm: close({AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -404,7 +407,3 @@ fn.#ObjectExpression
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::InferenceComponent"
-	Properties!: #Properties
-}

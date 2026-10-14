@@ -17,155 +17,158 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Cluster
-#Properties: close({
-	AutoScaling?: #ClusterAutoScalingConfig
-	ClusterName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
-	fn.#StringExpression
-	ClusterRole?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	InstanceGroups?: list.MaxItems(100) & list.MinItems(1) & [...close({
-		AutoPatchConfig?: close({
-			DeploymentConfig?: #DeploymentConfig
-			PatchSchedule?:    close({}) | fn.#ObjectExpression
-			PatchingStrategy!: "WhenIdle" | "WhenAllIdle" | fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Cluster"
+	Properties?: close({
+		AutoScaling?: #ClusterAutoScalingConfig
+		ClusterName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		fn.#StringExpression
+		ClusterRole?: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		InstanceGroups?: list.MaxItems(100) & list.MinItems(1) & [...close({
+			AutoPatchConfig?: close({
+				DeploymentConfig?: #DeploymentConfig
+				PatchSchedule?:    close({}) | fn.#ObjectExpression
+				PatchingStrategy!: "WhenIdle" | "WhenAllIdle" | fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
+			CapacityRequirements?: #ClusterCapacityRequirements
+			ExecutionRole!:        #ExecutionRole
+			ImageId?:              #ImageId
+			InstanceCount!: int & <=6758 & >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=6758 &
+									>=0,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			InstanceGroupName!:      #InstanceGroupName
+			InstanceRequirements?:   #InstanceRequirements
+			InstanceStorageConfigs?: #ClusterInstanceStorageConfigs
+			InstanceType?:           #InstanceType
+			KubernetesConfig?:       #ClusterKubernetesConfig
+			LifeCycleConfig?:        #ClusterLifeCycleConfig
+			MinInstanceCount?: int & <=6758 & >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=6758 &
+									>=0,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			NetworkInterface?:        #ClusterNetworkInterface
+			OnStartDeepHealthChecks?: #OnStartDeepHealthChecks
+			OverrideVpcConfig?:       #VpcConfig
+			ScheduledUpdateConfig?:   #ScheduledUpdateConfig
+			SlurmConfig?:             #ClusterSlurmConfig
+			ThreadsPerCore?: int & <=2 & >=1 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=2 &
+									>=1,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			TrainingPlanArn?: strings.MaxRunes(2048) &
+			strings.MinRunes(50) &
+			=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" |
+			fn.#StringExpression
 		}) |
-		fn.#ObjectExpression
-		CapacityRequirements?: #ClusterCapacityRequirements
-		ExecutionRole!:        #ExecutionRole
-		ImageId?:              #ImageId
-		InstanceCount!: int & <=6758 & >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=6758 &
-								>=0,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		InstanceGroupName!:      #InstanceGroupName
-		InstanceRequirements?:   #InstanceRequirements
-		InstanceStorageConfigs?: #ClusterInstanceStorageConfigs
-		InstanceType?:           #InstanceType
-		KubernetesConfig?:       #ClusterKubernetesConfig
-		LifeCycleConfig?:        #ClusterLifeCycleConfig
-		MinInstanceCount?: int & <=6758 & >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=6758 &
-								>=0,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		NetworkInterface?:        #ClusterNetworkInterface
-		OnStartDeepHealthChecks?: #OnStartDeepHealthChecks
-		OverrideVpcConfig?:       #VpcConfig
-		ScheduledUpdateConfig?:   #ScheduledUpdateConfig
-		SlurmConfig?:             #ClusterSlurmConfig
-		ThreadsPerCore?: int & <=2 & >=1 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=2 &
-								>=1,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		TrainingPlanArn?: strings.MaxRunes(2048) &
-		strings.MinRunes(50) &
-		=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" |
-		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	NodeProvisioningMode?: "Continuous" | fn.#StringExpression
-	NodeRecovery?:         "Automatic" | "None" | fn.#StringExpression
-	Orchestrator?:         #Orchestrator
-	RestrictedInstanceGroups?: list.MaxItems(100) & list.MinItems(1) & [...close({
-		EnvironmentConfig?: #EnvironmentConfig
-		ExecutionRole!:     #ExecutionRole
-		InstanceCount!: int & <=6758 & >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=6758 &
-								>=0,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		InstanceGroupName!:       #InstanceGroupName
-		InstanceStorageConfigs?:  #ClusterInstanceStorageConfigs
-		InstanceType!:            #InstanceType
-		OnStartDeepHealthChecks?: #OnStartDeepHealthChecks
-		OverrideVpcConfig?:       #VpcConfig
-		ThreadsPerCore?: int & <=2 & >=1 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=2 &
-								>=1,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		TrainingPlanArn?: strings.MaxRunes(2048) &
-		strings.MinRunes(50) &
-		=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" |
-		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	RestrictedInstanceGroupsConfig?: #RestrictedInstanceGroupsConfig
-	Tags?:                           list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	TieredStorageConfig?:            #TieredStorageConfig
-	VpcConfig?:                      #VpcConfig
-})
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		NodeProvisioningMode?: "Continuous" | fn.#StringExpression
+		NodeRecovery?:         "Automatic" | "None" | fn.#StringExpression
+		Orchestrator?:         #Orchestrator
+		RestrictedInstanceGroups?: list.MaxItems(100) & list.MinItems(1) & [...close({
+			EnvironmentConfig?: #EnvironmentConfig
+			ExecutionRole!:     #ExecutionRole
+			InstanceCount!: int & <=6758 & >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=6758 &
+									>=0,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			InstanceGroupName!:       #InstanceGroupName
+			InstanceStorageConfigs?:  #ClusterInstanceStorageConfigs
+			InstanceType!:            #InstanceType
+			OnStartDeepHealthChecks?: #OnStartDeepHealthChecks
+			OverrideVpcConfig?:       #VpcConfig
+			ThreadsPerCore?: int & <=2 & >=1 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=2 &
+									>=1,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			TrainingPlanArn?: strings.MaxRunes(2048) &
+			strings.MinRunes(50) &
+			=~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:training-plan/.*$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		RestrictedInstanceGroupsConfig?: #RestrictedInstanceGroupsConfig
+		Tags?:                           list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TieredStorageConfig?:            #TieredStorageConfig
+		VpcConfig?:                      #VpcConfig
+	})
+}
 
 #AlarmDetails: close({AlarmName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
@@ -646,7 +649,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Cluster"
-	Properties?: #Properties
-}

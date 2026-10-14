@@ -19,44 +19,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::LicenseManager::LicenseConfiguration. A license
 // configuration is an abstraction of a customer license agreement that can be
 // consumed and enforced by License Manager.
-#Properties: close({
-	Description?:              string | fn.#StringExpression
-	DisassociateWhenNotFound?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LicenseCount?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	LicenseCountHardLimit?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LicenseCountingType!:   "vCPU" | "Instance" | "Core" | "Socket" | fn.#StringExpression
-	LicenseExpiry?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	LicenseRules?:           [...string | fn.#StringExpression] | fn.#ListExpression
-	Name!:                   string | fn.#StringExpression
-	ProductInformationList?: [...#ProductInformation] | fn.#ListExpression
-	Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LicenseManager::LicenseConfiguration"
+	Properties!: close({
+		Description?:              string | fn.#StringExpression
+		DisassociateWhenNotFound?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		LicenseCount?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		LicenseCountHardLimit?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		LicenseCountingType!:   "vCPU" | "Instance" | "Core" | "Socket" | fn.#StringExpression
+		LicenseExpiry?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		LicenseRules?:           [...string | fn.#StringExpression] | fn.#ListExpression
+		Name!:                   string | fn.#StringExpression
+		ProductInformationList?: [...#ProductInformation] | fn.#ListExpression
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ProductInformation: close({
 	ProductInformationFilterList!: [...#ProductInformationFilter] | fn.#ListExpression
@@ -76,7 +83,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LicenseManager::LicenseConfiguration"
-	Properties!: #Properties
-}

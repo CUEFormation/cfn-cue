@@ -17,25 +17,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Kinesis::Channel
-#Properties: close({
-	ChannelName!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	EncryptionConfiguration?: #EncryptionConfiguration | fn.#ObjectExpression
-	LoggingConfiguration?:    #LoggingConfiguration | fn.#ObjectExpression
-	S3DestinationConfiguration?:       #S3DestinationConfiguration | fn.#ObjectExpression
-	S3TablesDestinationConfiguration?: #S3TablesDestinationConfiguration | fn.#ObjectExpression
-	ServiceExecutionRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(512) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[-a-z0-9]*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	StreamConfigurationList!: list.MaxItems(10000) & list.MinItems(1) & [...#StreamConfiguration] | fn.#ListExpression
-	Tags?:                    list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-	if S3DestinationConfiguration != _|_ {
-		S3TablesDestinationConfiguration?: error(
-			"S3TablesDestinationConfiguration cannot be used with S3DestinationConfiguration; set exactly one of S3DestinationConfiguration, S3TablesDestinationConfiguration",
-		)
-	}
-}) & matchN(>=1, [{S3DestinationConfiguration!: _}, {S3TablesDestinationConfiguration!: _}])
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Kinesis::Channel"
+	Properties!: close({
+		ChannelName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+		EncryptionConfiguration?:          #EncryptionConfiguration | fn.#ObjectExpression
+		LoggingConfiguration?:             #LoggingConfiguration | fn.#ObjectExpression
+		S3DestinationConfiguration?:       #S3DestinationConfiguration | fn.#ObjectExpression
+		S3TablesDestinationConfiguration?: #S3TablesDestinationConfiguration | fn.#ObjectExpression
+		ServiceExecutionRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[-a-z0-9]*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		StreamConfigurationList!: list.MaxItems(10000) & list.MinItems(1) & [...#StreamConfiguration] |
+			fn.#ListExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		if S3DestinationConfiguration != _|_ {
+			S3TablesDestinationConfiguration?: error(
+				"S3TablesDestinationConfiguration cannot be used with S3DestinationConfiguration; set exactly one of S3DestinationConfiguration, S3TablesDestinationConfiguration",
+			)
+		}
+	}) & matchN(>=1, [{S3DestinationConfiguration!: _}, {S3TablesDestinationConfiguration!: _}])
+}
 
 #CloudWatchLogsConfiguration: close({
 	Enabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -158,7 +162,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Kinesis::Channel"
-	Properties!: #Properties
-}

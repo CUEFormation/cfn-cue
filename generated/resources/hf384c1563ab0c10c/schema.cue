@@ -13,35 +13,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DataSync::LocationFSxWindows.
-#Properties: close({
-	CmkSecretConfig?: close({
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		strings.MaxRunes(2048) &
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataSync::LocationFSxWindows"
+	Properties!: close({
+		CmkSecretConfig?: close({
+			KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		CustomSecretConfig?: #CustomSecretConfig
+		Domain?: strings.MaxRunes(253) &
 		strings.MinRunes(0) &
-		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
+		=~"^([A-Za-z0-9]+[A-Za-z0-9-.]*)*[A-Za-z0-9-]*[A-Za-z0-9]$" |
 		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	CustomSecretConfig?: #CustomSecretConfig
-	Domain?: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^([A-Za-z0-9]+[A-Za-z0-9-.]*)*[A-Za-z0-9-]*[A-Za-z0-9]$" |
-	fn.#StringExpression
-	FsxFilesystemArn?: strings.MaxRunes(128) &
-	strings.MinRunes(0) &
-	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):fsx:[a-z\\-0-9]*:[0-9]{12}:file-system/fs-.*$" |
-	fn.#StringExpression
-	Password?: strings.MaxRunes(104) & =~"^.{0,104}$" | fn.#StringExpression
-	SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(128) &
+		FsxFilesystemArn?: strings.MaxRunes(128) &
 		strings.MinRunes(0) &
-		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/.*$" |
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):fsx:[a-z\\-0-9]*:[0-9]{12}:file-system/fs-.*$" |
 		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	User!: strings.MaxRunes(104) & =~"^[^\\x5B\\x5D\\\\/:;|=,+*?]{1,104}$" | fn.#StringExpression
-})
+		Password?: strings.MaxRunes(104) & =~"^.{0,104}$" | fn.#StringExpression
+		SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [
+			...strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/.*$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		User!: strings.MaxRunes(104) & =~"^[^\\x5B\\x5D\\\\/:;|=,+*?]{1,104}$" | fn.#StringExpression
+	})
+}
 
 #CmkSecretConfig: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -81,7 +86,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataSync::LocationFSxWindows"
-	Properties!: #Properties
-}

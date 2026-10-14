@@ -19,13 +19,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // operation. When you delete a ``PrincipalPermissions`` resource, the
 // permissions on principal-resource pair are revoked via the
 // LFlong``RevokePermissions`` API operation.
-#Properties: close({
-	Catalog?:                    #CatalogIdString | fn.#StringExpression
-	Permissions!:                #PermissionList | fn.#ListExpression
-	PermissionsWithGrantOption!: #PermissionList | fn.#ListExpression
-	Principal!:                  #DataLakePrincipal | fn.#ObjectExpression
-	Resource!:                   _#defs."/$defs/Properties/definitions/Resource" | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LakeFormation::PrincipalPermissions"
+	Properties!: close({
+		Catalog?:                    #CatalogIdString | fn.#StringExpression
+		Permissions!:                #PermissionList | fn.#ListExpression
+		PermissionsWithGrantOption!: #PermissionList | fn.#ListExpression
+		Principal!:                  #DataLakePrincipal | fn.#ObjectExpression
+		Resource!:                   _#defs."/$defs/Properties/definitions/Resource" | fn.#ObjectExpression
+	})
+}
 
 #CatalogIdString: strings.MaxRunes(255) & strings.MinRunes(12) | fn.#StringExpression
 
@@ -172,7 +175,3 @@ _#defs: "/$defs/Properties/definitions/Resource": close({
 	TableWithColumns?: #TableWithColumnsResource | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LakeFormation::PrincipalPermissions"
-	Properties!: #Properties
-}

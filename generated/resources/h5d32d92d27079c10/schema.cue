@@ -13,18 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource creates a Registry for authoring schemas as part of Glue Schema Registry.
-#Properties: close({
-	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:        list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Registry"
+	Properties!: close({
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:        list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Registry"
-	Properties!: #Properties
-}

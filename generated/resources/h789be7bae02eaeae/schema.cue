@@ -13,23 +13,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A zero-ETL integration with Amazon Redshift.
-#Properties: close({
-	AdditionalEncryptionContext?: #EncryptionContextMap | fn.#ObjectExpression
-	DataFilter?: strings.MaxRunes(25600) & strings.MinRunes(1) & =~"[a-zA-Z0-9_ \"\\\\\\-$,*.:?+\\/]*" |
-	fn.#StringExpression
-	Description?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	IntegrationName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z](?:-?[a-zA-Z0-9]+)*$" |
-	fn.#StringExpression
-	KMSKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RDS::Integration"
+	Properties!: close({
+		AdditionalEncryptionContext?: #EncryptionContextMap | fn.#ObjectExpression
+		DataFilter?: strings.MaxRunes(25600) & strings.MinRunes(1) & =~"[a-zA-Z0-9_ \"\\\\\\-$,*.:?+\\/]*" |
 		fn.#StringExpression
-	SourceArn!: strings.MaxRunes(255) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[a-z\\-]*:rds(-[a-z]*)?:[a-z0-9\\-]*:[0-9]*:(cluster|db):[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
-	fn.#StringExpression
-	Tags?:      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TargetArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-})
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+		IntegrationName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z](?:-?[a-zA-Z0-9]+)*$" |
+		fn.#StringExpression
+		KMSKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
+			fn.#StringExpression
+		SourceArn!: strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[a-z\\-]*:rds(-[a-z]*)?:[a-z0-9\\-]*:[0-9]*:(cluster|db):[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
+		fn.#StringExpression
+		Tags?:      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	})
+}
 
 #EncryptionContextMap: close({
 
@@ -43,7 +46,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RDS::Integration"
-	Properties!: #Properties
-}

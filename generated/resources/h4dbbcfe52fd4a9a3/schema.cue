@@ -9,17 +9,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EC2::NetworkInsightsAccessScopeAnalysis
-#Properties: close({
-	NetworkInsightsAccessScopeId!: string | fn.#StringExpression
-	Tags?:                         [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::NetworkInsightsAccessScopeAnalysis"
+	Properties!: close({
+		NetworkInsightsAccessScopeId!: string | fn.#StringExpression
+		Tags?:                         [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::NetworkInsightsAccessScopeAnalysis"
-	Properties!: #Properties
-}

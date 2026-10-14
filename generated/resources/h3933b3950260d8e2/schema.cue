@@ -17,36 +17,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a custom tape pool for archiving virtual tapes with optional retention lock.
-#Properties: close({
-	PoolName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[ -\\.0-\\[\\]-~]*[!-\\.0-\\[\\]-~][ -\\.0-\\[\\]-~]*$" |
-	fn.#StringExpression
-	RetentionLockTimeInDays?: int & <=36500 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=36500 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RetentionLockType?: "COMPLIANCE" | "GOVERNANCE" | "NONE" | fn.#StringExpression
-	StorageClass!:      "DEEP_ARCHIVE" | "GLACIER" | fn.#StringExpression
-	Tags?:              list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::StorageGateway::TapePool"
+	Properties!: close({
+		PoolName!: strings.MaxRunes(100) &
+		strings.MinRunes(1) &
+		=~"^[ -\\.0-\\[\\]-~]*[!-\\.0-\\[\\]-~][ -\\.0-\\[\\]-~]*$" |
+		fn.#StringExpression
+		RetentionLockTimeInDays?: int & <=36500 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=36500 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RetentionLockType?: "COMPLIANCE" | "GOVERNANCE" | "NONE" | fn.#StringExpression
+		StorageClass!:      "DEEP_ARCHIVE" | "GLACIER" | fn.#StringExpression
+		Tags?:              list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::StorageGateway::TapePool"
-	Properties!: #Properties
-}

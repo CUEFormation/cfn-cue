@@ -12,22 +12,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a Device Farm Instance Profile
-#Properties: close({
-	Description?: strings.MaxRunes(16384) & strings.MinRunes(1) | fn.#StringExpression
-	ExcludeAppPackagesFromCleanup?: [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	PackageCleanup?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RebootAfterUse?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:           [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DeviceFarm::InstanceProfile"
+	Properties!: close({
+		Description?: strings.MaxRunes(16384) & strings.MinRunes(1) | fn.#StringExpression
+		ExcludeAppPackagesFromCleanup?: [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] |
+		fn.#ListExpression
+		Name!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		PackageCleanup?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RebootAfterUse?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:           [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DeviceFarm::InstanceProfile"
-	Properties!: #Properties
-}

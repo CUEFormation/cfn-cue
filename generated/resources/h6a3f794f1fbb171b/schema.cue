@@ -17,12 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A KendraRanking Rescore execution plan
-#Properties: close({
-	CapacityUnits?: #CapacityUnitsConfiguration | fn.#ObjectExpression
-	Description?:   #Description | fn.#StringExpression
-	Name!:          #Name
-	Tags?:          #Tags | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KendraRanking::ExecutionPlan"
+	Properties!: close({
+		CapacityUnits?: #CapacityUnitsConfiguration | fn.#ObjectExpression
+		Description?:   #Description | fn.#StringExpression
+		Name!:          #Name
+		Tags?:          #Tags | fn.#ListExpression
+	})
+}
 
 #Arn: strings.MaxRunes(1000) | fn.#StringExpression
 
@@ -57,7 +60,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KendraRanking::ExecutionPlan"
-	Properties!: #Properties
-}

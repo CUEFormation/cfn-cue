@@ -13,62 +13,76 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::ClientVpnEndpoint
-#Properties: close({
-	AuthenticationOptions!:         [...#ClientAuthenticationRequest] | fn.#ListExpression
-	AuthorizationPolicy?:           #AuthorizationPolicy
-	ClientCidrBlock?:               string | fn.#StringExpression
-	ClientConnectOptions?:          #ClientConnectOptions
-	ClientLoginBannerOptions?:      #ClientLoginBannerOptions
-	ClientRouteEnforcementOptions?: #ClientRouteEnforcementOptions
-	ConnectionLogOptions!:          #ConnectionLogOptions
-	Description?:                   string | fn.#StringExpression
-	DevicePostureOptions?:          #DevicePostureOptions
-	DisconnectOnSessionTimeout?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DnsServers?:                 [...string | fn.#StringExpression] | fn.#ListExpression
-	EndpointIpAddressType?:      string | fn.#StringExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::ClientVpnEndpoint"
+	Properties!: close({
+		AuthenticationOptions!:         [...#ClientAuthenticationRequest] | fn.#ListExpression
+		AuthorizationPolicy?:           #AuthorizationPolicy
+		ClientCidrBlock?:               string | fn.#StringExpression
+		ClientConnectOptions?:          #ClientConnectOptions
+		ClientLoginBannerOptions?:      #ClientLoginBannerOptions
+		ClientRouteEnforcementOptions?: #ClientRouteEnforcementOptions
+		ConnectionLogOptions!:          #ConnectionLogOptions
+		Description?:                   string | fn.#StringExpression
+		DevicePostureOptions?:          #DevicePostureOptions
+		DisconnectOnSessionTimeout?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		DnsServers?:            [...string | fn.#StringExpression] | fn.#ListExpression
+		EndpointIpAddressType?: string | fn.#StringExpression
+		SecurityGroupIds?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		SelfServicePortal?:    string | fn.#StringExpression
+		ServerCertificateArn!: string | fn.#StringExpression
+		SessionTimeoutHours?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SplitTunnel?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		TagSpecifications?:    [...#TagSpecification] | fn.#ListExpression
+		TrafficIpAddressType?: string | fn.#StringExpression
+		TransitGatewayConfiguration?: #TransitGatewayConfiguration
+		TransportProtocol?:           string | fn.#StringExpression
+		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SelfServicePortal?:    string | fn.#StringExpression
-	ServerCertificateArn!: string | fn.#StringExpression
-	SessionTimeoutHours?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SplitTunnel?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TagSpecifications?:           [...#TagSpecification] | fn.#ListExpression
-	TrafficIpAddressType?:        string | fn.#StringExpression
-	TransitGatewayConfiguration?: #TransitGatewayConfiguration
-	TransportProtocol?:           string | fn.#StringExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	VpnPort?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+		VpnPort?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #AuthorizationPolicy: close({
 	Description?:    string | fn.#StringExpression
@@ -160,7 +174,3 @@ fn.#ObjectExpression
 	TransitGatewayId!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::ClientVpnEndpoint"
-	Properties!: #Properties
-}

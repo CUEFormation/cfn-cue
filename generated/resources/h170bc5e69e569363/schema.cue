@@ -17,26 +17,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CertificateManager::AcmeExternalAccountBinding
-#Properties: close({
-	AcmeEndpointArn!: strings.MaxRunes(200) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[a-z-]*:acm:[a-z0-9-]+:[0-9]{12}:acme-endpoint/[a-zA-Z0-9-]+$" |
-	fn.#StringExpression
-	Expiration?: #Expiration
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
-		Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CertificateManager::AcmeExternalAccountBinding"
+	Properties!: close({
+		AcmeEndpointArn!: strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[a-z-]*:acm:[a-z0-9-]+:[0-9]{12}:acme-endpoint/[a-zA-Z0-9-]+$" |
 		fn.#StringExpression
-		Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+		Expiration?: #Expiration
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$" |
 		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-})
+		Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
+			Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
+}
 
 #Expiration: close({
 	Type!: "DAYS" | "HOURS" | "MINUTES" | fn.#StringExpression
@@ -62,7 +65,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CertificateManager::AcmeExternalAccountBinding"
-	Properties!: #Properties
-}

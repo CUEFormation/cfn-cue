@@ -16,14 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticBeanstalk::ApplicationVersion
-#Properties: close({
-	ApplicationName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	BuildConfiguration?: #BuildConfiguration | fn.#ObjectExpression
-	Description?:        strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	ImageConfiguration?: #ImageConfiguration | fn.#ObjectExpression
-	Process?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SourceBundle?:       #SourceBundle | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticBeanstalk::ApplicationVersion"
+	Properties!: close({
+		ApplicationName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		BuildConfiguration?: #BuildConfiguration | fn.#ObjectExpression
+		Description?:        strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+		ImageConfiguration?: #ImageConfiguration | fn.#ObjectExpression
+		Process?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SourceBundle?:       #SourceBundle | fn.#ObjectExpression
+	})
+}
 
 #BuildConfiguration: close({
 	ArtifactName?:         string | fn.#StringExpression
@@ -87,7 +90,3 @@ fn.#ObjectExpression
 	S3Key!:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticBeanstalk::ApplicationVersion"
-	Properties!: #Properties
-}

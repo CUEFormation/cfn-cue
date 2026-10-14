@@ -12,10 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAF::ByteMatchSet
-#Properties: close({
-	ByteMatchTuples?: list.UniqueItems() & [...#ByteMatchTuple] | fn.#ListExpression
-	Name!:            string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAF::ByteMatchSet"
+	Properties!: close({
+		ByteMatchTuples?: list.UniqueItems() & [...#ByteMatchTuple] | fn.#ListExpression
+		Name!:            string | fn.#StringExpression
+	})
+}
 
 #ByteMatchTuple: close({
 	FieldToMatch!:         #FieldToMatch
@@ -31,7 +34,3 @@ fn.#ObjectExpression
 	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAF::ByteMatchSet"
-	Properties!: #Properties
-}

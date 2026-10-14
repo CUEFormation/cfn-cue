@@ -20,111 +20,122 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::BedrockAgentCore::Harness - a managed
 // agentic loop service that provides a turnkey solution for running stateful,
 // tool-equipped AI agents.
-#Properties: close({
-	AllowedTools?: [...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(\\*|@?[^/]+(/[^/]+)?)$" | fn.#StringExpression] |
-	fn.#ListExpression
-	AuthorizerConfiguration?: #AuthorizerConfiguration | fn.#ObjectExpression
-	Environment?: close({
-		AgentCoreRuntimeEnvironment?: close({
-			FilesystemConfigurations?: list.MaxItems(5) & [...] & [...#FilesystemConfiguration] | fn.#ListExpression
-			LifecycleConfiguration?:   #LifecycleConfiguration
-			NetworkConfiguration?:     #NetworkConfiguration
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::Harness"
+	Properties!: close({
+		AllowedTools?: [
+			...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(\\*|@?[^/]+(/[^/]+)?)$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		AuthorizerConfiguration?: #AuthorizerConfiguration | fn.#ObjectExpression
+		Environment?: close({
+			AgentCoreRuntimeEnvironment?: close({
+				FilesystemConfigurations?: list.MaxItems(5) & [...] & [...#FilesystemConfiguration] | fn.#ListExpression
+				LifecycleConfiguration?:   #LifecycleConfiguration
+				NetworkConfiguration?:     #NetworkConfiguration
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	EnvironmentArtifact?: #HarnessEnvironmentArtifact | fn.#ObjectExpression
-	EnvironmentVariables?: struct.MaxFields(50) & close({
+		EnvironmentArtifact?: #HarnessEnvironmentArtifact | fn.#ObjectExpression
+		EnvironmentVariables?: struct.MaxFields(50) & close({
 
-		{[=~"^[\\s\\S]*$"]: strings.MaxRunes(5000) & strings.MinRunes(0) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
-	fn.#StringExpression
-	HarnessName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,39}$" | fn.#StringExpression
-	Hooks?:       list.MaxItems(20) & list.UniqueItems() & [...#HarnessHook] | fn.#ListExpression
-	MaxIterations?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MaxTokens?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Memory?: close({
-		AgentCoreMemoryConfiguration?: #HarnessAgentCoreMemoryConfiguration
-		Disabled?:                     #HarnessDisabledMemoryConfiguration
-		ManagedMemoryConfiguration?: close({
-			EncryptionKeyArn?: string | fn.#StringExpression
-			EventExpiryDuration?: int & <=365 & >=3 |
-				{
-					string &
-						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-						cfnScalarStrings.Repeat(
-							self,
-							len(cfnScalarStrconv.FormatInt(
-								cfnScalarStrconv.Atoi(
-									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-								) &
-									int &
-									<=365 &
-									>=3,
-								10,
-							))*0 + 1,
-						)
-				} |
-				fn.#NumberExpression
-			Strategies?: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [
-				..."SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "EPISODIC" | fn.#StringExpression
-			] |
-				fn.#ListExpression
+			{[=~"^[\\s\\S]*$"]: strings.MaxRunes(5000) & strings.MinRunes(0) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
+		fn.#StringExpression
+		HarnessName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,39}$" | fn.#StringExpression
+		Hooks?:       list.MaxItems(20) & list.UniqueItems() & [...#HarnessHook] | fn.#ListExpression
+		MaxIterations?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MaxTokens?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Memory?: close({
+			AgentCoreMemoryConfiguration?: #HarnessAgentCoreMemoryConfiguration
+			Disabled?:                     #HarnessDisabledMemoryConfiguration
+			ManagedMemoryConfiguration?: close({
+				EncryptionKeyArn?: string | fn.#StringExpression
+				EventExpiryDuration?: int & <=365 & >=3 |
+					{
+						string &
+							=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+							cfnScalarStrings.Repeat(
+								self,
+								len(cfnScalarStrconv.FormatInt(
+									cfnScalarStrconv.Atoi(
+										cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+									) &
+										int &
+										<=365 &
+										>=3,
+									10,
+								))*0 + 1,
+							)
+					} |
+					fn.#NumberExpression
+				Strategies?: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [
+					..."SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "EPISODIC" | fn.#StringExpression
+				] |
+					fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	Model!:        #HarnessModelConfiguration | fn.#ObjectExpression
-	Skills?:       [...#HarnessSkill] | fn.#ListExpression
-	SystemPrompt?: [...#HarnessSystemContentBlock] | fn.#ListExpression
-	Tags?:         list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-	TimeoutSeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tools?:      [...#HarnessTool] | fn.#ListExpression
-	Truncation?: #HarnessTruncationConfiguration | fn.#ObjectExpression
-})
+		Model!:        #HarnessModelConfiguration | fn.#ObjectExpression
+		Skills?:       [...#HarnessSkill] | fn.#ListExpression
+		SystemPrompt?: [...#HarnessSystemContentBlock] | fn.#ListExpression
+		Tags?:         list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		TimeoutSeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tools?:      [...#HarnessTool] | fn.#ListExpression
+		Truncation?: #HarnessTruncationConfiguration | fn.#ObjectExpression
+	})
+}
 
 #AuthorizerConfiguration: close({CustomJWTAuthorizer?: #CustomJWTAuthorizerConfiguration}) | fn.#ObjectExpression
 
@@ -1076,7 +1087,3 @@ fn.#ObjectExpression
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::Harness"
-	Properties!: #Properties
-}

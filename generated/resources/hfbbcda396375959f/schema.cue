@@ -12,13 +12,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ARN of the IAM principal to remove from the pull time update exclusion list.
-#Properties: close({PrincipalArn!: #PrincipalArn | fn.#StringExpression})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::ECR::PullTimeUpdateExclusion"
+	Properties!: close({PrincipalArn!: #PrincipalArn | fn.#StringExpression})
+}
 
 #PrincipalArn: strings.MaxRunes(200) &
 strings.MinRunes(0) &
 =~"^arn:aws(-[a-z]+)*:iam::[0-9]{12}:(role|user)/[\\w+=,.@-]+(/[\\w+=,.@-]+)*$" |
 fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECR::PullTimeUpdateExclusion"
-	Properties!: #Properties
-}

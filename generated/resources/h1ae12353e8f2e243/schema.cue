@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApiGatewayV2::ApiGatewayManagedOverrides
-#Properties: close({
-	ApiId!:       string | fn.#StringExpression
-	Integration?: #IntegrationOverrides | fn.#ObjectExpression
-	Route?:       #RouteOverrides | fn.#ObjectExpression
-	Stage?:       #StageOverrides | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::ApiGatewayManagedOverrides"
+	Properties!: close({
+		ApiId!:       string | fn.#StringExpression
+		Integration?: #IntegrationOverrides | fn.#ObjectExpression
+		Route?:       #RouteOverrides | fn.#ObjectExpression
+		Stage?:       #StageOverrides | fn.#ObjectExpression
+	})
+}
 
 #AccessLogSettings: close({
 	DestinationArn?: string | fn.#StringExpression
@@ -103,7 +106,3 @@ fn.#ObjectExpression
 	StageVariables?:       fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::ApiGatewayManagedOverrides"
-	Properties!: #Properties
-}

@@ -13,20 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::ServiceCatalog::Portfolio
-#Properties: close({
-	AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	Description?:    strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-	DisplayName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	ProviderName!:   strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:           list.MaxItems(20) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ServiceCatalog::Portfolio"
+	Properties!: close({
+		AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+		Description?:    strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
+		DisplayName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		ProviderName!:   strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:           list.MaxItems(20) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ServiceCatalog::Portfolio"
-	Properties!: #Properties
-}

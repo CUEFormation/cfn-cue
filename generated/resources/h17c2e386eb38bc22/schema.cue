@@ -10,10 +10,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // This resource schema represents the LogAnomalyDetectionIntegration resource
 // in the Amazon DevOps Guru.
-#Properties: close({})
-
-#AccountId: =~"^\\d{12}$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DevOpsGuru::LogAnomalyDetectionIntegration"
-	Properties?: #Properties
+	Properties?: close({})
 }
+
+#AccountId: =~"^\\d{12}$" | fn.#StringExpression

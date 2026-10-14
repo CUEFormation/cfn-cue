@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Chime::SipMediaApplication
-#Properties: close({
-	AwsRegion!: string | fn.#StringExpression
-	Endpoints!: list.MaxItems(1) & list.MinItems(1) & [...#SipMediaApplicationEndpoint] | fn.#ListExpression
-	Name!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _.-]+$" | fn.#StringExpression
-	Tags?:      list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Chime::SipMediaApplication"
+	Properties!: close({
+		AwsRegion!: string | fn.#StringExpression
+		Endpoints!: list.MaxItems(1) & list.MinItems(1) & [...#SipMediaApplicationEndpoint] | fn.#ListExpression
+		Name!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _.-]+$" | fn.#StringExpression
+		Tags?:      list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #SipMediaApplicationEndpoint: close({
 	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -34,7 +37,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Chime::SipMediaApplication"
-	Properties!: #Properties
-}

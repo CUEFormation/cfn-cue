@@ -17,24 +17,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A security profile defines a set of expected behaviors for devices in your account.
-#Properties: close({
-	AdditionalMetricsToRetainV2?: list.UniqueItems() & [...#MetricToRetain] | fn.#ListExpression
-	AlertTargets?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::SecurityProfile"
+	Properties?: close({
+		AdditionalMetricsToRetainV2?: list.UniqueItems() & [...#MetricToRetain] | fn.#ListExpression
+		AlertTargets?: close({
 
-		{[=~"[a-zA-Z0-9:_-]+"]: #AlertTarget}}) |
-	fn.#ObjectExpression
-	Behaviors?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#Behavior] | fn.#ListExpression
-	MetricsExportConfig?: close({
-		MqttTopic!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	SecurityProfileDescription?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	SecurityProfileName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	Tags?:                list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TargetArns?:          list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
-})
+			{[=~"[a-zA-Z0-9:_-]+"]: #AlertTarget}}) |
+		fn.#ObjectExpression
+		Behaviors?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#Behavior] | fn.#ListExpression
+		MetricsExportConfig?: close({
+			MqttTopic!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+			RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		SecurityProfileDescription?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+		SecurityProfileName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
+		Tags?:                list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetArns?: list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
+	})
+}
 
 #AlertTarget: close({
 	AlertTargetArn!: strings.MaxRunes(2048) | fn.#StringExpression
@@ -229,7 +232,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::SecurityProfile"
-	Properties?: #Properties
-}

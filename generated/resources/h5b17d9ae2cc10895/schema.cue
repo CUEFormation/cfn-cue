@@ -17,47 +17,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Cognito::UserPool Resource Type
-#Properties: close({
-	AccountRecoverySetting?: #AccountRecoverySetting
-	AdminCreateUserConfig?:  #AdminCreateUserConfig
-	AliasAttributes?: [..."email" | "phone_number" | "preferred_username" | fn.#StringExpression] | fn.#ListExpression
-	AutoVerifiedAttributes?:     [..."email" | "phone_number" | fn.#StringExpression] | fn.#ListExpression
-	DeletionProtection?:         "ACTIVE" | "INACTIVE" | fn.#StringExpression
-	DeviceConfiguration?:        #DeviceConfiguration
-	EmailAuthenticationMessage?: strings.MaxRunes(20000) & strings.MinRunes(6) | fn.#StringExpression
-	EmailAuthenticationSubject?: strings.MaxRunes(140) & strings.MinRunes(1) | fn.#StringExpression
-	EmailConfiguration?:         #EmailConfiguration
-	EmailVerificationMessage?: strings.MaxRunes(20000) &
-	strings.MinRunes(6) &
-	=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*\\{####\\}[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$" |
-	fn.#StringExpression
-	EmailVerificationSubject?: strings.MaxRunes(140) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$" |
-	fn.#StringExpression
-	EnabledMfas?:                 [...string | fn.#StringExpression] | fn.#ListExpression
-	IssuerConfiguration?:         #IssuerConfiguration
-	KeyConfiguration?:            #KeyConfiguration
-	LambdaConfig?:                #LambdaConfig
-	MfaConfiguration?:            "OFF" | "ON" | "OPTIONAL" | fn.#StringExpression
-	Policies?:                    #Policies
-	Schema?:                      list.MaxItems(50) & list.MinItems(1) & [...#SchemaAttribute] | fn.#ListExpression
-	SmsAuthenticationMessage?:    strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}" | fn.#StringExpression
-	SmsConfiguration?:            #SmsConfiguration
-	SmsVerificationMessage?:      strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}" | fn.#StringExpression
-	UserAttributeUpdateSettings?: #UserAttributeUpdateSettings
-	UserPoolAddOns?:              #UserPoolAddOns
-	UserPoolName?:                strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	UserPoolTags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::UserPool"
+	Properties?: close({
+		AccountRecoverySetting?: #AccountRecoverySetting
+		AdminCreateUserConfig?:  #AdminCreateUserConfig
+		AliasAttributes?: [..."email" | "phone_number" | "preferred_username" | fn.#StringExpression] |
+			fn.#ListExpression
+		AutoVerifiedAttributes?:     [..."email" | "phone_number" | fn.#StringExpression] | fn.#ListExpression
+		DeletionProtection?:         "ACTIVE" | "INACTIVE" | fn.#StringExpression
+		DeviceConfiguration?:        #DeviceConfiguration
+		EmailAuthenticationMessage?: strings.MaxRunes(20000) & strings.MinRunes(6) | fn.#StringExpression
+		EmailAuthenticationSubject?: strings.MaxRunes(140) & strings.MinRunes(1) | fn.#StringExpression
+		EmailConfiguration?:         #EmailConfiguration
+		EmailVerificationMessage?: strings.MaxRunes(20000) &
+		strings.MinRunes(6) &
+		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*\\{####\\}[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$" |
+		fn.#StringExpression
+		EmailVerificationSubject?: strings.MaxRunes(140) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$" |
+		fn.#StringExpression
+		EnabledMfas?:              [...string | fn.#StringExpression] | fn.#ListExpression
+		IssuerConfiguration?:      #IssuerConfiguration
+		KeyConfiguration?:         #KeyConfiguration
+		LambdaConfig?:             #LambdaConfig
+		MfaConfiguration?:         "OFF" | "ON" | "OPTIONAL" | fn.#StringExpression
+		Policies?:                 #Policies
+		Schema?:                   list.MaxItems(50) & list.MinItems(1) & [...#SchemaAttribute] | fn.#ListExpression
+		SmsAuthenticationMessage?: strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}" | fn.#StringExpression
+		SmsConfiguration?:         #SmsConfiguration
+		SmsVerificationMessage?:   strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}" | fn.#StringExpression
+		UserAttributeUpdateSettings?: #UserAttributeUpdateSettings
+		UserPoolAddOns?:              #UserPoolAddOns
+		UserPoolName?:                strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		UserPoolTags?: close({
 
-		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	UserPoolTier?:                "LITE" | "ESSENTIALS" | "PLUS" | fn.#StringExpression
-	UsernameAttributes?:          [..."email" | "phone_number" | fn.#StringExpression] | fn.#ListExpression
-	UsernameConfiguration?:       #UsernameConfiguration
-	VerificationMessageTemplate?: #VerificationMessageTemplate
-	WebAuthnFactorConfiguration?: "SINGLE_FACTOR" | "MULTI_FACTOR_WITH_USER_VERIFICATION" | fn.#StringExpression
-	WebAuthnRelyingPartyID?:      strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	WebAuthnUserVerification?:    strings.MaxRunes(9) & strings.MinRunes(1) | fn.#StringExpression
-})
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		UserPoolTier?:                "LITE" | "ESSENTIALS" | "PLUS" | fn.#StringExpression
+		UsernameAttributes?:          [..."email" | "phone_number" | fn.#StringExpression] | fn.#ListExpression
+		UsernameConfiguration?:       #UsernameConfiguration
+		VerificationMessageTemplate?: #VerificationMessageTemplate
+		WebAuthnFactorConfiguration?: "SINGLE_FACTOR" | "MULTI_FACTOR_WITH_USER_VERIFICATION" | fn.#StringExpression
+		WebAuthnRelyingPartyID?:      strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+		WebAuthnUserVerification?:    strings.MaxRunes(9) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #AccountRecoverySetting: close(
 	{RecoveryMechanisms?: list.MaxItems(2) & list.MinItems(1) & [...#RecoveryOption] | fn.#ListExpression},
@@ -405,7 +411,3 @@ fn.#ObjectExpression
 	SmsMessage?: strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::UserPool"
-	Properties?: #Properties
-}

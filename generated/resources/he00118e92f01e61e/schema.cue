@@ -12,24 +12,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RefactorSpaces::Service Resource Type
-#Properties: close({
-	ApplicationIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^app-([0-9A-Za-z]{10}$)" |
-	fn.#StringExpression
-	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\s\\.\\!\\*\\#\\@\\']+$" |
-	fn.#StringExpression
-	EndpointType!: #ServiceEndpointType
-	EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
-	fn.#StringExpression
-	LambdaEndpoint?: #LambdaEndpointInput
-	Name!:           strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	Tags?:           [...#Tag] | fn.#ListExpression
-	UrlEndpoint?:    #UrlEndpointInput
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(21) &
-	strings.MinRunes(12) &
-	=~"^vpc-[-a-f0-9]{8}([-a-f0-9]{9})?$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RefactorSpaces::Service"
+	Properties!: close({
+		ApplicationIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^app-([0-9A-Za-z]{10}$)" |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\s\\.\\!\\*\\#\\@\\']+$" |
+		fn.#StringExpression
+		EndpointType!: #ServiceEndpointType
+		EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
+		fn.#StringExpression
+		LambdaEndpoint?: #LambdaEndpointInput
+		Name!:           strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+		Tags?:           [...#Tag] | fn.#ListExpression
+		UrlEndpoint?:    #UrlEndpointInput
+		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(21) &
+		strings.MinRunes(12) &
+		=~"^vpc-[-a-f0-9]{8}([-a-f0-9]{9})?$" |
+		fn.#StringExpression
+	})
+}
 
 #LambdaEndpointInput: close({
 	Arn!: strings.MaxRunes(2048) &
@@ -58,7 +61,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RefactorSpaces::Service"
-	Properties!: #Properties
-}

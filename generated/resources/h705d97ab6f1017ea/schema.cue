@@ -12,15 +12,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Outposts::Site Resource Type
-#Properties: close({
-	Description?:            strings.MaxRunes(1001) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
-	Name!:                   strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
-	Notes?:                  strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^[\\S \\n]+$" | fn.#StringExpression
-	OperatingAddress?:       #Address
-	RackPhysicalProperties?: #RackPhysicalProperties
-	ShippingAddress?:        #Address
-	Tags?:                   [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Outposts::Site"
+	Properties!: close({
+		Description?:            strings.MaxRunes(1001) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
+		Name!:                   strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
+		Notes?:                  strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^[\\S \\n]+$" | fn.#StringExpression
+		OperatingAddress?:       #Address
+		RackPhysicalProperties?: #RackPhysicalProperties
+		ShippingAddress?:        #Address
+		Tags?:                   [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Address: close({
 	AddressLine1!:       strings.MaxRunes(180) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" | fn.#StringExpression
@@ -83,7 +86,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S \\n]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Outposts::Site"
-	Properties!: #Properties
-}

@@ -13,30 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a table that can be queried within a collaboration
-#Properties: close({
-	ConfiguredTableAssociationAnalysisRules?: list.MaxItems(1) & list.MinItems(1) & [
-		...#ConfiguredTableAssociationAnalysisRule
-	] |
-		fn.#ListExpression
-	ConfiguredTableIdentifier!: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
-	fn.#StringExpression
-	Description?: strings.MaxRunes(255) &
-	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
-	fn.#StringExpression
-	MembershipIdentifier!: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(512) &
-	strings.MinRunes(32) &
-	=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$" |
-	fn.#StringExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CleanRooms::ConfiguredTableAssociation"
+	Properties!: close({
+		ConfiguredTableAssociationAnalysisRules?: list.MaxItems(1) & list.MinItems(1) & [
+			...#ConfiguredTableAssociationAnalysisRule
+		] |
+			fn.#ListExpression
+		ConfiguredTableIdentifier!: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(255) &
+		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		fn.#StringExpression
+		MembershipIdentifier!: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" | fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(32) &
+		=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$" |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AllowedAdditionalAnalyses: list.MaxItems(25) & [...] & [...#AllowedAdditionalAnalysis] | fn.#ListExpression
 
@@ -89,7 +92,3 @@ fn.#ValueExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CleanRooms::ConfiguredTableAssociation"
-	Properties!: #Properties
-}

@@ -12,16 +12,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaPackage::Asset
-#Properties: close({
-	EgressEndpoints?:  [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
-	Id!:               string | fn.#StringExpression
-	PackagingGroupId!: string | fn.#StringExpression
-	ResourceId?:       string | fn.#StringExpression
-	SourceArn!:        string | fn.#StringExpression
-	SourceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaPackage::Asset"
+	Properties!: close({
+		EgressEndpoints?:  [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
+		Id!:               string | fn.#StringExpression
+		PackagingGroupId!: string | fn.#StringExpression
+		ResourceId?:       string | fn.#StringExpression
+		SourceArn!:        string | fn.#StringExpression
+		SourceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #EgressEndpoint: close({
 	PackagingConfigurationId!: string | fn.#StringExpression
@@ -34,7 +37,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaPackage::Asset"
-	Properties!: #Properties
-}

@@ -15,13 +15,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::MGN::Connector. A Connector provides connectivity
 // between a source environment and Application Migration Service (MGN) via AWS
 // Systems Manager (SSM).
-#Properties: close({
-	Name!:             strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
-	SsmCommandConfig?: #ConnectorSsmCommandConfig
-	SsmInstanceID!: strings.MaxRunes(20) & strings.MinRunes(19) & =~"(^i-[0-9a-zA-Z]{17}$)|(^mi-[0-9a-zA-Z]{17}$)" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MGN::Connector"
+	Properties!: close({
+		Name!:             strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
+		SsmCommandConfig?: #ConnectorSsmCommandConfig
+		SsmInstanceID!: strings.MaxRunes(20) & strings.MinRunes(19) & =~"(^i-[0-9a-zA-Z]{17}$)|(^mi-[0-9a-zA-Z]{17}$)" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ConnectorSsmCommandConfig: close({
 	CloudWatchLogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" |
@@ -37,7 +40,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MGN::Connector"
-	Properties!: #Properties
-}

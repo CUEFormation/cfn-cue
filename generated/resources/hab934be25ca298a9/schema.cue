@@ -9,18 +9,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::APNSVoipSandboxChannel
-#Properties: close({
-	ApplicationId!:               string | fn.#StringExpression
-	BundleId?:                    string | fn.#StringExpression
-	Certificate?:                 string | fn.#StringExpression
-	DefaultAuthenticationMethod?: string | fn.#StringExpression
-	Enabled?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PrivateKey?:                  string | fn.#StringExpression
-	TeamId?:                      string | fn.#StringExpression
-	TokenKey?:                    string | fn.#StringExpression
-	TokenKeyId?:                  string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pinpoint::APNSVoipSandboxChannel"
-	Properties!: #Properties
+	Type!: "AWS::Pinpoint::APNSVoipSandboxChannel"
+	Properties!: close({
+		ApplicationId!:               string | fn.#StringExpression
+		BundleId?:                    string | fn.#StringExpression
+		Certificate?:                 string | fn.#StringExpression
+		DefaultAuthenticationMethod?: string | fn.#StringExpression
+		Enabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		PrivateKey?: string | fn.#StringExpression
+		TeamId?:     string | fn.#StringExpression
+		TokenKey?:   string | fn.#StringExpression
+		TokenKeyId?: string | fn.#StringExpression
+	})
 }

@@ -17,17 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::NetworkManager::SiteToSiteVpnAttachment Resource Type definition.
-#Properties: close({
-	CoreNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^core-network-([0-9a-f]{8,17})$" |
-	fn.#StringExpression
-	NetworkFunctionGroupName?: string | fn.#StringExpression
-	RoutingPolicyLabel?:       strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VpnConnectionArn!: strings.MaxRunes(500) &
-	strings.MinRunes(0) &
-	=~"^arn:[^:]{1,63}:ec2:[^:]{0,63}:[^:]{0,63}:vpn-connection\\/vpn-[0-9a-f]{8,17}$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkManager::SiteToSiteVpnAttachment"
+	Properties!: close({
+		CoreNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^core-network-([0-9a-f]{8,17})$" |
+		fn.#StringExpression
+		NetworkFunctionGroupName?: string | fn.#StringExpression
+		RoutingPolicyLabel?:       strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VpnConnectionArn!: strings.MaxRunes(500) &
+		strings.MinRunes(0) &
+		=~"^arn:[^:]{1,63}:ec2:[^:]{0,63}:[^:]{0,63}:vpn-connection\\/vpn-[0-9a-f]{8,17}$" |
+		fn.#StringExpression
+	})
+}
 
 #ProposedNetworkFunctionGroupChange: close({
 	AttachmentPolicyRuleNumber?: int |
@@ -74,7 +77,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkManager::SiteToSiteVpnAttachment"
-	Properties!: #Properties
-}

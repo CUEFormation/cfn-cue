@@ -13,21 +13,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for Identity Center (SSO) Application
-#Properties: close({
-	ApplicationProviderArn!: strings.MaxRunes(1224) &
-	strings.MinRunes(10) &
-	=~"^arn:aws(-[a-z]{1,5}){0,3}:sso::aws:applicationProvider/[a-zA-Z0-9-/]+$" |
-	fn.#StringExpression
-	Description?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceArn!: strings.MaxRunes(1224) &
-	strings.MinRunes(10) &
-	=~"^arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
-	fn.#StringExpression
-	Name!:          strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	PortalOptions?: #PortalOptionsConfiguration | fn.#ObjectExpression
-	Status?:        "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?:          list.MaxItems(75) & [...#Tag | fn.#ObjectExpression] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSO::Application"
+	Properties!: close({
+		ApplicationProviderArn!: strings.MaxRunes(1224) &
+		strings.MinRunes(10) &
+		=~"^arn:aws(-[a-z]{1,5}){0,3}:sso::aws:applicationProvider/[a-zA-Z0-9-/]+$" |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceArn!: strings.MaxRunes(1224) &
+		strings.MinRunes(10) &
+		=~"^arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
+		fn.#StringExpression
+		Name!:          strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+		PortalOptions?: #PortalOptionsConfiguration | fn.#ObjectExpression
+		Status?:        "ENABLED" | "DISABLED" | fn.#StringExpression
+		Tags?:          list.MaxItems(75) & [...#Tag | fn.#ObjectExpression] | fn.#ListExpression
+	})
+}
 
 #PortalOptionsConfiguration: close({
 	SignInOptions?: #SignInOptions | fn.#ObjectExpression
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSO::Application"
-	Properties!: #Properties
-}

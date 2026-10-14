@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::AssistantAssociation Resource Type
-#Properties: close({
-	AssistantId!:     =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
-	Association!:     #AssociationData
-	AssociationType!: #AssociationType
-	Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Wisdom::AssistantAssociation"
+	Properties!: close({
+		AssistantId!:     =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
+		Association!:     #AssociationData
+		AssociationType!: #AssociationType
+		Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AssociationData: matchN(1, [close(
 	{KnowledgeBaseId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression},
@@ -43,7 +46,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Wisdom::AssistantAssociation"
-	Properties!: #Properties
-}

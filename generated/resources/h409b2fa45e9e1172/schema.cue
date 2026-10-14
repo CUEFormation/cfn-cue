@@ -18,15 +18,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 //
 // For more information, see
 // [CreateDelivery](https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_CreateDelivery.html).
-#Properties: close({
-	DeliveryDestinationArn!:     #Arn | fn.#StringExpression
-	DeliverySourceName!:         strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
-	FieldDelimiter?:             strings.MaxRunes(5) & strings.MinRunes(1) | fn.#StringExpression
-	RecordFields?:               list.MaxItems(128) & [...] & [...#FieldHeader] | fn.#ListExpression
-	S3EnableHiveCompatiblePath?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	S3SuffixPath?:               strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:                       list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Logs::Delivery"
+	Properties!: close({
+		DeliveryDestinationArn!: #Arn | fn.#StringExpression
+		DeliverySourceName!:     strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
+		FieldDelimiter?:         strings.MaxRunes(5) & strings.MinRunes(1) | fn.#StringExpression
+		RecordFields?:           list.MaxItems(128) & [...] & [...#FieldHeader] | fn.#ListExpression
+		S3EnableHiveCompatiblePath?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		S3SuffixPath?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" | fn.#StringExpression
 
@@ -37,7 +47,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::Delivery"
-	Properties!: #Properties
-}

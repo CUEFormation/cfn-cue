@@ -19,13 +19,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::RTBFabric::LinkRoutingRule. A routing rule
 // on a link within RTB Fabric that controls request routing based on
 // conditions such as host headers, path matching, and query string parameters.
-#Properties: close({
-	Conditions!: #RuleCondition
-	GatewayId!:  #GatewayId
-	LinkId!:     #LinkId
-	Priority!:   #RulePriority
-	Tags?:       #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RTBFabric::LinkRoutingRule"
+	Properties!: close({
+		Conditions!: #RuleCondition
+		GatewayId!:  #GatewayId
+		LinkId!:     #LinkId
+		Priority!:   #RulePriority
+		Tags?:       #Tags
+	})
+}
 
 #Arn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
@@ -122,7 +125,3 @@ fn.#ObjectExpression
 #Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 
 #UpdatedTimestamp: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RTBFabric::LinkRoutingRule"
-	Properties!: #Properties
-}

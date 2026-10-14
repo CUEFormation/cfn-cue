@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ManagedBlockchain::com.amazonaws.taiga.webservice.api#Accessor Resource Type
-#Properties: close({
-	AccessorType!: #AccessorType
-	NetworkType?:  #NetworkAccessorType
-	Tags?:         list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ManagedBlockchain::Accessor"
+	Properties!: close({
+		AccessorType!: #AccessorType
+		NetworkType?:  #NetworkAccessorType
+		Tags?:         list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AccessorStatus: "AVAILABLE" | "PENDING_DELETION" | "DELETED" | fn.#StringExpression
 
@@ -35,7 +38,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ManagedBlockchain::Accessor"
-	Properties!: #Properties
-}

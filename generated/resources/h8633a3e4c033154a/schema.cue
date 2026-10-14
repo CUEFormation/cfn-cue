@@ -28,7 +28,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see [Adding or removing HTTP headers in CloudFront
 // responses](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/modifying-response-headers.html)
 // in the *Amazon CloudFront Developer Guide*.
-#Properties: close({ResponseHeadersPolicyConfig!: #ResponseHeadersPolicyConfig | fn.#ObjectExpression})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::CloudFront::ResponseHeadersPolicy"
+	Properties!: close({ResponseHeadersPolicyConfig!: #ResponseHeadersPolicyConfig | fn.#ObjectExpression})
+}
 
 #AccessControlAllowHeaders: close({Items!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
@@ -171,7 +174,3 @@ fn.#ObjectExpression
 	ReportUri?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::ResponseHeadersPolicy"
-	Properties!: #Properties
-}

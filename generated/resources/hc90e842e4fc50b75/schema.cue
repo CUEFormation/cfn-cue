@@ -17,27 +17,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::User
-#Properties: close({
-	AfterContactWorkConfigs?: [...#AfterContactWorkConfigPerChannel] | fn.#ListExpression
-	AutoAcceptConfigs?:       [...#AutoAcceptConfig] | fn.#ListExpression
-	DirectoryUserId?:         string | fn.#StringExpression
-	HierarchyGroupArn?: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group/[-a-zA-Z0-9]*$" |
-		fn.#StringExpression
-	IdentityInfo?: #UserIdentityInfo | fn.#ObjectExpression
-	InstanceArn!:  =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Password?:     string | fn.#StringExpression
-	PersistentConnectionConfigs?: [...#PersistentConnectionConfig] | fn.#ListExpression
-	PhoneConfig?:                 #UserPhoneConfig | fn.#ObjectExpression
-	PhoneNumberConfigs?:          [...#PhoneNumberConfig] | fn.#ListExpression
-	RoutingProfileArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/routing-profile/[-a-zA-Z0-9]*$" |
-		fn.#StringExpression
-	SecurityProfileArns!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#SecurityProfileArn] |
-		fn.#ListExpression
-	Tags?:              list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	UserProficiencies?: [...#UserProficiency] | fn.#ListExpression
-	Username!:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\_\\-\\.\\@]+" | fn.#StringExpression
-	VoiceEnhancementConfigs?: [...#VoiceEnhancementConfig] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::User"
+	Properties!: close({
+		AfterContactWorkConfigs?: [...#AfterContactWorkConfigPerChannel] | fn.#ListExpression
+		AutoAcceptConfigs?:       [...#AutoAcceptConfig] | fn.#ListExpression
+		DirectoryUserId?:         string | fn.#StringExpression
+		HierarchyGroupArn?: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group/[-a-zA-Z0-9]*$" |
+			fn.#StringExpression
+		IdentityInfo?: #UserIdentityInfo | fn.#ObjectExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Password?:    string | fn.#StringExpression
+		PersistentConnectionConfigs?: [...#PersistentConnectionConfig] | fn.#ListExpression
+		PhoneConfig?:                 #UserPhoneConfig | fn.#ObjectExpression
+		PhoneNumberConfigs?:          [...#PhoneNumberConfig] | fn.#ListExpression
+		RoutingProfileArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/routing-profile/[-a-zA-Z0-9]*$" |
+			fn.#StringExpression
+		SecurityProfileArns!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#SecurityProfileArn] |
+			fn.#ListExpression
+		Tags?:              list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		UserProficiencies?: [...#UserProficiency] | fn.#ListExpression
+		Username!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\_\\-\\.\\@]+" | fn.#StringExpression
+		VoiceEnhancementConfigs?: [...#VoiceEnhancementConfig] | fn.#ListExpression
+	})
+}
 
 #AfterContactWorkConfig: close({
 	AfterContactWorkMode?:      #AfterContactWorkMode
@@ -178,7 +181,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VoiceEnhancementMode: "NONE" | "VOICE_ISOLATION" | "NOISE_SUPPRESSION" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::User"
-	Properties!: #Properties
-}

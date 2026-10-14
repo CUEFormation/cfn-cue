@@ -16,29 +16,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Elasticsearch::Domain
-#Properties: close({
-	AccessPolicies?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	AdvancedOptions?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
-		...
-	} | fn.#ObjectExpression
-	AdvancedSecurityOptions?:    #AdvancedSecurityOptionsInput
-	CognitoOptions?:             #CognitoOptions
-	DomainEndpointOptions?:      #DomainEndpointOptions
-	DomainName?:                 string | fn.#StringExpression
-	EBSOptions?:                 #EBSOptions
-	ElasticsearchClusterConfig?: #ElasticsearchClusterConfig
-	ElasticsearchVersion?:       string | fn.#StringExpression
-	EncryptionAtRestOptions?:    #EncryptionAtRestOptions
-	LogPublishingOptions?: {
-		{[=~"[a-zA-Z0-9]+"]: #LogPublishingOption}
-		...
-	} | fn.#ObjectExpression
-	NodeToNodeEncryptionOptions?: #NodeToNodeEncryptionOptions
-	SnapshotOptions?:             #SnapshotOptions
-	Tags?:                        [...#Tag] | fn.#ListExpression
-	VPCOptions?:                  #VPCOptions
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Elasticsearch::Domain"
+	Properties?: close({
+		AccessPolicies?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		AdvancedOptions?: {
+			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+			...
+		} | fn.#ObjectExpression
+		AdvancedSecurityOptions?:    #AdvancedSecurityOptionsInput
+		CognitoOptions?:             #CognitoOptions
+		DomainEndpointOptions?:      #DomainEndpointOptions
+		DomainName?:                 string | fn.#StringExpression
+		EBSOptions?:                 #EBSOptions
+		ElasticsearchClusterConfig?: #ElasticsearchClusterConfig
+		ElasticsearchVersion?:       string | fn.#StringExpression
+		EncryptionAtRestOptions?:    #EncryptionAtRestOptions
+		LogPublishingOptions?: {
+			{[=~"[a-zA-Z0-9]+"]: #LogPublishingOption}
+			...
+		} | fn.#ObjectExpression
+		NodeToNodeEncryptionOptions?: #NodeToNodeEncryptionOptions
+		SnapshotOptions?:             #SnapshotOptions
+		Tags?:                        [...#Tag] | fn.#ListExpression
+		VPCOptions?:                  #VPCOptions
+	})
+}
 
 #AdvancedSecurityOptionsInput: close({
 	AnonymousAuthEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -236,7 +239,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Elasticsearch::Domain"
-	Properties?: #Properties
-}

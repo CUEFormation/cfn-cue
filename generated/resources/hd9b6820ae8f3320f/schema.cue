@@ -13,16 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53GlobalResolver::DnsView
-#Properties: close({
-	ClientToken?:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:           #ResourceDescription
-	DnssecValidation?:      #DnsSecValidationType
-	EdnsClientSubnet?:      #EdnsClientSubnetType
-	FirewallRulesFailOpen?: #FirewallRulesFailOpenType
-	GlobalResolverId!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-	Name!:                  #ResourceName
-	Tags?:                  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53GlobalResolver::DnsView"
+	Properties!: close({
+		ClientToken?:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Description?:           #ResourceDescription
+		DnssecValidation?:      #DnsSecValidationType
+		EdnsClientSubnet?:      #EdnsClientSubnetType
+		FirewallRulesFailOpen?: #FirewallRulesFailOpenType
+		GlobalResolverId!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
+		Name!:                  #ResourceName
+		Tags?:                  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DnsSecValidationType: "ENABLED" | "DISABLED" | fn.#StringExpression
 
@@ -48,7 +51,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53GlobalResolver::DnsView"
-	Properties!: #Properties
-}

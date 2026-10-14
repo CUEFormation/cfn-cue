@@ -14,19 +14,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for a use case associated with an Amazon Connect
 // integration association.
-#Properties: close({
-	InstanceId!:               strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	IntegrationAssociationId!: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                     list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-	UseCaseType!:              "RULES_EVALUATION" | "CONNECT_CAMPAIGNS" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::UseCase"
+	Properties!: close({
+		InstanceId!:               strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		IntegrationAssociationId!: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                     list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		UseCaseType!:              "RULES_EVALUATION" | "CONNECT_CAMPAIGNS" | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::UseCase"
-	Properties!: #Properties
-}

@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::SSMIncidents::ReplicationSet
-#Properties: close({
-	DeletionProtected?: #DeletionProtected
-	Regions!:           #RegionList | fn.#ListExpression
-	Tags?:              list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSMIncidents::ReplicationSet"
+	Properties!: close({
+		DeletionProtected?: #DeletionProtected
+		Regions!:           #RegionList | fn.#ListExpression
+		Tags?:              list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: strings.MaxRunes(1000) & =~"^arn:aws(-(cn|us-gov|iso(-b)?))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
 fn.#StringExpression
@@ -41,7 +44,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSMIncidents::ReplicationSet"
-	Properties!: #Properties
-}

@@ -18,58 +18,65 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::GameLift::ContainerFleet resource creates an Amazon GameLift
 // (GameLift) container fleet to host game servers.
-#Properties: close({
-	BillingType?:             "ON_DEMAND" | "SPOT" | fn.#StringExpression
-	DeploymentConfiguration?: #DeploymentConfiguration
-	Description?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	FleetRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(256) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-.*)?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
-	fn.#StringExpression
-	GameServerContainerGroupDefinitionName?: strings.MaxRunes(512) &
-	strings.MinRunes(1) &
-	=~"^[a-zA-Z0-9\\-]+$|^arn:.*:containergroupdefinition\\/[a-zA-Z0-9\\-]+(:[0-9]+)?$" |
-	fn.#StringExpression
-	GameServerContainerGroupsPerInstance?: int & <=5000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=5000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	GameSessionCreationLimitPolicy?: #GameSessionCreationLimitPolicy | fn.#ObjectExpression
-	InstanceConnectionPortRange?:    #ConnectionPortRange
-	InstanceInboundPermissions?:     list.MaxItems(50) & [...] & [...#IpPermission] | fn.#ListExpression
-	InstanceType?:                   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Locations?: list.MaxItems(100) & list.MinItems(1) & [...close({
-		Location!:         #Location
-		LocationCapacity?: #LocationCapacity
-		StoppedActions?:   #StoppedActions
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	LogConfiguration?: #LogConfiguration
-	MetricGroups?: list.MaxItems(1) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	NewGameSessionProtectionPolicy?: "FullProtection" | "NoProtection" | fn.#StringExpression
-	PerInstanceContainerGroupDefinitionName?: strings.MaxRunes(512) &
-	strings.MinRunes(1) &
-	=~"^[a-zA-Z0-9\\-]+$|^arn:.*:containergroupdefinition\\/[a-zA-Z0-9\\-]+(:[0-9]+)?$" |
-	fn.#StringExpression
-	PlayerGatewayMode?: "DISABLED" | "ENABLED" | "REQUIRED" | fn.#StringExpression
-	ScalingPolicies?:   list.MaxItems(50) & [...#ScalingPolicy] | fn.#ListExpression
-	Tags?:              list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GameLift::ContainerFleet"
+	Properties!: close({
+		BillingType?:             "ON_DEMAND" | "SPOT" | fn.#StringExpression
+		DeploymentConfiguration?: #DeploymentConfiguration
+		Description?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		FleetRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-.*)?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
+		fn.#StringExpression
+		GameServerContainerGroupDefinitionName?: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9\\-]+$|^arn:.*:containergroupdefinition\\/[a-zA-Z0-9\\-]+(:[0-9]+)?$" |
+		fn.#StringExpression
+		GameServerContainerGroupsPerInstance?: int & <=5000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=5000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		GameSessionCreationLimitPolicy?: #GameSessionCreationLimitPolicy | fn.#ObjectExpression
+		InstanceConnectionPortRange?:    #ConnectionPortRange
+		InstanceInboundPermissions?:     list.MaxItems(50) & [...] & [...#IpPermission] | fn.#ListExpression
+		InstanceType?:                   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Locations?: list.MaxItems(100) & list.MinItems(1) & [...close({
+			Location!:         #Location
+			LocationCapacity?: #LocationCapacity
+			StoppedActions?:   #StoppedActions
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		LogConfiguration?: #LogConfiguration
+		MetricGroups?: list.MaxItems(1) & [...] & [
+			...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		NewGameSessionProtectionPolicy?: "FullProtection" | "NoProtection" | fn.#StringExpression
+		PerInstanceContainerGroupDefinitionName?: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9\\-]+$|^arn:.*:containergroupdefinition\\/[a-zA-Z0-9\\-]+(:[0-9]+)?$" |
+		fn.#StringExpression
+		PlayerGatewayMode?: "DISABLED" | "ENABLED" | "REQUIRED" | fn.#StringExpression
+		ScalingPolicies?:   list.MaxItems(50) & [...#ScalingPolicy] | fn.#ListExpression
+		Tags?:              list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ConnectionPortRange: close({
 	FromPort!: int & <=60000 & >=1 |
@@ -401,7 +408,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GameLift::ContainerFleet"
-	Properties!: #Properties
-}

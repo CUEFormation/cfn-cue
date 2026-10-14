@@ -16,30 +16,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GuardDuty::Filter
-#Properties: close({
-	Action?:          "ARCHIVE" | "NOOP" | fn.#StringExpression
-	Description?:     strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	DetectorId!:      strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	FindingCriteria!: #FindingCriteria
-	Name!:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Rank?: int & <=100 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=100 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: [...#TagItem] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GuardDuty::Filter"
+	Properties!: close({
+		Action?:          "ARCHIVE" | "NOOP" | fn.#StringExpression
+		Description?:     strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		DetectorId!:      strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+		FindingCriteria!: #FindingCriteria
+		Name!:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		Rank?: int & <=100 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=100 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: [...#TagItem] | fn.#ListExpression
+	})
+}
 
 #Condition: close({
 	Eq?:     [...string | fn.#StringExpression] | fn.#ListExpression
@@ -176,7 +181,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GuardDuty::Filter"
-	Properties!: #Properties
-}

@@ -19,11 +19,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::S3::StorageLensGroup resource is an Amazon S3 resource type that you
 // can use to create Storage Lens Group.
-#Properties: close({
-	Filter!: #Filter
-	Name!:   #Name
-	Tags?:   [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3::StorageLensGroup"
+	Properties!: close({
+		Filter!: #Filter
+		Name!:   #Name
+		Tags?:   [...#Tag] | fn.#ListExpression
+	})
+}
 
 #And: struct.MinFields(2) & close({
 	MatchAnyPrefix?:  #MatchAnyPrefix
@@ -135,7 +138,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3::StorageLensGroup"
-	Properties!: #Properties
-}

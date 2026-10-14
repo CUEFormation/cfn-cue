@@ -13,25 +13,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates and manages an AWS CloudHSM cluster.
-#Properties: close({
-	BackupRetentionPolicy?: close({
-		Type?:  "DAYS" | fn.#StringExpression
-		Value?: strings.MaxRunes(3) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	HsmType!:     strings.MaxRunes(32) & =~"^((p|)hsm[0-9][a-z.]*\\.[a-zA-Z]+)$" | fn.#StringExpression
-	Mode?:        "FIPS" | "NON_FIPS" | fn.#StringExpression
-	NetworkType?: "IPV4" | "DUALSTACK" | fn.#StringExpression
-	SubnetIds?: list.MaxItems(10) & list.MinItems(1) & [...=~"^subnet-[0-9a-fA-F]{8,17}$" | fn.#StringExpression] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
-		Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudHSM::Cluster"
-	Properties!: #Properties
+	Type!: "AWS::CloudHSM::Cluster"
+	Properties!: close({
+		BackupRetentionPolicy?: close({
+			Type?:  "DAYS" | fn.#StringExpression
+			Value?: strings.MaxRunes(3) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		HsmType!:     strings.MaxRunes(32) & =~"^((p|)hsm[0-9][a-z.]*\\.[a-zA-Z]+)$" | fn.#StringExpression
+		Mode?:        "FIPS" | "NON_FIPS" | fn.#StringExpression
+		NetworkType?: "IPV4" | "DUALSTACK" | fn.#StringExpression
+		SubnetIds?: list.MaxItems(10) & list.MinItems(1) & [...=~"^subnet-[0-9a-fA-F]{8,17}$" | fn.#StringExpression] |
+			fn.#ListExpression
+		Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
+			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
 }

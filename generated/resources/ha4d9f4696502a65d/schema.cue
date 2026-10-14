@@ -18,19 +18,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MPA::ApprovalTeam.
-#Properties: close({
-	ApprovalStrategy!: #ApprovalStrategy
-	Approvers!: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...close({
-		PrimaryIdentityId!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		PrimaryIdentitySourceArn!: strings.MaxRunes(1000) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Description!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:        strings.MaxRunes(64) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
-	Policies!:    list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#Policy] | fn.#ListExpression
-	Tags?:        #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MPA::ApprovalTeam"
+	Properties!: close({
+		ApprovalStrategy!: #ApprovalStrategy
+		Approvers!: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...close({
+			PrimaryIdentityId!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+			PrimaryIdentitySourceArn!: strings.MaxRunes(1000) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		Description!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:        strings.MaxRunes(64) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
+		Policies!:    list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#Policy] | fn.#ListExpression
+		Tags?:        #Tags
+	})
+}
 
 #ApprovalStrategy: close({MofN!: #MofNApprovalStrategy}) | fn.#ObjectExpression
 
@@ -78,7 +81,3 @@ fn.#ObjectExpression
 #Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
 #Timestamp: time.Time | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MPA::ApprovalTeam"
-	Properties!: #Properties
-}

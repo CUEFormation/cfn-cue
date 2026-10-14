@@ -16,11 +16,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for Activity
-#Properties: close({
-	EncryptionConfiguration?: #EncryptionConfiguration
-	Name!:                    strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                    [...#TagsEntry] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::StepFunctions::Activity"
+	Properties!: close({
+		EncryptionConfiguration?: #EncryptionConfiguration
+		Name!:                    strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:                    [...#TagsEntry] | fn.#ListExpression
+	})
+}
 
 #EncryptionConfiguration: close({
 	KmsDataKeyReusePeriodSeconds?: int & <=900 & >=60 |
@@ -51,7 +54,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::StepFunctions::Activity"
-	Properties!: #Properties
-}

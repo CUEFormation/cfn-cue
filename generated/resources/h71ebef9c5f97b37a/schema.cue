@@ -12,17 +12,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RefactorSpaces::Route Resource Type
-#Properties: close({
-	ApplicationIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^app-([0-9A-Za-z]{10}$)" |
-	fn.#StringExpression
-	DefaultRoute?: #DefaultRouteInput
-	EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
-	fn.#StringExpression
-	RouteType!:         #RouteType
-	ServiceIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^svc-([0-9A-Za-z]{10}$)" | fn.#StringExpression
-	Tags?:              [...#Tag] | fn.#ListExpression
-	UriPathRoute?:      #UriPathRouteInput
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RefactorSpaces::Route"
+	Properties!: close({
+		ApplicationIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^app-([0-9A-Za-z]{10}$)" |
+		fn.#StringExpression
+		DefaultRoute?: #DefaultRouteInput
+		EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
+		fn.#StringExpression
+		RouteType!: #RouteType
+		ServiceIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^svc-([0-9A-Za-z]{10}$)" |
+		fn.#StringExpression
+		Tags?:         [...#Tag] | fn.#ListExpression
+		UriPathRoute?: #UriPathRouteInput
+	})
+}
 
 #DefaultRouteInput: close({ActivationState!: #RouteActivationState}) | fn.#ObjectExpression
 
@@ -47,7 +51,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RefactorSpaces::Route"
-	Properties!: #Properties
-}

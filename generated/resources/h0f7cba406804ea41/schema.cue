@@ -17,48 +17,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaPackage::OriginEndpoint
-#Properties: close({
-	Authorization?: #Authorization
-	ChannelId!:     string | fn.#StringExpression
-	CmafPackage?:   #CmafPackage
-	DashPackage?:   #DashPackage
-	Description?:   string | fn.#StringExpression
-	HlsPackage?:    #HlsPackage
-	Id!:            strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ManifestName?:  string | fn.#StringExpression
-	MssPackage?:    #MssPackage
-	Origination?:   "ALLOW" | "DENY" | fn.#StringExpression
-	StartoverWindowSeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TimeDelaySeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Whitelist?: [...string | fn.#StringExpression] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaPackage::OriginEndpoint"
+	Properties!: close({
+		Authorization?: #Authorization
+		ChannelId!:     string | fn.#StringExpression
+		CmafPackage?:   #CmafPackage
+		DashPackage?:   #DashPackage
+		Description?:   string | fn.#StringExpression
+		HlsPackage?:    #HlsPackage
+		Id!:            strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		ManifestName?:  string | fn.#StringExpression
+		MssPackage?:    #MssPackage
+		Origination?:   "ALLOW" | "DENY" | fn.#StringExpression
+		StartoverWindowSeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TimeDelaySeconds?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Whitelist?: [...string | fn.#StringExpression] | fn.#ListExpression
+	})
+}
 
 #AdsOnDeliveryRestrictions: "NONE" | "RESTRICTED" | "UNRESTRICTED" | "BOTH" | fn.#StringExpression
 
@@ -475,7 +482,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaPackage::OriginEndpoint"
-	Properties!: #Properties
-}

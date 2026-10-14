@@ -9,18 +9,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EventSchemas::Registry
-#Properties: close({
-	Description?:  string | fn.#StringExpression
-	RegistryName?: string | fn.#StringExpression
-	Tags?:         [...#TagsEntry] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EventSchemas::Registry"
+	Properties?: close({
+		Description?:  string | fn.#StringExpression
+		RegistryName?: string | fn.#StringExpression
+		Tags?:         [...#TagsEntry] | fn.#ListExpression
+	})
+}
 
 #TagsEntry: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EventSchemas::Registry"
-	Properties?: #Properties
-}

@@ -14,17 +14,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Interconnect::Connection. Creates a managed
 // network connection between AWS and a partner cloud service provider.
-#Properties: close({
-	ActivationKey?: string | fn.#StringExpression
-	AttachPoint!:   #AttachPoint | fn.#ObjectExpression
-	Bandwidth?:     strings.MaxRunes(8) & strings.MinRunes(1) & =~"^\\d+[MG]bps$" | fn.#StringExpression
-	Description?:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9_ ]+$" | fn.#StringExpression
-	EnvironmentId?: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
-	RemoteAccount?: close({Identifier!: strings.MaxRunes(255) & =~"^[-a-zA-Z0-9_@\\.]+$" | fn.#StringExpression}) |
-	fn.#ObjectExpression
-	RemoteOwnerAccount?: strings.MaxRunes(255) & =~"^[-a-zA-Z0-9_@\\.]+$" | fn.#StringExpression
-	Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Interconnect::Connection"
+	Properties!: close({
+		ActivationKey?: string | fn.#StringExpression
+		AttachPoint!:   #AttachPoint | fn.#ObjectExpression
+		Bandwidth?:     strings.MaxRunes(8) & strings.MinRunes(1) & =~"^\\d+[MG]bps$" | fn.#StringExpression
+		Description?:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9_ ]+$" | fn.#StringExpression
+		EnvironmentId?: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+		RemoteAccount?: close({Identifier!: strings.MaxRunes(255) & =~"^[-a-zA-Z0-9_@\\.]+$" | fn.#StringExpression}) |
+		fn.#ObjectExpression
+		RemoteOwnerAccount?: strings.MaxRunes(255) & =~"^[-a-zA-Z0-9_@\\.]+$" | fn.#StringExpression
+		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AttachPoint: close({
 	Arn?: string | fn.#StringExpression
@@ -44,7 +47,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Interconnect::Connection"
-	Properties!: #Properties
-}

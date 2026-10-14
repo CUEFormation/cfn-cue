@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Config::ConfigurationAggregator
-#Properties: close({
-	AccountAggregationSources?:     list.MaxItems(1) & [...] & [...#AccountAggregationSource] | fn.#ListExpression
-	ConfigurationAggregatorName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\w\\-]+" | fn.#StringExpression
-	OrganizationAggregationSource?: #OrganizationAggregationSource
-	Tags?:                          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Config::ConfigurationAggregator"
+	Properties?: close({
+		AccountAggregationSources?:   list.MaxItems(1) & [...] & [...#AccountAggregationSource] | fn.#ListExpression
+		ConfigurationAggregatorName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\w\\-]+" | fn.#StringExpression
+		OrganizationAggregationSource?: #OrganizationAggregationSource
+		Tags?:                          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AccountAggregationSource: close({
 	AccountIds!:    list.MinItems(1) & [...=~"^\\d{12}$" | fn.#StringExpression] | fn.#ListExpression
@@ -40,7 +43,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Config::ConfigurationAggregator"
-	Properties?: #Properties
-}

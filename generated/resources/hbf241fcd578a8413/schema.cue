@@ -16,124 +16,128 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::DataTableAttribute
-#Properties: close({
-	DataTableArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:  #Description | fn.#StringExpression
-	InstanceArn!: strings.MaxRunes(100) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression
-	Name!:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\-_.:=@'|]+$" | fn.#StringExpression
-	Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Validation?: close({
-		Enum?: close({
-			Strict?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			Values?: [...string | fn.#StringExpression] | fn.#ListExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::DataTableAttribute"
+	Properties!: close({
+		DataTableArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Description?:  #Description | fn.#StringExpression
+		InstanceArn!: strings.MaxRunes(100) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\-_.:=@'|]+$" |
+		fn.#StringExpression
+		Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Validation?: close({
+			Enum?: close({
+				Strict?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+				Values?: [...string | fn.#StringExpression] | fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
+			ExclusiveMaximum?: number |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatFloat(
+								cfnScalarStrconv.ParseFloat(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+									64,
+								) &
+									number,
+								"g",
+								-1,
+								64,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ExclusiveMinimum?: number |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatFloat(
+								cfnScalarStrconv.ParseFloat(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+									64,
+								) &
+									number,
+								"g",
+								-1,
+								64,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			MaxLength?: #LengthBoundary | fn.#NumberExpression
+			MaxValues?: #ValueBoundary | fn.#NumberExpression
+			Maximum?: number |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatFloat(
+								cfnScalarStrconv.ParseFloat(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+									64,
+								) &
+									number,
+								"g",
+								-1,
+								64,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			MinLength?: #LengthBoundary | fn.#NumberExpression
+			MinValues?: #ValueBoundary | fn.#NumberExpression
+			Minimum?: number |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatFloat(
+								cfnScalarStrconv.ParseFloat(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+									64,
+								) &
+									number,
+								"g",
+								-1,
+								64,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			MultipleOf?: >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatFloat(
+								cfnScalarStrconv.ParseFloat(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+									64,
+								) &
+									>=0,
+								"g",
+								-1,
+								64,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
 		}) |
 		fn.#ObjectExpression
-		ExclusiveMaximum?: number |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatFloat(
-							cfnScalarStrconv.ParseFloat(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-								64,
-							) &
-								number,
-							"g",
-							-1,
-							64,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		ExclusiveMinimum?: number |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatFloat(
-							cfnScalarStrconv.ParseFloat(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-								64,
-							) &
-								number,
-							"g",
-							-1,
-							64,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		MaxLength?: #LengthBoundary | fn.#NumberExpression
-		MaxValues?: #ValueBoundary | fn.#NumberExpression
-		Maximum?: number |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatFloat(
-							cfnScalarStrconv.ParseFloat(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-								64,
-							) &
-								number,
-							"g",
-							-1,
-							64,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		MinLength?: #LengthBoundary | fn.#NumberExpression
-		MinValues?: #ValueBoundary | fn.#NumberExpression
-		Minimum?: number |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatFloat(
-							cfnScalarStrconv.ParseFloat(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-								64,
-							) &
-								number,
-							"g",
-							-1,
-							64,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		MultipleOf?: >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatFloat(
-							cfnScalarStrconv.ParseFloat(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-								64,
-							) &
-								>=0,
-							"g",
-							-1,
-							64,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-	}) |
-	fn.#ObjectExpression
-	ValueType!: "TEXT" | "NUMBER" | "BOOLEAN" | "TEXT_LIST" | "NUMBER_LIST" | fn.#StringExpression
-})
+		ValueType!: "TEXT" | "NUMBER" | "BOOLEAN" | "TEXT_LIST" | "NUMBER_LIST" | fn.#StringExpression
+	})
+}
 
 #AttributeId: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
@@ -180,7 +184,3 @@ fn.#StringExpression
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::DataTableAttribute"
-	Properties!: #Properties
-}

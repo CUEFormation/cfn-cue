@@ -17,15 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ImageBuilder::DistributionConfiguration
-#Properties: close({
-	Description?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Distributions!: [...#Distribution] | fn.#ListExpression
-	Name!:          =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ImageBuilder::DistributionConfiguration"
+	Properties!: close({
+		Description?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Distributions!: [...#Distribution] | fn.#ListExpression
+		Name!:          =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+		Tags?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
 #AmiDistributionConfiguration: close({
 	AmiTags?: close({
@@ -144,7 +147,3 @@ fn.#ObjectExpression
 	Service?:        "ECR" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ImageBuilder::DistributionConfiguration"
-	Properties!: #Properties
-}

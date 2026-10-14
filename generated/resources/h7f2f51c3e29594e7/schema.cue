@@ -12,15 +12,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GuardDuty::Member
-#Properties: close({
-	DetectorId?:               strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	DisableEmailNotification?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Email!:                    string | fn.#StringExpression
-	MemberId?:                 string | fn.#StringExpression
-	Message?:                  string | fn.#StringExpression
-	Status?: "Created" | "Disabled" | "Enabled" | "Invited" | "Removed" | "Resigned" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GuardDuty::Member"
-	Properties!: #Properties
+	Type!: "AWS::GuardDuty::Member"
+	Properties!: close({
+		DetectorId?:               strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+		DisableEmailNotification?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Email!:                    string | fn.#StringExpression
+		MemberId?:                 string | fn.#StringExpression
+		Message?:                  string | fn.#StringExpression
+		Status?: "Created" | "Disabled" | "Enabled" | "Invited" | "Removed" | "Resigned" | fn.#StringExpression
+	})
 }

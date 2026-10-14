@@ -14,21 +14,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Amazon DataZone projects are business use case–based groupings of people,
 // assets (data), and tools used to simplify access to the AWS analytics.
-#Properties: close({
-	Description?:      strings.MaxRunes(2048) | fn.#StringExpression
-	DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	DomainUnitId?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" | fn.#StringExpression
-	GlossaryTerms?: list.MaxItems(20) & [...] & [...=~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression] |
-		fn.#ListExpression
-	MembershipAssignments?: [...#ProjectMembershipAssignment] | fn.#ListExpression
-	Name!:                  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-	ProjectCategory?:       string | fn.#StringExpression
-	ProjectExecutionRole?:  =~"^arn:aws[^:]*:iam::\\d{12}:role/[\\w+=,.@/-]+$" | fn.#StringExpression
-	ProjectProfileId?:      =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	ProjectProfileVersion?: string | fn.#StringExpression
-	ResourceTags?:          [...#ResourceTag] | fn.#ListExpression
-	UserParameters?:        [...#EnvironmentConfigurationUserParameter] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataZone::Project"
+	Properties!: close({
+		Description?:      strings.MaxRunes(2048) | fn.#StringExpression
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		DomainUnitId?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" | fn.#StringExpression
+		GlossaryTerms?: list.MaxItems(20) & [...] & [...=~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression] |
+			fn.#ListExpression
+		MembershipAssignments?: [...#ProjectMembershipAssignment] | fn.#ListExpression
+		Name!:                  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
+		ProjectCategory?:       string | fn.#StringExpression
+		ProjectExecutionRole?:  =~"^arn:aws[^:]*:iam::\\d{12}:role/[\\w+=,.@/-]+$" | fn.#StringExpression
+		ProjectProfileId?:      =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		ProjectProfileVersion?: string | fn.#StringExpression
+		ResourceTags?:          [...#ResourceTag] | fn.#ListExpression
+		UserParameters?:        [...#EnvironmentConfigurationUserParameter] | fn.#ListExpression
+	})
+}
 
 #EnvironmentConfigurationUserParameter: close({
 	EnvironmentConfigurationName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
@@ -106,7 +109,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #UserDesignation: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataZone::Project"
-	Properties!: #Properties
-}

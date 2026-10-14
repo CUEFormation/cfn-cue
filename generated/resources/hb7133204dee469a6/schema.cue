@@ -14,12 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Pricing Plan enables you to customize your billing details consistent with
 // the usage that accrues in each of your billing groups.
-#Properties: close({
-	Description?:     strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
-	PricingRuleArns?: list.MaxItems(30) & [...] & [...#PricingRuleArn] | fn.#ListExpression
-	Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BillingConductor::PricingPlan"
+	Properties!: close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
+		PricingRuleArns?: list.MaxItems(30) & [...] & [...#PricingRuleArn] | fn.#ListExpression
+		Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #PricingRuleArn: =~"arn:aws(-cn)?:billingconductor::[0-9]{12}:pricingrule/[a-zA-Z0-9]{10}" | fn.#StringExpression
 
@@ -28,7 +31,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BillingConductor::PricingPlan"
-	Properties!: #Properties
-}

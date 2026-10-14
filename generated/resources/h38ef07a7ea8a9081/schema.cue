@@ -13,19 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Integration
-#Properties: close({
-	AdditionalEncryptionContext?: #IntegrationAdditionalEncryptionContextMap
-	DataFilter?:                  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:                 strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	IntegrationConfig?:           #IntegrationConfig
-	IntegrationName!:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	SourceArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" | fn.#StringExpression
-	Tags?:      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TargetArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Integration"
+	Properties!: close({
+		AdditionalEncryptionContext?: #IntegrationAdditionalEncryptionContextMap
+		DataFilter?:                  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
+		IntegrationConfig?: #IntegrationConfig
+		IntegrationName!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		SourceArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" | fn.#StringExpression
+		Tags?:      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" | fn.#StringExpression
+	})
+}
 
 #IntegrationAdditionalEncryptionContextMap: close({
 
@@ -51,7 +54,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Integration"
-	Properties!: #Properties
-}

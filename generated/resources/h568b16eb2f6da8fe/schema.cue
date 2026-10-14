@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::StaticIp
-#Properties: close({
-	AttachedTo?:   string | fn.#StringExpression
-	StaticIpName!: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::StaticIp"
-	Properties!: #Properties
+	Type!: "AWS::Lightsail::StaticIp"
+	Properties!: close({
+		AttachedTo?:   string | fn.#StringExpression
+		StaticIpName!: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
+	})
 }

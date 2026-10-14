@@ -17,14 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::IntelligentPromptRouter Resource Type
-#Properties: close({
-	Description?:      strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([0-9a-zA-Z:.][ _-]?)+$" | fn.#StringExpression
-	FallbackModel!:    #PromptRouterTargetModel
-	Models!:           [...#PromptRouterTargetModel] | fn.#ListExpression
-	PromptRouterName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][ _-]?)+$" | fn.#StringExpression
-	RoutingCriteria!:  #RoutingCriteria
-	Tags?:             list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::IntelligentPromptRouter"
+	Properties!: close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([0-9a-zA-Z:.][ _-]?)+$" | fn.#StringExpression
+		FallbackModel!: #PromptRouterTargetModel
+		Models!:        [...#PromptRouterTargetModel] | fn.#ListExpression
+		PromptRouterName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][ _-]?)+$" |
+		fn.#StringExpression
+		RoutingCriteria!: #RoutingCriteria
+		Tags?:            list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #PromptRouterStatus: "AVAILABLE" | fn.#StringExpression
 
@@ -67,7 +71,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::IntelligentPromptRouter"
-	Properties!: #Properties
-}

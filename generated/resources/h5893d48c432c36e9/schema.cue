@@ -14,14 +14,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A field in the Cases domain. This field is used to define the case object
 // model (that is, defines what data can be captured on cases) in a Cases
 // domain.
-#Properties: close({
-	Attributes?:  #FieldAttributes | fn.#ObjectExpression
-	Description?: strings.MaxRunes(255) | fn.#StringExpression
-	DomainId?:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-	Tags?:        #Tags
-	Type!:        #FieldType
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cases::Field"
+	Properties!: close({
+		Attributes?:  #FieldAttributes | fn.#ObjectExpression
+		Description?: strings.MaxRunes(255) | fn.#StringExpression
+		DomainId?:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
+		Tags?:        #Tags
+		Type!:        #FieldType
+	})
+}
 
 #FieldAttributes: close({Text?: #TextAttributes}) | fn.#ObjectExpression
 
@@ -39,7 +42,3 @@ fn.#ObjectExpression
 	{IsMultiline!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cases::Field"
-	Properties!: #Properties
-}

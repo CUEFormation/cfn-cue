@@ -20,14 +20,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::IoTSiteWise::Task. A task defines a reusable
 // containerized compute workload that can be referenced by one or more
 // pipeline compute nodes.
-#Properties: close({
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	Tags?:              list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-	TaskConfiguration!: #TaskConfiguration | fn.#ObjectExpression
-	TaskName!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	WorkspaceName!:     strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTSiteWise::Task"
+	Properties!: close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
+		Tags?:              list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		TaskConfiguration!: #TaskConfiguration | fn.#ObjectExpression
+		TaskName!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		WorkspaceName!:     strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	})
+}
 
 #ContainerTaskConfiguration: close({
 	Command?: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -129,7 +132,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TaskConfiguration: close({ContainerTaskConfiguration!: #ContainerTaskConfiguration}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTSiteWise::Task"
-	Properties!: #Properties
-}

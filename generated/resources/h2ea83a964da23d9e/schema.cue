@@ -20,12 +20,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::SecurityHub::Insight resource represents the AWS Security Hub
 // Insight in your account. An AWS Security Hub insight is a collection of
 // related findings.
-#Properties: close({
-	Filters!: #AwsSecurityFindingFilters & (null | bool | number | string | [...] | struct.MaxFields(10)) |
-	fn.#ObjectExpression
-	GroupByAttribute!: #NonEmptyString | fn.#StringExpression
-	Name!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::Insight"
+	Properties!: close({
+		Filters!: #AwsSecurityFindingFilters & (null | bool | number | string | [...] | struct.MaxFields(10)) |
+		fn.#ObjectExpression
+		GroupByAttribute!: #NonEmptyString | fn.#StringExpression
+		Name!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+	})
+}
 
 #AwsSecurityFindingFilters: close({
 	AwsAccountId?:                    list.MaxItems(20) & list.UniqueItems() & [...#StringFilter] | fn.#ListExpression
@@ -260,7 +263,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #StringFilterComparison: "EQUALS" | "PREFIX" | "NOT_EQUALS" | "PREFIX_NOT_EQUALS" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::Insight"
-	Properties!: #Properties
-}

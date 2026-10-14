@@ -19,13 +19,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::BedrockAgentCore::CapacityProvider. A
 // capacity provider defines the compute resources (EC2) used to run Amazon
 // Bedrock AgentCore agent runtimes.
-#Properties: close({
-	ComputeConfiguration!: #ComputeConfiguration
-	Description?:          strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	Name!: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-	PermissionsConfiguration!: #PermissionsConfiguration
-	Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BedrockAgentCore::CapacityProvider"
+	Properties!: close({
+		ComputeConfiguration!: #ComputeConfiguration
+		Description?:          strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+		PermissionsConfiguration!: #PermissionsConfiguration
+		Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CapacityReservationSpecification: close({
 	CapacityReservationPreference?: "capacity-reservations-only" | "open" | "none" | fn.#StringExpression
@@ -375,7 +378,3 @@ fn.#ObjectExpression
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BedrockAgentCore::CapacityProvider"
-	Properties!: #Properties
-}

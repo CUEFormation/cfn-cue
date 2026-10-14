@@ -19,42 +19,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a plan that specifies Regions, IAM roles, and workflows of logic
 // required to perform the desired change to your multi-Region application
-#Properties: close({
-	AssociatedAlarms?: #AssociatedAlarmMap
-	Description?:      string | fn.#StringExpression
-	ExecutionRole!:    =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	Name!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,30}[a-zA-Z0-9])?$" |
-	fn.#StringExpression
-	PrimaryRegion?:    =~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression
-	RecoveryApproach!: #RecoveryApproach
-	RecoveryTimeObjectiveMinutes?: <=10080 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ARCRegionSwitch::Plan"
+	Properties!: close({
+		AssociatedAlarms?: #AssociatedAlarmMap
+		Description?:      string | fn.#StringExpression
+		ExecutionRole!:    =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,30}[a-zA-Z0-9])?$" |
+		fn.#StringExpression
+		PrimaryRegion?:    =~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression
+		RecoveryApproach!: #RecoveryApproach
+		RecoveryTimeObjectiveMinutes?: <=10080 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=10080 &
+								>=1,
+							"g",
+							-1,
 							64,
-						) &
-							<=10080 &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Regions!: list.MaxItems(2) & list.MinItems(2) & [...=~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression] |
-		fn.#ListExpression
-	ReportConfiguration?:       #ReportConfiguration
-	ServiceQuotaChecksEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                      #Tags
-	Triggers?:                  [...#Trigger] | fn.#ListExpression
-	Workflows!:                 [...#Workflow] | fn.#ListExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Regions!: list.MaxItems(2) & list.MinItems(2) & [...=~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression] |
+			fn.#ListExpression
+		ReportConfiguration?: #ReportConfiguration
+		ServiceQuotaChecksEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Tags?:      #Tags
+		Triggers?:  [...#Trigger] | fn.#ListExpression
+		Workflows!: [...#Workflow] | fn.#ListExpression
+	})
+}
 
 #AlarmCondition: "red" | "green" | fn.#StringExpression
 
@@ -986,7 +996,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #WorkflowTargetAction: "activate" | "deactivate" | "postRecovery" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ARCRegionSwitch::Plan"
-	Properties!: #Properties
-}

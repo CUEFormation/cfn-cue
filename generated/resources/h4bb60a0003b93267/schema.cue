@@ -12,10 +12,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An AWS Support App resource that creates, updates, reads, and deletes a customer's account alias.
-#Properties: close(
-	{AccountAlias!: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[\\w\\- ]+$" | fn.#StringExpression},
-)
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SupportApp::AccountAlias"
-	Properties!: #Properties
+	Type!: "AWS::SupportApp::AccountAlias"
+	Properties!: close(
+		{AccountAlias!: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[\\w\\- ]+$" | fn.#StringExpression},
+	)
 }

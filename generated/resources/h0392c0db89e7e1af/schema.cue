@@ -13,32 +13,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Transfer::Server Resource Type
-#Properties: close({
-	Certificate?:             strings.MaxRunes(1600) & strings.MinRunes(0) | fn.#StringExpression
-	CreateWithHostKey?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Domain?:                  #Domain
-	EndpointDetails?:         #EndpointDetails
-	EndpointType?:            #EndpointType
-	IdentityProviderDetails?: #IdentityProviderDetails
-	IdentityProviderType?:    #IdentityProviderType
-	IpAddressType?:           #IpAddressType
-	LoggingRole?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^(|arn:.*role/\\S+)$" | fn.#StringExpression
-	PostAuthenticationLoginBanner?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[\\x09-\\x0D\\x20-\\x7E]*$" |
-	fn.#StringExpression
-	PreAuthenticationLoginBanner?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[\\x09-\\x0D\\x20-\\x7E]*$" |
-	fn.#StringExpression
-	ProtocolDetails?:  #ProtocolDetails
-	Protocols?:        list.MaxItems(4) & list.MinItems(1) & [...#Protocol] | fn.#ListExpression
-	S3StorageOptions?: #S3StorageOptions
-	SecurityPolicyName?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^TransferSecurityPolicy-.+$" |
-	fn.#StringExpression
-	StructuredLogDestinations?: list.MaxItems(1) & [...] & [
-		...strings.MaxRunes(1600) & strings.MinRunes(20) & =~"^arn:\\S+$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Tags?:            list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	WorkflowDetails?: #WorkflowDetails
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Transfer::Server"
+	Properties?: close({
+		Certificate?:             strings.MaxRunes(1600) & strings.MinRunes(0) | fn.#StringExpression
+		CreateWithHostKey?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Domain?:                  #Domain
+		EndpointDetails?:         #EndpointDetails
+		EndpointType?:            #EndpointType
+		IdentityProviderDetails?: #IdentityProviderDetails
+		IdentityProviderType?:    #IdentityProviderType
+		IpAddressType?:           #IpAddressType
+		LoggingRole?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^(|arn:.*role/\\S+)$" | fn.#StringExpression
+		PostAuthenticationLoginBanner?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[\\x09-\\x0D\\x20-\\x7E]*$" |
+		fn.#StringExpression
+		PreAuthenticationLoginBanner?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[\\x09-\\x0D\\x20-\\x7E]*$" |
+		fn.#StringExpression
+		ProtocolDetails?:  #ProtocolDetails
+		Protocols?:        list.MaxItems(4) & list.MinItems(1) & [...#Protocol] | fn.#ListExpression
+		S3StorageOptions?: #S3StorageOptions
+		SecurityPolicyName?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^TransferSecurityPolicy-.+$" |
+		fn.#StringExpression
+		StructuredLogDestinations?: list.MaxItems(1) & [...] & [
+			...strings.MaxRunes(1600) & strings.MinRunes(20) & =~"^arn:\\S+$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Tags?:            list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		WorkflowDetails?: #WorkflowDetails
+	})
+}
 
 #As2Transport: "HTTP" | fn.#StringExpression
 
@@ -124,7 +127,3 @@ fn.#ObjectExpression
 	OnUpload?:        list.MaxItems(1) & [...] & [...#WorkflowDetail] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Transfer::Server"
-	Properties?: #Properties
-}

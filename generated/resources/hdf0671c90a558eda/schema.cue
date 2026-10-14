@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A resource schema representing a Lake Formation Tag.
-#Properties: close({
-	CatalogId?: #CatalogIdString | fn.#StringExpression
-	TagKey!:    #LFTagKey | fn.#StringExpression
-	TagValues!: #TagValueList | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::LakeFormation::Tag"
+	Properties!: close({
+		CatalogId?: #CatalogIdString | fn.#StringExpression
+		TagKey!:    #LFTagKey | fn.#StringExpression
+		TagValues!: #TagValueList | fn.#ListExpression
+	})
+}
 
 #CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
 
@@ -28,7 +31,3 @@ fn.#StringExpression
 fn.#StringExpression
 
 #TagValueList: list.MaxItems(1000) & list.MinItems(1) & [...#LFTagValue] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::LakeFormation::Tag"
-	Properties!: #Properties
-}

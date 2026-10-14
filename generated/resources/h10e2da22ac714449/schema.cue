@@ -13,13 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EC2::IPAMResourceDiscovery Type
-#Properties: close({
-	Description?:      string | fn.#StringExpression
-	OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#IpamOperatingRegion] | fn.#ListExpression
-	OrganizationalUnitExclusions?: list.UniqueItems() & [...#IpamResourceDiscoveryOrganizationalUnitExclusion] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::IPAMResourceDiscovery"
+	Properties?: close({
+		Description?: string | fn.#StringExpression
+		OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#IpamOperatingRegion] |
+			fn.#ListExpression
+		OrganizationalUnitExclusions?: list.UniqueItems() & [...#IpamResourceDiscoveryOrganizationalUnitExclusion] |
+			fn.#ListExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #IpamOperatingRegion: close({RegionName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -33,7 +37,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::IPAMResourceDiscovery"
-	Properties?: #Properties
-}

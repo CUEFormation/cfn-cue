@@ -17,30 +17,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodePipeline::Webhook
-#Properties: close({
-	Authentication!:              "GITHUB_HMAC" | "IP" | "UNAUTHENTICATED" | fn.#StringExpression
-	AuthenticationConfiguration!: #WebhookAuthConfiguration | fn.#ObjectExpression
-	Filters!:                     [...#WebhookFilterRule] | fn.#ListExpression
-	Name?:                   strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
-	RegisterWithThirdParty?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TargetAction!:           strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
-	TargetPipeline!:         strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
-	TargetPipelineVersion?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodePipeline::Webhook"
+	Properties!: close({
+		Authentication!:              "GITHUB_HMAC" | "IP" | "UNAUTHENTICATED" | fn.#StringExpression
+		AuthenticationConfiguration!: #WebhookAuthConfiguration | fn.#ObjectExpression
+		Filters!:                     [...#WebhookFilterRule] | fn.#ListExpression
+		Name?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
+		RegisterWithThirdParty?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetAction!:   strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
+		TargetPipeline!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
+		TargetPipelineVersion?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -59,7 +64,3 @@ fn.#ObjectExpression
 	MatchEquals?: strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodePipeline::Webhook"
-	Properties!: #Properties
-}

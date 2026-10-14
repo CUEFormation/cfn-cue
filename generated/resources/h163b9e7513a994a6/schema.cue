@@ -17,56 +17,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkspacesInstances::WorkspaceInstance
-#Properties: close({
-	ManagedInstance?: close({
-		BlockDeviceMappings?:              [...#BlockDeviceMapping] | fn.#ListExpression
-		CapacityReservationSpecification?: #CapacityReservationSpecification
-		CpuOptions?:                       #CpuOptionsRequest
-		CreditSpecification?:              #CreditSpecificationRequest
-		DisableApiStop?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EnablePrimaryIpv6?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EnclaveOptions?:     #EnclaveOptionsRequest
-		HibernationOptions?: #HibernationOptionsRequest
-		IamInstanceProfile?: #IamInstanceProfileSpecification
-		ImageId!: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-			=~"^ami-[0-9a-zA-Z]{1,63}$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkspacesInstances::WorkspaceInstance"
+	Properties?: close({
+		ManagedInstance?: close({
+			BlockDeviceMappings?:              [...#BlockDeviceMapping] | fn.#ListExpression
+			CapacityReservationSpecification?: #CapacityReservationSpecification
+			CpuOptions?:                       #CpuOptionsRequest
+			CreditSpecification?:              #CreditSpecificationRequest
+			DisableApiStop?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			EnablePrimaryIpv6?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			EnclaveOptions?:     #EnclaveOptionsRequest
+			HibernationOptions?: #HibernationOptionsRequest
+			IamInstanceProfile?: #IamInstanceProfileSpecification
+			ImageId!: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+				=~"^ami-[0-9a-zA-Z]{1,63}$" |
+				fn.#StringExpression
+			InstanceType!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([a-z0-9-]+)\\.([a-z0-9]+)$" |
 			fn.#StringExpression
-		InstanceType!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([a-z0-9-]+)\\.([a-z0-9]+)$" |
-		fn.#StringExpression
-		Ipv6AddressCount?: int & >=0 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								>=0,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		KeyName?:                   strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-		LicenseSpecifications?:     [...#LicenseConfigurationRequest] | fn.#ListExpression
-		MaintenanceOptions?:        #InstanceMaintenanceOptionsRequest
-		MetadataOptions?:           #InstanceMetadataOptionsRequest
-		Monitoring?:                #RunInstancesMonitoringEnabled
-		NetworkInterfaces?:         [...#InstanceNetworkInterfaceSpecification] | fn.#ListExpression
-		NetworkPerformanceOptions?: #InstanceNetworkPerformanceOptionsRequest
-		Placement?:                 #Placement
-		PrivateDnsNameOptions?:     #PrivateDnsNameOptionsRequest
-		SubnetId?:                  =~"^subnet-[0-9a-zA-Z]{1,63}$" | fn.#StringExpression
-		TagSpecifications?:         list.MaxItems(30) & [...#TagSpecification] | fn.#ListExpression
-		UserData?:                  strings.MaxRunes(16000) & strings.MinRunes(0) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(30) & [...] & [...#Tag] | fn.#ListExpression
-})
+			Ipv6AddressCount?: int & >=0 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									>=0,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			KeyName?:                   strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+			LicenseSpecifications?:     [...#LicenseConfigurationRequest] | fn.#ListExpression
+			MaintenanceOptions?:        #InstanceMaintenanceOptionsRequest
+			MetadataOptions?:           #InstanceMetadataOptionsRequest
+			Monitoring?:                #RunInstancesMonitoringEnabled
+			NetworkInterfaces?:         [...#InstanceNetworkInterfaceSpecification] | fn.#ListExpression
+			NetworkPerformanceOptions?: #InstanceNetworkPerformanceOptionsRequest
+			Placement?:                 #Placement
+			PrivateDnsNameOptions?:     #PrivateDnsNameOptionsRequest
+			SubnetId?:                  =~"^subnet-[0-9a-zA-Z]{1,63}$" | fn.#StringExpression
+			TagSpecifications?:         list.MaxItems(30) & [...#TagSpecification] | fn.#ListExpression
+			UserData?:                  strings.MaxRunes(16000) & strings.MinRunes(0) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?: list.MaxItems(30) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #BlockDeviceMapping: close({
 	DeviceName?:  strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
@@ -385,7 +388,3 @@ fn.#ObjectExpression
 	Tags?:         list.MaxItems(30) & [...] & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkspacesInstances::WorkspaceInstance"
-	Properties?: #Properties
-}

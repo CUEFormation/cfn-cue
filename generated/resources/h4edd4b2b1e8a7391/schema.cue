@@ -15,27 +15,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Represents a routing rule. When the incoming request to a domain name matches
 // the conditions for a rule, API Gateway invokes a stage of a target API.
 // Supported only for REST APIs.
-#Properties: close({
-	Actions!:       [...#Action] | fn.#ListExpression
-	Conditions!:    [...#Condition] | fn.#ListExpression
-	DomainNameArn!: string | fn.#StringExpression
-	Priority!: int & <=1000000 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1000000 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::RoutingRule"
+	Properties!: close({
+		Actions!:       [...#Action] | fn.#ListExpression
+		Conditions!:    [...#Condition] | fn.#ListExpression
+		DomainNameArn!: string | fn.#StringExpression
+		Priority!: int & <=1000000 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=1000000 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+	})
+}
 
 #Action: {
 	InvokeApi!: #ActionInvokeApi | fn.#ObjectExpression
@@ -70,7 +75,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AnyOf!: [...#MatchHeaderValue] | fn.#ListExpression
 	...
 } | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::RoutingRule"
-	Properties!: #Properties
-}

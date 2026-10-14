@@ -17,39 +17,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSM::MaintenanceWindowTask
-#Properties: close({
-	CutoffBehavior?: "CANCEL_TASK" | "CONTINUE_TASK" | fn.#StringExpression
-	Description?:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	LoggingInfo?:    #LoggingInfo | fn.#ObjectExpression
-	MaxConcurrency?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]*|[1-9][0-9]%|[1-9]%|100%)$" |
-	fn.#StringExpression
-	MaxErrors?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]*|[0]|[1-9][0-9]%|[0-9]%|100%)$" |
-	fn.#StringExpression
-	Name?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
-	Priority!: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSM::MaintenanceWindowTask"
+	Properties!: close({
+		CutoffBehavior?: "CANCEL_TASK" | "CONTINUE_TASK" | fn.#StringExpression
+		Description?:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		LoggingInfo?:    #LoggingInfo | fn.#ObjectExpression
+		MaxConcurrency?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]*|[1-9][0-9]%|[1-9]%|100%)$" |
 		fn.#StringExpression
-	Targets?:                  list.MaxItems(5) & [...] & [...#Target] | fn.#ListExpression
-	TaskArn!:                  strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	TaskInvocationParameters?: #TaskInvocationParameters | fn.#ObjectExpression
-	TaskParameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	TaskType!:                 "AUTOMATION" | "LAMBDA" | "RUN_COMMAND" | "STEP_FUNCTIONS" | fn.#StringExpression
-	WindowId!: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^mw-[0-9a-f]{17}$" | fn.#StringExpression
-})
+		MaxErrors?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]*|[0]|[1-9][0-9]%|[0-9]%|100%)$" |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
+		Priority!: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Targets?:                  list.MaxItems(5) & [...] & [...#Target] | fn.#ListExpression
+		TaskArn!:                  strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+		TaskInvocationParameters?: #TaskInvocationParameters | fn.#ObjectExpression
+		TaskParameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		TaskType!:                 "AUTOMATION" | "LAMBDA" | "RUN_COMMAND" | "STEP_FUNCTIONS" | fn.#StringExpression
+		WindowId!: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^mw-[0-9a-f]{17}$" | fn.#StringExpression
+	})
+}
 
 #CloudWatchOutputConfig: close({
 	CloudWatchLogGroupName?:  string | fn.#StringExpression
@@ -137,7 +142,3 @@ fn.#ObjectExpression
 	MaintenanceWindowStepFunctionsParameters?: #MaintenanceWindowStepFunctionsParameters
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSM::MaintenanceWindowTask"
-	Properties!: #Properties
-}

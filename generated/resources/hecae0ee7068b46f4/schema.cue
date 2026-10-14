@@ -13,35 +13,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage a Domain Configuration
-#Properties: close({
-	ApplicationProtocol?: "SECURE_MQTT" | "MQTT_WSS" | "HTTPS" | "DEFAULT" | fn.#StringExpression
-	AuthenticationType?: "AWS_X509" |
-		"CUSTOM_AUTH" |
-		"AWS_SIGV4" |
-		"CUSTOM_AUTH_X509" |
-		"DEFAULT" |
-		fn.#StringExpression
-	AuthorizerConfig?:          #AuthorizerConfig
-	ClientCertificateConfig?:   #ClientCertificateConfig
-	DomainConfigurationName?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w.-]+$" | fn.#StringExpression
-	DomainConfigurationStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	DomainName?:                strings.MaxRunes(253) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	ServerCertificateArns?: list.MaxItems(1) & [...] & [
-		...strings.MaxRunes(2048) &
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::DomainConfiguration"
+	Properties?: close({
+		ApplicationProtocol?: "SECURE_MQTT" | "MQTT_WSS" | "HTTPS" | "DEFAULT" | fn.#StringExpression
+		AuthenticationType?: "AWS_X509" |
+			"CUSTOM_AUTH" |
+			"AWS_SIGV4" |
+			"CUSTOM_AUTH_X509" |
+			"DEFAULT" |
+			fn.#StringExpression
+		AuthorizerConfig?:          #AuthorizerConfig
+		ClientCertificateConfig?:   #ClientCertificateConfig
+		DomainConfigurationName?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w.-]+$" | fn.#StringExpression
+		DomainConfigurationStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		DomainName?:                strings.MaxRunes(253) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		ServerCertificateArns?: list.MaxItems(1) & [...] & [
+			...strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		ServerCertificateConfig?: #ServerCertificateConfig
+		ServiceType?:             "DATA" | "CREDENTIAL_PROVIDER" | "JOBS" | fn.#StringExpression
+		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TlsConfig?:               #TlsConfig
+		ValidationCertificateArn?: strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" |
 		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	ServerCertificateConfig?: #ServerCertificateConfig
-	ServiceType?:             "DATA" | "CREDENTIAL_PROVIDER" | "JOBS" | fn.#StringExpression
-	Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TlsConfig?:               #TlsConfig
-	ValidationCertificateArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" |
-	fn.#StringExpression
-})
+	})
+}
 
 #AuthorizerConfig: close({
 	AllowAuthorizerOverride?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -84,7 +87,3 @@ fn.#ObjectExpression
 	{SecurityPolicy?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::DomainConfiguration"
-	Properties?: #Properties
-}

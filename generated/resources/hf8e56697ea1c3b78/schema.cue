@@ -14,26 +14,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Represents a deployment resource of an AWS Mainframe Modernization (M2)
 // application to a specified environment
-#Properties: close({
-	ApplicationId!: =~"^\\S{1,80}$" | fn.#StringExpression
-	ApplicationVersion!: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EnvironmentId!: =~"^\\S{1,80}$" | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::M2::Deployment"
-	Properties!: #Properties
+	Type!: "AWS::M2::Deployment"
+	Properties!: close({
+		ApplicationId!: =~"^\\S{1,80}$" | fn.#StringExpression
+		ApplicationVersion!: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EnvironmentId!: =~"^\\S{1,80}$" | fn.#StringExpression
+	})
 }

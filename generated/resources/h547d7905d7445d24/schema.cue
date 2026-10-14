@@ -13,27 +13,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates a legal hold on recovery points (backups). A legal hold prevents
 // backups from being deleted while under hold.
-#Properties: close({
-	Description!: string | fn.#StringExpression
-	RecoveryPointSelection!: close({
-		DateRange?: close({
-			FromDate!: time.Time | fn.#StringExpression
-			ToDate!:   time.Time | fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Backup::LegalHold"
+	Properties!: close({
+		Description!: string | fn.#StringExpression
+		RecoveryPointSelection!: close({
+			DateRange?: close({
+				FromDate!: time.Time | fn.#StringExpression
+				ToDate!:   time.Time | fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
+			ResourceIdentifiers?: [...string | fn.#StringExpression] | fn.#ListExpression
+			VaultNames?:          [...string | fn.#StringExpression] | fn.#ListExpression
 		}) |
 		fn.#ObjectExpression
-		ResourceIdentifiers?: [...string | fn.#StringExpression] | fn.#ListExpression
-		VaultNames?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: [...close({
-		Key!:   string | fn.#StringExpression
-		Value!: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	Title!: string | fn.#StringExpression
-})
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Backup::LegalHold"
-	Properties!: #Properties
+		Tags?: [...close({
+			Key!:   string | fn.#StringExpression
+			Value!: string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		Title!: string | fn.#StringExpression
+	})
 }

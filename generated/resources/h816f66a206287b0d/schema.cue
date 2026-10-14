@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53GlobalResolver::GlobalResolver
-#Properties: close({
-	ClientToken?:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:         #ResourceDescription
-	IpAddressType?:       #GlobalResolverIpAddressType
-	Name!:                #ResourceName
-	ObservabilityRegion?: #Region
-	Regions!:             [...#Region] | fn.#ListExpression
-	Tags?:                list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53GlobalResolver::GlobalResolver"
+	Properties!: close({
+		ClientToken?:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Description?:         #ResourceDescription
+		IpAddressType?:       #GlobalResolverIpAddressType
+		Name!:                #ResourceName
+		ObservabilityRegion?: #Region
+		Regions!:             [...#Region] | fn.#ListExpression
+		Tags?:                list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING" | fn.#StringExpression
 
@@ -44,7 +47,3 @@ fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53GlobalResolver::GlobalResolver"
-	Properties!: #Properties
-}

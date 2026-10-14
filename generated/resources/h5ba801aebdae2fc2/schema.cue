@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::IntegrationAssociation
-#Properties: close({
-	InstanceId!:            #InstanceId
-	IntegrationArn!:        #IntegrationArn
-	IntegrationType!:       #IntegrationType
-	SourceApplicationName?: #SourceApplicationName
-	SourceApplicationUrl?:  #SourceApplicationUrl
-	SourceType?:            #SourceType
-	Tags?:                  list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::IntegrationAssociation"
+	Properties!: close({
+		InstanceId!:            #InstanceId
+		IntegrationArn!:        #IntegrationArn
+		IntegrationType!:       #IntegrationType
+		SourceApplicationName?: #SourceApplicationName
+		SourceApplicationUrl?:  #SourceApplicationUrl
+		SourceType?:            #SourceType
+		Tags?:                  list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #InstanceId: strings.MaxRunes(100) &
 strings.MinRunes(1) &
@@ -57,7 +60,3 @@ fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::IntegrationAssociation"
-	Properties!: #Properties
-}

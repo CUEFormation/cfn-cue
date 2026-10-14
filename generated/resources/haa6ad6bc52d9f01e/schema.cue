@@ -16,12 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QuickSight::LimitsProfile Resource Type
-#Properties: close({
-	AccountId!:      strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ProfileName!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ResourceLimits!: #ResourceLimitsMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::LimitsProfile"
+	Properties!: close({
+		AccountId!:      strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		ProfileName!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		ResourceLimits!: #ResourceLimitsMap
+	})
+}
 
 #LimitUnit: "MB" | "GB" | "HOURS" | "DAYS" | fn.#StringExpression
 
@@ -55,7 +58,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ResourceType: "INDEX_STORAGE" | "AGENT_HOURS" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::LimitsProfile"
-	Properties!: #Properties
-}

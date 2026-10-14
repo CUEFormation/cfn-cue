@@ -17,24 +17,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::VerifiedAccessEndpoint resource creates an AWS EC2 Verified Access Endpoint.
-#Properties: close({
-	ApplicationDomain?:       string | fn.#StringExpression
-	AttachmentType!:          "vpc" | fn.#StringExpression
-	CidrOptions?:             #CidrOptions | fn.#ObjectExpression
-	Description?:             string | fn.#StringExpression
-	DomainCertificateArn?:    string | fn.#StringExpression
-	EndpointDomainPrefix?:    string | fn.#StringExpression
-	EndpointType!:            "cidr" | "load-balancer" | "network-interface" | "rds" | fn.#StringExpression
-	LoadBalancerOptions?:     #LoadBalancerOptions | fn.#ObjectExpression
-	NetworkInterfaceOptions?: #NetworkInterfaceOptions | fn.#ObjectExpression
-	PolicyDocument?:          string | fn.#StringExpression
-	PolicyEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RdsOptions?:              #RdsOptions | fn.#ObjectExpression
-	SecurityGroupIds?:        list.UniqueItems() & [...#SecurityGroupId] | fn.#ListExpression
-	SseSpecification?:        #SseSpecification | fn.#ObjectExpression
-	Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VerifiedAccessGroupId!:   string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VerifiedAccessEndpoint"
+	Properties!: close({
+		ApplicationDomain?:       string | fn.#StringExpression
+		AttachmentType!:          "vpc" | fn.#StringExpression
+		CidrOptions?:             #CidrOptions | fn.#ObjectExpression
+		Description?:             string | fn.#StringExpression
+		DomainCertificateArn?:    string | fn.#StringExpression
+		EndpointDomainPrefix?:    string | fn.#StringExpression
+		EndpointType!:            "cidr" | "load-balancer" | "network-interface" | "rds" | fn.#StringExpression
+		LoadBalancerOptions?:     #LoadBalancerOptions | fn.#ObjectExpression
+		NetworkInterfaceOptions?: #NetworkInterfaceOptions | fn.#ObjectExpression
+		PolicyDocument?:          string | fn.#StringExpression
+		PolicyEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RdsOptions?:              #RdsOptions | fn.#ObjectExpression
+		SecurityGroupIds?:        list.UniqueItems() & [...#SecurityGroupId] | fn.#ListExpression
+		SseSpecification?:        #SseSpecification | fn.#ObjectExpression
+		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VerifiedAccessGroupId!:   string | fn.#StringExpression
+	})
+}
 
 #CidrOptions: close({
 	Cidr?:       string | fn.#StringExpression
@@ -170,7 +173,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VerifiedAccessEndpoint"
-	Properties!: #Properties
-}

@@ -13,20 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // IdMappingWorkflow defined in AWS Entity Resolution service
-#Properties: close({
-	Description?:                   #Description | fn.#StringExpression
-	IdMappingIncrementalRunConfig?: #IdMappingIncrementalRunConfig
-	IdMappingTechniques!:           #IdMappingTechniques
-	InputSourceConfig!:  list.MaxItems(20) & list.MinItems(1) & [...#IdMappingWorkflowInputSource] | fn.#ListExpression
-	OutputSourceConfig?: list.MaxItems(1) & list.MinItems(1) & [...#IdMappingWorkflowOutputSource] | fn.#ListExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(512) &
-	strings.MinRunes(0) &
-	=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	Tags?:         list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	WorkflowName!: #EntityName | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EntityResolution::IdMappingWorkflow"
+	Properties!: close({
+		Description?:                   #Description | fn.#StringExpression
+		IdMappingIncrementalRunConfig?: #IdMappingIncrementalRunConfig
+		IdMappingTechniques!:           #IdMappingTechniques
+		InputSourceConfig!: list.MaxItems(20) & list.MinItems(1) & [...#IdMappingWorkflowInputSource] |
+			fn.#ListExpression
+		OutputSourceConfig?: list.MaxItems(1) & list.MinItems(1) & [...#IdMappingWorkflowOutputSource] |
+			fn.#ListExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		Tags?:         list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		WorkflowName!: #EntityName | fn.#StringExpression
+	})
+}
 
 #AttributeName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
 
@@ -113,7 +118,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #UpdatedAt: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EntityResolution::IdMappingWorkflow"
-	Properties!: #Properties
-}

@@ -12,10 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Tables::TablePolicy
-#Properties: close({
-	ResourcePolicy!: #ResourcePolicy
-	TableARN!:       #TableARN
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3Tables::TablePolicy"
+	Properties!: close({
+		ResourcePolicy!: #ResourcePolicy
+		TableARN!:       #TableARN
+	})
+}
 
 #Namespace: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$" | fn.#StringExpression
 
@@ -26,7 +29,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" | fn.#StringExpression
 
 #TableName: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Tables::TablePolicy"
-	Properties!: #Properties
-}

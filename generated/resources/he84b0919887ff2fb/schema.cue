@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Documentation in API
 // Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-documenting-api-content-representation.html)
 // in the *API Gateway Developer Guide*.
-#Properties: close({
-	Location!:   #Location | fn.#ObjectExpression
-	Properties!: string | fn.#StringExpression
-	RestApiId!:  string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGateway::DocumentationPart"
+	Properties!: close({
+		Location!:   #Location | fn.#ObjectExpression
+		Properties!: string | fn.#StringExpression
+		RestApiId!:  string | fn.#StringExpression
+	})
+}
 
 #Location: close({
 	Method?:     string | fn.#StringExpression
@@ -39,7 +42,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::DocumentationPart"
-	Properties!: #Properties
-}

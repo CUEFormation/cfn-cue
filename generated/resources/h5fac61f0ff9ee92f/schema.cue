@@ -9,11 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DynamoDB::Backup
-#Properties: close({
-	BackupName!: string | fn.#StringExpression
-	TableName!:  string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DynamoDB::Backup"
-	Properties!: #Properties
+	Type!: "AWS::DynamoDB::Backup"
+	Properties!: close({
+		BackupName!: string | fn.#StringExpression
+		TableName!:  string | fn.#StringExpression
+	})
 }

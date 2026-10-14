@@ -9,26 +9,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGatewayV2::Route`` resource creates a route for an API.
-#Properties: close({
-	ApiId!:                    string | fn.#StringExpression
-	ApiKeyRequired?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AuthorizationScopes?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	AuthorizationType?:        string | fn.#StringExpression
-	AuthorizerId?:             string | fn.#StringExpression
-	ModelSelectionExpression?: string | fn.#StringExpression
-	OperationName?:            string | fn.#StringExpression
-	RequestModels?:            fn.#Object & {...} | string | fn.#StringObjectExpression
-	RequestParameters?:        fn.#Object & {...} | fn.#ObjectExpression
-	RouteKey!:                 string | fn.#StringExpression
-	RouteResponseSelectionExpression?: string | fn.#StringExpression
-	Target?:                           string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::Route"
+	Properties!: close({
+		ApiId!:                    string | fn.#StringExpression
+		ApiKeyRequired?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AuthorizationScopes?:      [...string | fn.#StringExpression] | fn.#ListExpression
+		AuthorizationType?:        string | fn.#StringExpression
+		AuthorizerId?:             string | fn.#StringExpression
+		ModelSelectionExpression?: string | fn.#StringExpression
+		OperationName?:            string | fn.#StringExpression
+		RequestModels?:            fn.#Object & {...} | string | fn.#StringObjectExpression
+		RequestParameters?:        fn.#Object & {...} | fn.#ObjectExpression
+		RouteKey!:                 string | fn.#StringExpression
+		RouteResponseSelectionExpression?: string | fn.#StringExpression
+		Target?:                           string | fn.#StringExpression
+	})
+}
 
 #ParameterConstraints: close(
 	{Required!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::Route"
-	Properties!: #Properties
-}

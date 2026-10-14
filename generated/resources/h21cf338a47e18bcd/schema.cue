@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::Channel
-#Properties: close({
-	ChannelName!:                     #ChannelName
-	ClusterArn?:                      string | fn.#StringExpression
-	EncryptionConfiguration?:         #EncryptionConfiguration
-	IcebergDestinationConfiguration?: #IcebergDestinationConfiguration
-	LoggingInfo?:                     #ChannelLoggingInfo
-	S3DestinationConfiguration?:      #S3DestinationConfiguration
-	Tags?:                            #Tags
-	TopicConfigurationList!: list.MaxItems(1) & list.MinItems(1) & [...#TopicConfiguration] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MSK::Channel"
+	Properties!: close({
+		ChannelName!:                     #ChannelName
+		ClusterArn?:                      string | fn.#StringExpression
+		EncryptionConfiguration?:         #EncryptionConfiguration
+		IcebergDestinationConfiguration?: #IcebergDestinationConfiguration
+		LoggingInfo?:                     #ChannelLoggingInfo
+		S3DestinationConfiguration?:      #S3DestinationConfiguration
+		Tags?:                            #Tags
+		TopicConfigurationList!: list.MaxItems(1) & list.MinItems(1) & [...#TopicConfiguration] | fn.#ListExpression
+	})
+}
 
 #Catalog: close({
 	CatalogArn?:        string | fn.#StringExpression
@@ -203,7 +206,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ValueConverter: "BYTE_ARRAY" | "JSON" | "JSON_SCHEMA_GSR" | "STRING" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MSK::Channel"
-	Properties!: #Properties
-}

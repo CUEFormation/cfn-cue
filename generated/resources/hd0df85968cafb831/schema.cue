@@ -14,11 +14,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Events::Connection.
-#Properties: close({
-	AuthParameters?: struct.MaxFields(2) & struct.MinFields(1) & (close({
-		ApiKeyAuthParameters?: #ApiKeyAuthParameters
-		BasicAuthParameters?:  #BasicAuthParameters
-		ConnectivityParameters?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Events::Connection"
+	Properties?: close({
+		AuthParameters?: struct.MaxFields(2) & struct.MinFields(1) & (close({
+			ApiKeyAuthParameters?: #ApiKeyAuthParameters
+			BasicAuthParameters?:  #BasicAuthParameters
+			ConnectivityParameters?: close({
+				ResourceParameters!: close({
+					ResourceConfigurationArn!: strings.MaxRunes(2048) &
+					=~"^arn:[a-z0-9f\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" |
+					fn.#StringExpression
+				}) |
+				fn.#ObjectExpression
+			}) |
+			fn.#ObjectExpression
+			InvocationHttpParameters?: #ConnectionHttpParameters
+			OAuthParameters?:          #OAuthParameters
+			if BasicAuthParameters != _|_ {
+				OAuthParameters?: error(
+					"OAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+				)
+				ApiKeyAuthParameters?: error(
+					"ApiKeyAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+				)
+			}
+			if OAuthParameters != _|_ {
+				ApiKeyAuthParameters?: error(
+					"ApiKeyAuthParameters cannot be used with OAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
+				)
+			}
+		}) & matchN(>=1, [{BasicAuthParameters!: _}, {OAuthParameters!: _}, {ApiKeyAuthParameters!: _}])) |
+		fn.#ObjectExpression
+		AuthorizationType?: "API_KEY" | "BASIC" | "OAUTH_CLIENT_CREDENTIALS" | fn.#StringExpression
+		Description?:       strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		InvocationConnectivityParameters?: close({
 			ResourceParameters!: close({
 				ResourceConfigurationArn!: strings.MaxRunes(2048) &
 				=~"^arn:[a-z0-9f\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" |
@@ -27,37 +57,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		InvocationHttpParameters?: #ConnectionHttpParameters
-		OAuthParameters?:          #OAuthParameters
-		if BasicAuthParameters != _|_ {
-			OAuthParameters?: error(
-				"OAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
-			)
-			ApiKeyAuthParameters?: error(
-				"ApiKeyAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
-			)
-		}
-		if OAuthParameters != _|_ {
-			ApiKeyAuthParameters?: error(
-				"ApiKeyAuthParameters cannot be used with OAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
-			)
-		}
-	}) & matchN(>=1, [{BasicAuthParameters!: _}, {OAuthParameters!: _}, {ApiKeyAuthParameters!: _}])) |
-	fn.#ObjectExpression
-	AuthorizationType?: "API_KEY" | "BASIC" | "OAUTH_CLIENT_CREDENTIALS" | fn.#StringExpression
-	Description?:       strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	InvocationConnectivityParameters?: close({
-		ResourceParameters!: close({
-			ResourceConfigurationArn!: strings.MaxRunes(2048) &
-			=~"^arn:[a-z0-9f\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" |
-			fn.#StringExpression
-		}) |
-		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	KmsKeyIdentifier?: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" | fn.#StringExpression
-	Name?:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" | fn.#StringExpression
-})
+		KmsKeyIdentifier?: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" | fn.#StringExpression
+		Name?:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" | fn.#StringExpression
+	})
+}
 
 #ApiKeyAuthParameters: close({
 	ApiKeyName!: strings.MaxRunes(512) &
@@ -155,7 +158,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Events::Connection"
-	Properties?: #Properties
-}

@@ -16,27 +16,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a Device Pool for a given Device Farm Project
-#Properties: close({
-	Description?: strings.MaxRunes(16384) & strings.MinRunes(1) | fn.#StringExpression
-	MaxDevices?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name!:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ProjectArn!: strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+" | fn.#StringExpression
-	Rules!:      [...#Rule] | fn.#ListExpression
-	Tags?:       [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DeviceFarm::DevicePool"
+	Properties!: close({
+		Description?: strings.MaxRunes(16384) & strings.MinRunes(1) | fn.#StringExpression
+		MaxDevices?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name!:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		ProjectArn!: strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+" | fn.#StringExpression
+		Rules!:      [...#Rule] | fn.#ListExpression
+		Tags?:       [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Rule: close({
 	Attribute?: "ARN" |
@@ -71,7 +76,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DeviceFarm::DevicePool"
-	Properties!: #Properties
-}

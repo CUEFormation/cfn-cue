@@ -17,52 +17,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DLM::LifecyclePolicy
-#Properties: close({
-	CopyTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CreateInterval?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	CrossRegionCopyTargets?: #CrossRegionCopyTargets
-	DefaultPolicy?:          "INSTANCE" | "VOLUME" | fn.#StringExpression
-	Description?:            strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" | fn.#StringExpression
-	Exclusions?:             #Exclusions
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^arn:aws(-[a-z]{1,3}){0,2}:iam::\\d+:role/" |
-	fn.#StringExpression
-	ExtendDeletion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PolicyDetails?:  #PolicyDetails
-	RetainInterval?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	State?: string | fn.#StringExpression
-	Tags?:  [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DLM::LifecyclePolicy"
+	Properties?: close({
+		CopyTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		CreateInterval?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		CrossRegionCopyTargets?: #CrossRegionCopyTargets
+		DefaultPolicy?:          "INSTANCE" | "VOLUME" | fn.#StringExpression
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" | fn.#StringExpression
+		Exclusions?:  #Exclusions
+		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^arn:aws(-[a-z]{1,3}){0,2}:iam::\\d+:role/" |
+		fn.#StringExpression
+		ExtendDeletion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		PolicyDetails?:  #PolicyDetails
+		RetainInterval?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		State?: string | fn.#StringExpression
+		Tags?:  [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Action: close({
 	CrossRegionCopy!: list.MaxItems(3) & [...] & [...#CrossRegionCopyAction] | fn.#ListExpression
@@ -509,7 +516,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DLM::LifecyclePolicy"
-	Properties?: #Properties
-}

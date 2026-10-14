@@ -13,10 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // AWS::RoboMaker::Fleet resource creates an AWS RoboMaker fleet. Fleets contain
 // robots and can receive deployments.
-#Properties: close({
-	Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\-]{1,255}$" | fn.#StringExpression
-	Tags?: #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RoboMaker::Fleet"
+	Properties?: close({
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\-]{1,255}$" | fn.#StringExpression
+		Tags?: #Tags
+	})
+}
 
 #Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
 
@@ -24,7 +27,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 	{[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RoboMaker::Fleet"
-	Properties?: #Properties
-}

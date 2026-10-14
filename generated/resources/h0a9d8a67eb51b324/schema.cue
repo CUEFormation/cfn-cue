@@ -17,11 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Connection
-#Properties: close({
-	CatalogId!:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	ConnectionInput!: #ConnectionInput | fn.#ObjectExpression
-	Tags?:            fn.#Object & {...} | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Connection"
+	Properties!: close({
+		CatalogId!:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		ConnectionInput!: #ConnectionInput | fn.#ObjectExpression
+		Tags?:            fn.#Object & {...} | fn.#ObjectExpression
+	})
+}
 
 #AuthenticationConfiguration: close({
 	AuthenticationType!:              "BASIC" | "CUSTOM" | "IAM" | "OAUTH2" | fn.#StringExpression
@@ -244,7 +247,3 @@ fn.#ObjectExpression
 	SubnetId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Connection"
-	Properties!: #Properties
-}

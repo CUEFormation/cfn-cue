@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::CustomPermissions Resource Type.
-#Properties: close({
-	AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Capabilities?: #Capabilities
-	CustomPermissionsName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9+=,.@_-]+$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::CustomPermissions"
+	Properties!: close({
+		AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		Capabilities?: #Capabilities
+		CustomPermissionsName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9+=,.@_-]+$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Capabilities: close({
 	AccessAppsNativeDataStore?:                 #CapabilityState
@@ -258,7 +261,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::CustomPermissions"
-	Properties!: #Properties
-}

@@ -9,7 +9,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::ReceiptFilter
-#Properties: close({Filter!: #Filter})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::SES::ReceiptFilter"
+	Properties!: close({Filter!: #Filter})
+}
 
 #Filter: close({
 	IpFilter!: #IpFilter
@@ -22,7 +25,3 @@ fn.#ObjectExpression
 	Policy!: "Allow" | "Block" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::ReceiptFilter"
-	Properties!: #Properties
-}

@@ -17,25 +17,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::InferenceExperiment
-#Properties: close({
-	DataStorageConfig?: #DataStorageConfig
-	Description?:       strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-	DesiredState?:      "Running" | "Completed" | "Cancelled" | fn.#StringExpression
-	EndpointName!:      #EndpointName
-	KmsKey?:            strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	ModelVariants!:     list.MaxItems(2) & list.MinItems(1) & [...#ModelVariantConfig] | fn.#ListExpression
-	Name!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	Schedule?:         #InferenceExperimentSchedule
-	ShadowModeConfig?: #ShadowModeConfig
-	StatusReason?:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-	Tags?:             list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	Type!:             "ShadowMode" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::InferenceExperiment"
+	Properties!: close({
+		DataStorageConfig?: #DataStorageConfig
+		Description?:       strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
+		DesiredState?:      "Running" | "Completed" | "Cancelled" | fn.#StringExpression
+		EndpointName!:      #EndpointName
+		KmsKey?:            strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+		ModelVariants!:     list.MaxItems(2) & list.MinItems(1) & [...#ModelVariantConfig] | fn.#ListExpression
+		Name!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
+		fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		Schedule?:         #InferenceExperimentSchedule
+		ShadowModeConfig?: #ShadowModeConfig
+		StatusReason?:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
+		Tags?:             list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Type!:             "ShadowMode" | fn.#StringExpression
+	})
+}
 
 #CaptureContentTypeHeader: close({
 	CsvContentTypes?: list.MaxItems(10) & list.MinItems(1) & [
@@ -149,7 +153,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::InferenceExperiment"
-	Properties!: #Properties
-}

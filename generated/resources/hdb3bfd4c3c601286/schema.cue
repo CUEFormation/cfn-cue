@@ -17,18 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Trigger
-#Properties: close({
-	Actions!:                [...#Action] | fn.#ListExpression
-	Description?:            strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	EventBatchingCondition?: #EventBatchingCondition | fn.#ObjectExpression
-	Name?:                   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Predicate?:              #Predicate | fn.#ObjectExpression
-	Schedule?:               string | fn.#StringExpression
-	StartOnCreation?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                   fn.#Object & {...} | string | fn.#StringObjectExpression
-	Type!:                   "CONDITIONAL" | "EVENT" | "ON_DEMAND" | "SCHEDULED" | fn.#StringExpression
-	WorkflowName?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::Trigger"
+	Properties!: close({
+		Actions!:                [...#Action] | fn.#ListExpression
+		Description?:            strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		EventBatchingCondition?: #EventBatchingCondition | fn.#ObjectExpression
+		Name?:                   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Predicate?:              #Predicate | fn.#ObjectExpression
+		Schedule?:               string | fn.#StringExpression
+		StartOnCreation?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                   fn.#Object & {...} | string | fn.#StringObjectExpression
+		Type!:                   "CONDITIONAL" | "EVENT" | "ON_DEMAND" | "SCHEDULED" | fn.#StringExpression
+		WorkflowName?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #Action: close({
 	Arguments?:             fn.#Object & {...} | string | fn.#StringObjectExpression
@@ -123,7 +126,3 @@ fn.#ObjectExpression
 	Logical?:    "AND" | "ANY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::Trigger"
-	Properties!: #Properties
-}

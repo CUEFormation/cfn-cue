@@ -16,17 +16,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkSpaces::WorkspacesPool
-#Properties: close({
-	ApplicationSettings?: #ApplicationSettings
-	BundleId!:            =~"^wsb-[0-9a-z]{8,63}$" | fn.#StringExpression
-	Capacity!:            #Capacity
-	Description?:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./() -]+$" | fn.#StringExpression
-	DirectoryId!:         strings.MaxRunes(65) & strings.MinRunes(10) & =~"^wsd-[0-9a-z]{8,63}$" | fn.#StringExpression
-	PoolName!:            =~"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$" | fn.#StringExpression
-	RunningMode?:         #RunningMode
-	Tags?:                [...#Tag] | fn.#ListExpression
-	TimeoutSettings?:     #TimeoutSettings
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpaces::WorkspacesPool"
+	Properties!: close({
+		ApplicationSettings?: #ApplicationSettings
+		BundleId!:            =~"^wsb-[0-9a-z]{8,63}$" | fn.#StringExpression
+		Capacity!:            #Capacity
+		Description?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_./() -]+$" | fn.#StringExpression
+		DirectoryId!:     strings.MaxRunes(65) & strings.MinRunes(10) & =~"^wsd-[0-9a-z]{8,63}$" | fn.#StringExpression
+		PoolName!:        =~"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$" | fn.#StringExpression
+		RunningMode?:     #RunningMode
+		Tags?:            [...#Tag] | fn.#ListExpression
+		TimeoutSettings?: #TimeoutSettings
+	})
+}
 
 #ApplicationSettings: close({
 	SettingsGroup?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^[A-Za-z0-9_./()!*'-]+$" | fn.#StringExpression
@@ -114,7 +117,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpaces::WorkspacesPool"
-	Properties!: #Properties
-}

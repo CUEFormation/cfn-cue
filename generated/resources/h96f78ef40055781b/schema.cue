@@ -18,32 +18,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // An Amazon CloudWatch Network Monitor resource that monitors network traffic
 // between a source VPC subnet and a destination IP address.
-#Properties: close({
-	AggregationPeriod?: int & >=30 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=30,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MonitorName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Tags?:        list.MaxItems(200) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::NetworkMonitor::Monitor"
+	Properties!: close({
+		AggregationPeriod?: int & >=30 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=30,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MonitorName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Tags?:        list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::NetworkMonitor::Monitor"
-	Properties!: #Properties
-}

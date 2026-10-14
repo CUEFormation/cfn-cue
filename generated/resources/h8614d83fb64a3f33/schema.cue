@@ -21,57 +21,63 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // + Log group names can be between 1 and 512 characters long.
 // + Log group names consist of the following characters: a-z, A-Z, 0-9, '_'
 // (underscore), '-' (hyphen), '/' (forward slash), and '.' (period).
-#Properties: close({
-	BearerTokenAuthenticationEnabled?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	DataProtectionPolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
-	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FieldIndexPolicies?:        list.UniqueItems() & [...fn.#Object & {...} | fn.#ObjectExpression] | fn.#ListExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(256) & strings.MinRunes(0)) |
-	fn.#StringExpression
-	LogGroupClass?:          "STANDARD" | "INFREQUENT_ACCESS" | "DELIVERY" | fn.#StringExpression
-	LogGroupName?:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	ResourcePolicyDocument?: fn.#Object & {...} | fn.#ObjectExpression
-	RetentionInDays?: (==1 |
-		==3 |
-		==5 |
-		==7 |
-		==14 |
-		==30 |
-		==60 |
-		==90 |
-		==120 |
-		==150 |
-		==180 |
-		==365 |
-		==400 |
-		==545 |
-		==731 |
-		==1096 |
-		==1827 |
-		==2192 |
-		==2557 |
-		==2922 |
-		==3288 |
-		==3653) &
-		int |
-		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Logs::LogGroup"
+	Properties?: close({
+		BearerTokenAuthenticationEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		DataProtectionPolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		DeletionProtectionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		FieldIndexPolicies?: list.UniqueItems() & [...fn.#Object & {...} | fn.#ObjectExpression] | fn.#ListExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & (strings.MaxRunes(256) & strings.MinRunes(0)) |
+		fn.#StringExpression
+		LogGroupClass?:          "STANDARD" | "INFREQUENT_ACCESS" | "DELIVERY" | fn.#StringExpression
+		LogGroupName?:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+		ResourcePolicyDocument?: fn.#Object & {...} | fn.#ObjectExpression
+		RetentionInDays?: (==1 |
+			==3 |
+			==5 |
+			==7 |
+			==14 |
+			==30 |
+			==60 |
+			==90 |
+			==120 |
+			==150 |
+			==180 |
+			==365 |
+			==400 |
+			==545 |
+			==731 |
+			==1096 |
+			==1827 |
+			==2192 |
+			==2557 |
+			==2922 |
+			==3288 |
+			==3653) &
+			int |
+			fn.#NumberExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::LogGroup"
-	Properties?: #Properties
-}

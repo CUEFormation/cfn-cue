@@ -19,13 +19,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource type definition for AWS::IVS::AdConfiguration. An ad configuration
 // links Amazon IVS resources to AWS Elemental MediaTailor playback
 // configurations, enabling server-side ad insertion for a channel.
-#Properties: close({
-	MediaTailorPlaybackConfigurations!: list.MaxItems(3) & list.MinItems(1) & [...#MediaTailorPlaybackConfiguration] |
-		fn.#ListExpression
-	Name?:                  strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-	PostRollConfiguration?: #PostRollConfiguration
-	Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IVS::AdConfiguration"
+	Properties!: close({
+		MediaTailorPlaybackConfigurations!: list.MaxItems(3) & list.MinItems(1) & [...#MediaTailorPlaybackConfiguration] |
+			fn.#ListExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
+		PostRollConfiguration?: #PostRollConfiguration
+		Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #MediaTailorPlaybackConfiguration: close({
 	PlaybackConfigurationArn?: strings.MaxRunes(128) &
@@ -61,7 +64,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IVS::AdConfiguration"
-	Properties!: #Properties
-}

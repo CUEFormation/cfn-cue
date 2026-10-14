@@ -15,29 +15,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates and manages a procurement portal preference configuration for
 // e-invoice delivery and purchase order retrieval.
-#Properties: close({
-	BuyerDomain!:                "NetworkID" | fn.#StringExpression
-	BuyerIdentifier!:            strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
-	Contacts!:                   list.MaxItems(1) & list.MinItems(1) & [...#Contact] | fn.#ListExpression
-	EinvoiceDeliveryEnabled!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EinvoiceDeliveryPreference?: #EinvoiceDeliveryPreference
-	ProcurementPortalInstanceEndpoint?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
-	ProcurementPortalName!:             "SAP_BUSINESS_NETWORK" | "COUPA" | fn.#StringExpression
-	ProcurementPortalSharedSecret?:     strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
-	PurchaseOrderRetrievalEnabled!: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	Selector?:           #ProcurementPortalPreferenceSelector
-	SupplierDomain!:     "NetworkID" | fn.#StringExpression
-	SupplierIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
-	Tags?:               list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	TestEnvPreference?:  #TestEnvPreference
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Invoicing::ProcurementPortalPreference"
+	Properties!: close({
+		BuyerDomain!:             "NetworkID" | fn.#StringExpression
+		BuyerIdentifier!:         strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
+		Contacts!:                list.MaxItems(1) & list.MinItems(1) & [...#Contact] | fn.#ListExpression
+		EinvoiceDeliveryEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EinvoiceDeliveryPreference?: #EinvoiceDeliveryPreference
+		ProcurementPortalInstanceEndpoint?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" |
+		fn.#StringExpression
+		ProcurementPortalName!:         "SAP_BUSINESS_NETWORK" | "COUPA" | fn.#StringExpression
+		ProcurementPortalSharedSecret?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
+		PurchaseOrderRetrievalEnabled!: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Selector?:           #ProcurementPortalPreferenceSelector
+		SupplierDomain!:     "NetworkID" | fn.#StringExpression
+		SupplierIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
+		Tags?:               list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TestEnvPreference?:  #TestEnvPreference
+	})
+}
 
 #Contact: close({
 	Email?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$" |
@@ -103,7 +107,3 @@ fn.#ObjectExpression
 	SupplierIdentifier?:                strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Invoicing::ProcurementPortalPreference"
-	Properties!: #Properties
-}

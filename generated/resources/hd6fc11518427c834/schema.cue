@@ -13,21 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Rekognition::Dataset type creates an Amazon Rekognition Custom Labels dataset.
-#Properties: close({
-	DatasetType!: "TRAIN" | "TEST" | fn.#StringExpression
-	ProjectArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^(^arn:[a-z\\d-]+:rekognition:[a-z\\d-]+:\\d{12}:project\\/[a-zA-Z0-9_.\\-]{1,255}\\/[0-9]+$)$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Rekognition::Dataset"
+	Properties!: close({
+		DatasetType!: "TRAIN" | "TEST" | fn.#StringExpression
+		ProjectArn?: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^(^arn:[a-z\\d-]+:rekognition:[a-z\\d-]+:\\d{12}:project\\/[a-zA-Z0-9_.\\-]{1,255}\\/[0-9]+$)$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Rekognition::Dataset"
-	Properties!: #Properties
-}

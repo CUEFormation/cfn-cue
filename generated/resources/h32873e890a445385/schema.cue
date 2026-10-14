@@ -9,10 +9,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Backup::BackupSelection
-#Properties: close({
-	BackupPlanId!:    string | fn.#StringExpression
-	BackupSelection!: #BackupSelectionResourceType
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Backup::BackupSelection"
+	Properties!: close({
+		BackupPlanId!:    string | fn.#StringExpression
+		BackupSelection!: #BackupSelectionResourceType
+	})
+}
 
 #BackupSelectionResourceType: close({
 	Conditions?: close({
@@ -43,7 +46,3 @@ fn.#ObjectExpression
 	ConditionValue!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Backup::BackupSelection"
-	Properties!: #Properties
-}

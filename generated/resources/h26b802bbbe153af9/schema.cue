@@ -12,28 +12,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Athena::DataCatalog
-#Properties: close({
-	ConnectionType?: string | fn.#StringExpression
-	Description?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Error?:          string | fn.#StringExpression
-	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Athena::DataCatalog"
+	Properties!: close({
+		ConnectionType?: string | fn.#StringExpression
+		Description?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Error?:          string | fn.#StringExpression
+		Name!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Parameters?: close({
 
-		{[=~".*"]: strings.MaxRunes(51200) | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Status?: "CREATE_IN_PROGRESS" |
-		"CREATE_COMPLETE" |
-		"CREATE_FAILED" |
-		"CREATE_FAILED_CLEANUP_IN_PROGRESS" |
-		"CREATE_FAILED_CLEANUP_COMPLETE" |
-		"CREATE_FAILED_CLEANUP_FAILED" |
-		"DELETE_IN_PROGRESS" |
-		"DELETE_COMPLETE" |
-		"DELETE_FAILED" |
-		fn.#StringExpression
-	Tags?: #Tags | fn.#ListExpression
-	Type!: "LAMBDA" | "GLUE" | "HIVE" | "FEDERATED" | fn.#StringExpression
-})
+			{[=~".*"]: strings.MaxRunes(51200) | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Status?: "CREATE_IN_PROGRESS" |
+			"CREATE_COMPLETE" |
+			"CREATE_FAILED" |
+			"CREATE_FAILED_CLEANUP_IN_PROGRESS" |
+			"CREATE_FAILED_CLEANUP_COMPLETE" |
+			"CREATE_FAILED_CLEANUP_FAILED" |
+			"DELETE_IN_PROGRESS" |
+			"DELETE_COMPLETE" |
+			"DELETE_FAILED" |
+			fn.#StringExpression
+		Tags?: #Tags | fn.#ListExpression
+		Type!: "LAMBDA" | "GLUE" | "HIVE" | "FEDERATED" | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -42,7 +45,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tags: [...#Tag] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Athena::DataCatalog"
-	Properties!: #Properties
-}

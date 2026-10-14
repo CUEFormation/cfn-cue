@@ -13,36 +13,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::Route53Resolver::ResolverEndpoint
-#Properties: close({
-	Direction!:                 =~"(?i)^(?:inbound|inbound_delegation|outbound)$" | fn.#StringExpression
-	Dns64Enabled?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IpAddresses!:               list.MaxItems(20) & list.MinItems(2) & [...#IpAddressRequest] | fn.#ListExpression
-	Ipv6InternetAccessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name?:                      strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	OutpostArn?: strings.MaxRunes(255) &
-	strings.MinRunes(1) &
-	=~"^arn:aws([a-z-]+)?:outposts:[a-z\\d-]+:\\d{12}:outpost/op-[a-f0-9]{17}$" |
-	fn.#StringExpression
-	PreferredInstanceType?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Protocols?: list.MaxItems(2) & list.MinItems(1) & [...=~"(?i)^(?:do53|doh|doh-fips)$" | fn.#StringExpression] |
-		fn.#ListExpression
-	ResolverEndpointType?:      =~"(?i)^(?:dualstack|ipv4|ipv6)$" | fn.#StringExpression
-	RniEnhancedMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SecurityGroupIds!: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53Resolver::ResolverEndpoint"
+	Properties!: close({
+		Direction!:    =~"(?i)^(?:inbound|inbound_delegation|outbound)$" | fn.#StringExpression
+		Dns64Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IpAddresses!:  list.MaxItems(20) & list.MinItems(2) & [...#IpAddressRequest] | fn.#ListExpression
+		Ipv6InternetAccessEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Name?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+		OutpostArn?: strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^arn:aws([a-z-]+)?:outposts:[a-z\\d-]+:\\d{12}:outpost/op-[a-f0-9]{17}$" |
 		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	TargetNameServerMetricsEnabled?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-})
+		PreferredInstanceType?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Protocols?: list.MaxItems(2) & list.MinItems(1) & [...=~"(?i)^(?:do53|doh|doh-fips)$" | fn.#StringExpression] |
+			fn.#ListExpression
+		ResolverEndpointType?: =~"(?i)^(?:dualstack|ipv4|ipv6)$" | fn.#StringExpression
+		RniEnhancedMetricsEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		SecurityGroupIds!: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TargetNameServerMetricsEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+	})
+}
 
 #IpAddressRequest: close({
 	Ip?:       strings.MaxRunes(36) & strings.MinRunes(7) | fn.#StringExpression
@@ -56,7 +73,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53Resolver::ResolverEndpoint"
-	Properties!: #Properties
-}

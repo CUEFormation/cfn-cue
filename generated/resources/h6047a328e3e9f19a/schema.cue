@@ -21,20 +21,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // see
 // https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-types.htmlin
 // the Amazon Elastic Container Service Developer Guide.
-#Properties: close({
-	CapacityProviderStrategy?: [...#CapacityProviderStrategyItem] | fn.#ListExpression
-	Cluster!:                  string | fn.#StringExpression
-	ExternalId?:               string | fn.#StringExpression
-	LaunchType?:               "EC2" | "FARGATE" | fn.#StringExpression
-	LoadBalancers?:            [...#LoadBalancer] | fn.#ListExpression
-	NetworkConfiguration?:     #NetworkConfiguration
-	PlatformVersion?:          string | fn.#StringExpression
-	Scale?:                    #Scale | fn.#ObjectExpression
-	Service!:                  string | fn.#StringExpression
-	ServiceRegistries?:        [...#ServiceRegistry] | fn.#ListExpression
-	Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	TaskDefinition!:           string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECS::TaskSet"
+	Properties!: close({
+		CapacityProviderStrategy?: [...#CapacityProviderStrategyItem] | fn.#ListExpression
+		Cluster!:                  string | fn.#StringExpression
+		ExternalId?:               string | fn.#StringExpression
+		LaunchType?:               "EC2" | "FARGATE" | fn.#StringExpression
+		LoadBalancers?:            [...#LoadBalancer] | fn.#ListExpression
+		NetworkConfiguration?:     #NetworkConfiguration
+		PlatformVersion?:          string | fn.#StringExpression
+		Scale?:                    #Scale | fn.#ObjectExpression
+		Service!:                  string | fn.#StringExpression
+		ServiceRegistries?:        [...#ServiceRegistry] | fn.#ListExpression
+		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		TaskDefinition!:           string | fn.#StringExpression
+	})
+}
 
 #AwsVpcConfiguration: close({
 	AssignPublicIp?: "DISABLED" | "ENABLED" | fn.#StringExpression
@@ -170,7 +173,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECS::TaskSet"
-	Properties!: #Properties
-}

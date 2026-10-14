@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::WellArchitected::Profile Resource Type
-#Properties: close({
-	ProfileDescription!: strings.MaxRunes(100) & strings.MinRunes(3) | fn.#StringExpression
-	ProfileName!:        strings.MaxRunes(100) & strings.MinRunes(3) | fn.#StringExpression
-	ProfileQuestions!:   [...#ProfileQuestionUpdate] | fn.#ListExpression
-	Tags?:               list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WellArchitected::Profile"
+	Properties!: close({
+		ProfileDescription!: strings.MaxRunes(100) & strings.MinRunes(3) | fn.#StringExpression
+		ProfileName!:        strings.MaxRunes(100) & strings.MinRunes(3) | fn.#StringExpression
+		ProfileQuestions!:   [...#ProfileQuestionUpdate] | fn.#ListExpression
+		Tags?:               list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ProfileQuestionUpdate: close({
 	QuestionId?:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -31,7 +34,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WellArchitected::Profile"
-	Properties!: #Properties
-}

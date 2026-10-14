@@ -14,13 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // CIS Scan Configuration resource schema
-#Properties: close({
-	ScanName!:      strings.MinRunes(1) | fn.#StringExpression
-	Schedule!:      #Schedule
-	SecurityLevel!: #CisSecurityLevel
-	Tags?:          #CisTagMap
-	Targets!:       #CisTargets
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::InspectorV2::CisScanConfiguration"
+	Properties!: close({
+		ScanName!:      strings.MinRunes(1) | fn.#StringExpression
+		Schedule!:      #Schedule
+		SecurityLevel!: #CisSecurityLevel
+		Tags?:          #CisTagMap
+		Targets!:       #CisTargets
+	})
+}
 
 #CisSecurityLevel: "LEVEL_1" | "LEVEL_2" | fn.#StringExpression
 
@@ -95,7 +98,3 @@ fn.#ObjectExpression
 	StartTime!: #Time
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::InspectorV2::CisScanConfiguration"
-	Properties!: #Properties
-}

@@ -12,11 +12,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53GlobalResolver::HostedZoneAssociation
-#Properties: close({
-	HostedZoneId!: #HostedZoneId
-	Name!:         #ResourceName
-	ResourceArn!:  #ResourceArn
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53GlobalResolver::HostedZoneAssociation"
+	Properties!: close({
+		HostedZoneId!: #HostedZoneId
+		Name!:         #ResourceName
+		ResourceArn!:  #ResourceArn
+	})
+}
 
 #HostedZoneAssociationStatus: "CREATING" | "OPERATIONAL" | "DELETING" | fn.#StringExpression
 
@@ -25,7 +28,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
 #ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53GlobalResolver::HostedZoneAssociation"
-	Properties!: #Properties
-}

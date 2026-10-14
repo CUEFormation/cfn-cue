@@ -13,10 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The scanning configuration for a private registry.
-#Properties: close({
-	Rules!:    #ScanningRules | fn.#ListExpression
-	ScanType!: #ScanType | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ECR::RegistryScanningConfiguration"
+	Properties!: close({
+		Rules!:    #ScanningRules | fn.#ListExpression
+		ScanType!: #ScanType | fn.#StringExpression
+	})
+}
 
 #Filter: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9*](?:[._\\-/a-z0-9*]?[a-z0-9*]+)*$" |
 fn.#StringExpression
@@ -42,7 +45,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ScanningRules: list.MaxItems(2) & [...] & [...#ScanningRule] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ECR::RegistryScanningConfiguration"
-	Properties!: #Properties
-}

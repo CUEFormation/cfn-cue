@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ControlTower::LandingZone Resource Type
-#Properties: close({
-	Manifest!:         fn.#Object & {...} | string | fn.#StringObjectExpression
-	RemediationTypes?: #RemediationTypes
-	Tags?:             [...#Tag] | fn.#ListExpression
-	Version!:          strings.MaxRunes(10) & strings.MinRunes(3) & =~"\\d+.\\d+" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ControlTower::LandingZone"
+	Properties!: close({
+		Manifest!:         fn.#Object & {...} | string | fn.#StringObjectExpression
+		RemediationTypes?: #RemediationTypes
+		Tags?:             [...#Tag] | fn.#ListExpression
+		Version!:          strings.MaxRunes(10) & strings.MinRunes(3) & =~"\\d+.\\d+" | fn.#StringExpression
+	})
+}
 
 #LandingZoneDriftStatus: "DRIFTED" | "IN_SYNC" | fn.#StringExpression
 
@@ -32,7 +35,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ControlTower::LandingZone"
-	Properties!: #Properties
-}

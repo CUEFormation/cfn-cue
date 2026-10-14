@@ -13,22 +13,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SCN::Namespace Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceId!: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SCN::Namespace"
+	Properties!: close({
+		Description?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceId!: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SCN::Namespace"
-	Properties!: #Properties
-}

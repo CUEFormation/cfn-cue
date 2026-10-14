@@ -17,19 +17,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::B2BI::Transformer Resource Type
-#Properties: close({
-	EdiType?:          #EdiType
-	FileFormat?:       #FileFormat
-	InputConversion?:  #InputConversion
-	Mapping?:          #Mapping
-	MappingTemplate?:  strings.MaxRunes(350000) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:             strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,512}$" | fn.#StringExpression
-	OutputConversion?: #OutputConversion
-	SampleDocument?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	SampleDocuments?:  #SampleDocuments
-	Status!:           #TransformerStatus
-	Tags?:             list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::B2BI::Transformer"
+	Properties!: close({
+		EdiType?:         #EdiType
+		FileFormat?:      #FileFormat
+		InputConversion?: #InputConversion
+		Mapping?:         #Mapping
+		MappingTemplate?: strings.MaxRunes(350000) & strings.MinRunes(0) | fn.#StringExpression
+		Name!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,512}$" | fn.#StringExpression
+		OutputConversion?: #OutputConversion
+		SampleDocument?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		SampleDocuments?:  #SampleDocuments
+		Status!:           #TransformerStatus
+		Tags?:             list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AdvancedOptions: close({X12?: #X12AdvancedOptions}) | fn.#ObjectExpression
 
@@ -523,7 +526,3 @@ fn.#ValueExpression
 	"VERSION_5010" |
 	"VERSION_5010_HIPAA" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::B2BI::Transformer"
-	Properties!: #Properties
-}

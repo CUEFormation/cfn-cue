@@ -17,88 +17,98 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ImageBuilder::Image
-#Properties: matchN(1, [{
-	ContainerRecipeArn!:             _
-	InfrastructureConfigurationArn!: _
-	...
-}, {
-	ImageRecipeArn!:                 _
-	InfrastructureConfigurationArn!: _
-	...
-}, {
-	ImagePipelineExecutionSettings!: _
-	...
-}]) & close({
-	ContainerRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):container-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
-		fn.#StringExpression
-	DeletionSettings?: #DeletionSettings | fn.#ObjectExpression
-	DistributionConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):distribution-configuration/[a-z0-9-_]+$" |
-		fn.#StringExpression
-	EnhancedImageMetadataEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExecutionRole?: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	ImagePipelineExecutionSettings?: #ImagePipelineExecutionSettings &
-	(null | bool | number | string | [...] | {
-		ImagePipelineExecutionSettings?: _
-		if ImagePipelineExecutionSettings != _|_ {
-			matchN(1, [
-				null | bool | number | string | [...] | {
-					ImageRecipeArn!: _
-					...
-				},
-				null | bool | number | string | [...] | {
-					ContainerRecipeArn!: _
-					...
-				},
-				null | bool | number | string | [...] | {
-					InfrastructureConfigurationArn!: _
-					...
-				},
-				null | bool | number | string | [...] | {
-					Workflows!: _
-					...
-				},
-				null | bool | number | string | [...] | {
-					DistributionConfigurationArn!: _
-					...
-				},
-				null | bool | number | string | [...] | {
-					ImageTestsConfiguration!: _
-					...
-				},
-				null | bool | number | string | [...] | {
-					ImageScanningConfiguration!: _
-					...
-				},
-				null | bool | number | string | [...] | {
-					EnhancedImageMetadataEnabled!: _
-					...
-				},
-				null | bool | number | string | [...] | {
-					ImportDiskImageSettings!: _
-					...
-				}
-			])
-		}
-		{}
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ImageBuilder::Image"
+	Properties?: matchN(1, [{
+		ContainerRecipeArn!:             _
+		InfrastructureConfigurationArn!: _
 		...
-	}) |
-	fn.#ObjectExpression
-	ImageRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):image-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
+	}, {
+		ImageRecipeArn!:                 _
+		InfrastructureConfigurationArn!: _
+		...
+	}, {
+		ImagePipelineExecutionSettings!: _
+		...
+	}]) & close({
+		ContainerRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):container-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
+			fn.#StringExpression
+		DeletionSettings?: #DeletionSettings | fn.#ObjectExpression
+		DistributionConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):distribution-configuration/[a-z0-9-_]+$" |
+			fn.#StringExpression
+		EnhancedImageMetadataEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		ExecutionRole?: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 		fn.#StringExpression
-	ImageScanningConfiguration?: #ImageScanningConfiguration | fn.#ObjectExpression
-	ImageTestsConfiguration?:    #ImageTestsConfiguration | fn.#ObjectExpression
-	InfrastructureConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):infrastructure-configuration/[a-z0-9-_]+$" |
-		fn.#StringExpression
-	LoggingConfiguration?: #ImageLoggingConfiguration | fn.#ObjectExpression
-	Tags?: close({
+		ImagePipelineExecutionSettings?: #ImagePipelineExecutionSettings &
+		(null | bool | number | string | [...] | {
+			ImagePipelineExecutionSettings?: _
+			if ImagePipelineExecutionSettings != _|_ {
+				matchN(1, [
+					null | bool | number | string | [...] | {
+						ImageRecipeArn!: _
+						...
+					},
+					null | bool | number | string | [...] | {
+						ContainerRecipeArn!: _
+						...
+					},
+					null | bool | number | string | [...] | {
+						InfrastructureConfigurationArn!: _
+						...
+					},
+					null | bool | number | string | [...] | {
+						Workflows!: _
+						...
+					},
+					null | bool | number | string | [...] | {
+						DistributionConfigurationArn!: _
+						...
+					},
+					null | bool | number | string | [...] | {
+						ImageTestsConfiguration!: _
+						...
+					},
+					null | bool | number | string | [...] | {
+						ImageScanningConfiguration!: _
+						...
+					},
+					null | bool | number | string | [...] | {
+						EnhancedImageMetadataEnabled!: _
+						...
+					},
+					null | bool | number | string | [...] | {
+						ImportDiskImageSettings!: _
+						...
+					}
+				])
+			}
+			{}
+			...
+		}) |
+		fn.#ObjectExpression
+		ImageRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):image-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
+			fn.#StringExpression
+		ImageScanningConfiguration?: #ImageScanningConfiguration | fn.#ObjectExpression
+		ImageTestsConfiguration?:    #ImageTestsConfiguration | fn.#ObjectExpression
+		InfrastructureConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):infrastructure-configuration/[a-z0-9-_]+$" |
+			fn.#StringExpression
+		LoggingConfiguration?: #ImageLoggingConfiguration | fn.#ObjectExpression
+		Tags?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Workflows?: [...#WorkflowConfiguration] | fn.#ListExpression
-})
+			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Workflows?: [...#WorkflowConfiguration] | fn.#ListExpression
+	})
+}
 
 #DeletionSettings: close({ExecutionRole!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -171,7 +181,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #WorkflowParameterValue: strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ImageBuilder::Image"
-	Properties?: #Properties
-}

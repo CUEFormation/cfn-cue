@@ -13,13 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::Configuration
-#Properties: close({
-	Description?:       string | fn.#StringExpression
-	KafkaVersionsList?: #KafkaVersionsList
-	LatestRevision?:    close({}) | fn.#ObjectExpression
-	Name!:              string | fn.#StringExpression
-	ServerProperties!:  string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MSK::Configuration"
+	Properties!: close({
+		Description?:       string | fn.#StringExpression
+		KafkaVersionsList?: #KafkaVersionsList
+		LatestRevision?:    close({}) | fn.#ObjectExpression
+		Name!:              string | fn.#StringExpression
+		ServerProperties!:  string | fn.#StringExpression
+	})
+}
 
 #KafkaVersionsList: [...string | fn.#StringExpression] | fn.#ListExpression
 
@@ -42,7 +45,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MSK::Configuration"
-	Properties!: #Properties
-}

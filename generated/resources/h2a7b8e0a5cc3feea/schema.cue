@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KinesisAnalytics::Application
-#Properties: close({
-	ApplicationCode?:        string | fn.#StringExpression
-	ApplicationDescription?: string | fn.#StringExpression
-	ApplicationName?:        string | fn.#StringExpression
-	Inputs!:                 [...#Input] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KinesisAnalytics::Application"
+	Properties!: close({
+		ApplicationCode?:        string | fn.#StringExpression
+		ApplicationDescription?: string | fn.#StringExpression
+		ApplicationName?:        string | fn.#StringExpression
+		Inputs!:                 [...#Input] | fn.#ListExpression
+	})
+}
 
 #CSVMappingParameters: close({
 	RecordColumnDelimiter!: string | fn.#StringExpression
@@ -104,7 +107,3 @@ fn.#ObjectExpression
 	RecordFormatType!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KinesisAnalytics::Application"
-	Properties!: #Properties
-}

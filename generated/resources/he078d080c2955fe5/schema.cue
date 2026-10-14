@@ -18,11 +18,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::ObservabilityAdmin::OrganizationTelemetryRule resource defines a
 // CloudWatch Observability Admin Organization Telemetry Rule.
-#Properties: close({
-	Rule!:     #TelemetryRule
-	RuleName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$" | fn.#StringExpression
-	Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ObservabilityAdmin::OrganizationTelemetryRule"
+	Properties!: close({
+		Rule!:     #TelemetryRule
+		RuleName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$" | fn.#StringExpression
+		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Action: "ALLOW" | "BLOCK" | "COUNT" | "CAPTCHA" | "CHALLENGE" | "EXCLUDED_AS_COUNT" | fn.#StringExpression
 
@@ -254,7 +257,3 @@ fn.#ObjectExpression
 	RedactedFields?: #RedactedFields | fn.#ListExpression
 	...
 } | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ObservabilityAdmin::OrganizationTelemetryRule"
-	Properties!: #Properties
-}

@@ -9,17 +9,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::UserHierarchyStructure
-#Properties: close({
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	UserHierarchyStructure?: close({
-		LevelFive?:  #LevelFive
-		LevelFour?:  #LevelFour
-		LevelOne?:   #LevelOne
-		LevelThree?: #LevelThree
-		LevelTwo?:   #LevelTwo
-	}) |
-	fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::UserHierarchyStructure"
+	Properties!: close({
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		UserHierarchyStructure?: close({
+			LevelFive?:  #LevelFive
+			LevelFour?:  #LevelFour
+			LevelOne?:   #LevelOne
+			LevelThree?: #LevelThree
+			LevelTwo?:   #LevelTwo
+		}) |
+		fn.#ObjectExpression
+	})
+}
 
 #HierarchyLevelArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group-level/[-0-9]*$" |
 	fn.#StringExpression
@@ -62,7 +65,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Name: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::UserHierarchyStructure"
-	Properties!: #Properties
-}

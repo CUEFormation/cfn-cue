@@ -12,10 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::DataCatalogEncryptionSettings
-#Properties: close({
-	CatalogId!:                     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DataCatalogEncryptionSettings!: #DataCatalogEncryptionSettings
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::DataCatalogEncryptionSettings"
+	Properties!: close({
+		CatalogId!:                     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DataCatalogEncryptionSettings!: #DataCatalogEncryptionSettings
+	})
+}
 
 #ConnectionPasswordEncryption: close({
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -45,7 +48,3 @@ fn.#ObjectExpression
 	SseAwsKmsKeyId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::DataCatalogEncryptionSettings"
-	Properties!: #Properties
-}

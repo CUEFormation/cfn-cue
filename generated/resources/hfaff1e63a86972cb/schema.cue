@@ -17,44 +17,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::AIOps::InvestigationGroup Resource Type
-#Properties: close({
-	ChatbotNotificationChannels?: list.UniqueItems() & [...#ChatbotNotificationChannel] | fn.#ListExpression
-	CrossAccountConfigurations?: list.MaxItems(25) & list.UniqueItems() & [...] & [...#CrossAccountConfiguration] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AIOps::InvestigationGroup"
+	Properties!: close({
+		ChatbotNotificationChannels?: list.UniqueItems() & [...#ChatbotNotificationChannel] | fn.#ListExpression
+		CrossAccountConfigurations?: list.MaxItems(25) & list.UniqueItems() & [...] & [...#CrossAccountConfiguration] |
+			fn.#ListExpression
+		EncryptionConfig?:         #EncryptionConfigMap
+		InvestigationGroupPolicy?: string | fn.#StringExpression
+		IsCloudTrailEventHistoryEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Name!: #StringWithPatternAndLengthLimits
+		RetentionInDays?: int & <=90 & >=7 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=90 &
+								>=7,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RoleArn?: #RoleArn
+		TagKeyBoundaries?: list.UniqueItems() & [
+			...strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" |
+			fn.#StringExpression
+		] |
 		fn.#ListExpression
-	EncryptionConfig?:         #EncryptionConfigMap
-	InvestigationGroupPolicy?: string | fn.#StringExpression
-	IsCloudTrailEventHistoryEnabled?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	Name!: #StringWithPatternAndLengthLimits
-	RetentionInDays?: int & <=90 & >=7 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=90 &
-							>=7,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RoleArn?: #RoleArn
-	TagKeyBoundaries?: list.UniqueItems() & [
-		...strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ChatbotNotificationChannel: close({
 	ChatConfigurationArns?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
@@ -93,7 +99,3 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #Timestamp: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AIOps::InvestigationGroup"
-	Properties!: #Properties
-}

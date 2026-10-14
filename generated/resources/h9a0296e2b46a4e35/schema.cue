@@ -12,13 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a SCEP Challenge that is used for certificate enrollment
-#Properties: close({
-	ConnectorArn!: strings.MaxRunes(200) &
-	strings.MinRunes(5) &
-	=~"^arn:aws(-[a-z]+)*:pca-connector-scep:[a-z]+(-[a-z]+)+-[1-9]\\d*:\\d{12}:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	Tags?: #Tags
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::PCAConnectorSCEP::Challenge"
+	Properties!: close({
+		ConnectorArn!: strings.MaxRunes(200) &
+		strings.MinRunes(5) &
+		=~"^arn:aws(-[a-z]+)*:pca-connector-scep:[a-z]+(-[a-z]+)+-[1-9]\\d*:\\d{12}:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
+		fn.#StringExpression
+		Tags?: #Tags
+	})
+}
 
 #Tags: close({
 
@@ -26,7 +29,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Unit: close({}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::PCAConnectorSCEP::Challenge"
-	Properties!: #Properties
-}

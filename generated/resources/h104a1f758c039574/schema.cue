@@ -13,40 +13,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Timestream::Table resource creates a Timestream Table.
-#Properties: close({
-	DatabaseName!: =~"^[a-zA-Z0-9_.-]{3,256}$" | fn.#StringExpression
-	MagneticStoreWriteProperties?: close({
-		EnableMagneticStoreWrites!: bool |
-			"true" |
-			"True" |
-			"TRUE" |
-			"false" |
-			"False" |
-			"FALSE" |
-			fn.#BooleanExpression
-		MagneticStoreRejectedDataLocation?: close({
-			S3Configuration?: close({
-				BucketName!:       string | fn.#StringExpression
-				EncryptionOption!: string | fn.#StringExpression
-				KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-					string |
-					fn.#StringExpression
-				ObjectKeyPrefix?: string | fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Timestream::Table"
+	Properties!: close({
+		DatabaseName!: =~"^[a-zA-Z0-9_.-]{3,256}$" | fn.#StringExpression
+		MagneticStoreWriteProperties?: close({
+			EnableMagneticStoreWrites!: bool |
+				"true" |
+				"True" |
+				"TRUE" |
+				"false" |
+				"False" |
+				"FALSE" |
+				fn.#BooleanExpression
+			MagneticStoreRejectedDataLocation?: close({
+				S3Configuration?: close({
+					BucketName!:       string | fn.#StringExpression
+					EncryptionOption!: string | fn.#StringExpression
+					KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+						string |
+						fn.#StringExpression
+					ObjectKeyPrefix?: string | fn.#StringExpression
+				}) |
+				fn.#ObjectExpression
 			}) |
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	RetentionProperties?: close({
-		MagneticStoreRetentionPeriodInDays?: string | fn.#StringExpression
-		MemoryStoreRetentionPeriodInHours?:  string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Schema?:    close({CompositePartitionKey?: #PartitionKeyList}) | fn.#ObjectExpression
-	TableName?: =~"^[a-zA-Z0-9_.-]{3,256}$" | fn.#StringExpression
-	Tags?:      list.MaxItems(200) & [...#Tag] | fn.#ListExpression
-})
+		RetentionProperties?: close({
+			MagneticStoreRetentionPeriodInDays?: string | fn.#StringExpression
+			MemoryStoreRetentionPeriodInHours?:  string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Schema?:    close({CompositePartitionKey?: #PartitionKeyList}) | fn.#ObjectExpression
+		TableName?: =~"^[a-zA-Z0-9_.-]{3,256}$" | fn.#StringExpression
+		Tags?:      list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #PartitionKey: close({
 	EnforcementInRecord?: #PartitionKeyEnforcementLevel
@@ -68,7 +71,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Timestream::Table"
-	Properties!: #Properties
-}

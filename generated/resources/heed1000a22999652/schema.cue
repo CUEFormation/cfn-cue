@@ -14,19 +14,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A resource that represents the infrastructure where a third-party provider is
 // installed. You create one host for all connections to that provider.
-#Properties: close({
-	Name!:             strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ProviderEndpoint!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	ProviderType!: "Bitbucket" |
-		"GitHub" |
-		"GitHubEnterpriseServer" |
-		"GitLab" |
-		"GitLabSelfManaged" |
-		"AzureDevOps" |
-		fn.#StringExpression
-	Tags?:             list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	VpcConfiguration?: #VpcConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CodeConnections::Host"
+	Properties!: close({
+		Name!:             strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		ProviderEndpoint!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+		ProviderType!: "Bitbucket" |
+			"GitHub" |
+			"GitHubEnterpriseServer" |
+			"GitLab" |
+			"GitLabSelfManaged" |
+			"AzureDevOps" |
+			fn.#StringExpression
+		Tags?:             list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		VpcConfiguration?: #VpcConfiguration
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -55,7 +58,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CodeConnections::Host"
-	Properties!: #Properties
-}

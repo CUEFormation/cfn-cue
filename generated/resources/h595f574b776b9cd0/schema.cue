@@ -16,76 +16,85 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::ElastiCache::CacheCluster
-#Properties: close({
-	AZMode?:                    =~"(?i)^(?:cross-az|single-az)$" | fn.#StringExpression
-	AutoMinorVersionUpgrade?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CacheNodeType!:             string | fn.#StringExpression
-	CacheParameterGroupName?:   string | fn.#StringExpression
-	CacheSecurityGroupNames?:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	CacheSubnetGroupName?:      string | fn.#StringExpression
-	ClusterName?:               string | fn.#StringExpression
-	Engine!:                    string | fn.#StringExpression
-	EngineVersion?:             string | fn.#StringExpression
-	IpDiscovery?:               =~"(?i)^(?:ipv4|ipv6)$" | fn.#StringExpression
-	LogDeliveryConfigurations?: [...#LogDeliveryConfigurationRequest] | fn.#ListExpression
-	NetworkType?:               =~"(?i)^(?:dual_stack|ipv4|ipv6)$" | fn.#StringExpression
-	NotificationTopicArn?:      string | fn.#StringExpression
-	NumCacheNodes!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Port?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PreferredAvailabilityZone?:  string | fn.#StringExpression
-	PreferredAvailabilityZones?: [...string | fn.#StringExpression] | fn.#ListExpression
-	PreferredMaintenanceWindow?: string | fn.#StringExpression
-	SnapshotArns?:               list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SnapshotName?:               string | fn.#StringExpression
-	SnapshotRetentionLimit?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SnapshotWindow?:           string | fn.#StringExpression
-	Tags?:                     [...#Tag] | fn.#ListExpression
-	TransitEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	VpcSecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElastiCache::CacheCluster"
+	Properties!: close({
+		AZMode?:                  =~"(?i)^(?:cross-az|single-az)$" | fn.#StringExpression
+		AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		CacheNodeType!:           string | fn.#StringExpression
+		CacheParameterGroupName?: string | fn.#StringExpression
+		CacheSecurityGroupNames?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		CacheSubnetGroupName?:    string | fn.#StringExpression
+		ClusterName?:             string | fn.#StringExpression
+		Engine!:                  string | fn.#StringExpression
+		EngineVersion?:           string | fn.#StringExpression
+		IpDiscovery?:             =~"(?i)^(?:ipv4|ipv6)$" | fn.#StringExpression
+		LogDeliveryConfigurations?: [...#LogDeliveryConfigurationRequest] | fn.#ListExpression
+		NetworkType?:               =~"(?i)^(?:dual_stack|ipv4|ipv6)$" | fn.#StringExpression
+		NotificationTopicArn?:      string | fn.#StringExpression
+		NumCacheNodes!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Port?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PreferredAvailabilityZone?:  string | fn.#StringExpression
+		PreferredAvailabilityZones?: [...string | fn.#StringExpression] | fn.#ListExpression
+		PreferredMaintenanceWindow?: string | fn.#StringExpression
+		SnapshotArns?:               list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		SnapshotName?:               string | fn.#StringExpression
+		SnapshotRetentionLimit?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SnapshotWindow?:           string | fn.#StringExpression
+		Tags?:                     [...#Tag] | fn.#ListExpression
+		TransitEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		VpcSecurityGroupIds?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+	})
+}
 
 #CloudWatchLogsDestinationDetails: close({LogGroup!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -116,7 +125,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElastiCache::CacheCluster"
-	Properties!: #Properties
-}

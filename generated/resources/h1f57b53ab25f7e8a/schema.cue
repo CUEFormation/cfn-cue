@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::WorkSpacesWeb::SessionLogger Resource Type
-#Properties: close({
-	AdditionalEncryptionContext?: #EncryptionContextMap
-	CustomerManagedKey?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
-	fn.#StringExpression
-	DisplayName?:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" | fn.#StringExpression
-	EventFilter!:      #EventFilter
-	LogConfiguration!: #LogConfiguration
-	Tags?:             list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpacesWeb::SessionLogger"
+	Properties!: close({
+		AdditionalEncryptionContext?: #EncryptionContextMap
+		CustomerManagedKey?: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
+		fn.#StringExpression
+		DisplayName?:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" | fn.#StringExpression
+		EventFilter!:      #EventFilter
+		LogConfiguration!: #LogConfiguration
+		Tags?:             list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #EncryptionContextMap: close({
 
@@ -79,7 +82,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Unit: close({}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpacesWeb::SessionLogger"
-	Properties!: #Properties
-}

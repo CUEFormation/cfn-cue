@@ -17,12 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BCM::Dashboard Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:        strings.MaxRunes(50) & strings.MinRunes(2) | fn.#StringExpression
-	Tags?:        list.MaxItems(200) & [...#Tag] | fn.#ListExpression
-	Widgets!:     list.MaxItems(20) & [...] & [...#Widget] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::BCM::Dashboard"
+	Properties!: close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:        strings.MaxRunes(50) & strings.MinRunes(2) | fn.#StringExpression
+		Tags?:        list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+		Widgets!:     list.MaxItems(20) & [...] & [...#Widget] | fn.#ListExpression
+	})
+}
 
 #CostAndUsageExpression: close({
 	And?:            [...#CostAndUsageExpression] | fn.#ListExpression
@@ -273,7 +276,3 @@ fn.#ObjectExpression
 	QueryParameters!: #QueryParameters
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::BCM::Dashboard"
-	Properties!: #Properties
-}

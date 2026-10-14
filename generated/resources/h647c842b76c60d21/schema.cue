@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Files::AccessPoint
-#Properties: close({
-	ClientToken?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(.+)$" | fn.#StringExpression
-	FileSystemId!: strings.MaxRunes(128) &
-	=~"^(arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}|fs-[0-9a-f]{17,40})$" |
-	fn.#StringExpression
-	PosixUser?:     #PosixUser | fn.#ObjectExpression
-	RootDirectory?: #RootDirectory | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#AccessPointTag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3Files::AccessPoint"
+	Properties!: close({
+		ClientToken?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(.+)$" | fn.#StringExpression
+		FileSystemId!: strings.MaxRunes(128) &
+		=~"^(arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}|fs-[0-9a-f]{17,40})$" |
+		fn.#StringExpression
+		PosixUser?:     #PosixUser | fn.#ObjectExpression
+		RootDirectory?: #RootDirectory | fn.#ObjectExpression
+		Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#AccessPointTag] | fn.#ListExpression
+	})
+}
 
 #AccessPointTag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" | fn.#StringExpression
@@ -48,7 +51,3 @@ fn.#ObjectExpression
 	Path?:                strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Files::AccessPoint"
-	Properties!: #Properties
-}

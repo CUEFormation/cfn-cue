@@ -12,13 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QuickSight::Flow Resource Type
-#Properties: close({
-	AwsAccountId!:   strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	FlowDefinition!: fn.#Value
-	Name!:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Permissions?:    [...#Permission] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QuickSight::Flow"
+	Properties!: close({
+		AwsAccountId!:   strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+		Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		FlowDefinition!: fn.#Value
+		Name!:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Permissions?:    [...#Permission] | fn.#ListExpression
+	})
+}
 
 #FlowPublishState: "PUBLISHED" | "DRAFT" | "PENDING_APPROVAL" | fn.#StringExpression
 
@@ -33,7 +36,3 @@ fn.#ObjectExpression
 	StepId!:    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QuickSight::Flow"
-	Properties!: #Properties
-}

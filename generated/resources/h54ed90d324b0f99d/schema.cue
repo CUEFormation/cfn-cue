@@ -13,10 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTManagedIntegrations::CredentialLocker
-#Properties: close({
-	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	Tags?: #TagsMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTManagedIntegrations::CredentialLocker"
+	Properties?: close({
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
+		Tags?: #TagsMap
+	})
+}
 
 #TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
@@ -24,7 +27,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Unit: close({}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTManagedIntegrations::CredentialLocker"
-	Properties?: #Properties
-}

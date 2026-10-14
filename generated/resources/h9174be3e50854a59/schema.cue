@@ -15,13 +15,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // type. For more information, see
 // [CreateApiMapping](https://docs.aws.amazon.com/apigatewayv2/latest/api-reference/domainnames-domainname-apimappings.html#CreateApiMapping)
 // in the *Amazon API Gateway V2 API Reference*.
-#Properties: close({
-	ApiId!:         string | fn.#StringExpression
-	ApiMappingKey?: string | fn.#StringExpression
-	DomainName!:    string | fn.#StringExpression
-	Stage!:         string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::ApiMapping"
-	Properties!: #Properties
+	Type!: "AWS::ApiGatewayV2::ApiMapping"
+	Properties!: close({
+		ApiId!:         string | fn.#StringExpression
+		ApiMappingKey?: string | fn.#StringExpression
+		DomainName!:    string | fn.#StringExpression
+		Stage!:         string | fn.#StringExpression
+	})
 }

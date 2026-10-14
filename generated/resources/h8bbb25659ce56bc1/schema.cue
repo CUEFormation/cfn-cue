@@ -13,20 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CertificateManager::AcmeEndpoint
-#Properties: close({
-	AuthorizationBehavior!: "PRE_APPROVED" | fn.#StringExpression
-	CertificateAuthority!:  #CertificateAuthority
-	CertificateTags?:       list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-	Contact?:               "NOT_REQUIRED" | "REQUIRED" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
-		Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
-		fn.#StringExpression
-		Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
-		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CertificateManager::AcmeEndpoint"
+	Properties!: close({
+		AuthorizationBehavior!: "PRE_APPROVED" | fn.#StringExpression
+		CertificateAuthority!:  #CertificateAuthority
+		CertificateTags?:       list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		Contact?:               "NOT_REQUIRED" | "REQUIRED" | fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
+			Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
+}
 
 #CertificateAuthority: close({PublicCertificateAuthority!: #PublicCertificateAuthority}) | fn.#ObjectExpression
 
@@ -38,7 +41,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CertificateManager::AcmeEndpoint"
-	Properties!: #Properties
-}

@@ -13,21 +13,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QBusiness::WebExperience Resource Type
-#Properties: close({
-	ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
-	fn.#StringExpression
-	BrowserExtensionConfiguration?: #BrowserExtensionConfiguration
-	CustomizationConfiguration?:    #CustomizationConfiguration
-	IdentityProviderConfiguration?: #IdentityProviderConfiguration
-	Origins?:                       list.MaxItems(10) & [...] & [...#Origin] | fn.#ListExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
-	fn.#StringExpression
-	SamplePromptsControlMode?: #WebExperienceSamplePromptsControlMode
-	Subtitle?:                 strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Tags?:                     list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	Title?:                    strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	WelcomeMessage?:           strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::QBusiness::WebExperience"
+	Properties!: close({
+		ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
+		fn.#StringExpression
+		BrowserExtensionConfiguration?: #BrowserExtensionConfiguration
+		CustomizationConfiguration?:    #CustomizationConfiguration
+		IdentityProviderConfiguration?: #IdentityProviderConfiguration
+		Origins?:                       list.MaxItems(10) & [...] & [...#Origin] | fn.#ListExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+		fn.#StringExpression
+		SamplePromptsControlMode?: #WebExperienceSamplePromptsControlMode
+		Subtitle?:                 strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		Tags?:                     list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Title?:                    strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		WelcomeMessage?:           strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
+	})
+}
 
 #BrowserExtension: "FIREFOX" | "CHROME" | fn.#StringExpression
 
@@ -79,7 +82,3 @@ fn.#ObjectExpression
 #WebExperienceSamplePromptsControlMode: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #WebExperienceStatus: "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "PENDING_AUTH_CONFIG" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::QBusiness::WebExperience"
-	Properties!: #Properties
-}

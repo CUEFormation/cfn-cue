@@ -13,19 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::CleanRoomsML::TrainingDataset Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(255) &
-	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[-a-z]*:iam::[0-9]{12}:role/.+$" |
-	fn.#StringExpression
-	Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TrainingData!: list.MaxItems(1) & list.MinItems(1) & [...#Dataset] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CleanRoomsML::TrainingDataset"
+	Properties!: close({
+		Description?: strings.MaxRunes(255) &
+		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[-a-z]*:iam::[0-9]{12}:role/.+$" |
+		fn.#StringExpression
+		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TrainingData!: list.MaxItems(1) & list.MinItems(1) & [...#Dataset] | fn.#ListExpression
+	})
+}
 
 #ColumnSchema: close({
 	ColumnName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" |
@@ -68,7 +71,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TrainingDatasetStatus: "ACTIVE" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CleanRoomsML::TrainingDataset"
-	Properties!: #Properties
-}

@@ -22,15 +22,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // associated with a log group, all the filters are applied to the log streams
 // in that group.
 // The maximum number of metric filters that can be associated with a log group is 100.
-#Properties: close({
-	ApplyOnTransformedLogs?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EmitSystemFieldDimensions?: [...string | fn.#StringExpression] | fn.#ListExpression
-	FieldSelectionCriteria?:    strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-	FilterName?:                strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]{1,512}" | fn.#StringExpression
-	FilterPattern!:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]{1,512}" | fn.#StringExpression
-	MetricTransformations!: list.MaxItems(1) & list.MinItems(1) & [...#MetricTransformation] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Logs::MetricFilter"
+	Properties!: close({
+		ApplyOnTransformedLogs?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EmitSystemFieldDimensions?: [...string | fn.#StringExpression] | fn.#ListExpression
+		FieldSelectionCriteria?:    strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
+		FilterName?:    strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]{1,512}" | fn.#StringExpression
+		FilterPattern!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]{1,512}" |
+		fn.#StringExpression
+		MetricTransformations!: list.MaxItems(1) & list.MinItems(1) & [...#MetricTransformation] | fn.#ListExpression
+	})
+}
 
 #Dimension: close({
 	Key!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -94,7 +98,3 @@ fn.#ObjectExpression
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::MetricFilter"
-	Properties!: #Properties
-}

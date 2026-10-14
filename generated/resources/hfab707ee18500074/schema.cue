@@ -18,20 +18,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for StateMachine
-#Properties: close({
-	Definition?:              #Definition
-	DefinitionS3Location?:    #S3Location
-	DefinitionString?:        strings.MaxRunes(1048576) & strings.MinRunes(1) | fn.#StringExpression
-	DefinitionSubstitutions?: #DefinitionSubstitutions
-	EncryptionConfiguration?: #EncryptionConfiguration
-	LoggingConfiguration?:    #LoggingConfiguration
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	StateMachineName?:     strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
-	StateMachineType?:     "STANDARD" | "EXPRESS" | fn.#StringExpression
-	Tags?:                 [...#TagsEntry] | fn.#ListExpression
-	TracingConfiguration?: #TracingConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::StepFunctions::StateMachine"
+	Properties!: close({
+		Definition?:              #Definition
+		DefinitionS3Location?:    #S3Location
+		DefinitionString?:        strings.MaxRunes(1048576) & strings.MinRunes(1) | fn.#StringExpression
+		DefinitionSubstitutions?: #DefinitionSubstitutions
+		EncryptionConfiguration?: #EncryptionConfiguration
+		LoggingConfiguration?:    #LoggingConfiguration
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
+		fn.#StringExpression
+		StateMachineName?:     strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
+		StateMachineType?:     "STANDARD" | "EXPRESS" | fn.#StringExpression
+		Tags?:                 [...#TagsEntry] | fn.#ListExpression
+		TracingConfiguration?: #TracingConfiguration
+	})
+}
 
 #CloudWatchLogsLogGroup: close({LogGroupArn?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
@@ -93,7 +96,3 @@ fn.#ObjectExpression
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::StepFunctions::StateMachine"
-	Properties!: #Properties
-}

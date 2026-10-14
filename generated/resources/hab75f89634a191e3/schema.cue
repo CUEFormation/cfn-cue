@@ -12,17 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAF::IPSet
-#Properties: close({
-	IPSetDescriptors?: list.UniqueItems() & [...#IPSetDescriptor] | fn.#ListExpression
-	Name!:             string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WAF::IPSet"
+	Properties!: close({
+		IPSetDescriptors?: list.UniqueItems() & [...#IPSetDescriptor] | fn.#ListExpression
+		Name!:             string | fn.#StringExpression
+	})
+}
 
 #IPSetDescriptor: close({
 	Type!:  string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WAF::IPSet"
-	Properties!: #Properties
-}

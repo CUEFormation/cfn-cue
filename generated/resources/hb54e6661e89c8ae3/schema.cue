@@ -17,37 +17,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Cassandra::Table
-#Properties: close({
-	AutoScalingSpecifications?:   #AutoScalingSpecification
-	BillingMode?:                 #BillingMode
-	CdcSpecification?:            #CdcSpecification
-	ClientSideTimestampsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ClusteringKeyColumns?:        list.UniqueItems() & [...#ClusteringKeyColumn] | fn.#ListExpression
-	DefaultTimeToLive?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EncryptionSpecification?:    #EncryptionSpecification
-	KeyspaceName!:               =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
-	PartitionKeyColumns!:        list.MinItems(1) & list.UniqueItems() & [...#Column] | fn.#ListExpression
-	PointInTimeRecoveryEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RegularColumns?:             list.UniqueItems() & [...#Column] | fn.#ListExpression
-	ReplicaSpecifications?:      list.MinItems(1) & list.UniqueItems() & [...#ReplicaSpecification] | fn.#ListExpression
-	TableName?:                  =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
-	Tags?:                       list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	WarmThroughput?:             #WarmThroughput
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cassandra::Table"
+	Properties!: close({
+		AutoScalingSpecifications?: #AutoScalingSpecification
+		BillingMode?:               #BillingMode
+		CdcSpecification?:          #CdcSpecification
+		ClientSideTimestampsEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		ClusteringKeyColumns?: list.UniqueItems() & [...#ClusteringKeyColumn] | fn.#ListExpression
+		DefaultTimeToLive?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		EncryptionSpecification?: #EncryptionSpecification
+		KeyspaceName!:            =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
+		PartitionKeyColumns!:     list.MinItems(1) & list.UniqueItems() & [...#Column] | fn.#ListExpression
+		PointInTimeRecoveryEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		RegularColumns?:        list.UniqueItems() & [...#Column] | fn.#ListExpression
+		ReplicaSpecifications?: list.MinItems(1) & list.UniqueItems() & [...#ReplicaSpecification] | fn.#ListExpression
+		TableName?:             =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
+		Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		WarmThroughput?:        #WarmThroughput
+	})
+}
 
 #AutoScalingSetting: close({
 	AutoScalingDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -275,7 +294,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cassandra::Table"
-	Properties!: #Properties
-}

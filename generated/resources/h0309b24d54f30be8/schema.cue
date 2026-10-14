@@ -12,13 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RefactorSpaces::Environment Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\s\\.\\!\\*\\#\\@\\']+$" |
-	fn.#StringExpression
-	Name?:              strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	NetworkFabricType?: #NetworkFabricType
-	Tags?:              [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RefactorSpaces::Environment"
+	Properties?: close({
+		Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\s\\.\\!\\*\\#\\@\\']+$" |
+		fn.#StringExpression
+		Name?:              strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+		NetworkFabricType?: #NetworkFabricType
+		Tags?:              [...#Tag] | fn.#ListExpression
+	})
+}
 
 #NetworkFabricType: "TRANSIT_GATEWAY" | "NONE" | fn.#StringExpression
 
@@ -27,7 +30,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RefactorSpaces::Environment"
-	Properties?: #Properties
-}

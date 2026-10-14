@@ -19,28 +19,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates a resilience-managed service with associated systems, input sources,
 // assertions, and service functions.
-#Properties: close({
-	Assertions?:          list.MaxItems(20) & [...#AssertionDefinition] | fn.#ListExpression
-	AssociatedSystems?:   list.MaxItems(1000) & [...#AssociatedSystem] | fn.#ListExpression
-	DependencyDiscovery?: "ENABLED" | "DISABLED" | "INITIALIZING" | fn.#StringExpression
-	Description?:         strings.MaxRunes(615) | fn.#StringExpression
-	InputSources?:        list.MaxItems(20) & [...#InputSourceDefinition] | fn.#ListExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^((arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:((key/[a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)))|([a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+))$" |
-	fn.#StringExpression
-	Name!:            =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	PermissionModel?: #PermissionModel
-	PolicyArn?:       string | fn.#StringExpression
-	Regions!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MinRunes(6) & =~"^[a-z]{2}-((iso[a-z]{0,1}-)|(gov-)){0,1}[a-z]+-[0-9]$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	ReportConfiguration?: #ServiceReportConfiguration
-	Tags?:                list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ResilienceHubV2::Service"
+	Properties!: close({
+		Assertions?:          list.MaxItems(20) & [...#AssertionDefinition] | fn.#ListExpression
+		AssociatedSystems?:   list.MaxItems(1000) & [...#AssociatedSystem] | fn.#ListExpression
+		DependencyDiscovery?: "ENABLED" | "DISABLED" | "INITIALIZING" | fn.#StringExpression
+		Description?:         strings.MaxRunes(615) | fn.#StringExpression
+		InputSources?:        list.MaxItems(20) & [...#InputSourceDefinition] | fn.#ListExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^((arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:((key/[a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)))|([a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+))$" |
+		fn.#StringExpression
+		Name!:            =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
+		PermissionModel?: #PermissionModel
+		PolicyArn?:       string | fn.#StringExpression
+		Regions!: list.MaxItems(10) & list.MinItems(1) & [
+			...strings.MinRunes(6) & =~"^[a-z]{2}-((iso[a-z]{0,1}-)|(gov-)){0,1}[a-z]+-[0-9]$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		ReportConfiguration?: #ServiceReportConfiguration
+		Tags?:                list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AssertionDefinition: close({Text!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
@@ -231,7 +234,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ResilienceHubV2::Service"
-	Properties!: #Properties
-}

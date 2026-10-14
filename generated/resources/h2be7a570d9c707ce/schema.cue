@@ -9,8 +9,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ResourceExplorer2::DefaultViewAssociation Resource Type
-#Properties: close({ViewArn!: string | fn.#StringExpression})
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ResourceExplorer2::DefaultViewAssociation"
-	Properties!: #Properties
+	Properties!: close({ViewArn!: string | fn.#StringExpression})
 }

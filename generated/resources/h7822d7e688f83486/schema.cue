@@ -17,70 +17,81 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Ground Station Mission Profile resource type for CloudFormation.
-#Properties: close({
-	ContactPostPassDurationSeconds?: int & <=21600 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=21600 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ContactPrePassDurationSeconds?: int & <=21600 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=21600 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	DataflowEdges!: list.MaxItems(500) & list.MinItems(1) & [...#DataflowEdge] | fn.#ListExpression
-	MinimumViableContactDurationSeconds!: int & <=21600 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=21600 &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name!:          =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
-	StreamsKmsKey?: #StreamsKmsKey | fn.#ObjectExpression
-	StreamsKmsRole?: strings.MaxRunes(165) &
-	strings.MinRunes(30) &
-	=~"^arn:[a-z0-9-.]{1,63}:iam::[0-9]{12}:role/[\\w+=,.@-]{1,64}$" |
-	fn.#StringExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-	TelemetrySinkConfigArn?: strings.MaxRunes(424) &
-	strings.MinRunes(82) &
-	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
-	fn.#StringExpression
-	TrackingConfigArn!: strings.MaxRunes(424) & strings.MinRunes(82) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GroundStation::MissionProfile"
+	Properties!: close({
+		ContactPostPassDurationSeconds?: int & <=21600 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=21600 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ContactPrePassDurationSeconds?: int & <=21600 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=21600 &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		DataflowEdges!: list.MaxItems(500) & list.MinItems(1) & [...#DataflowEdge] | fn.#ListExpression
+		MinimumViableContactDurationSeconds!: int & <=21600 & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								<=21600 &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Name!:          =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
+		StreamsKmsKey?: #StreamsKmsKey | fn.#ObjectExpression
+		StreamsKmsRole?: strings.MaxRunes(165) &
+		strings.MinRunes(30) &
+		=~"^arn:[a-z0-9-.]{1,63}:iam::[0-9]{12}:role/[\\w+=,.@-]{1,64}$" |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+		TelemetrySinkConfigArn?: strings.MaxRunes(424) &
+		strings.MinRunes(82) &
+		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+		fn.#StringExpression
+		TrackingConfigArn!: strings.MaxRunes(424) &
+		strings.MinRunes(82) &
+		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+		fn.#StringExpression
+	})
+}
 
 #DataflowEdge: close({
 	Destination?: string | fn.#StringExpression
@@ -115,7 +126,3 @@ fn.#ObjectExpression
 	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GroundStation::MissionProfile"
-	Properties!: #Properties
-}

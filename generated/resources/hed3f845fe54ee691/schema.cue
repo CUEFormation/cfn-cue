@@ -12,19 +12,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	DataBundles?:          [...#DataBundleArn] | fn.#ListExpression
-	Description?:          =~"^[a-zA-Z0-9. ]{1,1000}$" | fn.#StringExpression
-	FederationMode?:       "LOCAL" | "FEDERATED" | fn.#StringExpression
-	FederationParameters?: #FederationParameters
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-		=~"^[a-zA-Z-0-9-:\\/]{1,1000}$" |
-		fn.#StringExpression
-	Name!:                =~"^[a-zA-Z0-9]+[a-zA-Z0-9-]*[a-zA-Z0-9]{1,255}$" | fn.#StringExpression
-	SuperuserParameters?: #SuperuserParameters
-	Tags?:                [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::FinSpace::Environment"
+	Properties!: close({
+		DataBundles?:          [...#DataBundleArn] | fn.#ListExpression
+		Description?:          =~"^[a-zA-Z0-9. ]{1,1000}$" | fn.#StringExpression
+		FederationMode?:       "LOCAL" | "FEDERATED" | fn.#StringExpression
+		FederationParameters?: #FederationParameters
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) &
+			=~"^[a-zA-Z-0-9-:\\/]{1,1000}$" |
+			fn.#StringExpression
+		Name!:                =~"^[a-zA-Z0-9]+[a-zA-Z0-9-]*[a-zA-Z0-9]{1,255}$" | fn.#StringExpression
+		SuperuserParameters?: #SuperuserParameters
+		Tags?:                [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DataBundleArn: =~"^arn:aws:finspace:[A-Za-z0-9_/.-]{0,63}:\\d*:data-bundle/[0-9A-Za-z_-]{1,128}$" |
 	fn.#StringExpression
@@ -62,7 +65,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::FinSpace::Environment"
-	Properties!: #Properties
-}

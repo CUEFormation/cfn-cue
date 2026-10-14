@@ -13,21 +13,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::SageMaker::Model
-#Properties: close({
-	Containers?:             list.MaxItems(15) & [...] & [...#ContainerDefinition] | fn.#ListExpression
-	EnableNetworkIsolation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-	fn.#StringExpression
-	InferenceExecutionConfig?: #InferenceExecutionConfig
-	ModelName?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?$" |
-	fn.#StringExpression
-	PrimaryContainer?: #ContainerDefinition
-	Tags?:             list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-	VpcConfig?:        #VpcConfig
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::Model"
+	Properties?: close({
+		Containers?:             list.MaxItems(15) & [...] & [...#ContainerDefinition] | fn.#ListExpression
+		EnableNetworkIsolation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		fn.#StringExpression
+		InferenceExecutionConfig?: #InferenceExecutionConfig
+		ModelName?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?$" |
+		fn.#StringExpression
+		PrimaryContainer?: #ContainerDefinition
+		Tags?:             list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		VpcConfig?:        #VpcConfig
+	})
+}
 
 #ContainerDefinition: close({
 	ContainerHostname?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
@@ -101,7 +104,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::Model"
-	Properties?: #Properties
-}

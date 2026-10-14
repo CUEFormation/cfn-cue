@@ -15,11 +15,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AWS::S3::MultiRegionAccessPoint is an Amazon S3 resource type that
 // dynamically routes S3 requests to easily satisfy geographic compliance
 // requirements based on customer-defined routing policies.
-#Properties: close({
-	Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]{1,48}[a-z0-9]$" | fn.#StringExpression
-	PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration | fn.#ObjectExpression
-	Regions!: list.MinItems(1) & list.UniqueItems() & [...#Region | fn.#ObjectExpression] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3::MultiRegionAccessPoint"
+	Properties!: close({
+		Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]{1,48}[a-z0-9]$" | fn.#StringExpression
+		PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration | fn.#ObjectExpression
+		Regions!: list.MinItems(1) & list.UniqueItems() & [...#Region | fn.#ObjectExpression] | fn.#ListExpression
+	})
+}
 
 #PublicAccessBlockConfiguration: close({
 	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -34,7 +37,3 @@ fn.#ObjectExpression
 	BucketAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3::MultiRegionAccessPoint"
-	Properties!: #Properties
-}

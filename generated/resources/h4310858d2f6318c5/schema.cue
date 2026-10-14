@@ -17,12 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::Transcribe::CallAnalyticsCategory
-#Properties: close({
-	CategoryName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
-	InputType?:    "REAL_TIME" | "POST_CALL" | fn.#StringExpression
-	Rules!:        list.MaxItems(20) & list.MinItems(1) & [...#Rule] | fn.#ListExpression
-	Tags?:         list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Transcribe::CallAnalyticsCategory"
+	Properties!: close({
+		CategoryName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
+		InputType?:    "REAL_TIME" | "POST_CALL" | fn.#StringExpression
+		Rules!:        list.MaxItems(20) & list.MinItems(1) & [...#Rule] | fn.#ListExpression
+		Tags?:         list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AbsoluteTimeRange: close({
 	EndTime?: int & <=14400000 & >=0 |
@@ -243,7 +246,3 @@ fn.#ObjectExpression
 	TranscriptFilterType!: "EXACT" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Transcribe::CallAnalyticsCategory"
-	Properties!: #Properties
-}

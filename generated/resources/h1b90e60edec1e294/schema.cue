@@ -13,35 +13,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DataSync::LocationAzureBlob.
-#Properties: close({
-	AgentArns?: list.MaxItems(8) & list.MinItems(1) & [
-		...strings.MaxRunes(128) &
-		strings.MinRunes(0) &
-		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:agent/agent-[0-9a-z]{17}$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataSync::LocationAzureBlob"
+	Properties!: close({
+		AgentArns?: list.MaxItems(8) & list.MinItems(1) & [
+			...strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:agent/agent-[0-9a-z]{17}$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		AzureAccessTier?:             "HOT" | "COOL" | "ARCHIVE" | fn.#StringExpression
+		AzureBlobAuthenticationType!: "SAS" | "NONE" | "OIDC" | fn.#StringExpression
+		AzureBlobContainerUrl?: strings.MaxRunes(325) &
+		=~"^https://[A-Za-z0-9]((.|-+)?[A-Za-z0-9]){0,252}/[a-z0-9](-?[a-z0-9]){2,62}$" |
 		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	AzureAccessTier?:             "HOT" | "COOL" | "ARCHIVE" | fn.#StringExpression
-	AzureBlobAuthenticationType!: "SAS" | "NONE" | "OIDC" | fn.#StringExpression
-	AzureBlobContainerUrl?: strings.MaxRunes(325) &
-	=~"^https://[A-Za-z0-9]((.|-+)?[A-Za-z0-9]){0,252}/[a-z0-9](-?[a-z0-9]){2,62}$" |
-	fn.#StringExpression
-	AzureBlobSasConfiguration?: #AzureBlobSasConfiguration
-	AzureBlobType?:             "BLOCK" | fn.#StringExpression
-	CmkSecretConfig?: close({
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		strings.MaxRunes(2048) &
+		AzureBlobSasConfiguration?: #AzureBlobSasConfiguration
+		AzureBlobType?:             "BLOCK" | fn.#StringExpression
+		CmkSecretConfig?: close({
+			KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		CustomSecretConfig?: #CustomSecretConfig
+		FederatedIdentity?:  #AzureFederatedIdentityConfig
+		Subdirectory?: strings.MaxRunes(1024) &
 		strings.MinRunes(0) &
-		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
+		=~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}\\p{C}]*$" |
 		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	CustomSecretConfig?: #CustomSecretConfig
-	FederatedIdentity?:  #AzureFederatedIdentityConfig
-	Subdirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}\\p{C}]*$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AzureBlobSasConfiguration: close(
 	{AzureBlobSasToken!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"(^.+$)" | fn.#StringExpression},
@@ -106,7 +111,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataSync::LocationAzureBlob"
-	Properties!: #Properties
-}

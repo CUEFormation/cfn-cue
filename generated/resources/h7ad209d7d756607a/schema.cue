@@ -13,22 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApiGatewayV2::Stage
-#Properties: close({
-	AccessLogSettings?:    #AccessLogSettings | fn.#ObjectExpression
-	ApiId!:                string | fn.#StringExpression
-	AutoDeploy?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ClientCertificateId?:  string | fn.#StringExpression
-	DefaultRouteSettings?: #RouteSettings | fn.#ObjectExpression
-	DeploymentId?:         string | fn.#StringExpression
-	Description?:          string | fn.#StringExpression
-	RouteSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
-	StageName!:            string | fn.#StringExpression
-	StageVariables?:       fn.#Object & {...} | string | fn.#StringObjectExpression
-	Tags?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApiGatewayV2::Stage"
+	Properties!: close({
+		AccessLogSettings?:    #AccessLogSettings | fn.#ObjectExpression
+		ApiId!:                string | fn.#StringExpression
+		AutoDeploy?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ClientCertificateId?:  string | fn.#StringExpression
+		DefaultRouteSettings?: #RouteSettings | fn.#ObjectExpression
+		DeploymentId?:         string | fn.#StringExpression
+		Description?:          string | fn.#StringExpression
+		RouteSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+		StageName!:            string | fn.#StringExpression
+		StageVariables?:       fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-})
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+	})
+}
 
 #AccessLogSettings: close({
 	DestinationArn?: string | fn.#StringExpression
@@ -75,7 +78,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGatewayV2::Stage"
-	Properties!: #Properties
-}

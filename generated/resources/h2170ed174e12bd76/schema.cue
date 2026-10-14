@@ -17,17 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::KnowledgeBase Resource Type
-#Properties: close({
-	Description?:                strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	KnowledgeBaseConfiguration!: #KnowledgeBaseConfiguration
-	Name!:                       =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
-	fn.#StringExpression
-	StorageConfiguration?: #StorageConfiguration
-	Tags?:                 #TagsMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::KnowledgeBase"
+	Properties!: close({
+		Description?:                strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		KnowledgeBaseConfiguration!: #KnowledgeBaseConfiguration
+		Name!:                       =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
+		fn.#StringExpression
+		StorageConfiguration?: #StorageConfiguration
+		Tags?:                 #TagsMap
+	})
+}
 
 #AudioConfiguration: close({SegmentationConfiguration!: #AudioSegmentationConfiguration}) | fn.#ObjectExpression
 
@@ -567,7 +570,3 @@ fn.#ObjectExpression
 
 #WorkgroupArn: =~"^(arn:(aws(-[a-z]+)*):redshift-serverless:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:workgroup/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::KnowledgeBase"
-	Properties!: #Properties
-}

@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS:ObservabilityAdmin:OrganizationCentralizationRule
-#Properties: close({
-	Rule!:     #CentralizationRule
-	RuleName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$" | fn.#StringExpression
-	Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ObservabilityAdmin::OrganizationCentralizationRule"
+	Properties!: close({
+		Rule!:     #CentralizationRule
+		RuleName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$" | fn.#StringExpression
+		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AccountIdentifier: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 
@@ -114,7 +117,3 @@ fn.#ObjectExpression
 	TagConflictResolutionStrategy?: "IN_SYNC" | "ADD_ONLY" | "UPDATE_SYNC" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ObservabilityAdmin::OrganizationCentralizationRule"
-	Properties!: #Properties
-}

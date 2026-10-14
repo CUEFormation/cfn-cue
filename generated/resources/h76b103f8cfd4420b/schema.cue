@@ -12,18 +12,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Domain
-#Properties: close({
-	DomainEntries?: list.UniqueItems() & [...close({
-		IsAlias?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Name!:    string | fn.#StringExpression
-		Target!:  string | fn.#StringExpression
-		Type!:    "A" | "AAAA" | "CNAME" | "MX" | "NS" | "SOA" | "SRV" | "TXT" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	DomainName!: string | fn.#StringExpression
-	Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lightsail::Domain"
+	Properties!: close({
+		DomainEntries?: list.UniqueItems() & [...close({
+			IsAlias?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			Name!:    string | fn.#StringExpression
+			Target!:  string | fn.#StringExpression
+			Type!:    "A" | "AAAA" | "CNAME" | "MX" | "NS" | "SOA" | "SRV" | "TXT" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		DomainName!: string | fn.#StringExpression
+		Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #DomainEntry: close({
 	Id?:      string | fn.#StringExpression
@@ -39,7 +42,3 @@ fn.#ObjectExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::Domain"
-	Properties!: #Properties
-}

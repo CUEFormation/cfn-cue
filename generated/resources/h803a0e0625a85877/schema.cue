@@ -12,11 +12,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::VerifiedPermissions::Policy Resource Type
-#Properties: close({
-	Definition!:    #PolicyDefinition
-	Name?:          strings.MaxRunes(150) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-/_]*$" | fn.#StringExpression
-	PolicyStoreId!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::VerifiedPermissions::Policy"
+	Properties!: close({
+		Definition!:    #PolicyDefinition
+		Name?:          strings.MaxRunes(150) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-/_]*$" | fn.#StringExpression
+		PolicyStoreId!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
+	})
+}
 
 #EntityIdentifier: close({
 	EntityId!:   strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
@@ -43,7 +46,3 @@ fn.#ObjectExpression
 	Resource?:         #EntityIdentifier
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::VerifiedPermissions::Policy"
-	Properties!: #Properties
-}

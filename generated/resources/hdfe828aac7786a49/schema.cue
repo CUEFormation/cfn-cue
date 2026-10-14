@@ -12,13 +12,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a data source for an Amazon OpenSearch Service domain.
-#Properties: close({
-	DataSourceType!: #DataSourceType
-	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^([a-zA-Z0-9_])*[\\\\a-zA-Z0-9_@#%*+=:?./!\\s-]*$" |
-	fn.#StringExpression
-	DomainName!: strings.MaxRunes(28) & strings.MinRunes(3) & =~"^[a-z][a-z0-9\\-]+$" | fn.#StringExpression
-	Name!:       strings.MaxRunes(80) & strings.MinRunes(3) & =~"^[a-z][a-z0-9_]+$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::OpenSearch::DataSource"
+	Properties!: close({
+		DataSourceType!: #DataSourceType
+		Description?: strings.MaxRunes(1000) &
+		strings.MinRunes(0) &
+		=~"^([a-zA-Z0-9_])*[\\\\a-zA-Z0-9_@#%*+=:?./!\\s-]*$" |
+		fn.#StringExpression
+		DomainName!: strings.MaxRunes(28) & strings.MinRunes(3) & =~"^[a-z][a-z0-9\\-]+$" | fn.#StringExpression
+		Name!:       strings.MaxRunes(80) & strings.MinRunes(3) & =~"^[a-z][a-z0-9_]+$" | fn.#StringExpression
+	})
+}
 
 #DataSourceType: close({S3GlueDataCatalog?: #S3GlueDataCatalog}) | fn.#ObjectExpression
 
@@ -30,7 +35,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::OpenSearch::DataSource"
-	Properties!: #Properties
-}

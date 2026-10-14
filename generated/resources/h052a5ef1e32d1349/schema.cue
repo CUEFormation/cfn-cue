@@ -44,11 +44,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The following operations are related to ``PutBucketPolicy``:
 // + [CreateBucket](https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html)
 // + [DeleteBucket](https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucket.html)
-#Properties: close({
-	Bucket!:         string | fn.#StringExpression
-	PolicyDocument!: iam.#S3BucketPolicyValue
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3::BucketPolicy"
-	Properties!: #Properties
+	Type!: "AWS::S3::BucketPolicy"
+	Properties!: close({
+		Bucket!:         string | fn.#StringExpression
+		PolicyDocument!: iam.#S3BucketPolicyValue
+	})
 }

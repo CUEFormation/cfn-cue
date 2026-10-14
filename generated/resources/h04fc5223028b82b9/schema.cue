@@ -14,40 +14,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A billing view is a container of cost & usage metadata.
-#Properties: close({
-	DataFilterExpression?: close({
-		Dimensions?: close({
-			Key?: #DimensionKey
-			Values?: list.MaxItems(200) & list.MinItems(1) & [
-				...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
-			] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Billing::BillingView"
+	Properties!: close({
+		DataFilterExpression?: close({
+			Dimensions?: close({
+				Key?: #DimensionKey
+				Values?: list.MaxItems(200) & list.MinItems(1) & [
+					...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
+				] |
+				fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
+			Tags?: close({
+				Key?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
+				Values?: list.MaxItems(200) & list.MinItems(1) & [
+					...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
+				] |
+				fn.#ListExpression
+			}) |
+			fn.#ObjectExpression
+			TimeRange?: close({
+				BeginDateInclusive?: #Timestamp
+				EndDateInclusive?:   #Timestamp
+			}) |
+			fn.#ObjectExpression
+		}) |
+		fn.#ObjectExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^([ a-zA-Z0-9_\\+=\\.\\-@]+)?$" |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
+		SourceViews!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
+			...=~"arn:aws[a-z-]*:(billing)::[0-9]{12}:billingview/[a-zA-Z0-9_+=.@-]{1,75}" | fn.#StringExpression
+		] |
 			fn.#ListExpression
-		}) |
-		fn.#ObjectExpression
-		Tags?: close({
-			Key?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
-			Values?: list.MaxItems(200) & list.MinItems(1) & [
-				...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
-			] |
-			fn.#ListExpression
-		}) |
-		fn.#ObjectExpression
-		TimeRange?: close({
-			BeginDateInclusive?: #Timestamp
-			EndDateInclusive?:   #Timestamp
-		}) |
-		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^([ a-zA-Z0-9_\\+=\\.\\-@]+)?$" |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
-	SourceViews!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		...=~"arn:aws[a-z-]*:(billing)::[0-9]{12}:billingview/[a-zA-Z0-9_+=.@-]{1,75}" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: =~"arn:aws[a-z-]*:(billing)::[0-9]{12}:billingview/[a-zA-Z0-9/:_\\+=\\.\\-@]{0,75}[a-zA-Z0-9]" |
 	fn.#StringExpression
@@ -63,7 +66,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Timestamp: time.Time | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Billing::BillingView"
-	Properties!: #Properties
-}

@@ -18,76 +18,79 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Lambda::WebFunctionRevision. An immutable
 // revision of a Lambda web function, containing the function code and
 // configuration.
-#Properties: close({
-	BuildConfig!: close({
-		CodeConfig!: close({S3Object!: #S3Object | fn.#ObjectExpression}) | fn.#ObjectExpression
-		RuntimeConfig!: close({
-			Runtime!: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*[0-9]+(\\.[a-z0-9]+)*$" |
-			fn.#StringExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lambda::WebFunctionRevision"
+	Properties!: close({
+		BuildConfig!: close({
+			CodeConfig!: close({S3Object!: #S3Object | fn.#ObjectExpression}) | fn.#ObjectExpression
+			RuntimeConfig!: close({
+				Runtime!: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*[0-9]+(\\.[a-z0-9]+)*$" |
+				fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-	}) |
-	fn.#ObjectExpression
-	Description?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FunctionName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:(aws[a-z-]*){1}:kms:[a-z0-9-]+:[0-9]{12}:key/.*$" |
-	fn.#StringExpression
-	ServiceConfig!: close({
-		EgressNetworkConnectorArn?: strings.MaxRunes(2048) &
-		strings.MinRunes(1) &
-		=~"^arn:(aws[a-z-]*):lambda:[a-z0-9-]+:[0-9]{12}:network-connector:[a-zA-Z0-9_-]+:[0-9]+$" |
-		fn.#StringExpression
-		EnvironmentVariables?: close({
-
-			{[=~"^[a-zA-Z]([a-zA-Z0-9_])*$"]: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression}}) |
-		fn.#ObjectExpression
-		ExecutionRoleArn!: strings.MaxRunes(2048) &
+		Description?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		FunctionName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
-		=~"^arn:(aws[a-z-]*){1}:iam::[0-9]{12}:role/.*$" |
+		=~"^arn:(aws[a-z-]*){1}:kms:[a-z0-9-]+:[0-9]{12}:key/.*$" |
 		fn.#StringExpression
-		MaxConcurrencyPerEnvironment?: int & <=128 & >=1 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=128 &
-								>=1,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		TelemetryConfig?: close({LoggingConfig?: #LoggingConfig | fn.#ObjectExpression}) | fn.#ObjectExpression
-		TimeoutSeconds?: int & <=900 & >=3 |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int &
-								<=900 &
-								>=3,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-	}) |
-	fn.#ObjectExpression
-})
+		ServiceConfig!: close({
+			EgressNetworkConnectorArn?: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:(aws[a-z-]*):lambda:[a-z0-9-]+:[0-9]{12}:network-connector:[a-zA-Z0-9_-]+:[0-9]+$" |
+			fn.#StringExpression
+			EnvironmentVariables?: close({
+
+				{[=~"^[a-zA-Z]([a-zA-Z0-9_])*$"]: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression}}) |
+			fn.#ObjectExpression
+			ExecutionRoleArn!: strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:(aws[a-z-]*){1}:iam::[0-9]{12}:role/.*$" |
+			fn.#StringExpression
+			MaxConcurrencyPerEnvironment?: int & <=128 & >=1 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=128 &
+									>=1,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			TelemetryConfig?: close({LoggingConfig?: #LoggingConfig | fn.#ObjectExpression}) | fn.#ObjectExpression
+			TimeoutSeconds?: int & <=900 & >=3 |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int &
+									<=900 &
+									>=3,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+		}) |
+		fn.#ObjectExpression
+	})
+}
 
 #LoggingConfig: close({
 	ApplicationLogLevel?: "TRACE" | "DEBUG" | "INFO" | "WARN" | "ERROR" | "FATAL" | fn.#StringExpression
@@ -103,7 +106,3 @@ fn.#ObjectExpression
 	VersionId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::WebFunctionRevision"
-	Properties!: #Properties
-}

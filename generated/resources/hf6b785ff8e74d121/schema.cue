@@ -32,18 +32,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For information about retrieving a secret in code, see [Retrieve secrets from
 // Secrets
 // Manager](https://docs.aws.amazon.com/secretsmanager/latest/userguide/retrieving-secrets.html).
-#Properties: close({
-	Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	GenerateSecretString?: #GenerateSecretString | fn.#ObjectExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(2048) & strings.MinRunes(0)) |
-	fn.#StringExpression
-	Name?:           strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	ReplicaRegions?: [...#ReplicaRegion] | fn.#ListExpression
-	SecretString?:   strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:           [...#Tag] | fn.#ListExpression
-	Type?:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecretsManager::Secret"
+	Properties?: close({
+		Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		GenerateSecretString?: #GenerateSecretString | fn.#ObjectExpression
+		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string) & (strings.MaxRunes(2048) & strings.MinRunes(0)) |
+		fn.#StringExpression
+		Name?:           strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		ReplicaRegions?: [...#ReplicaRegion] | fn.#ListExpression
+		SecretString?:   strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:           [...#Tag] | fn.#ListExpression
+		Type?:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	})
+}
 
 #GenerateSecretString: close({
 	ExcludeCharacters?:  string | fn.#StringExpression
@@ -85,7 +88,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecretsManager::Secret"
-	Properties?: #Properties
-}

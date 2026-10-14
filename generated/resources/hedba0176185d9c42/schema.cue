@@ -17,24 +17,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ProcessingJob
-#Properties: close({
-	AppSpecification!: #AppSpecification
-	Environment?:      #Environment
-	ExperimentConfig?: #ExperimentConfig
-	NetworkConfig?:    #NetworkConfig
-	ProcessingInputs?: list.MaxItems(10) & [...] & [...#ProcessingInputsObject] | fn.#ListExpression
-	ProcessingJobName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
-	fn.#StringExpression
-	ProcessingOutputConfig?: #ProcessingOutputConfig
-	ProcessingResources!:    #ProcessingResources
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" |
-	fn.#StringExpression
-	StoppingCondition?: #StoppingCondition
-	Tags?:              list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SageMaker::ProcessingJob"
+	Properties!: close({
+		AppSpecification!: #AppSpecification
+		Environment?:      #Environment
+		ExperimentConfig?: #ExperimentConfig
+		NetworkConfig?:    #NetworkConfig
+		ProcessingInputs?: list.MaxItems(10) & [...] & [...#ProcessingInputsObject] | fn.#ListExpression
+		ProcessingJobName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
+		fn.#StringExpression
+		ProcessingOutputConfig?: #ProcessingOutputConfig
+		ProcessingResources!:    #ProcessingResources
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" |
+		fn.#StringExpression
+		StoppingCondition?: #StoppingCondition
+		Tags?:              list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AppSpecification: close({
 	ContainerArguments?: list.MaxItems(100) & [...] & [
@@ -368,7 +371,3 @@ fn.#ObjectExpression
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SageMaker::ProcessingJob"
-	Properties!: #Properties
-}

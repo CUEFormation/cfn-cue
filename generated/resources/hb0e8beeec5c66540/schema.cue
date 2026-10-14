@@ -14,13 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Mitigation actions can be used to take actions to mitigate issues that were
 // found in an Audit finding or Detect violation.
-#Properties: close({
-	ActionName?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	ActionParams!: #ActionParams
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
-	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoT::MitigationAction"
+	Properties!: close({
+		ActionName?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
+		ActionParams!: #ActionParams
+		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ActionParams: close({
 	AddThingsToThingGroupParams?:       #AddThingsToThingGroupParams
@@ -66,7 +69,3 @@ fn.#ObjectExpression
 
 #UpdateDeviceCertificateParams: close({Action!: "DEACTIVATE" | "UNSET_VALUE" | fn.#StringExpression}) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoT::MitigationAction"
-	Properties!: #Properties
-}

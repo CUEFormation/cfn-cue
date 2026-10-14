@@ -13,21 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a review template for the Well-Architected Tool.
-#Properties: close({
-	Description!: strings.MaxRunes(250) & strings.MinRunes(3) & =~"^[A-Za-z0-9-_.,:/()@!&?#+''\\s]+$" |
-	fn.#StringExpression
-	Lenses!: [...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Notes?:  strings.MaxRunes(2084) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?: list.UniqueItems() & [...close({
-		Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	TemplateName!: strings.MaxRunes(100) & strings.MinRunes(3) & =~"^[A-Za-z0-9-_.,:/()@!&?#+''\\s]+$" |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WellArchitected::ReviewTemplate"
-	Properties!: #Properties
+	Type!: "AWS::WellArchitected::ReviewTemplate"
+	Properties!: close({
+		Description!: strings.MaxRunes(250) & strings.MinRunes(3) & =~"^[A-Za-z0-9-_.,:/()@!&?#+''\\s]+$" |
+		fn.#StringExpression
+		Lenses!: [...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		Notes?:  strings.MaxRunes(2084) & strings.MinRunes(0) | fn.#StringExpression
+		Tags?: list.UniqueItems() & [...close({
+			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		TemplateName!: strings.MaxRunes(100) & strings.MinRunes(3) & =~"^[A-Za-z0-9-_.,:/()@!&?#+''\\s]+$" |
+		fn.#StringExpression
+	})
 }

@@ -12,14 +12,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Schema for the AWS Route53 Recovery Readiness ResourceSet Resource and API.
-#Properties: close({
-	ResourceSetName?: string | fn.#StringExpression
-	ResourceSetType!: =~"^AWS::[A-Za-z0-9]+::[A-Za-z0-9]+$" | fn.#StringExpression
-	Resources!: list.MaxItems(6) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Resource"] |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Route53RecoveryReadiness::ResourceSet"
+	Properties!: close({
+		ResourceSetName?: string | fn.#StringExpression
+		ResourceSetType!: =~"^AWS::[A-Za-z0-9]+::[A-Za-z0-9]+$" | fn.#StringExpression
+		Resources!: list.MaxItems(6) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Resource"] |
+			fn.#ListExpression
+		Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
 		fn.#ListExpression
-	Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
-	fn.#ListExpression
-})
+	})
+}
 
 #DNSTargetResource: close({
 	DomainName?:     string | fn.#StringExpression
@@ -60,7 +63,3 @@ _#defs: "/$defs/Properties/definitions/Resource": close({
 	ResourceArn?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53RecoveryReadiness::ResourceSet"
-	Properties!: #Properties
-}

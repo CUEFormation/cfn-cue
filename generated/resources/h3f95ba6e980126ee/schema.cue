@@ -13,15 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for SSO InstanceAccessControlAttributeConfiguration
-#Properties: close({
-	AccessControlAttributes?: #AccessControlAttributeList
-	InstanceAccessControlAttributeConfiguration?: close({AccessControlAttributes!: #AccessControlAttributeList}) |
-		fn.#ObjectExpression
-	InstanceArn!: strings.MaxRunes(1224) &
-	strings.MinRunes(10) &
-	=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSO::InstanceAccessControlAttributeConfiguration"
+	Properties!: close({
+		AccessControlAttributes?: #AccessControlAttributeList
+		InstanceAccessControlAttributeConfiguration?: close({AccessControlAttributes!: #AccessControlAttributeList}) |
+			fn.#ObjectExpression
+		InstanceArn!: strings.MaxRunes(1224) &
+		strings.MinRunes(10) &
+		=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |
+		fn.#StringExpression
+	})
+}
 
 #AccessControlAttribute: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]+" | fn.#StringExpression
@@ -39,7 +42,3 @@ strings.MinRunes(0) &
 fn.#StringExpression
 
 #AccessControlAttributeValueSourceList: list.MaxItems(1) & [...#AccessControlAttributeValueSource] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSO::InstanceAccessControlAttributeConfiguration"
-	Properties!: #Properties
-}

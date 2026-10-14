@@ -36,14 +36,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [AWS::IAM::RolePolicy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-rolepolicy.html)
 // +
 // [AWS::IAM::UserPolicy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-userpolicy.html)
-#Properties: close({
-	Groups?:         [...string | fn.#StringExpression] | fn.#ListExpression
-	PolicyDocument!: iam.#IdentityPolicyValue
-	PolicyName!:     strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	Roles?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	Users?:          [...string | fn.#StringExpression] | fn.#ListExpression
-}) & matchN(>=1, [{Users!: _}, {Groups!: _}, {Roles!: _}])
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IAM::Policy"
-	Properties!: #Properties
+	Type!: "AWS::IAM::Policy"
+	Properties!: close({
+		Groups?:         [...string | fn.#StringExpression] | fn.#ListExpression
+		PolicyDocument!: iam.#IdentityPolicyValue
+		PolicyName!:     strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+		Roles?:          [...string | fn.#StringExpression] | fn.#ListExpression
+		Users?:          [...string | fn.#StringExpression] | fn.#ListExpression
+	}) & matchN(>=1, [{Users!: _}, {Groups!: _}, {Roles!: _}])
 }

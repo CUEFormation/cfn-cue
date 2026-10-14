@@ -12,15 +12,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::SignalMap Resource Type
-#Properties: close({
-	CloudWatchAlarmTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" | fn.#StringExpression] | fn.#ListExpression
-	Description?:                             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	DiscoveryEntryPointArn!:                  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	EventBridgeRuleTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" | fn.#StringExpression] | fn.#ListExpression
-	ForceRediscovery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:             strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	Tags?:             #TagMap
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaLive::SignalMap"
+	Properties!: close({
+		CloudWatchAlarmTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" | fn.#StringExpression] | fn.#ListExpression
+		Description?:                             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		DiscoveryEntryPointArn!:                  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		EventBridgeRuleTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" | fn.#StringExpression] | fn.#ListExpression
+		ForceRediscovery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Name!:             strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
+		Tags?:             #TagMap
+	})
+}
 
 #FailedMediaResourceMap: close({
 
@@ -87,7 +90,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Unit: close({}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaLive::SignalMap"
-	Properties!: #Properties
-}

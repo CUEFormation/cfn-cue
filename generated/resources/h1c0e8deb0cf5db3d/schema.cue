@@ -13,22 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
-#Properties: close({
-	ApplicationId!:           =~"[a-z0-9]{4,7}" | fn.#StringExpression
-	DeletionProtectionCheck?: "ACCOUNT_DEFAULT" | "APPLY" | "BYPASS" | fn.#StringExpression
-	Description?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	KmsKeyIdentifier?:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	LocationUri!:             strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RetrievalRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^((arn):(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov|aws-eusc):(iam)::\\d{12}:role[/].*)$" |
-	fn.#StringExpression
-	Tags?:       [...#Tags] | fn.#ListExpression
-	Type?:       =~"^[a-zA-Z\\.]+" | fn.#StringExpression
-	Validators?: list.MaxItems(2) & [...] & [...#Validators] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppConfig::ConfigurationProfile"
+	Properties!: close({
+		ApplicationId!:           =~"[a-z0-9]{4,7}" | fn.#StringExpression
+		DeletionProtectionCheck?: "ACCOUNT_DEFAULT" | "APPLY" | "BYPASS" | fn.#StringExpression
+		Description?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		KmsKeyIdentifier?:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		LocationUri!:             strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Name!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		RetrievalRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^((arn):(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov|aws-eusc):(iam)::\\d{12}:role[/].*)$" |
+		fn.#StringExpression
+		Tags?:       [...#Tags] | fn.#ListExpression
+		Type?:       =~"^[a-zA-Z\\.]+" | fn.#StringExpression
+		Validators?: list.MaxItems(2) & [...] & [...#Validators] | fn.#ListExpression
+	})
+}
 
 #Tags: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -41,7 +44,3 @@ fn.#ObjectExpression
 	Type?:    "JSON_SCHEMA" | "LAMBDA" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppConfig::ConfigurationProfile"
-	Properties!: #Properties
-}

@@ -17,86 +17,95 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RedshiftServerless::Workgroup Resource Type
-#Properties: close({
-	BaseCapacity?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ConfigParameters?:   list.MinItems(1) & list.UniqueItems() & [...#ConfigParameter] | fn.#ListExpression
-	EnhancedVpcRouting?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MaxCapacity?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression
-	Port?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PricePerformanceTarget?: #PerformanceTarget & fn.#Object & {...} | fn.#ObjectExpression
-	PubliclyAccessible?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RecoveryPointId?:        string | fn.#StringExpression
-	SecurityGroupIds?: list.MaxItems(32) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		strings.MaxRunes(255) &
-		strings.MinRunes(0) &
-		=~"^sg-[0-9a-fA-F]{8,}$" |
-		fn.#StringExpression
-	] |
-	fn.#ListExpression
-	SnapshotArn?:          string | fn.#StringExpression
-	SnapshotName?:         string | fn.#StringExpression
-	SnapshotOwnerAccount?: string | fn.#StringExpression
-	SubnetIds?: list.MaxItems(32) & list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	TrackName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
-	Workgroup?: close({
-		Endpoint?: close({
-			VpcEndpoints?: [
-				...close({NetworkInterfaces?: [...close({}) | fn.#ObjectExpression] | fn.#ListExpression}) |
-					fn.#ObjectExpression
-			] |
-				fn.#ListExpression
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RedshiftServerless::Workgroup"
+	Properties!: close({
+		BaseCapacity?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ConfigParameters?:   list.MinItems(1) & list.UniqueItems() & [...#ConfigParameter] | fn.#ListExpression
+		EnhancedVpcRouting?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		MaxCapacity?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression
+		Port?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PricePerformanceTarget?: #PerformanceTarget & fn.#Object & {...} | fn.#ObjectExpression
+		PubliclyAccessible?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RecoveryPointId?:        string | fn.#StringExpression
+		SecurityGroupIds?: list.MaxItems(32) & list.MinItems(1) & [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			strings.MaxRunes(255) &
+			strings.MinRunes(0) &
+			=~"^sg-[0-9a-fA-F]{8,}$" |
+			fn.#StringExpression
+		] |
+		fn.#ListExpression
+		SnapshotArn?:          string | fn.#StringExpression
+		SnapshotName?:         string | fn.#StringExpression
+		SnapshotOwnerAccount?: string | fn.#StringExpression
+		SubnetIds?: list.MaxItems(32) & list.MinItems(1) & [
+			...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TrackName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
+		Workgroup?: close({
+			Endpoint?: close({
+				VpcEndpoints?: [
+					...close({NetworkInterfaces?: [...close({}) | fn.#ObjectExpression] | fn.#ListExpression}) |
+						fn.#ObjectExpression
+				] |
+					fn.#ListExpression
+			}) |
+				fn.#ObjectExpression
+			PricePerformanceTarget?: #PerformanceTarget
 		}) |
-			fn.#ObjectExpression
-		PricePerformanceTarget?: #PerformanceTarget
-	}) |
-	fn.#ObjectExpression
-	WorkgroupName!: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression
-})
+		fn.#ObjectExpression
+		WorkgroupName!: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression
+	})
+}
 
 #ConfigParameter: close({
 	ParameterKey?:   strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
@@ -224,7 +233,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #WorkgroupStatus: "CREATING" | "AVAILABLE" | "MODIFYING" | "DELETING" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RedshiftServerless::Workgroup"
-	Properties!: #Properties
-}

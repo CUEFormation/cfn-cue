@@ -12,21 +12,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::DataQualityRuleset
-#Properties: close({
-	ClientToken?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Ruleset?:     strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:        fn.#Object & {...} | string | fn.#StringObjectExpression
-	TargetTable?: #DataQualityTargetTable | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::DataQualityRuleset"
+	Properties!: close({
+		ClientToken?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Ruleset?:     strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+		TargetTable?: #DataQualityTargetTable | fn.#ObjectExpression
+	})
+}
 
 #DataQualityTargetTable: close({
 	DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	TableName!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::DataQualityRuleset"
-	Properties!: #Properties
-}

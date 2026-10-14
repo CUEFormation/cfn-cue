@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::B2BI::Profile Resource Type
-#Properties: close({
-	BusinessName!: strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
-	Email?:        strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" | fn.#StringExpression
-	Logging!:      #Logging
-	Name!:         strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
-	Phone!: strings.MaxRunes(22) &
-	strings.MinRunes(7) &
-	=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$" |
-	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::B2BI::Profile"
+	Properties!: close({
+		BusinessName!: strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
+		Email?:   strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" | fn.#StringExpression
+		Logging!: #Logging
+		Name!:    strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
+		Phone!: strings.MaxRunes(22) &
+		strings.MinRunes(7) &
+		=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$" |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Logging: "ENABLED" | "DISABLED" | fn.#StringExpression
 
@@ -32,7 +35,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::B2BI::Profile"
-	Properties!: #Properties
-}

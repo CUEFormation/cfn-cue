@@ -19,39 +19,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AWS Cost Anomaly Detection leverages advanced Machine Learning technologies
 // to identify anomalous spend and root causes, so you can quickly take action.
 // Create subscription to be notified
-#Properties: close({
-	Frequency!:      "DAILY" | "IMMEDIATE" | "WEEKLY" | fn.#StringExpression
-	MonitorArnList!: [...#Arn] | fn.#ListExpression
-	ResourceTags?:   list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
-	Subscribers!: [...close({
-		Address!: =~"(^[a-zA-Z0-9.!#$%&'*+=?^_‘{|}~-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$)|(^arn:(aws[a-zA-Z-]*):sns:[a-zA-Z0-9-]+:[0-9]{12}:[a-zA-Z0-9_-]+(\\.fifo)?$)" |
-			fn.#StringExpression
-		Type!: "EMAIL" | "SNS" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	SubscriptionName!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
-	Threshold?: >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CE::AnomalySubscription"
+	Properties!: close({
+		Frequency!:      "DAILY" | "IMMEDIATE" | "WEEKLY" | fn.#StringExpression
+		MonitorArnList!: [...#Arn] | fn.#ListExpression
+		ResourceTags?:   list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
+		Subscribers!: [...close({
+			Address!: =~"(^[a-zA-Z0-9.!#$%&'*+=?^_‘{|}~-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$)|(^arn:(aws[a-zA-Z-]*):sns:[a-zA-Z0-9-]+:[0-9]{12}:[a-zA-Z0-9_-]+(\\.fifo)?$)" |
+				fn.#StringExpression
+			Type!: "EMAIL" | "SNS" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		SubscriptionName!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
+		Threshold?: >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								>=0,
+							"g",
+							-1,
 							64,
-						) &
-							>=0,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ThresholdExpression?: string | fn.#StringExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ThresholdExpression?: string | fn.#StringExpression
+	})
+}
 
 #Arn: =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" | fn.#StringExpression
 
@@ -68,7 +71,3 @@ fn.#ObjectExpression
 	Type!:   "EMAIL" | "SNS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CE::AnomalySubscription"
-	Properties!: #Properties
-}

@@ -13,33 +13,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Transfer::Agreement
-#Properties: close({
-	AccessRole!:    strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" | fn.#StringExpression
-	BaseDirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|/.*)$" | fn.#StringExpression
-	CustomDirectories?: close({
-		FailedFilesDirectory!:    strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
-		MdnFilesDirectory!:       strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
-		PayloadFilesDirectory!:   strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
-		StatusFilesDirectory!:    strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
-		TemporaryFilesDirectory!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[\\x{0021}-\\x{007E}]+$" | fn.#StringExpression
-	EnforceMessageSigning?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	LocalProfileId!:        strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" | fn.#StringExpression
-	PartnerProfileId!:      strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" | fn.#StringExpression
-	PreserveFilename?:      "ENABLED" | "DISABLED" | fn.#StringExpression
-	ServerId!:              strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" | fn.#StringExpression
-	Status?:                "ACTIVE" | "INACTIVE" | fn.#StringExpression
-	Tags?:                  list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Transfer::Agreement"
+	Properties!: close({
+		AccessRole!:    strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" | fn.#StringExpression
+		BaseDirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|/.*)$" | fn.#StringExpression
+		CustomDirectories?: close({
+			FailedFilesDirectory!:    strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
+			MdnFilesDirectory!:       strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
+			PayloadFilesDirectory!:   strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
+			StatusFilesDirectory!:    strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
+			TemporaryFilesDirectory!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[\\x{0021}-\\x{007E}]+$" | fn.#StringExpression
+		EnforceMessageSigning?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		LocalProfileId!:   strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" | fn.#StringExpression
+		PartnerProfileId!: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" | fn.#StringExpression
+		PreserveFilename?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		ServerId!:         strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" | fn.#StringExpression
+		Status?:           "ACTIVE" | "INACTIVE" | fn.#StringExpression
+		Tags?:             list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Transfer::Agreement"
-	Properties!: #Properties
-}

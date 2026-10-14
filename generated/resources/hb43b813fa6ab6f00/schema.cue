@@ -20,54 +20,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see [Virtual private clouds
 // (VPC)](https://docs.aws.amazon.com/vpc/latest/userguide/configure-your-vpc.html)
 // in the *Amazon VPC User Guide*.
-#Properties: close({
-	Ipv4IpamPoolId?: _
-	if Ipv4IpamPoolId != _|_ {
-		Ipv4NetmaskLength!: _
-	}
-	Ipv4NetmaskLength?: _
-	if Ipv4NetmaskLength != _|_ {
-		Ipv4IpamPoolId!: _
-	}
-	{}
-	CidrBlock?:          string | fn.#StringExpression
-	EnableDnsHostnames?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableDnsSupport?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InstanceTenancy?:    "dedicated" | "default" | "host" | fn.#StringExpression
-	Ipv4IpamPoolId?:     string | fn.#StringExpression
-	"Ipv4NetmaskLength"?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-	VpcEncryptionControl?: close({
-		EgressOnlyInternetGatewayExclusion?: "enable" | "disable" | fn.#StringExpression
-		ElasticFileSystemExclusion?:         "enable" | "disable" | fn.#StringExpression
-		InternetGatewayExclusion?:           "enable" | "disable" | fn.#StringExpression
-		LambdaExclusion?:                    "enable" | "disable" | fn.#StringExpression
-		Mode?:                               "monitor" | "enforce" | fn.#StringExpression
-		NatGatewayExclusion?:                "enable" | "disable" | fn.#StringExpression
-		VirtualPrivateGatewayExclusion?:     "enable" | "disable" | fn.#StringExpression
-		VpcLatticeExclusion?:                "enable" | "disable" | fn.#StringExpression
-		VpcPeeringExclusion?:                "enable" | "disable" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	if CidrBlock != _|_ {
-		Ipv4IpamPoolId?: error(
-			"Ipv4IpamPoolId cannot be used with CidrBlock; set exactly one of CidrBlock, Ipv4IpamPoolId",
-		)
-	}
-}) & matchN(>=1, [{CidrBlock!: _}, {Ipv4IpamPoolId!: _}])
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::VPC"
+	Properties?: close({
+		Ipv4IpamPoolId?: _
+		if Ipv4IpamPoolId != _|_ {
+			Ipv4NetmaskLength!: _
+		}
+		Ipv4NetmaskLength?: _
+		if Ipv4NetmaskLength != _|_ {
+			Ipv4IpamPoolId!: _
+		}
+		{}
+		CidrBlock?:          string | fn.#StringExpression
+		EnableDnsHostnames?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnableDnsSupport?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		InstanceTenancy?:    "dedicated" | "default" | "host" | fn.#StringExpression
+		Ipv4IpamPoolId?:     string | fn.#StringExpression
+		"Ipv4NetmaskLength"?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+		VpcEncryptionControl?: close({
+			EgressOnlyInternetGatewayExclusion?: "enable" | "disable" | fn.#StringExpression
+			ElasticFileSystemExclusion?:         "enable" | "disable" | fn.#StringExpression
+			InternetGatewayExclusion?:           "enable" | "disable" | fn.#StringExpression
+			LambdaExclusion?:                    "enable" | "disable" | fn.#StringExpression
+			Mode?:                               "monitor" | "enforce" | fn.#StringExpression
+			NatGatewayExclusion?:                "enable" | "disable" | fn.#StringExpression
+			VirtualPrivateGatewayExclusion?:     "enable" | "disable" | fn.#StringExpression
+			VpcLatticeExclusion?:                "enable" | "disable" | fn.#StringExpression
+			VpcPeeringExclusion?:                "enable" | "disable" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		if CidrBlock != _|_ {
+			Ipv4IpamPoolId?: error(
+				"Ipv4IpamPoolId cannot be used with CidrBlock; set exactly one of CidrBlock, Ipv4IpamPoolId",
+			)
+		}
+	}) & matchN(>=1, [{CidrBlock!: _}, {Ipv4IpamPoolId!: _}])
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
@@ -111,7 +116,3 @@ fn.#ObjectExpression
 	VpcPeering?:                #VpcEncryptionControlExclusion | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VPC"
-	Properties?: #Properties
-}

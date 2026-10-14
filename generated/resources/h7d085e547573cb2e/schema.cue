@@ -13,26 +13,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Transfer::Certificate
-#Properties: close({
-	ActiveDate?: string | fn.#StringExpression
-	Certificate!: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\t\\n\\r\\x{0020}-\\x{00FF}]+$" |
-	fn.#StringExpression
-	CertificateChain?: strings.MaxRunes(2097152) & strings.MinRunes(1) & =~"^[\\t\\n\\r\\x{0020}-\\x{00FF}]+$" |
-	fn.#StringExpression
-	Description?:  strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[\\x{0021}-\\x{007E}]+$" | fn.#StringExpression
-	InactiveDate?: string | fn.#StringExpression
-	PrivateKey?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\t\\n\\r\\x{0020}-\\x{00FF}]+$" |
-	fn.#StringExpression
-	Tags?:  list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Usage!: "SIGNING" | "ENCRYPTION" | "TLS" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Transfer::Certificate"
+	Properties!: close({
+		ActiveDate?: string | fn.#StringExpression
+		Certificate!: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\t\\n\\r\\x{0020}-\\x{00FF}]+$" |
+		fn.#StringExpression
+		CertificateChain?: strings.MaxRunes(2097152) & strings.MinRunes(1) & =~"^[\\t\\n\\r\\x{0020}-\\x{00FF}]+$" |
+		fn.#StringExpression
+		Description?:  strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[\\x{0021}-\\x{007E}]+$" | fn.#StringExpression
+		InactiveDate?: string | fn.#StringExpression
+		PrivateKey?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\t\\n\\r\\x{0020}-\\x{00FF}]+$" |
+		fn.#StringExpression
+		Tags?:  list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Usage!: "SIGNING" | "ENCRYPTION" | "TLS" | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Transfer::Certificate"
-	Properties!: #Properties
-}

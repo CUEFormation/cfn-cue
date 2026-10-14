@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Budgets::Budget
-#Properties: close({
-	Budget!:                       #BudgetData
-	NotificationsWithSubscribers?: [...#NotificationWithSubscribers] | fn.#ListExpression
-	ResourceTags?:                 [...#ResourceTag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Budgets::Budget"
+	Properties!: close({
+		Budget!:                       #BudgetData
+		NotificationsWithSubscribers?: [...#NotificationWithSubscribers] | fn.#ListExpression
+		ResourceTags?:                 [...#ResourceTag] | fn.#ListExpression
+	})
+}
 
 #AutoAdjustData: close({
 	AutoAdjustType!:    string | fn.#StringExpression
@@ -179,7 +182,3 @@ fn.#ObjectExpression
 	Start?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Budgets::Budget"
-	Properties!: #Properties
-}

@@ -17,57 +17,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSM::PatchBaseline
-#Properties: close({
-	ApprovalRules?: #RuleGroup
-	ApprovedPatches?: list.MaxItems(50) & [...] & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	ApprovedPatchesComplianceLevel?: "CRITICAL" |
-		"HIGH" |
-		"MEDIUM" |
-		"LOW" |
-		"INFORMATIONAL" |
-		"UNSPECIFIED" |
-		fn.#StringExpression
-	ApprovedPatchesEnableNonSecurity?: bool |
-		"true" |
-		"True" |
-		"TRUE" |
-		"false" |
-		"False" |
-		"FALSE" |
-		fn.#BooleanExpression
-	AvailableSecurityUpdatesComplianceStatus?: "NON_COMPLIANT" | "COMPLIANT" | fn.#StringExpression
-	DefaultBaseline?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	GlobalFilters?:   #PatchFilterGroup | fn.#ObjectExpression
-	Name!:            strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
-	OperatingSystem?: "WINDOWS" |
-		"AMAZON_LINUX" |
-		"AMAZON_LINUX_2" |
-		"AMAZON_LINUX_2022" |
-		"AMAZON_LINUX_2023" |
-		"UBUNTU" |
-		"REDHAT_ENTERPRISE_LINUX" |
-		"SUSE" |
-		"CENTOS" |
-		"ORACLE_LINUX" |
-		"DEBIAN" |
-		"MACOS" |
-		"RASPBIAN" |
-		"ROCKY_LINUX" |
-		"ALMA_LINUX" |
-		fn.#StringExpression
-	PatchGroups?: [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	RejectedPatches?: list.MaxItems(50) & [...] & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	RejectedPatchesAction?: "ALLOW_AS_DEPENDENCY" | "BLOCK" | fn.#StringExpression
-	Sources?:               list.MaxItems(20) & [...] & [...#PatchSource] | fn.#ListExpression
-	Tags?:                  list.MaxItems(1000) & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSM::PatchBaseline"
+	Properties!: close({
+		ApprovalRules?: #RuleGroup
+		ApprovedPatches?: list.MaxItems(50) & [...] & [
+			...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		ApprovedPatchesComplianceLevel?: "CRITICAL" |
+			"HIGH" |
+			"MEDIUM" |
+			"LOW" |
+			"INFORMATIONAL" |
+			"UNSPECIFIED" |
+			fn.#StringExpression
+		ApprovedPatchesEnableNonSecurity?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		AvailableSecurityUpdatesComplianceStatus?: "NON_COMPLIANT" | "COMPLIANT" | fn.#StringExpression
+		DefaultBaseline?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		GlobalFilters?:   #PatchFilterGroup | fn.#ObjectExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
+		OperatingSystem?: "WINDOWS" |
+			"AMAZON_LINUX" |
+			"AMAZON_LINUX_2" |
+			"AMAZON_LINUX_2022" |
+			"AMAZON_LINUX_2023" |
+			"UBUNTU" |
+			"REDHAT_ENTERPRISE_LINUX" |
+			"SUSE" |
+			"CENTOS" |
+			"ORACLE_LINUX" |
+			"DEBIAN" |
+			"MACOS" |
+			"RASPBIAN" |
+			"ROCKY_LINUX" |
+			"ALMA_LINUX" |
+			fn.#StringExpression
+		PatchGroups?: [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		RejectedPatches?: list.MaxItems(50) & [...] & [
+			...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		RejectedPatchesAction?: "ALLOW_AS_DEPENDENCY" | "BLOCK" | fn.#StringExpression
+		Sources?:               list.MaxItems(20) & [...] & [...#PatchSource] | fn.#ListExpression
+		Tags?:                  list.MaxItems(1000) & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #PatchFilter: close({
 	Key?: "ADVISORY_ID" |
@@ -137,7 +140,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSM::PatchBaseline"
-	Properties!: #Properties
-}

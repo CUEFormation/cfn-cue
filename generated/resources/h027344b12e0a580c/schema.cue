@@ -12,11 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Inspector::AssessmentTarget
-#Properties: close({
-	AssessmentTargetName?: strings.MaxRunes(140) & strings.MinRunes(1) | fn.#StringExpression
-	ResourceGroupArn?:     strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Inspector::AssessmentTarget"
-	Properties?: #Properties
+	Type!: "AWS::Inspector::AssessmentTarget"
+	Properties?: close({
+		AssessmentTargetName?: strings.MaxRunes(140) & strings.MinRunes(1) | fn.#StringExpression
+		ResourceGroupArn?:     strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+	})
 }

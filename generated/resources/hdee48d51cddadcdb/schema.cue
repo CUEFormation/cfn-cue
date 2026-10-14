@@ -17,25 +17,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EMRServerless::Application Type
-#Properties: close({
-	Architecture?:                #Architecture
-	AutoStartConfiguration?:      #AutoStartConfiguration | fn.#ObjectExpression
-	AutoStopConfiguration?:       #AutoStopConfiguration | fn.#ObjectExpression
-	IdentityCenterConfiguration?: #IdentityCenterConfiguration | fn.#ObjectExpression
-	ImageConfiguration?:          #ImageConfigurationInput
-	InitialCapacity?:             #InitialCapacityConfigMap | fn.#ListExpression
-	InteractiveConfiguration?:    #InteractiveConfiguration
-	MaximumCapacity?:             #MaximumAllowedResources | fn.#ObjectExpression
-	MonitoringConfiguration?:     #MonitoringConfiguration
-	Name?:                 strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9._\\/#-]+$" | fn.#StringExpression
-	NetworkConfiguration?: #NetworkConfiguration | fn.#ObjectExpression
-	ReleaseLabel!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9._/-]+$" | fn.#StringExpression
-	RuntimeConfiguration?: #ConfigurationList
-	SchedulerConfiguration?:   #SchedulerConfiguration | fn.#ObjectExpression
-	Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Type!:                     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	WorkerTypeSpecifications?: #WorkerTypeSpecificationInputMap | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EMRServerless::Application"
+	Properties!: close({
+		Architecture?:                #Architecture
+		AutoStartConfiguration?:      #AutoStartConfiguration | fn.#ObjectExpression
+		AutoStopConfiguration?:       #AutoStopConfiguration | fn.#ObjectExpression
+		IdentityCenterConfiguration?: #IdentityCenterConfiguration | fn.#ObjectExpression
+		ImageConfiguration?:          #ImageConfigurationInput
+		InitialCapacity?:             #InitialCapacityConfigMap | fn.#ListExpression
+		InteractiveConfiguration?:    #InteractiveConfiguration
+		MaximumCapacity?:             #MaximumAllowedResources | fn.#ObjectExpression
+		MonitoringConfiguration?:     #MonitoringConfiguration
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9._\\/#-]+$" | fn.#StringExpression
+		NetworkConfiguration?: #NetworkConfiguration | fn.#ObjectExpression
+		ReleaseLabel!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9._/-]+$" | fn.#StringExpression
+		RuntimeConfiguration?:     #ConfigurationList
+		SchedulerConfiguration?:   #SchedulerConfiguration | fn.#ObjectExpression
+		Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type!:                     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		WorkerTypeSpecifications?: #WorkerTypeSpecificationInputMap | fn.#ObjectExpression
+	})
+}
 
 #Architecture: "ARM64" | "X86_64" | fn.#StringExpression
 
@@ -298,7 +301,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #WorkerTypeString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z]+[-_]*[a-zA-Z]+$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EMRServerless::Application"
-	Properties!: #Properties
-}

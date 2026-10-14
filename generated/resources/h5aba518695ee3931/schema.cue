@@ -12,14 +12,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Schema for Lambda LayerVersionPermission
-#Properties: close({
-	Action!:          strings.MaxRunes(22) & strings.MinRunes(0) & =~"^lambda:GetLayerVersion$" | fn.#StringExpression
-	LayerVersionArn!: string | fn.#StringExpression
-	OrganizationId?:  strings.MaxRunes(34) & strings.MinRunes(0) & =~"^o-[a-z0-9]{10,32}$" | fn.#StringExpression
-	Principal!: strings.MaxRunes(10000) & strings.MinRunes(0) & =~"^\\d{12}|\\*|arn:(aws[a-zA-Z-]*):iam::\\d{12}:root$" |
-	fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lambda::LayerVersionPermission"
-	Properties!: #Properties
+	Type!: "AWS::Lambda::LayerVersionPermission"
+	Properties!: close({
+		Action!: strings.MaxRunes(22) & strings.MinRunes(0) & =~"^lambda:GetLayerVersion$" | fn.#StringExpression
+		LayerVersionArn!: string | fn.#StringExpression
+		OrganizationId?:  strings.MaxRunes(34) & strings.MinRunes(0) & =~"^o-[a-z0-9]{10,32}$" | fn.#StringExpression
+		Principal!: strings.MaxRunes(10000) &
+		strings.MinRunes(0) &
+		=~"^\\d{12}|\\*|arn:(aws[a-zA-Z-]*):iam::\\d{12}:root$" |
+		fn.#StringExpression
+	})
 }

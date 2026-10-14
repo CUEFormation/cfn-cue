@@ -17,18 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Distribution
-#Properties: close({
-	BundleId!:              string | fn.#StringExpression
-	CacheBehaviorSettings?: #CacheSettings | fn.#ObjectExpression
-	CacheBehaviors?:        list.UniqueItems() & [...#CacheBehaviorPerPath] | fn.#ListExpression
-	CertificateName?:       =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-	DefaultCacheBehavior!:  #CacheBehavior | fn.#ObjectExpression
-	DistributionName!:      =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
-	IpAddressType?:         "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
-	IsEnabled?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Origin!:                #InputOrigin | fn.#ObjectExpression
-	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Lightsail::Distribution"
+	Properties!: close({
+		BundleId!:              string | fn.#StringExpression
+		CacheBehaviorSettings?: #CacheSettings | fn.#ObjectExpression
+		CacheBehaviors?:        list.UniqueItems() & [...#CacheBehaviorPerPath] | fn.#ListExpression
+		CertificateName?:       =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
+		DefaultCacheBehavior!:  #CacheBehavior | fn.#ObjectExpression
+		DistributionName!:      =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
+		IpAddressType?:         "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
+		IsEnabled?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Origin!:                #InputOrigin | fn.#ObjectExpression
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #CacheBehavior: close({Behavior?: "cache" | "dont-cache" | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -139,7 +142,3 @@ fn.#ObjectExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Lightsail::Distribution"
-	Properties!: #Properties
-}

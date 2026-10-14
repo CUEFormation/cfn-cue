@@ -13,20 +13,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Engagement Plan for a SSM Incident Manager Contact.
-#Properties: matchN(1, [{
-	ContactId!: _
-	Stages!:    _
-	...
-}, {
-	ContactId!:   _
-	RotationIds!: _
-	...
-}]) & close({
-	ContactId?: =~"arn:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*" |
-		fn.#StringExpression
-	RotationIds?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Stages?:      [...#Stage] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SSMContacts::Plan"
+	Properties?: matchN(1, [{
+		ContactId!: _
+		Stages!:    _
+		...
+	}, {
+		ContactId!:   _
+		RotationIds!: _
+		...
+	}]) & close({
+		ContactId?: =~"arn:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*" |
+			fn.#StringExpression
+		RotationIds?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Stages?:      [...#Stage] | fn.#ListExpression
+	})
+}
 
 #ChannelTargetInfo: close({
 	ChannelId!: string | fn.#StringExpression
@@ -82,7 +85,3 @@ fn.#ObjectExpression
 	}
 }) & matchN(>=1, [{ChannelTargetInfo!: _}, {ContactTargetInfo!: _}]) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSMContacts::Plan"
-	Properties?: #Properties
-}

@@ -17,20 +17,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::AIGuardrail Resource Type
-#Properties: close({
-	AssistantId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" |
-		fn.#StringExpression
-	BlockedInputMessaging!:           strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	BlockedOutputsMessaging!:         strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	ContentPolicyConfig?:             #AIGuardrailContentPolicyConfig
-	ContextualGroundingPolicyConfig?: #AIGuardrailContextualGroundingPolicyConfig
-	Description?:                     strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	SensitiveInformationPolicyConfig?: #AIGuardrailSensitiveInformationPolicyConfig
-	Tags?:                             #Tags
-	TopicPolicyConfig?:                #AIGuardrailTopicPolicyConfig
-	WordPolicyConfig?:                 #AIGuardrailWordPolicyConfig
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Wisdom::AIGuardrail"
+	Properties!: close({
+		AssistantId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" |
+			fn.#StringExpression
+		BlockedInputMessaging!:           strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		BlockedOutputsMessaging!:         strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		ContentPolicyConfig?:             #AIGuardrailContentPolicyConfig
+		ContextualGroundingPolicyConfig?: #AIGuardrailContextualGroundingPolicyConfig
+		Description?:                     strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
+		SensitiveInformationPolicyConfig?: #AIGuardrailSensitiveInformationPolicyConfig
+		Tags?:                             #Tags
+		TopicPolicyConfig?:                #AIGuardrailTopicPolicyConfig
+		WordPolicyConfig?:                 #AIGuardrailWordPolicyConfig
+	})
+}
 
 #AIGuardrailContentPolicyConfig: close(
 	{FiltersConfig!: list.MaxItems(6) & list.MinItems(1) & [...#GuardrailContentFilterConfig] | fn.#ListExpression},
@@ -168,7 +171,3 @@ fn.#ObjectExpression
 #GuardrailWordConfig: close({Text!: strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Tags: {...} | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Wisdom::AIGuardrail"
-	Properties!: #Properties
-}

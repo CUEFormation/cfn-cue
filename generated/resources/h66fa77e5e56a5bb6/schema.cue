@@ -13,12 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // SchemaMapping defined in AWS Entity Resolution service
-#Properties: close({
-	Description?:       #Description | fn.#StringExpression
-	MappedInputFields!: #MappedInputFields | fn.#ListExpression
-	SchemaName!:        #EntityName | fn.#StringExpression
-	Tags?:              list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EntityResolution::SchemaMapping"
+	Properties!: close({
+		Description?:       #Description | fn.#StringExpression
+		MappedInputFields!: #MappedInputFields | fn.#ListExpression
+		SchemaName!:        #EntityName | fn.#StringExpression
+		Tags?:              list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AttributeName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
 
@@ -76,7 +79,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #UpdatedAt: string | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EntityResolution::SchemaMapping"
-	Properties!: #Properties
-}

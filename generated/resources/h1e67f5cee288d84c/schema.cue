@@ -16,12 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // VPC Route Server Peer
-#Properties: close({
-	BgpOptions!:            #BgpOptions
-	PeerAddress!:           string | fn.#StringExpression
-	RouteServerEndpointId!: string | fn.#StringExpression
-	Tags?:                  [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::RouteServerPeer"
+	Properties!: close({
+		BgpOptions!:            #BgpOptions
+		PeerAddress!:           string | fn.#StringExpression
+		RouteServerEndpointId!: string | fn.#StringExpression
+		Tags?:                  [...#Tag] | fn.#ListExpression
+	})
+}
 
 #BgpOptions: close({
 	PeerAsn?: int & <=4294967294 & >=1 |
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::RouteServerPeer"
-	Properties!: #Properties
-}

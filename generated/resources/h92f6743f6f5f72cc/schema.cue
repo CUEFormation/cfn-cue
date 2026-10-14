@@ -18,64 +18,69 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::IoTFleetWise::Campaign Resource Type
-#Properties: close({
-	Action?:                 #UpdateCampaignAction
-	CollectionScheme!:       #CollectionScheme
-	Compression?:            #Compression
-	DataDestinationConfigs?: list.MaxItems(1) & list.MinItems(1) & [...#DataDestinationConfig] | fn.#ListExpression
-	DataExtraDimensions?: list.MaxItems(5) & [...] & [
-		...strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	DataPartitions?: list.MaxItems(20) & list.UniqueItems() & [...] & [...#DataPartition] | fn.#ListExpression
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression
-	DiagnosticsMode?: #DiagnosticsMode
-	ExpiryTime?:      time.Time | fn.#StringExpression
-	Name!:            strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
-	PostTriggerCollectionDuration?: <=4294967295 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IoTFleetWise::Campaign"
+	Properties!: close({
+		Action?:                 #UpdateCampaignAction
+		CollectionScheme!:       #CollectionScheme
+		Compression?:            #Compression
+		DataDestinationConfigs?: list.MaxItems(1) & list.MinItems(1) & [...#DataDestinationConfig] | fn.#ListExpression
+		DataExtraDimensions?: list.MaxItems(5) & [...] & [
+			...strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
+		] |
+		fn.#ListExpression
+		DataPartitions?: list.MaxItems(20) & list.UniqueItems() & [...] & [...#DataPartition] | fn.#ListExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		fn.#StringExpression
+		DiagnosticsMode?: #DiagnosticsMode
+		ExpiryTime?:      time.Time | fn.#StringExpression
+		Name!:            strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
+		PostTriggerCollectionDuration?: <=4294967295 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=4294967295 &
+								>=0,
+							"g",
+							-1,
 							64,
-						) &
-							<=4294967295 &
-							>=0,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Priority?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SignalCatalogArn!: string | fn.#StringExpression
-	SignalsToCollect?: list.MaxItems(1000) & [...] & [...#SignalInformation] | fn.#ListExpression
-	SignalsToFetch?:   list.MaxItems(10) & [...] & [...#SignalFetchInformation] | fn.#ListExpression
-	SpoolingMode?:     #SpoolingMode
-	StartTime?:        time.Time | fn.#StringExpression
-	Tags?:             list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	TargetArn!:        string | fn.#StringExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		Priority?: int & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=0,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SignalCatalogArn!: string | fn.#StringExpression
+		SignalsToCollect?: list.MaxItems(1000) & [...] & [...#SignalInformation] | fn.#ListExpression
+		SignalsToFetch?:   list.MaxItems(10) & [...] & [...#SignalFetchInformation] | fn.#ListExpression
+		SpoolingMode?:     #SpoolingMode
+		StartTime?:        time.Time | fn.#StringExpression
+		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TargetArn!:        string | fn.#StringExpression
+	})
+}
 
 #CampaignStatus: "CREATING" | "WAITING_FOR_APPROVAL" | "RUNNING" | "SUSPENDED" | fn.#StringExpression
 
@@ -426,7 +431,3 @@ fn.#ObjectExpression
 #TriggerMode: "ALWAYS" | "RISING_EDGE" | fn.#StringExpression
 
 #UpdateCampaignAction: "APPROVE" | "SUSPEND" | "RESUME" | "UPDATE" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IoTFleetWise::Campaign"
-	Properties!: #Properties
-}

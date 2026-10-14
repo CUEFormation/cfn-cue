@@ -9,16 +9,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::EmailTemplate
-#Properties: close({
-	DefaultSubstitutions?: string | fn.#StringExpression
-	HtmlPart?:             string | fn.#StringExpression
-	Subject!:              string | fn.#StringExpression
-	Tags?:                 fn.#Object & {...} | string | fn.#StringObjectExpression
-	TemplateDescription?:  string | fn.#StringExpression
-	TemplateName!:         string | fn.#StringExpression
-	TextPart?:             string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Pinpoint::EmailTemplate"
-	Properties!: #Properties
+	Type!: "AWS::Pinpoint::EmailTemplate"
+	Properties!: close({
+		DefaultSubstitutions?: string | fn.#StringExpression
+		HtmlPart?:             string | fn.#StringExpression
+		Subject!:              string | fn.#StringExpression
+		Tags?:                 fn.#Object & {...} | string | fn.#StringObjectExpression
+		TemplateDescription?:  string | fn.#StringExpression
+		TemplateName!:         string | fn.#StringExpression
+		TextPart?:             string | fn.#StringExpression
+	})
 }

@@ -12,17 +12,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS:IdentityStore::GroupMembership
-#Properties: close({
-	GroupId!: strings.MaxRunes(47) &
-	strings.MinRunes(1) &
-	=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" |
-	fn.#StringExpression
-	IdentityStoreId!: strings.MaxRunes(36) &
-	strings.MinRunes(1) &
-	=~"^d-[0-9a-f]{10}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	MemberId!: #MemberId | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::IdentityStore::GroupMembership"
+	Properties!: close({
+		GroupId!: strings.MaxRunes(47) &
+		strings.MinRunes(1) &
+		=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" |
+		fn.#StringExpression
+		IdentityStoreId!: strings.MaxRunes(36) &
+		strings.MinRunes(1) &
+		=~"^d-[0-9a-f]{10}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+		fn.#StringExpression
+		MemberId!: #MemberId | fn.#ObjectExpression
+	})
+}
 
 #MemberId: close({
 	UserId!: strings.MaxRunes(47) &
@@ -31,7 +34,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::IdentityStore::GroupMembership"
-	Properties!: #Properties
-}

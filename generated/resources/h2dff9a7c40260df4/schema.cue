@@ -17,28 +17,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticLoadBalancing::LoadBalancer
-#Properties: close({
-	AccessLoggingPolicy?:       #AccessLoggingPolicy | fn.#ObjectExpression
-	AppCookieStickinessPolicy?: [...#AppCookieStickinessPolicy] | fn.#ListExpression
-	AvailabilityZones?:         [...string | fn.#StringExpression] | fn.#ListExpression
-	ConnectionDrainingPolicy?:  #ConnectionDrainingPolicy | fn.#ObjectExpression
-	ConnectionSettings?:        #ConnectionSettings | fn.#ObjectExpression
-	CrossZone?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HealthCheck?:               #HealthCheck | fn.#ObjectExpression
-	Instances?:                 [...string | fn.#StringExpression] | fn.#ListExpression
-	LBCookieStickinessPolicy?:  [...#LBCookieStickinessPolicy] | fn.#ListExpression
-	Listeners!:                 [...#Listeners] | fn.#ListExpression
-	LoadBalancerName?:          string | fn.#StringExpression
-	Policies?:                  [...#Policies] | fn.#ListExpression
-	Scheme?:                    string | fn.#StringExpression
-	SecurityGroups?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Subnets?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:    list.MinItems(1) & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ElasticLoadBalancing::LoadBalancer"
+	Properties!: close({
+		AccessLoggingPolicy?:       #AccessLoggingPolicy | fn.#ObjectExpression
+		AppCookieStickinessPolicy?: [...#AppCookieStickinessPolicy] | fn.#ListExpression
+		AvailabilityZones?:         [...string | fn.#StringExpression] | fn.#ListExpression
+		ConnectionDrainingPolicy?:  #ConnectionDrainingPolicy | fn.#ObjectExpression
+		ConnectionSettings?:        #ConnectionSettings | fn.#ObjectExpression
+		CrossZone?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		HealthCheck?:              #HealthCheck | fn.#ObjectExpression
+		Instances?:                [...string | fn.#StringExpression] | fn.#ListExpression
+		LBCookieStickinessPolicy?: [...#LBCookieStickinessPolicy] | fn.#ListExpression
+		Listeners!:                [...#Listeners] | fn.#ListExpression
+		LoadBalancerName?:         string | fn.#StringExpression
+		Policies?:                 [...#Policies] | fn.#ListExpression
+		Scheme?:                   string | fn.#StringExpression
+		SecurityGroups?: [
+			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+				fn.#StringExpression
+		] |
+			fn.#ListExpression
+		Subnets?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Tags?:    list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AccessLoggingPolicy: close({
 	EmitInterval?: int |
@@ -155,7 +158,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ElasticLoadBalancing::LoadBalancer"
-	Properties!: #Properties
-}

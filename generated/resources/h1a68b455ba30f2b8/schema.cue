@@ -15,7 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // CloudFront supports signed URLs and signed cookies with RSA 2048 or ECDSA 256
 // key signatures. Field-level encryption is only compatible with RSA 2048 key
 // signatures.
-#Properties: close({PublicKeyConfig!: #PublicKeyConfig | fn.#ObjectExpression})
+#Resource: base.#ResourceAttributes & {
+	Type!:       "AWS::CloudFront::PublicKey"
+	Properties!: close({PublicKeyConfig!: #PublicKeyConfig | fn.#ObjectExpression})
+}
 
 #PublicKeyConfig: close({
 	CallerReference!: string | fn.#StringExpression
@@ -24,7 +27,3 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudFront::PublicKey"
-	Properties!: #Properties
-}

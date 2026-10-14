@@ -13,23 +13,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // You can use AWS::Organizations::Account to manage accounts in organization.
-#Properties: close({
-	AccountName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[\\x{0020}-\\x{007E}]+" | fn.#StringExpression
-	Email!:       strings.MaxRunes(64) & strings.MinRunes(6) & =~"[^\\s@]+@[^\\s@]+\\.[^\\s@]+" | fn.#StringExpression
-	ParentIds?: list.UniqueItems() & [
-		...=~"^(r-[0-9a-z]{4,32})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	RoleName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w+=,.@-]{1,64}" | fn.#StringExpression
-	Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Organizations::Account"
+	Properties!: close({
+		AccountName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[\\x{0020}-\\x{007E}]+" | fn.#StringExpression
+		Email!: strings.MaxRunes(64) & strings.MinRunes(6) & =~"[^\\s@]+@[^\\s@]+\\.[^\\s@]+" | fn.#StringExpression
+		ParentIds?: list.UniqueItems() & [
+			...=~"^(r-[0-9a-z]{4,32})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" | fn.#StringExpression
+		] |
+			fn.#ListExpression
+		RoleName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w+=,.@-]{1,64}" | fn.#StringExpression
+		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\S]*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Organizations::Account"
-	Properties!: #Properties
-}

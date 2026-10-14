@@ -18,55 +18,62 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Omics::Workflow Resource Type
-#Properties: close({
-	Accelerators?:         #Accelerators
-	ContainerRegistryMap?: #ContainerRegistryMap
-	ContainerRegistryMapUri?: strings.MaxRunes(750) &
-	strings.MinRunes(1) &
-	=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
-	fn.#StringExpression
-	DefinitionRepository?: #DefinitionRepository
-	DefinitionUri?: strings.MaxRunes(256) &
-	strings.MinRunes(1) &
-	=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
-	fn.#StringExpression
-	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
-	fn.#StringExpression
-	Engine?: #WorkflowEngine
-	Main?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
-	fn.#StringExpression
-	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
-	fn.#StringExpression
-	ParameterTemplate?:     #WorkflowParameterTemplate
-	ParameterTemplatePath?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S]+$" | fn.#StringExpression
-	StorageCapacity?: <=100000 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Omics::Workflow"
+	Properties?: close({
+		Accelerators?:         #Accelerators
+		ContainerRegistryMap?: #ContainerRegistryMap
+		ContainerRegistryMapUri?: strings.MaxRunes(750) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		fn.#StringExpression
+		DefinitionRepository?: #DefinitionRepository
+		DefinitionUri?: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		fn.#StringExpression
+		Engine?: #WorkflowEngine
+		Main?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		fn.#StringExpression
+		ParameterTemplate?:     #WorkflowParameterTemplate
+		ParameterTemplatePath?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S]+$" | fn.#StringExpression
+		StorageCapacity?: <=100000 & >=0 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								<=100000 &
+								>=0,
+							"g",
+							-1,
 							64,
-						) &
-							<=100000 &
-							>=0,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	StorageType?:           #StorageType
-	Tags?:                  #TagMap
-	WorkflowBucketOwnerId?: =~"^[0-9]{12}$" | fn.#StringExpression
-	readmeMarkdown?:        string | fn.#StringExpression
-	readmePath?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
-	fn.#StringExpression
-	readmeUri?: string | fn.#StringExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		StorageType?:           #StorageType
+		Tags?:                  #TagMap
+		WorkflowBucketOwnerId?: =~"^[0-9]{12}$" | fn.#StringExpression
+		readmeMarkdown?:        string | fn.#StringExpression
+		readmePath?: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		fn.#StringExpression
+		readmeUri?: string | fn.#StringExpression
+	})
+}
 
 #Accelerators: "GPU" & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
 
@@ -145,7 +152,3 @@ fn.#ObjectExpression
 fn.#StringExpression
 
 #WorkflowType: "PRIVATE" & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Omics::Workflow"
-	Properties?: #Properties
-}

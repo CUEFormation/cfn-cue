@@ -12,19 +12,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RefactorSpaces::Application Resource Type
-#Properties: close({
-	ApiGatewayProxy?: #ApiGatewayProxyInput
-	EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
-	fn.#StringExpression
-	Name!:      strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	ProxyType!: #ProxyType
-	Tags?:      [...#Tag] | fn.#ListExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(21) &
-	strings.MinRunes(12) &
-	=~"^vpc-[-a-f0-9]{8}([-a-f0-9]{9})?$" |
-	fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::RefactorSpaces::Application"
+	Properties!: close({
+		ApiGatewayProxy?: #ApiGatewayProxyInput
+		EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
+		fn.#StringExpression
+		Name!:      strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+		ProxyType!: #ProxyType
+		Tags?:      [...#Tag] | fn.#ListExpression
+		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(21) &
+		strings.MinRunes(12) &
+		=~"^vpc-[-a-f0-9]{8}([-a-f0-9]{9})?$" |
+		fn.#StringExpression
+	})
+}
 
 #ApiGatewayEndpointType: "REGIONAL" | "PRIVATE" | fn.#StringExpression
 
@@ -41,7 +44,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::RefactorSpaces::Application"
-	Properties!: #Properties
-}

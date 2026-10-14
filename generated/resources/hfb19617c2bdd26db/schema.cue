@@ -29,20 +29,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // When CFN deletes a key pair that was created or imported by a stack, it also
 // deletes the parameter that was used to store the private key material in
 // Parameter Store.
-#Properties: close({
-	KeyFormat?:         "pem" | "ppk" | fn.#StringExpression
-	KeyName!:           string | fn.#StringExpression
-	KeyType?:           "rsa" | "ed25519" | fn.#StringExpression
-	PublicKeyMaterial?: string | fn.#StringExpression
-	Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::KeyPair"
+	Properties!: close({
+		KeyFormat?:         "pem" | "ppk" | fn.#StringExpression
+		KeyName!:           string | fn.#StringExpression
+		KeyType?:           "rsa" | "ed25519" | fn.#StringExpression
+		PublicKeyMaterial?: string | fn.#StringExpression
+		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::KeyPair"
-	Properties!: #Properties
-}

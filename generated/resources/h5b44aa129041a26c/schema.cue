@@ -18,21 +18,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::S3::StorageLens resource is an Amazon S3 resource type that you can
 // use to create Storage Lens configurations.
-#Properties: close({
-	StorageLensConfiguration!: close({
-		AccountLevel!:               #AccountLevel
-		AwsOrg?:                     #AwsOrg
-		DataExport?:                 #DataExport
-		Exclude?:                    #BucketsAndRegions
-		ExpandedPrefixesDataExport?: #StorageLensExpandedPrefixesDataExport
-		Id!:                         #Id
-		Include?:                    #BucketsAndRegions
-		IsEnabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		PrefixDelimiter?: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3::StorageLens"
+	Properties!: close({
+		StorageLensConfiguration!: close({
+			AccountLevel!:               #AccountLevel
+			AwsOrg?:                     #AwsOrg
+			DataExport?:                 #DataExport
+			Exclude?:                    #BucketsAndRegions
+			ExpandedPrefixesDataExport?: #StorageLensExpandedPrefixesDataExport
+			Id!:                         #Id
+			Include?:                    #BucketsAndRegions
+			IsEnabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			PrefixDelimiter?: string | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #AccountLevel: close({
 	ActivityMetrics?:                 #ActivityMetrics
@@ -209,7 +212,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3::StorageLens"
-	Properties!: #Properties
-}

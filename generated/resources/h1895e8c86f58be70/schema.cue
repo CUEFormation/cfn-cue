@@ -27,84 +27,91 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // it as a scalable target using the
 // [DependsOn](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-dependson.html)
 // attribute.
-#Properties: close({
-	MaxCapacity!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MinCapacity!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ResourceId!: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
-	fn.#StringExpression
-	ScalableDimension!: "appstream:fleet:DesiredCapacity" |
-		"cassandra:table:ReadCapacityUnits" |
-		"cassandra:table:WriteCapacityUnits" |
-		"comprehend:document-classifier-endpoint:DesiredInferenceUnits" |
-		"comprehend:entity-recognizer-endpoint:DesiredInferenceUnits" |
-		"custom-resource:ResourceType:Property" |
-		"dynamodb:index:ReadCapacityUnits" |
-		"dynamodb:index:WriteCapacityUnits" |
-		"dynamodb:table:ReadCapacityUnits" |
-		"dynamodb:table:WriteCapacityUnits" |
-		"ec2:capacity-reservation:AvailableInstances" |
-		"ec2:spot-fleet-request:TargetCapacity" |
-		"ecs:service:DesiredCount" |
-		"elasticache:cache-cluster:Nodes" |
-		"elasticache:replication-group:NodeGroups" |
-		"elasticache:replication-group:Replicas" |
-		"elasticmapreduce:instancegroup:InstanceCount" |
-		"kafka:broker-storage:VolumeSize" |
-		"lambda:function:ProvisionedConcurrency" |
-		"neptune:cluster:ReadReplicaCount" |
-		"rds:cluster:ReadReplicaCount" |
-		"sagemaker:inference-component:DesiredCopyCount" |
-		"sagemaker:variant:DesiredInstanceCount" |
-		"sagemaker:variant:DesiredProvisionedConcurrency" |
-		"workspaces:workspacespool:DesiredUserSessions" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::ApplicationAutoScaling::ScalableTarget"
+	Properties!: close({
+		MaxCapacity!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		MinCapacity!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		ResourceId!: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+		RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
 		fn.#StringExpression
-	ScheduledActions?: list.UniqueItems() & [...#ScheduledAction] | fn.#ListExpression
-	ServiceNamespace!: "appstream" |
-		"cassandra" |
-		"comprehend" |
-		"custom-resource" |
-		"dynamodb" |
-		"ec2" |
-		"ecs" |
-		"elasticache" |
-		"elasticmapreduce" |
-		"kafka" |
-		"lambda" |
-		"neptune" |
-		"rds" |
-		"sagemaker" |
-		"workspaces" |
-		fn.#StringExpression
-	SuspendedState?: #SuspendedState | fn.#ObjectExpression
-	Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+		ScalableDimension!: "appstream:fleet:DesiredCapacity" |
+			"cassandra:table:ReadCapacityUnits" |
+			"cassandra:table:WriteCapacityUnits" |
+			"comprehend:document-classifier-endpoint:DesiredInferenceUnits" |
+			"comprehend:entity-recognizer-endpoint:DesiredInferenceUnits" |
+			"custom-resource:ResourceType:Property" |
+			"dynamodb:index:ReadCapacityUnits" |
+			"dynamodb:index:WriteCapacityUnits" |
+			"dynamodb:table:ReadCapacityUnits" |
+			"dynamodb:table:WriteCapacityUnits" |
+			"ec2:capacity-reservation:AvailableInstances" |
+			"ec2:spot-fleet-request:TargetCapacity" |
+			"ecs:service:DesiredCount" |
+			"elasticache:cache-cluster:Nodes" |
+			"elasticache:replication-group:NodeGroups" |
+			"elasticache:replication-group:Replicas" |
+			"elasticmapreduce:instancegroup:InstanceCount" |
+			"kafka:broker-storage:VolumeSize" |
+			"lambda:function:ProvisionedConcurrency" |
+			"neptune:cluster:ReadReplicaCount" |
+			"rds:cluster:ReadReplicaCount" |
+			"sagemaker:inference-component:DesiredCopyCount" |
+			"sagemaker:variant:DesiredInstanceCount" |
+			"sagemaker:variant:DesiredProvisionedConcurrency" |
+			"workspaces:workspacespool:DesiredUserSessions" |
+			fn.#StringExpression
+		ScheduledActions?: list.UniqueItems() & [...#ScheduledAction] | fn.#ListExpression
+		ServiceNamespace!: "appstream" |
+			"cassandra" |
+			"comprehend" |
+			"custom-resource" |
+			"dynamodb" |
+			"ec2" |
+			"ecs" |
+			"elasticache" |
+			"elasticmapreduce" |
+			"kafka" |
+			"lambda" |
+			"neptune" |
+			"rds" |
+			"sagemaker" |
+			"workspaces" |
+			fn.#StringExpression
+		SuspendedState?: #SuspendedState | fn.#ObjectExpression
+		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ScalableTargetAction: close({
 	MaxCapacity?: int |
@@ -160,7 +167,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApplicationAutoScaling::ScalableTarget"
-	Properties!: #Properties
-}

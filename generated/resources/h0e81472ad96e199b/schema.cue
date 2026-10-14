@@ -13,54 +13,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DMS::Endpoint
-#Properties: close({
-	CertificateArn?:            string | fn.#StringExpression
-	DatabaseName?:              string | fn.#StringExpression
-	DocDbSettings?:             #DocDbSettings | fn.#ObjectExpression
-	DynamoDbSettings?:          #DynamoDbSettings | fn.#ObjectExpression
-	ElasticsearchSettings?:     #ElasticsearchSettings | fn.#ObjectExpression
-	EndpointIdentifier?:        string | fn.#StringExpression
-	EndpointType!:              string | fn.#StringExpression
-	EngineName!:                string | fn.#StringExpression
-	ExtraConnectionAttributes?: string | fn.#StringExpression
-	GcpMySQLSettings?:          #GcpMySQLSettings | fn.#ObjectExpression
-	IbmDb2Settings?:            #IbmDb2Settings | fn.#ObjectExpression
-	KafkaSettings?:             #KafkaSettings | fn.#ObjectExpression
-	KinesisSettings?:           #KinesisSettings | fn.#ObjectExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	MicrosoftSqlServerSettings?: #MicrosoftSqlServerSettings | fn.#ObjectExpression
-	MongoDbSettings?:            #MongoDbSettings | fn.#ObjectExpression
-	MySqlSettings?:              #MySqlSettings | fn.#ObjectExpression
-	NeptuneSettings?:            #NeptuneSettings | fn.#ObjectExpression
-	OracleSettings?:             #OracleSettings | fn.#ObjectExpression
-	Password?:                   string | fn.#StringExpression
-	Port?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PostgreSqlSettings?: #PostgreSqlSettings | fn.#ObjectExpression
-	RedisSettings?:      #RedisSettings | fn.#ObjectExpression
-	RedshiftSettings?:   #RedshiftSettings | fn.#ObjectExpression
-	ResourceIdentifier?: string | fn.#StringExpression
-	S3Settings?:         #S3Settings | fn.#ObjectExpression
-	ServerName?:         string | fn.#StringExpression
-	SslMode?:            string | fn.#StringExpression
-	SybaseSettings?:     #SybaseSettings | fn.#ObjectExpression
-	Tags?:               [...#Tag] | fn.#ListExpression
-	Username?:           string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DMS::Endpoint"
+	Properties!: close({
+		CertificateArn?:            string | fn.#StringExpression
+		DatabaseName?:              string | fn.#StringExpression
+		DocDbSettings?:             #DocDbSettings | fn.#ObjectExpression
+		DynamoDbSettings?:          #DynamoDbSettings | fn.#ObjectExpression
+		ElasticsearchSettings?:     #ElasticsearchSettings | fn.#ObjectExpression
+		EndpointIdentifier?:        string | fn.#StringExpression
+		EndpointType!:              string | fn.#StringExpression
+		EngineName!:                string | fn.#StringExpression
+		ExtraConnectionAttributes?: string | fn.#StringExpression
+		GcpMySQLSettings?:          #GcpMySQLSettings | fn.#ObjectExpression
+		IbmDb2Settings?:            #IbmDb2Settings | fn.#ObjectExpression
+		KafkaSettings?:             #KafkaSettings | fn.#ObjectExpression
+		KinesisSettings?:           #KinesisSettings | fn.#ObjectExpression
+		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
+			fn.#StringExpression
+		MicrosoftSqlServerSettings?: #MicrosoftSqlServerSettings | fn.#ObjectExpression
+		MongoDbSettings?:            #MongoDbSettings | fn.#ObjectExpression
+		MySqlSettings?:              #MySqlSettings | fn.#ObjectExpression
+		NeptuneSettings?:            #NeptuneSettings | fn.#ObjectExpression
+		OracleSettings?:             #OracleSettings | fn.#ObjectExpression
+		Password?:                   string | fn.#StringExpression
+		Port?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PostgreSqlSettings?: #PostgreSqlSettings | fn.#ObjectExpression
+		RedisSettings?:      #RedisSettings | fn.#ObjectExpression
+		RedshiftSettings?:   #RedshiftSettings | fn.#ObjectExpression
+		ResourceIdentifier?: string | fn.#StringExpression
+		S3Settings?:         #S3Settings | fn.#ObjectExpression
+		ServerName?:         string | fn.#StringExpression
+		SslMode?:            string | fn.#StringExpression
+		SybaseSettings?:     #SybaseSettings | fn.#ObjectExpression
+		Tags?:               [...#Tag] | fn.#ListExpression
+		Username?:           string | fn.#StringExpression
+	})
+}
 
 #DocDbSettings: close({
 	DocsToInvestigate?: int |
@@ -1008,7 +1013,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DMS::Endpoint"
-	Properties!: #Properties
-}

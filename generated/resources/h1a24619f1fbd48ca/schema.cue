@@ -16,16 +16,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // object model (that is, to define what data can be captured on cases) in a
 // Cases domain. A template must have a unique name within a domain, and it
 // must reference existing field IDs and layout IDs.
-#Properties: close({
-	Description?:         strings.MaxRunes(255) | fn.#StringExpression
-	DomainId?:            strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	LayoutConfiguration?: #LayoutConfiguration
-	Name!:                strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-	RequiredFields?:      list.MaxItems(100) & [...#RequiredField] | fn.#ListExpression
-	Rules?:               list.MaxItems(50) & [...#TemplateRule] | fn.#ListExpression
-	Status?:              #TemplateStatus
-	Tags?:                [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cases::Template"
+	Properties!: close({
+		Description?:         strings.MaxRunes(255) | fn.#StringExpression
+		DomainId?:            strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		LayoutConfiguration?: #LayoutConfiguration
+		Name!:                strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
+		RequiredFields?:      list.MaxItems(100) & [...#RequiredField] | fn.#ListExpression
+		Rules?:               list.MaxItems(50) & [...#TemplateRule] | fn.#ListExpression
+		Status?:              #TemplateStatus
+		Tags?:                [...#Tag] | fn.#ListExpression
+	})
+}
 
 #LayoutConfiguration: close({DefaultLayout?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
@@ -46,7 +49,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TemplateStatus: "Active" | "Inactive" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cases::Template"
-	Properties!: #Properties
-}

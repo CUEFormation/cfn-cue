@@ -12,13 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolRiskConfigurationAttachment
-#Properties: close({
-	AccountTakeoverRiskConfiguration?:        #AccountTakeoverRiskConfigurationType
-	ClientId!:                                string | fn.#StringExpression
-	CompromisedCredentialsRiskConfiguration?: #CompromisedCredentialsRiskConfigurationType
-	RiskExceptionConfiguration?:              #RiskExceptionConfigurationType
-	UserPoolId!:                              string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::UserPoolRiskConfigurationAttachment"
+	Properties!: close({
+		AccountTakeoverRiskConfiguration?:        #AccountTakeoverRiskConfigurationType
+		ClientId!:                                string | fn.#StringExpression
+		CompromisedCredentialsRiskConfiguration?: #CompromisedCredentialsRiskConfigurationType
+		RiskExceptionConfiguration?:              #RiskExceptionConfigurationType
+		UserPoolId!:                              string | fn.#StringExpression
+	})
+}
 
 #AccountTakeoverActionType: close({
 	EventAction!: string | fn.#StringExpression
@@ -69,7 +72,3 @@ fn.#ObjectExpression
 	SkippedIPRangeList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::UserPoolRiskConfigurationAttachment"
-	Properties!: #Properties
-}

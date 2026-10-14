@@ -12,14 +12,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::VpcConnection
-#Properties: close({
-	Authentication!:   #Authentication
-	ClientSubnets!:    #ClientSubnets
-	SecurityGroups!:   #SecurityGroups
-	Tags?:             #Tags
-	TargetClusterArn!: string | fn.#StringExpression
-	VpcId!:            #VpcId
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MSK::VpcConnection"
+	Properties!: close({
+		Authentication!:   #Authentication
+		ClientSubnets!:    #ClientSubnets
+		SecurityGroups!:   #SecurityGroups
+		Tags?:             #Tags
+		TargetClusterArn!: string | fn.#StringExpression
+		VpcId!:            #VpcId
+	})
+}
 
 #Authentication: ("SASL_IAM" | "SASL_SCRAM" | "TLS") & (strings.MaxRunes(10) & strings.MinRunes(3)) |
 fn.#StringExpression
@@ -39,7 +42,3 @@ fn.#ObjectExpression
 
 #VpcId: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MSK::VpcConnection"
-	Properties!: #Properties
-}

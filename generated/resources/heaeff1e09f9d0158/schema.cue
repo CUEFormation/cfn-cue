@@ -13,45 +13,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for for AWS::EC2::TrafficMirrorFilterRule
-#Properties: close({
-	Description?:          string | fn.#StringExpression
-	DestinationCidrBlock!: string | fn.#StringExpression
-	DestinationPortRange?: #TrafficMirrorPortRange | fn.#ObjectExpression
-	Protocol?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RuleAction!: #TrafficMirrorRuleAction | fn.#StringExpression
-	RuleNumber!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SourceCidrBlock!:       string | fn.#StringExpression
-	SourcePortRange?:       #TrafficMirrorPortRange | fn.#ObjectExpression
-	Tags?:                  [...#Tag] | fn.#ListExpression
-	TrafficDirection!:      #TrafficDirection | fn.#StringExpression
-	TrafficMirrorFilterId!: string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::EC2::TrafficMirrorFilterRule"
+	Properties!: close({
+		Description?:          string | fn.#StringExpression
+		DestinationCidrBlock!: string | fn.#StringExpression
+		DestinationPortRange?: #TrafficMirrorPortRange | fn.#ObjectExpression
+		Protocol?: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		RuleAction!: #TrafficMirrorRuleAction | fn.#StringExpression
+		RuleNumber!: int |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SourceCidrBlock!:       string | fn.#StringExpression
+		SourcePortRange?:       #TrafficMirrorPortRange | fn.#ObjectExpression
+		Tags?:                  [...#Tag] | fn.#ListExpression
+		TrafficDirection!:      #TrafficDirection | fn.#StringExpression
+		TrafficMirrorFilterId!: string | fn.#StringExpression
+	})
+}
 
 #Tag: close({
 	Key!:   string | fn.#StringExpression
@@ -94,7 +101,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TrafficMirrorRuleAction: =~"(?i)^(?:accept|reject)$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::TrafficMirrorFilterRule"
-	Properties!: #Properties
-}

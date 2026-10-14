@@ -16,10 +16,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::SecurityConfiguration
-#Properties: close({
-	EncryptionConfiguration!: #EncryptionConfiguration
-	Name!:                    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Glue::SecurityConfiguration"
+	Properties!: close({
+		EncryptionConfiguration!: #EncryptionConfiguration
+		Name!:                    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #CloudWatchEncryption: close({
 	CloudWatchEncryptionMode?: "DISABLED" | "SSE-KMS" | fn.#StringExpression
@@ -96,7 +99,3 @@ string |
 fn.#ValueExpression] |
 {...} |
 fn.#ValueExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Glue::SecurityConfiguration"
-	Properties!: #Properties
-}

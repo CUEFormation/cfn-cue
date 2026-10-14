@@ -17,16 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::KnowledgeBase Resource Type
-#Properties: close({
-	Description?:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	KnowledgeBaseType!: #KnowledgeBaseType
-	Name!:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	RenderingConfiguration?:            #RenderingConfiguration
-	ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
-	SourceConfiguration?:               #SourceConfiguration
-	Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	VectorIngestionConfiguration?:      #VectorIngestionConfiguration
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Wisdom::KnowledgeBase"
+	Properties!: close({
+		Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
+		KnowledgeBaseType!: #KnowledgeBaseType
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
+		RenderingConfiguration?:            #RenderingConfiguration
+		ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
+		SourceConfiguration?:               #SourceConfiguration
+		Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VectorIngestionConfiguration?:      #VectorIngestionConfiguration
+	})
+}
 
 #AppIntegrationsConfiguration: close({
 	AppIntegrationArn!: strings.MaxRunes(2048) &
@@ -285,7 +288,3 @@ fn.#ObjectExpression
 		fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Wisdom::KnowledgeBase"
-	Properties!: #Properties
-}

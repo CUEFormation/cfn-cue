@@ -17,51 +17,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaTailor::PlaybackConfiguration
-#Properties: close({
-	AdConditioningConfiguration?:   #AdConditioningConfiguration
-	AdDecisionServerConfiguration?: #AdDecisionServerConfiguration
-	AdDecisionServerUrl!:           string | fn.#StringExpression
-	AdsPersonalizationConcurrency?: #AdsPersonalizationConcurrency | fn.#ObjectExpression
-	AdsPersonalizationTimeouts?:    #AdsPersonalizationTimeouts | fn.#ObjectExpression
-	AvailSuppression?:              #AvailSuppression | fn.#ObjectExpression
-	Bumper?:                        #Bumper | fn.#ObjectExpression
-	CdnConfiguration?:              #CdnConfiguration | fn.#ObjectExpression
-	ConfigurationAliases?:          #ConfigurationAliases | fn.#ValueExpression
-	DashConfiguration?: close({
-		MpdLocation?:        string | fn.#StringExpression
-		OriginManifestType?: "SINGLE_PERIOD" | "MULTI_PERIOD" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	FunctionMapping?: close({
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaTailor::PlaybackConfiguration"
+	Properties!: close({
+		AdConditioningConfiguration?:   #AdConditioningConfiguration
+		AdDecisionServerConfiguration?: #AdDecisionServerConfiguration
+		AdDecisionServerUrl!:           string | fn.#StringExpression
+		AdsPersonalizationConcurrency?: #AdsPersonalizationConcurrency | fn.#ObjectExpression
+		AdsPersonalizationTimeouts?:    #AdsPersonalizationTimeouts | fn.#ObjectExpression
+		AvailSuppression?:              #AvailSuppression | fn.#ObjectExpression
+		Bumper?:                        #Bumper | fn.#ObjectExpression
+		CdnConfiguration?:              #CdnConfiguration | fn.#ObjectExpression
+		ConfigurationAliases?:          #ConfigurationAliases | fn.#ValueExpression
+		DashConfiguration?: close({
+			MpdLocation?:        string | fn.#StringExpression
+			OriginManifestType?: "SINGLE_PERIOD" | "MULTI_PERIOD" | fn.#StringExpression
+		}) |
+		fn.#ObjectExpression
+		FunctionMapping?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	HlsConfiguration?:         close({}) | fn.#ObjectExpression
-	InsertionMode?:            #InsertionMode | fn.#StringExpression
-	LivePreRollConfiguration?: #LivePreRollConfiguration | fn.#ObjectExpression
-	LogConfiguration?:         #LogConfiguration | fn.#ObjectExpression
-	ManifestProcessingRules?:  #ManifestProcessingRules | fn.#ObjectExpression
-	Name!:                     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	PersonalizationThresholdSeconds?: int & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=1,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SlateAdUrl?:            string | fn.#StringExpression
-	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	TranscodeProfileName?:  string | fn.#StringExpression
-	VideoContentSourceUrl!: string | fn.#StringExpression
-})
+			{[=~".*"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		HlsConfiguration?:         close({}) | fn.#ObjectExpression
+		InsertionMode?:            #InsertionMode | fn.#StringExpression
+		LivePreRollConfiguration?: #LivePreRollConfiguration | fn.#ObjectExpression
+		LogConfiguration?:         #LogConfiguration | fn.#ObjectExpression
+		ManifestProcessingRules?:  #ManifestProcessingRules | fn.#ObjectExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		PersonalizationThresholdSeconds?: int & >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatInt(
+							cfnScalarStrconv.Atoi(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							) &
+								int &
+								>=1,
+							10,
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		SlateAdUrl?:            string | fn.#StringExpression
+		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TranscodeProfileName?:  string | fn.#StringExpression
+		VideoContentSourceUrl!: string | fn.#StringExpression
+	})
+}
 
 #AdConditioningConfiguration: close({StreamingMediaFileConditioning!: #StreamingMediaFileConditioning}) |
 	fn.#ObjectExpression
@@ -291,7 +296,3 @@ fn.#ObjectExpression
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaTailor::PlaybackConfiguration"
-	Properties!: #Properties
-}

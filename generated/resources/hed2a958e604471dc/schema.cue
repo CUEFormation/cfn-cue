@@ -9,16 +9,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::VdmAttributes
-#Properties: close({
-	DashboardAttributes?: #DashboardAttributes
-	GuardianAttributes?:  #GuardianAttributes
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::VdmAttributes"
+	Properties?: close({
+		DashboardAttributes?: #DashboardAttributes
+		GuardianAttributes?:  #GuardianAttributes
+	})
+}
 
 #DashboardAttributes: close({EngagementMetrics?: =~"ENABLED|DISABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #GuardianAttributes: close({OptimizedSharedDelivery?: =~"ENABLED|DISABLED" | fn.#StringExpression}) |
 	fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::VdmAttributes"
-	Properties?: #Properties
-}

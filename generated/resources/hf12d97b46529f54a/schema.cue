@@ -16,22 +16,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::AppFlow::Flow.
-#Properties: close({
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\w!@#\\-.?,\\s]*" | fn.#StringExpression
-	DestinationFlowConfigList!: [...#DestinationFlowConfig] | fn.#ListExpression
-	FlowName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9][\\w!@#.-]+" | fn.#StringExpression
-	FlowStatus?: "Active" | "Suspended" | "Draft" | fn.#StringExpression
-	KMSArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"arn:aws:kms:.*:[0-9]+:.*" |
-	fn.#StringExpression
-	MetadataCatalogConfig?: #MetadataCatalogConfig | fn.#ObjectExpression
-	SourceFlowConfig!:      #SourceFlowConfig | fn.#ObjectExpression
-	Tags?:                  [...#Tag] | fn.#ListExpression
-	Tasks!:                 [...#Task] | fn.#ListExpression
-	TriggerConfig!:         #TriggerConfig | fn.#ObjectExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::AppFlow::Flow"
+	Properties!: close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\w!@#\\-.?,\\s]*" | fn.#StringExpression
+		DestinationFlowConfigList!: [...#DestinationFlowConfig] | fn.#ListExpression
+		FlowName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9][\\w!@#.-]+" | fn.#StringExpression
+		FlowStatus?: "Active" | "Suspended" | "Draft" | fn.#StringExpression
+		KMSArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"arn:aws:kms:.*:[0-9]+:.*" |
+		fn.#StringExpression
+		MetadataCatalogConfig?: #MetadataCatalogConfig | fn.#ObjectExpression
+		SourceFlowConfig!:      #SourceFlowConfig | fn.#ObjectExpression
+		Tags?:                  [...#Tag] | fn.#ListExpression
+		Tasks!:                 [...#Task] | fn.#ListExpression
+		TriggerConfig!:         #TriggerConfig | fn.#ObjectExpression
+	})
+}
 
 #AggregationConfig: {
 	AggregationType?: #AggregationType
@@ -897,7 +900,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ZendeskSourceProperties: close({Object!: #Object}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::AppFlow::Flow"
-	Properties!: #Properties
-}

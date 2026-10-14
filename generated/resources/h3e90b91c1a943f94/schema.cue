@@ -13,11 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // An event action is an AWS Data Exchange resource that automatically exports
 // data set revisions to Amazon S3 when a revision is published.
-#Properties: close({
-	Action!: #Action | fn.#ObjectExpression
-	Event!:  #Event | fn.#ObjectExpression
-	Tags?:   list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::DataExchange::EventAction"
+	Properties!: close({
+		Action!: #Action | fn.#ObjectExpression
+		Event!:  #Event | fn.#ObjectExpression
+		Tags?:   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Action: close({ExportRevisionToS3?: #AutoExportRevisionToS3RequestDetails}) | fn.#ObjectExpression
 
@@ -49,7 +52,3 @@ fn.#ObjectExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DataExchange::EventAction"
-	Properties!: #Properties
-}

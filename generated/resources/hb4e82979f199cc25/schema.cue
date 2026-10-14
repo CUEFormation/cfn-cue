@@ -17,19 +17,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::TestCase
-#Properties: close({
-	Content!:            strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:        strings.MaxRunes(500) & =~".*\\S.*" | fn.#StringExpression
-	EntryPoint?:         #EntryPoint | fn.#ObjectExpression
-	InitializationData?: strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceArn!: strings.MaxRunes(256) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression
-	Name!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Status?: "SAVED" | "PUBLISHED" | fn.#StringExpression
-	Tags?:   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::TestCase"
+	Properties!: close({
+		Content!:            strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
+		Description?:        strings.MaxRunes(500) & =~".*\\S.*" | fn.#StringExpression
+		EntryPoint?:         #EntryPoint | fn.#ObjectExpression
+		InitializationData?: strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceArn!: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		fn.#StringExpression
+		Name!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		Status?: "SAVED" | "PUBLISHED" | fn.#StringExpression
+		Tags?:   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #EntryPoint: close({
 	ChatEntryPointParameters?: close({FlowId?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
@@ -69,7 +72,3 @@ fn.#ObjectExpression
 			)
 	} |
 	fn.#NumberExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::TestCase"
-	Properties!: #Properties
-}

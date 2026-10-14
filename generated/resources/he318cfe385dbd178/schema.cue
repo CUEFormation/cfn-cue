@@ -11,13 +11,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Uploads an artifact to an agent space. Artifacts provide additional context
 // for security testing, such as architecture diagrams, API specifications, or
 // configuration files.
-#Properties: close({
-	AgentSpaceId!:    string | fn.#StringExpression
-	ArtifactContent?: string | fn.#StringExpression
-	ArtifactType!:    "TXT" | "PNG" | "JPEG" | "MD" | "PDF" | "DOCX" | "DOC" | "JSON" | "YAML" | fn.#StringExpression
-	FileName!:        string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityAgent::Artifact"
-	Properties!: #Properties
+	Type!: "AWS::SecurityAgent::Artifact"
+	Properties!: close({
+		AgentSpaceId!:    string | fn.#StringExpression
+		ArtifactContent?: string | fn.#StringExpression
+		ArtifactType!: "TXT" | "PNG" | "JPEG" | "MD" | "PDF" | "DOCX" | "DOC" | "JSON" | "YAML" | fn.#StringExpression
+		FileName!:     string | fn.#StringExpression
+	})
 }

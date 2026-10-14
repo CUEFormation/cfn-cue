@@ -29,21 +29,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *User Guide* and
 // [PutParameter](https://docs.aws.amazon.com/systems-manager/latest/APIReference/API_PutParameter.html)
 // in the *API Reference*.
-#Properties: close({
-	AllowedPattern?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	DataType?:       ("text" | "aws:ec2:image") & (strings.MaxRunes(128) & strings.MinRunes(0)) | fn.#StringExpression
-	Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Name?:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Policies?:       strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: close({
-
-		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	Tier?:  "Standard" | "Advanced" | "Intelligent-Tiering" | fn.#StringExpression
-	Type!:  "String" | "StringList" | fn.#StringExpression
-	Value!: string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SSM::Parameter"
-	Properties!: #Properties
+	Type!: "AWS::SSM::Parameter"
+	Properties!: close({
+		AllowedPattern?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		DataType?:    ("text" | "aws:ec2:image") & (strings.MaxRunes(128) & strings.MinRunes(0)) | fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name?:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Policies?:    strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: close({
+
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+		fn.#ObjectExpression
+		Tier?:  "Standard" | "Advanced" | "Intelligent-Tiering" | fn.#StringExpression
+		Type!:  "String" | "StringList" | fn.#StringExpression
+		Value!: string | fn.#StringExpression
+	})
 }

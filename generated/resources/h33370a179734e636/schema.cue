@@ -12,15 +12,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Applies an IAM resource policy to a table bucket.
-#Properties: close({
-	ResourcePolicy!: #ResourcePolicy
-	TableBucketARN!: #TableBucketARN
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::S3Tables::TableBucketPolicy"
+	Properties!: close({
+		ResourcePolicy!: #ResourcePolicy
+		TableBucketARN!: #TableBucketARN
+	})
+}
 
 #ResourcePolicy: fn.#Object & {...} | strings.MaxRunes(20480) & strings.MinRunes(1) | fn.#StringObjectExpression
 
 #TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::S3Tables::TableBucketPolicy"
-	Properties!: #Properties
-}

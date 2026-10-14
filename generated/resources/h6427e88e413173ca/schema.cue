@@ -17,18 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A Kendra index
-#Properties: close({
-	CapacityUnits?:                     #CapacityUnitsConfiguration | fn.#ObjectExpression
-	Description?:                       #Description | fn.#StringExpression
-	DocumentMetadataConfigurations?:    #DocumentMetadataConfigurationList | fn.#ListExpression
-	Edition!:                           #Edition
-	Name!:                              #Name
-	RoleArn!:                           #RoleArn
-	ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration | fn.#ObjectExpression
-	Tags?:                              #TagList | fn.#ListExpression
-	UserContextPolicy?:                 #UserContextPolicy
-	UserTokenConfigurations?:           #UserTokenConfigurationList
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Kendra::Index"
+	Properties!: close({
+		CapacityUnits?:                     #CapacityUnitsConfiguration | fn.#ObjectExpression
+		Description?:                       #Description | fn.#StringExpression
+		DocumentMetadataConfigurations?:    #DocumentMetadataConfigurationList | fn.#ListExpression
+		Edition!:                           #Edition
+		Name!:                              #Name
+		RoleArn!:                           #RoleArn
+		ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration | fn.#ObjectExpression
+		Tags?:                              #TagList | fn.#ListExpression
+		UserContextPolicy?:                 #UserContextPolicy
+		UserTokenConfigurations?:           #UserTokenConfigurationList
+	})
+}
 
 #Arn: strings.MaxRunes(1000) | fn.#StringExpression
 
@@ -196,7 +199,3 @@ fn.#ObjectExpression
 #ValueImportanceItemKey: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 
 #ValueImportanceItems: [...#ValueImportanceItem] | fn.#ListExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Kendra::Index"
-	Properties!: #Properties
-}

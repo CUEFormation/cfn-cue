@@ -15,32 +15,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a trail that specifies the settings for delivery of log data to an
 // Amazon S3 bucket. A maximum of five trails can exist in a region,
 // irrespective of the region in which they were created.
-#Properties: close({
-	AdvancedEventSelectors?: list.UniqueItems() & [...#AdvancedEventSelector] | fn.#ListExpression
-	AggregationConfigurations?: list.MaxItems(1) & list.UniqueItems() & [...] & [...#AggregationConfiguration] |
-		fn.#ListExpression
-	CloudWatchLogsLogGroupArn?: string | fn.#StringExpression
-	CloudWatchLogsRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CloudTrail::Trail"
+	Properties!: close({
+		AdvancedEventSelectors?: list.UniqueItems() & [...#AdvancedEventSelector] | fn.#ListExpression
+		AggregationConfigurations?: list.MaxItems(1) & list.UniqueItems() & [...] & [...#AggregationConfiguration] |
+			fn.#ListExpression
+		CloudWatchLogsLogGroupArn?: string | fn.#StringExpression
+		CloudWatchLogsRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		EnableLogFileValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EventSelectors?:          list.MaxItems(5) & list.UniqueItems() & [...#EventSelector] | fn.#ListExpression
+		IncludeGlobalServiceEvents?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		InsightSelectors?:    list.UniqueItems() & [...#InsightSelector] | fn.#ListExpression
+		IsLogging!:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IsMultiRegionTrail?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		IsOrganizationTrail?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		KMSKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			string |
+			fn.#StringExpression
+		S3BucketName!: string | fn.#StringExpression
+		S3KeyPrefix?:  strings.MaxRunes(200) | fn.#StringExpression
+		SnsTopicName?: strings.MaxRunes(256) | fn.#StringExpression
+		Tags?:         [...#Tag] | fn.#ListExpression
+		TrailName?: strings.MaxRunes(128) &
+		strings.MinRunes(3) &
+		=~"(^[a-zA-Z0-9]$)|(^[a-zA-Z0-9]([a-zA-Z0-9\\._-])*[a-zA-Z0-9]$)" |
 		fn.#StringExpression
-	EnableLogFileValidation?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EventSelectors?:             list.MaxItems(5) & list.UniqueItems() & [...#EventSelector] | fn.#ListExpression
-	IncludeGlobalServiceEvents?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InsightSelectors?:           list.UniqueItems() & [...#InsightSelector] | fn.#ListExpression
-	IsLogging!:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IsMultiRegionTrail?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IsOrganizationTrail?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KMSKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	S3BucketName!: string | fn.#StringExpression
-	S3KeyPrefix?:  strings.MaxRunes(200) | fn.#StringExpression
-	SnsTopicName?: strings.MaxRunes(256) | fn.#StringExpression
-	Tags?:         [...#Tag] | fn.#ListExpression
-	TrailName?: strings.MaxRunes(128) &
-	strings.MinRunes(3) &
-	=~"(^[a-zA-Z0-9]$)|(^[a-zA-Z0-9]([a-zA-Z0-9\\._-])*[a-zA-Z0-9]$)" |
-	fn.#StringExpression
-})
+	})
+}
 
 #AdvancedEventSelector: close({
 	FieldSelectors!: list.MinItems(1) & list.UniqueItems() & [...#AdvancedFieldSelector] | fn.#ListExpression
@@ -121,7 +131,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Template: "API_ACTIVITY" | "RESOURCE_ACCESS" | "USER_ACTIONS" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CloudTrail::Trail"
-	Properties!: #Properties
-}

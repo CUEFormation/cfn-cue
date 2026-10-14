@@ -9,13 +9,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApiGateway::BasePathMappingV2
-#Properties: close({
-	BasePath?:      string | fn.#StringExpression
-	DomainNameArn!: string | fn.#StringExpression
-	RestApiId!:     string | fn.#StringExpression
-	Stage?:         string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApiGateway::BasePathMappingV2"
-	Properties!: #Properties
+	Type!: "AWS::ApiGateway::BasePathMappingV2"
+	Properties!: close({
+		BasePath?:      string | fn.#StringExpression
+		DomainNameArn!: string | fn.#StringExpression
+		RestApiId!:     string | fn.#StringExpression
+		Stage?:         string | fn.#StringExpression
+	})
 }

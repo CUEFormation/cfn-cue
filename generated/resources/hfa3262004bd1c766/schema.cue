@@ -13,17 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an AWS Supply Chain data integration flow.
-#Properties: close({
-	InstanceId!: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
-	fn.#StringExpression
-	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]+$" | fn.#StringExpression
-	Sources!:        list.MaxItems(40) & list.MinItems(1) & [...#DataIntegrationFlowSource] | fn.#ListExpression
-	Tags?:           list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-	Target!:         #DataIntegrationFlowTarget
-	Transformation!: #DataIntegrationFlowTransformation
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SCN::DataIntegrationFlow"
+	Properties!: close({
+		InstanceId!: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+		fn.#StringExpression
+		Name!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]+$" | fn.#StringExpression
+		Sources!:        list.MaxItems(40) & list.MinItems(1) & [...#DataIntegrationFlowSource] | fn.#ListExpression
+		Tags?:           list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Target!:         #DataIntegrationFlowTarget
+		Transformation!: #DataIntegrationFlowTransformation
+	})
+}
 
 #DataIntegrationFlowSource: close({
 	DatasetSource?: #DatasetSourceConfiguration
@@ -98,7 +101,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SCN::DataIntegrationFlow"
-	Properties!: #Properties
-}

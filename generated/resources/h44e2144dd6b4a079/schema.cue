@@ -24,13 +24,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Cross-Region aggregation is also a prerequisite for using [central
 // configuration](https://docs.aws.amazon.com/securityhub/latest/userguide/central-configuration-intro.html)
 // in ASH.
-#Properties: close({
-	RegionLinkingMode!: "ALL_REGIONS" | "ALL_REGIONS_EXCEPT_SPECIFIED" | "SPECIFIED_REGIONS" | fn.#StringExpression
-	Regions?:           list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Region] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityHub::FindingAggregator"
+	Properties!: close({
+		RegionLinkingMode!: "ALL_REGIONS" | "ALL_REGIONS_EXCEPT_SPECIFIED" | "SPECIFIED_REGIONS" | fn.#StringExpression
+		Regions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Region] | fn.#ListExpression
+	})
+}
 
 #Region: =~"^[a-zA-Z0-9-]{1,32}$" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::FindingAggregator"
-	Properties!: #Properties
-}

@@ -16,16 +16,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkSpaces::Workspace
-#Properties: close({
-	BundleId!:                    string | fn.#StringExpression
-	DirectoryId!:                 string | fn.#StringExpression
-	RootVolumeEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                        [...#Tag] | fn.#ListExpression
-	UserName!:                    string | fn.#StringExpression
-	UserVolumeEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	VolumeEncryptionKey?:         string | fn.#StringExpression
-	WorkspaceProperties?:         #WorkspaceProperties
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpaces::Workspace"
+	Properties!: close({
+		BundleId!:    string | fn.#StringExpression
+		DirectoryId!: string | fn.#StringExpression
+		RootVolumeEncryptionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		Tags?:     [...#Tag] | fn.#ListExpression
+		UserName!: string | fn.#StringExpression
+		UserVolumeEncryptionEnabled?: bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			fn.#BooleanExpression
+		VolumeEncryptionKey?: string | fn.#StringExpression
+		WorkspaceProperties?: #WorkspaceProperties
+	})
+}
 
 #Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
@@ -80,7 +97,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpaces::Workspace"
-	Properties!: #Properties
-}

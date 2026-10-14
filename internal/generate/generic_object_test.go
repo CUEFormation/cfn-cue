@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"path/filepath"
 	"testing"
-
-	"cuelang.org/go/cue"
 )
 
 func TestGenericObjectIntrinsicOverlap(t *testing.T) {
@@ -25,7 +23,7 @@ func TestGenericObjectIntrinsicOverlap(t *testing.T) {
 	if _, err := Generate(source, Options{Out: out, Regions: []string{"us-east-1"}}); err != nil {
 		t.Fatal(err)
 	}
-	schema := build(t, out, "./resources/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
+	schema := propertiesSchema(t, out, "./resources/htest")
 	for _, data := range []string{
 		`{Name: {"Fn::Sub": "${Parameter}"}}`,
 		`{Name: {Ref: "Parameter"}, Count: {"Fn::If": ["Create", 2, 3]}}`,
@@ -47,7 +45,7 @@ func TestGenericObjectIntrinsicOverlap(t *testing.T) {
 	} {
 		validate(t, schema, data, false)
 	}
-	literal := build(t, out, "./literal/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
+	literal := propertiesSchema(t, out, "./literal/htest")
 	validate(t, literal, `{Name: "one", Extra: {"Fn::Sub": ["literal data"]}}`, true)
 	validate(t, literal, `{Name: {"Fn::Sub": "${Parameter}"}}`, false)
 }

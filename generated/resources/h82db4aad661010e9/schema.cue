@@ -17,10 +17,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::FlowVersion Resource Type
-#Properties: close({
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	FlowArn!:     =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:flow/[0-9a-zA-Z]{10}$" | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Bedrock::FlowVersion"
+	Properties!: close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		FlowArn!: =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:flow/[0-9a-zA-Z]{10}$" | fn.#StringExpression
+	})
+}
 
 #AdditionalModelRequestFields: fn.#Object & {...} | fn.#ObjectExpression
 
@@ -461,7 +464,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VectorSearchRerankingConfigurationType: "BEDROCK_RERANKING_MODEL" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Bedrock::FlowVersion"
-	Properties!: #Properties
-}

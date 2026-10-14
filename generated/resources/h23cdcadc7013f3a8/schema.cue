@@ -13,25 +13,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CertificateManager::AcmeDomainValidation
-#Properties: close({
-	AcmeEndpointArn!: strings.MaxRunes(200) &
-	strings.MinRunes(1) &
-	=~"^arn:aws[a-z-]*:acm:[a-z0-9-]+:[0-9]{12}:acme-endpoint/[a-zA-Z0-9-]+$" |
-	fn.#StringExpression
-	DomainName!: strings.MaxRunes(253) &
-	strings.MinRunes(1) &
-	=~"^([a-z0-9]([a-z0-9-]*[a-z0-9])?\\.)*[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
-	fn.#StringExpression
-	PrevalidationOptions!: #PrevalidationOptions
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
-		Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::CertificateManager::AcmeDomainValidation"
+	Properties!: close({
+		AcmeEndpointArn!: strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[a-z-]*:acm:[a-z0-9-]+:[0-9]{12}:acme-endpoint/[a-zA-Z0-9-]+$" |
 		fn.#StringExpression
-		Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+		DomainName!: strings.MaxRunes(253) &
+		strings.MinRunes(1) &
+		=~"^([a-z0-9]([a-z0-9-]*[a-z0-9])?\\.)*[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
 		fn.#StringExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-})
+		PrevalidationOptions!: #PrevalidationOptions
+		Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
+			Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			fn.#StringExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+	})
+}
 
 #DnsPrevalidationOptions: close({
 	DomainScope?:  #DomainScope
@@ -53,7 +56,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CertificateManager::AcmeDomainValidation"
-	Properties!: #Properties
-}

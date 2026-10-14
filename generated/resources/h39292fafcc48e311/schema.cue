@@ -21,18 +21,121 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // a dynamically repackaged version of its content through various streaming
 // media protocols. The content can be efficiently disseminated to end-users
 // via a Content Delivery Network (CDN), like Amazon CloudFront.</p>
-#Properties: close({
-	ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ChannelName!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ContainerType!:    #ContainerType
-	DashManifests?:    [...#DashManifestConfiguration] | fn.#ListExpression
-	Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ForceEndpointErrorConfiguration?: #ForceEndpointErrorConfiguration
-	HlsManifests?: [...close({
-		ChildManifestName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		FilterConfiguration?: #FilterConfiguration
-		ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		ManifestWindowSeconds?: int |
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::MediaPackageV2::OriginEndpoint"
+	Properties!: close({
+		ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		ChannelName!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		ContainerType!:    #ContainerType
+		DashManifests?:    [...#DashManifestConfiguration] | fn.#ListExpression
+		Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		ForceEndpointErrorConfiguration?: #ForceEndpointErrorConfiguration
+		HlsManifests?: [...close({
+			ChildManifestName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+			fn.#StringExpression
+			FilterConfiguration?: #FilterConfiguration
+			ManifestName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+			ManifestWindowSeconds?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ProgramDateTimeIntervalSeconds?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ScteHls?:     #ScteHls
+			StartTag?:    #StartTag
+			UriPathType?: #UriPathType
+			UrlEncodeChildManifest?: bool |
+				"true" |
+				"True" |
+				"TRUE" |
+				"false" |
+				"False" |
+				"FALSE" |
+				fn.#BooleanExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		LowLatencyHlsManifests?: [...close({
+			ChildManifestName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+			fn.#StringExpression
+			FilterConfiguration?: #FilterConfiguration
+			ManifestName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+			ManifestWindowSeconds?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ProgramDateTimeIntervalSeconds?: int |
+				{
+					string &
+						=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
+						cfnScalarStrings.Repeat(
+							self,
+							len(cfnScalarStrconv.FormatInt(
+								cfnScalarStrconv.Atoi(
+									cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								) &
+									int,
+								10,
+							))*0 + 1,
+						)
+				} |
+				fn.#NumberExpression
+			ScteHls?:     #ScteHls
+			StartTag?:    #StartTag
+			UriPathType?: #UriPathType
+			UrlEncodeChildManifest?: bool |
+				"true" |
+				"True" |
+				"TRUE" |
+				"false" |
+				"False" |
+				"FALSE" |
+				fn.#BooleanExpression
+		}) |
+		fn.#ObjectExpression] |
+		fn.#ListExpression
+		MssManifests?:       [...#MssManifestConfiguration] | fn.#ListExpression
+		OriginEndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Segment?:            #Segment
+		StartoverWindowSeconds?: int & <=1209600 & >=0 |
 			{
 				string &
 					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -42,101 +145,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							cfnScalarStrconv.Atoi(
 								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
 							) &
-								int,
+								int &
+								<=1209600 &
+								>=0,
 							10,
 						))*0 + 1,
 					)
 			} |
 			fn.#NumberExpression
-		ProgramDateTimeIntervalSeconds?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		ScteHls?:                #ScteHls
-		StartTag?:               #StartTag
-		UriPathType?:            #UriPathType
-		UrlEncodeChildManifest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	LowLatencyHlsManifests?: [...close({
-		ChildManifestName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		FilterConfiguration?: #FilterConfiguration
-		ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		ManifestWindowSeconds?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		ProgramDateTimeIntervalSeconds?: int |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatInt(
-							cfnScalarStrconv.Atoi(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							) &
-								int,
-							10,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		ScteHls?:                #ScteHls
-		StartTag?:               #StartTag
-		UriPathType?:            #UriPathType
-		UrlEncodeChildManifest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	}) |
-	fn.#ObjectExpression] |
-	fn.#ListExpression
-	MssManifests?:       [...#MssManifestConfiguration] | fn.#ListExpression
-	OriginEndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Segment?:            #Segment
-	StartoverWindowSeconds?: int & <=1209600 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1209600 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	StreamNameOutputMode?: #StreamNameOutputMode
-	Tags?:                 [...#Tag] | fn.#ListExpression
-	UriSeparator?:         #UriSeparator
-})
+		StreamNameOutputMode?: #StreamNameOutputMode
+		Tags?:                 [...#Tag] | fn.#ListExpression
+		UriSeparator?:         #UriSeparator
+	})
+}
 
 #AdMarkerDash: "BINARY" | "XML" | fn.#StringExpression
 
@@ -675,7 +696,3 @@ fn.#ObjectExpression
 #UriPathType: "LEAF" | "ROOT" | fn.#StringExpression
 
 #UriSeparator: "UNDERSCORE" | "HYPHEN" | fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::MediaPackageV2::OriginEndpoint"
-	Properties!: #Properties
-}

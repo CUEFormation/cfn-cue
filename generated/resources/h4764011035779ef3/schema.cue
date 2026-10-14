@@ -10,11 +10,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Metadata resource automatically added by the AWS CDK to track construct
 // library versions used in the application.
-#Properties: close({
-	Analytics?: string | fn.#StringExpression
-	Modules?:   string | fn.#StringExpression
-})
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CDK::Metadata"
-	Properties?: #Properties
+	Type!: "AWS::CDK::Metadata"
+	Properties?: close({
+		Analytics?: string | fn.#StringExpression
+		Modules?:   string | fn.#StringExpression
+	})
 }

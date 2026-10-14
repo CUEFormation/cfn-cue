@@ -9,10 +9,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::LogDeliveryConfiguration
-#Properties: close({
-	LogConfigurations?: #LogConfigurations
-	UserPoolId!:        string | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Cognito::LogDeliveryConfiguration"
+	Properties!: close({
+		LogConfigurations?: #LogConfigurations
+		UserPoolId!:        string | fn.#StringExpression
+	})
+}
 
 #CloudWatchLogsConfiguration: close({LogGroupArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -30,7 +33,3 @@ fn.#ObjectExpression
 #LogConfigurations: [...#LogConfiguration] | fn.#ListExpression
 
 #S3Configuration: close({BucketArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Cognito::LogDeliveryConfiguration"
-	Properties!: #Properties
-}

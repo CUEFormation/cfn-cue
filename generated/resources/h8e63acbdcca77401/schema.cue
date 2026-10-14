@@ -12,13 +12,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityAgent::Application
-#Properties: close({
-	DefaultKmsKeyId?:  strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	IdCConfiguration?: close({IdCInstanceArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Tags?: [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SecurityAgent::Application"
+	Properties?: close({
+		DefaultKmsKeyId?:  strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		IdCConfiguration?: close({IdCInstanceArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+			fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
 #IdCConfiguration: close({
 	IdCApplicationArn?: string | fn.#StringExpression
@@ -31,7 +34,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityAgent::Application"
-	Properties?: #Properties
-}

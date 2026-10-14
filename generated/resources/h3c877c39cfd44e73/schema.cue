@@ -17,31 +17,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerTrafficPolicy Resource Type
-#Properties: close({
-	DefaultAction!: #AcceptAction
-	MaxMessageSizeBytes?: >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::SES::MailManagerTrafficPolicy"
+	Properties!: close({
+		DefaultAction!: #AcceptAction
+		MaxMessageSizeBytes?: >=1 |
+			{
+				string &
+					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+					cfnScalarStrings.Repeat(
+						self,
+						len(cfnScalarStrconv.FormatFloat(
+							cfnScalarStrconv.ParseFloat(
+								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+								64,
+							) &
+								>=1,
+							"g",
+							-1,
 							64,
-						) &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PolicyStatements!:  [...#PolicyStatement] | fn.#ListExpression
-	Tags?:              list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-	TrafficPolicyName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" | fn.#StringExpression
-})
+						))*0 + 1,
+					)
+			} |
+			fn.#NumberExpression
+		PolicyStatements!:  [...#PolicyStatement] | fn.#ListExpression
+		Tags?:              list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TrafficPolicyName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" | fn.#StringExpression
+	})
+}
 
 #AcceptAction: "ALLOW" | "DENY" | fn.#StringExpression
 
@@ -161,7 +164,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::MailManagerTrafficPolicy"
-	Properties!: #Properties
-}

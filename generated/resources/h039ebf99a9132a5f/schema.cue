@@ -9,10 +9,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KinesisAnalytics::ApplicationOutput
-#Properties: close({
-	ApplicationName!: string | fn.#StringExpression
-	Output!:          #Output
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::KinesisAnalytics::ApplicationOutput"
+	Properties!: close({
+		ApplicationName!: string | fn.#StringExpression
+		Output!:          #Output
+	})
+}
 
 #DestinationSchema: close({RecordFormatType?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -45,7 +48,3 @@ fn.#ObjectExpression
 	Name?:                  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::KinesisAnalytics::ApplicationOutput"
-	Properties!: #Properties
-}

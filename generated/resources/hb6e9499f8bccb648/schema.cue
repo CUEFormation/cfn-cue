@@ -13,14 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::Notification
-#Properties: close({
-	Content!:     #NotificationContent | fn.#ObjectExpression
-	ExpiresAt?:   =~"^[0-9]+$" | fn.#StringExpression
-	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Priority?:    #Priority | fn.#StringExpression
-	Recipients?:  #RecipientList | fn.#ListExpression
-	Tags?:        list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::Connect::Notification"
+	Properties!: close({
+		Content!:     #NotificationContent | fn.#ObjectExpression
+		ExpiresAt?:   =~"^[0-9]+$" | fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Priority?:    #Priority | fn.#StringExpression
+		Recipients?:  #RecipientList | fn.#ListExpression
+		Tags?:        list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	})
+}
 
 #Arn: string | fn.#StringExpression
 
@@ -55,7 +58,3 @@ fn.#ObjectExpression
 
 #UserArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$" |
 	fn.#StringExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Connect::Notification"
-	Properties!: #Properties
-}

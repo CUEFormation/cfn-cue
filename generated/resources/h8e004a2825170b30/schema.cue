@@ -12,10 +12,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkSpaces::ConnectionAlias
-#Properties: close({
-	ConnectionString!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[.0-9a-zA-Z\\-]{1,255}$" | fn.#StringExpression
-	Tags?:             [...#Tag] | fn.#ListExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::WorkSpaces::ConnectionAlias"
+	Properties!: close({
+		ConnectionString!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[.0-9a-zA-Z\\-]{1,255}$" |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+}
 
 #ConnectionAliasAssociation: close({
 	AssociatedAccountId?: string | fn.#StringExpression
@@ -35,7 +39,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::WorkSpaces::ConnectionAlias"
-	Properties!: #Properties
-}

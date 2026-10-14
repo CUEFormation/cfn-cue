@@ -17,20 +17,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GameLift::Build
-#Properties: close({
-	Name?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	OperatingSystem?: "AMAZON_LINUX" |
-		"AMAZON_LINUX_2" |
-		"AMAZON_LINUX_2023" |
-		"WINDOWS_2012" |
-		"WINDOWS_2016" |
-		"WINDOWS_2022" |
-		fn.#StringExpression
-	ServerSdkVersion?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\d+\\.\\d+\\.\\d+$" | fn.#StringExpression
-	StorageLocation?:  #StorageLocation | fn.#ObjectExpression
-	Tags?:             list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-	Version?:          strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-})
+#Resource: base.#ResourceAttributes & {
+	Type!: "AWS::GameLift::Build"
+	Properties?: close({
+		Name?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		OperatingSystem?: "AMAZON_LINUX" |
+			"AMAZON_LINUX_2" |
+			"AMAZON_LINUX_2023" |
+			"WINDOWS_2012" |
+			"WINDOWS_2016" |
+			"WINDOWS_2022" |
+			fn.#StringExpression
+		ServerSdkVersion?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\d+\\.\\d+\\.\\d+$" | fn.#StringExpression
+		StorageLocation?:  #StorageLocation | fn.#ObjectExpression
+		Tags?:             list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Version?:          strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	})
+}
 
 #S3Location: null |
 bool |
@@ -86,7 +89,3 @@ fn.#ObjectExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-#Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::GameLift::Build"
-	Properties?: #Properties
-}
