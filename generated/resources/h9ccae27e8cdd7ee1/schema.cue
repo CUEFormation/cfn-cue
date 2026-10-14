@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -19,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema of AWS::EC2::PrefixList Type
 #Properties: close({
 	AddressFamily!: "IPv4" | "IPv6" | fn.#StringExpression
-	Entries?:       list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Entry"] | fn.#ListExpression
+	Entries?:       list.MaxItems(100) & [...] & [...#Entry] | fn.#ListExpression
 	MaxEntries?: int & >=1 |
 		{
 			string &
@@ -36,16 +36,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	PrefixListName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:           [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Entry": close({
+#Entry: close({
 	Cidr!:        string & (strings.MaxRunes(46) & strings.MinRunes(1)) | fn.#StringExpression
 	Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) | fn.#StringExpression
 }) |

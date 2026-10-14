@@ -26,7 +26,7 @@ import (
 	ResourceType!: "INSTANCE" | "RESOURCE_GROUP"
 
 	// The targets to register with the maintenance window.
-	Targets!: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Targets"]
+	Targets!: list.MaxItems(5) & [...] & [...#Targets]
 
 	// The ID of the maintenance window to register the target with.
 	WindowId!: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^mw-[0-9a-f]{17}$"
@@ -35,7 +35,7 @@ import (
 	WindowTargetId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Targets": close({
+#Targets: close({
 	// User-defined criteria for sending commands that target managed nodes that meet the criteria.
 	Key!: strings.MaxRunes(163) &
 	strings.MinRunes(1) &

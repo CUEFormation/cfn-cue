@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -15,40 +15,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::Route53GlobalResolver::GlobalResolver
 #Properties: close({
 	ClientToken?:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:         _#defs."/$defs/Properties/definitions/ResourceDescription"
-	IpAddressType?:       _#defs."/$defs/Properties/definitions/GlobalResolverIpAddressType"
-	Name!:                _#defs."/$defs/Properties/definitions/ResourceName"
-	ObservabilityRegion?: _#defs."/$defs/Properties/definitions/Region"
-	Regions!:             [..._#defs."/$defs/Properties/definitions/Region"] | fn.#ListExpression
-	Tags?:                list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Description?:         #ResourceDescription
+	IpAddressType?:       #GlobalResolverIpAddressType
+	Name!:                #ResourceName
+	ObservabilityRegion?: #Region
+	Regions!:             [...#Region] | fn.#ListExpression
+	Tags?:                list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CRResourceStatus": "CREATING" |
-	"OPERATIONAL" |
-	"UPDATING" |
-	"DELETING" |
-	fn.#StringExpression
+#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GlobalResolverIpAddressType": "IPV4" | "DUAL_STACK" | fn.#StringExpression
+#GlobalResolverIpAddressType: "IPV4" | "DUAL_STACK" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IPv4Address": strings.MaxRunes(15) &
-strings.MinRunes(1) &
-=~"((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}" |
+#IPv4Address: strings.MaxRunes(15) & strings.MinRunes(1) & =~"((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IPv6Address": strings.MaxRunes(39) &
-strings.MinRunes(1) &
-=~"(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}" |
+#IPv6Address: strings.MaxRunes(39) & strings.MinRunes(1) & =~"(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Region": strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+#Region: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceDescription": strings.MaxRunes(256) & strings.MinRunes(1) |
-fn.#StringExpression
+#ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

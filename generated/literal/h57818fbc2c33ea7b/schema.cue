@@ -15,7 +15,7 @@ import (
 // depending on the selected BillingMode.
 #Properties: close({
 	// The advanced event selectors that were used to select events for the data store.
-	AdvancedEventSelectors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AdvancedEventSelector"]
+	AdvancedEventSelectors?: list.UniqueItems() & [...#AdvancedEventSelector]
 
 	// The mode that the event data store will use to charge for event storage.
 	BillingMode?: "EXTENDABLE_RETENTION_PRICING" | "FIXED_RETENTION_PRICING"
@@ -23,12 +23,10 @@ import (
 	// An array that enriches event records in an existing event data store by
 	// including additional information specified in individual ContexKeySelector
 	// entries. If you add ContextKeySelectors, you must set MaxEventSize to Large.
-	ContextKeySelectors?: list.MaxItems(2) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/ContextKeySelector"
-	]
+	ContextKeySelectors?: list.MaxItems(2) & list.UniqueItems() & [...] & [...#ContextKeySelector]
 
 	// The timestamp of the event data store's creation.
-	CreatedTimestamp?: _#defs."/$defs/Properties/definitions/Timestamp"
+	CreatedTimestamp?: #Timestamp
 
 	// The ARN of the event data store.
 	EventDataStoreArn?: string
@@ -46,7 +44,7 @@ import (
 	// that you want to enable on an existing event data store. Both
 	// InsightSelectors and InsightsDestination need to have a value in order to
 	// enable Insights events on an event data store.
-	InsightSelectors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InsightSelector"]
+	InsightSelectors?: list.UniqueItems() & [...#InsightSelector]
 
 	// Specifies the ARN of the event data store that will collect Insights events.
 	// Both InsightSelectors and InsightsDestination need to have a value in order
@@ -82,7 +80,7 @@ import (
 	// The status of an event data store. Values are STARTING_INGESTION, ENABLED,
 	// STOPPING_INGESTION, STOPPED_INGESTION and PENDING_DELETION.
 	Status?: string
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:   [...#Tag]
 
 	// Indicates whether the event data store is protected from termination.
 	TerminationProtectionEnabled?: bool
@@ -90,17 +88,15 @@ import (
 	// The timestamp showing when an event data store was updated, if applicable.
 	// UpdatedTimestamp is always either the same or newer than the time shown in
 	// CreatedTimestamp.
-	UpdatedTimestamp?: _#defs."/$defs/Properties/definitions/Timestamp"
+	UpdatedTimestamp?: #Timestamp
 })
 
 // Advanced event selectors let you create fine-grained selectors for the
 // following AWS CloudTrail event record ﬁelds. They help you control costs by
 // logging only those events that are important to you.
-_#defs: "/$defs/Properties/definitions/AdvancedEventSelector": close({
+#AdvancedEventSelector: close({
 	// Contains all selector statements in an advanced event selector.
-	FieldSelectors!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AdvancedFieldSelector"
-	]
+	FieldSelectors!: list.MinItems(1) & list.UniqueItems() & [...#AdvancedFieldSelector]
 
 	// An optional, descriptive name for an advanced event selector, such as "Log
 	// data events for only two S3 buckets".
@@ -108,7 +104,7 @@ _#defs: "/$defs/Properties/definitions/AdvancedEventSelector": close({
 })
 
 // A single selector statement in an advanced event selector.
-_#defs: "/$defs/Properties/definitions/AdvancedFieldSelector": close({
+#AdvancedFieldSelector: close({
 	// An operator that includes events that match the last few characters of the
 	// event record field specified as the value of Field.
 	EndsWith?: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)"]
@@ -142,7 +138,7 @@ _#defs: "/$defs/Properties/definitions/AdvancedFieldSelector": close({
 })
 
 // An object that contains information types to be included in CloudTrail enriched events.
-_#defs: "/$defs/Properties/definitions/ContextKeySelector": close({
+#ContextKeySelector: close({
 	// An operator that includes events that match the exact value of the event
 	// record field specified in Type.
 	Equals!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
@@ -155,13 +151,13 @@ _#defs: "/$defs/Properties/definitions/ContextKeySelector": close({
 })
 
 // A string that contains Insights types that are logged on an event data store.
-_#defs: "/$defs/Properties/definitions/InsightSelector": close({
+#InsightSelector: close({
 	// The type of Insights to log on an event data store.
 	InsightType?: "ApiCallRateInsight" | "ApiErrorRateInsight"
 })
 
 // An arbitrary set of tags (key-value pairs) for this event data store.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -175,4 +171,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Timestamp": string
+#Timestamp: string

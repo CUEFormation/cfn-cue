@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -22,19 +22,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // these custom actions in the stage of a pipeline.
 #Properties: close({
 	Category!: "Approval" | "Build" | "Compute" | "Deploy" | "Invoke" | "Source" | "Test" | fn.#StringExpression
-	ConfigurationProperties?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/ConfigurationProperties"
-	] |
+	ConfigurationProperties?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#ConfigurationProperties] |
 		fn.#ListExpression
-	InputArtifactDetails!:  _#defs."/$defs/Properties/definitions/ArtifactDetails" | fn.#ObjectExpression
-	OutputArtifactDetails!: _#defs."/$defs/Properties/definitions/ArtifactDetails" | fn.#ObjectExpression
+	InputArtifactDetails!:  #ArtifactDetails | fn.#ObjectExpression
+	OutputArtifactDetails!: #ArtifactDetails | fn.#ObjectExpression
 	Provider!:              strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
-	Settings?:              _#defs."/$defs/Properties/definitions/Settings" | fn.#ObjectExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Settings?:              #Settings | fn.#ObjectExpression
+	Tags?:                  [...#Tag] | fn.#ListExpression
 	Version!:               strings.MaxRunes(9) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ArtifactDetails": close({
+#ArtifactDetails: close({
 	MaximumCount!: int & <=5 & >=0 |
 		{
 			string &
@@ -70,7 +68,7 @@ _#defs: "/$defs/Properties/definitions/ArtifactDetails": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationProperties": close({
+#ConfigurationProperties: close({
 	Description?: strings.MaxRunes(160) & strings.MinRunes(1) | fn.#StringExpression
 	Key!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:        strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
@@ -81,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/ConfigurationProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Settings": close({
+#Settings: close({
 	EntityUrlTemplate?:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	ExecutionUrlTemplate?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	RevisionUrlTemplate?:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
@@ -89,7 +87,7 @@ _#defs: "/$defs/Properties/definitions/Settings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

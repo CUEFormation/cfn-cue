@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"time"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -37,23 +37,19 @@ import (
 	// should clearly indicate the rule's purpose (e.g., 'Priority Field Required
 	// for Urgent Cases').
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$"
-	Rule!: _#defs."/$defs/Properties/definitions/CaseRuleDetails"
+	Rule!: #CaseRuleDetails
 
 	// The tags that you attach to this case rule.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // A boolean condition for a rule.
-_#defs: "/$defs/Properties/definitions/BooleanCondition": matchN(1, [close(
-	{EqualTo!: _#defs."/$defs/Properties/definitions/BooleanOperands"},
-), close(
-	{NotEqualTo!: _#defs."/$defs/Properties/definitions/BooleanOperands"},
-)])
+#BooleanCondition: matchN(1, [close({EqualTo!: #BooleanOperands}), close({NotEqualTo!: #BooleanOperands})])
 
 // Boolean operands for a condition.
-_#defs: "/$defs/Properties/definitions/BooleanOperands": close({
-	OperandOne!: _#defs."/$defs/Properties/definitions/OperandOne"
-	OperandTwo!: _#defs."/$defs/Properties/definitions/OperandTwo"
+#BooleanOperands: close({
+	OperandOne!: #OperandOne
+	OperandTwo!: #OperandTwo
 
 	// The value of the outer rule if the condition evaluates to true.
 	Result!: bool
@@ -62,20 +58,16 @@ _#defs: "/$defs/Properties/definitions/BooleanOperands": close({
 // Defines the rule behavior and conditions. Specifies the rule type and the
 // conditions under which it applies. In the Amazon Connect admin website, this
 // corresponds to case field conditions.
-_#defs: "/$defs/Properties/definitions/CaseRuleDetails": matchN(1, [close(
-	{Required!: _#defs."/$defs/Properties/definitions/RequiredCaseRule"},
-), close(
-	{Hidden!: _#defs."/$defs/Properties/definitions/HiddenCaseRule"},
-)])
+#CaseRuleDetails: matchN(1, [close({Required!: #RequiredCaseRule}), close({Hidden!: #HiddenCaseRule})])
 
 // An empty operand value.
-_#defs: "/$defs/Properties/definitions/EmptyOperandValue": close({})
+#EmptyOperandValue: close({})
 
 // Hidden rule type, used to indicate whether a field is hidden
-_#defs: "/$defs/Properties/definitions/HiddenCaseRule": close({
+#HiddenCaseRule: close({
 	// List of conditions for the hidden rule; the first condition to evaluate to
 	// true dictates the value of the rule
-	Conditions!: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/BooleanCondition"]
+	Conditions!: list.MaxItems(100) & [...#BooleanCondition]
 
 	// The value of the rule (i.e. whether the field is hidden) should none of the
 	// conditions evaluate to true
@@ -83,13 +75,13 @@ _#defs: "/$defs/Properties/definitions/HiddenCaseRule": close({
 })
 
 // The left hand operand in the condition.
-_#defs: "/$defs/Properties/definitions/OperandOne": close({
+#OperandOne: close({
 	// The field ID this operand should take the value of.
 	FieldId!: strings.MaxRunes(500) & strings.MinRunes(1)
 })
 
 // The right hand operand in the condition.
-_#defs: "/$defs/Properties/definitions/OperandTwo": matchN(1, [close({
+#OperandTwo: matchN(1, [close({
 	// A string value to compare against the field value in the condition evaluation.
 	StringValue!: strings.MaxRunes(1500) & strings.MinRunes(1)
 }), close({
@@ -99,16 +91,16 @@ _#defs: "/$defs/Properties/definitions/OperandTwo": matchN(1, [close({
 	// A numeric value to compare against the field value in the condition evaluation.
 	DoubleValue!: number
 }), close(
-	{EmptyValue!: _#defs."/$defs/Properties/definitions/EmptyOperandValue"},
+	{EmptyValue!: #EmptyOperandValue},
 )])
 
 // A required rule type, used to indicate whether a field is required.
-_#defs: "/$defs/Properties/definitions/RequiredCaseRule": close({
+#RequiredCaseRule: close({
 	// An ordered list of boolean conditions that determine when the field should be
 	// required. Conditions are evaluated in order, and the first condition that
 	// evaluates to true determines whether the field is required, overriding the
 	// default value.
-	Conditions!: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/BooleanCondition"]
+	Conditions!: list.MaxItems(100) & [...#BooleanCondition]
 
 	// The default required state for the field when none of the specified
 	// conditions are met. If true, the field is required by default; if false, the
@@ -116,7 +108,7 @@ _#defs: "/$defs/Properties/definitions/RequiredCaseRule": close({
 	DefaultValue!: bool
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

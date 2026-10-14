@@ -4,8 +4,8 @@ package schema
 
 import (
 	"strings"
-	"time"
 	"list"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,7 +20,7 @@ import (
 
 	// The unique identifier of the capacity provider.
 	CapacityProviderId?: strings.MaxRunes(59) & strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$"
-	ComputeConfiguration!: _#defs."/$defs/Properties/definitions/ComputeConfiguration"
+	ComputeConfiguration!: #ComputeConfiguration
 
 	// The timestamp when the capacity provider was created.
 	CreatedAt?: time.Time
@@ -33,24 +33,24 @@ import (
 
 	// The name of the capacity provider.
 	Name!:                     strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$"
-	PermissionsConfiguration!: _#defs."/$defs/Properties/definitions/PermissionsConfiguration"
+	PermissionsConfiguration!: #PermissionsConfiguration
 
 	// The current status of the capacity provider.
 	Status?: "CREATING" | "CREATE_FAILED" | "UPDATING" | "UPDATE_FAILED" | "READY" | "DELETING"
 
 	// An array of key-value pairs to apply to the capacity provider.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The Capacity Reservation targeting option.
-_#defs: "/$defs/Properties/definitions/CapacityReservationSpecification": close({
+#CapacityReservationSpecification: close({
 	// Indicates the instance's Capacity Reservation preferences.
 	CapacityReservationPreference?: "capacity-reservations-only" | "open" | "none"
-	CapacityReservationTarget?:     _#defs."/$defs/Properties/definitions/CapacityReservationTarget"
+	CapacityReservationTarget?:     #CapacityReservationTarget
 })
 
 // Information about the target Capacity Reservation or Capacity Reservation group.
-_#defs: "/$defs/Properties/definitions/CapacityReservationTarget": close({
+#CapacityReservationTarget: close({
 	// The ID of the Capacity Reservation in which to run the instance.
 	CapacityReservationId?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^cr-[0-9a-z]+$"
 
@@ -62,12 +62,10 @@ _#defs: "/$defs/Properties/definitions/CapacityReservationTarget": close({
 
 // The capacity configuration for the capacity provider. Defines the compute
 // resources for this capacity provider.
-_#defs: "/$defs/Properties/definitions/ComputeConfiguration": close(
-	{Ec2Configuration!: _#defs."/$defs/Properties/definitions/Ec2Configuration"},
-)
+#ComputeConfiguration: close({Ec2Configuration!: #Ec2Configuration})
 
 // Configuration for an EBS-backed persistent volume.
-_#defs: "/$defs/Properties/definitions/EbsVolumeConfiguration": close({
+#EbsVolumeConfiguration: close({
 	// Whether to encrypt the volume. Defaults to true.
 	Encrypted?: bool
 
@@ -97,28 +95,28 @@ _#defs: "/$defs/Properties/definitions/EbsVolumeConfiguration": close({
 })
 
 // Configuration for EC2-based capacity.
-_#defs: "/$defs/Properties/definitions/Ec2Configuration": close({
-	LaunchTemplateSource!:   _#defs."/$defs/Properties/definitions/LaunchTemplateSource"
-	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/InstanceLifecycleConfiguration"
-	RootVolume?:             _#defs."/$defs/Properties/definitions/RootVolumeConfiguration"
+#Ec2Configuration: close({
+	LaunchTemplateSource!:   #LaunchTemplateSource
+	LifecycleConfiguration?: #InstanceLifecycleConfiguration
+	RootVolume?:             #RootVolumeConfiguration
 
 	// Named persistent EBS volumes for this capacity provider.
-	Volumes?:          list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/VolumeConfiguration"]
-	VpcConfiguration!: _#defs."/$defs/Properties/definitions/VpcConfiguration"
+	Volumes?:          list.MaxItems(5) & [...#VolumeConfiguration]
+	VpcConfiguration!: #VpcConfiguration
 })
 
 // Describes an ephemeral block device mapping.
-_#defs: "/$defs/Properties/definitions/EphemeralBlockDeviceMapping": close({
+#EphemeralBlockDeviceMapping: close({
 	// The device name (for example, /dev/sdh or xvdh).
 	DeviceName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/._-]+$"
-	Ebs?:        _#defs."/$defs/Properties/definitions/EphemeralEBSVolumeConfiguration"
+	Ebs?:        #EphemeralEBSVolumeConfiguration
 
 	// The virtual device name (ephemeralN).
 	VirtualName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^ephemeral[0-9]+$"
 })
 
 // Parameters used to automatically set up EBS volumes when the instance is launched.
-_#defs: "/$defs/Properties/definitions/EphemeralEBSVolumeConfiguration": close({
+#EphemeralEBSVolumeConfiguration: close({
 	// The index of the EBS card. Applies to instances with multiple EBS cards.
 	EbsCardIndex?: int & >=0
 
@@ -155,7 +153,7 @@ _#defs: "/$defs/Properties/definitions/EphemeralEBSVolumeConfiguration": close({
 })
 
 // Configuration for managing the lifecycle of instances in a capacity provider.
-_#defs: "/$defs/Properties/definitions/InstanceLifecycleConfiguration": close({
+#InstanceLifecycleConfiguration: close({
 	// The number of seconds an instance can remain idle before it is stopped.
 	IdleInstanceTimeout?: int & <=1209600 & >=60
 
@@ -166,26 +164,26 @@ _#defs: "/$defs/Properties/definitions/InstanceLifecycleConfiguration": close({
 })
 
 // Requirements for EC2 instance types.
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
+#InstanceRequirements: close({
 	// List of allowed instance types.
 	AllowedInstanceTypes!: list.MaxItems(30) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1)]
 })
 
 // Parameters for launching EC2 instances.
-_#defs: "/$defs/Properties/definitions/LaunchParameters": close({
-	CapacityReservationSpecification?: _#defs."/$defs/Properties/definitions/CapacityReservationSpecification"
+#LaunchParameters: close({
+	CapacityReservationSpecification?: #CapacityReservationSpecification
 
 	// The block device mapping for ephemeral (instance store) volumes.
-	EphemeralVolumes?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/EphemeralBlockDeviceMapping"]
+	EphemeralVolumes?: list.MaxItems(5) & [...#EphemeralBlockDeviceMapping]
 
 	// The ARN of the IAM instance profile to associate with launched instances.
 	InstanceProfileArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:instance-profile/([!-~]{1,510}/)?([\\w+=,.@-]{1,128})$"
-	InstanceRequirements!: _#defs."/$defs/Properties/definitions/InstanceRequirements"
+	InstanceRequirements!: #InstanceRequirements
 
 	// The license configurations.
-	LicenseSpecifications?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/LicenseSpecification"]
+	LicenseSpecifications?: list.MaxItems(5) & [...#LicenseSpecification]
 
 	// The monitoring level for the instance.
 	Monitoring?: "BASIC" | "DETAILED"
@@ -204,12 +202,10 @@ _#defs: "/$defs/Properties/definitions/LaunchParameters": close({
 })
 
 // How the launch template is specified.
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSource": close(
-	{LaunchParameters!: _#defs."/$defs/Properties/definitions/LaunchParameters"},
-)
+#LaunchTemplateSource: close({LaunchParameters!: #LaunchParameters})
 
 // Describes a license configuration.
-_#defs: "/$defs/Properties/definitions/LicenseSpecification": close({
+#LicenseSpecification: close({
 	// The ARN of the license configuration.
 	LicenseConfigurationArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -217,7 +213,7 @@ _#defs: "/$defs/Properties/definitions/LicenseSpecification": close({
 })
 
 // Configuration for permissions associated with a capacity provider.
-_#defs: "/$defs/Properties/definitions/PermissionsConfiguration": close({
+#PermissionsConfiguration: close({
 	// The ARN of the IAM role that operators use to manage the capacity provider.
 	CapacityProviderOperatorRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
@@ -231,7 +227,7 @@ _#defs: "/$defs/Properties/definitions/PermissionsConfiguration": close({
 // file, so the space you are guaranteed does not change as the underlying AMI
 // grows. The device name and the delete-on-termination behavior are
 // service-owned and are not configurable.
-_#defs: "/$defs/Properties/definitions/RootVolumeConfiguration": close({
+#RootVolumeConfiguration: close({
 	// Indicates whether the EBS volume is encrypted. Encrypted volumes can only be
 	// attached to instances that support Amazon EBS encryption. If you are
 	// creating a volume from a snapshot, you can't specify an encryption value.
@@ -261,7 +257,7 @@ _#defs: "/$defs/Properties/definitions/RootVolumeConfiguration": close({
 })
 
 // A key-value pair to associate with the capacity provider.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -270,12 +266,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Configuration for a persistent volume attached to a capacity provider session.
-_#defs: "/$defs/Properties/definitions/VolumeConfiguration": close(
-	{EbsConfiguration!: _#defs."/$defs/Properties/definitions/EbsVolumeConfiguration"},
-)
+#VolumeConfiguration: close({EbsConfiguration!: #EbsVolumeConfiguration})
 
 // VPC configuration for launching EC2 instances.
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
+#VpcConfiguration: close({
 	// The IDs of the security groups to associate with the instances.
 	SecurityGroups!: list.MaxItems(16) & list.MinItems(1) & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-zA-Z]{8,17}$"

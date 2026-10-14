@@ -19,21 +19,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	BucketRegion?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	KMSKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(512) & strings.MinRunes(0)) |
 	fn.#StringExpression
-	S3Destination?: _#defs."/$defs/Properties/definitions/S3Destination"
+	S3Destination?: #S3Destination
 	SyncFormat?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	SyncName!:      strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	SyncSource?:    _#defs."/$defs/Properties/definitions/SyncSource"
+	SyncSource?:    #SyncSource
 	SyncType?:      strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AwsOrganizationsSource": close({
+#AwsOrganizationsSource: close({
 	OrganizationSourceType!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	OrganizationalUnits?: list.MaxItems(1000) & list.MinItems(1) & [...string | fn.#StringExpression] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Destination": close({
+#S3Destination: close({
 	BucketName!:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	BucketPrefix?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	BucketRegion!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
@@ -43,8 +43,8 @@ _#defs: "/$defs/Properties/definitions/S3Destination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SyncSource": close({
-	AwsOrganizationsSource?: _#defs."/$defs/Properties/definitions/AwsOrganizationsSource"
+#SyncSource: close({
+	AwsOrganizationsSource?: #AwsOrganizationsSource
 	IncludeFutureRegions?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SourceRegions!:          [...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	SourceType!:             strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression

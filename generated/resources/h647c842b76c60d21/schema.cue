@@ -18,36 +18,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	FileSystemId!: strings.MaxRunes(128) &
 	=~"^(arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}|fs-[0-9a-f]{17,40})$" |
 	fn.#StringExpression
-	PosixUser?:     _#defs."/$defs/Properties/definitions/PosixUser" | fn.#ObjectExpression
-	RootDirectory?: _#defs."/$defs/Properties/definitions/RootDirectory" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AccessPointTag"
-	] |
-		fn.#ListExpression
+	PosixUser?:     #PosixUser | fn.#ObjectExpression
+	RootDirectory?: #RootDirectory | fn.#ObjectExpression
+	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#AccessPointTag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessPointTag": close({
+#AccessPointTag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CreationPermissions": close({
+#CreationPermissions: close({
 	OwnerGid!:    =~"^[0-9]+$" | fn.#StringExpression
 	OwnerUid!:    =~"^[0-9]+$" | fn.#StringExpression
 	Permissions!: =~"^[0-7]{3,4}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PosixUser": close({
+#PosixUser: close({
 	Gid!:           =~"^[0-9]+$" | fn.#StringExpression
 	SecondaryGids?: [...=~"^[0-9]+$" | fn.#StringExpression] | fn.#ListExpression
 	Uid!:           =~"^[0-9]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RootDirectory": close({
-	CreationPermissions?: _#defs."/$defs/Properties/definitions/CreationPermissions" | fn.#ObjectExpression
+#RootDirectory: close({
+	CreationPermissions?: #CreationPermissions | fn.#ObjectExpression
 	Path?:                strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression

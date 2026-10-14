@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -32,13 +32,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // template](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-launch-templates.html)
 // in the *Amazon EC2 User Guide*.
 #Properties: close({
-	LaunchTemplateData!: _#defs."/$defs/Properties/definitions/LaunchTemplateData" | fn.#ObjectExpression
+	LaunchTemplateData!: #LaunchTemplateData | fn.#ObjectExpression
 	LaunchTemplateName?: string | fn.#StringExpression
-	TagSpecifications?:  [..._#defs."/$defs/Properties/definitions/LaunchTemplateTagSpecification"] | fn.#ListExpression
+	TagSpecifications?:  [...#LaunchTemplateTagSpecification] | fn.#ListExpression
 	VersionDescription?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AcceleratorCount": close({
+#AcceleratorCount: close({
 	Max?: int |
 		{
 			string &
@@ -70,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/AcceleratorCount": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiB": close({
+#AcceleratorTotalMemoryMiB: close({
 	Max?: int |
 		{
 			string &
@@ -102,7 +102,7 @@ _#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiB": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbps": close({
+#BaselineEbsBandwidthMbps: close({
 	Max?: int |
 		{
 			string &
@@ -134,14 +134,11 @@ _#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbps": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BaselinePerformanceFactors": close(
-	{Cpu?: _#defs."/$defs/Properties/definitions/Cpu" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#BaselinePerformanceFactors: close({Cpu?: #Cpu | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
+#BlockDeviceMapping: close({
 	DeviceName?:  string | fn.#StringExpression
-	Ebs?:         _#defs."/$defs/Properties/definitions/Ebs" | fn.#ObjectExpression
+	Ebs?:         #Ebs | fn.#ObjectExpression
 	NoDevice?:    string | fn.#StringExpression
 	VirtualName?: string | fn.#StringExpression
 	if VirtualName != _|_ {
@@ -154,19 +151,19 @@ _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 }) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationSpecification": close({
+#CapacityReservationSpecification: close({
 	CapacityReservationPreference?: "capacity-reservations-only" | "none" | "open" | fn.#StringExpression
-	CapacityReservationTarget?: _#defs."/$defs/Properties/definitions/CapacityReservationTarget" | fn.#ObjectExpression
+	CapacityReservationTarget?:     #CapacityReservationTarget | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationTarget": close({
+#CapacityReservationTarget: close({
 	CapacityReservationId?:               string | fn.#StringExpression
 	CapacityReservationResourceGroupArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({
+#ConnectionTrackingSpecification: close({
 	TcpEstablishedTimeout?: int |
 		{
 			string &
@@ -212,12 +209,9 @@ _#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Cpu": close(
-	{References?: _#defs."/$defs/Properties/definitions/References" | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#Cpu: close({References?: #References | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CpuOptions": close({
+#CpuOptions: close({
 	AmdSevSnp?: "enabled" | "disabled" | fn.#StringExpression
 	CoreCount?: int |
 		{
@@ -251,10 +245,9 @@ _#defs: "/$defs/Properties/definitions/CpuOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CreditSpecification": close({CpuCredits?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#CreditSpecification: close({CpuCredits?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ebs": close({
+#Ebs: close({
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EbsCardIndex?: int |
 		{
@@ -335,41 +328,41 @@ _#defs: "/$defs/Properties/definitions/Ebs": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnaSrdSpecification": close({
+#EnaSrdSpecification: close({
 	EnaSrdEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnaSrdUdpSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdUdpSpecification" | fn.#ObjectExpression
+	EnaSrdUdpSpecification?: #EnaSrdUdpSpecification | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnaSrdUdpSpecification": close(
+#EnaSrdUdpSpecification: close(
 	{EnaSrdUdpEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnclaveOptions": close(
+#EnclaveOptions: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HibernationOptions": close(
+#HibernationOptions: close(
 	{Configured?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IamInstanceProfile": close({
+#IamInstanceProfile: close({
 	Arn?:  string | fn.#StringExpression
 	Name?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceMarketOptions": close({
+#InstanceMarketOptions: close({
 	MarketType?:  "capacity-block" | "interruptible-capacity-reservation" | "on-demand" | "spot" | fn.#StringExpression
-	SpotOptions?: _#defs."/$defs/Properties/definitions/SpotOptions" | fn.#ObjectExpression
+	SpotOptions?: #SpotOptions | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
-	AcceleratorCount?: _#defs."/$defs/Properties/definitions/AcceleratorCount" | fn.#ObjectExpression
+#InstanceRequirements: close({
+	AcceleratorCount?: #AcceleratorCount | fn.#ObjectExpression
 	AcceleratorManufacturers?: [
 		..."amazon-web-services" | "amd" | "habana" | "nvidia" | "xilinx" | fn.#StringExpression
 	] |
@@ -397,17 +390,16 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	AcceleratorTotalMemoryMiB?: _#defs."/$defs/Properties/definitions/AcceleratorTotalMemoryMiB" | fn.#ObjectExpression
+	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiB | fn.#ObjectExpression
 	AcceleratorTypes?:          [..."fpga" | "gpu" | "inference" | "media" | fn.#StringExpression] | fn.#ListExpression
 	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [
 		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	BareMetal?:                "excluded" | "included" | "required" | fn.#StringExpression
-	BaselineEbsBandwidthMbps?: _#defs."/$defs/Properties/definitions/BaselineEbsBandwidthMbps" | fn.#ObjectExpression
-	BaselinePerformanceFactors?: _#defs."/$defs/Properties/definitions/BaselinePerformanceFactors" |
-		fn.#ObjectExpression
-	BurstablePerformance?: "excluded" | "included" | "required" | fn.#StringExpression
+	BareMetal?:                  "excluded" | "included" | "required" | fn.#StringExpression
+	BaselineEbsBandwidthMbps?:   #BaselineEbsBandwidthMbps | fn.#ObjectExpression
+	BaselinePerformanceFactors?: #BaselinePerformanceFactors | fn.#ObjectExpression
+	BurstablePerformance?:       "excluded" | "included" | "required" | fn.#StringExpression
 	CpuManufacturers?: [..."amazon-web-services" | "amd" | "apple" | "intel" | fn.#StringExpression] |
 		fn.#ListExpression
 	ExcludedInstanceTypes?: list.MaxItems(400) & [...] & [
@@ -431,10 +423,10 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 				)
 		} |
 		fn.#NumberExpression
-	MemoryGiBPerVCpu?:      _#defs."/$defs/Properties/definitions/MemoryGiBPerVCpu" | fn.#ObjectExpression
-	MemoryMiB?:             _#defs."/$defs/Properties/definitions/MemoryMiB" | fn.#ObjectExpression
-	NetworkBandwidthGbps?:  _#defs."/$defs/Properties/definitions/NetworkBandwidthGbps" | fn.#ObjectExpression
-	NetworkInterfaceCount?: _#defs."/$defs/Properties/definitions/NetworkInterfaceCount" | fn.#ObjectExpression
+	MemoryGiBPerVCpu?:      #MemoryGiBPerVCpu | fn.#ObjectExpression
+	MemoryMiB?:             #MemoryMiB | fn.#ObjectExpression
+	NetworkBandwidthGbps?:  #NetworkBandwidthGbps | fn.#ObjectExpression
+	NetworkInterfaceCount?: #NetworkInterfaceCount | fn.#ObjectExpression
 	OnDemandMaxPricePercentageOverLowestPrice?: int |
 		{
 			string &
@@ -464,49 +456,45 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 				)
 		} |
 		fn.#NumberExpression
-	TotalLocalStorageGB?: _#defs."/$defs/Properties/definitions/TotalLocalStorageGB" | fn.#ObjectExpression
-	VCpuCount?:           _#defs."/$defs/Properties/definitions/VCpuCount" | fn.#ObjectExpression
+	TotalLocalStorageGB?: #TotalLocalStorageGB | fn.#ObjectExpression
+	VCpuCount?:           #VCpuCount | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ipv4PrefixSpecification": close({Ipv4Prefix?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Ipv4PrefixSpecification: close({Ipv4Prefix?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ipv6Add": close({Ipv6Address?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Ipv6Add: close({Ipv6Address?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ipv6PrefixSpecification": close({Ipv6Prefix?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Ipv6PrefixSpecification: close({Ipv6Prefix?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateData": close({
-	BlockDeviceMappings?: [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"] | fn.#ListExpression
-	CapacityReservationSpecification?: _#defs."/$defs/Properties/definitions/CapacityReservationSpecification" |
-		fn.#ObjectExpression
-	CpuOptions?:            _#defs."/$defs/Properties/definitions/CpuOptions" | fn.#ObjectExpression
-	CreditSpecification?:   _#defs."/$defs/Properties/definitions/CreditSpecification" | fn.#ObjectExpression
+#LaunchTemplateData: close({
+	BlockDeviceMappings?:              [...#BlockDeviceMapping] | fn.#ListExpression
+	CapacityReservationSpecification?: #CapacityReservationSpecification | fn.#ObjectExpression
+	CpuOptions?:                       #CpuOptions | fn.#ObjectExpression
+	CreditSpecification?:              #CreditSpecification | fn.#ObjectExpression
 	DisableApiStop?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DisableApiTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EbsOptimized?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnclaveOptions?:        _#defs."/$defs/Properties/definitions/EnclaveOptions" | fn.#ObjectExpression
-	HibernationOptions?:    _#defs."/$defs/Properties/definitions/HibernationOptions" | fn.#ObjectExpression
-	IamInstanceProfile?:    _#defs."/$defs/Properties/definitions/IamInstanceProfile" | fn.#ObjectExpression
+	EnclaveOptions?:        #EnclaveOptions | fn.#ObjectExpression
+	HibernationOptions?:    #HibernationOptions | fn.#ObjectExpression
+	IamInstanceProfile?:    #IamInstanceProfile | fn.#ObjectExpression
 	ImageId?: =~"(?:(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|(?s:^resolve:ssm.*$))|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	InstanceInitiatedShutdownBehavior?: "stop" | "terminate" | fn.#StringExpression
-	InstanceMarketOptions?:     _#defs."/$defs/Properties/definitions/InstanceMarketOptions" | fn.#ObjectExpression
-	InstanceRequirements?:      _#defs."/$defs/Properties/definitions/InstanceRequirements" | fn.#ObjectExpression
-	InstanceType?:              string | fn.#StringExpression
-	KernelId?:                  string | fn.#StringExpression
-	KeyName?:                   string | fn.#StringExpression
-	LicenseSpecifications?:     [..._#defs."/$defs/Properties/definitions/LicenseSpecification"] | fn.#ListExpression
-	MaintenanceOptions?:        _#defs."/$defs/Properties/definitions/MaintenanceOptions" | fn.#ObjectExpression
-	MetadataOptions?:           _#defs."/$defs/Properties/definitions/MetadataOptions" | fn.#ObjectExpression
-	Monitoring?:                _#defs."/$defs/Properties/definitions/Monitoring" | fn.#ObjectExpression
-	NetworkInterfaces?:         [..._#defs."/$defs/Properties/definitions/NetworkInterface"] | fn.#ListExpression
-	NetworkPerformanceOptions?: _#defs."/$defs/Properties/definitions/NetworkPerformanceOptions" | fn.#ObjectExpression
-	Placement?:                 _#defs."/$defs/Properties/definitions/Placement" | fn.#ObjectExpression
-	PrivateDnsNameOptions?:     _#defs."/$defs/Properties/definitions/PrivateDnsNameOptions" | fn.#ObjectExpression
-	RamDiskId?:                 string | fn.#StringExpression
+	InstanceMarketOptions?:             #InstanceMarketOptions | fn.#ObjectExpression
+	InstanceRequirements?:              #InstanceRequirements | fn.#ObjectExpression
+	InstanceType?:                      string | fn.#StringExpression
+	KernelId?:                          string | fn.#StringExpression
+	KeyName?:                           string | fn.#StringExpression
+	LicenseSpecifications?:             [...#LicenseSpecification] | fn.#ListExpression
+	MaintenanceOptions?:                #MaintenanceOptions | fn.#ObjectExpression
+	MetadataOptions?:                   #MetadataOptions | fn.#ObjectExpression
+	Monitoring?:                        #Monitoring | fn.#ObjectExpression
+	NetworkInterfaces?:                 [...#NetworkInterface] | fn.#ListExpression
+	NetworkPerformanceOptions?:         #NetworkPerformanceOptions | fn.#ObjectExpression
+	Placement?:                         #Placement | fn.#ObjectExpression
+	PrivateDnsNameOptions?:             #PrivateDnsNameOptions | fn.#ObjectExpression
+	RamDiskId?:                         string | fn.#StringExpression
 	SecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -517,12 +505,12 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateData": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/TagSpecification"] | fn.#ListExpression
+	TagSpecifications?: [...#TagSpecification] | fn.#ListExpression
 	UserData?:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateTagSpecification": close({
+#LaunchTemplateTagSpecification: close({
 	ResourceType?: "application-status-check" |
 		"capacity-block" |
 		"capacity-manager-data-export" |
@@ -636,21 +624,15 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateTagSpecification": close({
 		"vpn-connection-device-type" |
 		"vpn-gateway" |
 		fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LicenseSpecification": close(
-	{LicenseConfigurationArn?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#LicenseSpecification: close({LicenseConfigurationArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceOptions": close(
-	{AutoRecovery?: "default" | "disabled" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#MaintenanceOptions: close({AutoRecovery?: "default" | "disabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpu": close({
+#MemoryGiBPerVCpu: close({
 	Max?: number |
 		{
 			string &
@@ -692,7 +674,7 @@ _#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpu": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryMiB": close({
+#MemoryMiB: close({
 	Max?: int |
 		{
 			string &
@@ -724,7 +706,7 @@ _#defs: "/$defs/Properties/definitions/MemoryMiB": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataOptions": close({
+#MetadataOptions: close({
 	HttpEndpoint?:     "disabled" | "enabled" | fn.#StringExpression
 	HttpProtocolIpv6?: "disabled" | "enabled" | fn.#StringExpression
 	HttpPutResponseHopLimit?: int |
@@ -746,12 +728,10 @@ _#defs: "/$defs/Properties/definitions/MetadataOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Monitoring": close(
-	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
+#Monitoring: close({Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkBandwidthGbps": close({
+#NetworkBandwidthGbps: close({
 	Max?: number |
 		{
 			string &
@@ -793,11 +773,10 @@ _#defs: "/$defs/Properties/definitions/NetworkBandwidthGbps": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkInterface": close({
+#NetworkInterface: close({
 	AssociateCarrierIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AssociatePublicIpAddress?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ConnectionTrackingSpecification?: _#defs."/$defs/Properties/definitions/ConnectionTrackingSpecification" |
-		fn.#ObjectExpression
+	ConnectionTrackingSpecification?: #ConnectionTrackingSpecification | fn.#ObjectExpression
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Description?:         string | fn.#StringExpression
 	DeviceIndex?: int |
@@ -828,7 +807,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 				)
 		} |
 		fn.#NumberExpression
-	EnaSrdSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdSpecification" | fn.#ObjectExpression
+	EnaSrdSpecification?: #EnaSrdSpecification | fn.#ObjectExpression
 	Groups?:              [...string | fn.#StringExpression] | fn.#ListExpression
 	InterfaceType?:       string | fn.#StringExpression
 	Ipv4PrefixCount?: int |
@@ -845,7 +824,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 				)
 		} |
 		fn.#NumberExpression
-	Ipv4Prefixes?: [..._#defs."/$defs/Properties/definitions/Ipv4PrefixSpecification"] | fn.#ListExpression
+	Ipv4Prefixes?: [...#Ipv4PrefixSpecification] | fn.#ListExpression
 	Ipv6AddressCount?: int |
 		{
 			string &
@@ -860,7 +839,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 				)
 		} |
 		fn.#NumberExpression
-	Ipv6Addresses?: [..._#defs."/$defs/Properties/definitions/Ipv6Add"] | fn.#ListExpression
+	Ipv6Addresses?: [...#Ipv6Add] | fn.#ListExpression
 	Ipv6PrefixCount?: int |
 		{
 			string &
@@ -875,7 +854,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 				)
 		} |
 		fn.#NumberExpression
-	Ipv6Prefixes?: [..._#defs."/$defs/Properties/definitions/Ipv6PrefixSpecification"] | fn.#ListExpression
+	Ipv6Prefixes?: [...#Ipv6PrefixSpecification] | fn.#ListExpression
 	NetworkCardIndex?: int |
 		{
 			string &
@@ -893,7 +872,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 	NetworkInterfaceId?: string | fn.#StringExpression
 	PrimaryIpv6?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PrivateIpAddress?:   string | fn.#StringExpression
-	PrivateIpAddresses?: [..._#defs."/$defs/Properties/definitions/PrivateIpAdd"] | fn.#ListExpression
+	PrivateIpAddresses?: [...#PrivateIpAdd] | fn.#ListExpression
 	SecondaryPrivateIpAddressCount?: int |
 		{
 			string &
@@ -918,7 +897,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkInterfaceCount": close({
+#NetworkInterfaceCount: close({
 	Max?: int |
 		{
 			string &
@@ -950,12 +929,10 @@ _#defs: "/$defs/Properties/definitions/NetworkInterfaceCount": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkPerformanceOptions": close(
-	{BandwidthWeighting?: "default" | "ebs-1" | "vpc-1" | fn.#StringExpression},
-) |
+#NetworkPerformanceOptions: close({BandwidthWeighting?: "default" | "ebs-1" | "vpc-1" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Placement": close({
+#Placement: close({
 	Affinity?:             string | fn.#StringExpression
 	AvailabilityZone?:     string | fn.#StringExpression
 	GroupId?:              string | fn.#StringExpression
@@ -981,7 +958,7 @@ _#defs: "/$defs/Properties/definitions/Placement": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateDnsNameOptions": close({
+#PrivateDnsNameOptions: close({
 	EnableResourceNameDnsAAAARecord?: bool |
 		"true" |
 		"True" |
@@ -995,21 +972,17 @@ _#defs: "/$defs/Properties/definitions/PrivateDnsNameOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateIpAdd": close({
+#PrivateIpAdd: close({
 	Primary?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PrivateIpAddress?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Reference": close({InstanceFamily?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Reference: close({InstanceFamily?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/References": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Reference"
-] |
-	fn.#ListExpression
+#References: list.UniqueItems() & [...#Reference] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SpotOptions": close({
+#SpotOptions: close({
 	BlockDurationMinutes?: int |
 		{
 			string &
@@ -1031,13 +1004,13 @@ _#defs: "/$defs/Properties/definitions/SpotOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagSpecification": close({
+#TagSpecification: close({
 	ResourceType?: "application-status-check" |
 		"capacity-block" |
 		"capacity-manager-data-export" |
@@ -1151,11 +1124,11 @@ _#defs: "/$defs/Properties/definitions/TagSpecification": close({
 		"vpn-connection-device-type" |
 		"vpn-gateway" |
 		fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TotalLocalStorageGB": close({
+#TotalLocalStorageGB: close({
 	Max?: number |
 		{
 			string &
@@ -1197,7 +1170,7 @@ _#defs: "/$defs/Properties/definitions/TotalLocalStorageGB": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VCpuCount": close({
+#VCpuCount: close({
 	Max?: int |
 		{
 			string &

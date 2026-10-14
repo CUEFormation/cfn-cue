@@ -10,7 +10,7 @@ package schema
 	GroupId!: string
 
 	// The state of the security group vpc association.
-	State?: _#defs."/$defs/Properties/definitions/SecurityGroupVpcAssociationState"
+	State?: #SecurityGroupVpcAssociationState
 
 	// The reason for the state of the security group vpc association.
 	StateReason?: string
@@ -22,7 +22,7 @@ package schema
 	VpcOwnerId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupVpcAssociationState": "associating" |
+#SecurityGroupVpcAssociationState: "associating" |
 	"associated" |
 	"association-failed" |
 	"disassociating" |

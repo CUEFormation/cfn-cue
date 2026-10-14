@@ -13,13 +13,13 @@ import (
 #Properties: close({
 	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F})"
 	SerialNumber?:         strings.MaxRunes(256) & strings.MinRunes(9) & =~"[\\w+=/:,.@-]+"
-	Tags?:                 list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                 list.MaxItems(50) & [...] & [...#Tag]
 	Users!:                [...string]
 	VirtualMfaDeviceName?: strings.MaxRunes(226) & strings.MinRunes(1) & =~"[\\w+=,.@-]+"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

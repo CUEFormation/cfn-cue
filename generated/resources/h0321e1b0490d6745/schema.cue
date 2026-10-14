@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"struct"
 	"list"
 )
@@ -20,30 +20,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::ServiceDiscovery::Service
 #Properties: close({
 	Description?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	DnsConfig?:               _#defs."/$defs/Properties/definitions/DnsConfig" | fn.#ObjectExpression
-	HealthCheckConfig?:       _#defs."/$defs/Properties/definitions/HealthCheckConfig" | fn.#ObjectExpression
-	HealthCheckCustomConfig?: _#defs."/$defs/Properties/definitions/HealthCheckCustomConfig" | fn.#ObjectExpression
+	DnsConfig?:               #DnsConfig | fn.#ObjectExpression
+	HealthCheckConfig?:       #HealthCheckConfig | fn.#ObjectExpression
+	HealthCheckCustomConfig?: #HealthCheckCustomConfig | fn.#ObjectExpression
 	Name?:                    string | fn.#StringExpression
 	NamespaceId?:             strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	ServiceAttributes?: struct.MaxFields(30) & close({
 
 		{[=~"^[A-Za-z0-9_]{1,64}$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	Type?: "HTTP" | fn.#StringExpression
 	if HealthCheckConfig != _|_ {
 		HealthCheckCustomConfig?: error("HealthCheckCustomConfig cannot be used with HealthCheckConfig")
 	}
 })
 
-_#defs: "/$defs/Properties/definitions/DnsConfig": close({
-	DnsRecords!:    [..._#defs."/$defs/Properties/definitions/DnsRecord"] | fn.#ListExpression
+#DnsConfig: close({
+	DnsRecords!:    [...#DnsRecord] | fn.#ListExpression
 	NamespaceId?:   strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	RoutingPolicy?: "MULTIVALUE" | "WEIGHTED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DnsRecord": close({
+#DnsRecord: close({
 	TTL!: <=2147483647 & >=0 |
 		{
 			string &
@@ -68,7 +68,7 @@ _#defs: "/$defs/Properties/definitions/DnsRecord": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
+#HealthCheckConfig: close({
 	FailureThreshold?: <=10 & >=1 |
 		{
 			string &
@@ -94,7 +94,7 @@ _#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckCustomConfig": close({
+#HealthCheckCustomConfig: close({
 	FailureThreshold?: <=10 & >=1 |
 		{
 			string &
@@ -118,7 +118,7 @@ _#defs: "/$defs/Properties/definitions/HealthCheckCustomConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

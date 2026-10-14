@@ -15,25 +15,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::BedrockAgentCore::PaymentConnector
 #Properties: close({
 	ConnectorName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-	ConnectorType!: _#defs."/$defs/Properties/definitions/PaymentConnectorType"
-	CredentialProviderConfigurations?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CredentialsProviderConfiguration"
-	] |
+	ConnectorType!: #PaymentConnectorType
+	CredentialProviderConfigurations?: list.MaxItems(1) & [...] & [...#CredentialsProviderConfiguration] |
 		fn.#ListExpression
 	Description?:      strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s]+$" | fn.#StringExpression
 	PaymentManagerId!: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
-	ProvisionMode?:    _#defs."/$defs/Properties/definitions/PaymentConnectorProvisionMode" | fn.#StringExpression
+	ProvisionMode?:    #PaymentConnectorProvisionMode | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CredentialsProviderConfiguration": close({
-	CoinbaseCDP?: _#defs."/$defs/Properties/definitions/PaymentCredentialProviderConfiguration"
-	StripePrivy?: _#defs."/$defs/Properties/definitions/PaymentCredentialProviderConfiguration"
+#CredentialsProviderConfiguration: close({
+	CoinbaseCDP?: #PaymentCredentialProviderConfiguration
+	StripePrivy?: #PaymentCredentialProviderConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PaymentConnectorProvisionMode": "MANUAL" | "QUICK_CREATE" | fn.#StringExpression
+#PaymentConnectorProvisionMode: "MANUAL" | "QUICK_CREATE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PaymentConnectorStatus": "CREATING" |
+#PaymentConnectorStatus: "CREATING" |
 	"UPDATING" |
 	"DELETING" |
 	"READY" |
@@ -47,11 +45,9 @@ _#defs: "/$defs/Properties/definitions/PaymentConnectorStatus": "CREATING" |
 	"AUTHENTICATION_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PaymentConnectorType": "CoinbaseCDP" | "StripePrivy" | fn.#StringExpression
+#PaymentConnectorType: "CoinbaseCDP" | "StripePrivy" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PaymentCredentialProviderConfiguration": close(
-	{CredentialProviderArn!: string | fn.#StringExpression},
-) |
+#PaymentCredentialProviderConfiguration: close({CredentialProviderArn!: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::BedrockAgentCore::PaymentConnector"

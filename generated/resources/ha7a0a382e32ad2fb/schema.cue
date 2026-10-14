@@ -21,11 +21,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PermissionsPolicyDocument?: fn.#Object & {...} | fn.#ObjectExpression
 	RepositoryName!: strings.MaxRunes(100) & strings.MinRunes(2) & =~"^([A-Za-z0-9][A-Za-z0-9._\\-]{1,99})$" |
 	fn.#StringExpression
-	Tags?:      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	Upstreams?: [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\P{C}+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\P{C}*$" | fn.#StringExpression
 }) |

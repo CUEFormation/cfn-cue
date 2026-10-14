@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,29 +13,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::LakeFormation::DataCellsFilter
 #Properties: close({
-	ColumnNames?:    _#defs."/$defs/Properties/definitions/ColumnNames" | fn.#ListExpression
-	ColumnWildcard?: _#defs."/$defs/Properties/definitions/ColumnWildcard" | fn.#ObjectExpression
-	DatabaseName!:   _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	Name!:           _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	RowFilter?:      _#defs."/$defs/Properties/definitions/RowFilter" | fn.#ObjectExpression
-	TableCatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	TableName!:      _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
+	ColumnNames?:    #ColumnNames | fn.#ListExpression
+	ColumnWildcard?: #ColumnWildcard | fn.#ObjectExpression
+	DatabaseName!:   #NameString | fn.#StringExpression
+	Name!:           #NameString | fn.#StringExpression
+	RowFilter?:      #RowFilter | fn.#ObjectExpression
+	TableCatalogId!: #CatalogIdString | fn.#StringExpression
+	TableName!:      #NameString | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CatalogIdString": strings.MaxRunes(12) & strings.MinRunes(12) |
-fn.#StringExpression
+#CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ColumnNames": [..._#defs."/$defs/Properties/definitions/NameString"] |
-	fn.#ListExpression
+#ColumnNames: [...#NameString] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ColumnWildcard": close(
-	{ExcludedColumnNames?: _#defs."/$defs/Properties/definitions/ColumnNames" | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#ColumnWildcard: close({ExcludedColumnNames?: #ColumnNames | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NameString": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#NameString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RowFilter": close({
+#RowFilter: close({
 	AllRowsWildcard?:  close({}) | fn.#ObjectExpression
 	FilterExpression?: string | fn.#StringExpression
 }) |

@@ -13,10 +13,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CrossAccount?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Description?:  string | fn.#StringExpression
 	SourceArn!:    string | fn.#StringExpression
-	Tags?:         [..._#defs."/$defs/Properties/definitions/TagsEntry"] | fn.#ListExpression
+	Tags?:         [...#TagsEntry] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/TagsEntry": close({
+#TagsEntry: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

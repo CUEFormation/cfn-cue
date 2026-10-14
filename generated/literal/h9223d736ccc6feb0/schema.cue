@@ -11,71 +11,63 @@ package schema
 	MeshName!:           string
 	MeshOwner?:          string
 	ResourceOwner?:      string
-	Spec!:               _#defs."/$defs/Properties/definitions/VirtualGatewaySpec"
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"]
+	Spec!:               #VirtualGatewaySpec
+	Tags?:               [...#Tag]
 	Uid?:                string
 	VirtualGatewayName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/JsonFormatRef": close({
+#JsonFormatRef: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/LoggingFormat": close({
-	Json?: [..._#defs."/$defs/Properties/definitions/JsonFormatRef"]
+#LoggingFormat: close({
+	Json?: [...#JsonFormatRef]
 	Text?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SubjectAlternativeNameMatchers": close({Exact?: [...string]})
+#SubjectAlternativeNameMatchers: close({Exact?: [...string]})
 
-_#defs: "/$defs/Properties/definitions/SubjectAlternativeNames": close(
-	{Match!: _#defs."/$defs/Properties/definitions/SubjectAlternativeNameMatchers"},
-)
+#SubjectAlternativeNames: close({Match!: #SubjectAlternativeNameMatchers})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayAccessLog": close(
-	{File?: _#defs."/$defs/Properties/definitions/VirtualGatewayFileAccessLog"},
-)
+#VirtualGatewayAccessLog: close({File?: #VirtualGatewayFileAccessLog})
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayBackendDefaults": close(
-	{ClientPolicy?: _#defs."/$defs/Properties/definitions/VirtualGatewayClientPolicy"},
-)
+#VirtualGatewayBackendDefaults: close({ClientPolicy?: #VirtualGatewayClientPolicy})
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayClientPolicy": close(
-	{TLS?: _#defs."/$defs/Properties/definitions/VirtualGatewayClientPolicyTls"},
-)
+#VirtualGatewayClientPolicy: close({TLS?: #VirtualGatewayClientPolicyTls})
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayClientPolicyTls": close({
-	Certificate?: _#defs."/$defs/Properties/definitions/VirtualGatewayClientTlsCertificate"
+#VirtualGatewayClientPolicyTls: close({
+	Certificate?: #VirtualGatewayClientTlsCertificate
 	Enforce?:     bool
 	Ports?:       [...int]
-	Validation!:  _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContext"
+	Validation!:  #VirtualGatewayTlsValidationContext
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayClientTlsCertificate": close({
-	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsFileCertificate"
-	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsSdsCertificate"
+#VirtualGatewayClientTlsCertificate: close({
+	File?: #VirtualGatewayListenerTlsFileCertificate
+	SDS?:  #VirtualGatewayListenerTlsSdsCertificate
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayConnectionPool": close({
-	GRPC?:  _#defs."/$defs/Properties/definitions/VirtualGatewayGrpcConnectionPool"
-	HTTP?:  _#defs."/$defs/Properties/definitions/VirtualGatewayHttpConnectionPool"
-	HTTP2?: _#defs."/$defs/Properties/definitions/VirtualGatewayHttp2ConnectionPool"
+#VirtualGatewayConnectionPool: close({
+	GRPC?:  #VirtualGatewayGrpcConnectionPool
+	HTTP?:  #VirtualGatewayHttpConnectionPool
+	HTTP2?: #VirtualGatewayHttp2ConnectionPool
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayFileAccessLog": close({
-	Format?: _#defs."/$defs/Properties/definitions/LoggingFormat"
+#VirtualGatewayFileAccessLog: close({
+	Format?: #LoggingFormat
 	Path!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayGrpcConnectionPool": close({MaxRequests!: int})
+#VirtualGatewayGrpcConnectionPool: close({MaxRequests!: int})
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayHealthCheckPolicy": close({
+#VirtualGatewayHealthCheckPolicy: close({
 	HealthyThreshold!:   int
 	IntervalMillis!:     int
 	Path?:               string
@@ -85,83 +77,79 @@ _#defs: "/$defs/Properties/definitions/VirtualGatewayHealthCheckPolicy": close({
 	UnhealthyThreshold!: int
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayHttp2ConnectionPool": close({MaxRequests!: int})
+#VirtualGatewayHttp2ConnectionPool: close({MaxRequests!: int})
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayHttpConnectionPool": close({
+#VirtualGatewayHttpConnectionPool: close({
 	MaxConnections!:     int
 	MaxPendingRequests?: int
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListener": close({
-	ConnectionPool?: _#defs."/$defs/Properties/definitions/VirtualGatewayConnectionPool"
-	HealthCheck?:    _#defs."/$defs/Properties/definitions/VirtualGatewayHealthCheckPolicy"
-	PortMapping!:    _#defs."/$defs/Properties/definitions/VirtualGatewayPortMapping"
-	TLS?:            _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTls"
+#VirtualGatewayListener: close({
+	ConnectionPool?: #VirtualGatewayConnectionPool
+	HealthCheck?:    #VirtualGatewayHealthCheckPolicy
+	PortMapping!:    #VirtualGatewayPortMapping
+	TLS?:            #VirtualGatewayListenerTls
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTls": close({
-	Certificate!: _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsCertificate"
+#VirtualGatewayListenerTls: close({
+	Certificate!: #VirtualGatewayListenerTlsCertificate
 	Mode!:        string
-	Validation?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContext"
+	Validation?:  #VirtualGatewayListenerTlsValidationContext
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsAcmCertificate": close(
+#VirtualGatewayListenerTlsAcmCertificate: close(
 	{CertificateArn!: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"},
 )
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsCertificate": close({
-	ACM?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsAcmCertificate"
-	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsFileCertificate"
-	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsSdsCertificate"
+#VirtualGatewayListenerTlsCertificate: close({
+	ACM?:  #VirtualGatewayListenerTlsAcmCertificate
+	File?: #VirtualGatewayListenerTlsFileCertificate
+	SDS?:  #VirtualGatewayListenerTlsSdsCertificate
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsFileCertificate": close({
+#VirtualGatewayListenerTlsFileCertificate: close({
 	CertificateChain!: string
 	PrivateKey!:       string
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsSdsCertificate": close({SecretName!: string})
+#VirtualGatewayListenerTlsSdsCertificate: close({SecretName!: string})
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContext": close({
-	SubjectAlternativeNames?: _#defs."/$defs/Properties/definitions/SubjectAlternativeNames"
-	Trust!:                   _#defs."/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContextTrust"
+#VirtualGatewayListenerTlsValidationContext: close({
+	SubjectAlternativeNames?: #SubjectAlternativeNames
+	Trust!:                   #VirtualGatewayListenerTlsValidationContextTrust
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayListenerTlsValidationContextTrust": close({
-	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextFileTrust"
-	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextSdsTrust"
+#VirtualGatewayListenerTlsValidationContextTrust: close({
+	File?: #VirtualGatewayTlsValidationContextFileTrust
+	SDS?:  #VirtualGatewayTlsValidationContextSdsTrust
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayLogging": close(
-	{AccessLog?: _#defs."/$defs/Properties/definitions/VirtualGatewayAccessLog"},
-)
+#VirtualGatewayLogging: close({AccessLog?: #VirtualGatewayAccessLog})
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayPortMapping": close({
+#VirtualGatewayPortMapping: close({
 	Port!:     int
 	Protocol!: string
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewaySpec": close({
-	BackendDefaults?: _#defs."/$defs/Properties/definitions/VirtualGatewayBackendDefaults"
-	Listeners!:       [..._#defs."/$defs/Properties/definitions/VirtualGatewayListener"]
-	Logging?:         _#defs."/$defs/Properties/definitions/VirtualGatewayLogging"
+#VirtualGatewaySpec: close({
+	BackendDefaults?: #VirtualGatewayBackendDefaults
+	Listeners!:       [...#VirtualGatewayListener]
+	Logging?:         #VirtualGatewayLogging
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayTlsValidationContext": close({
-	SubjectAlternativeNames?: _#defs."/$defs/Properties/definitions/SubjectAlternativeNames"
-	Trust!:                   _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextTrust"
+#VirtualGatewayTlsValidationContext: close({
+	SubjectAlternativeNames?: #SubjectAlternativeNames
+	Trust!:                   #VirtualGatewayTlsValidationContextTrust
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayTlsValidationContextAcmTrust": close(
-	{CertificateAuthorityArns!: [...string]},
-)
+#VirtualGatewayTlsValidationContextAcmTrust: close({CertificateAuthorityArns!: [...string]})
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayTlsValidationContextFileTrust": close({CertificateChain!: string})
+#VirtualGatewayTlsValidationContextFileTrust: close({CertificateChain!: string})
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayTlsValidationContextSdsTrust": close({SecretName!: string})
+#VirtualGatewayTlsValidationContextSdsTrust: close({SecretName!: string})
 
-_#defs: "/$defs/Properties/definitions/VirtualGatewayTlsValidationContextTrust": close({
-	ACM?:  _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextAcmTrust"
-	File?: _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextFileTrust"
-	SDS?:  _#defs."/$defs/Properties/definitions/VirtualGatewayTlsValidationContextSdsTrust"
+#VirtualGatewayTlsValidationContextTrust: close({
+	ACM?:  #VirtualGatewayTlsValidationContextAcmTrust
+	File?: #VirtualGatewayTlsValidationContextFileTrust
+	SDS?:  #VirtualGatewayTlsValidationContextSdsTrust
 })

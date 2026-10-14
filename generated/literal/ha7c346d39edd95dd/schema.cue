@@ -14,65 +14,59 @@ import (
 	Arn?: strings.MaxRunes(1000)
 
 	// FAQ description
-	Description?: _#defs."/$defs/Properties/definitions/Description"
+	Description?: #Description
 
 	// FAQ file format
-	FileFormat?: _#defs."/$defs/Properties/definitions/FileFormat"
-	Id?:         _#defs."/$defs/Properties/definitions/Id"
+	FileFormat?: #FileFormat
+	Id?:         #Id
 
 	// Index ID
-	IndexId!:      _#defs."/$defs/Properties/definitions/IndexId"
-	LanguageCode?: _#defs."/$defs/Properties/definitions/LanguageCode"
+	IndexId!:      #IndexId
+	LanguageCode?: #LanguageCode
 
 	// FAQ name
-	Name!: _#defs."/$defs/Properties/definitions/FaqName"
+	Name!: #FaqName
 
 	// FAQ role ARN
-	RoleArn!: _#defs."/$defs/Properties/definitions/RoleArn"
+	RoleArn!: #RoleArn
 
 	// FAQ S3 path
-	S3Path!: _#defs."/$defs/Properties/definitions/S3Path"
+	S3Path!: #S3Path
 
 	// Tags for labeling the FAQ
-	Tags?: _#defs."/$defs/Properties/definitions/TagList"
+	Tags?: #TagList
 })
 
 // Description of the FAQ
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\P{C}*$"
+#Description: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\P{C}*$"
 
-_#defs: "/$defs/Properties/definitions/FaqName": strings.MaxRunes(100) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
+#FaqName: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
 
 // Format of the input file
-_#defs: "/$defs/Properties/definitions/FileFormat": "CSV" | "CSV_WITH_HEADER" | "JSON"
+#FileFormat: "CSV" | "CSV_WITH_HEADER" | "JSON"
 
 // Unique ID of the FAQ
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(100) & strings.MinRunes(1)
+#Id: strings.MaxRunes(100) & strings.MinRunes(1)
 
 // Unique ID of Index
-_#defs: "/$defs/Properties/definitions/IndexId": strings.MaxRunes(36) &
-strings.MinRunes(36) &
-=~"^[a-zA-Z0-9][a-zA-Z0-9-]*$"
+#IndexId: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$"
 
 // The code for a language.
-_#defs: "/$defs/Properties/definitions/LanguageCode": strings.MaxRunes(10) & strings.MinRunes(2) & =~"[a-zA-Z-]*"
+#LanguageCode: strings.MaxRunes(10) & strings.MinRunes(2) & =~"[a-zA-Z-]*"
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(1))
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(1))
 
-_#defs: "/$defs/Properties/definitions/S3BucketName": strings.MaxRunes(63) &
-strings.MinRunes(3) &
-=~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]"
+#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]"
 
-_#defs: "/$defs/Properties/definitions/S3ObjectKey": strings.MaxRunes(1024) & strings.MinRunes(1)
+#S3ObjectKey: strings.MaxRunes(1024) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/S3Path": close({
-	Bucket!: _#defs."/$defs/Properties/definitions/S3BucketName"
-	Key!:    _#defs."/$defs/Properties/definitions/S3ObjectKey"
+#S3Path: close({
+	Bucket!: #S3BucketName
+	Key!:    #S3ObjectKey
 })
 
 // A label for tagging Kendra resources
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string used to identify this tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -81,6 +75,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // List of tags
-_#defs: "/$defs/Properties/definitions/TagList": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#TagList: list.MaxItems(200) & [...] & [...#Tag]

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -16,41 +16,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // resource type that you can use to add computation to S3 actions
 #Properties: close({
 	Name?: strings.MaxRunes(45) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
-	ObjectLambdaConfiguration!: _#defs."/$defs/Properties/definitions/ObjectLambdaConfiguration" | fn.#ObjectExpression
+	ObjectLambdaConfiguration!: #ObjectLambdaConfiguration | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Action": string | fn.#StringExpression
+#Action: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Alias": close({
+#Alias: close({
 	Status?: =~"^[A-Z]*$" | fn.#StringExpression
 	Value!:  =~"^[a-z0-9\\-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AwsLambda": close({
+#AwsLambda: close({
 	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 	fn.#StringExpression
 	FunctionPayload?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectLambdaConfiguration": close({
-	AllowedFeatures?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	CloudWatchMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SupportingAccessPoint!:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	TransformationConfigurations!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TransformationConfiguration"
-	] |
-		fn.#ListExpression
+#ObjectLambdaConfiguration: close({
+	AllowedFeatures?:              list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	CloudWatchMetricsEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SupportingAccessPoint!:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	TransformationConfigurations!: list.UniqueItems() & [...#TransformationConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyStatus": close(
-	{IsPublic?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
+#PolicyStatus: close({IsPublic?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
+#PublicAccessBlockConfiguration: close({
 	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -58,10 +53,9 @@ _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransformationConfiguration": close({
-	Actions!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
-	ContentTransformation!: fn.#Object & {...} & close({AwsLambda!: _#defs."/$defs/Properties/definitions/AwsLambda"}) |
-	fn.#ObjectExpression
+#TransformationConfiguration: close({
+	Actions!:               list.UniqueItems() & [...#Action] | fn.#ListExpression
+	ContentTransformation!: fn.#Object & {...} & close({AwsLambda!: #AwsLambda}) | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

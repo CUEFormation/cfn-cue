@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,33 +13,31 @@ import (
 #Properties: close({
 	// The time at which the model package group was created.
 	CreationTime?:                 string
-	ModelPackageGroupArn?:         _#defs."/$defs/Properties/definitions/ModelPackageGroupArn"
-	ModelPackageGroupDescription?: _#defs."/$defs/Properties/definitions/ModelPackageGroupDescription"
-	ModelPackageGroupName!:        _#defs."/$defs/Properties/definitions/ModelPackageGroupName"
+	ModelPackageGroupArn?:         #ModelPackageGroupArn
+	ModelPackageGroupDescription?: #ModelPackageGroupDescription
+	ModelPackageGroupName!:        #ModelPackageGroupName
 	ModelPackageGroupPolicy?:      string | {...}
 
 	// The status of a modelpackage group job.
 	ModelPackageGroupStatus?: "Pending" | "InProgress" | "Completed" | "Failed" | "Deleting" | "DeleteFailed"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // The Amazon Resource Name (ARN) of the model package group.
-_#defs: "/$defs/Properties/definitions/ModelPackageGroupArn": strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:.*"
+#ModelPackageGroupArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:.*"
 
 // The description of the model package group.
-_#defs: "/$defs/Properties/definitions/ModelPackageGroupDescription": strings.MaxRunes(1024) &
+#ModelPackageGroupDescription: strings.MaxRunes(1024) &
 strings.MinRunes(0) &
 =~"[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*"
 
 // The name of the model package group.
-_#defs: "/$defs/Properties/definitions/ModelPackageGroupName": strings.MaxRunes(63) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
+#ModelPackageGroupName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

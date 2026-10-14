@@ -12,7 +12,7 @@ import (
 
 // Definition of AWS::WorkSpacesWeb::IpAccessSettings Resource Type
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
+	AdditionalEncryptionContext?: #EncryptionContextMap
 	AssociatedPortalArns?: [
 		...strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
@@ -27,24 +27,24 @@ import (
 	IpAccessSettingsArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$"
-	IpRules!: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/IpRule"]
-	Tags?:    list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	IpRules!: list.MaxItems(100) & list.MinItems(1) & [...#IpRule]
+	Tags?:    list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
+#EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$"}})
 
-_#defs: "/$defs/Properties/definitions/IpRule": close({
+#IpRule: close({
 	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.+$"
 
 	// A single IP address or an IP address range in CIDR notation
 	IpRange!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})

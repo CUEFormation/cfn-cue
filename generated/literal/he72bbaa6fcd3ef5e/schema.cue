@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,74 +13,66 @@ import (
 #Properties: close({
 	AllowedStorageProfileIds?: list.MaxItems(20) & list.UniqueItems() & [...] & [...=~"^sp-[0-9a-f]{32}$"]
 	Arn?:                      =~"^arn:*"
-	DefaultBudgetAction?:      _#defs."/$defs/Properties/definitions/DefaultQueueBudgetAction"
+	DefaultBudgetAction?:      #DefaultQueueBudgetAction
 	Description?:              strings.MaxRunes(100) & strings.MinRunes(0)
 	DisplayName!:              strings.MaxRunes(100) & strings.MinRunes(1)
 	FarmId!:                   =~"^farm-[0-9a-f]{32}$"
-	JobAttachmentSettings?:    _#defs."/$defs/Properties/definitions/JobAttachmentSettings"
-	JobRunAsUser?:             _#defs."/$defs/Properties/definitions/JobRunAsUser"
+	JobAttachmentSettings?:    #JobAttachmentSettings
+	JobRunAsUser?:             #JobRunAsUser
 	QueueId?:                  =~"^queue-[0-9a-f]{32}$"
 	RequiredFileSystemLocationNames?: list.MaxItems(20) & list.UniqueItems() & [...] & [
 		...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$"
 	]
 	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$"
-	SchedulingConfiguration?: _#defs."/$defs/Properties/definitions/SchedulingConfiguration"
+	SchedulingConfiguration?: #SchedulingConfiguration
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/DefaultQueueBudgetAction": "NONE" |
-	"STOP_SCHEDULING_AND_COMPLETE_TASKS" |
-	"STOP_SCHEDULING_AND_CANCEL_TASKS"
+#DefaultQueueBudgetAction: "NONE" | "STOP_SCHEDULING_AND_COMPLETE_TASKS" | "STOP_SCHEDULING_AND_CANCEL_TASKS"
 
-_#defs: "/$defs/Properties/definitions/JobAttachmentSettings": close({
+#JobAttachmentSettings: close({
 	RootPrefix!:   strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_/]+$"
 	S3BucketName!: strings.MaxRunes(63) & strings.MinRunes(3)
 })
 
-_#defs: "/$defs/Properties/definitions/JobRunAsUser": close({
-	Posix?:   _#defs."/$defs/Properties/definitions/PosixUser"
-	RunAs!:   _#defs."/$defs/Properties/definitions/RunAs"
-	Windows?: _#defs."/$defs/Properties/definitions/WindowsUser"
+#JobRunAsUser: close({
+	Posix?:   #PosixUser
+	RunAs!:   #RunAs
+	Windows?: #WindowsUser
 })
 
-_#defs: "/$defs/Properties/definitions/PosixUser": close({
+#PosixUser: close({
 	Group!: strings.MaxRunes(31) & strings.MinRunes(0) & =~"^(?:[a-z][a-z0-9-]{0,30})?$"
 	User!:  strings.MaxRunes(31) & strings.MinRunes(0) & =~"^(?:[a-z][a-z0-9-]{0,30})?$"
 })
 
-_#defs: "/$defs/Properties/definitions/PriorityBalancedSchedulingConfiguration": close(
-	{RenderingTaskBuffer?: int & <=1000 & >=0},
-)
+#PriorityBalancedSchedulingConfiguration: close({RenderingTaskBuffer?: int & <=1000 & >=0})
 
-_#defs: "/$defs/Properties/definitions/PriorityFifoSchedulingConfiguration": close({})
+#PriorityFifoSchedulingConfiguration: close({})
 
-_#defs: "/$defs/Properties/definitions/RunAs": "QUEUE_CONFIGURED_USER" | "WORKER_AGENT_USER"
+#RunAs: "QUEUE_CONFIGURED_USER" | "WORKER_AGENT_USER"
 
-_#defs: "/$defs/Properties/definitions/SchedulingConfiguration": matchN(1, [close(
-	{PriorityFifo!: _#defs."/$defs/Properties/definitions/PriorityFifoSchedulingConfiguration"},
+#SchedulingConfiguration: matchN(1, [close(
+	{PriorityFifo!: #PriorityFifoSchedulingConfiguration},
 ), close(
-	{PriorityBalanced!: _#defs."/$defs/Properties/definitions/PriorityBalancedSchedulingConfiguration"},
+	{PriorityBalanced!: #PriorityBalancedSchedulingConfiguration},
 ), close(
-	{WeightedBalanced!: _#defs."/$defs/Properties/definitions/WeightedBalancedSchedulingConfiguration"},
+	{WeightedBalanced!: #WeightedBalancedSchedulingConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/SchedulingMaxPriorityOverride": close(
-	{AlwaysScheduleFirst!: _#defs."/$defs/Properties/definitions/SchedulingMaxPriorityOverrideAlwaysScheduleFirst"},
-)
+#SchedulingMaxPriorityOverride: close({AlwaysScheduleFirst!: #SchedulingMaxPriorityOverrideAlwaysScheduleFirst})
 
-_#defs: "/$defs/Properties/definitions/SchedulingMaxPriorityOverrideAlwaysScheduleFirst": close({})
+#SchedulingMaxPriorityOverrideAlwaysScheduleFirst: close({})
 
-_#defs: "/$defs/Properties/definitions/SchedulingMinPriorityOverride": close(
-	{AlwaysScheduleLast!: _#defs."/$defs/Properties/definitions/SchedulingMinPriorityOverrideAlwaysScheduleLast"},
-)
+#SchedulingMinPriorityOverride: close({AlwaysScheduleLast!: #SchedulingMinPriorityOverrideAlwaysScheduleLast})
 
-_#defs: "/$defs/Properties/definitions/SchedulingMinPriorityOverrideAlwaysScheduleLast": close({})
+#SchedulingMinPriorityOverrideAlwaysScheduleLast: close({})
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -94,17 +86,17 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/WeightedBalancedSchedulingConfiguration": close({
+#WeightedBalancedSchedulingConfiguration: close({
 	ErrorWeight?:          <=10000 & >=-10000
-	MaxPriorityOverride?:  _#defs."/$defs/Properties/definitions/SchedulingMaxPriorityOverride"
-	MinPriorityOverride?:  _#defs."/$defs/Properties/definitions/SchedulingMinPriorityOverride"
+	MaxPriorityOverride?:  #SchedulingMaxPriorityOverride
+	MinPriorityOverride?:  #SchedulingMinPriorityOverride
 	PriorityWeight?:       <=10000 & >=0
 	RenderingTaskBuffer?:  int & <=1000 & >=0
 	RenderingTaskWeight?:  <=10000 & >=-10000
 	SubmissionTimeWeight?: <=10000 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/WindowsUser": close({
+#WindowsUser: close({
 	PasswordArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
 	User!:        strings.MaxRunes(111) & strings.MinRunes(0) & =~"^[^\"'/\\[\\]:;|=,+*?<>\\s]*$"
 })

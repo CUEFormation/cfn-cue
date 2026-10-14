@@ -12,7 +12,7 @@ import (
 // Resource Type definition for AWS::Lightsail::Instance
 #Properties: close({
 	// An array of objects representing the add-ons to enable for the new instance.
-	AddOns?: [..._#defs."/$defs/Properties/definitions/AddOn"]
+	AddOns?: [...#AddOn]
 
 	// The Availability Zone in which to create your instance. Use the following
 	// format: us-east-2a (case sensitive). Be sure to add the include Availability
@@ -27,7 +27,7 @@ import (
 	// The bundle of specification information for your virtual private server (or
 	// instance ), including the pricing plan (e.g., micro_1_0 ).
 	BundleId!:    strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S"
-	Hardware?:    _#defs."/$defs/Properties/definitions/Hardware"
+	Hardware?:    #Hardware
 	InstanceArn?: string
 
 	// The names to use for your new Lightsail instance.
@@ -41,8 +41,8 @@ import (
 
 	// The name of your key pair.
 	KeyPairName?: =~"^\\w[\\w\\-]*\\w$"
-	Location?:    _#defs."/$defs/Properties/definitions/Location"
-	Networking?:  _#defs."/$defs/Properties/definitions/Networking"
+	Location?:    #Location
+	Networking?:  #Networking
 
 	// Private IP Address of the Instance
 	PrivateIpAddress?: string
@@ -55,13 +55,13 @@ import (
 
 	// SSH Key Name of the Lightsail instance.
 	SshKeyName?: string
-	State?:      _#defs."/$defs/Properties/definitions/State"
+	State?:      #State
 
 	// Support code to help identify any issues
 	SupportCode?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// A launch script you can create that configures a server with additional user
 	// data. For example, you might want to run apt-get -y update.
@@ -72,10 +72,10 @@ import (
 })
 
 // A addon associate with a resource.
-_#defs: "/$defs/Properties/definitions/AddOn": close({
+#AddOn: close({
 	// The add-on type
 	AddOnType!:                ("AutoSnapshot" | "StopInstanceOnIdle") & (strings.MaxRunes(128) & strings.MinRunes(1))
-	AutoSnapshotAddOnRequest?: _#defs."/$defs/Properties/definitions/AutoSnapshotAddOn"
+	AutoSnapshotAddOnRequest?: #AutoSnapshotAddOn
 
 	// Status of the Addon
 	Status?: "Enabling" | "Disabling" | "Enabled" | "Terminating" | "Terminated" | "Disabled" | "Failed"
@@ -83,13 +83,13 @@ _#defs: "/$defs/Properties/definitions/AddOn": close({
 
 // An object that represents additional parameters when enabling or modifying
 // the automatic snapshot add-on
-_#defs: "/$defs/Properties/definitions/AutoSnapshotAddOn": close({
+#AutoSnapshotAddOn: close({
 	// The daily time when an automatic snapshot will be created.
 	SnapshotTimeOfDay?: =~"^[0-9]{2}:00$"
 })
 
 // Disk associated with the Instance.
-_#defs: "/$defs/Properties/definitions/Disk": close({
+#Disk: close({
 	// Instance attached to the disk.
 	AttachedTo?: string
 
@@ -113,19 +113,19 @@ _#defs: "/$defs/Properties/definitions/Disk": close({
 })
 
 // Hardware of the Instance.
-_#defs: "/$defs/Properties/definitions/Hardware": close({
+#Hardware: close({
 	// CPU count of the Instance.
 	CpuCount?: int
 
 	// Disks attached to the Instance.
-	Disks?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Disk"]
+	Disks?: list.UniqueItems() & [...#Disk]
 
 	// RAM Size of the Instance.
 	RamSizeInGb?: int
 })
 
 // Location of a resource.
-_#defs: "/$defs/Properties/definitions/Location": close({
+#Location: close({
 	// The Availability Zone in which to create your instance. Use the following
 	// format: us-east-2a (case sensitive). Be sure to add the include Availability
 	// Zones parameter to your request.
@@ -136,21 +136,21 @@ _#defs: "/$defs/Properties/definitions/Location": close({
 })
 
 // Monthly Transfer of the Instance.
-_#defs: "/$defs/Properties/definitions/MonthlyTransfer": close({
+#MonthlyTransfer: close({
 	// GbPerMonthAllocated of the Instance.
 	GbPerMonthAllocated?: string
 })
 
 // Networking of the Instance.
-_#defs: "/$defs/Properties/definitions/Networking": close({
-	MonthlyTransfer?: _#defs."/$defs/Properties/definitions/MonthlyTransfer"
+#Networking: close({
+	MonthlyTransfer?: #MonthlyTransfer
 
 	// Ports to the Instance.
-	Ports!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Port"]
+	Ports!: list.UniqueItems() & [...#Port]
 })
 
 // Port of the Instance.
-_#defs: "/$defs/Properties/definitions/Port": close({
+#Port: close({
 	// Access Direction for Protocol of the Instance(inbound/outbound).
 	AccessDirection?: string
 
@@ -159,15 +159,15 @@ _#defs: "/$defs/Properties/definitions/Port": close({
 
 	// Access Type Protocol of the Instance.
 	AccessType?:      string
-	CidrListAliases?: _#defs."/$defs/Properties/definitions/cidrListAliases"
-	Cidrs?:           _#defs."/$defs/Properties/definitions/cidrs"
+	CidrListAliases?: #cidrListAliases
+	Cidrs?:           #cidrs
 
 	// CommonName for Protocol of the Instance.
 	CommonName?: string
 
 	// From Port of the Instance.
 	FromPort?:  int
-	Ipv6Cidrs?: _#defs."/$defs/Properties/definitions/ipv6Cidrs"
+	Ipv6Cidrs?: #ipv6Cidrs
 
 	// Port Protocol of the Instance.
 	Protocol?: string
@@ -177,7 +177,7 @@ _#defs: "/$defs/Properties/definitions/Port": close({
 })
 
 // Current State of the Instance.
-_#defs: "/$defs/Properties/definitions/State": close({
+#State: close({
 	// Status code of the Instance.
 	Code?: int
 
@@ -186,7 +186,7 @@ _#defs: "/$defs/Properties/definitions/State": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -201,10 +201,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // cidr List Aliases
-_#defs: "/$defs/Properties/definitions/cidrListAliases": [...string]
+#cidrListAliases: [...string]
 
 // cidrs
-_#defs: "/$defs/Properties/definitions/cidrs": [...string]
+#cidrs: [...string]
 
 // IPv6 Cidrs
-_#defs: "/$defs/Properties/definitions/ipv6Cidrs": [...string]
+#ipv6Cidrs: [...string]

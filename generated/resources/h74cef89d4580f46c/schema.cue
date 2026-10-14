@@ -19,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EnableCachingForHttp?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SigningDisabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Status?:                "ACTIVE" | "INACTIVE" | fn.#StringExpression
-	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	TokenKeyName?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	TokenSigningPublicKeys?: close({
 
@@ -27,7 +27,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

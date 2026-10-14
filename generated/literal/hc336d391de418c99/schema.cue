@@ -13,75 +13,65 @@ import (
 #Properties: close({
 	// AppSync Api Id that this Channel Namespace belongs to.
 	ApiId!:               string
-	ChannelNamespaceArn?: _#defs."/$defs/Properties/definitions/ChannelNamespaceArn"
-	CodeHandlers?:        _#defs."/$defs/Properties/definitions/Code"
+	ChannelNamespaceArn?: #ChannelNamespaceArn
+	CodeHandlers?:        #Code
 
 	// The Amazon S3 endpoint where the code is located.
 	CodeS3Location?: string
-	HandlerConfigs?: _#defs."/$defs/Properties/definitions/HandlerConfigs"
-	Name!:           _#defs."/$defs/Properties/definitions/Namespace"
+	HandlerConfigs?: #HandlerConfigs
+	Name!:           #Namespace
 
 	// List of AuthModes supported for Publish operations.
-	PublishAuthModes?: _#defs."/$defs/Properties/definitions/AuthModes"
+	PublishAuthModes?: #AuthModes
 
 	// List of AuthModes supported for Subscribe operations.
-	SubscribeAuthModes?: _#defs."/$defs/Properties/definitions/AuthModes"
-	Tags?:               _#defs."/$defs/Properties/definitions/Tags"
+	SubscribeAuthModes?: #AuthModes
+	Tags?:               #Tags
 })
 
 // An auth mode.
-_#defs: "/$defs/Properties/definitions/AuthMode": close(
-	{AuthType?: _#defs."/$defs/Properties/definitions/AuthenticationType"},
-)
+#AuthMode: close({AuthType?: #AuthenticationType})
 
-_#defs: "/$defs/Properties/definitions/AuthModes": [..._#defs."/$defs/Properties/definitions/AuthMode"]
+#AuthModes: [...#AuthMode]
 
 // Security configuration for your AppSync API.
-_#defs: "/$defs/Properties/definitions/AuthenticationType": "AMAZON_COGNITO_USER_POOLS" |
-	"AWS_IAM" |
-	"API_KEY" |
-	"OPENID_CONNECT" |
-	"AWS_LAMBDA"
+#AuthenticationType: "AMAZON_COGNITO_USER_POOLS" | "AWS_IAM" | "API_KEY" | "OPENID_CONNECT" | "AWS_LAMBDA"
 
 // The Amazon Resource Name (ARN) for the Channel Namespace.
-_#defs: "/$defs/Properties/definitions/ChannelNamespaceArn": string
+#ChannelNamespaceArn: string
 
 // String of APPSYNC_JS code to be used by the handlers.
-_#defs: "/$defs/Properties/definitions/Code": strings.MaxRunes(32768) & strings.MinRunes(1)
+#Code: strings.MaxRunes(32768) & strings.MinRunes(1)
 
 // Integration behavior for a handler configuration.
-_#defs: "/$defs/Properties/definitions/HandlerBehavior": "CODE" | "DIRECT"
+#HandlerBehavior: "CODE" | "DIRECT"
 
-_#defs: "/$defs/Properties/definitions/HandlerConfig": close({
-	Behavior!:    _#defs."/$defs/Properties/definitions/HandlerBehavior"
-	Integration!: _#defs."/$defs/Properties/definitions/Integration"
+#HandlerConfig: close({
+	Behavior!:    #HandlerBehavior
+	Integration!: #Integration
 })
 
-_#defs: "/$defs/Properties/definitions/HandlerConfigs": close({
-	OnPublish?:   _#defs."/$defs/Properties/definitions/HandlerConfig"
-	OnSubscribe?: _#defs."/$defs/Properties/definitions/HandlerConfig"
+#HandlerConfigs: close({
+	OnPublish?:   #HandlerConfig
+	OnSubscribe?: #HandlerConfig
 })
 
-_#defs: "/$defs/Properties/definitions/Integration": close({
+#Integration: close({
 	// Data source to invoke for this integration.
 	DataSourceName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"([_A-Za-z][_0-9A-Za-z]{0,511})?"
-	LambdaConfig?:   _#defs."/$defs/Properties/definitions/LambdaConfig"
+	LambdaConfig?:   #LambdaConfig
 })
 
 // Invocation type for direct lambda integrations.
-_#defs: "/$defs/Properties/definitions/InvokeType": "REQUEST_RESPONSE" | "EVENT"
+#InvokeType: "REQUEST_RESPONSE" | "EVENT"
 
-_#defs: "/$defs/Properties/definitions/LambdaConfig": close(
-	{InvokeType!: _#defs."/$defs/Properties/definitions/InvokeType"},
-)
+#LambdaConfig: close({InvokeType!: #InvokeType})
 
 // Namespace indentifier.
-_#defs: "/$defs/Properties/definitions/Namespace": strings.MaxRunes(50) &
-strings.MinRunes(1) &
-=~"([A-Za-z0-9](?:[A-Za-z0-9\\-]{0,48}[A-Za-z0-9])?)"
+#Namespace: strings.MaxRunes(50) & strings.MinRunes(1) & =~"([A-Za-z0-9](?:[A-Za-z0-9\\-]{0,48}[A-Za-z0-9])?)"
 
 // An arbitrary set of tags (key-value pairs) for this AppSync API.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string used to identify this tag. You can specify a maximum of 128 characters for a tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -91,4 +81,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // An arbitrary set of tags (key-value pairs) for this AppSync API.
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+#Tags: list.UniqueItems() & [...#Tag]

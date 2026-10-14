@@ -9,18 +9,18 @@ import "strings"
 // Resource schema for Activity
 #Properties: close({
 	Arn?:                     strings.MaxRunes(2048) & strings.MinRunes(1)
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	EncryptionConfiguration?: #EncryptionConfiguration
 	Name!:                    strings.MaxRunes(80) & strings.MinRunes(1)
-	Tags?:                    [..._#defs."/$defs/Properties/definitions/TagsEntry"]
+	Tags?:                    [...#TagsEntry]
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	KmsDataKeyReusePeriodSeconds?: int & <=900 & >=60
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
 	Type!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KEY"
 })
 
-_#defs: "/$defs/Properties/definitions/TagsEntry": close({
+#TagsEntry: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

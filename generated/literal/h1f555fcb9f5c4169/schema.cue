@@ -15,8 +15,8 @@ import "strings"
 // in the *Amazon Elastic Container Registry User Guide*.
 #Properties: close({
 	PolicyText!: strings.MaxRunes(10240) & strings.MinRunes(0) | {...}
-	RegistryId?: _#defs."/$defs/Properties/definitions/RegistryId"
+	RegistryId?: #RegistryId
 })
 
 // The registry id.
-_#defs: "/$defs/Properties/definitions/RegistryId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
+#RegistryId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"

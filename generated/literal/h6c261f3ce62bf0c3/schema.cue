@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"list"
 )
 
@@ -17,10 +17,10 @@ import (
 
 	// Description of the Prompt Router.
 	Description?:   strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([0-9a-zA-Z:.][ _-]?)+$"
-	FallbackModel!: _#defs."/$defs/Properties/definitions/PromptRouterTargetModel"
+	FallbackModel!: #PromptRouterTargetModel
 
 	// List of model configuration
-	Models!: [..._#defs."/$defs/Properties/definitions/PromptRouterTargetModel"]
+	Models!: [...#PromptRouterTargetModel]
 
 	// Arn of the Prompt Router.
 	PromptRouterArn?: strings.MaxRunes(2048) &
@@ -29,22 +29,22 @@ import (
 
 	// Name of the Prompt Router.
 	PromptRouterName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][ _-]?)+$"
-	RoutingCriteria!:  _#defs."/$defs/Properties/definitions/RoutingCriteria"
-	Status?:           _#defs."/$defs/Properties/definitions/PromptRouterStatus"
+	RoutingCriteria!:  #RoutingCriteria
+	Status?:           #PromptRouterStatus
 
 	// List of Tags
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Type?: _#defs."/$defs/Properties/definitions/PromptRouterType"
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
+	Type?: #PromptRouterType
 
 	// Time Stamp
 	UpdatedAt?: time.Time
 })
 
 // Status of a PromptRouter
-_#defs: "/$defs/Properties/definitions/PromptRouterStatus": "AVAILABLE"
+#PromptRouterStatus: "AVAILABLE"
 
 // Model configuration
-_#defs: "/$defs/Properties/definitions/PromptRouterTargetModel": close({
+#PromptRouterTargetModel: close({
 	// Arn of underlying model which are added in the Prompt Router.
 	ModelArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -52,13 +52,13 @@ _#defs: "/$defs/Properties/definitions/PromptRouterTargetModel": close({
 })
 
 // Type of a Prompt Router
-_#defs: "/$defs/Properties/definitions/PromptRouterType": "custom" | "default"
+#PromptRouterType: "custom" | "default"
 
 // Represents the criteria used for routing requests.
-_#defs: "/$defs/Properties/definitions/RoutingCriteria": close({ResponseQualityDifference!: <=100 & >=0})
+#RoutingCriteria: close({ResponseQualityDifference!: <=100 & >=0})
 
 // Definition of the key/value pair for a tag
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Tag Key
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 

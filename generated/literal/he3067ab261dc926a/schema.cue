@@ -15,11 +15,11 @@ import (
 	CrlId?:          =~"[a-f0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}"
 	Enabled?:        bool
 	Name!:           string
-	Tags?:           list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:           list.MaxItems(200) & [...] & [...#Tag]
 	TrustAnchorArn?: =~"^arn:aws(-[^:]+)?:rolesanywhere(:.*){2}(:trust-anchor.*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

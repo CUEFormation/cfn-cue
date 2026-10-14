@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -18,53 +18,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(36) &
 	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
 	fn.#StringExpression
-	DefaultJobResultConfiguration?: _#defs."/$defs/Properties/definitions/MembershipProtectedJobResultConfiguration"
-	DefaultResultConfiguration?:    _#defs."/$defs/Properties/definitions/MembershipProtectedQueryResultConfiguration"
+	DefaultJobResultConfiguration?: #MembershipProtectedJobResultConfiguration
+	DefaultResultConfiguration?:    #MembershipProtectedQueryResultConfiguration
 	IsMetricsEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	JobLogStatus?:         _#defs."/$defs/Properties/definitions/MembershipJobLogStatus"
-	PaymentConfiguration?: _#defs."/$defs/Properties/definitions/MembershipPaymentConfiguration"
-	QueryLogStatus!:       _#defs."/$defs/Properties/definitions/MembershipQueryLogStatus"
-	Tags?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	JobLogStatus?:         #MembershipJobLogStatus
+	PaymentConfiguration?: #MembershipPaymentConfiguration
+	QueryLogStatus!:       #MembershipQueryLogStatus
+	Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/MembershipJobComputePaymentConfig": close(
+#MembershipJobComputePaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MembershipJobLogStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
+#MembershipJobLogStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MembershipMLPaymentConfig": close({
-	ModelInference?:          _#defs."/$defs/Properties/definitions/MembershipModelInferencePaymentConfig"
-	ModelTraining?:           _#defs."/$defs/Properties/definitions/MembershipModelTrainingPaymentConfig"
-	SyntheticDataGeneration?: _#defs."/$defs/Properties/definitions/MembershipSyntheticDataGenerationPaymentConfig"
+#MembershipMLPaymentConfig: close({
+	ModelInference?:          #MembershipModelInferencePaymentConfig
+	ModelTraining?:           #MembershipModelTrainingPaymentConfig
+	SyntheticDataGeneration?: #MembershipSyntheticDataGenerationPaymentConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MembershipModelInferencePaymentConfig": close(
+#MembershipModelInferencePaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MembershipModelTrainingPaymentConfig": close(
+#MembershipModelTrainingPaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MembershipPaymentConfiguration": close({
-	JobCompute?:      _#defs."/$defs/Properties/definitions/MembershipJobComputePaymentConfig"
-	MachineLearning?: _#defs."/$defs/Properties/definitions/MembershipMLPaymentConfig"
-	QueryCompute!:    _#defs."/$defs/Properties/definitions/MembershipQueryComputePaymentConfig"
+#MembershipPaymentConfiguration: close({
+	JobCompute?:      #MembershipJobComputePaymentConfig
+	MachineLearning?: #MembershipMLPaymentConfig
+	QueryCompute!:    #MembershipQueryComputePaymentConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MembershipProtectedJobOutputConfiguration": close(
-	{S3!: _#defs."/$defs/Properties/definitions/ProtectedJobS3OutputConfigurationInput"},
-) |
-	fn.#ObjectExpression
+#MembershipProtectedJobOutputConfiguration: close({S3!: #ProtectedJobS3OutputConfigurationInput}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MembershipProtectedJobResultConfiguration": close({
-	OutputConfiguration!: _#defs."/$defs/Properties/definitions/MembershipProtectedJobOutputConfiguration"
+#MembershipProtectedJobResultConfiguration: close({
+	OutputConfiguration!: #MembershipProtectedJobOutputConfiguration
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(32) &
@@ -73,13 +70,10 @@ _#defs: "/$defs/Properties/definitions/MembershipProtectedJobResultConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MembershipProtectedQueryOutputConfiguration": close(
-	{S3!: _#defs."/$defs/Properties/definitions/ProtectedQueryS3OutputConfiguration"},
-) |
-	fn.#ObjectExpression
+#MembershipProtectedQueryOutputConfiguration: close({S3!: #ProtectedQueryS3OutputConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MembershipProtectedQueryResultConfiguration": close({
-	OutputConfiguration!: _#defs."/$defs/Properties/definitions/MembershipProtectedQueryOutputConfiguration"
+#MembershipProtectedQueryResultConfiguration: close({
+	OutputConfiguration!: #MembershipProtectedQueryOutputConfiguration
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(32) &
@@ -88,40 +82,37 @@ _#defs: "/$defs/Properties/definitions/MembershipProtectedQueryResultConfigurati
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MembershipQueryComputePaymentConfig": close(
+#MembershipQueryComputePaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MembershipQueryLogStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
+#MembershipQueryLogStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MembershipStatus": "ACTIVE" |
-	"REMOVED" |
-	"COLLABORATION_DELETED" |
-	fn.#StringExpression
+#MembershipStatus: "ACTIVE" | "REMOVED" | "COLLABORATION_DELETED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MembershipSyntheticDataGenerationPaymentConfig": close(
+#MembershipSyntheticDataGenerationPaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProtectedJobS3OutputConfigurationInput": close({
+#ProtectedJobS3OutputConfigurationInput: close({
 	Bucket!:    strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	KeyPrefix?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProtectedQueryS3OutputConfiguration": close({
+#ProtectedQueryS3OutputConfiguration: close({
 	Bucket!:           strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	KeyPrefix?:        string | fn.#StringExpression
-	ResultFormat!:     _#defs."/$defs/Properties/definitions/ResultFormat"
+	ResultFormat!:     #ResultFormat
 	SingleFileOutput?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResultFormat": "CSV" | "PARQUET" | fn.#StringExpression
+#ResultFormat: "CSV" | "PARQUET" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

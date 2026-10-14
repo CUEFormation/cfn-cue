@@ -22,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Name!:  strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	State?: "ACTIVE" | "ARCHIVED" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:  list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	Type!: "CONTACT_FLOW" |
 		"CUSTOMER_QUEUE" |
 		"CUSTOMER_HOLD" |
@@ -36,7 +36,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |

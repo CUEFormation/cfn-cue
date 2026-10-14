@@ -30,26 +30,26 @@ import "strings"
 	// performing a drill, recovery or failback to the previous region or
 	// availability zone, using the instance ID of the source instance.
 	LaunchIntoSourceInstance?: bool
-	Licensing?:                _#defs."/$defs/Properties/definitions/Licensing"
+	Licensing?:                #Licensing
 
 	// Whether we want to activate post-launch actions.
 	PostLaunchEnabled?: bool
 
 	// A set of tags associated with the Launch Configuration Template.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// Target instance type right-sizing method.
 	TargetInstanceTypeRightSizingMethod?: "NONE" | "BASIC" | "IN_AWS"
 })
 
 // Configuration of a machine's license.
-_#defs: "/$defs/Properties/definitions/Licensing": close({
+#Licensing: close({
 	// Whether to enable Bring your own license or not.
 	OsByol?: bool
 })
 
 // A key-value pair to associate with the Launch Configuration Template.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(0)
 

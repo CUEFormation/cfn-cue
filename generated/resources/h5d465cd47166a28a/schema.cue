@@ -3,10 +3,10 @@
 package schema
 
 import (
+	"struct"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
-	"struct"
 )
 
 import cfnScalarStrings "strings"
@@ -25,16 +25,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CopyTags?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableMapAutoTagging?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableParametersEncryption?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LargeVolumeConf?:            _#defs."/$defs/Properties/definitions/LaunchTemplateDiskConf"
+	LargeVolumeConf?:            #LaunchTemplateDiskConf
 	LaunchDisposition?:          "STOPPED" | "STARTED" | fn.#StringExpression
-	Licensing?:                  _#defs."/$defs/Properties/definitions/Licensing"
+	Licensing?:                  #Licensing
 	MapAutoTaggingMpeID?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	ParametersEncryptionKey?: strings.MaxRunes(276) &
 	strings.MinRunes(20) &
 	=~"^((arn:[\\w-]+:kms:([a-z]{2}-(gov-)?[a-z]+-\\d{1})?:(\\d{12})?:((alias|key)/[a-zA-Z0-9:/_-]{1,256}))|())$" |
 	fn.#StringExpression
-	PostLaunchActions?: _#defs."/$defs/Properties/definitions/PostLaunchActions"
-	SmallVolumeConf?:   _#defs."/$defs/Properties/definitions/LaunchTemplateDiskConf"
+	PostLaunchActions?: #PostLaunchActions
+	SmallVolumeConf?:   #LaunchTemplateDiskConf
 	SmallVolumeMaxSize?: int & >=0 |
 		{
 			string &
@@ -50,11 +50,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                                list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	TargetInstanceTypeRightSizingMethod?: "NONE" | "BASIC" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateDiskConf": struct.MinFields(1) & close({
+#LaunchTemplateDiskConf: struct.MinFields(1) & close({
 	Iops?: int & <=64000 & >=100 |
 		{
 			string &
@@ -91,27 +91,26 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateDiskConf": struct.MinFields
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Licensing": struct.MinFields(1) & close(
+#Licensing: struct.MinFields(1) & close(
 	{OsByol?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PostLaunchActions": struct.MinFields(1) & close({
+#PostLaunchActions: struct.MinFields(1) & close({
 	CloudWatchLogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" |
 	fn.#StringExpression
 	Deployment?:        "TEST_AND_CUTOVER" | "CUTOVER_ONLY" | "TEST_ONLY" | fn.#StringExpression
 	S3LogBucket?:       strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	S3OutputKeyPrefix?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	SsmDocuments?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/SsmDocument"] |
-		fn.#ListExpression
+	SsmDocuments?:      list.MaxItems(10) & [...] & [...#SsmDocument] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SsmDocument": close({
+#SsmDocument: close({
 	ActionName!:            strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	ExternalParameters?:    _#defs."/$defs/Properties/definitions/SsmDocumentExternalParameters"
+	ExternalParameters?:    #SsmDocumentExternalParameters
 	MustSucceedForCutover?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Parameters?:            _#defs."/$defs/Properties/definitions/SsmDocumentParameters"
+	Parameters?:            #SsmDocumentParameters
 	SsmDocumentName!: strings.MaxRunes(172) & strings.MinRunes(3) & =~"^([A-Za-z0-9/:_\\.-])+$" | fn.#StringExpression
 	TimeoutSeconds?: int & >=1 |
 		{
@@ -131,32 +130,30 @@ _#defs: "/$defs/Properties/definitions/SsmDocument": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SsmDocumentExternalParameters": struct.MaxFields(20) & struct.MinFields(0) & close({
+#SsmDocumentExternalParameters: struct.MaxFields(20) & struct.MinFields(0) & close({
 
-	{[=~"^([A-Za-z0-9])+$"]: _#defs."/$defs/Properties/definitions/SsmExternalParameter"}}) |
+	{[=~"^([A-Za-z0-9])+$"]: #SsmExternalParameter}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SsmDocumentParameters": struct.MaxFields(20) & struct.MinFields(0) & close({
+#SsmDocumentParameters: struct.MaxFields(20) & struct.MinFields(0) & close({
 
-	{[=~"^([A-Za-z0-9])+$"]: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/SsmParameterStoreParameter"
-	] |
+	{[=~"^([A-Za-z0-9])+$"]: list.MaxItems(10) & list.MinItems(1) & [...#SsmParameterStoreParameter] |
 		fn.#ListExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SsmExternalParameter": close({
+#SsmExternalParameter: close({
 	DynamicPath!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_\\[\\]]+)*$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SsmParameterStoreParameter": close({
+#SsmParameterStoreParameter: close({
 	ParameterName!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^([A-Za-z0-9_\\.-])+$" | fn.#StringExpression
 	ParameterType!: "STRING" | "SECURE_STRING" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

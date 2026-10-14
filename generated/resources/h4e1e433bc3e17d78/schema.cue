@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -14,29 +14,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::MSK::ServerlessCluster
 #Properties: close({
-	ClientAuthentication!: _#defs."/$defs/Properties/definitions/ClientAuthentication"
+	ClientAuthentication!: #ClientAuthentication
 	ClusterName!:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	Tags?: close({
 
 		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	VpcConfigs!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VpcConfig"] | fn.#ListExpression
+	VpcConfigs!: list.UniqueItems() & [...#VpcConfig] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ClientAuthentication": close(
-	{Sasl!: _#defs."/$defs/Properties/definitions/Sasl"},
-) |
+#ClientAuthentication: close({Sasl!: #Sasl}) | fn.#ObjectExpression
+
+#Iam: close({Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Iam": close(
-	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
-	fn.#ObjectExpression
+#Sasl: close({Iam!: #Iam}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Sasl": close({Iam!: _#defs."/$defs/Properties/definitions/Iam"}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroups?: list.UniqueItems() & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression

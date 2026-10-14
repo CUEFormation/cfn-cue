@@ -17,10 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Batch::JobQueue
 #Properties: close({
-	ComputeEnvironmentOrder?: [..._#defs."/$defs/Properties/definitions/ComputeEnvironmentOrder"] | fn.#ListExpression
+	ComputeEnvironmentOrder?: [...#ComputeEnvironmentOrder] | fn.#ListExpression
 	JobQueueName?:            strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	JobQueueType?: =~"(?i)^(?:ecs|ecs_fargate|ecs_managed_instances|eks|sagemaker_training)$" | fn.#StringExpression
-	JobStateTimeLimitActions?: [..._#defs."/$defs/Properties/definitions/JobStateTimeLimitAction"] | fn.#ListExpression
+	JobStateTimeLimitActions?: [...#JobStateTimeLimitAction] | fn.#ListExpression
 	Priority!: int & <=1000 & >=0 |
 		{
 			string &
@@ -37,8 +37,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	SchedulingPolicyArn?:     _#defs."/$defs/Properties/definitions/ResourceArn"
-	ServiceEnvironmentOrder?: [..._#defs."/$defs/Properties/definitions/ServiceEnvironmentOrder"] | fn.#ListExpression
+	SchedulingPolicyArn?:     #ResourceArn
+	ServiceEnvironmentOrder?: [...#ServiceEnvironmentOrder] | fn.#ListExpression
 	State?:                   "DISABLED" | "ENABLED" | fn.#StringExpression
 	Tags?: close({
 
@@ -51,7 +51,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}
 }) & matchN(>=1, [{ComputeEnvironmentOrder!: _}, {ServiceEnvironmentOrder!: _}])
 
-_#defs: "/$defs/Properties/definitions/ComputeEnvironmentOrder": close({
+#ComputeEnvironmentOrder: close({
 	ComputeEnvironment!: string | fn.#StringExpression
 	Order!: int |
 		{
@@ -70,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/ComputeEnvironmentOrder": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobStateTimeLimitAction": close({
+#JobStateTimeLimitAction: close({
 	Action!: =~"(?i)^(?:cancel|terminate)$" | fn.#StringExpression
 	MaxTimeSeconds!: int & <=86400 & >=600 |
 		{
@@ -93,9 +93,9 @@ _#defs: "/$defs/Properties/definitions/JobStateTimeLimitAction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": string | fn.#StringExpression
+#ResourceArn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceEnvironmentOrder": close({
+#ServiceEnvironmentOrder: close({
 	Order!: int |
 		{
 			string &

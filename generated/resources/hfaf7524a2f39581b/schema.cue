@@ -13,17 +13,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PeerAccountId!:        string | fn.#StringExpression
 	PeerRegion!:           string | fn.#StringExpression
 	PeerTransitGatewayId!: string | fn.#StringExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                 [...#Tag] | fn.#ListExpression
 	TransitGatewayId!:     string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/PeeringAttachmentStatus": close({
+#PeeringAttachmentStatus: close({
 	Code?:    string | fn.#StringExpression
 	Message?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |

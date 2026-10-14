@@ -27,7 +27,7 @@ import (
 	ErrorMessage?:                            strings.MaxRunes(2048) & strings.MinRunes(0)
 	EventBridgeRuleTemplateGroupIdentifiers?: [...=~"^[^\\s]+$"]
 	EventBridgeRuleTemplateGroupIds?:         [...strings.MaxRunes(11) & strings.MinRunes(7) & =~"^(aws-)?[0-9]{7}$"]
-	FailedMediaResourceMap?:                  _#defs."/$defs/Properties/definitions/FailedMediaResourceMap"
+	FailedMediaResourceMap?:                  #FailedMediaResourceMap
 
 	// If true, will force a rediscovery of a signal map if an unchanged
 	// discoveryEntryPointArn is provided.
@@ -37,41 +37,41 @@ import (
 	Id?:                              strings.MaxRunes(11) & strings.MinRunes(7) & =~"^(aws-)?[0-9]{7}$"
 	Identifier?:                      string
 	LastDiscoveredAt?:                time.Time
-	LastSuccessfulMonitorDeployment?: _#defs."/$defs/Properties/definitions/SuccessfulMonitorDeployment"
-	MediaResourceMap?:                _#defs."/$defs/Properties/definitions/MediaResourceMap"
+	LastSuccessfulMonitorDeployment?: #SuccessfulMonitorDeployment
+	MediaResourceMap?:                #MediaResourceMap
 	ModifiedAt?:                      time.Time
 
 	// If true, there are pending monitor changes for this signal map that can be deployed.
 	MonitorChangesPendingDeployment?: bool
-	MonitorDeployment?:               _#defs."/$defs/Properties/definitions/MonitorDeployment"
+	MonitorDeployment?:               #MonitorDeployment
 
 	// A resource's name. Names must be unique within the scope of a resource type in a specific region.
 	Name!:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$"
-	Status?: _#defs."/$defs/Properties/definitions/SignalMapStatus"
-	Tags?:   _#defs."/$defs/Properties/definitions/TagMap"
+	Status?: #SignalMapStatus
+	Tags?:   #TagMap
 })
 
 // A map representing an incomplete AWS media workflow as a graph.
-_#defs: "/$defs/Properties/definitions/FailedMediaResourceMap": close({
+#FailedMediaResourceMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/MediaResource"}})
+	{[=~".+"]: #MediaResource}})
 
 // An AWS resource used in media workflows.
-_#defs: "/$defs/Properties/definitions/MediaResource": close({
-	Destinations?: [..._#defs."/$defs/Properties/definitions/MediaResourceNeighbor"]
+#MediaResource: close({
+	Destinations?: [...#MediaResourceNeighbor]
 
 	// The logical name of an AWS media resource.
 	Name?:    strings.MaxRunes(256) & strings.MinRunes(0)
-	Sources?: [..._#defs."/$defs/Properties/definitions/MediaResourceNeighbor"]
+	Sources?: [...#MediaResourceNeighbor]
 })
 
 // A map representing an AWS media workflow as a graph.
-_#defs: "/$defs/Properties/definitions/MediaResourceMap": close({
+#MediaResourceMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/MediaResource"}})
+	{[=~".+"]: #MediaResource}})
 
 // A direct source or destination neighbor to an AWS media resource.
-_#defs: "/$defs/Properties/definitions/MediaResourceNeighbor": close({
+#MediaResourceNeighbor: close({
 	// The ARN of a resource used in AWS media workflows.
 	Arn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn.+$"
 
@@ -80,17 +80,17 @@ _#defs: "/$defs/Properties/definitions/MediaResourceNeighbor": close({
 })
 
 // Represents the latest monitor deployment of a signal map.
-_#defs: "/$defs/Properties/definitions/MonitorDeployment": close({
+#MonitorDeployment: close({
 	// URI associated with a signal map's monitor deployment.
 	DetailsUri?: strings.MaxRunes(2048) & strings.MinRunes(0)
 
 	// Error message associated with a failed monitor deployment of a signal map.
 	ErrorMessage?: strings.MaxRunes(2048) & strings.MinRunes(0)
-	Status!:       _#defs."/$defs/Properties/definitions/SignalMapMonitorDeploymentStatus"
+	Status!:       #SignalMapMonitorDeploymentStatus
 })
 
 // A signal map's monitor deployment status.
-_#defs: "/$defs/Properties/definitions/SignalMapMonitorDeploymentStatus": "NOT_DEPLOYED" |
+#SignalMapMonitorDeploymentStatus: "NOT_DEPLOYED" |
 	"DRY_RUN_DEPLOYMENT_COMPLETE" |
 	"DRY_RUN_DEPLOYMENT_FAILED" |
 	"DRY_RUN_DEPLOYMENT_IN_PROGRESS" |
@@ -102,7 +102,7 @@ _#defs: "/$defs/Properties/definitions/SignalMapMonitorDeploymentStatus": "NOT_D
 	"DELETE_IN_PROGRESS"
 
 // A signal map's current status which is dependent on its lifecycle actions or associated jobs.
-_#defs: "/$defs/Properties/definitions/SignalMapStatus": "CREATE_IN_PROGRESS" |
+#SignalMapStatus: "CREATE_IN_PROGRESS" |
 	"CREATE_COMPLETE" |
 	"CREATE_FAILED" |
 	"UPDATE_IN_PROGRESS" |
@@ -113,15 +113,15 @@ _#defs: "/$defs/Properties/definitions/SignalMapStatus": "CREATE_IN_PROGRESS" |
 	"NOT_READY"
 
 // Represents the latest successful monitor deployment of a signal map.
-_#defs: "/$defs/Properties/definitions/SuccessfulMonitorDeployment": close({
+#SuccessfulMonitorDeployment: close({
 	// URI associated with a signal map's monitor deployment.
 	DetailsUri!: strings.MaxRunes(2048) & strings.MinRunes(0)
-	Status!:     _#defs."/$defs/Properties/definitions/SignalMapMonitorDeploymentStatus"
+	Status!:     #SignalMapMonitorDeploymentStatus
 })
 
 // Represents the tags associated with a resource.
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: string}})
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})

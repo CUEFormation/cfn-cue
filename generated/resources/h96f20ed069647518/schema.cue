@@ -14,29 +14,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Schema of AWS::EMRContainers::VirtualCluster Type
 #Properties: close({
-	ContainerProvider!: _#defs."/$defs/Properties/definitions/ContainerProvider" | fn.#ObjectExpression
+	ContainerProvider!: #ContainerProvider | fn.#ObjectExpression
 	Name!:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
 	SecurityConfigurationId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9a-z]+" | fn.#StringExpression
 	SessionEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ContainerInfo": close({EksInfo!: _#defs."/$defs/Properties/definitions/EksInfo"}) |
-	fn.#ObjectExpression
+#ContainerInfo: close({EksInfo!: #EksInfo}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerProvider": close({
+#ContainerProvider: close({
 	Id!:   strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*" | fn.#StringExpression
-	Info!: _#defs."/$defs/Properties/definitions/ContainerInfo"
+	Info!: #ContainerInfo
 	Type!: "EKS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksInfo": close(
+#EksInfo: close(
 	{Namespace!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-z0-9]([-a-z0-9]*[a-z0-9])?" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

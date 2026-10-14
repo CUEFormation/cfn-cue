@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,20 +14,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::AWSExternalAnthropic::Workspace
 #Properties: close({
-	DataResidency?: _#defs."/$defs/Properties/definitions/DataResidency"
+	DataResidency?: #DataResidency
 	Name!:          strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?:          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DataResidency": close({
+#DataResidency: close({
 	AllowedInferenceGeos?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	DefaultInferenceGeo?:  string | fn.#StringExpression
 	WorkspaceGeo?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

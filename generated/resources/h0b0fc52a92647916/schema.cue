@@ -150,7 +150,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#StringObjectExpression
 	SqsManagedSseEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                 [...#Tag] | fn.#ListExpression
 	VisibilityTimeout?: int & <=43200 & >=0 |
 		{
 			string &
@@ -169,7 +169,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

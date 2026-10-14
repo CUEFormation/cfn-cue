@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"time"
 	"strings"
-	"list"
 	"struct"
+	"time"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,10 +15,10 @@ import (
 #Properties: close({
 	// Time Stamp
 	CreationTime?:            time.Time
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	EncryptionConfiguration?: #EncryptionConfiguration
 
 	// List of info for each entity type in the DataAutomationLibrary
-	EntityTypes?: [..._#defs."/$defs/Properties/definitions/EntityTypeInfo"]
+	EntityTypes?: [...#EntityTypeInfo]
 
 	// ARN generated at the server side when a DataAutomationLibrary is created
 	LibraryArn?: strings.MaxRunes(128) &
@@ -29,18 +29,18 @@ import (
 
 	// Name of the DataAutomationLibrary
 	LibraryName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$"
-	Status?:      _#defs."/$defs/Properties/definitions/DataAutomationLibraryStatus"
+	Status?:      #DataAutomationLibraryStatus
 
 	// List of tags
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
 // Status of DataAutomationLibrary
-_#defs: "/$defs/Properties/definitions/DataAutomationLibraryStatus": "ACTIVE" | "DELETING"
+#DataAutomationLibraryStatus: "ACTIVE" | "DELETING"
 
 // KMS Encryption Configuration
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	KmsEncryptionContext?: _#defs."/$defs/Properties/definitions/KmsEncryptionContext"
+#EncryptionConfiguration: close({
+	KmsEncryptionContext?: #KmsEncryptionContext
 
 	// KMS Key Identifier
 	KmsKeyId!: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
@@ -50,22 +50,22 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 })
 
 // Entity types supported in DataAutomationLibraries
-_#defs: "/$defs/Properties/definitions/EntityType": "VOCABULARY"
+#EntityType: "VOCABULARY"
 
 // Information about an entity type in the DataAutomationLibrary
-_#defs: "/$defs/Properties/definitions/EntityTypeInfo": close({
+#EntityTypeInfo: close({
 	// JSON string representing relevant metadata for the entity type
 	EntityMetadata?: string
-	EntityType!:     _#defs."/$defs/Properties/definitions/EntityType"
+	EntityType!:     #EntityType
 })
 
 // KMS Encryption Context
-_#defs: "/$defs/Properties/definitions/KmsEncryptionContext": struct.MinFields(1) & close({
+#KmsEncryptionContext: struct.MinFields(1) & close({
 
 	{[=~"^.*\\S.*$"]: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^.*\\S.*$"}})
 
 // Key value pair of a tag
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Tag key
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 

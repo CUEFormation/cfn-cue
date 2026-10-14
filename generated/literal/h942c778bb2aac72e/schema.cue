@@ -31,10 +31,10 @@ import (
 	strings.MinRunes(17) &
 	=~"^((((sn)|(svc)|(rcfg))-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:((servicenetwork/sn)|(resourceconfiguration/rcfg)|(service/svc))-[0-9a-z]{17}))$"
 	ServiceNetworkLogType?: "SERVICE" | "RESOURCE"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

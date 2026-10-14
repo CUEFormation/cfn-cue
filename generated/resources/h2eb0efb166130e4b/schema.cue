@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,44 +14,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource type definition for AWS::Config::ConfigurationRecorder
 #Properties: close({
 	Name?:           string | fn.#StringExpression
-	RecordingGroup?: _#defs."/$defs/Properties/definitions/RecordingGroup" | fn.#ObjectExpression
-	RecordingMode?:  _#defs."/$defs/Properties/definitions/RecordingMode" | fn.#ObjectExpression
+	RecordingGroup?: #RecordingGroup | fn.#ObjectExpression
+	RecordingMode?:  #RecordingMode | fn.#ObjectExpression
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role)\\/.*" |
 		fn.#StringExpression
 	StartedOnCreate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ExclusionByResourceTypes": close(
+#ExclusionByResourceTypes: close(
 	{ResourceTypes!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecordingGroup": close({
+#RecordingGroup: close({
 	AllSupported?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExclusionByResourceTypes?:   _#defs."/$defs/Properties/definitions/ExclusionByResourceTypes" | fn.#ObjectExpression
+	ExclusionByResourceTypes?:   #ExclusionByResourceTypes | fn.#ObjectExpression
 	IncludeGlobalResourceTypes?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RecordingStrategy?:          _#defs."/$defs/Properties/definitions/RecordingStrategy" | fn.#ObjectExpression
+	RecordingStrategy?:          #RecordingStrategy | fn.#ObjectExpression
 	ResourceTypes?:              list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecordingMode": close({
-	RecordingFrequency!: string | fn.#StringExpression
-	RecordingModeOverrides?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RecordingModeOverride"] |
-		fn.#ListExpression
+#RecordingMode: close({
+	RecordingFrequency!:     string | fn.#StringExpression
+	RecordingModeOverrides?: list.UniqueItems() & [...#RecordingModeOverride] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecordingModeOverride": close({
+#RecordingModeOverride: close({
 	Description?:        string | fn.#StringExpression
 	RecordingFrequency!: string | fn.#StringExpression
 	ResourceTypes!:      list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecordingStrategy": close({UseOnly!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#RecordingStrategy: close({UseOnly!: string | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Config::ConfigurationRecorder"
 	Properties!: #Properties

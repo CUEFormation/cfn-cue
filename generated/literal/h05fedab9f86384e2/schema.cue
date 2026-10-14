@@ -4,8 +4,8 @@ package schema
 
 import (
 	"strings"
-	"list"
 	"struct"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,197 +17,141 @@ import (
 	LogGroupIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w#+=/:,.@-]*"
 
 	// List of processors in a transformer
-	TransformerConfig!: list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Processor"]
+	TransformerConfig!: list.MaxItems(20) & list.MinItems(1) & [...#Processor]
 })
 
-_#defs: "/$defs/Properties/definitions/AddKeyEntry": close({
-	Key!:               _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString"
+#AddKeyEntry: close({
+	Key!:               #NonEmptyAndMaxLengthString
 	OverwriteIfExists?: bool
 	Value!:             strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Column": _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString"
+#Column: #NonEmptyAndMaxLengthString
 
-_#defs: "/$defs/Properties/definitions/CopyValueEntry": close({
+#CopyValueEntry: close({
 	OverwriteIfExists?: bool
-	Source!:            _#defs."/$defs/Properties/definitions/NonEmptyString"
-	Target!:            _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString"
+	Source!:            #NonEmptyString
+	Target!:            #NonEmptyAndMaxLengthString
 })
 
-_#defs: "/$defs/Properties/definitions/EventSource": "CloudTrail" |
-	"Route53Resolver" |
-	"VPCFlow" |
-	"EKSAudit" |
-	"AWSWAF"
+#EventSource: "CloudTrail" | "Route53Resolver" | "VPCFlow" | "EKSAudit" | "AWSWAF"
 
-_#defs: "/$defs/Properties/definitions/MappingVersion": strings.MaxRunes(10) &
-strings.MinRunes(1) &
-=~"^v\\d+\\.\\d+(\\.\\d+)?$"
+#MappingVersion: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^v\\d+\\.\\d+(\\.\\d+)?$"
 
-_#defs: "/$defs/Properties/definitions/MatchPattern": _#defs."/$defs/Properties/definitions/NonEmptyString"
+#MatchPattern: #NonEmptyString
 
-_#defs: "/$defs/Properties/definitions/MaxLengthString": strings.MaxRunes(128) & strings.MinRunes(1)
+#MaxLengthString: strings.MaxRunes(128) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/MoveKeyEntry": close({
+#MoveKeyEntry: close({
 	OverwriteIfExists?: bool
-	Source!:            _#defs."/$defs/Properties/definitions/NonEmptyString"
-	Target!:            _#defs."/$defs/Properties/definitions/NonEmptyString"
+	Source!:            #NonEmptyString
+	Target!:            #NonEmptyString
 })
 
-_#defs: "/$defs/Properties/definitions/NonEmptyAndMaxLengthString": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^.*[a-zA-Z0-9]+.*$"
+#NonEmptyAndMaxLengthString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*[a-zA-Z0-9]+.*$"
 
-_#defs: "/$defs/Properties/definitions/NonEmptyString": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^.*[a-zA-Z0-9]+.*$"
+#NonEmptyString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*[a-zA-Z0-9]+.*$"
 
-_#defs: "/$defs/Properties/definitions/OcsfVersion": "V1.1" | "V1.5"
+#OcsfVersion: "V1.1" | "V1.5"
 
-_#defs: "/$defs/Properties/definitions/ParseCloudfront": close(
-	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString"},
-)
+#ParseCloudfront: close({Source?: #NonEmptyString})
 
-_#defs: "/$defs/Properties/definitions/ParsePostgres": close(
-	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString"},
-)
+#ParsePostgres: close({Source?: #NonEmptyString})
 
-_#defs: "/$defs/Properties/definitions/ParseRoute53": close(
-	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString"},
-)
+#ParseRoute53: close({Source?: #NonEmptyString})
 
-_#defs: "/$defs/Properties/definitions/ParseToOCSF": close({
-	EventSource!:    _#defs."/$defs/Properties/definitions/EventSource"
-	MappingVersion?: _#defs."/$defs/Properties/definitions/MappingVersion"
-	OcsfVersion!:    _#defs."/$defs/Properties/definitions/OcsfVersion"
-	Source?:         _#defs."/$defs/Properties/definitions/NonEmptyString"
+#ParseToOCSF: close({
+	EventSource!:    #EventSource
+	MappingVersion?: #MappingVersion
+	OcsfVersion!:    #OcsfVersion
+	Source?:         #NonEmptyString
 })
 
-_#defs: "/$defs/Properties/definitions/ParseVPC": close(
-	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString"},
-)
+#ParseVPC: close({Source?: #NonEmptyString})
 
-_#defs: "/$defs/Properties/definitions/ParseWAF": close(
-	{Source?: _#defs."/$defs/Properties/definitions/NonEmptyString"},
-)
+#ParseWAF: close({Source?: #NonEmptyString})
 
 // Individual processor configuration
-_#defs: "/$defs/Properties/definitions/Processor": struct.MaxFields(1) & struct.MinFields(1) & close({
-	AddKeys?: close({
-		Entries!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/AddKeyEntry"
-		]
-	})
-	CopyValue?: close(
-		{Entries!: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CopyValueEntry"]},
-	)
+#Processor: struct.MaxFields(1) & struct.MinFields(1) & close({
+	AddKeys?:   close({Entries!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#AddKeyEntry]})
+	CopyValue?: close({Entries!: list.MaxItems(5) & list.MinItems(1) & [...#CopyValueEntry]})
 	Csv?: close({
-		Columns?:        list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Column"]
+		Columns?:        list.MaxItems(100) & list.MinItems(1) & [...#Column]
 		Delimiter?:      strings.MaxRunes(2) & strings.MinRunes(1)
 		QuoteCharacter?: strings.MaxRunes(1) & strings.MinRunes(1)
 		Source?:         strings.MaxRunes(128) & strings.MinRunes(1)
 	})
 	DateTimeConverter?: close({
-		Locale?: strings.MinRunes(1)
-		MatchPatterns!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/MatchPattern"
-		]
-		Source!:         _#defs."/$defs/Properties/definitions/NonEmptyString"
+		Locale?:         strings.MinRunes(1)
+		MatchPatterns!:  list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#MatchPattern]
+		Source!:         #NonEmptyString
 		SourceTimezone?: strings.MinRunes(1)
-		Target!:         _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString"
+		Target!:         #NonEmptyAndMaxLengthString
 		TargetFormat?:   strings.MaxRunes(64) & strings.MinRunes(1)
 		TargetTimezone?: strings.MinRunes(1)
 	})
-	DeleteKeys?: close({
-		WithKeys!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/WithKey"
-		]
-	})
+	DeleteKeys?: close({WithKeys!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#WithKey]})
 	Grok?: close({
 		Match!:  strings.MaxRunes(512) & strings.MinRunes(1)
-		Source?: _#defs."/$defs/Properties/definitions/NonEmptyString"
+		Source?: #NonEmptyString
 	})
 	ListToMap?: close({
 		Flatten?:          bool
 		FlattenedElement?: "first" | "last"
-		Key!:              _#defs."/$defs/Properties/definitions/NonEmptyString"
-		Source!:           _#defs."/$defs/Properties/definitions/NonEmptyString"
-		Target?:           _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString"
-		ValueKey?:         _#defs."/$defs/Properties/definitions/NonEmptyString"
+		Key!:              #NonEmptyString
+		Source!:           #NonEmptyString
+		Target?:           #NonEmptyAndMaxLengthString
+		ValueKey?:         #NonEmptyString
 	})
-	LowerCaseString?: close({
-		WithKeys!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/WithKey"
-		]
-	})
-	MoveKeys?: close(
-		{Entries!: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MoveKeyEntry"]},
-	)
-	ParseCloudfront?: _#defs."/$defs/Properties/definitions/ParseCloudfront"
+	LowerCaseString?: close({WithKeys!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#WithKey]})
+	MoveKeys?:        close({Entries!: list.MaxItems(5) & list.MinItems(1) & [...#MoveKeyEntry]})
+	ParseCloudfront?: #ParseCloudfront
 	ParseJSON?: close({
-		Destination?: _#defs."/$defs/Properties/definitions/NonEmptyAndMaxLengthString"
+		Destination?: #NonEmptyAndMaxLengthString
 		Source?:      strings.MaxRunes(128) & strings.MinRunes(1)
 	})
 	ParseKeyValue?: close({
-		Destination?:       _#defs."/$defs/Properties/definitions/NonEmptyString"
+		Destination?:       #NonEmptyString
 		FieldDelimiter?:    strings.MaxRunes(128) & strings.MinRunes(1)
-		KeyPrefix?:         _#defs."/$defs/Properties/definitions/NonEmptyString"
+		KeyPrefix?:         #NonEmptyString
 		KeyValueDelimiter?: strings.MaxRunes(128) & strings.MinRunes(1)
-		NonMatchValue?:     _#defs."/$defs/Properties/definitions/NonEmptyString"
+		NonMatchValue?:     #NonEmptyString
 		OverwriteIfExists?: bool
-		Source?:            _#defs."/$defs/Properties/definitions/NonEmptyString"
+		Source?:            #NonEmptyString
 	})
-	ParsePostgres?: _#defs."/$defs/Properties/definitions/ParsePostgres"
-	ParseRoute53?:  _#defs."/$defs/Properties/definitions/ParseRoute53"
-	ParseToOCSF?:   _#defs."/$defs/Properties/definitions/ParseToOCSF"
-	ParseVPC?:      _#defs."/$defs/Properties/definitions/ParseVPC"
-	ParseWAF?:      _#defs."/$defs/Properties/definitions/ParseWAF"
-	RenameKeys?: close(
-		{Entries!: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RenameKeyEntry"]},
-	)
-	SplitString?: close(
-		{Entries!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SplitStringEntry"]},
-	)
-	SubstituteString?: close({
-		Entries!: list.MaxItems(10) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/SubstituteStringEntry"
-		]
-	})
-	TrimString?: close({
-		WithKeys!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/WithKey"
-		]
-	})
-	TypeConverter?: close(
-		{Entries!: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TypeConverterEntry"]},
-	)
-	UpperCaseString?: close({
-		WithKeys!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/WithKey"
-		]
-	})
+	ParsePostgres?:    #ParsePostgres
+	ParseRoute53?:     #ParseRoute53
+	ParseToOCSF?:      #ParseToOCSF
+	ParseVPC?:         #ParseVPC
+	ParseWAF?:         #ParseWAF
+	RenameKeys?:       close({Entries!: list.MaxItems(5) & list.MinItems(1) & [...#RenameKeyEntry]})
+	SplitString?:      close({Entries!: list.MaxItems(10) & list.MinItems(1) & [...#SplitStringEntry]})
+	SubstituteString?: close({Entries!: list.MaxItems(10) & list.MinItems(1) & [...#SubstituteStringEntry]})
+	TrimString?:       close({WithKeys!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#WithKey]})
+	TypeConverter?:    close({Entries!: list.MaxItems(5) & list.MinItems(1) & [...#TypeConverterEntry]})
+	UpperCaseString?:  close({WithKeys!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#WithKey]})
 })
 
-_#defs: "/$defs/Properties/definitions/RenameKeyEntry": close({
-	Key!:               _#defs."/$defs/Properties/definitions/NonEmptyString"
+#RenameKeyEntry: close({
+	Key!:               #NonEmptyString
 	OverwriteIfExists?: bool
-	RenameTo!:          _#defs."/$defs/Properties/definitions/NonEmptyString"
+	RenameTo!:          #NonEmptyString
 })
 
-_#defs: "/$defs/Properties/definitions/SplitStringEntry": close({
+#SplitStringEntry: close({
 	Delimiter!: strings.MaxRunes(128) & strings.MinRunes(1)
-	Source!:    _#defs."/$defs/Properties/definitions/NonEmptyString"
+	Source!:    #NonEmptyString
 })
 
-_#defs: "/$defs/Properties/definitions/SubstituteStringEntry": close({
-	From!:   _#defs."/$defs/Properties/definitions/MaxLengthString"
-	Source!: _#defs."/$defs/Properties/definitions/NonEmptyString"
-	To!:     _#defs."/$defs/Properties/definitions/MaxLengthString"
+#SubstituteStringEntry: close({
+	From!:   #MaxLengthString
+	Source!: #NonEmptyString
+	To!:     #MaxLengthString
 })
 
-_#defs: "/$defs/Properties/definitions/TypeConverterEntry": close({
-	Key!:  _#defs."/$defs/Properties/definitions/NonEmptyString"
+#TypeConverterEntry: close({
+	Key!:  #NonEmptyString
 	Type!: "boolean" | "integer" | "double" | "string"
 })
 
-_#defs: "/$defs/Properties/definitions/WithKey": strings.MaxRunes(128) & strings.MinRunes(1)
+#WithKey: strings.MaxRunes(128) & strings.MinRunes(1)

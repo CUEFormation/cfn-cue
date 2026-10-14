@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -50,36 +50,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Management](https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html)
 // in the *General Reference*.
 #Properties: close({
-	HostedZoneConfig?:   _#defs."/$defs/Properties/definitions/HostedZoneConfig" | fn.#ObjectExpression
-	HostedZoneFeatures?: _#defs."/$defs/Properties/definitions/HostedZoneFeatures" | fn.#ObjectExpression
-	HostedZoneTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/HostedZoneTag"] | fn.#ListExpression
-	Name?:           strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	QueryLoggingConfig?: _#defs."/$defs/Properties/definitions/QueryLoggingConfig" | fn.#ObjectExpression
-	VPCs?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VPC"] | fn.#ListExpression
+	HostedZoneConfig?:   #HostedZoneConfig | fn.#ObjectExpression
+	HostedZoneFeatures?: #HostedZoneFeatures | fn.#ObjectExpression
+	HostedZoneTags?:     list.UniqueItems() & [...#HostedZoneTag] | fn.#ListExpression
+	Name?:               strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	QueryLoggingConfig?: #QueryLoggingConfig | fn.#ObjectExpression
+	VPCs?:               list.UniqueItems() & [...#VPC] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/HostedZoneConfig": close(
-	{Comment?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression},
-) |
+#HostedZoneConfig: close({Comment?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HostedZoneFeatures": close(
+#HostedZoneFeatures: close(
 	{EnableAcceleratedRecovery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HostedZoneTag": close({
+#HostedZoneTag: close({
 	Key!:   strings.MaxRunes(128) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryLoggingConfig": close(
-	{CloudWatchLogsLogGroupArn!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#QueryLoggingConfig: close({CloudWatchLogsLogGroupArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VPC": close({
+#VPC: close({
 	VPCId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	VPCRegion!: string | fn.#StringExpression

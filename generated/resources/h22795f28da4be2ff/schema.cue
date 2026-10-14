@@ -31,11 +31,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PreserveFilename?:      "ENABLED" | "DISABLED" | fn.#StringExpression
 	ServerId!:              strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" | fn.#StringExpression
 	Status?:                "ACTIVE" | "INACTIVE" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?:                  list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

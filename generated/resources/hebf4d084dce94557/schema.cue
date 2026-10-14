@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -21,9 +21,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // EC2 instances.
 #Properties: close({
 	AssociatePublicIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BlockDeviceMappings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"] |
-		fn.#ListExpression
-	ClassicLinkVPCId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	BlockDeviceMappings?:      list.UniqueItems() & [...#BlockDeviceMapping] | fn.#ListExpression
+	ClassicLinkVPCId?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	ClassicLinkVPCSecurityGroups?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -36,7 +35,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KernelId?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	KeyName?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	LaunchConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	MetadataOptions?:         _#defs."/$defs/Properties/definitions/MetadataOptions" | fn.#ObjectExpression
+	MetadataOptions?:         #MetadataOptions | fn.#ObjectExpression
 	PlacementTenancy?:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	RamDiskId?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	SecurityGroups?: [...] & [
@@ -49,7 +48,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	UserData?:  strings.MaxRunes(21847) & strings.MinRunes(0) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/BlockDevice": close({
+#BlockDevice: close({
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Encrypted?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int & <=20000 & >=100 |
@@ -105,9 +104,9 @@ _#defs: "/$defs/Properties/definitions/BlockDevice": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
+#BlockDeviceMapping: close({
 	DeviceName!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Ebs?:         _#defs."/$defs/Properties/definitions/BlockDevice" | fn.#ObjectExpression
+	Ebs?:         #BlockDevice | fn.#ObjectExpression
 	NoDevice?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VirtualName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	if VirtualName != _|_ {
@@ -120,7 +119,7 @@ _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 }) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataOptions": close({
+#MetadataOptions: close({
 	HttpEndpoint?: "disabled" | "enabled" | fn.#StringExpression
 	HttpPutResponseHopLimit?: int & <=64 & >=1 |
 		{

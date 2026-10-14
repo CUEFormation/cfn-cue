@@ -30,26 +30,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...strings.MaxRunes(50) & strings.MinRunes(1) & =~"^([a-z]{2,}-){2,}[0-9]$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	RevisionWeights?: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RevisionWeight"] |
-		fn.#ListExpression
-	ScalingConfig?:  _#defs."/$defs/Properties/definitions/ScalingConfig" | fn.#ObjectExpression
-	ThrottleConfig?: _#defs."/$defs/Properties/definitions/ThrottleConfig" | fn.#ObjectExpression
+	RevisionWeights?: list.MaxItems(2) & list.MinItems(1) & [...#RevisionWeight] | fn.#ListExpression
+	ScalingConfig?:   #ScalingConfig | fn.#ObjectExpression
+	ThrottleConfig?:  #ThrottleConfig | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/RegionalEndpoint": close({
+#RegionalEndpoint: close({
 	AuthType?:           "ApplicationManaged" | "IamAuth" | fn.#StringExpression
 	DomainName?:         string | fn.#StringExpression
-	RevisionWeights?:    [..._#defs."/$defs/Properties/definitions/RevisionWeight"] | fn.#ListExpression
-	ScalingConfig?:      _#defs."/$defs/Properties/definitions/ScalingConfig" | fn.#ObjectExpression
+	RevisionWeights?:    [...#RevisionWeight] | fn.#ListExpression
+	ScalingConfig?:      #ScalingConfig | fn.#ObjectExpression
 	State?:              "Pending" | "Active" | "Failed" | "Deleting" | fn.#StringExpression
 	StateReason?:        string | fn.#StringExpression
-	ThrottleConfig?:     _#defs."/$defs/Properties/definitions/ThrottleConfig" | fn.#ObjectExpression
+	ThrottleConfig?:     #ThrottleConfig | fn.#ObjectExpression
 	UpdateStatus?:       "InProgress" | "Successful" | "Failed" | fn.#StringExpression
 	UpdateStatusReason?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RevisionWeight": close({
+#RevisionWeight: close({
 	RevisionId!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Weight!: int & <=100 & >=1 |
 		{
@@ -70,7 +69,7 @@ _#defs: "/$defs/Properties/definitions/RevisionWeight": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingConfig": close({
+#ScalingConfig: close({
 	MaxEnvironments?: int & >=2 |
 		{
 			string &
@@ -89,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/ScalingConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThrottleConfig": close({
+#ThrottleConfig: close({
 	RateLimit?: int & >=0 |
 		{
 			string &

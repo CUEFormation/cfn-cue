@@ -22,8 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	{PolicyText!: fn.#Object & {...} | strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringObjectExpression},
 )
 
-_#defs: "/$defs/Properties/definitions/RegistryId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
-fn.#StringExpression
+#RegistryId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ECR::RegistryPolicy"
 	Properties!: #Properties

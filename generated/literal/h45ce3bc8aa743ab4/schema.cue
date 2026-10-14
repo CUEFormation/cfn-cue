@@ -15,22 +15,22 @@ import (
 	Arn?: string
 
 	// CDN Authorization
-	Authorization?: _#defs."/$defs/Properties/definitions/Authorization"
+	Authorization?: #Authorization
 
 	// The fully qualified domain name for Assets in the PackagingGroup.
 	DomainName?: string
 
 	// The configuration parameters for egress access logging.
-	EgressAccessLogs?: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	EgressAccessLogs?: #LogConfiguration
 
 	// The ID of the PackagingGroup.
 	Id!: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// A collection of tags associated with a resource
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Authorization": close({
+#Authorization: close({
 	// The Amazon Resource Name (ARN) for the secret in AWS Secrets Manager that is
 	// used for CDN authorization.
 	CdnIdentifierSecret!: string
@@ -40,14 +40,14 @@ _#defs: "/$defs/Properties/definitions/Authorization": close({
 	SecretsRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	// Sets a custom AWS CloudWatch log group name for egress logs. If a log group
 	// name isn't specified, the default name is used:
 	// /aws/MediaPackage/VodEgressAccessLogs.
 	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

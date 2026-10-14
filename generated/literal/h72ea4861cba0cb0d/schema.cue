@@ -45,7 +45,7 @@ import (
 		"AccountSuspended"
 
 	// The tags to associate with the member account in Amazon Macie.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The date and time, in UTC and extended ISO 8601 format, of the most recent
 	// change to the status of the relationship between the account and the Amazon
@@ -54,7 +54,7 @@ import (
 })
 
 // A key-value pair to associate with the Amazon Macie member account.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag. The maximum length of a tag key is 128 characters.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

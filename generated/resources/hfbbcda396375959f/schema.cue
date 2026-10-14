@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -12,9 +12,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ARN of the IAM principal to remove from the pull time update exclusion list.
-#Properties: close({PrincipalArn!: _#defs."/$defs/Properties/definitions/PrincipalArn" | fn.#StringExpression})
+#Properties: close({PrincipalArn!: #PrincipalArn | fn.#StringExpression})
 
-_#defs: "/$defs/Properties/definitions/PrincipalArn": strings.MaxRunes(200) &
+#PrincipalArn: strings.MaxRunes(200) &
 strings.MinRunes(0) &
 =~"^arn:aws(-[a-z]+)*:iam::[0-9]{12}:(role|user)/[\\w+=,.@-]+(/[\\w+=,.@-]+)*$" |
 fn.#StringExpression

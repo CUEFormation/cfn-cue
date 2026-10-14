@@ -14,13 +14,13 @@ import (
 #Properties: close({
 	ApplicationArn?:                strings.MaxRunes(1284) & strings.MinRunes(0)
 	ApplicationId?:                 strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
-	AttachmentsConfiguration?:      _#defs."/$defs/Properties/definitions/AttachmentsConfiguration"
-	AutoSubscriptionConfiguration?: _#defs."/$defs/Properties/definitions/AutoSubscriptionConfiguration"
+	AttachmentsConfiguration?:      #AttachmentsConfiguration
+	AutoSubscriptionConfiguration?: #AutoSubscriptionConfiguration
 	ClientIdsForOIDC?:              [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.:/()*?=-]*$"]
 	CreatedAt?:                     time.Time
 	Description?:                   strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
 	DisplayName!:                   strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
-	EncryptionConfiguration?:       _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	EncryptionConfiguration?:       #EncryptionConfiguration
 	IamIdentityProviderArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::\\d{12}:(oidc-provider|saml-provider)/[a-zA-Z0-9_\\.\\/@\\-]+$"
@@ -30,60 +30,48 @@ import (
 	IdentityCenterInstanceArn?: strings.MaxRunes(1224) &
 	strings.MinRunes(10) &
 	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$"
-	IdentityType?:                 _#defs."/$defs/Properties/definitions/IdentityType"
-	PersonalizationConfiguration?: _#defs."/$defs/Properties/definitions/PersonalizationConfiguration"
-	QAppsConfiguration?:           _#defs."/$defs/Properties/definitions/QAppsConfiguration"
-	QuickSightConfiguration?:      _#defs."/$defs/Properties/definitions/QuickSightConfiguration"
+	IdentityType?:                 #IdentityType
+	PersonalizationConfiguration?: #PersonalizationConfiguration
+	QAppsConfiguration?:           #QAppsConfiguration
+	QuickSightConfiguration?:      #QuickSightConfiguration
 	RoleArn?:                      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
-	Status?:                       _#defs."/$defs/Properties/definitions/ApplicationStatus"
-	Tags?:                         list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Status?:                       #ApplicationStatus
+	Tags?:                         list.MaxItems(200) & [...] & [...#Tag]
 	UpdatedAt?:                    time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationStatus": "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "UPDATING"
+#ApplicationStatus: "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "UPDATING"
 
-_#defs: "/$defs/Properties/definitions/AttachmentsConfiguration": close(
-	{AttachmentsControlMode!: _#defs."/$defs/Properties/definitions/AttachmentsControlMode"},
-)
+#AttachmentsConfiguration: close({AttachmentsControlMode!: #AttachmentsControlMode})
 
-_#defs: "/$defs/Properties/definitions/AttachmentsControlMode": "ENABLED" | "DISABLED"
+#AttachmentsControlMode: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/AutoSubscriptionConfiguration": close({
-	AutoSubscribe!:           _#defs."/$defs/Properties/definitions/AutoSubscriptionStatus"
-	DefaultSubscriptionType?: _#defs."/$defs/Properties/definitions/SubscriptionType"
+#AutoSubscriptionConfiguration: close({
+	AutoSubscribe!:           #AutoSubscriptionStatus
+	DefaultSubscriptionType?: #SubscriptionType
 })
 
-_#defs: "/$defs/Properties/definitions/AutoSubscriptionStatus": "ENABLED" | "DISABLED"
+#AutoSubscriptionStatus: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
 })
 
-_#defs: "/$defs/Properties/definitions/IdentityType": "AWS_IAM_IDP_SAML" |
-	"AWS_IAM_IDP_OIDC" |
-	"AWS_IAM_IDC" |
-	"AWS_QUICKSIGHT_IDP" |
-	"ANONYMOUS"
+#IdentityType: "AWS_IAM_IDP_SAML" | "AWS_IAM_IDP_OIDC" | "AWS_IAM_IDC" | "AWS_QUICKSIGHT_IDP" | "ANONYMOUS"
 
-_#defs: "/$defs/Properties/definitions/PersonalizationConfiguration": close(
-	{PersonalizationControlMode!: _#defs."/$defs/Properties/definitions/PersonalizationControlMode"},
-)
+#PersonalizationConfiguration: close({PersonalizationControlMode!: #PersonalizationControlMode})
 
-_#defs: "/$defs/Properties/definitions/PersonalizationControlMode": "ENABLED" | "DISABLED"
+#PersonalizationControlMode: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/QAppsConfiguration": close(
-	{QAppsControlMode!: _#defs."/$defs/Properties/definitions/QAppsControlMode"},
-)
+#QAppsConfiguration: close({QAppsControlMode!: #QAppsControlMode})
 
-_#defs: "/$defs/Properties/definitions/QAppsControlMode": "ENABLED" | "DISABLED"
+#QAppsControlMode: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/QuickSightConfiguration": close(
-	{ClientNamespace!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]*$"},
-)
+#QuickSightConfiguration: close({ClientNamespace!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]*$"})
 
-_#defs: "/$defs/Properties/definitions/SubscriptionType": "Q_LITE" | "Q_BUSINESS"
+#SubscriptionType: "Q_LITE" | "Q_BUSINESS"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

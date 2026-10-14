@@ -13,21 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::Route53GlobalResolver::HostedZoneAssociation
 #Properties: close({
-	HostedZoneId!: _#defs."/$defs/Properties/definitions/HostedZoneId"
-	Name!:         _#defs."/$defs/Properties/definitions/ResourceName"
-	ResourceArn!:  _#defs."/$defs/Properties/definitions/ResourceArn"
+	HostedZoneId!: #HostedZoneId
+	Name!:         #ResourceName
+	ResourceArn!:  #ResourceArn
 })
 
-_#defs: "/$defs/Properties/definitions/HostedZoneAssociationStatus": "CREATING" |
-	"OPERATIONAL" |
-	"DELETING" |
-	fn.#StringExpression
+#HostedZoneAssociationStatus: "CREATING" | "OPERATIONAL" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HostedZoneId": strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+#HostedZoneId: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Route53GlobalResolver::HostedZoneAssociation"
 	Properties!: #Properties

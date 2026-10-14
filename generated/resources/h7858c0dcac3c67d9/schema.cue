@@ -14,11 +14,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::IoTEvents::AlarmModel
 #Properties: close({
-	AlarmCapabilities?:     _#defs."/$defs/Properties/definitions/AlarmCapabilities"
-	AlarmEventActions?:     _#defs."/$defs/Properties/definitions/AlarmEventActions"
+	AlarmCapabilities?:     #AlarmCapabilities
+	AlarmEventActions?:     #AlarmEventActions
 	AlarmModelDescription?: string | fn.#StringExpression
 	AlarmModelName?:        string | fn.#StringExpression
-	AlarmRule!:             _#defs."/$defs/Properties/definitions/AlarmRule"
+	AlarmRule!:             #AlarmRule
 	Key?:                   string | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
@@ -36,57 +36,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AcknowledgeFlow": close(
+#AcknowledgeFlow: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AlarmAction": close({
-	DynamoDB?:        _#defs."/$defs/Properties/definitions/DynamoDB"
-	DynamoDBv2?:      _#defs."/$defs/Properties/definitions/DynamoDBv2"
-	Firehose?:        _#defs."/$defs/Properties/definitions/Firehose"
-	IotEvents?:       _#defs."/$defs/Properties/definitions/IotEvents"
-	IotSiteWise?:     _#defs."/$defs/Properties/definitions/IotSiteWise"
-	IotTopicPublish?: _#defs."/$defs/Properties/definitions/IotTopicPublish"
-	Lambda?:          _#defs."/$defs/Properties/definitions/Lambda"
-	Sns?:             _#defs."/$defs/Properties/definitions/Sns"
-	Sqs?:             _#defs."/$defs/Properties/definitions/Sqs"
+#AlarmAction: close({
+	DynamoDB?:        #DynamoDB
+	DynamoDBv2?:      #DynamoDBv2
+	Firehose?:        #Firehose
+	IotEvents?:       #IotEvents
+	IotSiteWise?:     #IotSiteWise
+	IotTopicPublish?: #IotTopicPublish
+	Lambda?:          #Lambda
+	Sns?:             #Sns
+	Sqs?:             #Sqs
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AlarmCapabilities": close({
-	AcknowledgeFlow?:             _#defs."/$defs/Properties/definitions/AcknowledgeFlow"
-	InitializationConfiguration?: _#defs."/$defs/Properties/definitions/InitializationConfiguration"
+#AlarmCapabilities: close({
+	AcknowledgeFlow?:             #AcknowledgeFlow
+	InitializationConfiguration?: #InitializationConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AlarmEventActions": close(
-	{AlarmActions?: [..._#defs."/$defs/Properties/definitions/AlarmAction"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#AlarmEventActions: close({AlarmActions?: [...#AlarmAction] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AlarmRule": close(
-	{SimpleRule?: _#defs."/$defs/Properties/definitions/SimpleRule"},
-) |
-	fn.#ObjectExpression
+#AlarmRule: close({SimpleRule?: #SimpleRule}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssetPropertyTimestamp": close({
+#AssetPropertyTimestamp: close({
 	OffsetInNanos?: string | fn.#StringExpression
 	TimeInSeconds!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssetPropertyValue": close({
+#AssetPropertyValue: close({
 	Quality?:   string | fn.#StringExpression
-	Timestamp?: _#defs."/$defs/Properties/definitions/AssetPropertyTimestamp"
-	Value!:     _#defs."/$defs/Properties/definitions/AssetPropertyVariant"
+	Timestamp?: #AssetPropertyTimestamp
+	Value!:     #AssetPropertyVariant
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssetPropertyVariant": close({
+#AssetPropertyVariant: close({
 	BooleanValue?: string | fn.#StringExpression
 	DoubleValue?:  string | fn.#StringExpression
 	IntegerValue?: string | fn.#StringExpression
@@ -94,12 +88,12 @@ _#defs: "/$defs/Properties/definitions/AssetPropertyVariant": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DynamoDB": close({
+#DynamoDB: close({
 	HashKeyField!:  string | fn.#StringExpression
 	HashKeyType?:   string | fn.#StringExpression
 	HashKeyValue!:  string | fn.#StringExpression
 	Operation?:     string | fn.#StringExpression
-	Payload?:       _#defs."/$defs/Properties/definitions/Payload"
+	Payload?:       #Payload
 	PayloadField?:  string | fn.#StringExpression
 	RangeKeyField?: string | fn.#StringExpression
 	RangeKeyType?:  string | fn.#StringExpression
@@ -108,79 +102,79 @@ _#defs: "/$defs/Properties/definitions/DynamoDB": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DynamoDBv2": close({
-	Payload?:   _#defs."/$defs/Properties/definitions/Payload"
+#DynamoDBv2: close({
+	Payload?:   #Payload
 	TableName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Firehose": close({
+#Firehose: close({
 	DeliveryStreamName!: string | fn.#StringExpression
-	Payload?:            _#defs."/$defs/Properties/definitions/Payload"
+	Payload?:            #Payload
 	Separator?:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InitializationConfiguration": close(
+#InitializationConfiguration: close(
 	{DisabledOnInitialization!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IotEvents": close({
+#IotEvents: close({
 	InputName!: string | fn.#StringExpression
-	Payload?:   _#defs."/$defs/Properties/definitions/Payload"
+	Payload?:   #Payload
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IotSiteWise": close({
+#IotSiteWise: close({
 	AssetId?:       string | fn.#StringExpression
 	EntryId?:       string | fn.#StringExpression
 	PropertyAlias?: string | fn.#StringExpression
 	PropertyId?:    string | fn.#StringExpression
-	PropertyValue?: _#defs."/$defs/Properties/definitions/AssetPropertyValue"
+	PropertyValue?: #AssetPropertyValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IotTopicPublish": close({
+#IotTopicPublish: close({
 	MqttTopic!: string | fn.#StringExpression
-	Payload?:   _#defs."/$defs/Properties/definitions/Payload"
+	Payload?:   #Payload
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Lambda": close({
+#Lambda: close({
 	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	Payload?: _#defs."/$defs/Properties/definitions/Payload"
+	Payload?: #Payload
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Payload": close({
+#Payload: close({
 	ContentExpression!: string | fn.#StringExpression
 	Type!:              string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SimpleRule": close({
+#SimpleRule: close({
 	ComparisonOperator!: string | fn.#StringExpression
 	InputProperty!:      string | fn.#StringExpression
 	Threshold!:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Sns": close({
-	Payload?:   _#defs."/$defs/Properties/definitions/Payload"
+#Sns: close({
+	Payload?:   #Payload
 	TargetArn!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Sqs": close({
-	Payload?:   _#defs."/$defs/Properties/definitions/Payload"
+#Sqs: close({
+	Payload?:   #Payload
 	QueueUrl!:  string | fn.#StringExpression
 	UseBase64?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

@@ -40,7 +40,7 @@ import (
 	// The details of the import task to use to create the graph. When specified,
 	// the graph is created using CreateGraphUsingImportTask and data is imported
 	// from the supplied source.
-	ImportTask?: _#defs."/$defs/Properties/definitions/ImportTask"
+	ImportTask?: #ImportTask
 
 	// The ARN of the KMS key used to encrypt data in the Neptune Analytics graph.
 	// If not specified, the graph is encrypted with an AWS managed key.
@@ -73,10 +73,10 @@ import (
 	ReplicaCount?: int & <=2 & >=0
 
 	// The tags associated with this graph.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// Vector Search Configuration
-	VectorSearchConfiguration?: _#defs."/$defs/Properties/definitions/VectorSearchConfiguration"
+	VectorSearchConfiguration?: #VectorSearchConfiguration
 })
 
 // Contains options for controlling the import process. For example, if the
@@ -84,13 +84,13 @@ import (
 // error and continues if possible (whereas if set to true, the default, or if
 // omitted, the import operation halts immediately when an error is
 // encountered).
-_#defs: "/$defs/Properties/definitions/ImportOptions": close({
+#ImportOptions: close({
 	// Options for importing data from a Neptune database.
-	Neptune?: _#defs."/$defs/Properties/definitions/NeptuneImportOptions"
+	Neptune?: #NeptuneImportOptions
 })
 
 // The import task details to import data into the graph at creation time.
-_#defs: "/$defs/Properties/definitions/ImportTask": close({
+#ImportTask: close({
 	// The method to handle blank nodes in the dataset. Currently, only convertToIri
 	// is supported, meaning blank nodes are converted to unique IRIs at load time.
 	// Must be provided when format is NTRIPLES
@@ -112,7 +112,7 @@ _#defs: "/$defs/Properties/definitions/ImportTask": close({
 	// error and continues if possible (whereas if set to true, the default, or if
 	// omitted, the import operation halts immediately when an error is
 	// encountered).
-	ImportOptions?: _#defs."/$defs/Properties/definitions/ImportOptions"
+	ImportOptions?: #ImportOptions
 
 	// The maximum provisioned memory-optimized Neptune Capacity Units (m-NCUs) to
 	// use for the graph. Default: 1024, or the approved upper limit for your
@@ -140,7 +140,7 @@ _#defs: "/$defs/Properties/definitions/ImportTask": close({
 })
 
 // Options for importing data from a Neptune database.
-_#defs: "/$defs/Properties/definitions/NeptuneImportOptions": close({
+#NeptuneImportOptions: close({
 	// Neptune Analytics supports label-less vertices and no labels are assigned
 	// unless one is explicitly provided. Neptune assigns default labels when none
 	// is explicitly provided. When importing the data into Neptune Analytics, the
@@ -164,7 +164,7 @@ _#defs: "/$defs/Properties/definitions/NeptuneImportOptions": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -179,7 +179,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The vector search configuration.
-_#defs: "/$defs/Properties/definitions/VectorSearchConfiguration": close({
+#VectorSearchConfiguration: close({
 	// The vector search dimension
 	VectorSearchDimension!: int
 })

@@ -14,42 +14,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Budgets::Budget
 #Properties: close({
-	Budget!: _#defs."/$defs/Properties/definitions/BudgetData"
-	NotificationsWithSubscribers?: [..._#defs."/$defs/Properties/definitions/NotificationWithSubscribers"] |
-		fn.#ListExpression
-	ResourceTags?: [..._#defs."/$defs/Properties/definitions/ResourceTag"] | fn.#ListExpression
+	Budget!:                       #BudgetData
+	NotificationsWithSubscribers?: [...#NotificationWithSubscribers] | fn.#ListExpression
+	ResourceTags?:                 [...#ResourceTag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AutoAdjustData": close({
+#AutoAdjustData: close({
 	AutoAdjustType!:    string | fn.#StringExpression
-	HistoricalOptions?: _#defs."/$defs/Properties/definitions/HistoricalOptions"
+	HistoricalOptions?: #HistoricalOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BudgetData": close({
-	AutoAdjustData?:      _#defs."/$defs/Properties/definitions/AutoAdjustData"
+#BudgetData: close({
+	AutoAdjustData?:      #AutoAdjustData
 	BillingViewArn?:      string | fn.#StringExpression
-	BudgetLimit?:         _#defs."/$defs/Properties/definitions/Spend"
+	BudgetLimit?:         #Spend
 	BudgetName?:          string | fn.#StringExpression
 	BudgetType!:          string | fn.#StringExpression
 	CostFilters?:         fn.#Object & {...} | string | fn.#StringObjectExpression
-	CostTypes?:           _#defs."/$defs/Properties/definitions/CostTypes"
-	FilterExpression?:    _#defs."/$defs/Properties/definitions/Expression"
+	CostTypes?:           #CostTypes
+	FilterExpression?:    #Expression
 	Metrics?:             [...string | fn.#StringExpression] | fn.#ListExpression
 	PlannedBudgetLimits?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	TimePeriod?:          _#defs."/$defs/Properties/definitions/TimePeriod"
+	TimePeriod?:          #TimePeriod
 	TimeUnit!:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CostCategoryValues": close({
+#CostCategoryValues: close({
 	Key?:          string | fn.#StringExpression
 	MatchOptions?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Values?:       [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CostTypes": close({
+#CostTypes: close({
 	IncludeCredit?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeDiscount?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeOtherSubscription?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -64,24 +63,24 @@ _#defs: "/$defs/Properties/definitions/CostTypes": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Expression": close({
-	And?:            [..._#defs."/$defs/Properties/definitions/Expression"] | fn.#ListExpression
-	CostCategories?: _#defs."/$defs/Properties/definitions/CostCategoryValues"
-	Dimensions?:     _#defs."/$defs/Properties/definitions/ExpressionDimensionValues"
-	Not?:            _#defs."/$defs/Properties/definitions/Expression"
-	Or?:             [..._#defs."/$defs/Properties/definitions/Expression"] | fn.#ListExpression
-	Tags?:           _#defs."/$defs/Properties/definitions/TagValues"
+#Expression: close({
+	And?:            [...#Expression] | fn.#ListExpression
+	CostCategories?: #CostCategoryValues
+	Dimensions?:     #ExpressionDimensionValues
+	Not?:            #Expression
+	Or?:             [...#Expression] | fn.#ListExpression
+	Tags?:           #TagValues
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExpressionDimensionValues": close({
+#ExpressionDimensionValues: close({
 	Key?:          string | fn.#StringExpression
 	MatchOptions?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Values?:       [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HistoricalOptions": close({
+#HistoricalOptions: close({
 	BudgetAdjustmentPeriod!: int |
 		{
 			string &
@@ -99,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/HistoricalOptions": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Notification": close({
+#Notification: close({
 	ComparisonOperator!: string | fn.#StringExpression
 	NotificationType!:   string | fn.#StringExpression
 	Threshold!: <=1000000000 & >=0.1 |
@@ -126,19 +125,19 @@ _#defs: "/$defs/Properties/definitions/Notification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationWithSubscribers": close({
-	Notification!: _#defs."/$defs/Properties/definitions/Notification"
-	Subscribers!:  [..._#defs."/$defs/Properties/definitions/Subscriber"] | fn.#ListExpression
+#NotificationWithSubscribers: close({
+	Notification!: #Notification
+	Subscribers!:  [...#Subscriber] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	Key!:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Spend": close({
+#Spend: close({
 	Amount!: number |
 		{
 			string &
@@ -162,20 +161,20 @@ _#defs: "/$defs/Properties/definitions/Spend": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Subscriber": close({
+#Subscriber: close({
 	Address!:          string | fn.#StringExpression
 	SubscriptionType!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagValues": close({
+#TagValues: close({
 	Key?:          string | fn.#StringExpression
 	MatchOptions?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Values?:       [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimePeriod": close({
+#TimePeriod: close({
 	End?:   string | fn.#StringExpression
 	Start?: string | fn.#StringExpression
 }) |

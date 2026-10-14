@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,7 +12,7 @@ import (
 // Private certificate authority.
 #Properties: close({
 	// The Amazon Resource Name (ARN) of the certificate authority.
-	Arn?: _#defs."/$defs/Properties/definitions/Arn"
+	Arn?: #Arn
 
 	// The base64 PEM-encoded certificate signing request (CSR) for your certificate
 	// authority certificate.
@@ -20,7 +20,7 @@ import (
 
 	// Structure that contains CSR pass through extension information used by the
 	// CreateCertificateAuthority action.
-	CsrExtensions?: _#defs."/$defs/Properties/definitions/CsrExtensions"
+	CsrExtensions?: #CsrExtensions
 
 	// Public key algorithm and size, in bits, of the key pair that your CA creates
 	// when it issues a certificate.
@@ -34,14 +34,14 @@ import (
 
 	// Certificate revocation information used by the CreateCertificateAuthority and
 	// UpdateCertificateAuthority actions.
-	RevocationConfiguration?: _#defs."/$defs/Properties/definitions/RevocationConfiguration"
+	RevocationConfiguration?: #RevocationConfiguration
 
 	// Algorithm your CA uses to sign certificate requests.
 	SigningAlgorithm!: string
 
 	// Structure that contains X.500 distinguished name information for your CA.
-	Subject!: _#defs."/$defs/Properties/definitions/Subject"
-	Tags?:    list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Subject!: #Subject
+	Tags?:    list.MaxItems(50) & [...] & [...#Tag]
 
 	// The type of the certificate authority.
 	Type!: string
@@ -51,29 +51,28 @@ import (
 })
 
 // Structure that contains X.509 AccessDescription information.
-_#defs: "/$defs/Properties/definitions/AccessDescription": close({
-	AccessLocation!: _#defs."/$defs/Properties/definitions/GeneralName"
-	AccessMethod!:   _#defs."/$defs/Properties/definitions/AccessMethod"
+#AccessDescription: close({
+	AccessLocation!: #GeneralName
+	AccessMethod!:   #AccessMethod
 })
 
 // Structure that contains X.509 AccessMethod information. Assign one and ONLY one field.
-_#defs: "/$defs/Properties/definitions/AccessMethod": close({
-	AccessMethodType?:       _#defs."/$defs/Properties/definitions/AccessMethodType"
-	CustomObjectIdentifier?: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier"
+#AccessMethod: close({
+	AccessMethodType?:       #AccessMethodType
+	CustomObjectIdentifier?: #CustomObjectIdentifier
 })
 
 // Pre-defined enum string for X.509 AccessMethod ObjectIdentifiers.
-_#defs: "/$defs/Properties/definitions/AccessMethodType": string
+#AccessMethodType: string
 
-_#defs: "/$defs/Properties/definitions/Arn": string
+#Arn: string
 
 // Your certificate authority can create and maintain a certificate revocation
 // list (CRL). A CRL contains information about certificates that have been
 // revoked.
-_#defs: "/$defs/Properties/definitions/CrlConfiguration": close({
-	CrlDistributionPointExtensionConfiguration?:
-		_#defs."/$defs/Properties/definitions/CrlDistributionPointExtensionConfiguration"
-	CrlType?:     "COMPLETE" | "PARTITIONED"
+#CrlConfiguration: close({
+	CrlDistributionPointExtensionConfiguration?: #CrlDistributionPointExtensionConfiguration
+	CrlType?:                                    "COMPLETE" | "PARTITIONED"
 	CustomCname?: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^[-a-zA-Z0-9;/?:@&=+$,%_.!~*()']*$"
 	CustomPath?: strings.MaxRunes(253) &
 	strings.MinRunes(0) &
@@ -86,53 +85,53 @@ _#defs: "/$defs/Properties/definitions/CrlConfiguration": close({
 
 // Configures the default behavior of the CRL Distribution Point extension for
 // certificates issued by your certificate authority
-_#defs: "/$defs/Properties/definitions/CrlDistributionPointExtensionConfiguration": close({OmitExtension!: bool})
+#CrlDistributionPointExtensionConfiguration: close({OmitExtension!: bool})
 
 // Structure that contains CSR pass though extensions information.
-_#defs: "/$defs/Properties/definitions/CsrExtensions": close({
-	KeyUsage?:                 _#defs."/$defs/Properties/definitions/KeyUsage"
-	SubjectInformationAccess?: _#defs."/$defs/Properties/definitions/SubjectInformationAccess"
+#CsrExtensions: close({
+	KeyUsage?:                 #KeyUsage
+	SubjectInformationAccess?: #SubjectInformationAccess
 })
 
 // Structure that contains X.500 attribute type and value.
-_#defs: "/$defs/Properties/definitions/CustomAttribute": close({
-	ObjectIdentifier!: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier"
+#CustomAttribute: close({
+	ObjectIdentifier!: #CustomObjectIdentifier
 	Value!:            string
 })
 
 // Array of X.500 attribute type and value. CustomAttributes cannot be used
 // along with pre-defined attributes.
-_#defs: "/$defs/Properties/definitions/CustomAttributeList": [..._#defs."/$defs/Properties/definitions/CustomAttribute"]
+#CustomAttributeList: [...#CustomAttribute]
 
 // String that contains X.509 ObjectIdentifier information.
-_#defs: "/$defs/Properties/definitions/CustomObjectIdentifier": string
+#CustomObjectIdentifier: string
 
 // String that contains X.509 DnsName information.
-_#defs: "/$defs/Properties/definitions/DnsName": string
+#DnsName: string
 
 // Structure that contains X.509 EdiPartyName information.
-_#defs: "/$defs/Properties/definitions/EdiPartyName": close({
+#EdiPartyName: close({
 	NameAssigner?: string
 	PartyName!:    string
 })
 
 // Structure that contains X.509 GeneralName information. Assign one and ONLY one field.
-_#defs: "/$defs/Properties/definitions/GeneralName": close({
-	DirectoryName?:             _#defs."/$defs/Properties/definitions/Subject"
-	DnsName?:                   _#defs."/$defs/Properties/definitions/DnsName"
-	EdiPartyName?:              _#defs."/$defs/Properties/definitions/EdiPartyName"
-	IpAddress?:                 _#defs."/$defs/Properties/definitions/IpAddress"
-	OtherName?:                 _#defs."/$defs/Properties/definitions/OtherName"
-	RegisteredId?:              _#defs."/$defs/Properties/definitions/CustomObjectIdentifier"
-	Rfc822Name?:                _#defs."/$defs/Properties/definitions/Rfc822Name"
-	UniformResourceIdentifier?: _#defs."/$defs/Properties/definitions/UniformResourceIdentifier"
+#GeneralName: close({
+	DirectoryName?:             #Subject
+	DnsName?:                   #DnsName
+	EdiPartyName?:              #EdiPartyName
+	IpAddress?:                 #IpAddress
+	OtherName?:                 #OtherName
+	RegisteredId?:              #CustomObjectIdentifier
+	Rfc822Name?:                #Rfc822Name
+	UniformResourceIdentifier?: #UniformResourceIdentifier
 })
 
 // String that contains X.509 IpAddress information.
-_#defs: "/$defs/Properties/definitions/IpAddress": string
+#IpAddress: string
 
 // Structure that contains X.509 KeyUsage information.
-_#defs: "/$defs/Properties/definitions/KeyUsage": close({
+#KeyUsage: close({
 	CRLSign?:          bool
 	DataEncipherment?: bool
 	DecipherOnly?:     bool
@@ -146,31 +145,31 @@ _#defs: "/$defs/Properties/definitions/KeyUsage": close({
 
 // Helps to configure online certificate status protocol (OCSP) responder for
 // your certificate authority
-_#defs: "/$defs/Properties/definitions/OcspConfiguration": close({
+#OcspConfiguration: close({
 	Enabled!:         bool
 	OcspCustomCname?: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^[-a-zA-Z0-9;/?:@&=+$,%_.!~*()']*$"
 })
 
 // Structure that contains X.509 OtherName information.
-_#defs: "/$defs/Properties/definitions/OtherName": close({
-	TypeId!: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier"
+#OtherName: close({
+	TypeId!: #CustomObjectIdentifier
 	Value!:  string
 })
 
 // Certificate Authority revocation information.
-_#defs: "/$defs/Properties/definitions/RevocationConfiguration": close({
-	CrlConfiguration?:  _#defs."/$defs/Properties/definitions/CrlConfiguration"
-	OcspConfiguration?: _#defs."/$defs/Properties/definitions/OcspConfiguration"
+#RevocationConfiguration: close({
+	CrlConfiguration?:  #CrlConfiguration
+	OcspConfiguration?: #OcspConfiguration
 })
 
 // String that contains X.509 Rfc822Name information.
-_#defs: "/$defs/Properties/definitions/Rfc822Name": string
+#Rfc822Name: string
 
 // Structure that contains X.500 distinguished name information for your CA.
-_#defs: "/$defs/Properties/definitions/Subject": close({
+#Subject: close({
 	CommonName?:                 string
 	Country?:                    string
-	CustomAttributes?:           _#defs."/$defs/Properties/definitions/CustomAttributeList"
+	CustomAttributes?:           #CustomAttributeList
 	DistinguishedNameQualifier?: string
 	GenerationQualifier?:        string
 	GivenName?:                  string
@@ -186,14 +185,12 @@ _#defs: "/$defs/Properties/definitions/Subject": close({
 })
 
 // Array of X.509 AccessDescription.
-_#defs: "/$defs/Properties/definitions/SubjectInformationAccess": [
-	..._#defs."/$defs/Properties/definitions/AccessDescription"
-]
+#SubjectInformationAccess: [...#AccessDescription]
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
 // String that contains X.509 UniformResourceIdentifier information.
-_#defs: "/$defs/Properties/definitions/UniformResourceIdentifier": string
+#UniformResourceIdentifier: string

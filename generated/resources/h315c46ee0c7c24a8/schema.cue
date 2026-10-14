@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,20 +14,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::SageMaker::Device
 #Properties: close({
-	Device?: _#defs."/$defs/Properties/definitions/Device" | fn.#ObjectExpression
+	Device?: #Device | fn.#ObjectExpression
 	DeviceFleetName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*_*[a-zA-Z0-9])*$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Device": close({
+#Device: close({
 	Description?:  strings.MaxRunes(40) & strings.MinRunes(1) & =~"[\\S\\s]+" | fn.#StringExpression
 	DeviceName!:   strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
 	IotThingName?: strings.MaxRunes(128) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

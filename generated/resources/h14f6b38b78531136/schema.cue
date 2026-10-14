@@ -15,10 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::EC2::VerifiedAccessTrustProvider type describes a verified access trust provider
 #Properties: close({
 	Description?:                  string | fn.#StringExpression
-	DeviceOptions?:                _#defs."/$defs/Properties/definitions/DeviceOptions"
+	DeviceOptions?:                #DeviceOptions
 	DeviceTrustProviderType?:      "crowdstrike" | "jamf" | "jumpcloud" | fn.#StringExpression
-	NativeApplicationOidcOptions?: _#defs."/$defs/Properties/definitions/NativeApplicationOidcOptions"
-	OidcOptions?:                  _#defs."/$defs/Properties/definitions/OidcOptions"
+	NativeApplicationOidcOptions?: #NativeApplicationOidcOptions
+	OidcOptions?:                  #OidcOptions
 	PolicyReferenceName!:          string | fn.#StringExpression
 	SseSpecification?: close({
 		CustomerManagedKeyEnabled?: bool |
@@ -33,18 +33,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	TrustProviderType!:     "device" | "user" | fn.#StringExpression
 	UserTrustProviderType?: "iam-identity-center" | "oidc" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DeviceOptions": close({
+#DeviceOptions: close({
 	PublicSigningKeyUrl?: string | fn.#StringExpression
 	TenantId?:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NativeApplicationOidcOptions": close({
+#NativeApplicationOidcOptions: close({
 	AuthorizationEndpoint?:    string | fn.#StringExpression
 	ClientId?:                 string | fn.#StringExpression
 	ClientSecret?:             string | fn.#StringExpression
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/NativeApplicationOidcOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OidcOptions": close({
+#OidcOptions: close({
 	AuthorizationEndpoint?: string | fn.#StringExpression
 	ClientId?:              string | fn.#StringExpression
 	ClientSecret?:          string | fn.#StringExpression
@@ -67,10 +67,9 @@ _#defs: "/$defs/Properties/definitions/OidcOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SseSpecification": _#defs."/$defs/Properties/definitions/SseSpecification" |
-	fn.#ValueExpression
+#SseSpecification: #SseSpecification | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

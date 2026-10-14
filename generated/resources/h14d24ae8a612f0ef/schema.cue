@@ -19,11 +19,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A distribution tells CloudFront where you want content to be delivered from,
 // and the details about how to track and manage content delivery.
 #Properties: close({
-	DistributionConfig!: _#defs."/$defs/Properties/definitions/DistributionConfig" | fn.#ObjectExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	DistributionConfig!: #DistributionConfig | fn.#ObjectExpression
+	Tags?:               [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CacheBehavior": close({
+#CacheBehavior: close({
 	AllowedMethods?: [...string | fn.#StringExpression] | fn.#ListExpression
 	CachePolicyId?:  string | fn.#StringExpression
 	CachedMethods?:  [...string | fn.#StringExpression] | fn.#ListExpression
@@ -47,12 +47,11 @@ _#defs: "/$defs/Properties/definitions/CacheBehavior": close({
 				)
 		} |
 		fn.#NumberExpression
-	FieldLevelEncryptionId?: string | fn.#StringExpression
-	ForwardedValues?:        _#defs."/$defs/Properties/definitions/ForwardedValues" | fn.#ObjectExpression
-	FunctionAssociations?:   [..._#defs."/$defs/Properties/definitions/FunctionAssociation"] | fn.#ListExpression
-	GrpcConfig?:             _#defs."/$defs/Properties/definitions/GrpcConfig" | fn.#ObjectExpression
-	LambdaFunctionAssociations?: [..._#defs."/$defs/Properties/definitions/LambdaFunctionAssociation"] |
-		fn.#ListExpression
+	FieldLevelEncryptionId?:     string | fn.#StringExpression
+	ForwardedValues?:            #ForwardedValues | fn.#ObjectExpression
+	FunctionAssociations?:       [...#FunctionAssociation] | fn.#ListExpression
+	GrpcConfig?:                 #GrpcConfig | fn.#ObjectExpression
+	LambdaFunctionAssociations?: [...#LambdaFunctionAssociation] | fn.#ListExpression
 	MaxTTL?: number |
 		{
 			string &
@@ -103,23 +102,20 @@ _#defs: "/$defs/Properties/definitions/CacheBehavior": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CacheTagConfig": close({HeaderName!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#CacheTagConfig: close({HeaderName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionFunctionAssociation": close(
-	{Id!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#ConnectionFunctionAssociation: close({Id!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionMode": "direct" | "tenant-only" | fn.#StringExpression
+#ConnectionMode: "direct" | "tenant-only" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Cookies": close({
+#Cookies: close({
 	Forward!:          string | fn.#StringExpression
 	WhitelistedNames?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomErrorResponse": close({
+#CustomErrorResponse: close({
 	ResponseCode?: _
 	if ResponseCode != _|_ {
 		ResponsePagePath!: _
@@ -153,7 +149,7 @@ _#defs: "/$defs/Properties/definitions/CustomErrorResponse": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomOriginConfig": close({
+#CustomOriginConfig: close({
 	HTTPPort?: int |
 		{
 			string &
@@ -197,7 +193,7 @@ _#defs: "/$defs/Properties/definitions/CustomOriginConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	OriginMtlsConfig?:     _#defs."/$defs/Properties/definitions/OriginMtlsConfig" | fn.#ObjectExpression
+	OriginMtlsConfig?:     #OriginMtlsConfig | fn.#ObjectExpression
 	OriginProtocolPolicy!: string | fn.#StringExpression
 	OriginReadTimeout?: int |
 		{
@@ -217,7 +213,7 @@ _#defs: "/$defs/Properties/definitions/CustomOriginConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultCacheBehavior": close({
+#DefaultCacheBehavior: close({
 	AllowedMethods?: [...string | fn.#StringExpression] | fn.#ListExpression
 	CachePolicyId?:  string | fn.#StringExpression
 	CachedMethods?:  [...string | fn.#StringExpression] | fn.#ListExpression
@@ -241,12 +237,11 @@ _#defs: "/$defs/Properties/definitions/DefaultCacheBehavior": close({
 				)
 		} |
 		fn.#NumberExpression
-	FieldLevelEncryptionId?: string | fn.#StringExpression
-	ForwardedValues?:        _#defs."/$defs/Properties/definitions/ForwardedValues" | fn.#ObjectExpression
-	FunctionAssociations?:   [..._#defs."/$defs/Properties/definitions/FunctionAssociation"] | fn.#ListExpression
-	GrpcConfig?:             _#defs."/$defs/Properties/definitions/GrpcConfig" | fn.#ObjectExpression
-	LambdaFunctionAssociations?: [..._#defs."/$defs/Properties/definitions/LambdaFunctionAssociation"] |
-		fn.#ListExpression
+	FieldLevelEncryptionId?:     string | fn.#StringExpression
+	ForwardedValues?:            #ForwardedValues | fn.#ObjectExpression
+	FunctionAssociations?:       [...#FunctionAssociation] | fn.#ListExpression
+	GrpcConfig?:                 #GrpcConfig | fn.#ObjectExpression
+	LambdaFunctionAssociations?: [...#LambdaFunctionAssociation] | fn.#ListExpression
 	MaxTTL?: number |
 		{
 			string &
@@ -296,56 +291,52 @@ _#defs: "/$defs/Properties/definitions/DefaultCacheBehavior": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DistributionConfig": close({
-	Aliases?:         [...string | fn.#StringExpression] | fn.#ListExpression
-	AnycastIpListId?: string | fn.#StringExpression
-	CNAMEs?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	CacheBehaviors?:  [..._#defs."/$defs/Properties/definitions/CacheBehavior"] | fn.#ListExpression
-	CacheTagConfig?:  _#defs."/$defs/Properties/definitions/CacheTagConfig" | fn.#ObjectExpression
-	Comment?:         string | fn.#StringExpression
-	ConnectionFunctionAssociation?: _#defs."/$defs/Properties/definitions/ConnectionFunctionAssociation" |
-		fn.#ObjectExpression
-	ConnectionMode?:               _#defs."/$defs/Properties/definitions/ConnectionMode" | fn.#StringExpression
-	ContinuousDeploymentPolicyId?: string | fn.#StringExpression
-	CustomErrorResponses?:         [..._#defs."/$defs/Properties/definitions/CustomErrorResponse"] | fn.#ListExpression
-	CustomOrigin?:                 _#defs."/$defs/Properties/definitions/LegacyCustomOrigin" | fn.#ObjectExpression
-	DefaultCacheBehavior!:         _#defs."/$defs/Properties/definitions/DefaultCacheBehavior" | fn.#ObjectExpression
-	DefaultRootObject?:            string | fn.#StringExpression
-	Enabled!:                      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HttpVersion?:                  "http1.1" | "http2" | "http2and3" | "http3" | fn.#StringExpression
-	IPV6Enabled?:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Logging?:                      _#defs."/$defs/Properties/definitions/Logging" | fn.#ObjectExpression
-	OriginGroups?:                 _#defs."/$defs/Properties/definitions/OriginGroups" | fn.#ObjectExpression
-	Origins?:                      [..._#defs."/$defs/Properties/definitions/Origin"] | fn.#ListExpression
+#DistributionConfig: close({
+	Aliases?:                       [...string | fn.#StringExpression] | fn.#ListExpression
+	AnycastIpListId?:               string | fn.#StringExpression
+	CNAMEs?:                        [...string | fn.#StringExpression] | fn.#ListExpression
+	CacheBehaviors?:                [...#CacheBehavior] | fn.#ListExpression
+	CacheTagConfig?:                #CacheTagConfig | fn.#ObjectExpression
+	Comment?:                       string | fn.#StringExpression
+	ConnectionFunctionAssociation?: #ConnectionFunctionAssociation | fn.#ObjectExpression
+	ConnectionMode?:                #ConnectionMode | fn.#StringExpression
+	ContinuousDeploymentPolicyId?:  string | fn.#StringExpression
+	CustomErrorResponses?:          [...#CustomErrorResponse] | fn.#ListExpression
+	CustomOrigin?:                  #LegacyCustomOrigin | fn.#ObjectExpression
+	DefaultCacheBehavior!:          #DefaultCacheBehavior | fn.#ObjectExpression
+	DefaultRootObject?:             string | fn.#StringExpression
+	Enabled!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	HttpVersion?:  "http1.1" | "http2" | "http2and3" | "http3" | fn.#StringExpression
+	IPV6Enabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Logging?:      #Logging | fn.#ObjectExpression
+	OriginGroups?: #OriginGroups | fn.#ObjectExpression
+	Origins?:      [...#Origin] | fn.#ListExpression
 	PriceClass?:   "None" | "PriceClass_100" | "PriceClass_200" | "PriceClass_All" | fn.#StringExpression
-	Restrictions?: _#defs."/$defs/Properties/definitions/Restrictions" | fn.#ObjectExpression
-	S3Origin?:     _#defs."/$defs/Properties/definitions/LegacyS3Origin" | fn.#ObjectExpression
+	Restrictions?: #Restrictions | fn.#ObjectExpression
+	S3Origin?:     #LegacyS3Origin | fn.#ObjectExpression
 	Staging?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TenantConfig?: close(
-		{ParameterDefinitions?: [..._#defs."/$defs/Properties/definitions/ParameterDefinition"] | fn.#ListExpression},
-	) |
-		fn.#ObjectExpression
-	ViewerCertificate?: _#defs."/$defs/Properties/definitions/ViewerCertificate" | fn.#ObjectExpression
-	ViewerMtlsConfig?:  _#defs."/$defs/Properties/definitions/ViewerMtlsConfig" | fn.#ObjectExpression
+	TenantConfig?: close({ParameterDefinitions?: [...#ParameterDefinition] | fn.#ListExpression}) | fn.#ObjectExpression
+	ViewerCertificate?: #ViewerCertificate | fn.#ObjectExpression
+	ViewerMtlsConfig?:  #ViewerMtlsConfig | fn.#ObjectExpression
 	WebACLId?:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ForwardedValues": close({
-	Cookies?:              _#defs."/$defs/Properties/definitions/Cookies" | fn.#ObjectExpression
+#ForwardedValues: close({
+	Cookies?:              #Cookies | fn.#ObjectExpression
 	Headers?:              [...string | fn.#StringExpression] | fn.#ListExpression
 	QueryString!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	QueryStringCacheKeys?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FunctionAssociation": close({
+#FunctionAssociation: close({
 	EventType?:   string | fn.#StringExpression
 	FunctionARN?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeoRestriction": close({
+#GeoRestriction: close({
 	Locations?: [
 		..."AD" |
 			"AE" |
@@ -603,19 +594,17 @@ _#defs: "/$defs/Properties/definitions/GeoRestriction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcConfig": close(
-	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
+#GrpcConfig: close({Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaFunctionAssociation": close({
+#LambdaFunctionAssociation: close({
 	EventType?:         string | fn.#StringExpression
 	IncludeBody?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LambdaFunctionARN?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LegacyCustomOrigin": close({
+#LegacyCustomOrigin: close({
 	DNSName!: string | fn.#StringExpression
 	HTTPPort?: int |
 		{
@@ -650,20 +639,20 @@ _#defs: "/$defs/Properties/definitions/LegacyCustomOrigin": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LegacyS3Origin": close({
+#LegacyS3Origin: close({
 	DNSName!:              string | fn.#StringExpression
 	OriginAccessIdentity?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Logging": close({
+#Logging: close({
 	Bucket?:         string | fn.#StringExpression
 	IncludeCookies?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Prefix?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Origin": close({
+#Origin: close({
 	ConnectionAttempts?: int |
 		{
 			string &
@@ -692,13 +681,13 @@ _#defs: "/$defs/Properties/definitions/Origin": close({
 				)
 		} |
 		fn.#NumberExpression
-	CustomOriginConfig?:    _#defs."/$defs/Properties/definitions/CustomOriginConfig" | fn.#ObjectExpression
+	CustomOriginConfig?:    #CustomOriginConfig | fn.#ObjectExpression
 	DomainName!:            string | fn.#StringExpression
 	Id!:                    string | fn.#StringExpression
 	OriginAccessControlId?: string | fn.#StringExpression
-	OriginCustomHeaders?:   [..._#defs."/$defs/Properties/definitions/OriginCustomHeader"] | fn.#ListExpression
+	OriginCustomHeaders?:   [...#OriginCustomHeader] | fn.#ListExpression
 	OriginPath?:            string | fn.#StringExpression
-	OriginShield?:          _#defs."/$defs/Properties/definitions/OriginShield" | fn.#ObjectExpression
+	OriginShield?:          #OriginShield | fn.#ObjectExpression
 	ResponseCompletionTimeout?: int |
 		{
 			string &
@@ -713,39 +702,34 @@ _#defs: "/$defs/Properties/definitions/Origin": close({
 				)
 		} |
 		fn.#NumberExpression
-	S3OriginConfig?:  _#defs."/$defs/Properties/definitions/S3OriginConfig" | fn.#ObjectExpression
-	VpcOriginConfig?: _#defs."/$defs/Properties/definitions/VpcOriginConfig" | fn.#ObjectExpression
+	S3OriginConfig?:  #S3OriginConfig | fn.#ObjectExpression
+	VpcOriginConfig?: #VpcOriginConfig | fn.#ObjectExpression
 	if CustomOriginConfig != _|_ {
 		S3OriginConfig?: error("S3OriginConfig cannot be used with CustomOriginConfig")
 	}
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginCustomHeader": close({
+#OriginCustomHeader: close({
 	HeaderName!:  string | fn.#StringExpression
 	HeaderValue!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginGroup": close({
-	FailoverCriteria!:  _#defs."/$defs/Properties/definitions/OriginGroupFailoverCriteria" | fn.#ObjectExpression
+#OriginGroup: close({
+	FailoverCriteria!:  #OriginGroupFailoverCriteria | fn.#ObjectExpression
 	Id!:                string | fn.#StringExpression
-	Members!:           _#defs."/$defs/Properties/definitions/OriginGroupMembers" | fn.#ObjectExpression
-	SelectionCriteria?: _#defs."/$defs/Properties/definitions/OriginGroupSelectionCriteria" | fn.#StringExpression
+	Members!:           #OriginGroupMembers | fn.#ObjectExpression
+	SelectionCriteria?: #OriginGroupSelectionCriteria | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginGroupFailoverCriteria": close(
-	{StatusCodes!: _#defs."/$defs/Properties/definitions/StatusCodes" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#OriginGroupFailoverCriteria: close({StatusCodes!: #StatusCodes | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginGroupMember": close({OriginId!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#OriginGroupMember: close({OriginId!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginGroupMembers": close({
-	Items!: list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/OriginGroupMember"] |
-		fn.#ListExpression
+#OriginGroupMembers: close({
+	Items!: list.MaxItems(2) & list.MinItems(2) & [...#OriginGroupMember] | fn.#ListExpression
 	Quantity!: int |
 		{
 			string &
@@ -763,12 +747,10 @@ _#defs: "/$defs/Properties/definitions/OriginGroupMembers": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginGroupSelectionCriteria": "default" |
-	"media-quality-based" |
-	fn.#StringExpression
+#OriginGroupSelectionCriteria: "default" | "media-quality-based" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OriginGroups": close({
-	Items?: [..._#defs."/$defs/Properties/definitions/OriginGroup"] | fn.#ListExpression
+#OriginGroups: close({
+	Items?: [...#OriginGroup] | fn.#ListExpression
 	Quantity!: int |
 		{
 			string &
@@ -786,16 +768,15 @@ _#defs: "/$defs/Properties/definitions/OriginGroups": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginMtlsConfig": close({ClientCertificateArn!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#OriginMtlsConfig: close({ClientCertificateArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginShield": close({
+#OriginShield: close({
 	Enabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OriginShieldRegion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterDefinition": close({
+#ParameterDefinition: close({
 	Definition!: close({
 		StringSchema?: close({
 			Comment?:      string | fn.#StringExpression
@@ -809,12 +790,9 @@ _#defs: "/$defs/Properties/definitions/ParameterDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Restrictions": close(
-	{GeoRestriction!: _#defs."/$defs/Properties/definitions/GeoRestriction" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#Restrictions: close({GeoRestriction!: #GeoRestriction | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3OriginConfig": close({
+#S3OriginConfig: close({
 	OriginAccessIdentity?: string | fn.#StringExpression
 	OriginReadTimeout?: int |
 		{
@@ -833,7 +811,7 @@ _#defs: "/$defs/Properties/definitions/S3OriginConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StatusCodes": close({
+#StatusCodes: close({
 	Items!: list.MinItems(1) & [
 		...int |
 			{
@@ -870,20 +848,20 @@ _#defs: "/$defs/Properties/definitions/StatusCodes": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrustStoreConfig": close({
+#TrustStoreConfig: close({
 	AdvertiseTrustStoreCaNames?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IgnoreCertificateExpiry?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TrustStoreId!:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ViewerCertificate": close({
+#ViewerCertificate: close({
 	AcmCertificateArn?: _
 	if AcmCertificateArn != _|_ {
 		SslSupportMethod!: _
@@ -924,15 +902,15 @@ _#defs: "/$defs/Properties/definitions/ViewerCertificate": close({
 }) & matchN(>=1, [{AcmCertificateArn!: _}, {CloudFrontDefaultCertificate!: _}, {IamCertificateId!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ViewerMtlsConfig": close({
-	Mode?:             _#defs."/$defs/Properties/definitions/ViewerMtlsMode" | fn.#StringExpression
-	TrustStoreConfig?: _#defs."/$defs/Properties/definitions/TrustStoreConfig" | fn.#ObjectExpression
+#ViewerMtlsConfig: close({
+	Mode?:             #ViewerMtlsMode | fn.#StringExpression
+	TrustStoreConfig?: #TrustStoreConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ViewerMtlsMode": "required" | "optional" | "passthrough" | fn.#StringExpression
+#ViewerMtlsMode: "required" | "optional" | "passthrough" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VpcOriginConfig": close({
+#VpcOriginConfig: close({
 	OriginKeepaliveTimeout?: int |
 		{
 			string &

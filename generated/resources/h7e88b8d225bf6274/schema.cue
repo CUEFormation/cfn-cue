@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -17,62 +17,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	Name!:        strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	QuickConnectConfig!: _#defs."/$defs/Properties/definitions/QuickConnectConfig" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	QuickConnectConfig!: #QuickConnectConfig | fn.#ObjectExpression
+	Tags?:               list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ContactFlowArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" |
+#ContactFlowArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FlowQuickConnectConfig": close(
-	{ContactFlowArn!: _#defs."/$defs/Properties/definitions/ContactFlowArn"},
-) |
-	fn.#ObjectExpression
+#FlowQuickConnectConfig: close({ContactFlowArn!: #ContactFlowArn}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PhoneNumber": =~"^\\+[1-9]\\d{1,14}$" | fn.#StringExpression
+#PhoneNumber: =~"^\\+[1-9]\\d{1,14}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PhoneNumberQuickConnectConfig": close(
-	{PhoneNumber!: _#defs."/$defs/Properties/definitions/PhoneNumber"},
-) |
-	fn.#ObjectExpression
+#PhoneNumberQuickConnectConfig: close({PhoneNumber!: #PhoneNumber}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueueArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$" |
+#QueueArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/QueueQuickConnectConfig": close({
-	ContactFlowArn!: _#defs."/$defs/Properties/definitions/ContactFlowArn"
-	QueueArn!:       _#defs."/$defs/Properties/definitions/QueueArn"
+#QueueQuickConnectConfig: close({
+	ContactFlowArn!: #ContactFlowArn
+	QueueArn!:       #QueueArn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QuickConnectConfig": close({
-	FlowConfig?:       _#defs."/$defs/Properties/definitions/FlowQuickConnectConfig"
-	PhoneConfig?:      _#defs."/$defs/Properties/definitions/PhoneNumberQuickConnectConfig"
-	QueueConfig?:      _#defs."/$defs/Properties/definitions/QueueQuickConnectConfig"
-	QuickConnectType!: _#defs."/$defs/Properties/definitions/QuickConnectType"
-	UserConfig?:       _#defs."/$defs/Properties/definitions/UserQuickConnectConfig"
+#QuickConnectConfig: close({
+	FlowConfig?:       #FlowQuickConnectConfig
+	PhoneConfig?:      #PhoneNumberQuickConnectConfig
+	QueueConfig?:      #QueueQuickConnectConfig
+	QuickConnectType!: #QuickConnectType
+	UserConfig?:       #UserQuickConnectConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QuickConnectType": "PHONE_NUMBER" |
-	"QUEUE" |
-	"USER" |
-	"FLOW" |
-	fn.#StringExpression
+#QuickConnectType: "PHONE_NUMBER" | "QUEUE" | "USER" | "FLOW" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$" |
+#UserArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UserQuickConnectConfig": close({
-	ContactFlowArn!: _#defs."/$defs/Properties/definitions/ContactFlowArn"
-	UserArn!:        _#defs."/$defs/Properties/definitions/UserArn"
+#UserQuickConnectConfig: close({
+	ContactFlowArn!: #ContactFlowArn
+	UserArn!:        #UserArn
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

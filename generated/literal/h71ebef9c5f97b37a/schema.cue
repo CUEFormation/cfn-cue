@@ -12,31 +12,29 @@ import "strings"
 	Arn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws[a-zA-Z-]*)?:refactor-spaces:[a-zA-Z0-9\\-]+:\\w{12}:[a-zA-Z_0-9+=,.@\\-_/]+$"
-	DefaultRoute?:          _#defs."/$defs/Properties/definitions/DefaultRouteInput"
+	DefaultRoute?:          #DefaultRouteInput
 	EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)"
 	PathResourceToId?:      string
 	RouteIdentifier?:       strings.MaxRunes(14) & strings.MinRunes(14) & =~"^rte-([0-9A-Za-z]{10}$)"
-	RouteType!:             _#defs."/$defs/Properties/definitions/RouteType"
+	RouteType!:             #RouteType
 	ServiceIdentifier!:     strings.MaxRunes(14) & strings.MinRunes(14) & =~"^svc-([0-9A-Za-z]{10}$)"
 
 	// Metadata that you can assign to help organize the frameworks that you create.
 	// Each tag is a key-value pair.
-	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag"]
-	UriPathRoute?: _#defs."/$defs/Properties/definitions/UriPathRouteInput"
+	Tags?:         [...#Tag]
+	UriPathRoute?: #UriPathRouteInput
 })
 
-_#defs: "/$defs/Properties/definitions/DefaultRouteInput": close(
-	{ActivationState!: _#defs."/$defs/Properties/definitions/RouteActivationState"},
-)
+#DefaultRouteInput: close({ActivationState!: #RouteActivationState})
 
-_#defs: "/$defs/Properties/definitions/Method": "DELETE" | "GET" | "HEAD" | "OPTIONS" | "PATCH" | "POST" | "PUT"
+#Method: "DELETE" | "GET" | "HEAD" | "OPTIONS" | "PATCH" | "POST" | "PUT"
 
-_#defs: "/$defs/Properties/definitions/RouteActivationState": "INACTIVE" | "ACTIVE"
+#RouteActivationState: "INACTIVE" | "ACTIVE"
 
-_#defs: "/$defs/Properties/definitions/RouteType": "DEFAULT" | "URI_PATH"
+#RouteType: "DEFAULT" | "URI_PATH"
 
 // A label for tagging Environment resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string used to identify this tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -44,10 +42,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/UriPathRouteInput": close({
-	ActivationState!:   _#defs."/$defs/Properties/definitions/RouteActivationState"
+#UriPathRouteInput: close({
+	ActivationState!:   #RouteActivationState
 	AppendSourcePath?:  bool
 	IncludeChildPaths?: bool
-	Methods?:           [..._#defs."/$defs/Properties/definitions/Method"]
+	Methods?:           [...#Method]
 	SourcePath?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(/([a-zA-Z0-9._:-]+|\\{[a-zA-Z0-9._:-]+\\}))+$"
 })

@@ -23,7 +23,7 @@ import (
 	SuccessRedirectionURL!: string
 
 	// The tags (keys and values) associated with the tenant.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The content of the custom verification email. The total size of the email
 	// must be less than 10 MB. The message body may contain HTML, with some
@@ -38,7 +38,7 @@ import (
 })
 
 // An object that defines the tags (keys and values) that you want to associate with the tenant.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the key-value tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,24 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::ResourceExplorer2::View Resource Type
 #Properties: close({
-	Filters?:            _#defs."/$defs/Properties/definitions/SearchFilter"
-	IncludedProperties?: [..._#defs."/$defs/Properties/definitions/IncludedProperty"] | fn.#ListExpression
+	Filters?:            #SearchFilter
+	IncludedProperties?: [...#IncludedProperty] | fn.#ListExpression
 	Scope?:              string | fn.#StringExpression
-	Tags?:               _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?:               #TagMap
 	ViewName!:           =~"^[a-zA-Z0-9\\-]{1,64}$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IncludedProperty": close(
-	{Name!: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#IncludedProperty: close({Name!: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SearchFilter": close(
-	{FilterString!: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression},
-) |
+#SearchFilter: close({FilterString!: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression

@@ -53,7 +53,7 @@ import (
 			DatabaseName!:   string
 			Port!:           int
 			ServerName!:     string
-			SslMode?:        _#defs."/$defs/Properties/definitions/MongoDbSslModeValue"
+			SslMode?:        #MongoDbSslModeValue
 		})
 
 		// IbmDb2LuwSettings property identifier.
@@ -64,7 +64,7 @@ import (
 			Port!:                int
 			SecurityMechanism?:   int
 			ServerName!:          string
-			SslMode!:             _#defs."/$defs/Properties/definitions/Db2SslModeValue"
+			SslMode!:             #Db2SslModeValue
 		})
 
 		// IbmDb2zOsSettings property identifier.
@@ -73,7 +73,7 @@ import (
 			DatabaseName!:   string
 			Port!:           int
 			ServerName!:     string
-			SslMode!:        _#defs."/$defs/Properties/definitions/Db2SslModeValue"
+			SslMode!:        #Db2SslModeValue
 		})
 
 		// MariaDbSettings property identifier.
@@ -81,7 +81,7 @@ import (
 			CertificateArn?: string
 			Port!:           int
 			ServerName!:     string
-			SslMode!:        _#defs."/$defs/Properties/definitions/DmsSslModeValue"
+			SslMode!:        #DmsSslModeValue
 		})
 
 		// MicrosoftSqlServerSettings property identifier.
@@ -97,19 +97,19 @@ import (
 			// user-defined schema.
 			S3Path?:     string
 			ServerName!: string
-			SslMode!:    _#defs."/$defs/Properties/definitions/DmsSslModeValue"
+			SslMode!:    #DmsSslModeValue
 		})
 
 		// MongoDbSettings property identifier.
 		MongoDbSettings?: close({
-			AuthMechanism?:  _#defs."/$defs/Properties/definitions/MongoDbAuthMechanism"
+			AuthMechanism?:  #MongoDbAuthMechanism
 			AuthSource?:     string
-			AuthType?:       _#defs."/$defs/Properties/definitions/MongoDbAuthType"
+			AuthType?:       #MongoDbAuthType
 			CertificateArn?: string
 			DatabaseName?:   string
 			Port!:           int
 			ServerName!:     string
-			SslMode?:        _#defs."/$defs/Properties/definitions/MongoDbSslModeValue"
+			SslMode?:        #MongoDbSslModeValue
 		})
 
 		// MySqlSettings property identifier.
@@ -117,7 +117,7 @@ import (
 			CertificateArn?: string
 			Port!:           int
 			ServerName!:     string
-			SslMode!:        _#defs."/$defs/Properties/definitions/DmsSslModeValue"
+			SslMode!:        #DmsSslModeValue
 		})
 
 		// OracleSettings property identifier.
@@ -131,7 +131,7 @@ import (
 			SecretsManagerSecurityDbEncryptionAccessRoleArn?: string
 			SecretsManagerSecurityDbEncryptionSecretId?:      string
 			ServerName!:                                      string
-			SslMode!:                                         _#defs."/$defs/Properties/definitions/DmsSslModeValue"
+			SslMode!:                                         #DmsSslModeValue
 		})
 
 		// PostgreSqlSettings property identifier.
@@ -140,7 +140,7 @@ import (
 			DatabaseName!:   string
 			Port!:           int
 			ServerName!:     string
-			SslMode!:        _#defs."/$defs/Properties/definitions/DmsSslModeValue"
+			SslMode!:        #DmsSslModeValue
 		})
 
 		// RedshiftSettings property identifier.
@@ -157,7 +157,7 @@ import (
 			EncryptPassword?: bool
 			Port!:            int
 			ServerName!:      string
-			SslMode!:         _#defs."/$defs/Properties/definitions/SybaseSslModeValue"
+			SslMode!:         #SybaseSslModeValue
 		})
 	}) & matchN(
 		>=1,
@@ -187,26 +187,26 @@ import (
 	)
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// Indicates whether the data provider is virtual.
 	Virtual?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/Db2SslModeValue": "none" | "verify-ca"
+#Db2SslModeValue: "none" | "verify-ca"
 
-_#defs: "/$defs/Properties/definitions/DmsSslModeValue": "none" | "require" | "verify-ca" | "verify-full"
+#DmsSslModeValue: "none" | "require" | "verify-ca" | "verify-full"
 
-_#defs: "/$defs/Properties/definitions/MongoDbAuthMechanism": "default" | "mongodb_cr" | "scram_sha_1"
+#MongoDbAuthMechanism: "default" | "mongodb_cr" | "scram_sha_1"
 
-_#defs: "/$defs/Properties/definitions/MongoDbAuthType": "no" | "password"
+#MongoDbAuthType: "no" | "password"
 
-_#defs: "/$defs/Properties/definitions/MongoDbSslModeValue": "none" | "require" | "verify-full"
+#MongoDbSslModeValue: "none" | "require" | "verify-full"
 
-_#defs: "/$defs/Properties/definitions/SybaseSslModeValue": "none" | "require" | "verify-ca"
+#SybaseSslModeValue: "none" | "require" | "verify-ca"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

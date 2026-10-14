@@ -19,37 +19,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:         strings.MaxRunes(255) | fn.#StringExpression
 	DomainId?:            strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	LayoutConfiguration?: _#defs."/$defs/Properties/definitions/LayoutConfiguration"
+	LayoutConfiguration?: #LayoutConfiguration
 	Name!:                strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-	RequiredFields?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/RequiredField"] | fn.#ListExpression
-	Rules?:          list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/TemplateRule"] | fn.#ListExpression
-	Status?:         _#defs."/$defs/Properties/definitions/TemplateStatus"
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	RequiredFields?:      list.MaxItems(100) & [...#RequiredField] | fn.#ListExpression
+	Rules?:               list.MaxItems(50) & [...#TemplateRule] | fn.#ListExpression
+	Status?:              #TemplateStatus
+	Tags?:                [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/LayoutConfiguration": close(
-	{DefaultLayout?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#LayoutConfiguration: close({DefaultLayout?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RequiredField": close(
-	{FieldId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#RequiredField: close({FieldId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TemplateRule": close({
+#TemplateRule: close({
 	CaseRuleId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 	FieldId?:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TemplateStatus": "Active" | "Inactive" | fn.#StringExpression
+#TemplateStatus: "Active" | "Inactive" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Cases::Template"
 	Properties!: #Properties

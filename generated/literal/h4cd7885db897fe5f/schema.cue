@@ -13,10 +13,10 @@ import (
 // projects, and environments) to external resources/services (data, compute,
 // etc)
 #Properties: close({
-	AwsLocation?: _#defs."/$defs/Properties/definitions/AwsLocation"
+	AwsLocation?: #AwsLocation
 
 	// The configurations of the connection.
-	Configurations?: [..._#defs."/$defs/Properties/definitions/ConnectionConfiguration"]
+	Configurations?: [...#ConnectionConfiguration]
 
 	// The ID of the connection.
 	ConnectionId?: strings.MaxRunes(128) & =~"^[a-zA-Z0-9]+$"
@@ -53,15 +53,15 @@ import (
 
 	// The identifier of the project in which the connection should be created. If
 	ProjectIdentifier?: string
-	Props?:             _#defs."/$defs/Properties/definitions/ConnectionPropertiesInput"
+	Props?:             #ConnectionPropertiesInput
 
 	// The scope of the connection.
 	Scope?: "DOMAIN" | "PROJECT"
-	Type?:  _#defs."/$defs/Properties/definitions/ConnectionType"
+	Type?:  #ConnectionType
 })
 
 // Amazon Q properties of the connection.
-_#defs: "/$defs/Properties/definitions/AmazonQPropertiesInput": close({
+#AmazonQPropertiesInput: close({
 	// The authentication mode of the connection's AmazonQ properties
 	AuthMode?: strings.MaxRunes(128) & strings.MinRunes(0)
 
@@ -71,31 +71,29 @@ _#defs: "/$defs/Properties/definitions/AmazonQPropertiesInput": close({
 })
 
 // Athena Properties Input
-_#defs: "/$defs/Properties/definitions/AthenaPropertiesInput": close(
-	{WorkgroupName!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9._-]+$"},
-)
+#AthenaPropertiesInput: close({WorkgroupName!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9._-]+$"})
 
 // Authentication Configuration Input
-_#defs: "/$defs/Properties/definitions/AuthenticationConfigurationInput": close({
-	AuthenticationType?:              _#defs."/$defs/Properties/definitions/AuthenticationType"
-	BasicAuthenticationCredentials?:  _#defs."/$defs/Properties/definitions/BasicAuthenticationCredentials"
-	CustomAuthenticationCredentials?: _#defs."/$defs/Properties/definitions/CredentialMap"
+#AuthenticationConfigurationInput: close({
+	AuthenticationType?:              #AuthenticationType
+	BasicAuthenticationCredentials?:  #BasicAuthenticationCredentials
+	CustomAuthenticationCredentials?: #CredentialMap
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & =~"^$|arn:aws[a-z0-9-]*:kms:.*$"
-	OAuth2Properties?: _#defs."/$defs/Properties/definitions/OAuth2Properties"
+	OAuth2Properties?: #OAuth2Properties
 	SecretArn?:        =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:secretsmanager:.*$"
 })
 
 // Authentication Type
-_#defs: "/$defs/Properties/definitions/AuthenticationType": "BASIC" | "OAUTH2" | "CUSTOM"
+#AuthenticationType: "BASIC" | "OAUTH2" | "CUSTOM"
 
 // Authorization Code Properties
-_#defs: "/$defs/Properties/definitions/AuthorizationCodeProperties": close({
+#AuthorizationCodeProperties: close({
 	AuthorizationCode?: strings.MaxRunes(4096) & strings.MinRunes(1)
 	RedirectUri?:       strings.MaxRunes(512)
 })
 
 // AWS Location of project
-_#defs: "/$defs/Properties/definitions/AwsLocation": close({
+#AwsLocation: close({
 	AccessRole?: strings.MaxRunes(2048) &
 	=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$"
 	AwsAccountId?:    =~"^\\d{12}$"
@@ -104,56 +102,56 @@ _#defs: "/$defs/Properties/definitions/AwsLocation": close({
 })
 
 // Basic Authentication Credentials
-_#defs: "/$defs/Properties/definitions/BasicAuthenticationCredentials": close({
+#BasicAuthenticationCredentials: close({
 	Password?: strings.MaxRunes(512) & =~"^.*$"
 	UserName?: strings.MaxRunes(512) & =~"^\\S+$"
 })
 
 // Compute Environments
-_#defs: "/$defs/Properties/definitions/ComputeEnvironments": string
+#ComputeEnvironments: string
 
 // A configuration of the connection.
-_#defs: "/$defs/Properties/definitions/ConnectionConfiguration": close({
+#ConnectionConfiguration: close({
 	// The classification of the connection configuration.
 	Classification?: strings.MaxRunes(64) & =~"^[\\w][\\w\\.\\-\\_]*$"
-	Properties?:     _#defs."/$defs/Properties/definitions/PropertyMap"
+	Properties?:     #PropertyMap
 })
 
 // Connection Properties
-_#defs: "/$defs/Properties/definitions/ConnectionProperties": close({
+#ConnectionProperties: close({
 
 	{[=~".+"]: strings.MaxRunes(2048) & strings.MinRunes(1)}})
 
-_#defs: "/$defs/Properties/definitions/ConnectionPropertiesInput": matchN(1, [close(
-	{AthenaProperties!: _#defs."/$defs/Properties/definitions/AthenaPropertiesInput"},
+#ConnectionPropertiesInput: matchN(1, [close(
+	{AthenaProperties!: #AthenaPropertiesInput},
 ), close(
-	{GlueProperties!: _#defs."/$defs/Properties/definitions/GluePropertiesInput"},
+	{GlueProperties!: #GluePropertiesInput},
 ), close(
-	{HyperPodProperties!: _#defs."/$defs/Properties/definitions/HyperPodPropertiesInput"},
+	{HyperPodProperties!: #HyperPodPropertiesInput},
 ), close(
-	{IamProperties!: _#defs."/$defs/Properties/definitions/IamPropertiesInput"},
+	{IamProperties!: #IamPropertiesInput},
 ), close(
-	{RedshiftProperties!: _#defs."/$defs/Properties/definitions/RedshiftPropertiesInput"},
+	{RedshiftProperties!: #RedshiftPropertiesInput},
 ), close(
-	{SparkEmrProperties!: _#defs."/$defs/Properties/definitions/SparkEmrPropertiesInput"},
+	{SparkEmrProperties!: #SparkEmrPropertiesInput},
 ), close(
-	{AmazonQProperties!: _#defs."/$defs/Properties/definitions/AmazonQPropertiesInput"},
+	{AmazonQProperties!: #AmazonQPropertiesInput},
 ), close(
-	{SparkGlueProperties!: _#defs."/$defs/Properties/definitions/SparkGluePropertiesInput"},
+	{SparkGlueProperties!: #SparkGluePropertiesInput},
 ), close(
-	{S3Properties!: _#defs."/$defs/Properties/definitions/S3PropertiesInput"},
+	{S3Properties!: #S3PropertiesInput},
 ), close(
-	{MlflowProperties!: _#defs."/$defs/Properties/definitions/MlflowPropertiesInput"},
+	{MlflowProperties!: #MlflowPropertiesInput},
 ), close(
-	{WorkflowsMwaaProperties!: _#defs."/$defs/Properties/definitions/WorkflowsMwaaPropertiesInput"},
+	{WorkflowsMwaaProperties!: #WorkflowsMwaaPropertiesInput},
 ), close(
-	{WorkflowsServerlessProperties!: _#defs."/$defs/Properties/definitions/WorkflowsServerlessPropertiesInput"},
+	{WorkflowsServerlessProperties!: #WorkflowsServerlessPropertiesInput},
 ), close(
-	{LakehouseProperties!: _#defs."/$defs/Properties/definitions/LakehousePropertiesInput"},
+	{LakehouseProperties!: #LakehousePropertiesInput},
 )])
 
 // Connection Status
-_#defs: "/$defs/Properties/definitions/ConnectionStatus": "CREATING" |
+#ConnectionStatus: "CREATING" |
 	"CREATE_FAILED" |
 	"DELETING" |
 	"DELETE_FAILED" |
@@ -163,36 +161,34 @@ _#defs: "/$defs/Properties/definitions/ConnectionStatus": "CREATING" |
 	"DELETED"
 
 // Connection Type
-_#defs: "/$defs/Properties/definitions/ConnectionType": string
+#ConnectionType: string
 
 // Credential Map
-_#defs: "/$defs/Properties/definitions/CredentialMap": close({
+#CredentialMap: close({
 
 	{[=~".+"]: strings.MaxRunes(2048) & strings.MinRunes(1)}})
 
 // Glue Connection Input
-_#defs: "/$defs/Properties/definitions/GlueConnectionInput": close({
-	AthenaProperties?:            _#defs."/$defs/Properties/definitions/PropertyMap"
-	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/AuthenticationConfigurationInput"
-	ConnectionProperties?:        _#defs."/$defs/Properties/definitions/ConnectionProperties"
-	ConnectionType?:              _#defs."/$defs/Properties/definitions/GlueConnectionType"
+#GlueConnectionInput: close({
+	AthenaProperties?:            #PropertyMap
+	AuthenticationConfiguration?: #AuthenticationConfigurationInput
+	ConnectionProperties?:        #ConnectionProperties
+	ConnectionType?:              #GlueConnectionType
 	Description?:                 strings.MaxRunes(2048) & =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\r\\n\\t]*$"
 	MatchCriteria?:               strings.MaxRunes(10) & strings.MinRunes(0)
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\t]*$"
-	PhysicalConnectionRequirements?: _#defs."/$defs/Properties/definitions/PhysicalConnectionRequirements"
-	PythonProperties?:               _#defs."/$defs/Properties/definitions/PropertyMap"
-	SparkProperties?:                _#defs."/$defs/Properties/definitions/PropertyMap"
+	PhysicalConnectionRequirements?: #PhysicalConnectionRequirements
+	PythonProperties?:               #PropertyMap
+	SparkProperties?:                #PropertyMap
 	ValidateCredentials?:            bool
-	ValidateForComputeEnvironments?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ComputeEnvironments"
-	]
+	ValidateForComputeEnvironments?: list.MaxItems(50) & list.MinItems(1) & [...#ComputeEnvironments]
 })
 
 // Glue Connection Type
-_#defs: "/$defs/Properties/definitions/GlueConnectionType": string
+#GlueConnectionType: string
 
 // Glue OAuth2 Credentials
-_#defs: "/$defs/Properties/definitions/GlueOAuth2Credentials": close({
+#GlueOAuth2Credentials: close({
 	AccessToken?:  strings.MaxRunes(4096) & =~"^[\\x20-\\x7E]*$"
 	JwtToken?:     strings.MaxRunes(8000) & =~"^([a-zA-Z0-9_=]+)\\.([a-zA-Z0-9_=]+)\\.([a-zA-Z0-9_\\-\\+\\/=]*)$"
 	RefreshToken?: strings.MaxRunes(4096) & =~"^[\\x20-\\x7E]*$"
@@ -200,17 +196,15 @@ _#defs: "/$defs/Properties/definitions/GlueOAuth2Credentials": close({
 })
 
 // Glue Properties Input
-_#defs: "/$defs/Properties/definitions/GluePropertiesInput": close(
-	{GlueConnectionInput?: _#defs."/$defs/Properties/definitions/GlueConnectionInput"},
-)
+#GluePropertiesInput: close({GlueConnectionInput?: #GlueConnectionInput})
 
 // HyperPod Properties Input
-_#defs: "/$defs/Properties/definitions/HyperPodPropertiesInput": close(
+#HyperPodPropertiesInput: close(
 	{ClusterName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"},
 )
 
 // IAM Properties Input
-_#defs: "/$defs/Properties/definitions/IamPropertiesInput": close({
+#IamPropertiesInput: close({
 	GlueLineageSyncEnabled?: bool
 
 	// The ARN of the IAM role to associate with the connection as the project user role.
@@ -220,44 +214,44 @@ _#defs: "/$defs/Properties/definitions/IamPropertiesInput": close({
 })
 
 // Lakehouse Properties Input
-_#defs: "/$defs/Properties/definitions/LakehousePropertiesInput": close({
+#LakehousePropertiesInput: close({
 	// Specifies whether Glue lineage sync is enabled for the lakehouse connection.
 	GlueLineageSyncEnabled?: bool
 })
 
 // Lineage Sync Schedule
-_#defs: "/$defs/Properties/definitions/LineageSyncSchedule": close({
+#LineageSyncSchedule: close({
 	Schedule?:
 		=~"^cron\\((\\b[0-5]?[0-9]\\b) (\\b2[0-3]\\b|\\b[0-1]?[0-9]\\b) ([-?*,/\\dLW]){1,83} ([-*,/\\d]|[a-zA-Z]{3}){1,23} ([-?#*,/\\dL]|[a-zA-Z]{3}){1,13} ([^\\)]+)\\)$"
 })
 
 // MLflow Properties Input
-_#defs: "/$defs/Properties/definitions/MlflowPropertiesInput": close({
+#MlflowPropertiesInput: close({
 	// The ARN of the MLflow tracking server
 	TrackingServerArn?: string
 })
 
 // OAuth2 Client Application
-_#defs: "/$defs/Properties/definitions/OAuth2ClientApplication": close({
+#OAuth2ClientApplication: close({
 	AWSManagedClientApplicationReference?: strings.MaxRunes(2048) & =~"^\\S+$"
 	UserManagedClientApplicationClientId?: strings.MaxRunes(2048) & =~"^\\S+$"
 })
 
 // OAuth2 Grant Type
-_#defs: "/$defs/Properties/definitions/OAuth2GrantType": "AUTHORIZATION_CODE" | "CLIENT_CREDENTIALS" | "JWT_BEARER"
+#OAuth2GrantType: "AUTHORIZATION_CODE" | "CLIENT_CREDENTIALS" | "JWT_BEARER"
 
 // OAuth2 Properties
-_#defs: "/$defs/Properties/definitions/OAuth2Properties": close({
-	AuthorizationCodeProperties?: _#defs."/$defs/Properties/definitions/AuthorizationCodeProperties"
-	OAuth2ClientApplication?:     _#defs."/$defs/Properties/definitions/OAuth2ClientApplication"
-	OAuth2Credentials?:           _#defs."/$defs/Properties/definitions/GlueOAuth2Credentials"
-	OAuth2GrantType?:             _#defs."/$defs/Properties/definitions/OAuth2GrantType"
+#OAuth2Properties: close({
+	AuthorizationCodeProperties?: #AuthorizationCodeProperties
+	OAuth2ClientApplication?:     #OAuth2ClientApplication
+	OAuth2Credentials?:           #GlueOAuth2Credentials
+	OAuth2GrantType?:             #OAuth2GrantType
 	TokenUrl?:              strings.MaxRunes(256) & =~"^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$"
-	TokenUrlParametersMap?: _#defs."/$defs/Properties/definitions/TokenUrlParametersMap"
+	TokenUrlParametersMap?: #TokenUrlParametersMap
 })
 
 // Physical Connection Requirements
-_#defs: "/$defs/Properties/definitions/PhysicalConnectionRequirements": close({
+#PhysicalConnectionRequirements: close({
 	AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1)
 	SecurityGroupIdList?: list.MaxItems(50) & [...] & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1))
@@ -267,43 +261,43 @@ _#defs: "/$defs/Properties/definitions/PhysicalConnectionRequirements": close({
 })
 
 // Property Map
-_#defs: "/$defs/Properties/definitions/PropertyMap": close({
+#PropertyMap: close({
 
 	{[=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\t]*$"]: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFF}\\t]*$"}})
 
-_#defs: "/$defs/Properties/definitions/RedshiftCredentials": matchN(1, [close({
+#RedshiftCredentials: matchN(1, [close({
 	SecretArn!: strings.MaxRunes(2048) &
 	=~"^arn:aws[^:]*:secretsmanager:[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]:\\d{12}:secret:.*$"
 }), close(
-	{UsernamePassword!: _#defs."/$defs/Properties/definitions/UsernamePassword"},
+	{UsernamePassword!: #UsernamePassword},
 )])
 
 // Redshift Lineage Sync Configuration Input
-_#defs: "/$defs/Properties/definitions/RedshiftLineageSyncConfigurationInput": close({
+#RedshiftLineageSyncConfigurationInput: close({
 	Enabled?:  bool
-	Schedule?: _#defs."/$defs/Properties/definitions/LineageSyncSchedule"
+	Schedule?: #LineageSyncSchedule
 })
 
 // Redshift Properties Input
-_#defs: "/$defs/Properties/definitions/RedshiftPropertiesInput": close({
-	Credentials?:  _#defs."/$defs/Properties/definitions/RedshiftCredentials"
+#RedshiftPropertiesInput: close({
+	Credentials?:  #RedshiftCredentials
 	DatabaseName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9_-]+$"
 	Host?:         strings.MaxRunes(256) & =~"^[\\S]*$"
-	LineageSync?:  _#defs."/$defs/Properties/definitions/RedshiftLineageSyncConfigurationInput"
+	LineageSync?:  #RedshiftLineageSyncConfigurationInput
 	Port?:         <=65535 & >=0
-	Storage?:      _#defs."/$defs/Properties/definitions/RedshiftStorageProperties"
+	Storage?:      #RedshiftStorageProperties
 })
 
-_#defs: "/$defs/Properties/definitions/RedshiftStorageProperties": matchN(1, [close(
+#RedshiftStorageProperties: matchN(1, [close(
 	{ClusterName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-z0-9-]+$"},
 ), close(
 	{WorkgroupName!: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$"},
 )])
 
 // S3 Properties Input
-_#defs: "/$defs/Properties/definitions/S3PropertiesInput": close({
+#S3PropertiesInput: close({
 	// Specifies whether to register the S3 Access Grant location.
 	RegisterS3AccessGrantLocation?: bool
 
@@ -315,7 +309,7 @@ _#defs: "/$defs/Properties/definitions/S3PropertiesInput": close({
 })
 
 // Spark EMR Properties Input.
-_#defs: "/$defs/Properties/definitions/SparkEmrPropertiesInput": close({
+#SparkEmrPropertiesInput: close({
 	ComputeArn?: strings.MaxRunes(2048) &
 	=~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:(elasticmapreduce|emr-serverless|emr-containers):.*"
 	InstanceProfileArn?: strings.MaxRunes(2048) &
@@ -330,11 +324,11 @@ _#defs: "/$defs/Properties/definitions/SparkEmrPropertiesInput": close({
 })
 
 // Spark Glue Args.
-_#defs: "/$defs/Properties/definitions/SparkGlueArgs": close({Connection?: strings.MaxRunes(128) & =~"^[a-zA-Z0-9]+$"})
+#SparkGlueArgs: close({Connection?: strings.MaxRunes(128) & =~"^[a-zA-Z0-9]+$"})
 
 // Spark Glue Properties Input.
-_#defs: "/$defs/Properties/definitions/SparkGluePropertiesInput": close({
-	AdditionalArgs?:     _#defs."/$defs/Properties/definitions/SparkGlueArgs"
+#SparkGluePropertiesInput: close({
+	AdditionalArgs?:     #SparkGlueArgs
 	GlueConnectionName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S]*$"
 	GlueVersion?:        strings.MaxRunes(256) & =~"^\\w+\\.\\w+$"
 	IdleTimeout?:        <=3000 & >=1
@@ -345,21 +339,21 @@ _#defs: "/$defs/Properties/definitions/SparkGluePropertiesInput": close({
 })
 
 // The token URL parameters.
-_#defs: "/$defs/Properties/definitions/TokenUrlParametersMap": close({
+#TokenUrlParametersMap: close({
 
 	{[=~".+"]: strings.MaxRunes(512) & strings.MinRunes(1)}})
 
 // The username and password to be used for authentication.
-_#defs: "/$defs/Properties/definitions/UsernamePassword": close({
+#UsernamePassword: close({
 	Password!: strings.MaxRunes(64) & =~"^[\\S]*$"
 	Username!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\S]*$"
 })
 
 // Workflows MWAA Properties Input
-_#defs: "/$defs/Properties/definitions/WorkflowsMwaaPropertiesInput": close({
+#WorkflowsMwaaPropertiesInput: close({
 	// The name of the MWAA environment.
 	MwaaEnvironmentName?: string
 })
 
 // Workflows Serverless Properties Input
-_#defs: "/$defs/Properties/definitions/WorkflowsServerlessPropertiesInput": close({})
+#WorkflowsServerlessPropertiesInput: close({})

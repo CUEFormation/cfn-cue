@@ -40,7 +40,7 @@ import (
 	CreatedAt?: time.Time
 
 	// Contains credentials for the application.
-	Credential?: _#defs."/$defs/Properties/definitions/Credential"
+	Credential?: #Credential
 
 	// The user persona of the app authorization.
 	Persona?: "admin" | "endUser"
@@ -49,29 +49,29 @@ import (
 	Status?: "PendingConnect" | "Connected" | "ConnectionValidationFailed" | "TokenAutoRotationFailed"
 
 	// Tags to apply to the app authorization.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 
 	// Contains information about an application tenant.
-	Tenant!: _#defs."/$defs/Properties/definitions/Tenant"
+	Tenant!: #Tenant
 
 	// The timestamp of when the app authorization was last updated.
 	UpdatedAt?: time.Time
 })
 
 // Contains API key credential information.
-_#defs: "/$defs/Properties/definitions/ApiKeyCredential": close({
+#ApiKeyCredential: close({
 	// An API key for an application.
 	ApiKey!: strings.MaxRunes(2048) & strings.MinRunes(1)
 })
 
 // Contains credential information for the application.
-_#defs: "/$defs/Properties/definitions/Credential": close({
-	ApiKeyCredential?: _#defs."/$defs/Properties/definitions/ApiKeyCredential"
-	Oauth2Credential?: _#defs."/$defs/Properties/definitions/Oauth2Credential"
+#Credential: close({
+	ApiKeyCredential?: #ApiKeyCredential
+	Oauth2Credential?: #Oauth2Credential
 })
 
 // Contains OAuth2 client credential information.
-_#defs: "/$defs/Properties/definitions/Oauth2Credential": close({
+#Oauth2Credential: close({
 	// The client ID of the client application.
 	ClientId!: strings.MaxRunes(2048) & strings.MinRunes(1)
 
@@ -80,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/Oauth2Credential": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -89,7 +89,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Contains information about an application tenant.
-_#defs: "/$defs/Properties/definitions/Tenant": close({
+#Tenant: close({
 	// The display name of the tenant.
 	TenantDisplayName!: strings.MaxRunes(2048) & strings.MinRunes(1)
 

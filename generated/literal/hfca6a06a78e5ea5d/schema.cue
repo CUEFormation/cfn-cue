@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 	"time"
 )
 
@@ -19,7 +19,7 @@ import (
 	ComplianceType?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$"
 
 	// The control sets that are associated with the framework.
-	ControlSets!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ControlSet"]
+	ControlSets!: list.MinItems(1) & [...#ControlSet]
 
 	// The time when the framework was created.
 	CreatedAt?: time.Time
@@ -45,23 +45,23 @@ import (
 	Name!: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\]*$"
 
 	// The tags associated with the framework.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The framework type, such as a standard framework or a custom framework.
 	Type?: "Standard" | "Custom"
 })
 
 // A control set entity that represents a collection of controls in Audit Manager.
-_#defs: "/$defs/Properties/definitions/ControlSet": close({
+#ControlSet: close({
 	// The list of controls within the control set.
-	Controls!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ControlSetControl"]
+	Controls!: list.MinItems(1) & [...#ControlSetControl]
 
 	// The name of the control set.
 	Name!: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\_]*$"
 })
 
 // A reference to an existing control by ID.
-_#defs: "/$defs/Properties/definitions/ControlSetControl": close({
+#ControlSetControl: close({
 	// The unique identifier of the control.
 	Id!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
@@ -69,7 +69,7 @@ _#defs: "/$defs/Properties/definitions/ControlSetControl": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

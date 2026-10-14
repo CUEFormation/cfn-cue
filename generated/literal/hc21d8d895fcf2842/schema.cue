@@ -60,7 +60,7 @@ import "strings"
 
 	// The type of portal
 	PortalType?:              "SITEWISE_PORTAL_V1" | "SITEWISE_PORTAL_V2"
-	PortalTypeConfiguration?: _#defs."/$defs/Properties/definitions/PortalTypeConfiguration"
+	PortalTypeConfiguration?: #PortalTypeConfiguration
 
 	// The ARN of a service role that allows the portal's users to access your AWS
 	// IoT SiteWise resources on your behalf.
@@ -70,25 +70,23 @@ import "strings"
 	=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$"
 
 	// A list of key-value pairs that contain metadata for the portal.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // List of enabled Tools for a certain portal.
-_#defs: "/$defs/Properties/definitions/PortalTools": [...string]
+#PortalTools: [...string]
 
 // Map to associate detail of configuration related with a PortalType.
-_#defs: "/$defs/Properties/definitions/PortalTypeConfiguration": close({
+#PortalTypeConfiguration: close({
 
-	{[=~"^[a-z][a-zA-Z0-9_]*$"]: _#defs."/$defs/Properties/definitions/PortalTypeEntry"}})
+	{[=~"^[a-z][a-zA-Z0-9_]*$"]: #PortalTypeEntry}})
 
 // Container associated a certain PortalType.
-_#defs: "/$defs/Properties/definitions/PortalTypeEntry": close(
-	{PortalTools!: _#defs."/$defs/Properties/definitions/PortalTools"},
-)
+#PortalTypeEntry: close({PortalTools!: #PortalTools})
 
 // To add or update tag, provide both key and value. To delete tag, provide only
 // tag key to be deleted.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

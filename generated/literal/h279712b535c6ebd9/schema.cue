@@ -3,29 +3,29 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // HealthLake FHIR Datastore
 #Properties: close({
-	CreatedAt?:                     _#defs."/$defs/Properties/definitions/CreatedAt"
-	DatastoreArn?:                  _#defs."/$defs/Properties/definitions/DatastoreArn"
-	DatastoreEndpoint?:             _#defs."/$defs/Properties/definitions/DatastoreEndpoint"
-	DatastoreId?:                   _#defs."/$defs/Properties/definitions/DatastoreId"
-	DatastoreName?:                 _#defs."/$defs/Properties/definitions/DatastoreName"
-	DatastoreStatus?:               _#defs."/$defs/Properties/definitions/DatastoreStatus"
-	DatastoreTypeVersion!:          _#defs."/$defs/Properties/definitions/DatastoreTypeVersion"
-	IdentityProviderConfiguration?: _#defs."/$defs/Properties/definitions/IdentityProviderConfiguration"
-	PreloadDataConfig?:             _#defs."/$defs/Properties/definitions/PreloadDataConfig"
-	SseConfiguration?:              _#defs."/$defs/Properties/definitions/SseConfiguration"
-	Tags?:                          list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	CreatedAt?:                     #CreatedAt
+	DatastoreArn?:                  #DatastoreArn
+	DatastoreEndpoint?:             #DatastoreEndpoint
+	DatastoreId?:                   #DatastoreId
+	DatastoreName?:                 #DatastoreName
+	DatastoreStatus?:               #DatastoreStatus
+	DatastoreTypeVersion!:          #DatastoreTypeVersion
+	IdentityProviderConfiguration?: #IdentityProviderConfiguration
+	PreloadDataConfig?:             #PreloadDataConfig
+	SseConfiguration?:              #SseConfiguration
+	Tags?:                          list.MaxItems(200) & [...] & [...#Tag]
 })
 
 // The time that a Data Store was created.
-_#defs: "/$defs/Properties/definitions/CreatedAt": close({
+#CreatedAt: close({
 	// Nanoseconds.
 	Nanos!: int
 
@@ -34,29 +34,27 @@ _#defs: "/$defs/Properties/definitions/CreatedAt": close({
 })
 
 // The Amazon Resource Name used in the creation of the Data Store.
-_#defs: "/$defs/Properties/definitions/DatastoreArn": =~"^arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:healthlake:[a-zA-Z0-9-]+:[0-9]{12}:datastore/.+?"
+#DatastoreArn: =~"^arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:healthlake:[a-zA-Z0-9-]+:[0-9]{12}:datastore/.+?"
 
 // The AWS endpoint for the Data Store. Each Data Store will have it's own
 // endpoint with Data Store ID in the endpoint URL.
-_#defs: "/$defs/Properties/definitions/DatastoreEndpoint": strings.MaxRunes(10000)
+#DatastoreEndpoint: strings.MaxRunes(10000)
 
 // The AWS-generated ID number for the Data Store.
-_#defs: "/$defs/Properties/definitions/DatastoreId": strings.MaxRunes(32) & strings.MinRunes(1)
+#DatastoreId: strings.MaxRunes(32) & strings.MinRunes(1)
 
 // The user-generated name for the Data Store.
-_#defs: "/$defs/Properties/definitions/DatastoreName": strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-%@]*)$"
+#DatastoreName: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-%@]*)$"
 
 // The status of the Data Store. Possible statuses are 'CREATING', 'ACTIVE',
 // 'DELETING', or 'DELETED'.
-_#defs: "/$defs/Properties/definitions/DatastoreStatus": "CREATING" | "ACTIVE" | "DELETING" | "DELETED"
+#DatastoreStatus: "CREATING" | "ACTIVE" | "DELETING" | "DELETED"
 
 // The FHIR version. Only R4 version data is supported.
-_#defs: "/$defs/Properties/definitions/DatastoreTypeVersion": "R4"
+#DatastoreTypeVersion: "R4"
 
 // The identity provider configuration for the datastore
-_#defs: "/$defs/Properties/definitions/IdentityProviderConfiguration": close({
+#IdentityProviderConfiguration: close({
 	// Type of Authorization Strategy. The two types of supported Authorization
 	// strategies are SMART_ON_FHIR_V1 and AWS_AUTH.
 	AuthorizationStrategy!: "SMART_ON_FHIR_V1" | "AWS_AUTH" | "SMART_ON_FHIR"
@@ -76,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/IdentityProviderConfiguration": close({
 
 // The customer-managed-key (CMK) used when creating a Data Store. If a customer
 // owned key is not specified, an AWS owned key will be used for encryption.
-_#defs: "/$defs/Properties/definitions/KmsEncryptionConfig": close({
+#KmsEncryptionConfig: close({
 	// The type of customer-managed-key (CMK) used for encryption. The two types of
 	// supported CMKs are customer owned CMKs and AWS owned CMKs.
 	CmkType!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KMS_KEY"
@@ -90,19 +88,17 @@ _#defs: "/$defs/Properties/definitions/KmsEncryptionConfig": close({
 
 // The preloaded data configuration for the Data Store. Only data preloaded from
 // Synthea is supported.
-_#defs: "/$defs/Properties/definitions/PreloadDataConfig": close({
+#PreloadDataConfig: close({
 	// The type of preloaded data. Only Synthea preloaded data is supported.
 	PreloadDataType!: "SYNTHEA"
 })
 
 // The server-side encryption key configuration for a customer provided encryption key.
-_#defs: "/$defs/Properties/definitions/SseConfiguration": close(
-	{KmsEncryptionConfig!: _#defs."/$defs/Properties/definitions/KmsEncryptionConfig"},
-)
+#SseConfiguration: close({KmsEncryptionConfig!: #KmsEncryptionConfig})
 
 // A key-value pair. A tag consists of a tag key and a tag value. Tag keys and
 // tag values are both required, but tag values can be empty (null) strings.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

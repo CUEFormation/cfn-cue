@@ -10,65 +10,51 @@ import "strings"
 // templates in to validate authorization requests
 #Properties: close({
 	Arn?:                strings.MaxRunes(2500) & strings.MinRunes(1) & =~"^arn:[^:]*:[^:]*:[^:]*:[^:]*:.*$"
-	DeletionProtection?: _#defs."/$defs/Properties/definitions/DeletionProtection"
+	DeletionProtection?: #DeletionProtection
 	Description?:        strings.MaxRunes(150) & strings.MinRunes(0)
-	EncryptionSettings?: _#defs."/$defs/Properties/definitions/EncryptionSettings"
-	EncryptionState?: matchN(1, [close(
-		{KmsEncryptionState!: _#defs."/$defs/Properties/definitions/KmsEncryptionState"},
-	), close(
-		{Default!: _#defs."/$defs/Properties/definitions/Default"},
-	)])
-	PolicyStoreId?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$"
-	Schema?:        _#defs."/$defs/Properties/definitions/SchemaDefinition"
+	EncryptionSettings?: #EncryptionSettings
+	EncryptionState?:    matchN(1, [close({KmsEncryptionState!: #KmsEncryptionState}), close({Default!: #Default})])
+	PolicyStoreId?:      strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$"
+	Schema?:             #SchemaDefinition
 
 	// The tags to add to the policy store
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"]
-	ValidationSettings!: _#defs."/$defs/Properties/definitions/ValidationSettings"
+	Tags?:               [...#Tag]
+	ValidationSettings!: #ValidationSettings
 })
 
-_#defs: "/$defs/Properties/definitions/Default": close({})
+#Default: close({})
 
-_#defs: "/$defs/Properties/definitions/DeletionMode": "ENABLED" | "DISABLED"
+#DeletionMode: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/DeletionProtection": close(
-	{Mode!: _#defs."/$defs/Properties/definitions/DeletionMode"},
-)
+#DeletionProtection: close({Mode!: #DeletionMode})
 
-_#defs: "/$defs/Properties/definitions/EncryptionContext": close({
+#EncryptionContext: close({
 
 	{[=~"^.+$"]: strings.MinRunes(1)}})
 
-_#defs: "/$defs/Properties/definitions/EncryptionSettings": matchN(1, [close(
-	{KmsEncryptionSettings!: _#defs."/$defs/Properties/definitions/KmsEncryptionSettings"},
-), close(
-	{Default!: _#defs."/$defs/Properties/definitions/Default"},
-)])
+#EncryptionSettings: matchN(1, [close({KmsEncryptionSettings!: #KmsEncryptionSettings}), close({Default!: #Default})])
 
-_#defs: "/$defs/Properties/definitions/KmsEncryptionSettings": close({
-	EncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContext"
-	Key!:               _#defs."/$defs/Properties/definitions/KmsKey"
+#KmsEncryptionSettings: close({
+	EncryptionContext?: #EncryptionContext
+	Key!:               #KmsKey
 })
 
-_#defs: "/$defs/Properties/definitions/KmsEncryptionState": close({
-	EncryptionContext!: _#defs."/$defs/Properties/definitions/EncryptionContext"
-	Key!:               _#defs."/$defs/Properties/definitions/KmsKey"
+#KmsEncryptionState: close({
+	EncryptionContext!: #EncryptionContext
+	Key!:               #KmsKey
 })
 
-_#defs: "/$defs/Properties/definitions/KmsKey": =~"^[a-zA-Z0-9:/_-]+$"
+#KmsKey: =~"^[a-zA-Z0-9:/_-]+$"
 
-_#defs: "/$defs/Properties/definitions/SchemaDefinition": close(
-	{CedarJson?: _#defs."/$defs/Properties/definitions/SchemaJson"},
-)
+#SchemaDefinition: close({CedarJson?: #SchemaJson})
 
-_#defs: "/$defs/Properties/definitions/SchemaJson": string
+#SchemaJson: string
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/ValidationMode": "OFF" | "STRICT"
+#ValidationMode: "OFF" | "STRICT"
 
-_#defs: "/$defs/Properties/definitions/ValidationSettings": close(
-	{Mode!: _#defs."/$defs/Properties/definitions/ValidationMode"},
-)
+#ValidationSettings: close({Mode!: #ValidationMode})

@@ -20,7 +20,7 @@ import "list"
 // configuration](https://docs.aws.amazon.com/securityhub/latest/userguide/central-configuration-intro.html)
 // in ASH.
 #Properties: close({
-	FindingAggregationRegion?: _#defs."/$defs/Properties/definitions/Region"
+	FindingAggregationRegion?: #Region
 	FindingAggregatorArn?:     =~"arn:aws\\S*:securityhub:\\S*"
 
 	// Indicates whether to aggregate findings from all of the available Regions in
@@ -49,9 +49,7 @@ import "list"
 	// If ``RegionLinkingMode`` is ``SPECIFIED_REGIONS``, then this is a
 	// space-separated list of Regions that do aggregate findings to the
 	// aggregation Region.
-	Regions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Region"
-	]
+	Regions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Region]
 })
 
-_#defs: "/$defs/Properties/definitions/Region": =~"^[a-zA-Z0-9-]{1,32}$"
+#Region: =~"^[a-zA-Z0-9-]{1,32}$"

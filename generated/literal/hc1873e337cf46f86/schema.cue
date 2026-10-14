@@ -13,22 +13,22 @@ import (
 #Properties: close({
 	Description?:         strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[^\\p{C}]*$"
 	Enabled?:             bool
-	PreProvisioningHook?: _#defs."/$defs/Properties/definitions/ProvisioningHook"
+	PreProvisioningHook?: #ProvisioningHook
 	ProvisioningRoleArn!:
 		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
-	Tags?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:         list.UniqueItems() & [...#Tag]
 	TemplateArn?:  string
 	TemplateBody!: strings.MaxRunes(10240) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
 	TemplateName?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$"
 	TemplateType?: "FLEET_PROVISIONING" | "JITP"
 })
 
-_#defs: "/$defs/Properties/definitions/ProvisioningHook": close({
+#ProvisioningHook: close({
 	PayloadVersion?: strings.MaxRunes(32) & strings.MinRunes(10) & =~"^[0-9-]+$"
 	TargetArn?:      strings.MaxRunes(2048) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

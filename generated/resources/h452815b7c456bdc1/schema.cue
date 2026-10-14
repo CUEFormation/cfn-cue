@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -103,10 +103,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	AssociatedRoles?: list.MaxItems(15) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/DBClusterRole"
-	] |
-		fn.#ListExpression
+	AssociatedRoles?:         list.MaxItems(15) & list.UniqueItems() & [...] & [...#DBClusterRole] | fn.#ListExpression
 	AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AvailabilityZones?:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	BacktrackWindow?: int & >=0 |
@@ -253,16 +250,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ReplicationSourceIdentifier?: string | fn.#StringExpression
 	RestoreToTime?:               string | fn.#StringExpression
 	RestoreType?:                 string | fn.#StringExpression
-	ScalingConfiguration?:        _#defs."/$defs/Properties/definitions/ScalingConfiguration" | fn.#ObjectExpression
-	ServerlessV2ScalingConfiguration?: _#defs."/$defs/Properties/definitions/ServerlessV2ScalingConfiguration" |
-		fn.#ObjectExpression
-	SnapshotIdentifier?:        string | fn.#StringExpression
-	SourceDBClusterIdentifier?: string | fn.#StringExpression
-	SourceDbClusterResourceId?: string | fn.#StringExpression
-	SourceRegion?:              string | fn.#StringExpression
-	StorageEncrypted?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	StorageType?:               string | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ScalingConfiguration?:        #ScalingConfiguration | fn.#ObjectExpression
+	ServerlessV2ScalingConfiguration?: #ServerlessV2ScalingConfiguration | fn.#ObjectExpression
+	SnapshotIdentifier?:               string | fn.#StringExpression
+	SourceDBClusterIdentifier?:        string | fn.#StringExpression
+	SourceDbClusterResourceId?:        string | fn.#StringExpression
+	SourceRegion?:                     string | fn.#StringExpression
+	StorageEncrypted?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	StorageType?:             string | fn.#StringExpression
+	Tags?:                    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	UseLatestRestorableTime?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VpcSecurityGroupIds?: list.UniqueItems() & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -271,7 +267,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DBClusterRole": close({
+#DBClusterRole: close({
 	FeatureName?: string | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
@@ -281,13 +277,13 @@ _#defs: "/$defs/Properties/definitions/DBClusterRole": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	Address?: string | fn.#StringExpression
 	Port?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MasterUserSecret": close({
+#MasterUserSecret: close({
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
@@ -295,10 +291,9 @@ _#defs: "/$defs/Properties/definitions/MasterUserSecret": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReadEndpoint": close({Address?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#ReadEndpoint: close({Address?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingConfiguration": close({
+#ScalingConfiguration: close({
 	AutoPause?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxCapacity?: int |
 		{
@@ -360,7 +355,7 @@ _#defs: "/$defs/Properties/definitions/ScalingConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerlessV2ScalingConfiguration": close({
+#ServerlessV2ScalingConfiguration: close({
 	MaxCapacity?: number |
 		{
 			string &
@@ -416,7 +411,7 @@ _#defs: "/$defs/Properties/definitions/ServerlessV2ScalingConfiguration": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

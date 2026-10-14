@@ -13,68 +13,60 @@ import (
 #Properties: close({
 	// The timestamp of when the event trigger was created.
 	CreatedAt?:              string
-	Description?:            _#defs."/$defs/Properties/definitions/Description"
-	DomainName!:             _#defs."/$defs/Properties/definitions/DomainName"
-	EventTriggerConditions!: _#defs."/$defs/Properties/definitions/EventTriggerConditions"
-	EventTriggerLimits?:     _#defs."/$defs/Properties/definitions/EventTriggerLimits"
-	EventTriggerName!:       _#defs."/$defs/Properties/definitions/EventTriggerName"
+	Description?:            #Description
+	DomainName!:             #DomainName
+	EventTriggerConditions!: #EventTriggerConditions
+	EventTriggerLimits?:     #EventTriggerLimits
+	EventTriggerName!:       #EventTriggerName
 
 	// The timestamp of when the event trigger was most recently updated.
 	LastUpdatedAt?:  string
-	ObjectTypeName!: _#defs."/$defs/Properties/definitions/ObjectTypeName"
-	SegmentFilter?:  _#defs."/$defs/Properties/definitions/SegmentFilter"
-	Tags?:           _#defs."/$defs/Properties/definitions/Tags"
+	ObjectTypeName!: #ObjectTypeName
+	SegmentFilter?:  #SegmentFilter
+	Tags?:           #Tags
 })
 
 // The description of the event trigger.
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1000) & strings.MinRunes(1)
+#Description: strings.MaxRunes(1000) & strings.MinRunes(1)
 
 // The unique name of the domain.
-_#defs: "/$defs/Properties/definitions/DomainName": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
+#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 
 // Specifies that an event will only trigger the destination if it is processed
 // within a certain latency period.
-_#defs: "/$defs/Properties/definitions/EventExpiration": int
+#EventExpiration: int
 
 // Specifies the circumstances under which the event should trigger the destination.
-_#defs: "/$defs/Properties/definitions/EventTriggerCondition": close({
-	EventTriggerDimensions!: _#defs."/$defs/Properties/definitions/EventTriggerDimensions"
-	LogicalOperator!:        _#defs."/$defs/Properties/definitions/EventTriggerLogicalOperator"
+#EventTriggerCondition: close({
+	EventTriggerDimensions!: #EventTriggerDimensions
+	LogicalOperator!:        #EventTriggerLogicalOperator
 })
 
 // A list of conditions that determine when an event should trigger the destination.
-_#defs: "/$defs/Properties/definitions/EventTriggerConditions": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/EventTriggerCondition"
-]
+#EventTriggerConditions: list.MaxItems(5) & list.MinItems(1) & [...#EventTriggerCondition]
 
 // A specific event dimension to be assessed.
-_#defs: "/$defs/Properties/definitions/EventTriggerDimension": close(
-	{ObjectAttributes!: _#defs."/$defs/Properties/definitions/ObjectAttributes"},
-)
+#EventTriggerDimension: close({ObjectAttributes!: #ObjectAttributes})
 
 // A list of dimensions to be evaluated for the event.
-_#defs: "/$defs/Properties/definitions/EventTriggerDimensions": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/EventTriggerDimension"
-]
+#EventTriggerDimensions: list.MaxItems(10) & list.MinItems(1) & [...#EventTriggerDimension]
 
 // Defines limits controlling whether an event triggers the destination, based
 // on ingestion latency and the number of invocations per profile over specific
 // time periods.
-_#defs: "/$defs/Properties/definitions/EventTriggerLimits": close({
-	EventExpiration?: _#defs."/$defs/Properties/definitions/EventExpiration"
-	Periods?:         _#defs."/$defs/Properties/definitions/Periods"
+#EventTriggerLimits: close({
+	EventExpiration?: #EventExpiration
+	Periods?:         #Periods
 })
 
 // The operator used to combine multiple dimensions.
-_#defs: "/$defs/Properties/definitions/EventTriggerLogicalOperator": "ANY" | "ALL" | "NONE"
+#EventTriggerLogicalOperator: "ANY" | "ALL" | "NONE"
 
 // The unique name of the event trigger.
-_#defs: "/$defs/Properties/definitions/EventTriggerName": strings.MaxRunes(64) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9_-]+$"
+#EventTriggerName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 
 // The criteria that a specific object attribute must meet to trigger the destination.
-_#defs: "/$defs/Properties/definitions/ObjectAttribute": close({
+#ObjectAttribute: close({
 	// The operator used to compare an attribute against a list of values.
 	ComparisonOperator!: "INCLUSIVE" |
 		"EXCLUSIVE" |
@@ -103,17 +95,13 @@ _#defs: "/$defs/Properties/definitions/ObjectAttribute": close({
 })
 
 // A list of object attributes to be evaluated.
-_#defs: "/$defs/Properties/definitions/ObjectAttributes": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ObjectAttribute"
-]
+#ObjectAttributes: list.MaxItems(10) & list.MinItems(1) & [...#ObjectAttribute]
 
 // The unique name of the object type.
-_#defs: "/$defs/Properties/definitions/ObjectTypeName": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z_][a-zA-Z_0-9-]*$"
+#ObjectTypeName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$"
 
 // Defines a limit and the time period during which it is enforced.
-_#defs: "/$defs/Properties/definitions/Period": close({
+#Period: close({
 	// The maximum allowed number of destination invocations per profile.
 	MaxInvocationsPerProfile?: int & <=1000 & >=1
 
@@ -129,15 +117,13 @@ _#defs: "/$defs/Properties/definitions/Period": close({
 })
 
 // A list of time periods during which the limits apply.
-_#defs: "/$defs/Properties/definitions/Periods": list.MaxItems(4) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/Period"
-]
+#Periods: list.MaxItems(4) & list.MinItems(1) & [...#Period]
 
 // The destination is triggered only for profiles that meet the criteria of a segment definition.
-_#defs: "/$defs/Properties/definitions/SegmentFilter": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
+#SegmentFilter: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -152,6 +138,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // An array of key-value pairs to apply to this resource.
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]

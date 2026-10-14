@@ -4,9 +4,9 @@ package schema
 
 import (
 	"strings"
-	"time"
 	"list"
 	"struct"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,13 +25,13 @@ import (
 	CustomerEncryptionKeyArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$"
-	Definition?:           _#defs."/$defs/Properties/definitions/FlowDefinition"
-	DefinitionS3Location?: _#defs."/$defs/Properties/definitions/S3Location"
+	Definition?:           #FlowDefinition
+	DefinitionS3Location?: #S3Location
 
 	// A JSON string containing a Definition with the same schema as the Definition
 	// property of this resource
 	DefinitionString?:        strings.MaxRunes(512000)
-	DefinitionSubstitutions?: _#defs."/$defs/Properties/definitions/DefinitionSubstitutions"
+	DefinitionSubstitutions?: #DefinitionSubstitutions
 
 	// Description of the flow
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1)
@@ -46,61 +46,59 @@ import (
 
 	// Name for the flow
 	Name!:          =~"^([0-9a-zA-Z][_-]?){1,100}$"
-	Status?:        _#defs."/$defs/Properties/definitions/FlowStatus"
-	Tags?:          _#defs."/$defs/Properties/definitions/TagsMap"
-	TestAliasTags?: _#defs."/$defs/Properties/definitions/TagsMap"
+	Status?:        #FlowStatus
+	Tags?:          #TagsMap
+	TestAliasTags?: #TagsMap
 
 	// Time Stamp.
 	UpdatedAt?:   time.Time
-	Validations?: _#defs."/$defs/Properties/definitions/FlowValidations"
+	Validations?: #FlowValidations
 
 	// Draft Version.
 	Version?: strings.MaxRunes(5) & strings.MinRunes(5) & =~"^DRAFT$"
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": {...}
+#AdditionalModelRequestFields: {...}
 
 // Agent flow node configuration
-_#defs: "/$defs/Properties/definitions/AgentFlowNodeConfiguration": close({
+#AgentFlowNodeConfiguration: close({
 	// Arn representation of the Agent Alias.
 	AgentAliasArn!: strings.MaxRunes(2048) &
 	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:agent-alias/[0-9a-zA-Z]{10}/[0-9a-zA-Z]{10}$"
 })
 
 // Arn of a Bedrock Reranking model
-_#defs: "/$defs/Properties/definitions/BedrockRerankingModelArn": strings.MaxRunes(2048) &
+#BedrockRerankingModelArn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}::foundation-model/(.*))?$"
 
 // Collector flow node configuration
-_#defs: "/$defs/Properties/definitions/CollectorFlowNodeConfiguration": close({})
+#CollectorFlowNodeConfiguration: close({})
 
 // Condition flow node configuration
-_#defs: "/$defs/Properties/definitions/ConditionFlowNodeConfiguration": close({
+#ConditionFlowNodeConfiguration: close({
 	// List of conditions in a condition node
-	Conditions!: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/FlowCondition"]
+	Conditions!: list.MaxItems(5) & list.MinItems(1) & [...#FlowCondition]
 })
 
 // When supplied with DefinitionString or DefinitionS3Location, substrings in
 // the definition matching ${keyname} will be replaced with the associated
 // value from this map
-_#defs: "/$defs/Properties/definitions/DefinitionSubstitutions": struct.MaxFields(500) & struct.MinFields(1) & close({
+#DefinitionSubstitutions: struct.MaxFields(500) & struct.MinFields(1) & close({
 
 	{[=~"^[a-zA-Z0-9]+$"]: string | int | bool}})
 
 // Field name for reranking
-_#defs: "/$defs/Properties/definitions/FieldForReranking": close({
+#FieldForReranking: close({
 	// Field name for reranking
 	FieldName!: strings.MaxRunes(2000) & strings.MinRunes(1)
 })
 
 // List of Fields For Reranking
-_#defs: "/$defs/Properties/definitions/FieldsForReranking": list.MaxItems(100) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/FieldForReranking"
-]
+#FieldsForReranking: list.MaxItems(100) & list.MinItems(1) & [...#FieldForReranking]
 
 // Condition branch for a condition node
-_#defs: "/$defs/Properties/definitions/FlowCondition": close({
+#FlowCondition: close({
 	// Expression for a condition in a flow
 	Expression?: strings.MaxRunes(64) & strings.MinRunes(1)
 
@@ -109,14 +107,14 @@ _#defs: "/$defs/Properties/definitions/FlowCondition": close({
 })
 
 // Conditional connection configuration
-_#defs: "/$defs/Properties/definitions/FlowConditionalConnectionConfiguration": close({
+#FlowConditionalConnectionConfiguration: close({
 	// Name of a condition in a flow
 	Condition!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$"
 })
 
 // Flow connection
-_#defs: "/$defs/Properties/definitions/FlowConnection": close({
-	Configuration?: _#defs."/$defs/Properties/definitions/FlowConnectionConfiguration"
+#FlowConnection: close({
+	Configuration?: #FlowConnectionConfiguration
 
 	// Name of a connection in a flow
 	Name!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,100}$"
@@ -126,21 +124,19 @@ _#defs: "/$defs/Properties/definitions/FlowConnection": close({
 
 	// Name of a node in a flow
 	Target!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$"
-	Type!:   _#defs."/$defs/Properties/definitions/FlowConnectionType"
+	Type!:   #FlowConnectionType
 })
 
 // Connection configuration
-_#defs: "/$defs/Properties/definitions/FlowConnectionConfiguration": matchN(1, [close(
-	{Data!: _#defs."/$defs/Properties/definitions/FlowDataConnectionConfiguration"},
-), close(
-	{Conditional!: _#defs."/$defs/Properties/definitions/FlowConditionalConnectionConfiguration"},
-)])
+#FlowConnectionConfiguration: matchN(1, [
+	close({Data!: #FlowDataConnectionConfiguration}), close({Conditional!: #FlowConditionalConnectionConfiguration}),
+])
 
 // Connection type
-_#defs: "/$defs/Properties/definitions/FlowConnectionType": "Data" | "Conditional"
+#FlowConnectionType: "Data" | "Conditional"
 
 // Data connection configuration
-_#defs: "/$defs/Properties/definitions/FlowDataConnectionConfiguration": close({
+#FlowDataConnectionConfiguration: close({
 	// Name of a node output in a flow
 	SourceOutput!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$"
 
@@ -149,91 +145,91 @@ _#defs: "/$defs/Properties/definitions/FlowDataConnectionConfiguration": close({
 })
 
 // Flow definition
-_#defs: "/$defs/Properties/definitions/FlowDefinition": close({
+#FlowDefinition: close({
 	// List of connections
-	Connections?: list.MaxItems(100) & [..._#defs."/$defs/Properties/definitions/FlowConnection"]
+	Connections?: list.MaxItems(100) & [...#FlowConnection]
 
 	// List of nodes in a flow
-	Nodes?: list.MaxItems(40) & [..._#defs."/$defs/Properties/definitions/FlowNode"]
+	Nodes?: list.MaxItems(40) & [...#FlowNode]
 })
 
 // Internal mixin for flow node
-_#defs: "/$defs/Properties/definitions/FlowNode": close({
-	Configuration?: _#defs."/$defs/Properties/definitions/FlowNodeConfiguration"
+#FlowNode: close({
+	Configuration?: #FlowNodeConfiguration
 
 	// List of node inputs in a flow
-	Inputs?: list.MaxItems(20) & [..._#defs."/$defs/Properties/definitions/FlowNodeInput"]
+	Inputs?: list.MaxItems(20) & [...#FlowNodeInput]
 
 	// Name of a node in a flow
 	Name!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$"
 
 	// List of node outputs in a flow
-	Outputs?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/FlowNodeOutput"]
-	Type!:    _#defs."/$defs/Properties/definitions/FlowNodeType"
+	Outputs?: list.MaxItems(5) & [...#FlowNodeOutput]
+	Type!:    #FlowNodeType
 })
 
 // Node configuration in a flow
-_#defs: "/$defs/Properties/definitions/FlowNodeConfiguration": matchN(1, [close(
-	{Input!: _#defs."/$defs/Properties/definitions/InputFlowNodeConfiguration"},
+#FlowNodeConfiguration: matchN(1, [close(
+	{Input!: #InputFlowNodeConfiguration},
 ), close(
-	{Output!: _#defs."/$defs/Properties/definitions/OutputFlowNodeConfiguration"},
+	{Output!: #OutputFlowNodeConfiguration},
 ), close(
-	{KnowledgeBase!: _#defs."/$defs/Properties/definitions/KnowledgeBaseFlowNodeConfiguration"},
+	{KnowledgeBase!: #KnowledgeBaseFlowNodeConfiguration},
 ), close(
-	{Condition!: _#defs."/$defs/Properties/definitions/ConditionFlowNodeConfiguration"},
+	{Condition!: #ConditionFlowNodeConfiguration},
 ), close(
-	{Lex!: _#defs."/$defs/Properties/definitions/LexFlowNodeConfiguration"},
+	{Lex!: #LexFlowNodeConfiguration},
 ), close(
-	{Prompt!: _#defs."/$defs/Properties/definitions/PromptFlowNodeConfiguration"},
+	{Prompt!: #PromptFlowNodeConfiguration},
 ), close(
-	{LambdaFunction!: _#defs."/$defs/Properties/definitions/LambdaFunctionFlowNodeConfiguration"},
+	{LambdaFunction!: #LambdaFunctionFlowNodeConfiguration},
 ), close(
-	{Agent!: _#defs."/$defs/Properties/definitions/AgentFlowNodeConfiguration"},
+	{Agent!: #AgentFlowNodeConfiguration},
 ), close(
-	{Storage!: _#defs."/$defs/Properties/definitions/StorageFlowNodeConfiguration"},
+	{Storage!: #StorageFlowNodeConfiguration},
 ), close(
-	{Iterator!: _#defs."/$defs/Properties/definitions/IteratorFlowNodeConfiguration"},
+	{Iterator!: #IteratorFlowNodeConfiguration},
 ), close(
-	{Collector!: _#defs."/$defs/Properties/definitions/CollectorFlowNodeConfiguration"},
+	{Collector!: #CollectorFlowNodeConfiguration},
 ), close(
-	{Retrieval!: _#defs."/$defs/Properties/definitions/RetrievalFlowNodeConfiguration"},
+	{Retrieval!: #RetrievalFlowNodeConfiguration},
 ), close(
-	{InlineCode!: _#defs."/$defs/Properties/definitions/InlineCodeFlowNodeConfiguration"},
+	{InlineCode!: #InlineCodeFlowNodeConfiguration},
 ), close(
-	{Loop!: _#defs."/$defs/Properties/definitions/LoopFlowNodeConfiguration"},
+	{Loop!: #LoopFlowNodeConfiguration},
 ), close(
-	{LoopInput!: _#defs."/$defs/Properties/definitions/LoopInputFlowNodeConfiguration"},
+	{LoopInput!: #LoopInputFlowNodeConfiguration},
 ), close(
-	{LoopController!: _#defs."/$defs/Properties/definitions/LoopControllerFlowNodeConfiguration"},
+	{LoopController!: #LoopControllerFlowNodeConfiguration},
 )])
 
 // Type of input/output for a node in a flow
-_#defs: "/$defs/Properties/definitions/FlowNodeIODataType": "String" | "Number" | "Boolean" | "Object" | "Array"
+#FlowNodeIODataType: "String" | "Number" | "Boolean" | "Object" | "Array"
 
 // Input to a node in a flow
-_#defs: "/$defs/Properties/definitions/FlowNodeInput": close({
-	Category?: _#defs."/$defs/Properties/definitions/FlowNodeInputCategory"
+#FlowNodeInput: close({
+	Category?: #FlowNodeInputCategory
 
 	// Expression for a node input in a flow
 	Expression!: strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// Name of a node input in a flow
 	Name!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$"
-	Type!: _#defs."/$defs/Properties/definitions/FlowNodeIODataType"
+	Type!: #FlowNodeIODataType
 })
 
 // Optional tag to classify input type, currently exclusive to LoopNode
-_#defs: "/$defs/Properties/definitions/FlowNodeInputCategory": "LoopCondition" | "ReturnValueToLoopStart" | "ExitLoop"
+#FlowNodeInputCategory: "LoopCondition" | "ReturnValueToLoopStart" | "ExitLoop"
 
 // Output of a node in a flow
-_#defs: "/$defs/Properties/definitions/FlowNodeOutput": close({
+#FlowNodeOutput: close({
 	// Name of a node output in a flow
 	Name!: =~"^[a-zA-Z]([_]?[0-9a-zA-Z]){1,50}$"
-	Type!: _#defs."/$defs/Properties/definitions/FlowNodeIODataType"
+	Type!: #FlowNodeIODataType
 })
 
 // Flow node types
-_#defs: "/$defs/Properties/definitions/FlowNodeType": "Input" |
+#FlowNodeType: "Input" |
 	"Output" |
 	"KnowledgeBase" |
 	"Condition" |
@@ -251,19 +247,19 @@ _#defs: "/$defs/Properties/definitions/FlowNodeType": "Input" |
 	"LoopController"
 
 // Schema Type for Flow APIs
-_#defs: "/$defs/Properties/definitions/FlowStatus": "Failed" | "Prepared" | "Preparing" | "NotPrepared"
+#FlowStatus: "Failed" | "Prepared" | "Preparing" | "NotPrepared"
 
 // Validation for Flow
-_#defs: "/$defs/Properties/definitions/FlowValidation": close({
+#FlowValidation: close({
 	// validation message
 	Message!: string
 })
 
 // List of flow validations
-_#defs: "/$defs/Properties/definitions/FlowValidations": [..._#defs."/$defs/Properties/definitions/FlowValidation"]
+#FlowValidations: [...#FlowValidation]
 
 // Configuration for a guardrail
-_#defs: "/$defs/Properties/definitions/GuardrailConfiguration": close({
+#GuardrailConfiguration: close({
 	// Identifier for the guardrail, could be the id or the arn
 	GuardrailIdentifier?: strings.MaxRunes(2048) &
 	=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$"
@@ -273,22 +269,22 @@ _#defs: "/$defs/Properties/definitions/GuardrailConfiguration": close({
 })
 
 // Inline code config strucuture, contains code configs
-_#defs: "/$defs/Properties/definitions/InlineCodeFlowNodeConfiguration": close({
+#InlineCodeFlowNodeConfiguration: close({
 	// The inline code entered by customers. max size is 5MB.
 	Code!:     strings.MaxRunes(5000000)
-	Language!: _#defs."/$defs/Properties/definitions/SupportedLanguages"
+	Language!: #SupportedLanguages
 })
 
 // Input flow node configuration
-_#defs: "/$defs/Properties/definitions/InputFlowNodeConfiguration": close({})
+#InputFlowNodeConfiguration: close({})
 
 // Iterator flow node configuration
-_#defs: "/$defs/Properties/definitions/IteratorFlowNodeConfiguration": close({})
+#IteratorFlowNodeConfiguration: close({})
 
 // Knowledge base flow node configuration
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseFlowNodeConfiguration": close({
-	GuardrailConfiguration?: _#defs."/$defs/Properties/definitions/GuardrailConfiguration"
-	InferenceConfiguration?: _#defs."/$defs/Properties/definitions/PromptInferenceConfiguration"
+#KnowledgeBaseFlowNodeConfiguration: close({
+	GuardrailConfiguration?: #GuardrailConfiguration
+	InferenceConfiguration?: #PromptInferenceConfiguration
 
 	// Identifier of the KnowledgeBase
 	KnowledgeBaseId!: strings.MaxRunes(10) & =~"^[0-9a-zA-Z]+$"
@@ -301,26 +297,24 @@ _#defs: "/$defs/Properties/definitions/KnowledgeBaseFlowNodeConfiguration": clos
 
 	// Number Of Results to Retrieve
 	NumberOfResults?:            <=100 & >=1
-	OrchestrationConfiguration?: _#defs."/$defs/Properties/definitions/KnowledgeBaseOrchestrationConfiguration"
-	PromptTemplate?:             _#defs."/$defs/Properties/definitions/KnowledgeBasePromptTemplate"
-	RerankingConfiguration?:     _#defs."/$defs/Properties/definitions/VectorSearchRerankingConfiguration"
+	OrchestrationConfiguration?: #KnowledgeBaseOrchestrationConfiguration
+	PromptTemplate?:             #KnowledgeBasePromptTemplate
+	RerankingConfiguration?:     #VectorSearchRerankingConfiguration
 })
 
 // KnowledgeBaseOrchestrationConfiguration
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseOrchestrationConfiguration": close({
-	AdditionalModelRequestFields?: _#defs."/$defs/Properties/definitions/AdditionalModelRequestFields"
-	InferenceConfig?:              _#defs."/$defs/Properties/definitions/PromptInferenceConfiguration"
-	PerformanceConfig?:            _#defs."/$defs/Properties/definitions/PerformanceConfiguration"
-	PromptTemplate?:               _#defs."/$defs/Properties/definitions/KnowledgeBasePromptTemplate"
+#KnowledgeBaseOrchestrationConfiguration: close({
+	AdditionalModelRequestFields?: #AdditionalModelRequestFields
+	InferenceConfig?:              #PromptInferenceConfiguration
+	PerformanceConfig?:            #PerformanceConfiguration
+	PromptTemplate?:               #KnowledgeBasePromptTemplate
 })
 
 // Knowledge Base Prompt template
-_#defs: "/$defs/Properties/definitions/KnowledgeBasePromptTemplate": close(
-	{TextPromptTemplate!: strings.MaxRunes(100000) & strings.MinRunes(1)},
-)
+#KnowledgeBasePromptTemplate: close({TextPromptTemplate!: strings.MaxRunes(100000) & strings.MinRunes(1)})
 
 // Lambda function flow node configuration
-_#defs: "/$defs/Properties/definitions/LambdaFunctionFlowNodeConfiguration": close({
+#LambdaFunctionFlowNodeConfiguration: close({
 	// ARN of a Lambda.
 	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(2048) &
@@ -328,7 +322,7 @@ _#defs: "/$defs/Properties/definitions/LambdaFunctionFlowNodeConfiguration": clo
 })
 
 // Lex flow node configuration
-_#defs: "/$defs/Properties/definitions/LexFlowNodeConfiguration": close({
+#LexFlowNodeConfiguration: close({
 	// ARN of a Lex bot alias
 	BotAliasArn!: strings.MaxRunes(78) &
 	=~"^arn:aws(|-us-gov):lex:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:bot-alias/[0-9a-zA-Z]+/[0-9a-zA-Z]+$"
@@ -338,83 +332,75 @@ _#defs: "/$defs/Properties/definitions/LexFlowNodeConfiguration": close({
 })
 
 // Configuration for the LoopController node, which manages loop execution
-_#defs: "/$defs/Properties/definitions/LoopControllerFlowNodeConfiguration": close({
-	ContinueCondition!: _#defs."/$defs/Properties/definitions/FlowCondition"
+#LoopControllerFlowNodeConfiguration: close({
+	ContinueCondition!: #FlowCondition
 
 	// Maximum number of iterations the loop can perform
 	MaxIterations?: <=1000 & >=1
 })
 
 // Loop node config, contains loop's internal definition
-_#defs: "/$defs/Properties/definitions/LoopFlowNodeConfiguration": close(
-	{Definition!: _#defs."/$defs/Properties/definitions/FlowDefinition"},
-)
+#LoopFlowNodeConfiguration: close({Definition!: #FlowDefinition})
 
 // Configuration for the LoopInput node
-_#defs: "/$defs/Properties/definitions/LoopInputFlowNodeConfiguration": close({})
+#LoopInputFlowNodeConfiguration: close({})
 
 // MetadataConfigurationForReranking
-_#defs: "/$defs/Properties/definitions/MetadataConfigurationForReranking": close({
-	SelectionMode!:              _#defs."/$defs/Properties/definitions/RerankingMetadataSelectionMode"
-	SelectiveModeConfiguration?: _#defs."/$defs/Properties/definitions/RerankingMetadataSelectiveModeConfiguration"
+#MetadataConfigurationForReranking: close({
+	SelectionMode!:              #RerankingMetadataSelectionMode
+	SelectiveModeConfiguration?: #RerankingMetadataSelectiveModeConfiguration
 })
 
 // Output flow node configuration
-_#defs: "/$defs/Properties/definitions/OutputFlowNodeConfiguration": close({})
+#OutputFlowNodeConfiguration: close({})
 
 // PerformanceConfiguration
-_#defs: "/$defs/Properties/definitions/PerformanceConfiguration": close(
-	{Latency?: _#defs."/$defs/Properties/definitions/PerformanceConfigurationLatency"},
-)
+#PerformanceConfiguration: close({Latency?: #PerformanceConfigurationLatency})
 
 // Performance Configuration Latency
-_#defs: "/$defs/Properties/definitions/PerformanceConfigurationLatency": "standard" | "optimized"
+#PerformanceConfigurationLatency: "standard" | "optimized"
 
 // Prompt flow node configuration
-_#defs: "/$defs/Properties/definitions/PromptFlowNodeConfiguration": close({
-	GuardrailConfiguration?: _#defs."/$defs/Properties/definitions/GuardrailConfiguration"
-	SourceConfiguration!:    _#defs."/$defs/Properties/definitions/PromptFlowNodeSourceConfiguration"
+#PromptFlowNodeConfiguration: close({
+	GuardrailConfiguration?: #GuardrailConfiguration
+	SourceConfiguration!:    #PromptFlowNodeSourceConfiguration
 })
 
 // Inline prompt configuration for prompt node
-_#defs: "/$defs/Properties/definitions/PromptFlowNodeInlineConfiguration": close({
-	InferenceConfiguration?: _#defs."/$defs/Properties/definitions/PromptInferenceConfiguration"
+#PromptFlowNodeInlineConfiguration: close({
+	InferenceConfiguration?: #PromptInferenceConfiguration
 
 	// ARN or Id of a Bedrock Foundational Model or Inference Profile, or the ARN of
 	// a imported model, or a provisioned throughput ARN for custom models.
 	ModelId!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(arn:aws(-[^:]{1,12})?:(bedrock|sagemaker):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$"
-	TemplateConfiguration!: _#defs."/$defs/Properties/definitions/PromptTemplateConfiguration"
-	TemplateType!:          _#defs."/$defs/Properties/definitions/PromptTemplateType"
+	TemplateConfiguration!: #PromptTemplateConfiguration
+	TemplateType!:          #PromptTemplateType
 })
 
 // Resource prompt configuration for prompt node
-_#defs: "/$defs/Properties/definitions/PromptFlowNodeResourceConfiguration": close({
+#PromptFlowNodeResourceConfiguration: close({
 	// ARN of a prompt resource possibly with a version
 	PromptArn!: =~"^(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:prompt/[0-9a-zA-Z]{10}(?::[0-9]{1,5})?)$"
 })
 
 // Prompt source configuration for prompt node
-_#defs: "/$defs/Properties/definitions/PromptFlowNodeSourceConfiguration": matchN(1, [close(
-	{Resource!: _#defs."/$defs/Properties/definitions/PromptFlowNodeResourceConfiguration"},
-), close(
-	{Inline!: _#defs."/$defs/Properties/definitions/PromptFlowNodeInlineConfiguration"},
-)])
+#PromptFlowNodeSourceConfiguration: matchN(1, [
+	close({Resource!: #PromptFlowNodeResourceConfiguration}), close({Inline!: #PromptFlowNodeInlineConfiguration}),
+])
 
 // Model inference configuration
-_#defs: "/$defs/Properties/definitions/PromptInferenceConfiguration": close(
-	{Text!: _#defs."/$defs/Properties/definitions/PromptModelInferenceConfiguration"},
-)
+#PromptInferenceConfiguration: close({Text!: #PromptModelInferenceConfiguration})
 
 // Input variable
-_#defs: "/$defs/Properties/definitions/PromptInputVariable": close({
+#PromptInputVariable: close({
 	// Name for an input variable
 	Name?: =~"^([0-9a-zA-Z][_-]?){1,100}$"
 })
 
 // Prompt model inference configuration
-_#defs: "/$defs/Properties/definitions/PromptModelInferenceConfiguration": close({
+#PromptModelInferenceConfiguration: close({
 	// Maximum length of output
 	MaxTokens?: <=4096 & >=0
 
@@ -429,43 +415,35 @@ _#defs: "/$defs/Properties/definitions/PromptModelInferenceConfiguration": close
 })
 
 // Prompt template configuration
-_#defs: "/$defs/Properties/definitions/PromptTemplateConfiguration": close(
-	{Text!: _#defs."/$defs/Properties/definitions/TextPromptTemplateConfiguration"},
-)
+#PromptTemplateConfiguration: close({Text!: #TextPromptTemplateConfiguration})
 
 // Prompt template type
-_#defs: "/$defs/Properties/definitions/PromptTemplateType": "TEXT"
+#PromptTemplateType: "TEXT"
 
 // Reranking Metadata Selection Mode
-_#defs: "/$defs/Properties/definitions/RerankingMetadataSelectionMode": "SELECTIVE" | "ALL"
+#RerankingMetadataSelectionMode: "SELECTIVE" | "ALL"
 
 // Reranking Metadata Selective Mode Configuration
-_#defs: "/$defs/Properties/definitions/RerankingMetadataSelectiveModeConfiguration": matchN(1, [close(
-	{FieldsToInclude!: _#defs."/$defs/Properties/definitions/FieldsForReranking"},
-), close(
-	{FieldsToExclude!: _#defs."/$defs/Properties/definitions/FieldsForReranking"},
-)])
+#RerankingMetadataSelectiveModeConfiguration: matchN(1, [
+	close({FieldsToInclude!: #FieldsForReranking}), close({FieldsToExclude!: #FieldsForReranking}),
+])
 
 // Retrieval flow node configuration
-_#defs: "/$defs/Properties/definitions/RetrievalFlowNodeConfiguration": close(
-	{ServiceConfiguration!: _#defs."/$defs/Properties/definitions/RetrievalFlowNodeServiceConfiguration"},
-)
+#RetrievalFlowNodeConfiguration: close({ServiceConfiguration!: #RetrievalFlowNodeServiceConfiguration})
 
 // s3 Retrieval configuration for Retrieval node
-_#defs: "/$defs/Properties/definitions/RetrievalFlowNodeS3Configuration": close({
+#RetrievalFlowNodeS3Configuration: close({
 	// bucket name of an s3 that will be used for Retrieval flow node configuration
 	BucketName!: =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 })
 
 // Retrieval service configuration for Retrieval node
-_#defs: "/$defs/Properties/definitions/RetrievalFlowNodeServiceConfiguration": close(
-	{S3?: _#defs."/$defs/Properties/definitions/RetrievalFlowNodeS3Configuration"},
-)
+#RetrievalFlowNodeServiceConfiguration: close({S3?: #RetrievalFlowNodeS3Configuration})
 
 // A bucket, key and optional version pointing to an S3 object containing a
 // UTF-8 encoded JSON string Definition with the same schema as the Definition
 // property of this resource
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// A bucket in S3
 	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 
@@ -477,58 +455,54 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 })
 
 // Storage flow node configuration
-_#defs: "/$defs/Properties/definitions/StorageFlowNodeConfiguration": close(
-	{ServiceConfiguration!: _#defs."/$defs/Properties/definitions/StorageFlowNodeServiceConfiguration"},
-)
+#StorageFlowNodeConfiguration: close({ServiceConfiguration!: #StorageFlowNodeServiceConfiguration})
 
 // s3 storage configuration for storage node
-_#defs: "/$defs/Properties/definitions/StorageFlowNodeS3Configuration": close({
+#StorageFlowNodeS3Configuration: close({
 	// bucket name of an s3 that will be used for storage flow node configuration
 	BucketName!: =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 })
 
 // storage service configuration for storage node
-_#defs: "/$defs/Properties/definitions/StorageFlowNodeServiceConfiguration": close(
-	{S3?: _#defs."/$defs/Properties/definitions/StorageFlowNodeS3Configuration"},
-)
+#StorageFlowNodeServiceConfiguration: close({S3?: #StorageFlowNodeS3Configuration})
 
 // Enum encodes the supported language type
-_#defs: "/$defs/Properties/definitions/SupportedLanguages": "Python_3"
+#SupportedLanguages: "Python_3"
 
 // A map of tag keys and values
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})
 
 // Configuration for text prompt template
-_#defs: "/$defs/Properties/definitions/TextPromptTemplateConfiguration": close({
+#TextPromptTemplateConfiguration: close({
 	// List of input variables
-	InputVariables?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/PromptInputVariable"]
+	InputVariables?: list.MaxItems(20) & [...] & [...#PromptInputVariable]
 
 	// Prompt content for String prompt template
 	Text!: strings.MaxRunes(200000) & strings.MinRunes(1)
 })
 
 // VectorSearchBedrockRerankingConfiguration
-_#defs: "/$defs/Properties/definitions/VectorSearchBedrockRerankingConfiguration": close({
-	MetadataConfiguration?: _#defs."/$defs/Properties/definitions/MetadataConfigurationForReranking"
-	ModelConfiguration!:    _#defs."/$defs/Properties/definitions/VectorSearchBedrockRerankingModelConfiguration"
+#VectorSearchBedrockRerankingConfiguration: close({
+	MetadataConfiguration?: #MetadataConfigurationForReranking
+	ModelConfiguration!:    #VectorSearchBedrockRerankingModelConfiguration
 
 	// Number Of Results For Reranking
 	NumberOfRerankedResults?: <=100 & >=1
 })
 
 // VectorSearchBedrockRerankingModelConfiguration
-_#defs: "/$defs/Properties/definitions/VectorSearchBedrockRerankingModelConfiguration": close({
-	AdditionalModelRequestFields?: _#defs."/$defs/Properties/definitions/AdditionalModelRequestFields"
-	ModelArn!:                     _#defs."/$defs/Properties/definitions/BedrockRerankingModelArn"
+#VectorSearchBedrockRerankingModelConfiguration: close({
+	AdditionalModelRequestFields?: #AdditionalModelRequestFields
+	ModelArn!:                     #BedrockRerankingModelArn
 })
 
 // VectorSearchRerankingConfiguration
-_#defs: "/$defs/Properties/definitions/VectorSearchRerankingConfiguration": close({
-	BedrockRerankingConfiguration?: _#defs."/$defs/Properties/definitions/VectorSearchBedrockRerankingConfiguration"
-	Type!:                          _#defs."/$defs/Properties/definitions/VectorSearchRerankingConfigurationType"
+#VectorSearchRerankingConfiguration: close({
+	BedrockRerankingConfiguration?: #VectorSearchBedrockRerankingConfiguration
+	Type!:                          #VectorSearchRerankingConfigurationType
 })
 
 // Enum of Rerank Configuration Types
-_#defs: "/$defs/Properties/definitions/VectorSearchRerankingConfigurationType": "BEDROCK_RERANKING_MODEL"
+#VectorSearchRerankingConfigurationType: "BEDROCK_RERANKING_MODEL"

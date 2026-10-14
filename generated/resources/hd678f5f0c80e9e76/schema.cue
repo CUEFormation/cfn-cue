@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -20,11 +20,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	EndpointName!:  =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
 	HarnessId!:     =~"^[a-zA-Z][a-zA-Z0-9_]{0,39}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
-	Tags?:          list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:          list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	TargetVersion?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,4})$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessEndpointStatus": "CREATING" |
+#HarnessEndpointStatus: "CREATING" |
 	"CREATE_FAILED" |
 	"UPDATING" |
 	"UPDATE_FAILED" |
@@ -33,7 +33,7 @@ _#defs: "/$defs/Properties/definitions/HarnessEndpointStatus": "CREATING" |
 	"DELETE_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$" | fn.#StringExpression
 }) |

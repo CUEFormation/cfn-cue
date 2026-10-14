@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,11 +13,11 @@ import (
 #Properties: close({
 	// The timestamp when the policy was created.
 	CreatedAt?:  time.Time
-	Definition!: _#defs."/$defs/Properties/definitions/PolicyDefinition"
+	Definition!: #PolicyDefinition
 
 	// A human-readable description of the policy's purpose and functionality.
 	Description?:     strings.MaxRunes(4096) & strings.MinRunes(1)
-	EnforcementMode?: _#defs."/$defs/Properties/definitions/EnforcementMode"
+	EnforcementMode?: #EnforcementMode
 
 	// The customer-assigned immutable name for the policy. Must be unique within the policy engine.
 	Name!: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]*$"
@@ -34,18 +34,18 @@ import (
 	PolicyId?: strings.MaxRunes(59) & strings.MinRunes(12) & =~"^[A-Za-z][A-Za-z0-9_]*-[a-z0-9_]{10}$"
 
 	// The current status of the policy.
-	Status?: _#defs."/$defs/Properties/definitions/PolicyStatus"
+	Status?: #PolicyStatus
 
 	// Additional information about the policy status.
 	StatusReasons?: [...string]
 
 	// The timestamp when the policy was last updated.
 	UpdatedAt?:      time.Time
-	ValidationMode?: _#defs."/$defs/Properties/definitions/PolicyValidationMode"
+	ValidationMode?: #PolicyValidationMode
 })
 
 // A Cedar policy statement within the AgentCore Policy system.
-_#defs: "/$defs/Properties/definitions/CedarPolicy": close({
+#CedarPolicy: close({
 	// The Cedar policy statement that defines the authorization logic.
 	Statement!: strings.MaxRunes(10000) & strings.MinRunes(35)
 })
@@ -54,30 +54,24 @@ _#defs: "/$defs/Properties/definitions/CedarPolicy": close({
 // LOG_ONLY policies are still evaluated but their decisions are observed only,
 // allowing customers to validate a policy against real traffic before
 // promoting it.
-_#defs: "/$defs/Properties/definitions/EnforcementMode": "ACTIVE" | "LOG_ONLY"
+#EnforcementMode: "ACTIVE" | "LOG_ONLY"
 
 // The definition structure for policies. Encapsulates different policy formats.
-_#defs: "/$defs/Properties/definitions/PolicyDefinition": close({
-	Cedar?:  _#defs."/$defs/Properties/definitions/CedarPolicy"
-	Policy?: _#defs."/$defs/Properties/definitions/PolicyStatement"
+#PolicyDefinition: close({
+	Cedar?:  #CedarPolicy
+	Policy?: #PolicyStatement
 	if Cedar != _|_ {
 		Policy?: error("Policy cannot be used with Cedar; set exactly one of Cedar, Policy")
 	}
 }) & matchN(>=1, [{Cedar!: _}, {Policy!: _}])
 
 // A policy statement within the AgentCore Policy system.
-_#defs: "/$defs/Properties/definitions/PolicyStatement": close({
+#PolicyStatement: close({
 	// The policy statement.
 	Statement!: strings.MaxRunes(10000) & strings.MinRunes(35)
 })
 
-_#defs: "/$defs/Properties/definitions/PolicyStatus": "CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETING" |
-	"CREATE_FAILED" |
-	"UPDATE_FAILED" |
-	"DELETE_FAILED"
+#PolicyStatus: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | "CREATE_FAILED" | "UPDATE_FAILED" | "DELETE_FAILED"
 
 // The validation mode for the policy. Determines how Cedar analyzer validation results are handled.
-_#defs: "/$defs/Properties/definitions/PolicyValidationMode": "FAIL_ON_ANY_FINDINGS" | "IGNORE_ALL_FINDINGS"
+#PolicyValidationMode: "FAIL_ON_ANY_FINDINGS" | "IGNORE_ALL_FINDINGS"

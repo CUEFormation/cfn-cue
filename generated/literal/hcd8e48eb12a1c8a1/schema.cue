@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,23 +13,21 @@ import (
 // Project. A project is a grouping of the resources needed to create and
 // manage Dataset and ProjectVersions.
 #Properties: close({
-	Arn?:         _#defs."/$defs/Properties/definitions/Arn"
-	ProjectName!: _#defs."/$defs/Properties/definitions/ProjectName"
+	Arn?:         #Arn
+	ProjectName!: #ProjectName
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
+#Arn: strings.MaxRunes(2048) &
 =~"(^arn:[a-z\\d-]+:rekognition:[a-z\\d-]+:\\d{12}:project/[a-zA-Z0-9_.\\-]{1,255}/[0-9]+$)"
 
 // The name of the project
-_#defs: "/$defs/Properties/definitions/ProjectName": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*"
+#ProjectName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

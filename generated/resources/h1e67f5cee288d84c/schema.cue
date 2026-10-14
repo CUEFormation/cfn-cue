@@ -17,13 +17,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // VPC Route Server Peer
 #Properties: close({
-	BgpOptions!:            _#defs."/$defs/Properties/definitions/BgpOptions"
+	BgpOptions!:            #BgpOptions
 	PeerAddress!:           string | fn.#StringExpression
 	RouteServerEndpointId!: string | fn.#StringExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                  [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/BgpOptions": close({
+#BgpOptions: close({
 	PeerAsn?: int & <=4294967294 & >=1 |
 		{
 			string &
@@ -44,7 +44,7 @@ _#defs: "/$defs/Properties/definitions/BgpOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

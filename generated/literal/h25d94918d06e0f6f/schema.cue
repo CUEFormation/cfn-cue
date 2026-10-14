@@ -38,7 +38,7 @@ import (
 	IpAddressType?: "IPV4" | "DUAL_STACK"
 
 	// The IP addresses from BYOIP Prefix pool.
-	IpAddresses?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/IpAddress"]
+	IpAddresses?: list.MaxItems(2) & [...] & [...#IpAddress]
 
 	// The IPv4 addresses assigned to the accelerator.
 	Ipv4Addresses?: [...string]
@@ -48,14 +48,14 @@ import (
 
 	// Name of accelerator.
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{0,64}$"
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // An IPV4 address
-_#defs: "/$defs/Properties/definitions/IpAddress": =~"^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$"
+#IpAddress: =~"^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$"
 
 // Tag is a key-value pair associated with accelerator.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Key of the tag. Value can be 1 to 127 characters.
 	Key!: strings.MaxRunes(127) & strings.MinRunes(1)
 

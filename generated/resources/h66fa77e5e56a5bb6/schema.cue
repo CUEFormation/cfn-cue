@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,49 +14,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // SchemaMapping defined in AWS Entity Resolution service
 #Properties: close({
-	Description?:       _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	MappedInputFields!: _#defs."/$defs/Properties/definitions/MappedInputFields" | fn.#ListExpression
-	SchemaName!:        _#defs."/$defs/Properties/definitions/EntityName" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Description?:       #Description | fn.#StringExpression
+	MappedInputFields!: #MappedInputFields | fn.#ListExpression
+	SchemaName!:        #EntityName | fn.#StringExpression
+	Tags?:              list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeName": strings.MaxRunes(255) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z_0-9- \\t]*$" |
-fn.#StringExpression
+#AttributeName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CreatedAt": string | fn.#StringExpression
+#CreatedAt: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+#Description: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EntityName": strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$" |
-fn.#StringExpression
+#EntityName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HasWorkflows": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#HasWorkflows: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/Hashed": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#Hashed: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/MappedInputFields": list.MaxItems(35) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/SchemaInputAttribute"
-] |
-	fn.#ListExpression
+#MappedInputFields: list.MaxItems(35) & list.MinItems(2) & [...#SchemaInputAttribute] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaAttributeType": "NAME" |
+#SchemaAttributeType: "NAME" |
 	"NAME_FIRST" |
 	"NAME_MIDDLE" |
 	"NAME_LAST" |
@@ -78,26 +56,26 @@ _#defs: "/$defs/Properties/definitions/SchemaAttributeType": "NAME" |
 	"PROVIDER_ID" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaInputAttribute": close({
-	FieldName!: _#defs."/$defs/Properties/definitions/AttributeName"
-	GroupName?: _#defs."/$defs/Properties/definitions/AttributeName"
-	Hashed?:    _#defs."/$defs/Properties/definitions/Hashed"
-	MatchKey?:  _#defs."/$defs/Properties/definitions/AttributeName"
+#SchemaInputAttribute: close({
+	FieldName!: #AttributeName
+	GroupName?: #AttributeName
+	Hashed?:    #Hashed
+	MatchKey?:  #AttributeName
 	SubType?:   strings.MaxRunes(255) & =~"^[a-zA-Z_0-9- ]*$" | fn.#StringExpression
-	Type!:      _#defs."/$defs/Properties/definitions/SchemaAttributeType"
+	Type!:      #SchemaAttributeType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaMappingArn": =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(schemamapping/.*)$" |
+#SchemaMappingArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(schemamapping/.*)$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdatedAt": string | fn.#StringExpression
+#UpdatedAt: string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EntityResolution::SchemaMapping"
 	Properties!: #Properties

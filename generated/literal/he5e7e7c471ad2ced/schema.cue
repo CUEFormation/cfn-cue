@@ -13,7 +13,7 @@ import (
 #Properties: close({
 	// A cloudwatch alarm template's ARN (Amazon Resource Name)
 	Arn?:                =~"^arn:.+:medialive:.+:cloudwatch-alarm-template:.+$"
-	ComparisonOperator!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateComparisonOperator"
+	ComparisonOperator!: #CloudWatchAlarmTemplateComparisonOperator
 	CreatedAt?:          time.Time
 
 	// The number of datapoints within the evaluation period that must be breaching
@@ -46,30 +46,26 @@ import (
 
 	// The period, in seconds, over which the specified statistic is applied.
 	Period!:             <=86400 & >=10
-	Statistic!:          _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateStatistic"
-	Tags?:               _#defs."/$defs/Properties/definitions/TagMap"
-	TargetResourceType!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateTargetResourceType"
+	Statistic!:          #CloudWatchAlarmTemplateStatistic
+	Tags?:               #TagMap
+	TargetResourceType!: #CloudWatchAlarmTemplateTargetResourceType
 
 	// The threshold value to compare with the specified statistic.
 	Threshold!:        number
-	TreatMissingData!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateTreatMissingData"
+	TreatMissingData!: #CloudWatchAlarmTemplateTreatMissingData
 })
 
 // The comparison operator used to compare the specified statistic and the threshold.
-_#defs: "/$defs/Properties/definitions/CloudWatchAlarmTemplateComparisonOperator": "GreaterThanOrEqualToThreshold" |
+#CloudWatchAlarmTemplateComparisonOperator: "GreaterThanOrEqualToThreshold" |
 	"GreaterThanThreshold" |
 	"LessThanThreshold" |
 	"LessThanOrEqualToThreshold"
 
 // The statistic to apply to the alarm's metric data.
-_#defs: "/$defs/Properties/definitions/CloudWatchAlarmTemplateStatistic": "SampleCount" |
-	"Average" |
-	"Sum" |
-	"Minimum" |
-	"Maximum"
+#CloudWatchAlarmTemplateStatistic: "SampleCount" | "Average" | "Sum" | "Minimum" | "Maximum"
 
 // The resource type this template should dynamically generate cloudwatch metric alarms for.
-_#defs: "/$defs/Properties/definitions/CloudWatchAlarmTemplateTargetResourceType": "CLOUDFRONT_DISTRIBUTION" |
+#CloudWatchAlarmTemplateTargetResourceType: "CLOUDFRONT_DISTRIBUTION" |
 	"MEDIALIVE_MULTIPLEX" |
 	"MEDIALIVE_CHANNEL" |
 	"MEDIALIVE_INPUT_DEVICE" |
@@ -80,12 +76,9 @@ _#defs: "/$defs/Properties/definitions/CloudWatchAlarmTemplateTargetResourceType
 	"S3_BUCKET"
 
 // Specifies how missing data points are treated when evaluating the alarm's condition.
-_#defs: "/$defs/Properties/definitions/CloudWatchAlarmTemplateTreatMissingData": "notBreaching" |
-	"breaching" |
-	"ignore" |
-	"missing"
+#CloudWatchAlarmTemplateTreatMissingData: "notBreaching" | "breaching" | "ignore" | "missing"
 
 // Represents the tags associated with a resource.
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: string}})

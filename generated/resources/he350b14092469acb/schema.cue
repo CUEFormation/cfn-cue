@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -29,38 +29,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	S3PolicyDocument?:            strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
 	StsAccess?:                   "ENABLED" | "DISABLED" | fn.#StringExpression
 	StsPolicyDocument?:           strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
-	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                        [...#Tag] | fn.#ListExpression
 	ZeroEtlAccess?:               "ENABLED" | "DISABLED" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CrossRegionS3RestoreSourcesAccess": close({
+#CrossRegionS3RestoreSourcesAccess: close({
 	Ipv4Addresses?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Region?:        string | fn.#StringExpression
-	Status?:        _#defs."/$defs/Properties/definitions/ManagedResourceStatus" | fn.#StringExpression
+	Status?:        #ManagedResourceStatus | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedResourceStatus": "ENABLED" |
-	"ENABLING" |
-	"DISABLED" |
-	"DISABLING" |
-	fn.#StringExpression
+#ManagedResourceStatus: "ENABLED" | "ENABLING" | "DISABLED" | "DISABLING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedServices": close({
-	CrossRegionS3RestoreSourcesAccess?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/CrossRegionS3RestoreSourcesAccess"
-	] |
+#ManagedServices: close({
+	CrossRegionS3RestoreSourcesAccess?: list.UniqueItems() & [...#CrossRegionS3RestoreSourcesAccess] |
 		fn.#ListExpression
 	KmsAccess?: close({
 		DomainName?:        string | fn.#StringExpression
 		Ipv4Addresses?:     [...string | fn.#StringExpression] | fn.#ListExpression
 		KmsPolicyDocument?: string | fn.#StringExpression
-		Status?:            _#defs."/$defs/Properties/definitions/ManagedResourceStatus" | fn.#StringExpression
+		Status?:            #ManagedResourceStatus | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	ManagedS3BackupAccess?: close({
 		Ipv4Addresses?: [...string | fn.#StringExpression] | fn.#ListExpression
-		Status?:        _#defs."/$defs/Properties/definitions/ManagedResourceStatus" | fn.#StringExpression
+		Status?:        #ManagedResourceStatus | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	ManagedServicesIpv4Cidrs?: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -69,7 +63,7 @@ _#defs: "/$defs/Properties/definitions/ManagedServices": close({
 		DomainName?:       string | fn.#StringExpression
 		Ipv4Addresses?:    [...string | fn.#StringExpression] | fn.#ListExpression
 		S3PolicyDocument?: string | fn.#StringExpression
-		Status?:           _#defs."/$defs/Properties/definitions/ManagedResourceStatus" | fn.#StringExpression
+		Status?:           #ManagedResourceStatus | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	ServiceNetworkArn?: string | fn.#StringExpression
@@ -81,19 +75,19 @@ _#defs: "/$defs/Properties/definitions/ManagedServices": close({
 	StsAccess?: close({
 		DomainName?:        string | fn.#StringExpression
 		Ipv4Addresses?:     [...string | fn.#StringExpression] | fn.#ListExpression
-		Status?:            _#defs."/$defs/Properties/definitions/ManagedResourceStatus" | fn.#StringExpression
+		Status?:            #ManagedResourceStatus | fn.#StringExpression
 		StsPolicyDocument?: string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	ZeroEtlAccess?: close({
 		Cidr?:   string | fn.#StringExpression
-		Status?: _#defs."/$defs/Properties/definitions/ManagedResourceStatus" | fn.#StringExpression
+		Status?: #ManagedResourceStatus | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

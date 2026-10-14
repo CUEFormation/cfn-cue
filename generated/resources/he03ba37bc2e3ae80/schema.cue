@@ -32,15 +32,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	Description!:       string | fn.#StringExpression
-	Encryption?:        _#defs."/$defs/Properties/definitions/Encryption" | fn.#ObjectExpression
+	Encryption?:        #Encryption | fn.#ObjectExpression
 	EntitlementStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	FlowArn!:           string | fn.#StringExpression
 	Name!:              string | fn.#StringExpression
 	Subscribers!:       [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Encryption": close({
+#Encryption: close({
 	Algorithm!:                    "aes128" | "aes192" | "aes256" | fn.#StringExpression
 	ConstantInitializationVector?: string | fn.#StringExpression
 	DeviceId?:                     string | fn.#StringExpression
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

@@ -29,11 +29,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 	fn.#StringExpression
 	Schema!: fn.#Object & {...} | fn.#ObjectExpression
-	Tags?:   list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:   list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	Type!:   "DOCUMENT" | "IMAGE" | "AUDIO" | "VIDEO" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |

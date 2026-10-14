@@ -18,18 +18,18 @@ import (
 	Description?: strings.MaxRunes(500)
 
 	// The tags (keys and values) associated with the contact list.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The topics associated with the contact list.
-	Topics?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Topic"]
+	Topics?: list.MaxItems(20) & [...] & [...#Topic]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Topic": close({
+#Topic: close({
 	DefaultSubscriptionStatus!: string
 
 	// The description of the topic.

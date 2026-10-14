@@ -13,17 +13,17 @@ import (
 #Properties: close({
 	DisplayName!:         strings.MaxRunes(100) & strings.MinRunes(1)
 	FarmId!:              =~"^farm-[0-9a-f]{32}$"
-	FileSystemLocations?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/FileSystemLocation"]
-	OsFamily!:            _#defs."/$defs/Properties/definitions/StorageProfileOperatingSystemFamily"
+	FileSystemLocations?: list.MaxItems(20) & [...] & [...#FileSystemLocation]
+	OsFamily!:            #StorageProfileOperatingSystemFamily
 	StorageProfileId?:    =~"^sp-[0-9a-f]{32}$"
 })
 
-_#defs: "/$defs/Properties/definitions/FileSystemLocation": close({
+#FileSystemLocation: close({
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$"
 	Path!: strings.MaxRunes(1024) & strings.MinRunes(0)
-	Type!: _#defs."/$defs/Properties/definitions/FileSystemLocationType"
+	Type!: #FileSystemLocationType
 })
 
-_#defs: "/$defs/Properties/definitions/FileSystemLocationType": "SHARED" | "LOCAL"
+#FileSystemLocationType: "SHARED" | "LOCAL"
 
-_#defs: "/$defs/Properties/definitions/StorageProfileOperatingSystemFamily": "WINDOWS" | "LINUX" | "MACOS"
+#StorageProfileOperatingSystemFamily: "WINDOWS" | "LINUX" | "MACOS"

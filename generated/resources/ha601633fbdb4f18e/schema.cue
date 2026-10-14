@@ -18,9 +18,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // An OpenSearch Ingestion Service Data Prepper pipeline running Data Prepper.
 #Properties: close({
-	BufferOptions?:           _#defs."/$defs/Properties/definitions/BufferOptions"
-	EncryptionAtRestOptions?: _#defs."/$defs/Properties/definitions/EncryptionAtRestOptions"
-	LogPublishingOptions?:    _#defs."/$defs/Properties/definitions/LogPublishingOptions"
+	BufferOptions?:           #BufferOptions
+	EncryptionAtRestOptions?: #EncryptionAtRestOptions
+	LogPublishingOptions?:    #LogPublishingOptions
 	MaxUnits!: int & <=384 & >=1 |
 		{
 			string &
@@ -60,23 +60,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws\\-cn|aws\\-us\\-gov|aws\\-iso|aws\\-iso\\-b|aws\\-iso\\-e|aws\\-iso\\-f):iam::[0-9]+:role\\/.*$" |
 	fn.#StringExpression
-	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy"
-	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcOptions?:     _#defs."/$defs/Properties/definitions/VpcOptions"
+	ResourcePolicy?: #ResourcePolicy
+	Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	VpcOptions?:     #VpcOptions
 })
 
-_#defs: "/$defs/Properties/definitions/BufferOptions": close(
+#BufferOptions: close(
 	{PersistentBufferEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionAtRestOptions": close({
+#EncryptionAtRestOptions: close({
 	KmsKeyArn!: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(7)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogPublishingOptions": close({
+#LogPublishingOptions: close({
 	CloudWatchLogDestination?: close({
 		LogGroup!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"\\/aws\\/vendedlogs\\/[\\.\\-_/#A-Za-z0-9]+" |
 		fn.#StringExpression
@@ -86,24 +86,23 @@ _#defs: "/$defs/Properties/definitions/LogPublishingOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": close({Policy!: fn.#Object & {...} | fn.#ObjectExpression}) |
-fn.#ObjectExpression
+#ResourcePolicy: close({Policy!: fn.#Object & {...} | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcEndpoint": close({
+#VpcEndpoint: close({
 	VpcEndpointId?: string | fn.#StringExpression
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	VpcOptions?: _#defs."/$defs/Properties/definitions/VpcOptions"
+	VpcOptions?: #VpcOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcOptions": close({
+#VpcOptions: close({
 	SecurityGroupIds?: list.MaxItems(12) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(20) &

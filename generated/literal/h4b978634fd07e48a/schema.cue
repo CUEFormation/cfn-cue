@@ -22,29 +22,27 @@ import (
 
 	// The timestamp of when the ingestion destination was created.
 	CreatedAt?:                time.Time
-	DestinationConfiguration!: _#defs."/$defs/Properties/definitions/DestinationConfiguration"
+	DestinationConfiguration!: #DestinationConfiguration
 
 	// The Amazon Resource Name (ARN) of the ingestion.
 	IngestionArn!:            strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$"
-	ProcessingConfiguration!: _#defs."/$defs/Properties/definitions/ProcessingConfiguration"
+	ProcessingConfiguration!: #ProcessingConfiguration
 
 	// The state of the ingestion destination.
 	Status?: "Active" | "Failed"
 
 	// A map of the key-value pairs of the tag or tags to assign to the resource.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The timestamp of when the ingestion destination was last updated.
 	UpdatedAt?: time.Time
 })
 
 // Contains information about an audit log destination configuration.
-_#defs: "/$defs/Properties/definitions/AuditLogDestinationConfiguration": close(
-	{Destination!: _#defs."/$defs/Properties/definitions/Destination"},
-)
+#AuditLogDestinationConfiguration: close({Destination!: #Destination})
 
 // Contains information about an audit log processing configuration.
-_#defs: "/$defs/Properties/definitions/AuditLogProcessingConfiguration": close({
+#AuditLogProcessingConfiguration: close({
 	// The format in which the audit logs need to be formatted.
 	Format!: "json" | "parquet"
 
@@ -53,9 +51,9 @@ _#defs: "/$defs/Properties/definitions/AuditLogProcessingConfiguration": close({
 })
 
 // Contains information about an audit log destination.
-_#defs: "/$defs/Properties/definitions/Destination": close({
-	FirehoseStream?: _#defs."/$defs/Properties/definitions/FirehoseStream"
-	S3Bucket?:       _#defs."/$defs/Properties/definitions/S3Bucket"
+#Destination: close({
+	FirehoseStream?: #FirehoseStream
+	S3Bucket?:       #S3Bucket
 	if S3Bucket != _|_ {
 		FirehoseStream?: error(
 			"FirehoseStream cannot be used with S3Bucket; set exactly one of S3Bucket, FirehoseStream",
@@ -64,23 +62,19 @@ _#defs: "/$defs/Properties/definitions/Destination": close({
 }) & matchN(>=1, [{S3Bucket!: _}, {FirehoseStream!: _}])
 
 // Contains information about the destination of ingested data.
-_#defs: "/$defs/Properties/definitions/DestinationConfiguration": close(
-	{AuditLog!: _#defs."/$defs/Properties/definitions/AuditLogDestinationConfiguration"},
-)
+#DestinationConfiguration: close({AuditLog!: #AuditLogDestinationConfiguration})
 
 // Contains information about an Amazon Kinesis Data Firehose delivery stream.
-_#defs: "/$defs/Properties/definitions/FirehoseStream": close({
+#FirehoseStream: close({
 	// The name of the Amazon Kinesis Data Firehose delivery stream.
 	StreamName!: strings.MaxRunes(64) & strings.MinRunes(3)
 })
 
 // Contains information about how ingested data is processed.
-_#defs: "/$defs/Properties/definitions/ProcessingConfiguration": close(
-	{AuditLog!: _#defs."/$defs/Properties/definitions/AuditLogProcessingConfiguration"},
-)
+#ProcessingConfiguration: close({AuditLog!: #AuditLogProcessingConfiguration})
 
 // Contains information about an Amazon S3 bucket.
-_#defs: "/$defs/Properties/definitions/S3Bucket": close({
+#S3Bucket: close({
 	// The name of the Amazon S3 bucket.
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3)
 
@@ -88,7 +82,7 @@ _#defs: "/$defs/Properties/definitions/S3Bucket": close({
 	Prefix?: strings.MaxRunes(120) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

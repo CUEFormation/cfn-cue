@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -20,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Lattice service, you must add one or more listeners. A listener is a process
 // that checks for connection requests to your services.
 #Properties: close({
-	DefaultAction!: _#defs."/$defs/Properties/definitions/DefaultAction"
+	DefaultAction!: #DefaultAction
 	Name?:          strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	Port?: int & <=65535 & >=1 |
 		{
@@ -43,17 +43,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(21) &
 	=~"^((svc-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:service/svc-[0-9a-z]{17}))$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DefaultAction": close({
-	FixedResponse?: _#defs."/$defs/Properties/definitions/FixedResponse"
-	Forward?:       _#defs."/$defs/Properties/definitions/Forward"
+#DefaultAction: close({
+	FixedResponse?: #FixedResponse
+	Forward?:       #Forward
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FixedResponse": close({
+#FixedResponse: close({
 	StatusCode!: int & <=599 & >=100 |
 		{
 			string &
@@ -73,21 +72,16 @@ _#defs: "/$defs/Properties/definitions/FixedResponse": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Forward": close({
-	TargetGroups!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/WeightedTargetGroup"
-	] |
-		fn.#ListExpression
-}) |
+#Forward: close({TargetGroups!: list.MaxItems(10) & list.MinItems(1) & [...#WeightedTargetGroup] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WeightedTargetGroup": close({
+#WeightedTargetGroup: close({
 	TargetGroupIdentifier!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((tg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:targetgroup/tg-[0-9a-z]{17}))$" |

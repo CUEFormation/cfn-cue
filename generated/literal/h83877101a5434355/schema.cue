@@ -15,7 +15,7 @@ import (
 #Properties: close({
 	CreationTime?:             number
 	Description?:              strings.MaxRunes(1024) & strings.MinRunes(0)
-	DestinationConfiguration?: _#defs."/$defs/Properties/definitions/DestinationConfiguration"
+	DestinationConfiguration?: #DestinationConfiguration
 	ExecutionRoleArn!:         =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1)
 	LastExecutionStatus?:      "Pending" | "InvalidQuery" | "Complete" | "Failed" | "Timeout"
 	LastTriggeredTime?:        number
@@ -31,7 +31,7 @@ import (
 	ScheduleStartTime?:  >=0
 	ScheduledQueryArn?:  string
 	StartTimeOffset?:    int
-	State?:              _#defs."/$defs/Properties/definitions/ScheduledQueryState"
+	State?:              #ScheduledQueryState
 	Tags?: [...close({
 		Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 		Value!: strings.MaxRunes(256) & strings.MinRunes(0)
@@ -39,15 +39,13 @@ import (
 	Timezone?: strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/DestinationConfiguration": close(
-	{S3Configuration?: _#defs."/$defs/Properties/definitions/S3Configuration"},
-)
+#DestinationConfiguration: close({S3Configuration?: #S3Configuration})
 
-_#defs: "/$defs/Properties/definitions/S3Configuration": close({
+#S3Configuration: close({
 	DestinationIdentifier!: strings.MaxRunes(1024) &
 	strings.MinRunes(0) &
 	=~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?"
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ScheduledQueryState": "ENABLED" | "DISABLED"
+#ScheduledQueryState: "ENABLED" | "DISABLED"

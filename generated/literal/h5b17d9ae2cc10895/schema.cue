@@ -3,42 +3,42 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Cognito::UserPool Resource Type
 #Properties: close({
-	AccountRecoverySetting?:     _#defs."/$defs/Properties/definitions/AccountRecoverySetting"
-	AdminCreateUserConfig?:      _#defs."/$defs/Properties/definitions/AdminCreateUserConfig"
+	AccountRecoverySetting?:     #AccountRecoverySetting
+	AdminCreateUserConfig?:      #AdminCreateUserConfig
 	AliasAttributes?:            [..."email" | "phone_number" | "preferred_username"]
 	Arn?:                        string
 	AutoVerifiedAttributes?:     [..."email" | "phone_number"]
 	DeletionProtection?:         "ACTIVE" | "INACTIVE"
-	DeviceConfiguration?:        _#defs."/$defs/Properties/definitions/DeviceConfiguration"
+	DeviceConfiguration?:        #DeviceConfiguration
 	EmailAuthenticationMessage?: strings.MaxRunes(20000) & strings.MinRunes(6)
 	EmailAuthenticationSubject?: strings.MaxRunes(140) & strings.MinRunes(1)
-	EmailConfiguration?:         _#defs."/$defs/Properties/definitions/EmailConfiguration"
+	EmailConfiguration?:         #EmailConfiguration
 	EmailVerificationMessage?: strings.MaxRunes(20000) &
 	strings.MinRunes(6) &
 	=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*\\{####\\}[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$"
 	EmailVerificationSubject?: strings.MaxRunes(140) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$"
 	EnabledMfas?:              [...string]
-	IssuerConfiguration?:      _#defs."/$defs/Properties/definitions/IssuerConfiguration"
-	KeyConfiguration?:         _#defs."/$defs/Properties/definitions/KeyConfiguration"
-	LambdaConfig?:             _#defs."/$defs/Properties/definitions/LambdaConfig"
+	IssuerConfiguration?:      #IssuerConfiguration
+	KeyConfiguration?:         #KeyConfiguration
+	LambdaConfig?:             #LambdaConfig
 	MfaConfiguration?:         "OFF" | "ON" | "OPTIONAL"
-	Policies?:                 _#defs."/$defs/Properties/definitions/Policies"
+	Policies?:                 #Policies
 	ProviderName?:             string
 	ProviderURL?:              string
-	Schema?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SchemaAttribute"]
-	SmsAuthenticationMessage?:    strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}"
-	SmsConfiguration?:            _#defs."/$defs/Properties/definitions/SmsConfiguration"
-	SmsVerificationMessage?:      strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}"
-	UserAttributeUpdateSettings?: _#defs."/$defs/Properties/definitions/UserAttributeUpdateSettings"
-	UserPoolAddOns?:              _#defs."/$defs/Properties/definitions/UserPoolAddOns"
+	Schema?:                   list.MaxItems(50) & list.MinItems(1) & [...#SchemaAttribute]
+	SmsAuthenticationMessage?: strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}"
+	SmsConfiguration?:         #SmsConfiguration
+	SmsVerificationMessage?:   strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}"
+	UserAttributeUpdateSettings?: #UserAttributeUpdateSettings
+	UserPoolAddOns?:              #UserPoolAddOns
 	UserPoolId?:                  string
 	UserPoolName?:                strings.MaxRunes(128) & strings.MinRunes(1)
 	UserPoolTags?: close({
@@ -46,28 +46,24 @@ import (
 		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string}})
 	UserPoolTier?:                "LITE" | "ESSENTIALS" | "PLUS"
 	UsernameAttributes?:          [..."email" | "phone_number"]
-	UsernameConfiguration?:       _#defs."/$defs/Properties/definitions/UsernameConfiguration"
-	VerificationMessageTemplate?: _#defs."/$defs/Properties/definitions/VerificationMessageTemplate"
+	UsernameConfiguration?:       #UsernameConfiguration
+	VerificationMessageTemplate?: #VerificationMessageTemplate
 	WebAuthnFactorConfiguration?: "SINGLE_FACTOR" | "MULTI_FACTOR_WITH_USER_VERIFICATION"
 	WebAuthnRelyingPartyID?:      strings.MaxRunes(63) & strings.MinRunes(1)
 	WebAuthnUserVerification?:    strings.MaxRunes(9) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/AccountRecoverySetting": close({
-	RecoveryMechanisms?: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RecoveryOption"
-	]
-})
+#AccountRecoverySetting: close({RecoveryMechanisms?: list.MaxItems(2) & list.MinItems(1) & [...#RecoveryOption]})
 
-_#defs: "/$defs/Properties/definitions/AdminCreateUserConfig": close({
+#AdminCreateUserConfig: close({
 	AllowAdminCreateUserOnly?:  bool
-	InviteMessageTemplate?:     _#defs."/$defs/Properties/definitions/InviteMessageTemplate"
+	InviteMessageTemplate?:     #InviteMessageTemplate
 	UnusedAccountValidityDays?: int & <=365 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/AdvancedSecurityAdditionalFlows": close({CustomAuthMode?: "AUDIT" | "ENFORCED"})
+#AdvancedSecurityAdditionalFlows: close({CustomAuthMode?: "AUDIT" | "ENFORCED"})
 
-_#defs: "/$defs/Properties/definitions/CustomEmailSender": close({
+#CustomEmailSender: close({
 	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -75,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/CustomEmailSender": close({
 	LambdaVersion?: "V1_0"
 })
 
-_#defs: "/$defs/Properties/definitions/CustomSMSSender": close({
+#CustomSMSSender: close({
 	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -83,12 +79,12 @@ _#defs: "/$defs/Properties/definitions/CustomSMSSender": close({
 	LambdaVersion?: "V1_0"
 })
 
-_#defs: "/$defs/Properties/definitions/DeviceConfiguration": close({
+#DeviceConfiguration: close({
 	ChallengeRequiredOnNewDevice?:     bool
 	DeviceOnlyRememberedOnUserPrompt?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/EmailConfiguration": close({
+#EmailConfiguration: close({
 	ConfigurationSet?:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 	EmailSendingAccount?: "COGNITO_DEFAULT" | "DEVELOPER"
 	From?:                strings.MaxRunes(131072) & strings.MinRunes(0)
@@ -98,14 +94,14 @@ _#defs: "/$defs/Properties/definitions/EmailConfiguration": close({
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionKeyArnType": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+#EncryptionKeyArnType: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?"
 
-_#defs: "/$defs/Properties/definitions/EncryptionKeyType": "AWS_OWNED_KEY" | "CUSTOMER_MANAGED_KEY"
+#EncryptionKeyType: "AWS_OWNED_KEY" | "CUSTOMER_MANAGED_KEY"
 
-_#defs: "/$defs/Properties/definitions/EumsSmsConfiguration": close({
+#EumsSmsConfiguration: close({
 	CallerArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
@@ -117,7 +113,7 @@ _#defs: "/$defs/Properties/definitions/EumsSmsConfiguration": close({
 	Region?:               strings.MaxRunes(32) & strings.MinRunes(5)
 })
 
-_#defs: "/$defs/Properties/definitions/InboundFederation": close({
+#InboundFederation: close({
 	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -125,32 +121,32 @@ _#defs: "/$defs/Properties/definitions/InboundFederation": close({
 	LambdaVersion?: "V1_0"
 })
 
-_#defs: "/$defs/Properties/definitions/InviteMessageTemplate": close({
+#InviteMessageTemplate: close({
 	EmailMessage?: strings.MaxRunes(20000) & strings.MinRunes(6) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$"
 	EmailSubject?: strings.MaxRunes(140) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$"
 	SMSMessage?:   strings.MaxRunes(140) & strings.MinRunes(6) & =~"^(?s)"
 })
 
-_#defs: "/$defs/Properties/definitions/IssuerConfiguration": close({Type?: "ORIGINAL" | "UPDATED"})
+#IssuerConfiguration: close({Type?: "ORIGINAL" | "UPDATED"})
 
-_#defs: "/$defs/Properties/definitions/KeyConfiguration": close({
-	KeyType?:   _#defs."/$defs/Properties/definitions/EncryptionKeyType"
-	KmsKeyArn?: _#defs."/$defs/Properties/definitions/EncryptionKeyArnType"
+#KeyConfiguration: close({
+	KeyType?:   #EncryptionKeyType
+	KmsKeyArn?: #EncryptionKeyArnType
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaConfig": close({
+#LambdaConfig: close({
 	CreateAuthChallenge?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
-	CustomEmailSender?: _#defs."/$defs/Properties/definitions/CustomEmailSender"
+	CustomEmailSender?: #CustomEmailSender
 	CustomMessage?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
-	CustomSMSSender?: _#defs."/$defs/Properties/definitions/CustomSMSSender"
+	CustomSMSSender?: #CustomSMSSender
 	DefineAuthChallenge?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
-	InboundFederation?: _#defs."/$defs/Properties/definitions/InboundFederation"
+	InboundFederation?: #InboundFederation
 	KMSKeyID?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
@@ -169,7 +165,7 @@ _#defs: "/$defs/Properties/definitions/LambdaConfig": close({
 	PreTokenGeneration?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
-	PreTokenGenerationConfig?: _#defs."/$defs/Properties/definitions/PreTokenGenerationConfig"
+	PreTokenGenerationConfig?: #PreTokenGenerationConfig
 	UserMigration?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
@@ -178,12 +174,12 @@ _#defs: "/$defs/Properties/definitions/LambdaConfig": close({
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
 })
 
-_#defs: "/$defs/Properties/definitions/NumberAttributeConstraints": close({
+#NumberAttributeConstraints: close({
 	MaxValue?: strings.MaxRunes(131072) & strings.MinRunes(0)
 	MinValue?: strings.MaxRunes(131072) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/PasswordPolicy": close({
+#PasswordPolicy: close({
 	MinimumLength?:                 int & <=99 & >=6
 	PasswordHistorySize?:           int & <=24 & >=0
 	RequireLowercase?:              bool
@@ -193,12 +189,12 @@ _#defs: "/$defs/Properties/definitions/PasswordPolicy": close({
 	TemporaryPasswordValidityDays?: int & <=365 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/Policies": close({
-	PasswordPolicy?: _#defs."/$defs/Properties/definitions/PasswordPolicy"
-	SignInPolicy?:   _#defs."/$defs/Properties/definitions/SignInPolicy"
+#Policies: close({
+	PasswordPolicy?: #PasswordPolicy
+	SignInPolicy?:   #SignInPolicy
 })
 
-_#defs: "/$defs/Properties/definitions/PreTokenGenerationConfig": close({
+#PreTokenGenerationConfig: close({
 	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -206,29 +202,29 @@ _#defs: "/$defs/Properties/definitions/PreTokenGenerationConfig": close({
 	LambdaVersion?: "V1_0" | "V2_0" | "V3_0"
 })
 
-_#defs: "/$defs/Properties/definitions/RecoveryOption": close({
+#RecoveryOption: close({
 	Name?:     "admin_only" | "verified_email" | "verified_phone_number"
 	Priority?: int & <=2 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/SchemaAttribute": close({
+#SchemaAttribute: close({
 	AttributeDataType?:          "Boolean" | "DateTime" | "Number" | "String"
 	DeveloperOnlyAttribute?:     bool
 	Mutable?:                    bool
 	Name?:                       strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$"
-	NumberAttributeConstraints?: _#defs."/$defs/Properties/definitions/NumberAttributeConstraints"
+	NumberAttributeConstraints?: #NumberAttributeConstraints
 	Required?:                   bool
-	StringAttributeConstraints?: _#defs."/$defs/Properties/definitions/StringAttributeConstraints"
+	StringAttributeConstraints?: #StringAttributeConstraints
 })
 
-_#defs: "/$defs/Properties/definitions/SignInPolicy": close({
+#SignInPolicy: close({
 	AllowedFirstAuthFactors?: list.MaxItems(5) & list.MinItems(1) & [
 		..."EMAIL_OTP" | "PASSWORD" | "SMS_OTP" | "SOFTWARE_TOKEN" | "WEB_AUTHN"
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/SmsConfiguration": close({
-	EumsSms?:    _#defs."/$defs/Properties/definitions/EumsSmsConfiguration"
+#SmsConfiguration: close({
+	EumsSms?:    #EumsSmsConfiguration
 	ExternalId?: strings.MaxRunes(131072) & strings.MinRunes(0)
 	SnsCallerArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -236,23 +232,21 @@ _#defs: "/$defs/Properties/definitions/SmsConfiguration": close({
 	SnsRegion?: strings.MaxRunes(32) & strings.MinRunes(5)
 })
 
-_#defs: "/$defs/Properties/definitions/StringAttributeConstraints": close({
+#StringAttributeConstraints: close({
 	MaxLength?: strings.MaxRunes(131072) & strings.MinRunes(0)
 	MinLength?: strings.MaxRunes(131072) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/UserAttributeUpdateSettings": close(
-	{AttributesRequireVerificationBeforeUpdate!: [..."email" | "phone_number"]},
-)
+#UserAttributeUpdateSettings: close({AttributesRequireVerificationBeforeUpdate!: [..."email" | "phone_number"]})
 
-_#defs: "/$defs/Properties/definitions/UserPoolAddOns": close({
-	AdvancedSecurityAdditionalFlows?: _#defs."/$defs/Properties/definitions/AdvancedSecurityAdditionalFlows"
+#UserPoolAddOns: close({
+	AdvancedSecurityAdditionalFlows?: #AdvancedSecurityAdditionalFlows
 	AdvancedSecurityMode?:            "AUDIT" | "ENFORCED" | "OFF"
 })
 
-_#defs: "/$defs/Properties/definitions/UsernameConfiguration": close({CaseSensitive?: bool})
+#UsernameConfiguration: close({CaseSensitive?: bool})
 
-_#defs: "/$defs/Properties/definitions/VerificationMessageTemplate": close({
+#VerificationMessageTemplate: close({
 	DefaultEmailOption?: "CONFIRM_WITH_CODE" | "CONFIRM_WITH_LINK"
 	EmailMessage?: strings.MaxRunes(20000) &
 	strings.MinRunes(6) &

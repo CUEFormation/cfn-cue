@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -47,7 +47,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		FirewallDomainRedirectionAction?: "INSPECT_REDIRECTION_DOMAIN" |
 			"TRUST_REDIRECTION_DOMAIN" |
 			fn.#StringExpression
-		FirewallRuleType?: _#defs."/$defs/Properties/definitions/FirewallRuleType" | fn.#ObjectExpression
+		FirewallRuleType?: #FirewallRuleType | fn.#ObjectExpression
 		Priority!: int |
 			{
 				string &
@@ -69,21 +69,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression] |
 	fn.#ListExpression
 	Name?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FirewallAdvancedContentCategoryConfig": close(
+#FirewallAdvancedContentCategoryConfig: close(
 	{Category!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirewallAdvancedThreatCategoryConfig": close(
+#FirewallAdvancedThreatCategoryConfig: close(
 	{Category!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirewallRule": close({
+#FirewallRule: close({
 	Action!:               "ALLOW" | "BLOCK" | "ALERT" | fn.#StringExpression
 	BlockOverrideDnsType?: "CNAME" | fn.#StringExpression
 	BlockOverrideDomain?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -108,7 +107,7 @@ _#defs: "/$defs/Properties/definitions/FirewallRule": close({
 	DnsThreatProtection?:             "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression
 	FirewallDomainListId?:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	FirewallDomainRedirectionAction?: "INSPECT_REDIRECTION_DOMAIN" | "TRUST_REDIRECTION_DOMAIN" | fn.#StringExpression
-	FirewallRuleType?:                _#defs."/$defs/Properties/definitions/FirewallRuleType" | fn.#ObjectExpression
+	FirewallRuleType?:                #FirewallRuleType | fn.#ObjectExpression
 	FirewallThreatProtectionId?:      strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	Priority!: int |
 		{
@@ -129,10 +128,10 @@ _#defs: "/$defs/Properties/definitions/FirewallRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirewallRuleType": close({
-	FirewallAdvancedContentCategory?: _#defs."/$defs/Properties/definitions/FirewallAdvancedContentCategoryConfig"
-	FirewallAdvancedThreatCategory?:  _#defs."/$defs/Properties/definitions/FirewallAdvancedThreatCategoryConfig"
-	PartnerThreatProtection?:         _#defs."/$defs/Properties/definitions/PartnerThreatProtectionConfig"
+#FirewallRuleType: close({
+	FirewallAdvancedContentCategory?: #FirewallAdvancedContentCategoryConfig
+	FirewallAdvancedThreatCategory?:  #FirewallAdvancedThreatCategoryConfig
+	PartnerThreatProtection?:         #PartnerThreatProtectionConfig
 	if PartnerThreatProtection != _|_ {
 		FirewallAdvancedContentCategory?: error(
 			"FirewallAdvancedContentCategory cannot be used with PartnerThreatProtection; set exactly one of PartnerThreatProtection, FirewallAdvancedContentCategory, FirewallAdvancedThreatCategory",
@@ -152,12 +151,10 @@ _#defs: "/$defs/Properties/definitions/FirewallRuleType": close({
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PartnerThreatProtectionConfig": close(
-	{Partner!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#PartnerThreatProtectionConfig: close({Partner!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |

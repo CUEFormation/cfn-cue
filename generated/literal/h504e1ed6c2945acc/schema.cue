@@ -16,39 +16,37 @@ import "strings"
 		=~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$"
 	AssistantId!:
 		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$"
-	Configuration!:       _#defs."/$defs/Properties/definitions/AIAgentConfiguration"
+	Configuration!:       #AIAgentConfiguration
 	Description?:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+"
 	ModifiedTimeSeconds?: number
 	Name?:                strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+"
-	Tags?:                _#defs."/$defs/Properties/definitions/Tags"
-	Type!:                _#defs."/$defs/Properties/definitions/AIAgentType"
+	Tags?:                #Tags
+	Type!:                #AIAgentType
 })
 
-_#defs: "/$defs/Properties/definitions/AIAgentAssociationConfigurationType": "KNOWLEDGE_BASE"
+#AIAgentAssociationConfigurationType: "KNOWLEDGE_BASE"
 
-_#defs: "/$defs/Properties/definitions/AIAgentConfiguration": matchN(1, [close(
-	{ManualSearchAIAgentConfiguration!: _#defs."/$defs/Properties/definitions/ManualSearchAIAgentConfiguration"},
-), close({
-	AnswerRecommendationAIAgentConfiguration!:
-		_#defs."/$defs/Properties/definitions/AnswerRecommendationAIAgentConfiguration"
-}), close(
-	{SelfServiceAIAgentConfiguration!: _#defs."/$defs/Properties/definitions/SelfServiceAIAgentConfiguration"},
+#AIAgentConfiguration: matchN(1, [close(
+	{ManualSearchAIAgentConfiguration!: #ManualSearchAIAgentConfiguration},
 ), close(
-	{EmailResponseAIAgentConfiguration!: _#defs."/$defs/Properties/definitions/EmailResponseAIAgentConfiguration"},
+	{AnswerRecommendationAIAgentConfiguration!: #AnswerRecommendationAIAgentConfiguration},
 ), close(
-	{EmailOverviewAIAgentConfiguration!: _#defs."/$defs/Properties/definitions/EmailOverviewAIAgentConfiguration"},
-), close({
-	EmailGenerativeAnswerAIAgentConfiguration!:
-		_#defs."/$defs/Properties/definitions/EmailGenerativeAnswerAIAgentConfiguration"
-}), close(
-	{OrchestrationAIAgentConfiguration!: _#defs."/$defs/Properties/definitions/OrchestrationAIAgentConfiguration"},
+	{SelfServiceAIAgentConfiguration!: #SelfServiceAIAgentConfiguration},
 ), close(
-	{NoteTakingAIAgentConfiguration!: _#defs."/$defs/Properties/definitions/NoteTakingAIAgentConfiguration"},
-), close({
-	CaseSummarizationAIAgentConfiguration!: _#defs."/$defs/Properties/definitions/CaseSummarizationAIAgentConfiguration"
-})])
+	{EmailResponseAIAgentConfiguration!: #EmailResponseAIAgentConfiguration},
+), close(
+	{EmailOverviewAIAgentConfiguration!: #EmailOverviewAIAgentConfiguration},
+), close(
+	{EmailGenerativeAnswerAIAgentConfiguration!: #EmailGenerativeAnswerAIAgentConfiguration},
+), close(
+	{OrchestrationAIAgentConfiguration!: #OrchestrationAIAgentConfiguration},
+), close(
+	{NoteTakingAIAgentConfiguration!: #NoteTakingAIAgentConfiguration},
+), close(
+	{CaseSummarizationAIAgentConfiguration!: #CaseSummarizationAIAgentConfiguration},
+)])
 
-_#defs: "/$defs/Properties/definitions/AIAgentType": "MANUAL_SEARCH" |
+#AIAgentType: "MANUAL_SEARCH" |
 	"ANSWER_RECOMMENDATION" |
 	"SELF_SERVICE" |
 	"EMAIL_RESPONSE" |
@@ -58,39 +56,38 @@ _#defs: "/$defs/Properties/definitions/AIAgentType": "MANUAL_SEARCH" |
 	"NOTE_TAKING" |
 	"CASE_SUMMARIZATION"
 
-_#defs: "/$defs/Properties/definitions/Annotation": close({})
+#Annotation: close({})
 
-_#defs: "/$defs/Properties/definitions/AnswerRecommendationAIAgentConfiguration": close({
+#AnswerRecommendationAIAgentConfiguration: close({
 	AnswerGenerationAIGuardrailId?:
 		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 	AnswerGenerationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
-	AssociationConfigurations?:  [..._#defs."/$defs/Properties/definitions/AssociationConfiguration"]
+	AssociationConfigurations?:  [...#AssociationConfiguration]
 	IntentLabelingGenerationAIPromptId?:
 		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 	Locale?:                       strings.MinRunes(1)
 	QueryReformulationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 })
 
-_#defs: "/$defs/Properties/definitions/AssociationConfiguration": close({
-	AssociationConfigurationData?: _#defs."/$defs/Properties/definitions/AssociationConfigurationData"
+#AssociationConfiguration: close({
+	AssociationConfigurationData?: #AssociationConfigurationData
 	AssociationId?:                =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
-	AssociationType?:              _#defs."/$defs/Properties/definitions/AIAgentAssociationConfigurationType"
+	AssociationType?:              #AIAgentAssociationConfigurationType
 })
 
-_#defs: "/$defs/Properties/definitions/AssociationConfigurationData": close({
-	KnowledgeBaseAssociationConfigurationData!:
-		_#defs."/$defs/Properties/definitions/KnowledgeBaseAssociationConfigurationData"
-})
+#AssociationConfigurationData: close(
+	{KnowledgeBaseAssociationConfigurationData!: #KnowledgeBaseAssociationConfigurationData},
+)
 
-_#defs: "/$defs/Properties/definitions/CaseSummarizationAIAgentConfiguration": close({
+#CaseSummarizationAIAgentConfiguration: close({
 	CaseSummarizationAIGuardrailId?:
 		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 	CaseSummarizationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 	Locale?:                      strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/EmailGenerativeAnswerAIAgentConfiguration": close({
-	AssociationConfigurations?: [..._#defs."/$defs/Properties/definitions/AssociationConfiguration"]
+#EmailGenerativeAnswerAIAgentConfiguration: close({
+	AssociationConfigurations?: [...#AssociationConfiguration]
 	EmailGenerativeAnswerAIPromptId?:
 		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 	EmailQueryReformulationAIPromptId?:
@@ -98,59 +95,55 @@ _#defs: "/$defs/Properties/definitions/EmailGenerativeAnswerAIAgentConfiguration
 	Locale?: strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/EmailOverviewAIAgentConfiguration": close({
+#EmailOverviewAIAgentConfiguration: close({
 	EmailOverviewAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 	Locale?:                  strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/EmailResponseAIAgentConfiguration": close({
-	AssociationConfigurations?: [..._#defs."/$defs/Properties/definitions/AssociationConfiguration"]
+#EmailResponseAIAgentConfiguration: close({
+	AssociationConfigurations?: [...#AssociationConfiguration]
 	EmailQueryReformulationAIPromptId?:
 		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 	EmailResponseAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 	Locale?:                  strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseAssociationConfigurationData": close({
-	ContentTagFilter?:                _#defs."/$defs/Properties/definitions/TagFilter"
+#KnowledgeBaseAssociationConfigurationData: close({
+	ContentTagFilter?:                #TagFilter
 	MaxResults?:                      <=100 & >=1
-	OverrideKnowledgeBaseSearchType?: _#defs."/$defs/Properties/definitions/KnowledgeBaseSearchType"
+	OverrideKnowledgeBaseSearchType?: #KnowledgeBaseSearchType
 })
 
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseSearchType": "HYBRID" | "SEMANTIC"
+#KnowledgeBaseSearchType: "HYBRID" | "SEMANTIC"
 
-_#defs: "/$defs/Properties/definitions/ManualSearchAIAgentConfiguration": close({
+#ManualSearchAIAgentConfiguration: close({
 	AnswerGenerationAIGuardrailId?:
 		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 	AnswerGenerationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
-	AssociationConfigurations?:  [..._#defs."/$defs/Properties/definitions/AssociationConfiguration"]
+	AssociationConfigurations?:  [...#AssociationConfiguration]
 	Locale?:                     strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/NoteTakingAIAgentConfiguration": close({
+#NoteTakingAIAgentConfiguration: close({
 	Locale?:                  strings.MinRunes(1)
 	NoteTakingAIGuardrailId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 	NoteTakingAIPromptId?:    =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 })
 
-_#defs: "/$defs/Properties/definitions/OrCondition": matchN(1, [close(
-	{AndConditions!: [..._#defs."/$defs/Properties/definitions/TagCondition"]},
-), close(
-	{TagCondition!: _#defs."/$defs/Properties/definitions/TagCondition"},
-)])
+#OrCondition: matchN(1, [close({AndConditions!: [...#TagCondition]}), close({TagCondition!: #TagCondition})])
 
-_#defs: "/$defs/Properties/definitions/OrchestrationAIAgentConfiguration": close({
+#OrchestrationAIAgentConfiguration: close({
 	ConnectInstanceArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-z-]+?:[a-z-]+?:[a-z0-9-]*?:([0-9]{12})?:[a-zA-Z0-9-:/]+$"
 	Locale?:                     strings.MinRunes(1)
 	OrchestrationAIGuardrailId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 	OrchestrationAIPromptId!:    =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
-	ToolConfigurations?:         _#defs."/$defs/Properties/definitions/ToolConfigurationList"
+	ToolConfigurations?:         #ToolConfigurationList
 })
 
-_#defs: "/$defs/Properties/definitions/SelfServiceAIAgentConfiguration": close({
-	AssociationConfigurations?: [..._#defs."/$defs/Properties/definitions/AssociationConfiguration"]
+#SelfServiceAIAgentConfiguration: close({
+	AssociationConfigurations?: [...#AssociationConfiguration]
 	SelfServiceAIGuardrailId?:  =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 	SelfServiceAnswerGenerationAIPromptId?:
 		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
@@ -158,81 +151,73 @@ _#defs: "/$defs/Properties/definitions/SelfServiceAIAgentConfiguration": close({
 		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$"
 })
 
-_#defs: "/$defs/Properties/definitions/TagCondition": close({
+#TagCondition: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/TagFilter": matchN(1, [close(
-	{TagCondition!: _#defs."/$defs/Properties/definitions/TagCondition"},
+#TagFilter: matchN(1, [close(
+	{TagCondition!: #TagCondition},
 ), close(
-	{AndConditions!: [..._#defs."/$defs/Properties/definitions/TagCondition"]},
+	{AndConditions!: [...#TagCondition]},
 ), close(
-	{OrConditions!: [..._#defs."/$defs/Properties/definitions/OrCondition"]},
+	{OrConditions!: [...#OrCondition]},
 )])
 
-_#defs: "/$defs/Properties/definitions/Tags": {...}
+#Tags: {...}
 
-_#defs: "/$defs/Properties/definitions/ToolConfiguration": close({
-	Annotations?:                  _#defs."/$defs/Properties/definitions/Annotation"
+#ToolConfiguration: close({
+	Annotations?:                  #Annotation
 	Description?:                  strings.MinRunes(1)
 	InputSchema?:                  {...}
-	Instruction?:                  _#defs."/$defs/Properties/definitions/ToolInstruction"
-	OutputFilters?:                _#defs."/$defs/Properties/definitions/ToolOutputFilterList"
+	Instruction?:                  #ToolInstruction
+	OutputFilters?:                #ToolOutputFilterList
 	OutputSchema?:                 {...}
-	OverrideInputValues?:          _#defs."/$defs/Properties/definitions/ToolOverrideInputValueList"
+	OverrideInputValues?:          #ToolOverrideInputValueList
 	Title?:                        strings.MinRunes(1)
 	ToolId?:                       strings.MinRunes(1)
 	ToolName!:                     strings.MinRunes(1)
-	ToolType!:                     _#defs."/$defs/Properties/definitions/ToolType"
-	UserInteractionConfiguration?: _#defs."/$defs/Properties/definitions/UserInteractionConfiguration"
+	ToolType!:                     #ToolType
+	UserInteractionConfiguration?: #UserInteractionConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/ToolConfigurationList": [
-	..._#defs."/$defs/Properties/definitions/ToolConfiguration"
-]
+#ToolConfigurationList: [...#ToolConfiguration]
 
-_#defs: "/$defs/Properties/definitions/ToolExampleList": [...string]
+#ToolExampleList: [...string]
 
-_#defs: "/$defs/Properties/definitions/ToolInstruction": close({
-	Examples?:    _#defs."/$defs/Properties/definitions/ToolExampleList"
+#ToolInstruction: close({
+	Examples?:    #ToolExampleList
 	Instruction?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ToolOutputConfiguration": close({
+#ToolOutputConfiguration: close({
 	OutputVariableNameOverride?: strings.MinRunes(1)
 	SessionDataNamespace?:       strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ToolOutputFilter": close({
+#ToolOutputFilter: close({
 	JsonPath!:            strings.MinRunes(1)
-	OutputConfiguration?: _#defs."/$defs/Properties/definitions/ToolOutputConfiguration"
+	OutputConfiguration?: #ToolOutputConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/ToolOutputFilterList": [
-	..._#defs."/$defs/Properties/definitions/ToolOutputFilter"
-]
+#ToolOutputFilterList: [...#ToolOutputFilter]
 
-_#defs: "/$defs/Properties/definitions/ToolOverrideConstantInputValue": close({
-	Type!:  _#defs."/$defs/Properties/definitions/ToolOverrideInputValueType"
+#ToolOverrideConstantInputValue: close({
+	Type!:  #ToolOverrideInputValueType
 	Value!: strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ToolOverrideInputValue": close({
+#ToolOverrideInputValue: close({
 	JsonPath!: strings.MinRunes(1)
-	Value!:    _#defs."/$defs/Properties/definitions/ToolOverrideInputValueConfiguration"
+	Value!:    #ToolOverrideInputValueConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/ToolOverrideInputValueConfiguration": close(
-	{Constant!: _#defs."/$defs/Properties/definitions/ToolOverrideConstantInputValue"},
-)
+#ToolOverrideInputValueConfiguration: close({Constant!: #ToolOverrideConstantInputValue})
 
-_#defs: "/$defs/Properties/definitions/ToolOverrideInputValueList": [
-	..._#defs."/$defs/Properties/definitions/ToolOverrideInputValue"
-]
+#ToolOverrideInputValueList: [...#ToolOverrideInputValue]
 
-_#defs: "/$defs/Properties/definitions/ToolOverrideInputValueType": "STRING" | "NUMBER" | "JSON_STRING"
+#ToolOverrideInputValueType: "STRING" | "NUMBER" | "JSON_STRING"
 
-_#defs: "/$defs/Properties/definitions/ToolType": "MODEL_CONTEXT_PROTOCOL" | "RETURN_TO_CONTROL" | "CONSTANT"
+#ToolType: "MODEL_CONTEXT_PROTOCOL" | "RETURN_TO_CONTROL" | "CONSTANT"
 
-_#defs: "/$defs/Properties/definitions/UserInteractionConfiguration": close({IsUserConfirmationRequired?: bool})
+#UserInteractionConfiguration: close({IsUserConfirmationRequired?: bool})

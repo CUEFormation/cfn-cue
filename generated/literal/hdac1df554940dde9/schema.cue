@@ -20,13 +20,13 @@ import "strings"
 
 	// An array of parameters to be modified. A maximum of 20 parameters can be
 	// modified in a single request.
-	Parameters?: [..._#defs."/$defs/Properties/definitions/Parameter"]
+	Parameters?: [...#Parameter]
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Parameter": close({
+#Parameter: close({
 	// The name of the parameter.
 	ParameterName!: string
 
@@ -36,7 +36,7 @@ _#defs: "/$defs/Properties/definitions/Parameter": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

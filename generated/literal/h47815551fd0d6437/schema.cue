@@ -14,8 +14,8 @@ import (
 	AllowedColumns!: list.MaxItems(100) & list.MinItems(1) & [
 		...strings.MaxRunes(128) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$"
 	]
-	AnalysisMethod!: _#defs."/$defs/Properties/definitions/AnalysisMethod"
-	AnalysisRules?:  list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AnalysisRule"]
+	AnalysisMethod!: #AnalysisMethod
+	AnalysisRules?:  list.MaxItems(1) & list.MinItems(1) & [...#AnalysisRule]
 	Arn?:            strings.MaxRunes(100)
 	ConfiguredTableIdentifier?: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
@@ -23,113 +23,99 @@ import (
 	Description?: strings.MaxRunes(255) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$"
 	Name!:                    strings.MaxRunes(100) & strings.MinRunes(1)
-	SelectedAnalysisMethods?: _#defs."/$defs/Properties/definitions/SelectedAnalysisMethods"
-	TableReference!:          _#defs."/$defs/Properties/definitions/TableReference"
+	SelectedAnalysisMethods?: #SelectedAnalysisMethods
+	TableReference!:          #TableReference
 
 	// An arbitrary set of tags (key-value pairs) for this cleanrooms collaboration.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalAnalyses": "ALLOWED" | "REQUIRED" | "NOT_ALLOWED"
+#AdditionalAnalyses: "ALLOWED" | "REQUIRED" | "NOT_ALLOWED"
 
-_#defs: "/$defs/Properties/definitions/AggregateColumn": close({
-	ColumnNames!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"]
-	Function!:    _#defs."/$defs/Properties/definitions/AggregateFunctionName"
+#AggregateColumn: close({
+	ColumnNames!: list.MinItems(1) & [...#AnalysisRuleColumnName]
+	Function!:    #AggregateFunctionName
 })
 
-_#defs: "/$defs/Properties/definitions/AggregateFunctionName": "SUM" |
-	"SUM_DISTINCT" |
-	"COUNT" |
-	"COUNT_DISTINCT" |
-	"AVG"
+#AggregateFunctionName: "SUM" | "SUM_DISTINCT" | "COUNT" | "COUNT_DISTINCT" | "AVG"
 
-_#defs: "/$defs/Properties/definitions/AggregationConstraint": close({
-	ColumnName!: _#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"
+#AggregationConstraint: close({
+	ColumnName!: #AnalysisRuleColumnName
 	Minimum!:    <=100000 & >=2
-	Type!:       _#defs."/$defs/Properties/definitions/AggregationType"
+	Type!:       #AggregationType
 })
 
-_#defs: "/$defs/Properties/definitions/AggregationThreshold": close({
-	AllowedAggregateExpressionType!: _#defs."/$defs/Properties/definitions/AllowedAggregateExpressionType"
-	IdentityColumns!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"
-	]
-	MinimumIdentityCount!:   int & <=100000 & >=2
-	OutputColumnThresholds?: [..._#defs."/$defs/Properties/definitions/OutputColumnThreshold"]
-	Type!:                   _#defs."/$defs/Properties/definitions/AggregationThresholdType"
+#AggregationThreshold: close({
+	AllowedAggregateExpressionType!: #AllowedAggregateExpressionType
+	IdentityColumns!:                list.MaxItems(1) & list.MinItems(1) & [...#AnalysisRuleColumnName]
+	MinimumIdentityCount!:           int & <=100000 & >=2
+	OutputColumnThresholds?:         [...#OutputColumnThreshold]
+	Type!:                           #AggregationThresholdType
 })
 
-_#defs: "/$defs/Properties/definitions/AggregationThresholdType": "COUNT_DISTINCT"
+#AggregationThresholdType: "COUNT_DISTINCT"
 
-_#defs: "/$defs/Properties/definitions/AggregationType": "COUNT_DISTINCT"
+#AggregationType: "COUNT_DISTINCT"
 
-_#defs: "/$defs/Properties/definitions/AllowedAggregateExpressionType": "COLUMNS_ONLY" | "ANY_EXPRESSION"
+#AllowedAggregateExpressionType: "COLUMNS_ONLY" | "ANY_EXPRESSION"
 
-_#defs: "/$defs/Properties/definitions/AllowedAnalyses": [...] & [
-	..._#defs."/$defs/Properties/definitions/AllowedAnalysis"
-]
+#AllowedAnalyses: [...] & [...#AllowedAnalysis]
 
-_#defs: "/$defs/Properties/definitions/AllowedAnalysis": strings.MaxRunes(200) &
+#AllowedAnalysis: strings.MaxRunes(200) &
 strings.MinRunes(0) &
 =~"(ANY_QUERY|ANY_JOB|arn:[\\w]{3}:cleanrooms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:membership/[\\d\\w-]+/analysistemplate/[\\d\\w-]+)"
 
-_#defs: "/$defs/Properties/definitions/AllowedAnalysisProvider": strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+"
+#AllowedAnalysisProvider: strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+"
 
-_#defs: "/$defs/Properties/definitions/AllowedAnalysisProviders": [...] & [
-	..._#defs."/$defs/Properties/definitions/AllowedAnalysisProvider"
-]
+#AllowedAnalysisProviders: [...] & [...#AllowedAnalysisProvider]
 
-_#defs: "/$defs/Properties/definitions/AnalysisMethod": "DIRECT_QUERY" | "DIRECT_JOB" | "MULTIPLE"
+#AnalysisMethod: "DIRECT_QUERY" | "DIRECT_JOB" | "MULTIPLE"
 
-_#defs: "/$defs/Properties/definitions/AnalysisRule": close({
-	Policy!: _#defs."/$defs/Properties/definitions/ConfiguredTableAnalysisRulePolicy"
-	Type!:   _#defs."/$defs/Properties/definitions/ConfiguredTableAnalysisRuleType"
+#AnalysisRule: close({
+	Policy!: #ConfiguredTableAnalysisRulePolicy
+	Type!:   #ConfiguredTableAnalysisRuleType
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisRuleAggregation": close({
-	AdditionalAnalyses?:   _#defs."/$defs/Properties/definitions/AdditionalAnalyses"
-	AggregateColumns!:     list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AggregateColumn"]
-	AllowedJoinOperators?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/JoinOperator"]
-	DimensionColumns!:     [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"]
-	JoinColumns!:          [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"]
-	JoinRequired?:         _#defs."/$defs/Properties/definitions/JoinRequiredOption"
-	OutputConstraints!:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AggregationConstraint"]
-	ScalarFunctions!:      [..._#defs."/$defs/Properties/definitions/ScalarFunctions"]
+#AnalysisRuleAggregation: close({
+	AdditionalAnalyses?:   #AdditionalAnalyses
+	AggregateColumns!:     list.MinItems(1) & [...#AggregateColumn]
+	AllowedJoinOperators?: list.MaxItems(2) & [...#JoinOperator]
+	DimensionColumns!:     [...#AnalysisRuleColumnName]
+	JoinColumns!:          [...#AnalysisRuleColumnName]
+	JoinRequired?:         #JoinRequiredOption
+	OutputConstraints!:    list.MinItems(1) & [...#AggregationConstraint]
+	ScalarFunctions!:      [...#ScalarFunctions]
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisRuleColumnName": strings.MaxRunes(127) &
-strings.MinRunes(1) &
-=~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$"
+#AnalysisRuleColumnName: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$"
 
-_#defs: "/$defs/Properties/definitions/AnalysisRuleCustom": close({
-	AdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AdditionalAnalyses"
-	AggregationThresholds?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AggregationThreshold"
-	]
-	AllowedAnalyses!:          _#defs."/$defs/Properties/definitions/AllowedAnalyses"
-	AllowedAnalysisProviders?: _#defs."/$defs/Properties/definitions/AllowedAnalysisProviders"
-	ComparisonControls?:       _#defs."/$defs/Properties/definitions/ComparisonControls"
-	DifferentialPrivacy?:      _#defs."/$defs/Properties/definitions/DifferentialPrivacy"
-	DisallowedOutputColumns?:  _#defs."/$defs/Properties/definitions/DisallowedOutputColumns"
+#AnalysisRuleCustom: close({
+	AdditionalAnalyses?:       #AdditionalAnalyses
+	AggregationThresholds?:    list.MaxItems(1) & list.MinItems(1) & [...#AggregationThreshold]
+	AllowedAnalyses!:          #AllowedAnalyses
+	AllowedAnalysisProviders?: #AllowedAnalysisProviders
+	ComparisonControls?:       #ComparisonControls
+	DifferentialPrivacy?:      #DifferentialPrivacy
+	DisallowedOutputColumns?:  #DisallowedOutputColumns
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisRuleList": close({
-	AdditionalAnalyses?:   _#defs."/$defs/Properties/definitions/AdditionalAnalyses"
-	AllowedJoinOperators?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/JoinOperator"]
-	JoinColumns!:          list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"]
-	ListColumns!:          [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"]
+#AnalysisRuleList: close({
+	AdditionalAnalyses?:   #AdditionalAnalyses
+	AllowedJoinOperators?: list.MaxItems(2) & [...#JoinOperator]
+	JoinColumns!:          list.MinItems(1) & [...#AnalysisRuleColumnName]
+	ListColumns!:          [...#AnalysisRuleColumnName]
 })
 
-_#defs: "/$defs/Properties/definitions/AthenaTableReference": close({
+#AthenaTableReference: close({
 	CatalogName?:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 	DatabaseName!:   strings.MaxRunes(128)
 	OutputLocation?: strings.MaxRunes(1024) & strings.MinRunes(8)
-	Region?:         _#defs."/$defs/Properties/definitions/CommercialRegion"
+	Region?:         #CommercialRegion
 	TableName!:      strings.MaxRunes(128)
 	WorkGroup!:      strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/CommercialRegion": "us-west-1" |
+#CommercialRegion: "us-west-1" |
 	"us-west-2" |
 	"us-east-1" |
 	"us-east-2" |
@@ -162,52 +148,46 @@ _#defs: "/$defs/Properties/definitions/CommercialRegion": "us-west-1" |
 	"mx-central-1" |
 	"ap-east-2"
 
-_#defs: "/$defs/Properties/definitions/ComparisonControls": close({
-	AllowedColumnComparisonColumns!:  [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"]
-	AllowedLiteralComparisonColumns!: [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"]
+#ComparisonControls: close({
+	AllowedColumnComparisonColumns!:  [...#AnalysisRuleColumnName]
+	AllowedLiteralComparisonColumns!: [...#AnalysisRuleColumnName]
 })
 
 // V1
-_#defs: "/$defs/Properties/definitions/ConfiguredTableAnalysisRulePolicy": close(
-	{V1!: _#defs."/$defs/Properties/definitions/ConfiguredTableAnalysisRulePolicyV1"},
-)
+#ConfiguredTableAnalysisRulePolicy: close({V1!: #ConfiguredTableAnalysisRulePolicyV1})
 
-_#defs: "/$defs/Properties/definitions/ConfiguredTableAnalysisRulePolicyV1": matchN(1, [close(
-	{List!: _#defs."/$defs/Properties/definitions/AnalysisRuleList"},
+#ConfiguredTableAnalysisRulePolicyV1: matchN(1, [close(
+	{List!: #AnalysisRuleList},
 ), close(
-	{Aggregation!: _#defs."/$defs/Properties/definitions/AnalysisRuleAggregation"},
+	{Aggregation!: #AnalysisRuleAggregation},
 ), close(
-	{Custom!: _#defs."/$defs/Properties/definitions/AnalysisRuleCustom"},
+	{Custom!: #AnalysisRuleCustom},
 )])
 
-_#defs: "/$defs/Properties/definitions/ConfiguredTableAnalysisRuleType": "AGGREGATION" | "LIST" | "CUSTOM"
+#ConfiguredTableAnalysisRuleType: "AGGREGATION" | "LIST" | "CUSTOM"
 
-_#defs: "/$defs/Properties/definitions/DifferentialPrivacy": close(
-	{Columns!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DifferentialPrivacyColumn"]},
-)
+#DifferentialPrivacy: close({Columns!: list.MinItems(1) & [...#DifferentialPrivacyColumn]})
 
-_#defs: "/$defs/Properties/definitions/DifferentialPrivacyColumn": close({Name!: string})
+#DifferentialPrivacyColumn: close({Name!: string})
 
-_#defs: "/$defs/Properties/definitions/DisallowedOutputColumns": [...] & [
-	..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"
-]
+#DisallowedOutputColumns: [...] & [...#AnalysisRuleColumnName]
 
-_#defs: "/$defs/Properties/definitions/GlueTableReference": close({
+#GlueTableReference: close({
 	DatabaseName!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$"
-	Region?:       _#defs."/$defs/Properties/definitions/CommercialRegion"
+	Region?:       #CommercialRegion
 	TableName!:    strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$"
 })
 
-_#defs: "/$defs/Properties/definitions/JoinOperator": "OR" | "AND"
+#JoinOperator: "OR" | "AND"
 
-_#defs: "/$defs/Properties/definitions/JoinRequiredOption": "QUERY_RUNNER"
+#JoinRequiredOption: "QUERY_RUNNER"
 
-_#defs: "/$defs/Properties/definitions/OutputColumnThreshold": close({
+#OutputColumnThreshold: close({
 	MinimumIdentityCount!: int & <=100000 & >=0
-	OutputColumnName!:     _#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"
+	OutputColumnName!:     #AnalysisRuleColumnName
 })
 
-_#defs: "/$defs/Properties/definitions/ScalarFunctions": "TRUNC" |
+#ScalarFunctions: "TRUNC" |
 	"ABS" |
 	"CEILING" |
 	"FLOOR" |
@@ -232,39 +212,35 @@ _#defs: "/$defs/Properties/definitions/ScalarFunctions": "TRUNC" |
 	"TO_TIMESTAMP" |
 	"TRIM"
 
-_#defs: "/$defs/Properties/definitions/SelectedAnalysisMethod": "DIRECT_QUERY" | "DIRECT_JOB"
+#SelectedAnalysisMethod: "DIRECT_QUERY" | "DIRECT_JOB"
 
-_#defs: "/$defs/Properties/definitions/SelectedAnalysisMethods": [
-	..._#defs."/$defs/Properties/definitions/SelectedAnalysisMethod"
-]
+#SelectedAnalysisMethods: [...#SelectedAnalysisMethod]
 
-_#defs: "/$defs/Properties/definitions/SnowflakeTableReference": close({
+#SnowflakeTableReference: close({
 	AccountIdentifier!: strings.MaxRunes(256) & strings.MinRunes(3)
 	DatabaseName!:      strings.MaxRunes(256) & strings.MinRunes(1)
 	SchemaName!:        strings.MaxRunes(256) & strings.MinRunes(1)
 	SecretArn!:         strings.MaxRunes(256)
 	TableName!:         strings.MaxRunes(256) & strings.MinRunes(1)
-	TableSchema!:       _#defs."/$defs/Properties/definitions/SnowflakeTableSchema"
+	TableSchema!:       #SnowflakeTableSchema
 })
 
-_#defs: "/$defs/Properties/definitions/SnowflakeTableSchema": close(
-	{V1!: list.MaxItems(250) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SnowflakeTableSchemaV1"]},
-)
+#SnowflakeTableSchema: close({V1!: list.MaxItems(250) & list.MinItems(1) & [...#SnowflakeTableSchemaV1]})
 
-_#defs: "/$defs/Properties/definitions/SnowflakeTableSchemaV1": close({
+#SnowflakeTableSchemaV1: close({
 	ColumnName!: strings.MaxRunes(128)
 	ColumnType!: strings.MaxRunes(255)
 })
 
-_#defs: "/$defs/Properties/definitions/TableReference": matchN(1, [close(
-	{Glue!: _#defs."/$defs/Properties/definitions/GlueTableReference"},
+#TableReference: matchN(1, [close(
+	{Glue!: #GlueTableReference},
 ), close(
-	{Snowflake!: _#defs."/$defs/Properties/definitions/SnowflakeTableReference"},
+	{Snowflake!: #SnowflakeTableReference},
 ), close(
-	{Athena!: _#defs."/$defs/Properties/definitions/AthenaTableReference"},
+	{Athena!: #AthenaTableReference},
 )])
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

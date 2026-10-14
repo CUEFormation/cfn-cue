@@ -18,26 +18,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::SES::ConfigurationSet.
 #Properties: close({
-	ArchivingOptions?:   _#defs."/$defs/Properties/definitions/ArchivingOptions"
-	DeliveryOptions?:    _#defs."/$defs/Properties/definitions/DeliveryOptions"
+	ArchivingOptions?:   #ArchivingOptions
+	DeliveryOptions?:    #DeliveryOptions
 	Name?:               =~"^[a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
-	ReputationOptions?:  _#defs."/$defs/Properties/definitions/ReputationOptions"
-	SendingOptions?:     _#defs."/$defs/Properties/definitions/SendingOptions"
-	SuppressionOptions?: _#defs."/$defs/Properties/definitions/SuppressionOptions"
-	Tags?:            list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TrackingOptions?: _#defs."/$defs/Properties/definitions/TrackingOptions"
-	VdmOptions?:      _#defs."/$defs/Properties/definitions/VdmOptions"
+	ReputationOptions?:  #ReputationOptions
+	SendingOptions?:     #SendingOptions
+	SuppressionOptions?: #SuppressionOptions
+	Tags?:               list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	TrackingOptions?:    #TrackingOptions
+	VdmOptions?:         #VdmOptions
 })
 
-_#defs: "/$defs/Properties/definitions/ArchivingOptions": close({ArchiveArn?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#ArchivingOptions: close({ArchiveArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashboardOptions": close(
-	{EngagementMetrics!: =~"ENABLED|DISABLED" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#DashboardOptions: close({EngagementMetrics!: =~"ENABLED|DISABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeliveryOptions": close({
+#DeliveryOptions: close({
 	MaxDeliverySeconds?: <=50400 & >=300 |
 		{
 			string &
@@ -63,22 +59,19 @@ _#defs: "/$defs/Properties/definitions/DeliveryOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GuardianOptions": close(
-	{OptimizedSharedDelivery!: =~"ENABLED|DISABLED" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#GuardianOptions: close({OptimizedSharedDelivery!: =~"ENABLED|DISABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReputationOptions": close(
+#ReputationOptions: close(
 	{ReputationMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SendingOptions": close(
+#SendingOptions: close(
 	{SendingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SuppressionOptions": close({
+#SuppressionOptions: close({
 	SuppressedReasons?: [...=~"BOUNCE|COMPLAINT" | fn.#StringExpression] | fn.#ListExpression
 	ValidationOptions?: close({
 		ConditionThreshold!: close({
@@ -94,21 +87,21 @@ _#defs: "/$defs/Properties/definitions/SuppressionOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrackingOptions": close({
+#TrackingOptions: close({
 	CustomRedirectDomain?: string | fn.#StringExpression
 	HttpsPolicy?:          =~"REQUIRE|REQUIRE_OPEN_ONLY|OPTIONAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VdmOptions": close({
-	DashboardOptions?: _#defs."/$defs/Properties/definitions/DashboardOptions"
-	GuardianOptions?:  _#defs."/$defs/Properties/definitions/GuardianOptions"
+#VdmOptions: close({
+	DashboardOptions?: #DashboardOptions
+	GuardianOptions?:  #GuardianOptions
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

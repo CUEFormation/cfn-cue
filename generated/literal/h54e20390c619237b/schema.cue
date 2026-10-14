@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,24 +13,24 @@ import (
 #Properties: close({
 	// The list of virtual private cloud (VPC) interface endpoint objects. Users of
 	// the stack can connect to AppStream 2.0 only through the specified endpoints.
-	AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AccessEndpoint"]
+	AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & [...#AccessEndpoint]
 
 	// The configuration for agent access on the stack. If specified, agent access
 	// is enabled for the stack.
-	AgentAccessConfig?: _#defs."/$defs/Properties/definitions/AgentAccessConfig"
+	AgentAccessConfig?: #AgentAccessConfig
 
 	// The persistent application settings for users of the stack. When these
 	// settings are enabled, changes that users make to applications and Windows
 	// settings are automatically saved after each session and applied to the next
 	// session.
-	ApplicationSettings?: _#defs."/$defs/Properties/definitions/ApplicationSettings"
+	ApplicationSettings?: #ApplicationSettings
 
 	// The stack attributes to delete.
 	AttributesToDelete?: [...string]
 
 	// The content redirection settings for the stack. These settings control URL
 	// redirection between the streaming session and the local device.
-	ContentRedirection?: _#defs."/$defs/Properties/definitions/ContentRedirection"
+	ContentRedirection?: #ContentRedirection
 
 	// This parameter has been deprecated. Deletes the storage connectors currently
 	// enabled for the stack.
@@ -62,18 +62,18 @@ import (
 	RedirectURL?: strings.MaxRunes(1000) & strings.MinRunes(0)
 
 	// The storage connectors to enable.
-	StorageConnectors?: [..._#defs."/$defs/Properties/definitions/StorageConnector"]
+	StorageConnectors?: [...#StorageConnector]
 
 	// The streaming protocol that you want your stack to prefer. This can be UDP or
 	// TCP. Currently, UDP is only supported in the Windows native client.
-	StreamingExperienceSettings?: _#defs."/$defs/Properties/definitions/StreamingExperienceSettings"
+	StreamingExperienceSettings?: #StreamingExperienceSettings
 
 	// An array of key-value pairs.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The actions that are enabled or disabled for users during their streaming
 	// sessions. By default, these actions are enabled.
-	UserSettings?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/UserSetting"]
+	UserSettings?: list.MinItems(1) & [...#UserSetting]
 })
 
 // Describes an interface VPC endpoint (interface endpoint) that lets you create
@@ -82,7 +82,7 @@ import (
 // stack, users of the stack can connect to AppStream 2.0 only through that
 // endpoint. When you specify an interface endpoint for an image builder,
 // administrators can connect to the image builder only through that endpoint.
-_#defs: "/$defs/Properties/definitions/AccessEndpoint": close({
+#AccessEndpoint: close({
 	// The type of interface endpoint.
 	EndpointType!: "STREAMING"
 
@@ -92,7 +92,7 @@ _#defs: "/$defs/Properties/definitions/AccessEndpoint": close({
 
 // The configuration for agent access on a stack. Agent access enables AI agents
 // to interact with desktop applications during streaming sessions.
-_#defs: "/$defs/Properties/definitions/AgentAccessConfig": close({
+#AgentAccessConfig: close({
 	// The Amazon Resource Name (ARN) of the Amazon S3 bucket where agent
 	// screenshots are stored. Required when ScreenshotsUploadEnabled is true.
 	S3BucketArn?: =~"^arn:aws(?:\\-cn|\\-iso\\-b|\\-iso|\\-us\\-gov)?:s3:::[a-z0-9][a-z0-9.\\-]{1,61}[a-z0-9]$"
@@ -108,7 +108,7 @@ _#defs: "/$defs/Properties/definitions/AgentAccessConfig": close({
 
 	// The list of agent access settings that define permissions for each agent
 	// action. You must specify at least one setting.
-	Settings!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AgentAccessSetting"]
+	Settings!: list.MinItems(1) & [...#AgentAccessSetting]
 
 	// The user control mode for agent sessions. This setting determines how users
 	// can interact with agent sessions. Valid values are VIEW_ONLY, VIEW_STOP, and
@@ -118,7 +118,7 @@ _#defs: "/$defs/Properties/definitions/AgentAccessConfig": close({
 
 // A permission setting for an agent action. Each setting specifies an agent
 // action and whether it is enabled or disabled.
-_#defs: "/$defs/Properties/definitions/AgentAccessSetting": close({
+#AgentAccessSetting: close({
 	// The agent action to configure. Valid values are COMPUTER_VISION,
 	// COMPUTER_INPUT, and FORWARD_MCP_TOOLS. COMPUTER_VISION allows agents to take
 	// screenshots of the desktop. COMPUTER_INPUT allows agents to click, type, and
@@ -134,7 +134,7 @@ _#defs: "/$defs/Properties/definitions/AgentAccessSetting": close({
 })
 
 // The persistent application settings for users of a stack.
-_#defs: "/$defs/Properties/definitions/ApplicationSettings": close({
+#ApplicationSettings: close({
 	// Enables or disables persistent application settings for users during their streaming sessions.
 	Enabled!: bool
 
@@ -146,13 +146,13 @@ _#defs: "/$defs/Properties/definitions/ApplicationSettings": close({
 })
 
 // The content redirection settings for the stack.
-_#defs: "/$defs/Properties/definitions/ContentRedirection": close({
+#ContentRedirection: close({
 	// The URL redirection configuration from the streaming session host to the client.
-	HostToClient?: _#defs."/$defs/Properties/definitions/UrlRedirectionConfig"
+	HostToClient?: #UrlRedirectionConfig
 })
 
 // A connector that enables persistent storage for users.
-_#defs: "/$defs/Properties/definitions/StorageConnector": close({
+#StorageConnector: close({
 	// The type of storage connector.
 	ConnectorType!: "GOOGLE_DRIVE" | "HOMEFOLDERS" | "ONE_DRIVE"
 
@@ -165,13 +165,13 @@ _#defs: "/$defs/Properties/definitions/StorageConnector": close({
 
 // The streaming protocol that you want your stack to prefer. This can be UDP or
 // TCP. Currently, UDP is only supported in the Windows native client.
-_#defs: "/$defs/Properties/definitions/StreamingExperienceSettings": close({
+#StreamingExperienceSettings: close({
 	// The preferred protocol that you want to use while streaming your application.
 	PreferredProtocol?: "TCP" | "UDP"
 })
 
 // The tag of the stack.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: string
 
@@ -180,7 +180,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The configuration for URL redirection.
-_#defs: "/$defs/Properties/definitions/UrlRedirectionConfig": close({
+#UrlRedirectionConfig: close({
 	// The URLs that are allowed for redirection.
 	AllowedUrls?: list.MaxItems(100) & [...] & [
 		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(\\*|https?://[^\\s,;]+)$"
@@ -197,7 +197,7 @@ _#defs: "/$defs/Properties/definitions/UrlRedirectionConfig": close({
 
 // Specifies an action and whether the action is enabled or disabled for users
 // during their streaming sessions.
-_#defs: "/$defs/Properties/definitions/UserSetting": close({
+#UserSetting: close({
 	// The action that is enabled or disabled.
 	Action!: "AUTO_TIME_ZONE_REDIRECTION" |
 		"CLIPBOARD_COPY_FROM_LOCAL_DEVICE" |

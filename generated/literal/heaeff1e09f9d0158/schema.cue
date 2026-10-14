@@ -13,13 +13,13 @@ package schema
 	DestinationCidrBlock!: string
 
 	// The destination port range.
-	DestinationPortRange?: _#defs."/$defs/Properties/definitions/TrafficMirrorPortRange"
+	DestinationPortRange?: #TrafficMirrorPortRange
 
 	// The number of protocol, for example 17 (UDP), to assign to the Traffic Mirror rule.
 	Protocol?: int
 
 	// The action to take on the filtered traffic (accept/reject).
-	RuleAction!: _#defs."/$defs/Properties/definitions/TrafficMirrorRuleAction"
+	RuleAction!: #TrafficMirrorRuleAction
 
 	// The number of the Traffic Mirror rule.
 	RuleNumber!: int
@@ -28,13 +28,13 @@ package schema
 	SourceCidrBlock!: string
 
 	// The source port range.
-	SourcePortRange?: _#defs."/$defs/Properties/definitions/TrafficMirrorPortRange"
+	SourcePortRange?: #TrafficMirrorPortRange
 
 	// Any tags assigned to the Traffic Mirror Filter rule.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The direction of traffic (ingress/egress).
-	TrafficDirection!: _#defs."/$defs/Properties/definitions/TrafficDirection"
+	TrafficDirection!: #TrafficDirection
 
 	// The ID of the filter that this rule is associated with.
 	TrafficMirrorFilterId!: string
@@ -43,15 +43,15 @@ package schema
 	TrafficMirrorFilterRuleId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
 // The type of traffic.
-_#defs: "/$defs/Properties/definitions/TrafficDirection": =~"(?i)^(?:egress|ingress)$"
+#TrafficDirection: =~"(?i)^(?:egress|ingress)$"
 
-_#defs: "/$defs/Properties/definitions/TrafficMirrorPortRange": close({
+#TrafficMirrorPortRange: close({
 	// The first port in the Traffic Mirror port range.
 	FromPort!: int
 
@@ -60,4 +60,4 @@ _#defs: "/$defs/Properties/definitions/TrafficMirrorPortRange": close({
 })
 
 // The action to take on the filtered traffic.
-_#defs: "/$defs/Properties/definitions/TrafficMirrorRuleAction": =~"(?i)^(?:accept|reject)$"
+#TrafficMirrorRuleAction: =~"(?i)^(?:accept|reject)$"

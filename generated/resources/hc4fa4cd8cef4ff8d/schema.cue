@@ -36,10 +36,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	QueueId!:      =~"^queue-[0-9a-f]{32}$" | fn.#StringExpression
 	Template!:     strings.MaxRunes(15000) & strings.MinRunes(1) | fn.#StringExpression
-	TemplateType!: _#defs."/$defs/Properties/definitions/EnvironmentTemplateType"
+	TemplateType!: #EnvironmentTemplateType
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentTemplateType": "JSON" | "YAML" | fn.#StringExpression
+#EnvironmentTemplateType: "JSON" | "YAML" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Deadline::QueueEnvironment"
 	Properties!: #Properties

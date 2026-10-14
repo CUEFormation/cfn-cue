@@ -15,7 +15,7 @@ package schema
 	[...] |
 	close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/RoleMapping"}})
+		{[=~"^.+$"]: #RoleMapping}})
 	Roles?: null |
 	bool |
 	number |
@@ -26,20 +26,18 @@ package schema
 		{[=~"^.+$"]: string}})
 })
 
-_#defs: "/$defs/Properties/definitions/MappingRule": close({
+#MappingRule: close({
 	Claim!:     string
 	MatchType!: string
 	RoleARN!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Value!:     string
 })
 
-_#defs: "/$defs/Properties/definitions/RoleMapping": close({
+#RoleMapping: close({
 	AmbiguousRoleResolution?: string
 	IdentityProvider?:        string
-	RulesConfiguration?:      _#defs."/$defs/Properties/definitions/RulesConfigurationType"
+	RulesConfiguration?:      #RulesConfigurationType
 	Type!:                    string
 })
 
-_#defs: "/$defs/Properties/definitions/RulesConfigurationType": close(
-	{Rules!: [..._#defs."/$defs/Properties/definitions/MappingRule"]},
-)
+#RulesConfigurationType: close({Rules!: [...#MappingRule]})

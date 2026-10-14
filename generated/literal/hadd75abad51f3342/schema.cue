@@ -18,7 +18,7 @@ import (
 	DeviceFleetName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*_*[a-zA-Z0-9])*$"
 
 	// S3 bucket and an ecryption key id (if available) to store outputs for the fleet
-	OutputConfig!: _#defs."/$defs/Properties/definitions/EdgeOutputConfig"
+	OutputConfig!: #EdgeOutputConfig
 
 	// Role associated with the device fleet
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -27,10 +27,10 @@ import (
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
 	// Associate tags with the resource
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/EdgeOutputConfig": close({
+#EdgeOutputConfig: close({
 	// The KMS key id used for encryption on the S3 bucket
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
 	strings.MaxRunes(2048) &
@@ -42,7 +42,7 @@ _#defs: "/$defs/Properties/definitions/EdgeOutputConfig": close({
 })
 
 // Key-value pair to associate as a tag for the resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

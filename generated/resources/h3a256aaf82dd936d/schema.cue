@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -25,25 +25,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Source!: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^aws.([a-z0-9\\-])+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EventRuleStatus": "ACTIVE" |
-	"INACTIVE" |
-	"CREATING" |
-	"UPDATING" |
-	"DELETING" |
-	fn.#StringExpression
+#EventRuleStatus: "ACTIVE" | "INACTIVE" | "CREATING" | "UPDATING" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EventRuleStatusSummary": close({
+#EventRuleStatusSummary: close({
 	Reason!: string | fn.#StringExpression
-	Status!: _#defs."/$defs/Properties/definitions/EventRuleStatus"
+	Status!: #EventRuleStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StatusSummaryByRegion": close({
+#StatusSummaryByRegion: close({
 
-	{[=~"^([a-z]{1,2})-([a-z]{1,15}-)+([0-9])$"]: _#defs."/$defs/Properties/definitions/EventRuleStatusSummary"}}) |
+	{[=~"^([a-z]{1,2})-([a-z]{1,15}-)+([0-9])$"]: #EventRuleStatusSummary}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
+#Unit: close({}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Notifications::EventRule"
 	Properties!: #Properties

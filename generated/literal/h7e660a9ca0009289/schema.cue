@@ -11,135 +11,111 @@ import (
 
 // Represents an intermediate table that stores cached query results within a collaboration
 #Properties: close({
-	AnalysisRules?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/IntermediateTableAnalysisRule"
-	]
+	AnalysisRules?:           list.MaxItems(1) & list.MinItems(1) & [...#IntermediateTableAnalysisRule]
 	Arn?:                     strings.MaxRunes(256)
 	CollaborationArn?:        strings.MaxRunes(100)
-	CollaborationIdentifier?: _#defs."/$defs/Properties/definitions/UUID"
+	CollaborationIdentifier?: #UUID
 	Description?: strings.MaxRunes(255) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$"
-	IntermediateTableIdentifier?: _#defs."/$defs/Properties/definitions/UUID"
+	IntermediateTableIdentifier?: #UUID
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(4) &
 	=~"^arn:aws:kms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:key/[a-zA-Z0-9-]+$"
 	MembershipArn?:                   strings.MaxRunes(100)
-	MembershipIdentifier!:            _#defs."/$defs/Properties/definitions/UUID"
+	MembershipIdentifier!:            #UUID
 	Name!:                            strings.MaxRunes(100) & strings.MinRunes(1)
-	PopulationAnalysisConfiguration!: _#defs."/$defs/Properties/definitions/PopulationAnalysisConfiguration"
-	Status?:                          _#defs."/$defs/Properties/definitions/IntermediateTableStatus"
-	Tags?:                            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	PopulationAnalysisConfiguration!: #PopulationAnalysisConfiguration
+	Status?:                          #IntermediateTableStatus
+	Tags?:                            list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalAnalyses": "ALLOWED" | "REQUIRED" | "NOT_ALLOWED"
+#AdditionalAnalyses: "ALLOWED" | "REQUIRED" | "NOT_ALLOWED"
 
-_#defs: "/$defs/Properties/definitions/AggregationThreshold": close({
-	AllowedAggregateExpressionType!: _#defs."/$defs/Properties/definitions/AllowedAggregateExpressionType"
-	IdentityColumns!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"
-	]
-	MinimumIdentityCount!:   int & <=100000 & >=2
-	OutputColumnThresholds?: [..._#defs."/$defs/Properties/definitions/OutputColumnThreshold"]
-	Type!:                   _#defs."/$defs/Properties/definitions/AggregationThresholdType"
+#AggregationThreshold: close({
+	AllowedAggregateExpressionType!: #AllowedAggregateExpressionType
+	IdentityColumns!:                list.MaxItems(1) & list.MinItems(1) & [...#AnalysisRuleColumnName]
+	MinimumIdentityCount!:           int & <=100000 & >=2
+	OutputColumnThresholds?:         [...#OutputColumnThreshold]
+	Type!:                           #AggregationThresholdType
 })
 
-_#defs: "/$defs/Properties/definitions/AggregationThresholdType": "COUNT_DISTINCT"
+#AggregationThresholdType: "COUNT_DISTINCT"
 
-_#defs: "/$defs/Properties/definitions/AllowedAggregateExpressionType": "COLUMNS_ONLY" | "ANY_EXPRESSION"
+#AllowedAggregateExpressionType: "COLUMNS_ONLY" | "ANY_EXPRESSION"
 
-_#defs: "/$defs/Properties/definitions/AllowedAnalyses": [...] & [
-	..._#defs."/$defs/Properties/definitions/AllowedAnalysis"
-]
+#AllowedAnalyses: [...] & [...#AllowedAnalysis]
 
-_#defs: "/$defs/Properties/definitions/AllowedAnalysis": strings.MaxRunes(200) &
+#AllowedAnalysis: strings.MaxRunes(200) &
 strings.MinRunes(0) &
 =~"(ANY_QUERY|ANY_JOB|arn:[\\w]{3}:cleanrooms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:membership/[\\d\\w-]+/analysistemplate/[\\d\\w-]+)"
 
-_#defs: "/$defs/Properties/definitions/AllowedAnalysisProvider": strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+"
+#AllowedAnalysisProvider: strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+"
 
-_#defs: "/$defs/Properties/definitions/AllowedAnalysisProviders": [...] & [
-	..._#defs."/$defs/Properties/definitions/AllowedAnalysisProvider"
-]
+#AllowedAnalysisProviders: [...] & [...#AllowedAnalysisProvider]
 
-_#defs: "/$defs/Properties/definitions/AllowedResultReceivers": [...] & [
-	...strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+"
-]
+#AllowedResultReceivers: [...] & [...strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+"]
 
-_#defs: "/$defs/Properties/definitions/AnalysisRuleColumnName": strings.MaxRunes(127) &
-strings.MinRunes(1) &
-=~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$"
+#AnalysisRuleColumnName: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$"
 
-_#defs: "/$defs/Properties/definitions/ComparisonControls": close({
-	AllowedColumnComparisonColumns!:  [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"]
-	AllowedLiteralComparisonColumns!: [..._#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"]
+#ComparisonControls: close({
+	AllowedColumnComparisonColumns!:  [...#AnalysisRuleColumnName]
+	AllowedLiteralComparisonColumns!: [...#AnalysisRuleColumnName]
 })
 
-_#defs: "/$defs/Properties/definitions/DifferentialPrivacy": close(
-	{Columns!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DifferentialPrivacyColumn"]},
-)
+#DifferentialPrivacy: close({Columns!: list.MinItems(1) & [...#DifferentialPrivacyColumn]})
 
-_#defs: "/$defs/Properties/definitions/DifferentialPrivacyColumn": close({Name!: string})
+#DifferentialPrivacyColumn: close({Name!: string})
 
-_#defs: "/$defs/Properties/definitions/DisallowedOutputColumns": [...] & [
+#DisallowedOutputColumns: [...] & [
 	...strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$"
 ]
 
-_#defs: "/$defs/Properties/definitions/IntermediateTableAnalysisRule": close({
-	Policy!: _#defs."/$defs/Properties/definitions/IntermediateTableAnalysisRulePolicy"
-	Type!:   _#defs."/$defs/Properties/definitions/IntermediateTableAnalysisRuleType"
+#IntermediateTableAnalysisRule: close({
+	Policy!: #IntermediateTableAnalysisRulePolicy
+	Type!:   #IntermediateTableAnalysisRuleType
 })
 
-_#defs: "/$defs/Properties/definitions/IntermediateTableAnalysisRuleCustom": close({
-	AdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AdditionalAnalyses"
-	AggregationThresholds?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AggregationThreshold"
-	]
-	AllowedAnalyses!:          _#defs."/$defs/Properties/definitions/AllowedAnalyses"
-	AllowedAnalysisProviders?: _#defs."/$defs/Properties/definitions/AllowedAnalysisProviders"
-	AllowedResultReceivers?:   _#defs."/$defs/Properties/definitions/AllowedResultReceivers"
-	ComparisonControls?:       _#defs."/$defs/Properties/definitions/ComparisonControls"
-	DifferentialPrivacy?:      _#defs."/$defs/Properties/definitions/DifferentialPrivacy"
-	DisallowedOutputColumns?:  _#defs."/$defs/Properties/definitions/DisallowedOutputColumns"
+#IntermediateTableAnalysisRuleCustom: close({
+	AdditionalAnalyses?:       #AdditionalAnalyses
+	AggregationThresholds?:    list.MaxItems(1) & list.MinItems(1) & [...#AggregationThreshold]
+	AllowedAnalyses!:          #AllowedAnalyses
+	AllowedAnalysisProviders?: #AllowedAnalysisProviders
+	AllowedResultReceivers?:   #AllowedResultReceivers
+	ComparisonControls?:       #ComparisonControls
+	DifferentialPrivacy?:      #DifferentialPrivacy
+	DisallowedOutputColumns?:  #DisallowedOutputColumns
 })
 
 // V1
-_#defs: "/$defs/Properties/definitions/IntermediateTableAnalysisRulePolicy": close(
-	{V1!: _#defs."/$defs/Properties/definitions/IntermediateTableAnalysisRulePolicyV1"},
-)
+#IntermediateTableAnalysisRulePolicy: close({V1!: #IntermediateTableAnalysisRulePolicyV1})
 
-_#defs: "/$defs/Properties/definitions/IntermediateTableAnalysisRulePolicyV1": close(
-	{Custom!: _#defs."/$defs/Properties/definitions/IntermediateTableAnalysisRuleCustom"},
-)
+#IntermediateTableAnalysisRulePolicyV1: close({Custom!: #IntermediateTableAnalysisRuleCustom})
 
-_#defs: "/$defs/Properties/definitions/IntermediateTableAnalysisRuleType": "CUSTOM"
+#IntermediateTableAnalysisRuleType: "CUSTOM"
 
-_#defs: "/$defs/Properties/definitions/IntermediateTableStatus": "CREATED" |
+#IntermediateTableStatus: "CREATED" |
 	"POPULATE_STARTED" |
 	"POPULATE_SUCCESS" |
 	"POPULATE_FAILED" |
 	"DISALLOWED_BY_DATA_PROVIDER" |
 	"BASE_TABLE_REMOVED"
 
-_#defs: "/$defs/Properties/definitions/OutputColumnThreshold": close({
+#OutputColumnThreshold: close({
 	MinimumIdentityCount!: int & <=100000 & >=0
-	OutputColumnName!:     _#defs."/$defs/Properties/definitions/AnalysisRuleColumnName"
+	OutputColumnName!:     #AnalysisRuleColumnName
 })
 
-_#defs: "/$defs/Properties/definitions/PopulationAnalysisConfiguration": close(
-	{SqlParameters?: _#defs."/$defs/Properties/definitions/PopulationAnalysisSqlParameters"},
-)
+#PopulationAnalysisConfiguration: close({SqlParameters?: #PopulationAnalysisSqlParameters})
 
-_#defs: "/$defs/Properties/definitions/PopulationAnalysisSqlParameters": close({
+#PopulationAnalysisSqlParameters: close({
 	AnalysisTemplateArn?: strings.MaxRunes(256)
 	QueryString?:         strings.MaxRunes(500000)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/UUID": strings.MaxRunes(36) &
-strings.MinRunes(36) &
-=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+#UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"

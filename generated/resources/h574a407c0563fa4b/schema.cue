@@ -33,7 +33,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	ComputeConfiguration?: _#defs."/$defs/Properties/definitions/ComputeConfiguration"
+	ComputeConfiguration?: #ComputeConfiguration
 	ComputeType?: "BUILD_GENERAL1_SMALL" |
 		"BUILD_GENERAL1_MEDIUM" |
 		"BUILD_GENERAL1_LARGE" |
@@ -52,18 +52,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"ARM_EC2" |
 		"WINDOWS_EC2" |
 		fn.#StringExpression
-	FleetProxyConfiguration?: _#defs."/$defs/Properties/definitions/ProxyConfiguration"
+	FleetProxyConfiguration?: #ProxyConfiguration
 	FleetServiceRole?:        strings.MinRunes(1) & =~"^(?:arn:)[a-zA-Z+-=,._:/@]+$" | fn.#StringExpression
-	FleetVpcConfig?:          _#defs."/$defs/Properties/definitions/VpcConfig"
+	FleetVpcConfig?:          #VpcConfig
 	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
 	fn.#StringExpression
 	Name?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"^[A-Za-z0-9][A-Za-z0-9\\-_]{1,127}$" | fn.#StringExpression
 	OverflowBehavior?:     "QUEUE" | "ON_DEMAND" | fn.#StringExpression
-	ScalingConfiguration?: _#defs."/$defs/Properties/definitions/ScalingConfigurationInput"
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ScalingConfiguration?: #ScalingConfigurationInput
+	Tags?:                 list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ComputeConfiguration": close({
+#ComputeConfiguration: close({
 	disk?: int |
 		{
 			string &
@@ -111,20 +111,20 @@ _#defs: "/$defs/Properties/definitions/ComputeConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FleetProxyRule": close({
+#FleetProxyRule: close({
 	Effect?:   "ALLOW" | "DENY" | fn.#StringExpression
 	Entities?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Type?:     "DOMAIN" | "IP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProxyConfiguration": close({
+#ProxyConfiguration: close({
 	DefaultBehavior?:   "ALLOW_ALL" | "DENY_ALL" | fn.#StringExpression
-	OrderedProxyRules?: [..._#defs."/$defs/Properties/definitions/FleetProxyRule"] | fn.#ListExpression
+	OrderedProxyRules?: [...#FleetProxyRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingConfigurationInput": close({
+#ScalingConfigurationInput: close({
 	MaxCapacity?: int & >=1 |
 		{
 			string &
@@ -140,19 +140,18 @@ _#defs: "/$defs/Properties/definitions/ScalingConfigurationInput": close({
 				)
 		} |
 		fn.#NumberExpression
-	ScalingType?: "TARGET_TRACKING_SCALING" | fn.#StringExpression
-	TargetTrackingScalingConfigs?: [..._#defs."/$defs/Properties/definitions/TargetTrackingScalingConfiguration"] |
-		fn.#ListExpression
+	ScalingType?:                  "TARGET_TRACKING_SCALING" | fn.#StringExpression
+	TargetTrackingScalingConfigs?: [...#TargetTrackingScalingConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z+-=._:/]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingScalingConfiguration": close({
+#TargetTrackingScalingConfiguration: close({
 	MetricType?: "FLEET_UTILIZATION_RATE" | fn.#StringExpression
 	TargetValue?: number |
 		{
@@ -176,7 +175,7 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingScalingConfiguration": clos
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression

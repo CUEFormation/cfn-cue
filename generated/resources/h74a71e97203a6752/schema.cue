@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -18,13 +18,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Device Profile's resource schema demonstrating some basic constructs and validation rules.
 #Properties: close({
-	LoRaWAN?: _#defs."/$defs/Properties/definitions/LoRaWANDeviceProfile" | fn.#ObjectExpression
+	LoRaWAN?: #LoRaWANDeviceProfile | fn.#ObjectExpression
 	Name?:    strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?:    list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FactoryPresetFreq": int & <=16700000 & >=1000000 |
+#FactoryPresetFreq: int & <=16700000 & >=1000000 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -41,7 +40,7 @@ _#defs: "/$defs/Properties/definitions/FactoryPresetFreq": int & <=16700000 & >=
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/LoRaWANDeviceProfile": close({
+#LoRaWANDeviceProfile: close({
 	ClassBTimeout?: int & <=1000 & >=0 |
 		{
 			string &
@@ -74,9 +73,8 @@ _#defs: "/$defs/Properties/definitions/LoRaWANDeviceProfile": close({
 				)
 		} |
 		fn.#NumberExpression
-	FactoryPresetFreqsList?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/FactoryPresetFreq"] |
-		fn.#ListExpression
-	MacVersion?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+	FactoryPresetFreqsList?: list.MaxItems(20) & [...] & [...#FactoryPresetFreq] | fn.#ListExpression
+	MacVersion?:             strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	MaxDutyCycle?: int & <=100 & >=0 |
 		{
 			string &
@@ -230,7 +228,7 @@ _#defs: "/$defs/Properties/definitions/LoRaWANDeviceProfile": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

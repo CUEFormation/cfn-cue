@@ -26,10 +26,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 	TargetAddress?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Targets!:       list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/Target"] | fn.#ListExpression
+	Targets!:       list.MaxItems(10) & [...#Target] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Target": close({
+#Target: close({
 	TargetAddress!: string | fn.#StringExpression
 	TargetType!:    string | fn.#StringExpression
 }) |

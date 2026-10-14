@@ -14,15 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::S3::AccessGrantsInstance resource is an Amazon S3 resource type that
 // hosts Access Grants and their associated locations
 #Properties: close({
-	IdentityCenterArn?: _#defs."/$defs/Properties/definitions/IdentityCenterArn" | fn.#StringExpression
-	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	IdentityCenterArn?: #IdentityCenterArn | fn.#StringExpression
+	Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessGrantsInstanceArn": string | fn.#StringExpression
+#AccessGrantsInstanceArn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IdentityCenterArn": string | fn.#StringExpression
+#IdentityCenterArn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -26,36 +26,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 	fn.#ListExpression
 	Name!:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]*$" | fn.#StringExpression
-	Recurrence!: _#defs."/$defs/Properties/definitions/RecurrenceSettings"
+	Recurrence!: #RecurrenceSettings
 	StartTime!:  =~"^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})$" | fn.#StringExpression
-	Tags?:       list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:       list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	TimeZoneId!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[:a-zA-Z0-9_\\-\\s\\.\\\\/]*$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CoverageTime": close({
-	EndTime!:   _#defs."/$defs/Properties/definitions/HandOffTime"
-	StartTime!: _#defs."/$defs/Properties/definitions/HandOffTime"
+#CoverageTime: close({
+	EndTime!:   #HandOffTime
+	StartTime!: #HandOffTime
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DailySetting": close(
-	{HandOffTime!: _#defs."/$defs/Properties/definitions/HandOffTime"},
-) |
-	fn.#ObjectExpression
+#DailySetting: close({HandOffTime!: #HandOffTime}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DayOfWeek": "MON" |
-	"TUE" |
-	"WED" |
-	"THU" |
-	"FRI" |
-	"SAT" |
-	"SUN" |
-	fn.#StringExpression
+#DayOfWeek: "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HandOffTime": =~"^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" |
-	fn.#StringExpression
+#HandOffTime: =~"^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MonthlySetting": close({
+#MonthlySetting: close({
 	DayOfMonth!: int & <=31 & >=1 |
 		{
 			string &
@@ -72,11 +61,11 @@ _#defs: "/$defs/Properties/definitions/MonthlySetting": close({
 				)
 		} |
 		fn.#NumberExpression
-	HandOffTime!: _#defs."/$defs/Properties/definitions/HandOffTime"
+	HandOffTime!: #HandOffTime
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecurrenceSettings": matchN(1, [{
+#RecurrenceSettings: matchN(1, [{
 	NumberOfOnCalls!:      _
 	RecurrenceMultiplier!: _
 	WeeklySettings!:       _
@@ -92,8 +81,8 @@ _#defs: "/$defs/Properties/definitions/RecurrenceSettings": matchN(1, [{
 	DailySettings!:        _
 	...
 }]) & close({
-	DailySettings?:   [..._#defs."/$defs/Properties/definitions/HandOffTime"] | fn.#ListExpression
-	MonthlySettings?: [..._#defs."/$defs/Properties/definitions/MonthlySetting"] | fn.#ListExpression
+	DailySettings?:   [...#HandOffTime] | fn.#ListExpression
+	MonthlySettings?: [...#MonthlySetting] | fn.#ListExpression
 	NumberOfOnCalls?: int & >=1 |
 		{
 			string &
@@ -125,26 +114,26 @@ _#defs: "/$defs/Properties/definitions/RecurrenceSettings": matchN(1, [{
 				)
 		} |
 		fn.#NumberExpression
-	ShiftCoverages?: [..._#defs."/$defs/Properties/definitions/ShiftCoverage"] | fn.#ListExpression
-	WeeklySettings?: [..._#defs."/$defs/Properties/definitions/WeeklySetting"] | fn.#ListExpression
+	ShiftCoverages?: [...#ShiftCoverage] | fn.#ListExpression
+	WeeklySettings?: [...#WeeklySetting] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ShiftCoverage": close({
-	CoverageTimes!: [..._#defs."/$defs/Properties/definitions/CoverageTime"] | fn.#ListExpression
-	DayOfWeek!:     _#defs."/$defs/Properties/definitions/DayOfWeek"
+#ShiftCoverage: close({
+	CoverageTimes!: [...#CoverageTime] | fn.#ListExpression
+	DayOfWeek!:     #DayOfWeek
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\\\\\/a-zA-Z0-9_+=\\-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WeeklySetting": close({
-	DayOfWeek!:   _#defs."/$defs/Properties/definitions/DayOfWeek"
-	HandOffTime!: _#defs."/$defs/Properties/definitions/HandOffTime"
+#WeeklySetting: close({
+	DayOfWeek!:   #DayOfWeek
+	HandOffTime!: #HandOffTime
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -9,12 +9,12 @@ import "strings"
 // Resource Type definition for AWS::IoT::Thing
 #Properties: close({
 	Arn?:              string
-	AttributePayload?: _#defs."/$defs/Properties/definitions/AttributePayload"
+	AttributePayload?: #AttributePayload
 	Id?:               string
 	ThingName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+"
 })
 
-_#defs: "/$defs/Properties/definitions/AttributePayload": close({
+#AttributePayload: close({
 	Attributes?: close({
 
 		{[=~"[a-zA-Z0-9_.,@/:#-]+"]: string}})

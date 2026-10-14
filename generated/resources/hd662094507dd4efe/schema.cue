@@ -13,10 +13,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ClusterId?: string | fn.#StringExpression
 	Name?:      string | fn.#StringExpression
 	Nodes?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
+	Tags?:      [...#Tags] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ChannelPlacementGroupState": "UNASSIGNED" |
+#ChannelPlacementGroupState: "UNASSIGNED" |
 	"ASSIGNING" |
 	"ASSIGNED" |
 	"DELETING" |
@@ -24,7 +24,7 @@ _#defs: "/$defs/Properties/definitions/ChannelPlacementGroupState": "UNASSIGNED"
 	"UNASSIGNING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |

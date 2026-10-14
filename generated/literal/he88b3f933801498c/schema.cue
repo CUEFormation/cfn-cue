@@ -32,7 +32,7 @@ import (
 	})
 
 	// The list of errors that occurred during compute node group provisioning.
-	ErrorInfo?: [..._#defs."/$defs/Properties/definitions/ErrorInfo"]
+	ErrorInfo?: [...#ErrorInfo]
 
 	// The Amazon Resource Name (ARN) of the IAM instance profile used to pass an
 	// IAM role when launching EC2 instances. The role contained in your instance
@@ -44,11 +44,11 @@ import (
 	Id?: string
 
 	// A list of EC2 instance configurations that AWS PCS can provision in the compute node group.
-	InstanceConfigs!: [..._#defs."/$defs/Properties/definitions/InstanceConfig"]
+	InstanceConfigs!: [...#InstanceConfig]
 
 	// The name that identifies the compute node group.
 	Name?:                 string
-	NodeLifecycleActions?: _#defs."/$defs/Properties/definitions/NodeLifecycleActions"
+	NodeLifecycleActions?: #NodeLifecycleActions
 
 	// Specifies how EC2 instances are purchased on your behalf. AWS PCS supports
 	// On-Demand, Spot, Capacity Block, and Interruptible Capacity Reservation
@@ -73,13 +73,13 @@ import (
 		// (for example a GPU topology, MIG, MPS, or custom GRES entry). AWS PCS adds
 		// the NodeName= prefix and merges these records with the GPU record it derives
 		// from the instance type.
-		GresCustomSettings?: [..._#defs."/$defs/Properties/definitions/GresCustomSetting"]
+		GresCustomSettings?: [...#GresCustomSetting]
 
 		// The time before an idle node is scaled down.
 		ScaleDownIdleTimeInSeconds?: int & <=10000000 & >=1
 
 		// Additional Slurm-specific configuration that directly maps to Slurm settings.
-		SlurmCustomSettings?: [..._#defs."/$defs/Properties/definitions/SlurmCustomSetting"]
+		SlurmCustomSettings?: [...#SlurmCustomSetting]
 	})
 
 	// Additional configuration when you specify SPOT as the purchase option.
@@ -97,7 +97,7 @@ import (
 
 	// The list of subnet IDs where instances are provisioned by the compute node
 	// group. The subnets must be in the same VPC as the cluster.
-	SubnetIds!: [..._#defs."/$defs/Properties/definitions/SubnetId"]
+	SubnetIds!: [...#SubnetId]
 
 	// 1 or more tags added to the resource. Each tag consists of a tag key and tag
 	// value. The tag value is optional and can be an empty string.
@@ -112,7 +112,7 @@ import (
 })
 
 // An error that occurred during resource provisioning.
-_#defs: "/$defs/Properties/definitions/ErrorInfo": close({
+#ErrorInfo: close({
 	// The short-form error code.
 	Code?: string
 
@@ -124,27 +124,27 @@ _#defs: "/$defs/Properties/definitions/ErrorInfo": close({
 // names to their values (for example, {"Name": "gpu", "Type": "a100", "File":
 // "/dev/nvidia[0-7]"} or {"AutoDetect": "nvml"}). AWS PCS adds the NodeName=
 // prefix for the compute node group.
-_#defs: "/$defs/Properties/definitions/GresCustomSetting": close({
+#GresCustomSetting: close({
 
 	{[=~"^.+$"]: string}})
 
 // An EC2 instance configuration AWS PCS uses to launch compute nodes.
-_#defs: "/$defs/Properties/definitions/InstanceConfig": close({
+#InstanceConfig: close({
 	// The EC2 instance type that AWS PCS can provision in the compute node group.
 	InstanceType?: string
 })
 
 // Custom scripts that run at defined points in a compute node's lifecycle.
-_#defs: "/$defs/Properties/definitions/NodeLifecycleActions": close({
+#NodeLifecycleActions: close({
 	// Controls whether lifecycle scripts are downloaded once at first boot
 	// (CACHE_ONCE) or re-downloaded on every reboot (REFRESH_ON_REBOOT). Defaults
 	// to CACHE_ONCE.
 	ScriptCachingPolicy?: "CACHE_ONCE" | "REFRESH_ON_REBOOT"
-	Stages!:              _#defs."/$defs/Properties/definitions/NodeLifecycleStages"
+	Stages!:              #NodeLifecycleStages
 })
 
 // A single lifecycle script with its source, arguments, and error behavior.
-_#defs: "/$defs/Properties/definitions/NodeLifecycleScript": close({
+#NodeLifecycleScript: close({
 	// An ordered list of arguments passed to the script.
 	Arguments?: list.MaxItems(20) & [...strings.MaxRunes(256)]
 
@@ -157,23 +157,21 @@ _#defs: "/$defs/Properties/definitions/NodeLifecycleScript": close({
 
 	// The behavior when the script exits with an error. Defaults to TERMINATE.
 	OnError?:      "TERMINATE" | "STOP_SEQUENCE" | "CONTINUE"
-	ScriptSource!: _#defs."/$defs/Properties/definitions/ScriptSource"
+	ScriptSource!: #ScriptSource
 })
 
 // The ordered scripts to run at each compute node lifecycle stage.
-_#defs: "/$defs/Properties/definitions/NodeLifecycleStages": close({
+#NodeLifecycleStages: close({
 	// Scripts to run after the node is bootstrapped, once the PCS configuration
 	// phase completes and before slurmd starts.
-	NodeBootstrapped?: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/NodeLifecycleScript"
-	]
+	NodeBootstrapped?: list.MaxItems(20) & list.MinItems(1) & [...#NodeLifecycleScript]
 
 	// Scripts to execute when the node becomes ready (every boot).
-	NodeReady?: list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/NodeLifecycleScript"]
+	NodeReady?: list.MaxItems(20) & list.MinItems(1) & [...#NodeLifecycleScript]
 })
 
 // The external location of a lifecycle script.
-_#defs: "/$defs/Properties/definitions/ScriptSource": close({
+#ScriptSource: close({
 	// A 64-character hexadecimal SHA-256 digest used to verify script integrity.
 	Checksum?: strings.MaxRunes(64) & strings.MinRunes(64) & =~"^[a-fA-F0-9]{64}$"
 
@@ -187,10 +185,10 @@ _#defs: "/$defs/Properties/definitions/ScriptSource": close({
 })
 
 // An EC2 security group ID.
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": string
+#SecurityGroupId: string
 
 // Additional settings that directly map to Slurm settings.
-_#defs: "/$defs/Properties/definitions/SlurmCustomSetting": close({
+#SlurmCustomSetting: close({
 	// AWS PCS supports configuration of the following Slurm parameters for compute
 	// node groups: Weight and RealMemory.
 	ParameterName!: string
@@ -200,4 +198,4 @@ _#defs: "/$defs/Properties/definitions/SlurmCustomSetting": close({
 })
 
 // A VPC subnet ID.
-_#defs: "/$defs/Properties/definitions/SubnetId": string
+#SubnetId: string

@@ -19,23 +19,21 @@ import (
 
 	// Specifies the steps (actions) to take if any errors are encountered during
 	// execution of the workflow.
-	OnExceptionSteps?: list.MaxItems(8) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/WorkflowStep"
-	]
+	OnExceptionSteps?: list.MaxItems(8) & list.UniqueItems() & [...] & [...#WorkflowStep]
 
 	// Specifies the details for the steps that are in the specified workflow.
-	Steps!: list.MaxItems(8) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/WorkflowStep"]
+	Steps!: list.MaxItems(8) & list.UniqueItems() & [...] & [...#WorkflowStep]
 
 	// Key-value pairs that can be used to group and search for workflows. Tags are
 	// metadata attached to workflows for any purpose.
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag]
 
 	// A unique identifier for the workflow.
 	WorkflowId?: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^w-([a-z0-9]{17})$"
 })
 
 // Specifies the details for an EFS file.
-_#defs: "/$defs/Properties/definitions/EfsInputFileLocation": close({
+#EfsInputFileLocation: close({
 	// Specifies the EFS filesystem that contains the file.
 	FileSystemId?: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
@@ -48,19 +46,17 @@ _#defs: "/$defs/Properties/definitions/EfsInputFileLocation": close({
 
 // Specifies the location for the file being decrypted. Only applicable for the
 // Decrypt type of workflow steps.
-_#defs: "/$defs/Properties/definitions/InputFileLocation": close({
-	EfsFileLocation?: _#defs."/$defs/Properties/definitions/EfsInputFileLocation"
-	S3FileLocation?:  _#defs."/$defs/Properties/definitions/S3InputFileLocation"
+#InputFileLocation: close({
+	EfsFileLocation?: #EfsInputFileLocation
+	S3FileLocation?:  #S3InputFileLocation
 })
 
 // Specifies the location for the file being copied. Only applicable for the
 // Copy type of workflow steps.
-_#defs: "/$defs/Properties/definitions/S3FileLocation": close(
-	{S3FileLocation?: _#defs."/$defs/Properties/definitions/S3InputFileLocation"},
-)
+#S3FileLocation: close({S3FileLocation?: #S3InputFileLocation})
 
 // Specifies the details for a S3 file.
-_#defs: "/$defs/Properties/definitions/S3InputFileLocation": close({
+#S3InputFileLocation: close({
 	// Specifies the S3 bucket that contains the file.
 	Bucket?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 
@@ -70,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/S3InputFileLocation": close({
 })
 
 // Specifies the key-value pair that are assigned to a file during the execution of a Tagging step.
-_#defs: "/$defs/Properties/definitions/S3Tag": close({
+#S3Tag: close({
 	// The name assigned to the tag that you create.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -79,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/S3Tag": close({
 })
 
 // Creates a key-value pair for a specific resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The name assigned to the tag that you create.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -88,10 +84,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The basic building block of a workflow.
-_#defs: "/$defs/Properties/definitions/WorkflowStep": close({
+#WorkflowStep: close({
 	// Details for a step that performs a file copy.
 	CopyStepDetails?: close({
-		DestinationFileLocation?: _#defs."/$defs/Properties/definitions/S3FileLocation"
+		DestinationFileLocation?: #S3FileLocation
 
 		// The name of the step, used as an identifier.
 		Name?: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$"
@@ -121,7 +117,7 @@ _#defs: "/$defs/Properties/definitions/WorkflowStep": close({
 
 	// Details for a step that performs a file decryption.
 	DecryptStepDetails?: close({
-		DestinationFileLocation!: _#defs."/$defs/Properties/definitions/InputFileLocation"
+		DestinationFileLocation!: #InputFileLocation
 
 		// The name of the step, used as an identifier.
 		Name?: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$"
@@ -155,9 +151,7 @@ _#defs: "/$defs/Properties/definitions/WorkflowStep": close({
 		SourceFileLocation?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$"
 
 		// Array that contains from 1 to 10 key/value pairs.
-		Tags?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-			..._#defs."/$defs/Properties/definitions/S3Tag"
-		]
+		Tags?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#S3Tag]
 	})
 	Type?: "COPY" | "CUSTOM" | "DECRYPT" | "DELETE" | "TAG"
 })

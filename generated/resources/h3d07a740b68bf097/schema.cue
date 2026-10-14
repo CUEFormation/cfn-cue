@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
 )
 
@@ -14,25 +14,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource definition for AWS::BedrockAgentCore::RuntimeEndpoint
 #Properties: close({
-	AgentRuntimeId!:      _#defs."/$defs/Properties/definitions/AgentRuntimeId" | fn.#StringExpression
-	AgentRuntimeVersion?: _#defs."/$defs/Properties/definitions/AgentRuntimeVersion" | fn.#StringExpression
-	Description?:         _#defs."/$defs/Properties/definitions/AgentEndpointDescription" | fn.#StringExpression
-	Name!:                _#defs."/$defs/Properties/definitions/EndpointName" | fn.#StringExpression
-	Tags?:                _#defs."/$defs/Properties/definitions/TagsMap"
+	AgentRuntimeId!:      #AgentRuntimeId | fn.#StringExpression
+	AgentRuntimeVersion?: #AgentRuntimeVersion | fn.#StringExpression
+	Description?:         #AgentEndpointDescription | fn.#StringExpression
+	Name!:                #EndpointName | fn.#StringExpression
+	Tags?:                #TagsMap
 })
 
-_#defs: "/$defs/Properties/definitions/AgentEndpointDescription": strings.MaxRunes(256) & strings.MinRunes(1) |
-fn.#StringExpression
+#AgentEndpointDescription: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$" |
+#AgentRuntimeArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeEndpointArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z0-9_-]+/runtime-endpoint/[a-zA-Z0-9_-]+$" |
+#AgentRuntimeEndpointArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z0-9_-]+/runtime-endpoint/[a-zA-Z0-9_-]+$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeEndpointId": =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+#AgentRuntimeEndpointId: =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeEndpointStatus": "CREATING" |
+#AgentRuntimeEndpointStatus: "CREATING" |
 	"CREATE_FAILED" |
 	"UPDATING" |
 	"UPDATE_FAILED" |
@@ -41,19 +40,15 @@ _#defs: "/$defs/Properties/definitions/AgentRuntimeEndpointStatus": "CREATING" |
 	"DELETE_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeId": =~"^[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$" |
-	fn.#StringExpression
+#AgentRuntimeId: =~"^[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeVersion": =~"^([1-9][0-9]{0,4})$" | fn.#StringExpression
+#AgentRuntimeVersion: =~"^([1-9][0-9]{0,4})$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DateTimestamp": time.Time | fn.#StringExpression
+#DateTimestamp: time.Time | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointName": strings.MaxRunes(48) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" |
-fn.#StringExpression
+#EndpointName: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |

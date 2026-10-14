@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -23,45 +23,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // grant the source account permission to replicate. This permission is
 // controlled using a private registry permissions policy. For more
 // information, see ``AWS::ECR::RegistryPolicy``.
-#Properties: close(
-	{ReplicationConfiguration!: _#defs."/$defs/Properties/definitions/ReplicationConfiguration" | fn.#ObjectExpression},
-)
+#Properties: close({ReplicationConfiguration!: #ReplicationConfiguration | fn.#ObjectExpression})
 
-_#defs: "/$defs/Properties/definitions/Filter": strings.MaxRunes(256) &
+#Filter: strings.MaxRunes(256) &
 strings.MinRunes(2) &
 =~"^(?:[a-z0-9]+(?:[._-][a-z0-9]*)*/)*[a-z0-9]*(?:[._-][a-z0-9]*)*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FilterType": "PREFIX_MATCH" | fn.#StringExpression
+#FilterType: "PREFIX_MATCH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Region": =~"[0-9a-z-]{2,25}" | fn.#StringExpression
+#Region: =~"[0-9a-z-]{2,25}" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RegistryId": =~"^[0-9]{12}$" | fn.#StringExpression
+#RegistryId: =~"^[0-9]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
-	Rules!: list.MaxItems(25) & [...] & [..._#defs."/$defs/Properties/definitions/ReplicationRule"] | fn.#ListExpression
-}) |
+#ReplicationConfiguration: close({Rules!: list.MaxItems(25) & [...] & [...#ReplicationRule] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
-	Region!:     _#defs."/$defs/Properties/definitions/Region" | fn.#StringExpression
-	RegistryId!: _#defs."/$defs/Properties/definitions/RegistryId" | fn.#StringExpression
+#ReplicationDestination: close({
+	Region!:     #Region | fn.#StringExpression
+	RegistryId!: #RegistryId | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationRule": close({
-	Destinations!: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ReplicationDestination"
-	] |
-		fn.#ListExpression
-	RepositoryFilters?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/RepositoryFilter"] |
-		fn.#ListExpression
+#ReplicationRule: close({
+	Destinations!:      list.MaxItems(100) & list.MinItems(1) & [...#ReplicationDestination] | fn.#ListExpression
+	RepositoryFilters?: list.MaxItems(100) & [...] & [...#RepositoryFilter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RepositoryFilter": close({
-	Filter!:     _#defs."/$defs/Properties/definitions/Filter" | fn.#StringExpression
-	FilterType!: _#defs."/$defs/Properties/definitions/FilterType" | fn.#StringExpression
+#RepositoryFilter: close({
+	Filter!:     #Filter | fn.#StringExpression
+	FilterType!: #FilterType | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

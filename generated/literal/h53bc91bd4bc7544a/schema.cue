@@ -27,7 +27,7 @@ import "strings"
 	IsDefaultVersion?: bool
 
 	// Specifies logging configuration information for a type.
-	LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig"
+	LoggingConfig?: #LoggingConfig
 
 	// A url to the S3 bucket containing the schema handler package that contains
 	// the schema, event handlers, and associated files for the type you want to
@@ -61,7 +61,7 @@ import "strings"
 	Visibility?: "PUBLIC" | "PRIVATE"
 })
 
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+#LoggingConfig: close({
 	// The Amazon CloudWatch log group to which CloudFormation sends error logging
 	// information when invoking the type's handlers.
 	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$"

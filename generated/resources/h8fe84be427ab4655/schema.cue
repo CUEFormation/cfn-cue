@@ -18,30 +18,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Rbin::Rule
 #Properties: close({
-	Description?: strings.MaxRunes(255) & =~"^[\\S ]{0,255}$" | fn.#StringExpression
-	ExcludeResourceTags?: list.MaxItems(5) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/ResourceTag"
-	] |
-		fn.#ListExpression
-	LockConfiguration?: _#defs."/$defs/Properties/definitions/UnlockDelay" | fn.#ObjectExpression
-	ResourceTags?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/ResourceTag"
-	] |
-		fn.#ListExpression
-	ResourceType!:    "EBS_SNAPSHOT" | "EC2_IMAGE" | "EBS_VOLUME" | fn.#StringExpression
-	RetentionPeriod!: _#defs."/$defs/Properties/definitions/RetentionPeriod" | fn.#ObjectExpression
-	Status?:          =~"pending|available" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Description?:         strings.MaxRunes(255) & =~"^[\\S ]{0,255}$" | fn.#StringExpression
+	ExcludeResourceTags?: list.MaxItems(5) & list.UniqueItems() & [...] & [...#ResourceTag] | fn.#ListExpression
+	LockConfiguration?:   #UnlockDelay | fn.#ObjectExpression
+	ResourceTags?:        list.MaxItems(50) & list.UniqueItems() & [...] & [...#ResourceTag] | fn.#ListExpression
+	ResourceType!:        "EBS_SNAPSHOT" | "EC2_IMAGE" | "EBS_VOLUME" | fn.#StringExpression
+	RetentionPeriod!:     #RetentionPeriod | fn.#ObjectExpression
+	Status?:              =~"pending|available" | fn.#StringExpression
+	Tags?:                list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	ResourceTagKey!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]{1,128}$" | fn.#StringExpression
 	ResourceTagValue!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S\\s]{0,256}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
+#RetentionPeriod: close({
 	RetentionPeriodUnit!: "DAYS" | fn.#StringExpression
 	RetentionPeriodValue!: int & <=3650 & >=1 |
 		{
@@ -62,13 +55,13 @@ _#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UnlockDelay": close({
+#UnlockDelay: close({
 	UnlockDelayUnit?: "DAYS" | fn.#StringExpression
 	UnlockDelayValue?: int & <=30 & >=7 |
 		{

@@ -14,46 +14,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // An event action is an AWS Data Exchange resource that automatically exports
 // data set revisions to Amazon S3 when a revision is published.
 #Properties: close({
-	Action!: _#defs."/$defs/Properties/definitions/Action" | fn.#ObjectExpression
-	Event!:  _#defs."/$defs/Properties/definitions/Event" | fn.#ObjectExpression
-	Tags?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Action!: #Action | fn.#ObjectExpression
+	Event!:  #Event | fn.#ObjectExpression
+	Tags?:   list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Action": close(
-	{ExportRevisionToS3?: _#defs."/$defs/Properties/definitions/AutoExportRevisionToS3RequestDetails"},
-) |
-	fn.#ObjectExpression
+#Action: close({ExportRevisionToS3?: #AutoExportRevisionToS3RequestDetails}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoExportRevisionDestinationEntry": close({
+#AutoExportRevisionDestinationEntry: close({
 	Bucket!:     string | fn.#StringExpression
 	KeyPattern?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoExportRevisionToS3RequestDetails": close({
-	Encryption?:          _#defs."/$defs/Properties/definitions/ExportServerSideEncryption"
-	RevisionDestination!: _#defs."/$defs/Properties/definitions/AutoExportRevisionDestinationEntry"
+#AutoExportRevisionToS3RequestDetails: close({
+	Encryption?:          #ExportServerSideEncryption
+	RevisionDestination!: #AutoExportRevisionDestinationEntry
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Event": close(
-	{RevisionPublished?: _#defs."/$defs/Properties/definitions/RevisionPublished"},
-) |
-	fn.#ObjectExpression
+#Event: close({RevisionPublished?: #RevisionPublished}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExportServerSideEncryption": close({
+#ExportServerSideEncryption: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	Type!: "aws:kms" | "AES256" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RevisionPublished": close(
-	{DataSetId!: =~"^[a-zA-Z0-9]{30,40}$" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#RevisionPublished: close({DataSetId!: =~"^[a-zA-Z0-9]{30,40}$" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

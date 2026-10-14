@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,55 +18,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::IoTAnalytics::Dataset
 #Properties: close({
-	Actions!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Action"] |
-		fn.#ListExpression
-	ContentDeliveryRules?: list.MaxItems(20) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DatasetContentDeliveryRule"
-	] |
-		fn.#ListExpression
-	DatasetName?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	LateDataRules?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LateDataRule"] |
-		fn.#ListExpression
-	RetentionPeriod?: _#defs."/$defs/Properties/definitions/RetentionPeriod"
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Triggers?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Trigger"] | fn.#ListExpression
-	VersioningConfiguration?: _#defs."/$defs/Properties/definitions/VersioningConfiguration"
+	Actions!:                 list.MaxItems(1) & list.MinItems(1) & [...#Action] | fn.#ListExpression
+	ContentDeliveryRules?:    list.MaxItems(20) & [...] & [...#DatasetContentDeliveryRule] | fn.#ListExpression
+	DatasetName?:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	LateDataRules?:           list.MaxItems(1) & list.MinItems(1) & [...#LateDataRule] | fn.#ListExpression
+	RetentionPeriod?:         #RetentionPeriod
+	Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	Triggers?:                list.MaxItems(5) & [...] & [...#Trigger] | fn.#ListExpression
+	VersioningConfiguration?: #VersioningConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/Action": close({
+#Action: close({
 	ActionName!:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
-	ContainerAction?: _#defs."/$defs/Properties/definitions/ContainerAction"
-	QueryAction?:     _#defs."/$defs/Properties/definitions/QueryAction"
+	ContainerAction?: #ContainerAction
+	QueryAction?:     #QueryAction
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerAction": close({
+#ContainerAction: close({
 	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
 	Image!:                 strings.MaxRunes(255) | fn.#StringExpression
-	ResourceConfiguration!: _#defs."/$defs/Properties/definitions/ResourceConfiguration"
-	Variables?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Variable"] | fn.#ListExpression
+	ResourceConfiguration!: #ResourceConfiguration
+	Variables?:             list.MaxItems(50) & [...] & [...#Variable] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatasetContentDeliveryRule": close({
-	Destination!: _#defs."/$defs/Properties/definitions/DatasetContentDeliveryRuleDestination"
+#DatasetContentDeliveryRule: close({
+	Destination!: #DatasetContentDeliveryRuleDestination
 	EntryName?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatasetContentDeliveryRuleDestination": close({
-	IotEventsDestinationConfiguration?: _#defs."/$defs/Properties/definitions/IotEventsDestinationConfiguration"
-	S3DestinationConfiguration?:        _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+#DatasetContentDeliveryRuleDestination: close({
+	IotEventsDestinationConfiguration?: #IotEventsDestinationConfiguration
+	S3DestinationConfiguration?:        #S3DestinationConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatasetContentVersionValue": close(
-	{DatasetName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#DatasetContentVersionValue: close({DatasetName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeltaTime": close({
+#DeltaTime: close({
 	OffsetSeconds!: int |
 		{
 			string &
@@ -85,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/DeltaTime": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeltaTimeSessionWindowConfiguration": close({
+#DeltaTimeSessionWindowConfiguration: close({
 	TimeoutInMinutes!: int & <=60 & >=1 |
 		{
 			string &
@@ -105,45 +98,39 @@ _#defs: "/$defs/Properties/definitions/DeltaTimeSessionWindowConfiguration": clo
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Filter": close({DeltaTime?: _#defs."/$defs/Properties/definitions/DeltaTime"}) |
-	fn.#ObjectExpression
+#Filter: close({DeltaTime?: #DeltaTime}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GlueConfiguration": close({
+#GlueConfiguration: close({
 	DatabaseName!: strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
 	TableName!:    strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IotEventsDestinationConfiguration": close({
+#IotEventsDestinationConfiguration: close({
 	InputName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LateDataRule": close({
-	RuleConfiguration!: _#defs."/$defs/Properties/definitions/LateDataRuleConfiguration"
+#LateDataRule: close({
+	RuleConfiguration!: #LateDataRuleConfiguration
 	RuleName?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LateDataRuleConfiguration": close(
-	{DeltaTimeSessionWindowConfiguration?: _#defs."/$defs/Properties/definitions/DeltaTimeSessionWindowConfiguration"},
-) |
+#LateDataRuleConfiguration: close({DeltaTimeSessionWindowConfiguration?: #DeltaTimeSessionWindowConfiguration}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OutputFileUriValue": close(
-	{FileName!: =~"^[\\w\\.-]{1,255}$" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#OutputFileUriValue: close({FileName!: =~"^[\\w\\.-]{1,255}$" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryAction": close({
-	Filters?:  list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/Filter"] | fn.#ListExpression
+#QueryAction: close({
+	Filters?:  list.MaxItems(1) & [...] & [...#Filter] | fn.#ListExpression
 	SqlQuery!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceConfiguration": close({
+#ResourceConfiguration: close({
 	ComputeType!: "ACU_1" | "ACU_2" | fn.#StringExpression
 	VolumeSizeInGB!: int & <=50 & >=1 |
 		{
@@ -164,7 +151,7 @@ _#defs: "/$defs/Properties/definitions/ResourceConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
+#RetentionPeriod: close({
 	NumberOfDays?: int & <=2147483647 & >=1 |
 		{
 			string &
@@ -185,37 +172,34 @@ _#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
+#S3DestinationConfiguration: close({
 	Bucket!:            strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.\\-_]*$" | fn.#StringExpression
-	GlueConfiguration?: _#defs."/$defs/Properties/definitions/GlueConfiguration"
+	GlueConfiguration?: #GlueConfiguration
 	Key!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/{}:-]*$" | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Schedule": close({ScheduleExpression!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Schedule: close({ScheduleExpression!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Trigger": close({
-	Schedule?:          _#defs."/$defs/Properties/definitions/Schedule"
-	TriggeringDataset?: _#defs."/$defs/Properties/definitions/TriggeringDataset"
+#Trigger: close({
+	Schedule?:          #Schedule
+	TriggeringDataset?: #TriggeringDataset
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TriggeringDataset": close(
-	{DatasetName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#TriggeringDataset: close({DatasetName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Variable": close({
-	DatasetContentVersionValue?: _#defs."/$defs/Properties/definitions/DatasetContentVersionValue"
+#Variable: close({
+	DatasetContentVersionValue?: #DatasetContentVersionValue
 	DoubleValue?: number |
 		{
 			string &
@@ -235,13 +219,13 @@ _#defs: "/$defs/Properties/definitions/Variable": close({
 				)
 		} |
 		fn.#NumberExpression
-	OutputFileUriValue?: _#defs."/$defs/Properties/definitions/OutputFileUriValue"
+	OutputFileUriValue?: #OutputFileUriValue
 	StringValue?:        strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	VariableName!:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VersioningConfiguration": close({
+#VersioningConfiguration: close({
 	MaxVersions?: int & <=1000 & >=1 |
 		{
 			string &

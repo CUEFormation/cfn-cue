@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"time"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -24,7 +24,7 @@ import (
 	// on the schedule's recurrence expression, invocations might stop on, or
 	// before, the EndDate you specify.
 	EndDate?:            time.Time
-	FlexibleTimeWindow!: _#defs."/$defs/Properties/definitions/FlexibleTimeWindow"
+	FlexibleTimeWindow!: #FlexibleTimeWindow
 
 	// The name of the schedule group to associate with this schedule. If you omit
 	// this, the default schedule group is used.
@@ -47,20 +47,20 @@ import (
 	// Depending on the schedule's recurrence expression, invocations might occur
 	// on, or after, the StartDate you specify.
 	StartDate?: time.Time
-	State?:     _#defs."/$defs/Properties/definitions/ScheduleState"
-	Target!:    _#defs."/$defs/Properties/definitions/Target"
+	State?:     #ScheduleState
+	Target!:    #Target
 })
 
 // Specifies whether the task's elastic network interface receives a public IP
 // address. You can specify ENABLED only when LaunchType in EcsParameters is
 // set to FARGATE.
-_#defs: "/$defs/Properties/definitions/AssignPublicIp": "ENABLED" | "DISABLED"
+#AssignPublicIp: "ENABLED" | "DISABLED"
 
 // This structure specifies the VPC subnets and security groups for the task,
 // and whether a public IP address is to be used. This structure is relevant
 // only for ECS tasks that use the awsvpc network mode.
-_#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
-	AssignPublicIp?: _#defs."/$defs/Properties/definitions/AssignPublicIp"
+#AwsVpcConfiguration: close({
+	AssignPublicIp?: #AssignPublicIp
 
 	// Specifies the security groups associated with the task. These security groups
 	// must all be in the same VPC. You can specify as many as five security
@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 })
 
 // The details of a capacity provider strategy.
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
+#CapacityProviderStrategyItem: close({
 	// The base value designates how many tasks, at a minimum, to run on the
 	// specified capacity provider. Only one capacity provider in a capacity
 	// provider strategy can have a base defined. If no value is specified, the
@@ -94,17 +94,15 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
 })
 
 // A DeadLetterConfig object that contains information about a dead-letter queue configuration.
-_#defs: "/$defs/Properties/definitions/DeadLetterConfig": close({
+#DeadLetterConfig: close({
 	// The ARN of the SQS queue specified as the target for the dead-letter queue.
 	Arn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws[a-z-]*:sqs:[a-z0-9\\-]+:\\d{12}:[a-zA-Z0-9\\-_]+$"
 })
 
 // The custom parameters to be used when the target is an Amazon ECS task.
-_#defs: "/$defs/Properties/definitions/EcsParameters": close({
+#EcsParameters: close({
 	// The capacity provider strategy to use for the task.
-	CapacityProviderStrategy?: list.MaxItems(6) & [
-		..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"
-	]
+	CapacityProviderStrategy?: list.MaxItems(6) & [...#CapacityProviderStrategyItem]
 
 	// Specifies whether to enable Amazon ECS managed tags for the task. For more
 	// information, see Tagging Your Amazon ECS Resources in the Amazon Elastic
@@ -118,22 +116,22 @@ _#defs: "/$defs/Properties/definitions/EcsParameters": close({
 
 	// Specifies an ECS task group for the task. The maximum length is 255 characters.
 	Group?:                strings.MaxRunes(255) & strings.MinRunes(1)
-	LaunchType?:           _#defs."/$defs/Properties/definitions/LaunchType"
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	LaunchType?:           #LaunchType
+	NetworkConfiguration?: #NetworkConfiguration
 
 	// An array of placement constraint objects to use for the task. You can specify
 	// up to 10 constraints per task (including constraints in the task definition
 	// and those specified at runtime).
-	PlacementConstraints?: list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/PlacementConstraint"]
+	PlacementConstraints?: list.MaxItems(10) & [...#PlacementConstraint]
 
 	// The placement strategy objects to use for the task. You can specify a maximum
 	// of five strategy rules per task.
-	PlacementStrategy?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/PlacementStrategy"]
+	PlacementStrategy?: list.MaxItems(5) & [...#PlacementStrategy]
 
 	// Specifies the platform version for the task. Specify only the numeric portion
 	// of the platform version, such as 1.1.0.
 	PlatformVersion?: strings.MaxRunes(64) & strings.MinRunes(1)
-	PropagateTags?:   _#defs."/$defs/Properties/definitions/PropagateTags"
+	PropagateTags?:   #PropagateTags
 
 	// The reference ID to use for the task.
 	ReferenceId?: strings.MaxRunes(1024)
@@ -141,7 +139,7 @@ _#defs: "/$defs/Properties/definitions/EcsParameters": close({
 	// The metadata that you apply to the task to help you categorize and organize
 	// them. Each tag consists of a key and an optional value, both of which you
 	// define. To learn more, see RunTask in the Amazon ECS API Reference.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/TagMap"]
+	Tags?: list.MaxItems(50) & [...] & [...#TagMap]
 
 	// The number of tasks to create based on TaskDefinition. The default is 1.
 	TaskCount?: <=10 & >=1
@@ -151,7 +149,7 @@ _#defs: "/$defs/Properties/definitions/EcsParameters": close({
 })
 
 // EventBridge PutEvent predefined target type.
-_#defs: "/$defs/Properties/definitions/EventBridgeParameters": close({
+#EventBridgeParameters: close({
 	// Free-form string, with a maximum of 128 characters, used to decide what
 	// fields to expect in the event detail.
 	DetailType!: strings.MaxRunes(128) & strings.MinRunes(1)
@@ -161,18 +159,18 @@ _#defs: "/$defs/Properties/definitions/EventBridgeParameters": close({
 })
 
 // Flexible time window allows configuration of a window within which a schedule can be invoked
-_#defs: "/$defs/Properties/definitions/FlexibleTimeWindow": close({
+#FlexibleTimeWindow: close({
 	// The maximum time window during which a schedule can be invoked.
 	MaximumWindowInMinutes?: <=1440 & >=1
-	Mode!:                   _#defs."/$defs/Properties/definitions/FlexibleTimeWindowMode"
+	Mode!:                   #FlexibleTimeWindowMode
 })
 
 // Determines whether the schedule is executed within a flexible time window.
-_#defs: "/$defs/Properties/definitions/FlexibleTimeWindowMode": "OFF" | "FLEXIBLE"
+#FlexibleTimeWindowMode: "OFF" | "FLEXIBLE"
 
 // The custom parameter you can use to control the shard to which EventBridge
 // Scheduler sends the event.
-_#defs: "/$defs/Properties/definitions/KinesisParameters": close({
+#KinesisParameters: close({
 	// The custom parameter used as the Kinesis partition key. For more information,
 	// see Amazon Kinesis Streams Key Concepts in the Amazon Kinesis Streams
 	// Developer Guide.
@@ -184,30 +182,28 @@ _#defs: "/$defs/Properties/definitions/KinesisParameters": close({
 // target task. The FARGATE value is supported only in the Regions where AWS
 // Fargate with Amazon ECS is supported. For more information, see AWS Fargate
 // on Amazon ECS in the Amazon Elastic Container Service Developer Guide.
-_#defs: "/$defs/Properties/definitions/LaunchType": "EC2" | "FARGATE" | "EXTERNAL"
+#LaunchType: "EC2" | "FARGATE" | "EXTERNAL"
 
 // This structure specifies the network configuration for an ECS task.
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close(
-	{AwsvpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration"},
-)
+#NetworkConfiguration: close({AwsvpcConfiguration?: #AwsVpcConfiguration})
 
 // An object representing a constraint on task placement.
-_#defs: "/$defs/Properties/definitions/PlacementConstraint": close({
+#PlacementConstraint: close({
 	// A cluster query language expression to apply to the constraint. You cannot
 	// specify an expression if the constraint type is distinctInstance. To learn
 	// more, see Cluster Query Language in the Amazon Elastic Container Service
 	// Developer Guide.
 	Expression?: strings.MaxRunes(2000)
-	Type?:       _#defs."/$defs/Properties/definitions/PlacementConstraintType"
+	Type?:       #PlacementConstraintType
 })
 
 // The type of constraint. Use distinctInstance to ensure that each task in a
 // particular group is running on a different container instance. Use memberOf
 // to restrict the selection to a group of valid candidates.
-_#defs: "/$defs/Properties/definitions/PlacementConstraintType": "distinctInstance" | "memberOf"
+#PlacementConstraintType: "distinctInstance" | "memberOf"
 
 // The task placement strategy for a task or service.
-_#defs: "/$defs/Properties/definitions/PlacementStrategy": close({
+#PlacementStrategy: close({
 	// The field to apply the placement strategy against. For the spread placement
 	// strategy, valid values are instanceId (or host, which has the same effect),
 	// or any platform or custom attribute that is applied to a container instance,
@@ -215,7 +211,7 @@ _#defs: "/$defs/Properties/definitions/PlacementStrategy": close({
 	// valid values are cpu and memory. For the random placement strategy, this
 	// field is not used.
 	Field?: strings.MaxRunes(255)
-	Type?:  _#defs."/$defs/Properties/definitions/PlacementStrategyType"
+	Type?:  #PlacementStrategyType
 })
 
 // The type of placement strategy. The random placement strategy randomly places
@@ -226,16 +222,16 @@ _#defs: "/$defs/Properties/definitions/PlacementStrategy": close({
 // parameter. For example, if you binpack on memory, a task is placed on the
 // instance with the least amount of remaining memory (but still enough to run
 // the task).
-_#defs: "/$defs/Properties/definitions/PlacementStrategyType": "random" | "spread" | "binpack"
+#PlacementStrategyType: "random" | "spread" | "binpack"
 
 // Specifies whether to propagate the tags from the task definition to the task.
 // If no value is specified, the tags are not propagated. Tags can only be
 // propagated to the task during task creation. To add tags to a task after
 // task creation, use the TagResource API action.
-_#defs: "/$defs/Properties/definitions/PropagateTags": "TASK_DEFINITION"
+#PropagateTags: "TASK_DEFINITION"
 
 // A RetryPolicy object that includes information about the retry policy settings.
-_#defs: "/$defs/Properties/definitions/RetryPolicy": close({
+#RetryPolicy: close({
 	// The maximum amount of time, in seconds, to continue to make retry attempts.
 	MaximumEventAgeInSeconds?: <=86400 & >=60
 
@@ -247,7 +243,7 @@ _#defs: "/$defs/Properties/definitions/RetryPolicy": close({
 })
 
 // Name/Value pair of a parameter to start execution of a SageMaker Model Building Pipeline.
-_#defs: "/$defs/Properties/definitions/SageMakerPipelineParameter": close({
+#SageMakerPipelineParameter: close({
 	// Name of parameter to start execution of a SageMaker Model Building Pipeline.
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-_]*$"
 
@@ -257,35 +253,33 @@ _#defs: "/$defs/Properties/definitions/SageMakerPipelineParameter": close({
 
 // These are custom parameters to use when the target is a SageMaker Model
 // Building Pipeline that starts based on AWS EventBridge Scheduler schedules.
-_#defs: "/$defs/Properties/definitions/SageMakerPipelineParameters": close({
+#SageMakerPipelineParameters: close({
 	// List of Parameter names and values for SageMaker Model Building Pipeline execution.
-	PipelineParameterList?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SageMakerPipelineParameter"
-	]
+	PipelineParameterList?: list.MaxItems(200) & [...] & [...#SageMakerPipelineParameter]
 })
 
 // Specifies whether the schedule is enabled or disabled.
-_#defs: "/$defs/Properties/definitions/ScheduleState": "ENABLED" | "DISABLED"
+#ScheduleState: "ENABLED" | "DISABLED"
 
 // Contains the message group ID to use when the target is a FIFO queue. If you
 // specify an SQS FIFO queue as a target, the queue must have content-based
 // deduplication enabled.
-_#defs: "/$defs/Properties/definitions/SqsParameters": close({
+#SqsParameters: close({
 	// The FIFO message group ID to use as the target.
 	MessageGroupId?: strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(1)}})
 
 // The schedule target.
-_#defs: "/$defs/Properties/definitions/Target": close({
+#Target: close({
 	// The Amazon Resource Name (ARN) of the target.
 	Arn!:                   strings.MaxRunes(1600) & strings.MinRunes(1)
-	DeadLetterConfig?:      _#defs."/$defs/Properties/definitions/DeadLetterConfig"
-	EcsParameters?:         _#defs."/$defs/Properties/definitions/EcsParameters"
-	EventBridgeParameters?: _#defs."/$defs/Properties/definitions/EventBridgeParameters"
+	DeadLetterConfig?:      #DeadLetterConfig
+	EcsParameters?:         #EcsParameters
+	EventBridgeParameters?: #EventBridgeParameters
 
 	// The text, or well-formed JSON, passed to the target. If you are configuring a
 	// templated Lambda, AWS Step Functions, or Amazon EventBridge target, the
@@ -293,8 +287,8 @@ _#defs: "/$defs/Properties/definitions/Target": close({
 	// required. If you do not specify anything for this field, EventBridge
 	// Scheduler delivers a default notification to the target.
 	Input?:             strings.MinRunes(1)
-	KinesisParameters?: _#defs."/$defs/Properties/definitions/KinesisParameters"
-	RetryPolicy?:       _#defs."/$defs/Properties/definitions/RetryPolicy"
+	KinesisParameters?: #KinesisParameters
+	RetryPolicy?:       #RetryPolicy
 
 	// The Amazon Resource Name (ARN) of the IAM role to be used for this target
 	// when the schedule is triggered.
@@ -302,6 +296,6 @@ _#defs: "/$defs/Properties/definitions/Target": close({
 	strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@\\/-]+$"
-	SageMakerPipelineParameters?: _#defs."/$defs/Properties/definitions/SageMakerPipelineParameters"
-	SqsParameters?:               _#defs."/$defs/Properties/definitions/SqsParameters"
+	SageMakerPipelineParameters?: #SageMakerPipelineParameters
+	SqsParameters?:               #SqsParameters
 })

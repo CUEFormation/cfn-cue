@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 	"struct"
 )
 
@@ -20,171 +20,145 @@ import (
 // specifications to be allowed, blocked, or counted.
 #Properties: close({
 	// Collection of application attributes.
-	ApplicationConfig?:    _#defs."/$defs/Properties/definitions/ApplicationConfig"
-	Arn?:                  _#defs."/$defs/Properties/definitions/ResourceArn"
-	AssociationConfig?:    _#defs."/$defs/Properties/definitions/AssociationConfig"
+	ApplicationConfig?:    #ApplicationConfig
+	Arn?:                  #ResourceArn
+	AssociationConfig?:    #AssociationConfig
 	Capacity?:             int & >=0
-	CaptchaConfig?:        _#defs."/$defs/Properties/definitions/CaptchaConfig"
-	ChallengeConfig?:      _#defs."/$defs/Properties/definitions/ChallengeConfig"
-	CustomResponseBodies?: _#defs."/$defs/Properties/definitions/CustomResponseBodies"
+	CaptchaConfig?:        #CaptchaConfig
+	ChallengeConfig?:      #ChallengeConfig
+	CustomResponseBodies?: #CustomResponseBodies
 
 	// Collection of dataProtects.
-	DataProtectionConfig?:         _#defs."/$defs/Properties/definitions/DataProtectionConfig"
-	DefaultAction!:                _#defs."/$defs/Properties/definitions/DefaultAction"
-	Description?:                  _#defs."/$defs/Properties/definitions/EntityDescription"
-	Id?:                           _#defs."/$defs/Properties/definitions/EntityId"
-	LabelNamespace?:               _#defs."/$defs/Properties/definitions/LabelName"
-	MonetizationConfig?:           _#defs."/$defs/Properties/definitions/MonetizationConfig"
-	Name?:                         _#defs."/$defs/Properties/definitions/EntityName"
-	OnSourceDDoSProtectionConfig?: _#defs."/$defs/Properties/definitions/OnSourceDDoSProtectionConfig"
+	DataProtectionConfig?:         #DataProtectionConfig
+	DefaultAction!:                #DefaultAction
+	Description?:                  #EntityDescription
+	Id?:                           #EntityId
+	LabelNamespace?:               #LabelName
+	MonetizationConfig?:           #MonetizationConfig
+	Name?:                         #EntityName
+	OnSourceDDoSProtectionConfig?: #OnSourceDDoSProtectionConfig
 
 	// Collection of Rules.
-	Rules?:            [..._#defs."/$defs/Properties/definitions/Rule"]
-	Scope!:            _#defs."/$defs/Properties/definitions/Scope"
-	Tags?:             list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TokenDomains?:     _#defs."/$defs/Properties/definitions/TokenDomains"
-	VisibilityConfig!: _#defs."/$defs/Properties/definitions/VisibilityConfig"
+	Rules?:            [...#Rule]
+	Scope!:            #Scope
+	Tags?:             list.MinItems(1) & [...#Tag]
+	TokenDomains?:     #TokenDomains
+	VisibilityConfig!: #VisibilityConfig
 })
 
 // Configures how to use the Account creation fraud prevention managed rule group in the web ACL
-_#defs: "/$defs/Properties/definitions/AWSManagedRulesACFPRuleSet": close({
+#AWSManagedRulesACFPRuleSet: close({
 	CreationPath!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S"
 	EnableRegexInPath?:    bool
 	RegistrationPagePath!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S"
-	RequestInspection!:    _#defs."/$defs/Properties/definitions/RequestInspectionACFP"
-	ResponseInspection?:   _#defs."/$defs/Properties/definitions/ResponseInspection"
+	RequestInspection!:    #RequestInspectionACFP
+	ResponseInspection?:   #ResponseInspection
 })
 
 // Configures how to use the Account Takeover Prevention managed rule group in the web ACL
-_#defs: "/$defs/Properties/definitions/AWSManagedRulesATPRuleSet": close({
+#AWSManagedRulesATPRuleSet: close({
 	EnableRegexInPath?:  bool
 	LoginPath!:          string
-	RequestInspection?:  _#defs."/$defs/Properties/definitions/RequestInspection"
-	ResponseInspection?: _#defs."/$defs/Properties/definitions/ResponseInspection"
+	RequestInspection?:  #RequestInspection
+	ResponseInspection?: #ResponseInspection
 })
 
 // Configures how to use the AntiDDOS AWS managed rule group in the web ACL
-_#defs: "/$defs/Properties/definitions/AWSManagedRulesAntiDDoSRuleSet": close({
-	ClientSideActionConfig!: _#defs."/$defs/Properties/definitions/ClientSideActionConfig"
-	SensitivityToBlock?:     _#defs."/$defs/Properties/definitions/SensitivityToAct"
+#AWSManagedRulesAntiDDoSRuleSet: close({
+	ClientSideActionConfig!: #ClientSideActionConfig
+	SensitivityToBlock?:     #SensitivityToAct
 })
 
 // Configures how to use the Bot Control managed rule group in the web ACL
-_#defs: "/$defs/Properties/definitions/AWSManagedRulesBotControlRuleSet": close({
+#AWSManagedRulesBotControlRuleSet: close({
 	EnableMachineLearning?: bool
 	InspectionLevel!:       "COMMON" | "TARGETED"
 })
 
-_#defs: "/$defs/Properties/definitions/AddressField": _#defs."/$defs/Properties/definitions/FieldIdentifier"
+#AddressField: #FieldIdentifier
 
 // Allow traffic towards application.
-_#defs: "/$defs/Properties/definitions/AllowAction": close(
-	{CustomRequestHandling?: _#defs."/$defs/Properties/definitions/CustomRequestHandling"},
-)
+#AllowAction: close({CustomRequestHandling?: #CustomRequestHandling})
 
-_#defs: "/$defs/Properties/definitions/AndStatement": close(
-	{Statements!: [..._#defs."/$defs/Properties/definitions/Statement"]},
-)
+#AndStatement: close({Statements!: [...#Statement]})
 
 // Application details defined during the &webacl; creation process. Application
 // attributes help WAF; give recommendations for protection packs.
-_#defs: "/$defs/Properties/definitions/ApplicationAttribute": close({
-	Name!:   _#defs."/$defs/Properties/definitions/AttributeName"
-	Values!: _#defs."/$defs/Properties/definitions/AttributeValues"
+#ApplicationAttribute: close({
+	Name!:   #AttributeName
+	Values!: #AttributeValues
 })
 
 // Contains the attribute name and a list of values for that attribute.
-_#defs: "/$defs/Properties/definitions/ApplicationAttributes": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ApplicationAttribute"
-]
+#ApplicationAttributes: list.MaxItems(10) & list.MinItems(1) & [...#ApplicationAttribute]
 
 // Configures the ability for the WAF; console to store and retrieve application
 // attributes during the webacl; creation process. Application attributes help
 // WAF; give recommendations for protection packs.
-_#defs: "/$defs/Properties/definitions/ApplicationConfig": close(
-	{Attributes!: _#defs."/$defs/Properties/definitions/ApplicationAttributes"},
-)
+#ApplicationConfig: close({Attributes!: #ApplicationAttributes})
 
-_#defs: "/$defs/Properties/definitions/AsnMatchStatement": close({
+#AsnMatchStatement: close({
 	AsnList?:           list.MaxItems(100) & list.MinItems(1) & [...int & <=4294967295 & >=0]
-	ForwardedIPConfig?: _#defs."/$defs/Properties/definitions/ForwardedIPConfiguration"
+	ForwardedIPConfig?: #ForwardedIPConfiguration
 })
 
 // AssociationConfig for body inspection
-_#defs: "/$defs/Properties/definitions/AssociationConfig": close(
-	{RequestBody?: _#defs."/$defs/Properties/definitions/RequestBody"},
-)
+#AssociationConfig: close({RequestBody?: #RequestBody})
 
 // Specifies the attribute name.
-_#defs: "/$defs/Properties/definitions/AttributeName": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-]+$"
+#AttributeName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-]+$"
 
 // Specifies the attribute value.
-_#defs: "/$defs/Properties/definitions/AttributeValue": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-]+$"
+#AttributeValue: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-]+$"
 
 // Contains a list of values for that attribute
-_#defs: "/$defs/Properties/definitions/AttributeValues": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AttributeValue"
-]
+#AttributeValues: list.MaxItems(10) & list.MinItems(1) & [...#AttributeValue]
 
 // Block traffic towards application.
-_#defs: "/$defs/Properties/definitions/BlockAction": close(
-	{CustomResponse?: _#defs."/$defs/Properties/definitions/CustomResponse"},
-)
+#BlockAction: close({CustomResponse?: #CustomResponse})
 
 // The blockchain chain to use.
-_#defs: "/$defs/Properties/definitions/BlockchainChain": "BASE" | "SOLANA" | "BASE_SEPOLIA" | "SOLANA_DEVNET"
+#BlockchainChain: "BASE" | "SOLANA" | "BASE_SEPOLIA" | "SOLANA_DEVNET"
 
 // The body of a web request. This immediately follows the request headers.
-_#defs: "/$defs/Properties/definitions/Body": close(
-	{OversizeHandling?: _#defs."/$defs/Properties/definitions/OversizeHandling"},
-)
+#Body: close({OversizeHandling?: #OversizeHandling})
 
 // The inspection behavior to fall back to if the JSON in the request body is invalid.
-_#defs: "/$defs/Properties/definitions/BodyParsingFallbackBehavior": "MATCH" | "NO_MATCH" | "EVALUATE_AS_STRING"
+#BodyParsingFallbackBehavior: "MATCH" | "NO_MATCH" | "EVALUATE_AS_STRING"
 
 // Byte Match statement.
-_#defs: "/$defs/Properties/definitions/ByteMatchStatement": close({
-	FieldToMatch!:                _#defs."/$defs/Properties/definitions/FieldToMatch"
-	PositionalConstraint!:        _#defs."/$defs/Properties/definitions/PositionalConstraint"
-	PreParseTextTransformations?: [..._#defs."/$defs/Properties/definitions/PreParseTextTransformation"]
-	SearchString?:                _#defs."/$defs/Properties/definitions/SearchString"
-	SearchStringBase64?:          _#defs."/$defs/Properties/definitions/SearchStringBase64"
-	TextTransformations!:         list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"]
+#ByteMatchStatement: close({
+	FieldToMatch!:                #FieldToMatch
+	PositionalConstraint!:        #PositionalConstraint
+	PreParseTextTransformations?: [...#PreParseTextTransformation]
+	SearchString?:                #SearchString
+	SearchStringBase64?:          #SearchStringBase64
+	TextTransformations!:         list.MinItems(1) & [...#TextTransformation]
 })
 
 // Checks valid token exists with request.
-_#defs: "/$defs/Properties/definitions/CaptchaAction": close(
-	{CustomRequestHandling?: _#defs."/$defs/Properties/definitions/CustomRequestHandling"},
-)
+#CaptchaAction: close({CustomRequestHandling?: #CustomRequestHandling})
 
-_#defs: "/$defs/Properties/definitions/CaptchaConfig": close(
-	{ImmunityTimeProperty?: _#defs."/$defs/Properties/definitions/ImmunityTimeProperty"},
-)
+#CaptchaConfig: close({ImmunityTimeProperty?: #ImmunityTimeProperty})
 
 // Checks that the request has a valid token with an unexpired challenge
 // timestamp and, if not, returns a browser challenge to the client.
-_#defs: "/$defs/Properties/definitions/ChallengeAction": close(
-	{CustomRequestHandling?: _#defs."/$defs/Properties/definitions/CustomRequestHandling"},
-)
+#ChallengeAction: close({CustomRequestHandling?: #CustomRequestHandling})
 
-_#defs: "/$defs/Properties/definitions/ChallengeConfig": close(
-	{ImmunityTimeProperty?: _#defs."/$defs/Properties/definitions/ImmunityTimeProperty"},
-)
+#ChallengeConfig: close({ImmunityTimeProperty?: #ImmunityTimeProperty})
 
 // Client side action config for AntiDDOS AMR.
-_#defs: "/$defs/Properties/definitions/ClientSideAction": close({
-	ExemptUriRegularExpressions?: _#defs."/$defs/Properties/definitions/RegularExpressionList"
-	Sensitivity?:                 _#defs."/$defs/Properties/definitions/SensitivityToAct"
-	UsageOfAction!:               _#defs."/$defs/Properties/definitions/UsageOfAction"
+#ClientSideAction: close({
+	ExemptUriRegularExpressions?: #RegularExpressionList
+	Sensitivity?:                 #SensitivityToAct
+	UsageOfAction!:               #UsageOfAction
 })
 
 // Client side action config for AntiDDOS AMR.
-_#defs: "/$defs/Properties/definitions/ClientSideActionConfig": close(
-	{Challenge!: _#defs."/$defs/Properties/definitions/ClientSideAction"},
-)
+#ClientSideActionConfig: close({Challenge!: #ClientSideAction})
 
 // The pattern to look for in the request cookies.
-_#defs: "/$defs/Properties/definitions/CookieMatchPattern": close({
+#CookieMatchPattern: close({
 	All?: string | {...}
 	ExcludedCookies?: list.MaxItems(199) & list.MinItems(1) & [
 		...strings.MaxRunes(60) & strings.MinRunes(1) & =~".*\\S.*"
@@ -195,123 +169,111 @@ _#defs: "/$defs/Properties/definitions/CookieMatchPattern": close({
 })
 
 // Includes cookies of a web request.
-_#defs: "/$defs/Properties/definitions/Cookies": close({
-	MatchPattern!:     _#defs."/$defs/Properties/definitions/CookieMatchPattern"
-	MatchScope!:       _#defs."/$defs/Properties/definitions/MapMatchScope"
-	OversizeHandling!: _#defs."/$defs/Properties/definitions/OversizeHandling"
+#Cookies: close({
+	MatchPattern!:     #CookieMatchPattern
+	MatchScope!:       #MapMatchScope
+	OversizeHandling!: #OversizeHandling
 })
 
 // Allow traffic towards application.
-_#defs: "/$defs/Properties/definitions/CountAction": close(
-	{CustomRequestHandling?: _#defs."/$defs/Properties/definitions/CustomRequestHandling"},
-)
+#CountAction: close({CustomRequestHandling?: #CustomRequestHandling})
 
 // Configures cryptocurrency payment settings.
-_#defs: "/$defs/Properties/definitions/CryptoConfig": close(
-	{PaymentNetworks!: _#defs."/$defs/Properties/definitions/PaymentNetworks"},
-)
+#CryptoConfig: close({PaymentNetworks!: #PaymentNetworks})
 
 // The cryptocurrency to use for payment.
-_#defs: "/$defs/Properties/definitions/CryptoCurrency": "USDC"
+#CryptoCurrency: "USDC"
 
 // The currency mode for monetization. Use REAL for production payments and TEST
 // for testing with testnet currencies.
-_#defs: "/$defs/Properties/definitions/CurrencyMode": "REAL" | "TEST"
+#CurrencyMode: "REAL" | "TEST"
 
 // HTTP header.
-_#defs: "/$defs/Properties/definitions/CustomHTTPHeader": close({
-	Name!:  _#defs."/$defs/Properties/definitions/CustomHTTPHeaderName"
-	Value!: _#defs."/$defs/Properties/definitions/CustomHTTPHeaderValue"
+#CustomHTTPHeader: close({
+	Name!:  #CustomHTTPHeaderName
+	Value!: #CustomHTTPHeaderValue
 })
 
 // HTTP header name.
-_#defs: "/$defs/Properties/definitions/CustomHTTPHeaderName": strings.MaxRunes(64) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9._$-]+$"
+#CustomHTTPHeaderName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._$-]+$"
 
 // HTTP header value.
-_#defs: "/$defs/Properties/definitions/CustomHTTPHeaderValue": strings.MaxRunes(255) & strings.MinRunes(1)
+#CustomHTTPHeaderValue: strings.MaxRunes(255) & strings.MinRunes(1)
 
 // Custom request handling.
-_#defs: "/$defs/Properties/definitions/CustomRequestHandling": close({
+#CustomRequestHandling: close({
 	// Collection of HTTP headers.
-	InsertHeaders!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomHTTPHeader"]
+	InsertHeaders!: list.MinItems(1) & [...#CustomHTTPHeader]
 })
 
 // Custom response.
-_#defs: "/$defs/Properties/definitions/CustomResponse": close({
+#CustomResponse: close({
 	// Custom response body key.
 	CustomResponseBodyKey?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\-]+$"
-	ResponseCode!:          _#defs."/$defs/Properties/definitions/ResponseStatusCode"
+	ResponseCode!:          #ResponseStatusCode
 
 	// Collection of HTTP headers.
-	ResponseHeaders?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomHTTPHeader"]
+	ResponseHeaders?: list.MinItems(1) & [...#CustomHTTPHeader]
 })
 
 // Custom response key and body map.
-_#defs: "/$defs/Properties/definitions/CustomResponseBodies": struct.MinFields(1) & close({
+#CustomResponseBodies: struct.MinFields(1) & close({
 
-	{[=~"^[\\w\\-]+$"]: _#defs."/$defs/Properties/definitions/CustomResponseBody"}})
+	{[=~"^[\\w\\-]+$"]: #CustomResponseBody}})
 
 // Custom response body.
-_#defs: "/$defs/Properties/definitions/CustomResponseBody": close({
-	Content!:     _#defs."/$defs/Properties/definitions/ResponseContent"
-	ContentType!: _#defs."/$defs/Properties/definitions/ResponseContentType"
+#CustomResponseBody: close({
+	Content!:     #ResponseContent
+	ContentType!: #ResponseContentType
 })
 
-_#defs: "/$defs/Properties/definitions/DataProtect": close({
-	Action!:                  _#defs."/$defs/Properties/definitions/DataProtectionAction"
+#DataProtect: close({
+	Action!:                  #DataProtectionAction
 	ExcludeRateBasedDetails?: bool
 	ExcludeRuleMatchDetails?: bool
-	Field!:                   _#defs."/$defs/Properties/definitions/FieldToProtect"
+	Field!:                   #FieldToProtect
 })
 
-_#defs: "/$defs/Properties/definitions/DataProtectionAction": "SUBSTITUTION" | "HASH"
+#DataProtectionAction: "SUBSTITUTION" | "HASH"
 
-_#defs: "/$defs/Properties/definitions/DataProtectionConfig": close(
-	{DataProtections!: _#defs."/$defs/Properties/definitions/DataProtections"},
-)
+#DataProtectionConfig: close({DataProtections!: #DataProtections})
 
-_#defs: "/$defs/Properties/definitions/DataProtections": list.MaxItems(26) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/DataProtect"
-]
+#DataProtections: list.MaxItems(26) & list.MinItems(1) & [...#DataProtect]
 
 // Default Action WebACL will take against ingress traffic when there is no matching Rule.
-_#defs: "/$defs/Properties/definitions/DefaultAction": close({
-	Allow?: _#defs."/$defs/Properties/definitions/AllowAction"
-	Block?: _#defs."/$defs/Properties/definitions/BlockAction"
+#DefaultAction: close({
+	Allow?: #AllowAction
+	Block?: #BlockAction
 })
 
 // Description of the entity.
-_#defs: "/$defs/Properties/definitions/EntityDescription": =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$"
+#EntityDescription: =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$"
 
 // Id of the WebACL
-_#defs: "/$defs/Properties/definitions/EntityId": =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$"
+#EntityId: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$"
 
 // Name of the WebACL.
-_#defs: "/$defs/Properties/definitions/EntityName": =~"^[0-9A-Za-z_-]{1,128}$"
+#EntityName: =~"^[0-9A-Za-z_-]{1,128}$"
 
-_#defs: "/$defs/Properties/definitions/EvaluationWindowSec": (==60 | ==120 | ==300 | ==600) & int
+#EvaluationWindowSec: (==60 | ==120 | ==300 | ==600) & int
 
 // Excluded Rule in the RuleGroup or ManagedRuleGroup will not be evaluated.
-_#defs: "/$defs/Properties/definitions/ExcludedRule": close({Name!: _#defs."/$defs/Properties/definitions/EntityName"})
+#ExcludedRule: close({Name!: #EntityName})
 
-_#defs: "/$defs/Properties/definitions/ExcludedRules": [..._#defs."/$defs/Properties/definitions/ExcludedRule"]
+#ExcludedRules: [...#ExcludedRule]
 
-_#defs: "/$defs/Properties/definitions/FieldIdentifier": close(
-	{Identifier!: strings.MaxRunes(512) & strings.MinRunes(1) & =~".*\\S.*"},
-)
+#FieldIdentifier: close({Identifier!: strings.MaxRunes(512) & strings.MinRunes(1) & =~".*\\S.*"})
 
 // Field of the request to match.
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	AllQueryArguments?: string | {...}
-	Body?:              _#defs."/$defs/Properties/definitions/Body"
-	Cookies?:           _#defs."/$defs/Properties/definitions/Cookies"
-	HeaderOrder?:       _#defs."/$defs/Properties/definitions/HeaderOrder"
-	Headers?:           _#defs."/$defs/Properties/definitions/Headers"
-	JA3Fingerprint?:    _#defs."/$defs/Properties/definitions/JA3Fingerprint"
-	JA4Fingerprint?:    _#defs."/$defs/Properties/definitions/JA4Fingerprint"
-	JsonBody?:          _#defs."/$defs/Properties/definitions/JsonBody"
+	Body?:              #Body
+	Cookies?:           #Cookies
+	HeaderOrder?:       #HeaderOrder
+	Headers?:           #Headers
+	JA3Fingerprint?:    #JA3Fingerprint
+	JA4Fingerprint?:    #JA4Fingerprint
+	JsonBody?:          #JsonBody
 	Method?:            string | {...}
 	QueryString?:       string | {...}
 	SingleHeader?:      close({Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S"})
@@ -320,28 +282,28 @@ _#defs: "/$defs/Properties/definitions/FieldToMatch": close({
 	// or SalesRegion. The name can be up to 30 characters long and isn't case
 	// sensitive.
 	SingleQueryArgument?: close({Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S"})
-	UriFragment?:         _#defs."/$defs/Properties/definitions/UriFragment"
+	UriFragment?:         #UriFragment
 	UriPath?:             string | {...}
 })
 
 // Field in log to protect.
-_#defs: "/$defs/Properties/definitions/FieldToProtect": close({
+#FieldToProtect: close({
 	// List of field keys to protect
-	FieldKeys?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldToProtectKeyName"]
+	FieldKeys?: list.MaxItems(100) & [...] & [...#FieldToProtectKeyName]
 
 	// Field type to protect
 	FieldType!: "SINGLE_HEADER" | "SINGLE_COOKIE" | "SINGLE_QUERY_ARGUMENT" | "QUERY_STRING" | "BODY"
 })
 
 // Key of the field to protect.
-_#defs: "/$defs/Properties/definitions/FieldToProtectKeyName": strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S"
+#FieldToProtectKeyName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S"
 
-_#defs: "/$defs/Properties/definitions/ForwardedIPConfiguration": close({
+#ForwardedIPConfiguration: close({
 	FallbackBehavior!: "MATCH" | "NO_MATCH"
 	HeaderName!:       =~"^[a-zA-Z0-9-]{1,255}$"
 })
 
-_#defs: "/$defs/Properties/definitions/GeoMatchStatement": close({
+#GeoMatchStatement: close({
 	CountryCodes?: list.MinItems(1) & [
 		...("AD" |
 			"AE" |
@@ -594,11 +556,11 @@ _#defs: "/$defs/Properties/definitions/GeoMatchStatement": close({
 			"ZM" |
 			"ZW") & (strings.MaxRunes(2) & strings.MinRunes(1))
 	]
-	ForwardedIPConfig?: _#defs."/$defs/Properties/definitions/ForwardedIPConfiguration"
+	ForwardedIPConfig?: #ForwardedIPConfiguration
 })
 
 // The pattern to look for in the request headers.
-_#defs: "/$defs/Properties/definitions/HeaderMatchPattern": close({
+#HeaderMatchPattern: close({
 	All?: string | {...}
 	ExcludedHeaders?: list.MaxItems(199) & list.MinItems(1) & [
 		...strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*"
@@ -610,345 +572,319 @@ _#defs: "/$defs/Properties/definitions/HeaderMatchPattern": close({
 
 // The string containing the list of a web request's header names, ordered as
 // they appear in the web request, separated by colons.
-_#defs: "/$defs/Properties/definitions/HeaderOrder": close(
-	{OversizeHandling!: _#defs."/$defs/Properties/definitions/OversizeHandling"},
-)
+#HeaderOrder: close({OversizeHandling!: #OversizeHandling})
 
 // Includes headers of a web request.
-_#defs: "/$defs/Properties/definitions/Headers": close({
-	MatchPattern!:     _#defs."/$defs/Properties/definitions/HeaderMatchPattern"
-	MatchScope!:       _#defs."/$defs/Properties/definitions/MapMatchScope"
-	OversizeHandling!: _#defs."/$defs/Properties/definitions/OversizeHandling"
+#Headers: close({
+	MatchPattern!:     #HeaderMatchPattern
+	MatchScope!:       #MapMatchScope
+	OversizeHandling!: #OversizeHandling
 })
 
-_#defs: "/$defs/Properties/definitions/IPSetForwardedIPConfiguration": close({
+#IPSetForwardedIPConfiguration: close({
 	FallbackBehavior!: "MATCH" | "NO_MATCH"
 	HeaderName!:       =~"^[a-zA-Z0-9-]{1,255}$"
 	Position!:         "FIRST" | "LAST" | "ANY"
 })
 
-_#defs: "/$defs/Properties/definitions/IPSetReferenceStatement": close({
-	Arn!:                    _#defs."/$defs/Properties/definitions/ResourceArn"
-	IPSetForwardedIPConfig?: _#defs."/$defs/Properties/definitions/IPSetForwardedIPConfiguration"
+#IPSetReferenceStatement: close({
+	Arn!:                    #ResourceArn
+	IPSetForwardedIPConfig?: #IPSetForwardedIPConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/ImmunityTimeProperty": close({ImmunityTime!: int & <=259200 & >=60})
+#ImmunityTimeProperty: close({ImmunityTime!: int & <=259200 & >=60})
 
 // Includes the JA3 fingerprint of a web request.
-_#defs: "/$defs/Properties/definitions/JA3Fingerprint": close({FallbackBehavior!: "MATCH" | "NO_MATCH"})
+#JA3Fingerprint: close({FallbackBehavior!: "MATCH" | "NO_MATCH"})
 
 // Includes the JA4 fingerprint of a web request.
-_#defs: "/$defs/Properties/definitions/JA4Fingerprint": close({FallbackBehavior!: "MATCH" | "NO_MATCH"})
+#JA4Fingerprint: close({FallbackBehavior!: "MATCH" | "NO_MATCH"})
 
 // Inspect the request body as JSON. The request body immediately follows the request headers.
-_#defs: "/$defs/Properties/definitions/JsonBody": close({
-	InvalidFallbackBehavior?: _#defs."/$defs/Properties/definitions/BodyParsingFallbackBehavior"
-	MatchPattern!:            _#defs."/$defs/Properties/definitions/JsonMatchPattern"
-	MatchScope!:              _#defs."/$defs/Properties/definitions/JsonMatchScope"
-	OversizeHandling?:        _#defs."/$defs/Properties/definitions/OversizeHandling"
+#JsonBody: close({
+	InvalidFallbackBehavior?: #BodyParsingFallbackBehavior
+	MatchPattern!:            #JsonMatchPattern
+	MatchScope!:              #JsonMatchScope
+	OversizeHandling?:        #OversizeHandling
 })
 
 // The pattern to look for in the JSON body.
-_#defs: "/$defs/Properties/definitions/JsonMatchPattern": close({
+#JsonMatchPattern: close({
 	All?:           string | {...}
-	IncludedPaths?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/JsonPointerPath"]
+	IncludedPaths?: list.MinItems(1) & [...#JsonPointerPath]
 })
 
 // The parts of the JSON to match against using the MatchPattern.
-_#defs: "/$defs/Properties/definitions/JsonMatchScope": "ALL" | "KEY" | "VALUE"
+#JsonMatchScope: "ALL" | "KEY" | "VALUE"
 
 // JSON pointer path in the web request's JSON body
-_#defs: "/$defs/Properties/definitions/JsonPointerPath": =~"^[\\/]+([^~]*(~[01])*){1,512}$"
+#JsonPointerPath: =~"^[\\/]+([^~]*(~[01])*){1,512}$"
 
-_#defs: "/$defs/Properties/definitions/Label": close({Name!: _#defs."/$defs/Properties/definitions/LabelName"})
+#Label: close({Name!: #LabelName})
 
-_#defs: "/$defs/Properties/definitions/LabelMatchKey": string
+#LabelMatchKey: string
 
-_#defs: "/$defs/Properties/definitions/LabelMatchScope": "LABEL" | "NAMESPACE"
+#LabelMatchScope: "LABEL" | "NAMESPACE"
 
-_#defs: "/$defs/Properties/definitions/LabelMatchStatement": close({
-	Key!:   _#defs."/$defs/Properties/definitions/LabelMatchKey"
-	Scope!: _#defs."/$defs/Properties/definitions/LabelMatchScope"
+#LabelMatchStatement: close({
+	Key!:   #LabelMatchKey
+	Scope!: #LabelMatchScope
 })
 
 // Name of the Label.
-_#defs: "/$defs/Properties/definitions/LabelName": string
+#LabelName: string
 
 // ManagedRuleGroupConfig.
-_#defs: "/$defs/Properties/definitions/ManagedRuleGroupConfig": close({
-	AWSManagedRulesACFPRuleSet?:       _#defs."/$defs/Properties/definitions/AWSManagedRulesACFPRuleSet"
-	AWSManagedRulesATPRuleSet?:        _#defs."/$defs/Properties/definitions/AWSManagedRulesATPRuleSet"
-	AWSManagedRulesAntiDDoSRuleSet?:   _#defs."/$defs/Properties/definitions/AWSManagedRulesAntiDDoSRuleSet"
-	AWSManagedRulesBotControlRuleSet?: _#defs."/$defs/Properties/definitions/AWSManagedRulesBotControlRuleSet"
+#ManagedRuleGroupConfig: close({
+	AWSManagedRulesACFPRuleSet?:       #AWSManagedRulesACFPRuleSet
+	AWSManagedRulesATPRuleSet?:        #AWSManagedRulesATPRuleSet
+	AWSManagedRulesAntiDDoSRuleSet?:   #AWSManagedRulesAntiDDoSRuleSet
+	AWSManagedRulesBotControlRuleSet?: #AWSManagedRulesBotControlRuleSet
 	LoginPath?:                        strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*"
-	PasswordField?:                    _#defs."/$defs/Properties/definitions/FieldIdentifier"
+	PasswordField?:                    #FieldIdentifier
 	PayloadType?:                      "JSON" | "FORM_ENCODED"
-	UsernameField?:                    _#defs."/$defs/Properties/definitions/FieldIdentifier"
+	UsernameField?:                    #FieldIdentifier
 })
 
-_#defs: "/$defs/Properties/definitions/ManagedRuleGroupStatement": close({
-	ExcludedRules?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ExcludedRule"]
+#ManagedRuleGroupStatement: close({
+	ExcludedRules?: list.MaxItems(100) & [...] & [...#ExcludedRule]
 
 	// Collection of ManagedRuleGroupConfig.
-	ManagedRuleGroupConfigs?: [..._#defs."/$defs/Properties/definitions/ManagedRuleGroupConfig"]
-	Name!:                    _#defs."/$defs/Properties/definitions/EntityName"
+	ManagedRuleGroupConfigs?: [...#ManagedRuleGroupConfig]
+	Name!:                    #EntityName
 
 	// Action overrides for rules in the rule group.
-	RuleActionOverrides?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/RuleActionOverride"]
-	ScopeDownStatement?:  _#defs."/$defs/Properties/definitions/Statement"
+	RuleActionOverrides?: list.MaxItems(100) & [...] & [...#RuleActionOverride]
+	ScopeDownStatement?:  #Statement
 	VendorName!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S"
 	Version?:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w#:\\.\\-/]+$"
 })
 
 // The parts of the request to match against using the MatchPattern.
-_#defs: "/$defs/Properties/definitions/MapMatchScope": "ALL" | "KEY" | "VALUE"
+#MapMatchScope: "ALL" | "KEY" | "VALUE"
 
 // Configures monetization for the web ACL or rule group.
-_#defs: "/$defs/Properties/definitions/MonetizationConfig": close({
-	CryptoConfig?: _#defs."/$defs/Properties/definitions/CryptoConfig"
-	CurrencyMode?: _#defs."/$defs/Properties/definitions/CurrencyMode"
+#MonetizationConfig: close({
+	CryptoConfig?: #CryptoConfig
+	CurrencyMode?: #CurrencyMode
 })
 
 // Monetize action for rules.
-_#defs: "/$defs/Properties/definitions/MonetizeAction": close(
-	{PriceMultiplier?: _#defs."/$defs/Properties/definitions/PriceMultiplier"},
-)
+#MonetizeAction: close({PriceMultiplier?: #PriceMultiplier})
 
-_#defs: "/$defs/Properties/definitions/NotStatement": close(
-	{Statement!: _#defs."/$defs/Properties/definitions/Statement"},
-)
+#NotStatement: close({Statement!: #Statement})
 
 // Configures the options for on-source DDoS protection provided by supported resource type.
-_#defs: "/$defs/Properties/definitions/OnSourceDDoSProtectionConfig": close(
-	{ALBLowReputationMode!: "ACTIVE_UNDER_DDOS" | "ALWAYS_ON"},
-)
+#OnSourceDDoSProtectionConfig: close({ALBLowReputationMode!: "ACTIVE_UNDER_DDOS" | "ALWAYS_ON"})
 
-_#defs: "/$defs/Properties/definitions/OrStatement": close(
-	{Statements!: [..._#defs."/$defs/Properties/definitions/Statement"]},
-)
+#OrStatement: close({Statements!: [...#Statement]})
 
 // Override a RuleGroup or ManagedRuleGroup behavior. This can only be applied
 // to Rule that has RuleGroupReferenceStatement or
 // ManagedRuleGroupReferenceStatement.
-_#defs: "/$defs/Properties/definitions/OverrideAction": close({
+#OverrideAction: close({
 	Count?: string | {...}
 	None?:  string | {...}
 })
 
 // Handling of requests containing oversize fields
-_#defs: "/$defs/Properties/definitions/OversizeHandling": "CONTINUE" | "MATCH" | "NO_MATCH"
+#OversizeHandling: "CONTINUE" | "MATCH" | "NO_MATCH"
 
 // Configuration for a single payment network.
-_#defs: "/$defs/Properties/definitions/PaymentNetwork": close({
-	Chain!:         _#defs."/$defs/Properties/definitions/BlockchainChain"
-	Prices!:        _#defs."/$defs/Properties/definitions/Prices"
-	WalletAddress!: _#defs."/$defs/Properties/definitions/WalletAddress"
+#PaymentNetwork: close({
+	Chain!:         #BlockchainChain
+	Prices!:        #Prices
+	WalletAddress!: #WalletAddress
 })
 
 // List of payment network configurations.
-_#defs: "/$defs/Properties/definitions/PaymentNetworks": list.MaxItems(2) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/PaymentNetwork"
-]
+#PaymentNetworks: list.MaxItems(2) & list.MinItems(1) & [...#PaymentNetwork]
 
-_#defs: "/$defs/Properties/definitions/PhoneNumberField": _#defs."/$defs/Properties/definitions/FieldIdentifier"
+#PhoneNumberField: #FieldIdentifier
 
 // Position of the evaluation in the FieldToMatch of request.
-_#defs: "/$defs/Properties/definitions/PositionalConstraint": "EXACTLY" |
-	"STARTS_WITH" |
-	"ENDS_WITH" |
-	"CONTAINS" |
-	"CONTAINS_WORD"
+#PositionalConstraint: "EXACTLY" | "STARTS_WITH" | "ENDS_WITH" | "CONTAINS" | "CONTAINS_WORD"
 
 // Text Transformation applied before parsing the query string.
-_#defs: "/$defs/Properties/definitions/PreParseTextTransformation": close({
-	Priority!: _#defs."/$defs/Properties/definitions/PreParseTextTransformationPriority"
-	Type!:     _#defs."/$defs/Properties/definitions/PreParseTextTransformationType"
+#PreParseTextTransformation: close({
+	Priority!: #PreParseTextTransformationPriority
+	Type!:     #PreParseTextTransformationType
 })
 
 // Priority of PreParseTextTransformation being applied.
-_#defs: "/$defs/Properties/definitions/PreParseTextTransformationPriority": int & >=0
+#PreParseTextTransformationPriority: int & >=0
 
 // Type of pre-parse text transformation.
-_#defs: "/$defs/Properties/definitions/PreParseTextTransformationType": "NONE" |
+#PreParseTextTransformationType: "NONE" |
 	"URL_DECODE" |
 	"URL_DECODE_UNI" |
 	"COMBINE_DUPLICATE_QUERY_ARGS_BY_COMMA" |
 	"REPLACE_SEMICOLONS_WITH_AMPERSANDS"
 
 // A price configuration.
-_#defs: "/$defs/Properties/definitions/Price": close({
-	Amount!:   _#defs."/$defs/Properties/definitions/PriceAmount"
-	Currency!: _#defs."/$defs/Properties/definitions/CryptoCurrency"
+#Price: close({
+	Amount!:   #PriceAmount
+	Currency!: #CryptoCurrency
 })
 
 // The price amount.
-_#defs: "/$defs/Properties/definitions/PriceAmount": strings.MaxRunes(13) &
+#PriceAmount: strings.MaxRunes(13) &
 strings.MinRunes(1) &
 =~"^([1-9][0-9]*(\\.[0-9]{1,3})?|0\\.([1-9][0-9]{0,2}|0[1-9][0-9]?|00[1-9]))$"
 
 // The price multiplier for the monetize action.
-_#defs: "/$defs/Properties/definitions/PriceMultiplier": strings.MaxRunes(3) &
-strings.MinRunes(1) &
-=~"^([1-9][0-9]?|100)$"
+#PriceMultiplier: strings.MaxRunes(3) & strings.MinRunes(1) & =~"^([1-9][0-9]?|100)$"
 
 // List of price configurations.
-_#defs: "/$defs/Properties/definitions/Prices": list.MaxItems(1) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/Price"
-]
+#Prices: list.MaxItems(1) & list.MinItems(1) & [...#Price]
 
-_#defs: "/$defs/Properties/definitions/QueryString": string | {...}
+#QueryString: string | {...}
 
-_#defs: "/$defs/Properties/definitions/RateBasedStatement": close({
+#RateBasedStatement: close({
 	AggregateKeyType!: "CONSTANT" | "IP" | "FORWARDED_IP" | "CUSTOM_KEYS"
 
 	// Specifies the aggregate keys to use in a rate-base rule.
-	CustomKeys?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/RateBasedStatementCustomKey"]
-	EvaluationWindowSec?: _#defs."/$defs/Properties/definitions/EvaluationWindowSec"
-	ForwardedIPConfig?:   _#defs."/$defs/Properties/definitions/ForwardedIPConfiguration"
-	Limit!:               _#defs."/$defs/Properties/definitions/RateLimit"
-	ScopeDownStatement?:  _#defs."/$defs/Properties/definitions/Statement"
+	CustomKeys?:          list.MaxItems(5) & [...] & [...#RateBasedStatementCustomKey]
+	EvaluationWindowSec?: #EvaluationWindowSec
+	ForwardedIPConfig?:   #ForwardedIPConfiguration
+	Limit!:               #RateLimit
+	ScopeDownStatement?:  #Statement
 })
 
 // Specifies a single custom aggregate key for a rate-base rule.
-_#defs: "/$defs/Properties/definitions/RateBasedStatementCustomKey": close({
-	ASN?:            _#defs."/$defs/Properties/definitions/RateLimitAsn"
-	Cookie?:         _#defs."/$defs/Properties/definitions/RateLimitCookie"
-	ForwardedIP?:    _#defs."/$defs/Properties/definitions/RateLimitForwardedIP"
-	HTTPMethod?:     _#defs."/$defs/Properties/definitions/RateLimitHTTPMethod"
-	Header?:         _#defs."/$defs/Properties/definitions/RateLimitHeader"
-	IP?:             _#defs."/$defs/Properties/definitions/RateLimitIP"
-	JA3Fingerprint?: _#defs."/$defs/Properties/definitions/RateLimitJA3Fingerprint"
-	JA4Fingerprint?: _#defs."/$defs/Properties/definitions/RateLimitJA4Fingerprint"
-	LabelNamespace?: _#defs."/$defs/Properties/definitions/RateLimitLabelNamespace"
-	QueryArgument?:  _#defs."/$defs/Properties/definitions/RateLimitQueryArgument"
-	QueryString?:    _#defs."/$defs/Properties/definitions/RateLimitQueryString"
-	UriPath?:        _#defs."/$defs/Properties/definitions/RateLimitUriPath"
+#RateBasedStatementCustomKey: close({
+	ASN?:            #RateLimitAsn
+	Cookie?:         #RateLimitCookie
+	ForwardedIP?:    #RateLimitForwardedIP
+	HTTPMethod?:     #RateLimitHTTPMethod
+	Header?:         #RateLimitHeader
+	IP?:             #RateLimitIP
+	JA3Fingerprint?: #RateLimitJA3Fingerprint
+	JA4Fingerprint?: #RateLimitJA4Fingerprint
+	LabelNamespace?: #RateLimitLabelNamespace
+	QueryArgument?:  #RateLimitQueryArgument
+	QueryString?:    #RateLimitQueryString
+	UriPath?:        #RateLimitUriPath
 })
 
-_#defs: "/$defs/Properties/definitions/RateLimit": int & <=2000000000 & >=10
+#RateLimit: int & <=2000000000 & >=10
 
 // Specifies the request's ASN as an aggregate key for a rate-based rule.
-_#defs: "/$defs/Properties/definitions/RateLimitAsn": {...}
+#RateLimitAsn: {...}
 
 // Specifies a cookie as an aggregate key for a rate-based rule.
-_#defs: "/$defs/Properties/definitions/RateLimitCookie": close({
+#RateLimitCookie: close({
 	// The name of the cookie to use.
 	Name!:                strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*"
-	TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"]
+	TextTransformations!: list.MinItems(1) & [...#TextTransformation]
 })
 
-_#defs: "/$defs/Properties/definitions/RateLimitForwardedIP": string | {...}
+#RateLimitForwardedIP: string | {...}
 
-_#defs: "/$defs/Properties/definitions/RateLimitHTTPMethod": string | {...}
+#RateLimitHTTPMethod: string | {...}
 
 // Specifies a header as an aggregate key for a rate-based rule.
-_#defs: "/$defs/Properties/definitions/RateLimitHeader": close({
+#RateLimitHeader: close({
 	// The name of the header to use.
 	Name!:                strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*"
-	TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"]
+	TextTransformations!: list.MinItems(1) & [...#TextTransformation]
 })
 
-_#defs: "/$defs/Properties/definitions/RateLimitIP": string | {...}
+#RateLimitIP: string | {...}
 
 // Specifies the request's JA3 fingerprint as an aggregate key for a rate-based rule.
-_#defs: "/$defs/Properties/definitions/RateLimitJA3Fingerprint": close({FallbackBehavior!: "MATCH" | "NO_MATCH"})
+#RateLimitJA3Fingerprint: close({FallbackBehavior!: "MATCH" | "NO_MATCH"})
 
 // Specifies the request's JA4 fingerprint as an aggregate key for a rate-based rule.
-_#defs: "/$defs/Properties/definitions/RateLimitJA4Fingerprint": close({FallbackBehavior!: "MATCH" | "NO_MATCH"})
+#RateLimitJA4Fingerprint: close({FallbackBehavior!: "MATCH" | "NO_MATCH"})
 
 // Specifies a label namespace to use as an aggregate key for a rate-based rule.
-_#defs: "/$defs/Properties/definitions/RateLimitLabelNamespace": close({
+#RateLimitLabelNamespace: close({
 	// The namespace to use for aggregation.
 	Namespace!: string
 })
 
 // Specifies a query argument in the request as an aggregate key for a rate-based rule.
-_#defs: "/$defs/Properties/definitions/RateLimitQueryArgument": close({
+#RateLimitQueryArgument: close({
 	// The name of the query argument to use.
 	Name!:                strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*"
-	TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"]
+	TextTransformations!: list.MinItems(1) & [...#TextTransformation]
 })
 
 // Specifies the request's query string as an aggregate key for a rate-based rule.
-_#defs: "/$defs/Properties/definitions/RateLimitQueryString": close(
-	{TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"]},
-)
+#RateLimitQueryString: close({TextTransformations!: list.MinItems(1) & [...#TextTransformation]})
 
 // Specifies the request's URI Path as an aggregate key for a rate-based rule.
-_#defs: "/$defs/Properties/definitions/RateLimitUriPath": close(
-	{TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"]},
-)
+#RateLimitUriPath: close({TextTransformations!: list.MinItems(1) & [...#TextTransformation]})
 
 // Regex
-_#defs: "/$defs/Properties/definitions/Regex": {
-	RegexString?: _#defs."/$defs/Properties/definitions/RegexPatternString"
+#Regex: {
+	RegexString?: #RegexPatternString
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/RegexMatchStatement": close({
-	FieldToMatch!:                _#defs."/$defs/Properties/definitions/FieldToMatch"
-	PreParseTextTransformations?: [..._#defs."/$defs/Properties/definitions/PreParseTextTransformation"]
+#RegexMatchStatement: close({
+	FieldToMatch!:                #FieldToMatch
+	PreParseTextTransformations?: [...#PreParseTextTransformation]
 	RegexString!:                 strings.MaxRunes(512) & strings.MinRunes(1)
-	TextTransformations!:         list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"]
+	TextTransformations!:         list.MinItems(1) & [...#TextTransformation]
 })
 
-_#defs: "/$defs/Properties/definitions/RegexPatternSetReferenceStatement": close({
-	Arn!:                         _#defs."/$defs/Properties/definitions/ResourceArn"
-	FieldToMatch!:                _#defs."/$defs/Properties/definitions/FieldToMatch"
-	PreParseTextTransformations?: [..._#defs."/$defs/Properties/definitions/PreParseTextTransformation"]
-	TextTransformations!:         list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"]
+#RegexPatternSetReferenceStatement: close({
+	Arn!:                         #ResourceArn
+	FieldToMatch!:                #FieldToMatch
+	PreParseTextTransformations?: [...#PreParseTextTransformation]
+	TextTransformations!:         list.MinItems(1) & [...#TextTransformation]
 })
 
-_#defs: "/$defs/Properties/definitions/RegexPatternString": strings.MaxRunes(512) & strings.MinRunes(1)
+#RegexPatternString: strings.MaxRunes(512) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/RegularExpressionList": [..._#defs."/$defs/Properties/definitions/Regex"]
+#RegularExpressionList: [...#Regex]
 
 // Map of AssociatedResourceType and RequestBodyAssociatedResourceTypeConfig
-_#defs: "/$defs/Properties/definitions/RequestBody": close({
+#RequestBody: close({
 
-	{[=~"^(CLOUDFRONT|API_GATEWAY|COGNITO_USER_POOL|APP_RUNNER_SERVICE|VERIFIED_ACCESS_INSTANCE)$"]: _#defs."/$defs/Properties/definitions/RequestBodyAssociatedResourceTypeConfig"}})
+	{[=~"^(CLOUDFRONT|API_GATEWAY|COGNITO_USER_POOL|APP_RUNNER_SERVICE|VERIFIED_ACCESS_INSTANCE)$"]: #RequestBodyAssociatedResourceTypeConfig}})
 
 // Configures the inspection size in the request body.
-_#defs: "/$defs/Properties/definitions/RequestBodyAssociatedResourceTypeConfig": close(
-	{DefaultSizeInspectionLimit!: _#defs."/$defs/Properties/definitions/SizeInspectionLimit"},
-)
+#RequestBodyAssociatedResourceTypeConfig: close({DefaultSizeInspectionLimit!: #SizeInspectionLimit})
 
 // Configures the inspection of login requests
-_#defs: "/$defs/Properties/definitions/RequestInspection": close({
-	PasswordField!: _#defs."/$defs/Properties/definitions/FieldIdentifier"
+#RequestInspection: close({
+	PasswordField!: #FieldIdentifier
 	PayloadType!:   "JSON" | "FORM_ENCODED"
-	UsernameField!: _#defs."/$defs/Properties/definitions/FieldIdentifier"
+	UsernameField!: #FieldIdentifier
 })
 
 // Configures the inspection of sign-up requests
-_#defs: "/$defs/Properties/definitions/RequestInspectionACFP": close({
-	AddressFields?:     [..._#defs."/$defs/Properties/definitions/AddressField"]
-	EmailField?:        _#defs."/$defs/Properties/definitions/FieldIdentifier"
-	PasswordField?:     _#defs."/$defs/Properties/definitions/FieldIdentifier"
+#RequestInspectionACFP: close({
+	AddressFields?:     [...#AddressField]
+	EmailField?:        #FieldIdentifier
+	PasswordField?:     #FieldIdentifier
 	PayloadType!:       "JSON" | "FORM_ENCODED"
-	PhoneNumberFields?: [..._#defs."/$defs/Properties/definitions/PhoneNumberField"]
-	UsernameField?:     _#defs."/$defs/Properties/definitions/FieldIdentifier"
+	PhoneNumberFields?: [...#PhoneNumberField]
+	UsernameField?:     #FieldIdentifier
 })
 
 // ARN of the WAF entity.
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(2048) & strings.MinRunes(20) & =~"\\S"
+#ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"\\S"
 
 // Response content.
-_#defs: "/$defs/Properties/definitions/ResponseContent": strings.MaxRunes(10240) & strings.MinRunes(1)
+#ResponseContent: strings.MaxRunes(10240) & strings.MinRunes(1)
 
 // Valid values are TEXT_PLAIN, TEXT_HTML, and APPLICATION_JSON.
-_#defs: "/$defs/Properties/definitions/ResponseContentType": "TEXT_PLAIN" | "TEXT_HTML" | "APPLICATION_JSON"
+#ResponseContentType: "TEXT_PLAIN" | "TEXT_HTML" | "APPLICATION_JSON"
 
 // Configures the inspection of login responses
-_#defs: "/$defs/Properties/definitions/ResponseInspection": close({
-	BodyContains?: _#defs."/$defs/Properties/definitions/ResponseInspectionBodyContains"
-	Header?:       _#defs."/$defs/Properties/definitions/ResponseInspectionHeader"
-	Json?:         _#defs."/$defs/Properties/definitions/ResponseInspectionJson"
-	StatusCode?:   _#defs."/$defs/Properties/definitions/ResponseInspectionStatusCode"
+#ResponseInspection: close({
+	BodyContains?: #ResponseInspectionBodyContains
+	Header?:       #ResponseInspectionHeader
+	Json?:         #ResponseInspectionJson
+	StatusCode?:   #ResponseInspectionStatusCode
 })
 
 // Response body contents that indicate success or failure of a login request
-_#defs: "/$defs/Properties/definitions/ResponseInspectionBodyContains": close({
+#ResponseInspectionBodyContains: close({
 	FailureStrings!: list.MaxItems(5) & list.MinItems(1) & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) & =~".*\\S.*"
 	]
@@ -958,146 +894,146 @@ _#defs: "/$defs/Properties/definitions/ResponseInspectionBodyContains": close({
 })
 
 // Response headers that indicate success or failure of a login request
-_#defs: "/$defs/Properties/definitions/ResponseInspectionHeader": close({
+#ResponseInspectionHeader: close({
 	FailureValues!: list.MaxItems(3) & list.MinItems(1) & [...strings.MaxRunes(100) & strings.MinRunes(1) & =~".*\\S.*"]
 	Name!:          strings.MaxRunes(200) & strings.MinRunes(1) & =~".*\\S.*"
 	SuccessValues!: list.MaxItems(3) & list.MinItems(1) & [...strings.MaxRunes(100) & strings.MinRunes(1) & =~".*\\S.*"]
 })
 
 // Response JSON that indicate success or failure of a login request
-_#defs: "/$defs/Properties/definitions/ResponseInspectionJson": close({
+#ResponseInspectionJson: close({
 	FailureValues!: list.MaxItems(5) & list.MinItems(1) & [...strings.MaxRunes(100) & strings.MinRunes(1) & =~".*\\S.*"]
 	Identifier!:    strings.MaxRunes(512) & strings.MinRunes(1) & =~".*\\S.*"
 	SuccessValues!: list.MaxItems(5) & list.MinItems(1) & [...strings.MaxRunes(100) & strings.MinRunes(1) & =~".*\\S.*"]
 })
 
 // Response status codes that indicate success or failure of a login request
-_#defs: "/$defs/Properties/definitions/ResponseInspectionStatusCode": close({
+#ResponseInspectionStatusCode: close({
 	FailureCodes!: list.MaxItems(10) & list.MinItems(1) & [...int & <=999 & >=0]
 	SuccessCodes!: list.MaxItems(10) & list.MinItems(1) & [...int & <=999 & >=0]
 })
 
 // Custom response code.
-_#defs: "/$defs/Properties/definitions/ResponseStatusCode": int & <=599 & >=200
+#ResponseStatusCode: int & <=599 & >=200
 
 // Rule of WebACL that contains condition and action.
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	Action?:          _#defs."/$defs/Properties/definitions/RuleAction"
-	CaptchaConfig?:   _#defs."/$defs/Properties/definitions/CaptchaConfig"
-	ChallengeConfig?: _#defs."/$defs/Properties/definitions/ChallengeConfig"
-	Name!:            _#defs."/$defs/Properties/definitions/EntityName"
-	OverrideAction?:  _#defs."/$defs/Properties/definitions/OverrideAction"
-	Priority!:        _#defs."/$defs/Properties/definitions/RulePriority"
+#Rule: close({
+	Action?:          #RuleAction
+	CaptchaConfig?:   #CaptchaConfig
+	ChallengeConfig?: #ChallengeConfig
+	Name!:            #EntityName
+	OverrideAction?:  #OverrideAction
+	Priority!:        #RulePriority
 
 	// Collection of Rule Labels.
-	RuleLabels?:       [..._#defs."/$defs/Properties/definitions/Label"]
-	Statement!:        _#defs."/$defs/Properties/definitions/Statement"
-	VisibilityConfig!: _#defs."/$defs/Properties/definitions/VisibilityConfig"
+	RuleLabels?:       [...#Label]
+	Statement!:        #Statement
+	VisibilityConfig!: #VisibilityConfig
 })
 
 // Action taken when Rule matches its condition.
-_#defs: "/$defs/Properties/definitions/RuleAction": close({
-	Allow?:     _#defs."/$defs/Properties/definitions/AllowAction"
-	Block?:     _#defs."/$defs/Properties/definitions/BlockAction"
-	Captcha?:   _#defs."/$defs/Properties/definitions/CaptchaAction"
-	Challenge?: _#defs."/$defs/Properties/definitions/ChallengeAction"
-	Count?:     _#defs."/$defs/Properties/definitions/CountAction"
-	Monetize?:  _#defs."/$defs/Properties/definitions/MonetizeAction"
+#RuleAction: close({
+	Allow?:     #AllowAction
+	Block?:     #BlockAction
+	Captcha?:   #CaptchaAction
+	Challenge?: #ChallengeAction
+	Count?:     #CountAction
+	Monetize?:  #MonetizeAction
 })
 
 // Action override for rules in the rule group.
-_#defs: "/$defs/Properties/definitions/RuleActionOverride": close({
-	ActionToUse!: _#defs."/$defs/Properties/definitions/RuleAction"
-	Name!:        _#defs."/$defs/Properties/definitions/EntityName"
+#RuleActionOverride: close({
+	ActionToUse!: #RuleAction
+	Name!:        #EntityName
 })
 
-_#defs: "/$defs/Properties/definitions/RuleGroupReferenceStatement": close({
-	Arn!:           _#defs."/$defs/Properties/definitions/ResourceArn"
-	ExcludedRules?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ExcludedRule"]
+#RuleGroupReferenceStatement: close({
+	Arn!:           #ResourceArn
+	ExcludedRules?: list.MaxItems(100) & [...] & [...#ExcludedRule]
 
 	// Action overrides for rules in the rule group.
-	RuleActionOverrides?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/RuleActionOverride"]
+	RuleActionOverrides?: list.MaxItems(100) & [...] & [...#RuleActionOverride]
 })
 
 // Priority of the Rule, Rules get evaluated from lower to higher priority.
-_#defs: "/$defs/Properties/definitions/RulePriority": int & >=0
+#RulePriority: int & >=0
 
 // Collection of Rules.
-_#defs: "/$defs/Properties/definitions/Rules": [..._#defs."/$defs/Properties/definitions/Rule"]
+#Rules: [...#Rule]
 
 // Use CLOUDFRONT for CloudFront WebACL, use REGIONAL for Application Load Balancer and API Gateway.
-_#defs: "/$defs/Properties/definitions/Scope": "CLOUDFRONT" | "REGIONAL"
+#Scope: "CLOUDFRONT" | "REGIONAL"
 
 // String that is searched to find a match.
-_#defs: "/$defs/Properties/definitions/SearchString": string
+#SearchString: string
 
 // Base64 encoded string that is searched to find a match.
-_#defs: "/$defs/Properties/definitions/SearchStringBase64": string
+#SearchStringBase64: string
 
 // Sensitivity Level current only used for sqli match statements.
-_#defs: "/$defs/Properties/definitions/SensitivityLevel": "LOW" | "HIGH"
+#SensitivityLevel: "LOW" | "HIGH"
 
-_#defs: "/$defs/Properties/definitions/SensitivityToAct": "LOW" | "MEDIUM" | "HIGH"
+#SensitivityToAct: "LOW" | "MEDIUM" | "HIGH"
 
-_#defs: "/$defs/Properties/definitions/SingleHeader": close({Name?: string})
+#SingleHeader: close({Name?: string})
 
-_#defs: "/$defs/Properties/definitions/SingleQueryArgument": close({Name?: string})
+#SingleQueryArgument: close({Name?: string})
 
 // Size Constraint statement.
-_#defs: "/$defs/Properties/definitions/SizeConstraintStatement": close({
+#SizeConstraintStatement: close({
 	ComparisonOperator!:          "EQ" | "NE" | "LE" | "LT" | "GE" | "GT"
-	FieldToMatch!:                _#defs."/$defs/Properties/definitions/FieldToMatch"
-	PreParseTextTransformations?: [..._#defs."/$defs/Properties/definitions/PreParseTextTransformation"]
+	FieldToMatch!:                #FieldToMatch
+	PreParseTextTransformations?: [...#PreParseTextTransformation]
 	Size!:                        <=21474836480 & >=0
-	TextTransformations!:         list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"]
+	TextTransformations!:         list.MinItems(1) & [...#TextTransformation]
 })
 
-_#defs: "/$defs/Properties/definitions/SizeInspectionLimit": "KB_16" | "KB_32" | "KB_48" | "KB_64"
+#SizeInspectionLimit: "KB_16" | "KB_32" | "KB_48" | "KB_64"
 
 // Sqli Match Statement.
-_#defs: "/$defs/Properties/definitions/SqliMatchStatement": close({
-	FieldToMatch!:                _#defs."/$defs/Properties/definitions/FieldToMatch"
-	PreParseTextTransformations?: [..._#defs."/$defs/Properties/definitions/PreParseTextTransformation"]
-	SensitivityLevel?:            _#defs."/$defs/Properties/definitions/SensitivityLevel"
-	TextTransformations!:         list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"]
+#SqliMatchStatement: close({
+	FieldToMatch!:                #FieldToMatch
+	PreParseTextTransformations?: [...#PreParseTextTransformation]
+	SensitivityLevel?:            #SensitivityLevel
+	TextTransformations!:         list.MinItems(1) & [...#TextTransformation]
 })
 
 // First level statement that contains conditions, such as ByteMatch, SizeConstraint, etc
-_#defs: "/$defs/Properties/definitions/Statement": close({
-	AndStatement?:                      _#defs."/$defs/Properties/definitions/AndStatement"
-	AsnMatchStatement?:                 _#defs."/$defs/Properties/definitions/AsnMatchStatement"
-	ByteMatchStatement?:                _#defs."/$defs/Properties/definitions/ByteMatchStatement"
-	GeoMatchStatement?:                 _#defs."/$defs/Properties/definitions/GeoMatchStatement"
-	IPSetReferenceStatement?:           _#defs."/$defs/Properties/definitions/IPSetReferenceStatement"
-	LabelMatchStatement?:               _#defs."/$defs/Properties/definitions/LabelMatchStatement"
-	ManagedRuleGroupStatement?:         _#defs."/$defs/Properties/definitions/ManagedRuleGroupStatement"
-	NotStatement?:                      _#defs."/$defs/Properties/definitions/NotStatement"
-	OrStatement?:                       _#defs."/$defs/Properties/definitions/OrStatement"
-	RateBasedStatement?:                _#defs."/$defs/Properties/definitions/RateBasedStatement"
-	RegexMatchStatement?:               _#defs."/$defs/Properties/definitions/RegexMatchStatement"
-	RegexPatternSetReferenceStatement?: _#defs."/$defs/Properties/definitions/RegexPatternSetReferenceStatement"
-	RuleGroupReferenceStatement?:       _#defs."/$defs/Properties/definitions/RuleGroupReferenceStatement"
-	SizeConstraintStatement?:           _#defs."/$defs/Properties/definitions/SizeConstraintStatement"
-	SqliMatchStatement?:                _#defs."/$defs/Properties/definitions/SqliMatchStatement"
-	XssMatchStatement?:                 _#defs."/$defs/Properties/definitions/XssMatchStatement"
+#Statement: close({
+	AndStatement?:                      #AndStatement
+	AsnMatchStatement?:                 #AsnMatchStatement
+	ByteMatchStatement?:                #ByteMatchStatement
+	GeoMatchStatement?:                 #GeoMatchStatement
+	IPSetReferenceStatement?:           #IPSetReferenceStatement
+	LabelMatchStatement?:               #LabelMatchStatement
+	ManagedRuleGroupStatement?:         #ManagedRuleGroupStatement
+	NotStatement?:                      #NotStatement
+	OrStatement?:                       #OrStatement
+	RateBasedStatement?:                #RateBasedStatement
+	RegexMatchStatement?:               #RegexMatchStatement
+	RegexPatternSetReferenceStatement?: #RegexPatternSetReferenceStatement
+	RuleGroupReferenceStatement?:       #RuleGroupReferenceStatement
+	SizeConstraintStatement?:           #SizeConstraintStatement
+	SqliMatchStatement?:                #SqliMatchStatement
+	XssMatchStatement?:                 #XssMatchStatement
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
 // Text Transformation on the Search String before match.
-_#defs: "/$defs/Properties/definitions/TextTransformation": close({
-	Priority!: _#defs."/$defs/Properties/definitions/TextTransformationPriority"
-	Type!:     _#defs."/$defs/Properties/definitions/TextTransformationType"
+#TextTransformation: close({
+	Priority!: #TextTransformationPriority
+	Type!:     #TextTransformationType
 })
 
 // Priority of Rule being evaluated.
-_#defs: "/$defs/Properties/definitions/TextTransformationPriority": int & >=0
+#TextTransformationPriority: int & >=0
 
 // Type of text transformation.
-_#defs: "/$defs/Properties/definitions/TextTransformationType": "NONE" |
+#TextTransformationType: "NONE" |
 	"COMPRESS_WHITE_SPACE" |
 	"HTML_ENTITY_DECODE" |
 	"LOWERCASE" |
@@ -1131,31 +1067,29 @@ _#defs: "/$defs/Properties/definitions/TextTransformationType": "NONE" |
 
 // List of domains to accept in web request tokens, in addition to the domain of
 // the protected resource.
-_#defs: "/$defs/Properties/definitions/TokenDomains": [
-	...strings.MaxRunes(253) & strings.MinRunes(1) & =~"^[\\w\\.\\-/]+$"
-]
+#TokenDomains: [...strings.MaxRunes(253) & strings.MinRunes(1) & =~"^[\\w\\.\\-/]+$"]
 
 // The path component of the URI Fragment. This is the part of a web request
 // that identifies a fragment uri, for example, /abcd#introduction
-_#defs: "/$defs/Properties/definitions/UriFragment": close({FallbackBehavior?: "MATCH" | "NO_MATCH"})
+#UriFragment: close({FallbackBehavior?: "MATCH" | "NO_MATCH"})
 
-_#defs: "/$defs/Properties/definitions/UriPath": string | {...}
+#UriPath: string | {...}
 
-_#defs: "/$defs/Properties/definitions/UsageOfAction": "ENABLED" | "DISABLED"
+#UsageOfAction: "ENABLED" | "DISABLED"
 
 // Visibility Metric of the WebACL.
-_#defs: "/$defs/Properties/definitions/VisibilityConfig": close({
+#VisibilityConfig: close({
 	CloudWatchMetricsEnabled!: bool
 	MetricName!:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w#:\\.\\-/]+$"
 	SampledRequestsEnabled!:   bool
 })
 
 // The wallet address for receiving payments.
-_#defs: "/$defs/Properties/definitions/WalletAddress": strings.MaxRunes(44) & strings.MinRunes(26) & =~".*\\S.*"
+#WalletAddress: strings.MaxRunes(44) & strings.MinRunes(26) & =~".*\\S.*"
 
 // Xss Match Statement.
-_#defs: "/$defs/Properties/definitions/XssMatchStatement": close({
-	FieldToMatch!:                _#defs."/$defs/Properties/definitions/FieldToMatch"
-	PreParseTextTransformations?: [..._#defs."/$defs/Properties/definitions/PreParseTextTransformation"]
-	TextTransformations!:         list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"]
+#XssMatchStatement: close({
+	FieldToMatch!:                #FieldToMatch
+	PreParseTextTransformations?: [...#PreParseTextTransformation]
+	TextTransformations!:         list.MinItems(1) & [...#TextTransformation]
 })

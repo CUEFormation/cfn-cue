@@ -28,10 +28,10 @@ import (
 	=~"^arn:aws([a-z-]+)?:outposts:[a-z\\d-]+:\\d{12}:site/(os-[a-f0-9]{17})$"
 	SiteId!:                strings.MaxRunes(255) & strings.MinRunes(1) & =~"^os-[a-f0-9]{17}$"
 	SupportedHardwareType?: "RACK" | "SERVER"
-	Tags?:                  list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                  list.MaxItems(50) & [...#Tag]
 }) & matchN(>=1, [{AvailabilityZone!: _}, {AvailabilityZoneId!: _}])
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S \\n]+$"
 })

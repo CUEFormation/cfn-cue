@@ -21,49 +21,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Name!:      strings.MaxRunes(75) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
 	Namespace!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
-	PartitionSpec?: close({
-		Fields!: list.MaxItems(10) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/DataLakeDatasetPartitionField"
-		] |
-			fn.#ListExpression
-	}) |
+	PartitionSpec?: close(
+		{Fields!: list.MaxItems(10) & list.MinItems(1) & [...#DataLakeDatasetPartitionField] | fn.#ListExpression},
+	) |
 		fn.#ObjectExpression
 	Schema?: close({
-		Fields!: list.MaxItems(500) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/DataLakeDatasetSchemaField"
-		] |
-			fn.#ListExpression
-		Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9]+$" | fn.#StringExpression
-		PrimaryKeys?: list.MaxItems(20) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/DataLakeDatasetPrimaryKeyField"
-		] |
-			fn.#ListExpression
+		Fields!:      list.MaxItems(500) & list.MinItems(1) & [...#DataLakeDatasetSchemaField] | fn.#ListExpression
+		Name!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9]+$" | fn.#StringExpression
+		PrimaryKeys?: list.MaxItems(20) & list.MinItems(1) & [...#DataLakeDatasetPrimaryKeyField] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DataLakeDatasetPartitionField": close({
+#DataLakeDatasetPartitionField: close({
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
 	Transform!: close({Type!: "YEAR" | "MONTH" | "DAY" | "HOUR" | "IDENTITY" | fn.#StringExpression}) |
 		fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataLakeDatasetPrimaryKeyField": close(
+#DataLakeDatasetPrimaryKeyField: close(
 	{Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataLakeDatasetSchemaField": close({
+#DataLakeDatasetSchemaField: close({
 	IsRequired!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:       strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
 	Type!:       "INT" | "DOUBLE" | "STRING" | "TIMESTAMP" | "LONG" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

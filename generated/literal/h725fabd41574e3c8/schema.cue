@@ -18,13 +18,13 @@ import (
 	Id?: string
 
 	// A complex type that contains information about the list of CIDR locations.
-	Locations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Location"]
+	Locations?: list.UniqueItems() & [...#Location]
 
 	// A unique name for the CIDR collection.
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Location": close({
+#Location: close({
 	// A list of CIDR blocks.
 	CidrList!: list.UniqueItems() & [...string]
 

@@ -11,17 +11,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::WAFRegional::SqlInjectionMatchSet
 #Properties: close({
 	Name!:                    string | fn.#StringExpression
-	SqlInjectionMatchTuples?: [..._#defs."/$defs/Properties/definitions/SqlInjectionMatchTuple"] | fn.#ListExpression
+	SqlInjectionMatchTuples?: [...#SqlInjectionMatchTuple] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	Data?: string | fn.#StringExpression
 	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SqlInjectionMatchTuple": close({
-	FieldToMatch!:       _#defs."/$defs/Properties/definitions/FieldToMatch"
+#SqlInjectionMatchTuple: close({
+	FieldToMatch!:       #FieldToMatch
 	TextTransformation!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

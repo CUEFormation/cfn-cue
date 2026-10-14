@@ -22,18 +22,18 @@ import (
 		...strings.MaxRunes(25) & strings.MinRunes(2) & =~"^([a-z]{1,4})-([a-z]{1,15}-)+([0-9])$"
 	]
 	Source!:                strings.MaxRunes(36) & strings.MinRunes(1) & =~"^aws.([a-z0-9\\-])+$"
-	StatusSummaryByRegion?: _#defs."/$defs/Properties/definitions/StatusSummaryByRegion"
+	StatusSummaryByRegion?: #StatusSummaryByRegion
 })
 
-_#defs: "/$defs/Properties/definitions/EventRuleStatus": "ACTIVE" | "INACTIVE" | "CREATING" | "UPDATING" | "DELETING"
+#EventRuleStatus: "ACTIVE" | "INACTIVE" | "CREATING" | "UPDATING" | "DELETING"
 
-_#defs: "/$defs/Properties/definitions/EventRuleStatusSummary": close({
+#EventRuleStatusSummary: close({
 	Reason!: string
-	Status!: _#defs."/$defs/Properties/definitions/EventRuleStatus"
+	Status!: #EventRuleStatus
 })
 
-_#defs: "/$defs/Properties/definitions/StatusSummaryByRegion": close({
+#StatusSummaryByRegion: close({
 
-	{[=~"^([a-z]{1,2})-([a-z]{1,15}-)+([0-9])$"]: _#defs."/$defs/Properties/definitions/EventRuleStatusSummary"}})
+	{[=~"^([a-z]{1,2})-([a-z]{1,15}-)+([0-9])$"]: #EventRuleStatusSummary}})
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})

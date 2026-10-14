@@ -12,7 +12,7 @@ import "strings"
 		=~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}(:[A-Z0-9_$]+){0,1}$"
 	AIPromptId?:
 		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$|^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}(:[A-Z0-9_$]+){0,1}$"
-	ApiFormat!: _#defs."/$defs/Properties/definitions/AIPromptAPIFormat"
+	ApiFormat!: #AIPromptAPIFormat
 	AssistantArn?:
 		=~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$"
 	AssistantId?:
@@ -21,25 +21,21 @@ import "strings"
 	ModelId!:               strings.MaxRunes(2048) & strings.MinRunes(1)
 	ModifiedTimeSeconds?:   number
 	Name?:                  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+"
-	Tags?:                  _#defs."/$defs/Properties/definitions/Tags"
-	TemplateConfiguration!: _#defs."/$defs/Properties/definitions/AIPromptTemplateConfiguration"
-	TemplateType!:          _#defs."/$defs/Properties/definitions/AIPromptTemplateType"
-	Type!:                  _#defs."/$defs/Properties/definitions/AIPromptType"
+	Tags?:                  #Tags
+	TemplateConfiguration!: #AIPromptTemplateConfiguration
+	TemplateType!:          #AIPromptTemplateType
+	Type!:                  #AIPromptType
 })
 
-_#defs: "/$defs/Properties/definitions/AIPromptAPIFormat": "ANTHROPIC_CLAUDE_MESSAGES" |
-	"ANTHROPIC_CLAUDE_TEXT_COMPLETIONS" |
-	"MESSAGES" |
-	"TEXT_COMPLETIONS"
+#AIPromptAPIFormat: "ANTHROPIC_CLAUDE_MESSAGES" | "ANTHROPIC_CLAUDE_TEXT_COMPLETIONS" | "MESSAGES" | "TEXT_COMPLETIONS"
 
-_#defs: "/$defs/Properties/definitions/AIPromptTemplateConfiguration": close({
-	TextFullAIPromptEditTemplateConfiguration!:
-		_#defs."/$defs/Properties/definitions/TextFullAIPromptEditTemplateConfiguration"
-})
+#AIPromptTemplateConfiguration: close(
+	{TextFullAIPromptEditTemplateConfiguration!: #TextFullAIPromptEditTemplateConfiguration},
+)
 
-_#defs: "/$defs/Properties/definitions/AIPromptTemplateType": "TEXT"
+#AIPromptTemplateType: "TEXT"
 
-_#defs: "/$defs/Properties/definitions/AIPromptType": "ANSWER_GENERATION" |
+#AIPromptType: "ANSWER_GENERATION" |
 	"INTENT_LABELING_GENERATION" |
 	"QUERY_REFORMULATION" |
 	"SELF_SERVICE_PRE_PROCESSING" |
@@ -52,8 +48,6 @@ _#defs: "/$defs/Properties/definitions/AIPromptType": "ANSWER_GENERATION" |
 	"NOTE_TAKING" |
 	"CASE_SUMMARIZATION"
 
-_#defs: "/$defs/Properties/definitions/Tags": {...}
+#Tags: {...}
 
-_#defs: "/$defs/Properties/definitions/TextFullAIPromptEditTemplateConfiguration": close(
-	{Text!: strings.MaxRunes(200000) & strings.MinRunes(1)},
-)
+#TextFullAIPromptEditTemplateConfiguration: close({Text!: strings.MaxRunes(200000) & strings.MinRunes(1)})

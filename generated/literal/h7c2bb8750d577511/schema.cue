@@ -30,10 +30,10 @@ import (
 	ExpirationDays?: int & <=1098 & >=1
 
 	// A list of the name and ObjectType field.
-	Fields?: [..._#defs."/$defs/Properties/definitions/FieldMap"]
+	Fields?: [...#FieldMap]
 
 	// A list of unique keys that can be used to map data to the profile.
-	Keys?: [..._#defs."/$defs/Properties/definitions/KeyMap"]
+	Keys?: [...#KeyMap]
 
 	// The time of this integration got last updated at.
 	LastUpdatedAt?: string
@@ -54,24 +54,24 @@ import (
 	SourcePriority?: int & >=1
 
 	// The tags (keys and values) associated with the integration.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// A unique identifier for the object template.
 	TemplateId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/FieldMap": close({
+#FieldMap: close({
 	Name?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$"
-	ObjectTypeField?: _#defs."/$defs/Properties/definitions/ObjectTypeField"
+	ObjectTypeField?: #ObjectTypeField
 })
 
-_#defs: "/$defs/Properties/definitions/KeyMap": close({
+#KeyMap: close({
 	Name?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
-	ObjectTypeKeyList?: [..._#defs."/$defs/Properties/definitions/ObjectTypeKey"]
+	ObjectTypeKeyList?: [...#ObjectTypeKey]
 })
 
 // Represents a field in a ProfileObjectType.
-_#defs: "/$defs/Properties/definitions/ObjectTypeField": close({
+#ObjectTypeField: close({
 	// The content type of the field. Used for determining equality when searching.
 	ContentType?: "STRING" | "NUMBER" | "PHONE_NUMBER" | "EMAIL_ADDRESS" | "NAME"
 
@@ -87,7 +87,7 @@ _#defs: "/$defs/Properties/definitions/ObjectTypeField": close({
 
 // An object that defines the Key element of a ProfileObject. A Key is a special
 // element that can be used to search for a customer profile.
-_#defs: "/$defs/Properties/definitions/ObjectTypeKey": close({
+#ObjectTypeKey: close({
 	// The reference for the key name of the fields map.
 	FieldNames?: [...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"]
 
@@ -124,7 +124,7 @@ _#defs: "/$defs/Properties/definitions/ObjectTypeKey": close({
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

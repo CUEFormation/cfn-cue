@@ -15,17 +15,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a Lattice Domain Verification
 #Properties: close({
 	DomainName!: strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?:       list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TxtMethodConfig": close({
+#TxtMethodConfig: close({
 	name?:  string | fn.#StringExpression
 	value?: string | fn.#StringExpression
 }) |

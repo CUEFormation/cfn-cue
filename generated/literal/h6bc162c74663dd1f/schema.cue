@@ -16,46 +16,42 @@ package schema
 	EntityType!: "DOMAIN_UNIT"
 
 	// The owner that you want to add to the entity.
-	Owner!:           _#defs."/$defs/Properties/definitions/OwnerProperties"
+	Owner!:           #OwnerProperties
 	OwnerIdentifier?: string
 	OwnerType?:       string
 })
 
 // The properties of the domain unit owners group.
-_#defs: "/$defs/Properties/definitions/OwnerGroupProperties": close({
+#OwnerGroupProperties: close({
 	// The ID of the domain unit owners group.
 	GroupIdentifier?:
 		=~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r ]+)"
 })
 
 // The properties of the domain unit owners group.
-_#defs: "/$defs/Properties/definitions/OwnerGroupPropertiesOutput": close({
+#OwnerGroupPropertiesOutput: close({
 	// The ID of the domain unit owners group.
 	GroupId?: string
 })
 
 // The properties of a domain unit's owner.
-_#defs: "/$defs/Properties/definitions/OwnerProperties": matchN(1, [close(
-	{Group?: _#defs."/$defs/Properties/definitions/OwnerGroupProperties"},
-), close(
-	{User?: _#defs."/$defs/Properties/definitions/OwnerUserProperties"},
-)])
+#OwnerProperties: matchN(1, [close({Group?: #OwnerGroupProperties}), close({User?: #OwnerUserProperties})])
 
 // The ID of the domain unit owners group.
-_#defs: "/$defs/Properties/definitions/OwnerPropertiesOutput": close({
-	Group?: _#defs."/$defs/Properties/definitions/OwnerGroupPropertiesOutput"
-	User?:  _#defs."/$defs/Properties/definitions/OwnerUserPropertiesOutput"
+#OwnerPropertiesOutput: close({
+	Group?: #OwnerGroupPropertiesOutput
+	User?:  #OwnerUserPropertiesOutput
 })
 
 // The properties of the owner user.
-_#defs: "/$defs/Properties/definitions/OwnerUserProperties": close({
+#OwnerUserProperties: close({
 	// The ID of the owner user.
 	UserIdentifier?:
 		=~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|^[a-zA-Z_0-9+=,.@-]+$|^arn:aws:iam::\\d{12}:.+$)"
 })
 
 // The properties of the owner user.
-_#defs: "/$defs/Properties/definitions/OwnerUserPropertiesOutput": close({
+#OwnerUserPropertiesOutput: close({
 	// The ID of the owner user.
 	UserId?: string
 })

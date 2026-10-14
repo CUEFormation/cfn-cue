@@ -59,7 +59,7 @@ package schema
 	// Any tags assigned to the Elastic IP address.
 	// Updates to the ``Tags`` property may require *some interruptions*. Updates on
 	// an EIP reassociates the address on its associated resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The Elastic IP address you are accepting for transfer. You can only accept
 	// one transferred address. For more information on Elastic IP address
@@ -71,7 +71,7 @@ package schema
 
 // Specifies a tag. For more information, see [Resource
 // tags](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: string
 

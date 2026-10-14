@@ -26,10 +26,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PrivateKey?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
 	fn.#StringExpression
 	ServerCertificateName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                  [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

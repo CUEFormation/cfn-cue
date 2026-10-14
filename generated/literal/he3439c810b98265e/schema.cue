@@ -8,10 +8,10 @@ package schema
 #Properties: close({
 	Id?:                       string
 	SubscriptionDefinitionId!: string
-	Subscriptions!:            [..._#defs."/$defs/Properties/definitions/Subscription"]
+	Subscriptions!:            [...#Subscription]
 })
 
-_#defs: "/$defs/Properties/definitions/Subscription": close({
+#Subscription: close({
 	Id!:      string
 	Source!:  string
 	Subject!: string

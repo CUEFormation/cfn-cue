@@ -33,10 +33,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Definition!: _#defs."/$defs/Properties/definitions/DefinitionDocument"
+	Definition!: #DefinitionDocument
 })
 
-_#defs: "/$defs/Properties/definitions/DefinitionDocument": close({
+#DefinitionDocument: close({
 	Language!: string | fn.#StringExpression
 	Text!:     string | fn.#StringExpression
 }) |

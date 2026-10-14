@@ -19,10 +19,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Name!:   strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\\\-]*[a-z0-9])?$" | fn.#StringExpression
 	Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	VpcConfiguration!: _#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
+	VpcConfiguration!: #VpcConfiguration | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
+#VpcConfiguration: close({
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
 	fn.#StringExpression
 }) |

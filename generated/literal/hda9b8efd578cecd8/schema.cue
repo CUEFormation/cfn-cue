@@ -119,7 +119,7 @@ package schema
 	SubnetId?: string
 
 	// Any tags assigned to the subnet.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The ID of the VPC the subnet is in.
 	// If you update this property, you must also update the ``CidrBlock`` property.
@@ -137,7 +137,7 @@ package schema
 
 // Specifies a tag. For more information, see [Resource
 // tags](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: string
 

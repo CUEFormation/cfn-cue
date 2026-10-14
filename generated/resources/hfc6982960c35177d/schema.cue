@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"time"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -21,7 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // allowlisting](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/request-static-ips.html)
 // in the *Amazon CloudFront Developer Guide*.
 #Properties: close({
-	IpAddressType?: _#defs."/$defs/Properties/definitions/IpAddressType" | fn.#StringExpression
+	IpAddressType?: #IpAddressType | fn.#StringExpression
 	IpCount!: int |
 		{
 			string &
@@ -36,16 +36,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	IpamCidrConfigs?: _#defs."/$defs/Properties/definitions/IpamCidrConfigs" | fn.#ListExpression
+	IpamCidrConfigs?: #IpamCidrConfigs | fn.#ListExpression
 	Name!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
-	Tags?:            _#defs."/$defs/Properties/definitions/Tags" | fn.#ObjectExpression
+	Tags?:            #Tags | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AnycastIpList": close({
+#AnycastIpList: close({
 	AnycastIps!:    [...string | fn.#StringExpression] | fn.#ListExpression
 	Arn!:           string | fn.#StringExpression
 	Id!:            string | fn.#StringExpression
-	IpAddressType?: _#defs."/$defs/Properties/definitions/IpAddressType" | fn.#StringExpression
+	IpAddressType?: #IpAddressType | fn.#StringExpression
 	IpCount!: int |
 		{
 			string &
@@ -60,22 +60,22 @@ _#defs: "/$defs/Properties/definitions/AnycastIpList": close({
 				)
 		} |
 		fn.#NumberExpression
-	IpamCidrConfigResults?: _#defs."/$defs/Properties/definitions/IpamCidrConfigResults" | fn.#ListExpression
+	IpamCidrConfigResults?: #IpamCidrConfigResults | fn.#ListExpression
 	LastModifiedTime!:      time.Time | fn.#StringExpression
 	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
 	Status!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpAddressType": "ipv4" | "dualstack" | fn.#StringExpression
+#IpAddressType: "ipv4" | "dualstack" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IpamCidrConfig": close({
+#IpamCidrConfig: close({
 	Cidr!:        string | fn.#StringExpression
 	IpamPoolArn!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpamCidrConfigResult": close({
+#IpamCidrConfigResult: close({
 	AnycastIp?:   string | fn.#StringExpression
 	Cidr?:        string | fn.#StringExpression
 	IpamPoolArn?: string | fn.#StringExpression
@@ -83,24 +83,17 @@ _#defs: "/$defs/Properties/definitions/IpamCidrConfigResult": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpamCidrConfigResults": [
-	..._#defs."/$defs/Properties/definitions/IpamCidrConfigResult"
-] |
-	fn.#ListExpression
+#IpamCidrConfigResults: [...#IpamCidrConfigResult] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/IpamCidrConfigs": [..._#defs."/$defs/Properties/definitions/IpamCidrConfig"] |
-	fn.#ListExpression
+#IpamCidrConfigs: [...#IpamCidrConfig] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close(
-	{Items?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#Tags: close({Items?: [...#Tag] | fn.#ListExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::CloudFront::AnycastIpList"
 	Properties!: #Properties

@@ -10,8 +10,8 @@ import "strings"
 #Properties: close({
 	AppId!:           strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+"
 	Arn?:             strings.MaxRunes(1000) & =~"(?s).*"
-	Backend?:         _#defs."/$defs/Properties/definitions/Backend"
-	BasicAuthConfig?: _#defs."/$defs/Properties/definitions/BasicAuthConfig"
+	Backend?:         #Backend
+	BasicAuthConfig?: #BasicAuthConfig
 	BranchName!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+"
 	BuildSpec?:       strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+"
 	ComputeRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -23,31 +23,31 @@ import "strings"
 	EnablePerformanceMode?:      bool
 	EnablePullRequestPreview?:   bool
 	EnableSkewProtection?:       bool
-	EnvironmentVariables?:       [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"]
+	EnvironmentVariables?:       [...#EnvironmentVariable]
 	Framework?:                  strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*"
 	PullRequestEnvironmentName?: strings.MaxRunes(20) & strings.MinRunes(0) & =~"(?s).*"
 	Stage?:                      "EXPERIMENTAL" | "BETA" | "PULL_REQUEST" | "PRODUCTION" | "DEVELOPMENT"
-	Tags?:                       [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                       [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Backend": close({
+#Backend: close({
 	StackArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws:cloudformation:[a-z0-9-]+:\\d{12}:stack/.+/.+$"
 })
 
-_#defs: "/$defs/Properties/definitions/BasicAuthConfig": close({
+#BasicAuthConfig: close({
 	EnableBasicAuth?: bool
 	Password!:        strings.MaxRunes(255) & strings.MinRunes(1)
 	Username!:        strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Name!:  strings.MaxRunes(255) & =~"(?s).*"
 	Value!: strings.MaxRunes(5500) & =~"(?s).*"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

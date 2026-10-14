@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -26,41 +26,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:location/loc-[0-9a-z]{17}$" |
 	fn.#StringExpression
-	Excludes?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/FilterRule"] | fn.#ListExpression
-	Includes?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/FilterRule"] | fn.#ListExpression
-	ManifestConfig?: _#defs."/$defs/Properties/definitions/ManifestConfig"
+	Excludes?:       list.MaxItems(1) & [...] & [...#FilterRule] | fn.#ListExpression
+	Includes?:       list.MaxItems(1) & [...] & [...#FilterRule] | fn.#ListExpression
+	ManifestConfig?: #ManifestConfig
 	Name?:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
-	Options?:        _#defs."/$defs/Properties/definitions/Options"
-	Schedule?:       _#defs."/$defs/Properties/definitions/TaskSchedule"
+	Options?:        #Options
+	Schedule?:       #TaskSchedule
 	SourceLocationArn!: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:location/loc-[0-9a-z]{17}$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?:             list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	TaskMode?:         "BASIC" | "ENHANCED" | fn.#StringExpression
-	TaskReportConfig?: _#defs."/$defs/Properties/definitions/TaskReportConfig"
+	TaskReportConfig?: #TaskReportConfig
 })
 
-_#defs: "/$defs/Properties/definitions/DestinationNetworkInterfaceArns": list.MaxItems(128) & [
+#DestinationNetworkInterfaceArns: list.MaxItems(128) & [
 	...=~"^arn:aws[\\-a-z]{0,}:ec2:[a-z\\-0-9]*:[0-9]{12}:network-interface/eni-[0-9a-f]+$" | fn.#StringExpression
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/FilterRule": close({
+#FilterRule: close({
 	FilterType?: "SIMPLE_PATTERN" & strings.MaxRunes(128) & =~"^[A-Z0-9_]+$" | fn.#StringExpression
 	Value?:      strings.MaxRunes(409600) & strings.MinRunes(0) & =~"^[^\\x00]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManifestConfig": close({
+#ManifestConfig: close({
 	Action?: "TRANSFER" | fn.#StringExpression
 	Format?: "CSV" | fn.#StringExpression
-	Source!: close({S3?: _#defs."/$defs/Properties/definitions/ManifestConfigSourceS3"}) | fn.#ObjectExpression
+	Source!: close({S3?: #ManifestConfigSourceS3}) | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManifestConfigSourceS3": close({
+#ManifestConfigSourceS3: close({
 	BucketAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -78,7 +77,7 @@ _#defs: "/$defs/Properties/definitions/ManifestConfigSourceS3": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Options": close({
+#Options: close({
 	Atime?: "NONE" | "BEST_EFFORT" | fn.#StringExpression
 	BytesPerSecond?: int & >=-1 |
 		{
@@ -112,20 +111,19 @@ _#defs: "/$defs/Properties/definitions/Options": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceNetworkInterfaceArns": list.MaxItems(128) & [
+#SourceNetworkInterfaceArns: list.MaxItems(128) & [
 	...=~"^arn:aws[\\-a-z]{0,}:ec2:[a-z\\-0-9]*:[0-9]{12}:network-interface/eni-[0-9a-f]+$" | fn.#StringExpression
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaskReportConfig": close({
-	Destination!: close({S3?: _#defs."/$defs/Properties/definitions/TaskReportConfigDestinationS3"}) |
-		fn.#ObjectExpression
+#TaskReportConfig: close({
+	Destination!:      close({S3?: #TaskReportConfigDestinationS3}) | fn.#ObjectExpression
 	ObjectVersionIds?: "INCLUDE" | "NONE" | fn.#StringExpression
 	OutputType!:       "SUMMARY_ONLY" | "STANDARD" | fn.#StringExpression
 	Overrides?: close({
@@ -143,7 +141,7 @@ _#defs: "/$defs/Properties/definitions/TaskReportConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaskReportConfigDestinationS3": close({
+#TaskReportConfigDestinationS3: close({
 	BucketAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -158,7 +156,7 @@ _#defs: "/$defs/Properties/definitions/TaskReportConfigDestinationS3": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaskSchedule": close({
+#TaskSchedule: close({
 	ScheduleExpression?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^[a-zA-Z0-9\\ \\_\\*\\?\\,\\|\\^\\-\\/\\#\\s\\(\\)\\+]*$" |

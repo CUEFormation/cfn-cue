@@ -19,19 +19,19 @@ import (
 	strings.MinRunes(20) &
 	=~"^((dv-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:domainverification/dv-[0-9a-z]{17}))$"
 	Status?: "VERIFIED" | "PENDING" | "VERIFICATION_TIMED_OUT"
-	Tags?:   list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:   list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 	TxtMethodConfig?: close({
 		name?:  string
 		value?: string
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/TxtMethodConfig": close({
+#TxtMethodConfig: close({
 	name?:  string
 	value?: string
 })

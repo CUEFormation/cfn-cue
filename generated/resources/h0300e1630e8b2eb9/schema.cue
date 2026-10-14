@@ -20,11 +20,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Identifier!:  strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
 	ServiceType!: "RDS" | "DOCDB" | fn.#StringExpression
 	StartTime!:   time.Time | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

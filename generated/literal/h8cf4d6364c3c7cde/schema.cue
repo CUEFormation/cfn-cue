@@ -13,30 +13,28 @@ import (
 #Properties: close({
 	Arn?:                      strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+"
 	DefaultJobTimeoutMinutes?: int & <=150 & >=5
-	EnvironmentVariables?: list.MaxItems(32) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EnvironmentVariable"
-	]
+	EnvironmentVariables?:     list.MaxItems(32) & list.MinItems(1) & list.UniqueItems() & [...#EnvironmentVariable]
 	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[^:]*:iam::[0-9]{12}:role/.+"
 	Name!:      strings.MaxRunes(256) & strings.MinRunes(1)
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
+	Tags?:      [...#Tag]
+	VpcConfig?: #VpcConfig
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Name!:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_][a-zA-Z_0-9]*"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
 // The VPC security groups and subnets that are attached to a project
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	// An array of security group Ids in your Amazon VPC
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -18,14 +18,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 	ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
 	fn.#StringExpression
-	Conditions?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Condition"] |
-		fn.#ListExpression
+	Conditions?: list.MaxItems(10) & list.MinItems(1) & [...#Condition] | fn.#ListExpression
 	Principal!: strings.MaxRunes(1284) & strings.MinRunes(1) & =~"^arn:aws:iam::[0-9]{12}:role/[a-zA-Z0-9_/+=,.@-]+$" |
 	fn.#StringExpression
 	StatementId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Condition": close({
+#Condition: close({
 	ConditionKey!:      =~"^aws:PrincipalTag/qbusiness-dataaccessor:[a-zA-Z]+" | fn.#StringExpression
 	ConditionOperator!: "StringEquals" | fn.#StringExpression
 	ConditionValues!:   list.MaxItems(1) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression

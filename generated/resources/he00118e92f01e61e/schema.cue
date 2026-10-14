@@ -17,13 +17,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\s\\.\\!\\*\\#\\@\\']+$" |
 	fn.#StringExpression
-	EndpointType!: _#defs."/$defs/Properties/definitions/ServiceEndpointType"
+	EndpointType!: #ServiceEndpointType
 	EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
 	fn.#StringExpression
-	LambdaEndpoint?: _#defs."/$defs/Properties/definitions/LambdaEndpointInput"
+	LambdaEndpoint?: #LambdaEndpointInput
 	Name!:           strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UrlEndpoint?:    _#defs."/$defs/Properties/definitions/UrlEndpointInput"
+	Tags?:           [...#Tag] | fn.#ListExpression
+	UrlEndpoint?:    #UrlEndpointInput
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(21) &
 	strings.MinRunes(12) &
@@ -31,7 +31,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaEndpointInput": close({
+#LambdaEndpointInput: close({
 	Arn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z]{2}((-gov)|(-iso(b?)))?-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9-_]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
@@ -39,15 +39,15 @@ _#defs: "/$defs/Properties/definitions/LambdaEndpointInput": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceEndpointType": "LAMBDA" | "URL" | fn.#StringExpression
+#ServiceEndpointType: "LAMBDA" | "URL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UrlEndpointInput": close({
+#UrlEndpointInput: close({
 	HealthUrl?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^https?://[-a-zA-Z0-9+\\x38@#/%?=~_|!:,.;]*[-a-zA-Z0-9+\\x38@#/%=~_|]$" |

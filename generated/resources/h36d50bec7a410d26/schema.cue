@@ -40,27 +40,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	ImageRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):image-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
 		fn.#StringExpression
-	ImageScanningConfiguration?: _#defs."/$defs/Properties/definitions/ImageScanningConfiguration" |
-		fn.#ObjectExpression
+	ImageScanningConfiguration?: #ImageScanningConfiguration | fn.#ObjectExpression
 	ImageTags?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	ImageTestsConfiguration?: _#defs."/$defs/Properties/definitions/ImageTestsConfiguration" | fn.#ObjectExpression
+	ImageTestsConfiguration?: #ImageTestsConfiguration | fn.#ObjectExpression
 	InfrastructureConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):infrastructure-configuration/[a-z0-9-_]+$" |
 		fn.#StringExpression
-	LoggingConfiguration?: _#defs."/$defs/Properties/definitions/PipelineLoggingConfiguration" | fn.#ObjectExpression
+	LoggingConfiguration?: #PipelineLoggingConfiguration | fn.#ObjectExpression
 	Name?:                 =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-	Schedule?:             _#defs."/$defs/Properties/definitions/Schedule" | fn.#ObjectExpression
+	Schedule?:             #Schedule | fn.#ObjectExpression
 	Status?:               "DISABLED" | "ENABLED" | fn.#StringExpression
 	Tags?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Workflows?: [..._#defs."/$defs/Properties/definitions/WorkflowConfiguration"] | fn.#ListExpression
+	Workflows?: [...#WorkflowConfiguration] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AutoDisablePolicy": close({
+#AutoDisablePolicy: close({
 	FailureCount!: int & <=10 & >=1 |
 		{
 			string &
@@ -80,19 +79,19 @@ _#defs: "/$defs/Properties/definitions/AutoDisablePolicy": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcrConfiguration": close({
+#EcrConfiguration: close({
 	ContainerTags?:  [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	RepositoryName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageScanningConfiguration": close({
-	EcrConfiguration?:     _#defs."/$defs/Properties/definitions/EcrConfiguration" | fn.#ObjectExpression
+#ImageScanningConfiguration: close({
+	EcrConfiguration?:     #EcrConfiguration | fn.#ObjectExpression
 	ImageScanningEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageTestsConfiguration": close({
+#ImageTestsConfiguration: close({
 	ImageTestsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TimeoutMinutes?: int & <=1440 & >=60 |
 		{
@@ -113,7 +112,7 @@ _#defs: "/$defs/Properties/definitions/ImageTestsConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipelineLoggingConfiguration": close({
+#PipelineLoggingConfiguration: close({
 	ImageLogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_/\\.]{1,512}$" |
 	fn.#StringExpression
 	PipelineLogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_/\\.]{1,512}$" |
@@ -121,8 +120,8 @@ _#defs: "/$defs/Properties/definitions/PipelineLoggingConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Schedule": close({
-	AutoDisablePolicy?: _#defs."/$defs/Properties/definitions/AutoDisablePolicy" | fn.#ObjectExpression
+#Schedule: close({
+	AutoDisablePolicy?: #AutoDisablePolicy | fn.#ObjectExpression
 	PipelineExecutionStartCondition?: "EXPRESSION_MATCH_ONLY" |
 		"EXPRESSION_MATCH_AND_DEPENDENCY_UPDATES_AVAILABLE" |
 		fn.#StringExpression
@@ -132,24 +131,23 @@ _#defs: "/$defs/Properties/definitions/Schedule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowConfiguration": close({
+#WorkflowConfiguration: close({
 	OnFailure?: "CONTINUE" | "ABORT" | fn.#StringExpression
 	ParallelGroup?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9-_+#]{0,99}$" |
 	fn.#StringExpression
-	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/WorkflowParameter"] | fn.#ListExpression
+	Parameters?: list.MinItems(1) & [...#WorkflowParameter] | fn.#ListExpression
 	WorkflowArn?: =~"^arn:aws(?:-[a-z]+)*:imagebuilder:[a-z]{2,}(?:-[a-z]+)+-[0-9]+:(?:[0-9]{12}|aws(?:-[a-z-]+)?):workflow/(build|test|distribution)/[a-z0-9-_]+/(?:(?:([0-9]+|x)\\.([0-9]+|x)\\.([0-9]+|x))|(?:[0-9]+\\.[0-9]+\\.[0-9]+/[0-9]+))$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowParameter": close({
+#WorkflowParameter: close({
 	Name?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
-	Value?: [..._#defs."/$defs/Properties/definitions/WorkflowParameterValue"] | fn.#ListExpression
+	Value?: [...#WorkflowParameterValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowParameterValue": strings.MinRunes(0) & =~"^[^\\x00]*$" |
-fn.#StringExpression
+#WorkflowParameterValue: strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ImageBuilder::ImagePipeline"
 	Properties?: #Properties

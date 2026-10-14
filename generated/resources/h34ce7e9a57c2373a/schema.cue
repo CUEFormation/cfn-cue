@@ -14,8 +14,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::Amplify::Branch resource creates a new branch within an app.
 #Properties: close({
 	AppId!:           strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+" | fn.#StringExpression
-	Backend?:         _#defs."/$defs/Properties/definitions/Backend"
-	BasicAuthConfig?: _#defs."/$defs/Properties/definitions/BasicAuthConfig"
+	Backend?:         #Backend
+	BasicAuthConfig?: #BasicAuthConfig
 	BranchName!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
 	BuildSpec?:       strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
 	ComputeRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -28,14 +28,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EnablePerformanceMode?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnablePullRequestPreview?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableSkewProtection?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnvironmentVariables?:       [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"] | fn.#ListExpression
+	EnvironmentVariables?:       [...#EnvironmentVariable] | fn.#ListExpression
 	Framework?:                  strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
 	PullRequestEnvironmentName?: strings.MaxRunes(20) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
 	Stage?: "EXPERIMENTAL" | "BETA" | "PULL_REQUEST" | "PRODUCTION" | "DEVELOPMENT" | fn.#StringExpression
-	Tags?:  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:  [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Backend": close({
+#Backend: close({
 	StackArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws:cloudformation:[a-z0-9-]+:\\d{12}:stack/.+/.+$" |
@@ -43,20 +43,20 @@ _#defs: "/$defs/Properties/definitions/Backend": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BasicAuthConfig": close({
+#BasicAuthConfig: close({
 	EnableBasicAuth?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Password!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Username!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Name!:  strings.MaxRunes(255) & =~"(?s).*" | fn.#StringExpression
 	Value!: strings.MaxRunes(5500) & =~"(?s).*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

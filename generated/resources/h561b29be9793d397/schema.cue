@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,40 +14,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Bedrock::AgentAlias Resource Type
 #Properties: close({
-	AgentAliasName!: =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	AgentId!:        =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
-	Description?:    strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	RoutingConfiguration?: list.MaxItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AgentAliasRoutingConfigurationListItem"
-	] |
-		fn.#ListExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagsMap"
+	AgentAliasName!:       =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+	AgentId!:              =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
+	Description?:          strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	RoutingConfiguration?: list.MaxItems(1) & [...#AgentAliasRoutingConfigurationListItem] | fn.#ListExpression
+	Tags?:                 #TagsMap
 })
 
-_#defs: "/$defs/Properties/definitions/AgentAliasHistoryEvent": close({
-	EndDate?: string | fn.#StringExpression
-	RoutingConfiguration?: list.MaxItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AgentAliasRoutingConfigurationListItem"
-	] |
-		fn.#ListExpression
-	StartDate?: string | fn.#StringExpression
+#AgentAliasHistoryEvent: close({
+	EndDate?:              string | fn.#StringExpression
+	RoutingConfiguration?: list.MaxItems(1) & [...#AgentAliasRoutingConfigurationListItem] | fn.#ListExpression
+	StartDate?:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AgentAliasRoutingConfigurationListItem": close({
+#AgentAliasRoutingConfigurationListItem: close({
 	AgentVersion!: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]{0,4}[1-9][0-9]{0,4})$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AgentAliasStatus": "CREATING" |
-	"PREPARED" |
-	"FAILED" |
-	"UPDATING" |
-	"DELETING" |
-	fn.#StringExpression
+#AgentAliasStatus: "CREATING" | "PREPARED" | "FAILED" | "UPDATING" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |

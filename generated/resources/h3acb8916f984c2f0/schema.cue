@@ -25,10 +25,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 		fn.#ListExpression
 	SubnetId!: string | fn.#StringExpression
-	Tags?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

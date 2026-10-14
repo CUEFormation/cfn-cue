@@ -24,7 +24,7 @@ import (
 	// A time stamp indicating when this data object was created. Format is a number
 	// expressed in Unix time as milliseconds (for example "1469498468.057").
 	CreationTime?:                  string
-	GameServerContainerDefinition?: _#defs."/$defs/Properties/definitions/GameServerContainerDefinition"
+	GameServerContainerDefinition?: #GameServerContainerDefinition
 
 	// A descriptive label for the container group definition.
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
@@ -43,11 +43,11 @@ import (
 
 	// A collection of support container definitions that define the containers in this group.
 	SupportContainerDefinitions?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SupportContainerDefinition"
+		...#SupportContainerDefinition
 	]
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 
 	// The total memory limit of container groups following this definition in MiB
 	TotalMemoryLimitMebibytes!: int & <=1024000 & >=4
@@ -63,7 +63,7 @@ import (
 })
 
 // A dependency that impacts a container's startup and shutdown.
-_#defs: "/$defs/Properties/definitions/ContainerDependency": close({
+#ContainerDependency: close({
 	// The type of dependency.
 	Condition!: "START" | "COMPLETE" | "SUCCESS" | "HEALTHY"
 
@@ -73,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/ContainerDependency": close({
 })
 
 // An environment variable to set inside a container, in the form of a key-value pair.
-_#defs: "/$defs/Properties/definitions/ContainerEnvironment": close({
+#ContainerEnvironment: close({
 	// The environment variable name.
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$"
 
@@ -82,7 +82,7 @@ _#defs: "/$defs/Properties/definitions/ContainerEnvironment": close({
 })
 
 // Specifies how the process manager checks the health of containers.
-_#defs: "/$defs/Properties/definitions/ContainerHealthCheck": close({
+#ContainerHealthCheck: close({
 	// A string array representing the command that the container runs to determine if it is healthy.
 	Command!: list.MaxItems(20) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$"]
 
@@ -102,7 +102,7 @@ _#defs: "/$defs/Properties/definitions/ContainerHealthCheck": close({
 })
 
 // Defines the mount point configuration within a container.
-_#defs: "/$defs/Properties/definitions/ContainerMountPoint": close({
+#ContainerMountPoint: close({
 	// The access permissions for the mounted path.
 	AccessLevel?: "READ_ONLY" | "READ_AND_WRITE"
 
@@ -114,7 +114,7 @@ _#defs: "/$defs/Properties/definitions/ContainerMountPoint": close({
 })
 
 // A set of one or more port numbers that can be opened on the container.
-_#defs: "/$defs/Properties/definitions/ContainerPortRange": close({
+#ContainerPortRange: close({
 	// A starting value for the range of allowed port numbers.
 	FromPort!: int & <=60000 & >=1
 
@@ -127,7 +127,7 @@ _#defs: "/$defs/Properties/definitions/ContainerPortRange": close({
 })
 
 // Specifies the information required to run game servers with this container group
-_#defs: "/$defs/Properties/definitions/GameServerContainerDefinition": close({
+#GameServerContainerDefinition: close({
 	// A descriptive label for the container definition. Container definition names
 	// must be unique with a container group definition.
 	ContainerName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
@@ -136,29 +136,23 @@ _#defs: "/$defs/Properties/definitions/GameServerContainerDefinition": close({
 	// up and shuts down. For container groups with multiple containers,
 	// dependencies let you define a startup/shutdown sequence across the
 	// containers.
-	DependsOn?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerDependency"
-	]
+	DependsOn?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ContainerDependency]
 
 	// The environment variables to pass to a container.
-	EnvironmentOverride?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerEnvironment"
-	]
+	EnvironmentOverride?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#ContainerEnvironment]
 
 	// Specifies the image URI of this container.
 	ImageUri!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.@\\/:]+$"
 
 	// Linux-specific modifications applied to the default Docker container
 	// configuration, such as Linux capabilities.
-	LinuxCapabilities?: _#defs."/$defs/Properties/definitions/LinuxCapabilities"
+	LinuxCapabilities?: #LinuxCapabilities
 
 	// A list of mount point configurations to be used in a container.
-	MountPoints?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerMountPoint"
-	]
+	MountPoints?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ContainerMountPoint]
 
 	// Defines the ports on the container.
-	PortConfiguration?: _#defs."/$defs/Properties/definitions/PortConfiguration"
+	PortConfiguration?: #PortConfiguration
 
 	// The digest of the container image.
 	ResolvedImageDigest?: =~"^sha256:[a-fA-F0-9]{64}$"
@@ -174,7 +168,7 @@ _#defs: "/$defs/Properties/definitions/GameServerContainerDefinition": close({
 // A set of Linux capabilities that are added to a container's default Docker
 // configuration. For more detailed information, see the capabilities(7) Linux
 // manual page.
-_#defs: "/$defs/Properties/definitions/LinuxCapabilities": close({
+#LinuxCapabilities: close({
 	// The list of Linux capabilities to add to the container's default configuration.
 	Include?: list.MaxItems(37) & list.UniqueItems() & [...] & [
 		..."AUDIT_CONTROL" |
@@ -218,15 +212,13 @@ _#defs: "/$defs/Properties/definitions/LinuxCapabilities": close({
 })
 
 // Defines the ports on a container.
-_#defs: "/$defs/Properties/definitions/PortConfiguration": close({
+#PortConfiguration: close({
 	// Specifies one or more ranges of ports on a container.
-	ContainerPortRanges!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerPortRange"
-	]
+	ContainerPortRanges!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...#ContainerPortRange]
 })
 
 // Supports the function of the main container group
-_#defs: "/$defs/Properties/definitions/SupportContainerDefinition": close({
+#SupportContainerDefinition: close({
 	// A descriptive label for the container definition.
 	ContainerName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
 
@@ -234,14 +226,10 @@ _#defs: "/$defs/Properties/definitions/SupportContainerDefinition": close({
 	// up and shuts down. For container groups with multiple containers,
 	// dependencies let you define a startup/shutdown sequence across the
 	// containers.
-	DependsOn?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerDependency"
-	]
+	DependsOn?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ContainerDependency]
 
 	// The environment variables to pass to a container.
-	EnvironmentOverride?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerEnvironment"
-	]
+	EnvironmentOverride?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#ContainerEnvironment]
 
 	// Specifies if the container is essential. If an essential container fails a
 	// health check, then all containers in the container group will be restarted.
@@ -249,25 +237,23 @@ _#defs: "/$defs/Properties/definitions/SupportContainerDefinition": close({
 	Essential?: bool
 
 	// Specifies how the health of the containers will be checked.
-	HealthCheck?: _#defs."/$defs/Properties/definitions/ContainerHealthCheck"
+	HealthCheck?: #ContainerHealthCheck
 
 	// Specifies the image URI of this container.
 	ImageUri!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.@\\/:]+$"
 
 	// Linux-specific modifications applied to the default Docker container
 	// configuration, such as Linux capabilities.
-	LinuxCapabilities?: _#defs."/$defs/Properties/definitions/LinuxCapabilities"
+	LinuxCapabilities?: #LinuxCapabilities
 
 	// The total memory limit of container groups following this definition in MiB
 	MemoryHardLimitMebibytes?: int & <=1024000 & >=4
 
 	// A list of mount point configurations to be used in a container.
-	MountPoints?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerMountPoint"
-	]
+	MountPoints?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ContainerMountPoint]
 
 	// Defines the ports on the container.
-	PortConfiguration?: _#defs."/$defs/Properties/definitions/PortConfiguration"
+	PortConfiguration?: #PortConfiguration
 
 	// The digest of the container image.
 	ResolvedImageDigest?: =~"^sha256:[a-fA-F0-9]{64}$"
@@ -277,7 +263,7 @@ _#defs: "/$defs/Properties/definitions/SupportContainerDefinition": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode characters in length.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$"
 

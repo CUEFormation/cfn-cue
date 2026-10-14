@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,13 +16,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ApplicationName!:     strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	Description?:         strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
 	EnvironmentId?:       string | fn.#StringExpression
-	OptionSettings?:      [..._#defs."/$defs/Properties/definitions/ConfigurationOptionSetting"] | fn.#ListExpression
+	OptionSettings?:      [...#ConfigurationOptionSetting] | fn.#ListExpression
 	PlatformArn?:         string | fn.#StringExpression
 	SolutionStackName?:   string | fn.#StringExpression
-	SourceConfiguration?: _#defs."/$defs/Properties/definitions/SourceConfiguration" | fn.#ObjectExpression
+	SourceConfiguration?: #SourceConfiguration | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigurationOptionSetting": close({
+#ConfigurationOptionSetting: close({
 	Namespace!:    string | fn.#StringExpression
 	OptionName!:   string | fn.#StringExpression
 	ResourceName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -30,7 +30,7 @@ _#defs: "/$defs/Properties/definitions/ConfigurationOptionSetting": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceConfiguration": close({
+#SourceConfiguration: close({
 	ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	TemplateName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 }) |

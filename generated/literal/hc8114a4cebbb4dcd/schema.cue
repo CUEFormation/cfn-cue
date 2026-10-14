@@ -23,7 +23,7 @@ import "list"
 
 	// The Amazon Simple Storage Service (Amazon S3) location that points to an
 	// OpenAPI file, which defines a set of RESTful APIs in JSON or YAML format.
-	BodyS3Location?:            _#defs."/$defs/Properties/definitions/S3Location"
+	BodyS3Location?:            #S3Location
 	CloneFrom?:                 string
 	Description?:               string
 	DisableExecuteApiEndpoint?: bool
@@ -32,7 +32,7 @@ import "list"
 	// A list of the endpoint types and IP address types of the API. Use this
 	// property when creating an API. When importing an existing API, specify the
 	// endpoint configuration types using the ``Parameters`` property.
-	EndpointConfiguration?:  _#defs."/$defs/Properties/definitions/EndpointConfiguration"
+	EndpointConfiguration?:  #EndpointConfiguration
 	FailOnWarnings?:         bool
 	MinimumCompressionSize?: int
 
@@ -66,7 +66,7 @@ import "list"
 	RestApiId?:      string
 	RootResourceId?: string
 	SecurityPolicy?: string
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:           [...#Tag]
 	Version?:        string
 })
 
@@ -75,7 +75,7 @@ import "list"
 // ``EndpointConfiguration`` is a property of the
 // [AWS::ApiGateway::RestApi](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-restapi.html)
 // resource.
-_#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({
+#EndpointConfiguration: close({
 	IpAddressType?:  string
 	Types?:          list.UniqueItems() & [...string]
 	VpcEndpointIds?: list.UniqueItems() & [...string]
@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({
 // On January 1, 2016, the Swagger Specification was donated to the [OpenAPI
 // initiative](https://docs.aws.amazon.com/https://www.openapis.org/), becoming
 // the foundation of the OpenAPI Specification.
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// The name of the S3 bucket where the OpenAPI file is stored.
 	Bucket?: string
 
@@ -106,7 +106,7 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 // An array of key-value pairs to apply to this resource.
 // For more information, see
 // [Tag](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string you can use to assign a value. The combination of tag keys and
 	// values can help you organize and categorize your resources.
 	Key!: string

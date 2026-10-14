@@ -68,7 +68,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // 1. Delete all the existing ``AWS::Lambda::Permission`` resources for the function.
 #Properties: close({
 	PolicyDocument!: fn.#Object & {...} | fn.#ObjectExpression
-	ResourceArn!: _#defs."/$defs/Properties/definitions/FunctionResourceArn" &
+	ResourceArn!: #FunctionResourceArn &
 	string &
 	strings.MaxRunes(1024) &
 	strings.MinRunes(12) &
@@ -76,7 +76,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FunctionResourceArn": =~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?$" |
+#FunctionResourceArn: =~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?$" |
 	fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Lambda::ResourcePolicy"

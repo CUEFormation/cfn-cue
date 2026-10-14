@@ -38,7 +38,7 @@ import (
 
 	// An optional set of key-value pairs to associate arbitrary data of your
 	// choosing with the DB proxy endpoint.
-	Tags?: [..._#defs."/$defs/Properties/definitions/TagFormat"]
+	Tags?: [...#TagFormat]
 
 	// A value that indicates whether the DB proxy endpoint can be used for
 	// read/write or read-only operations.
@@ -54,7 +54,7 @@ import (
 	VpcSubnetIds!: list.MinItems(2) & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/TagFormat": close({
+#TagFormat: close({
 	Key?:   strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*"
 	Value?: strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*"
 })

@@ -21,8 +21,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"CUSTOM_AUTH_X509" |
 		"DEFAULT" |
 		fn.#StringExpression
-	AuthorizerConfig?:          _#defs."/$defs/Properties/definitions/AuthorizerConfig"
-	ClientCertificateConfig?:   _#defs."/$defs/Properties/definitions/ClientCertificateConfig"
+	AuthorizerConfig?:          #AuthorizerConfig
+	ClientCertificateConfig?:   #ClientCertificateConfig
 	DomainConfigurationName?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w.-]+$" | fn.#StringExpression
 	DomainConfigurationStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	DomainName?:                strings.MaxRunes(253) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
@@ -33,28 +33,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	ServerCertificateConfig?: _#defs."/$defs/Properties/definitions/ServerCertificateConfig"
+	ServerCertificateConfig?: #ServerCertificateConfig
 	ServiceType?:             "DATA" | "CREDENTIAL_PROVIDER" | "JOBS" | fn.#StringExpression
-	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TlsConfig?:               _#defs."/$defs/Properties/definitions/TlsConfig"
+	Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	TlsConfig?:               #TlsConfig
 	ValidationCertificateArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" |
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AuthorizerConfig": close({
+#AuthorizerConfig: close({
 	AllowAuthorizerOverride?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DefaultAuthorizerName?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w=,@-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientCertificateConfig": close({
+#ClientCertificateConfig: close({
 	ClientCertificateCallbackArn?: strings.MaxRunes(170) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerCertificateConfig": close({
+#ServerCertificateConfig: close({
 	EnableOCSPCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OcspAuthorizedResponderArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -64,7 +64,7 @@ _#defs: "/$defs/Properties/definitions/ServerCertificateConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerCertificateSummary": close({
+#ServerCertificateSummary: close({
 	ServerCertificateArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" |
@@ -74,13 +74,13 @@ _#defs: "/$defs/Properties/definitions/ServerCertificateSummary": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TlsConfig": close(
+#TlsConfig: close(
 	{SecurityPolicy?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression

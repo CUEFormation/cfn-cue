@@ -89,14 +89,14 @@ import (
 	Status?: string
 
 	// A list of tag instances.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The VPC identifier of the cluster if the snapshot is from a cluster in a VPC.
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key, or name, for the resource tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

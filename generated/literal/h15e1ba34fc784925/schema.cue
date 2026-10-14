@@ -18,8 +18,8 @@ import "strings"
 	Policy!: strings.MaxRunes(20480) &
 	strings.MinRunes(1) &
 	=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]+"
-	Type!: _#defs."/$defs/Properties/definitions/AccessPolicyType"
+	Type!: #AccessPolicyType
 })
 
 // The possible types for the access policy
-_#defs: "/$defs/Properties/definitions/AccessPolicyType": "data"
+#AccessPolicyType: "data"

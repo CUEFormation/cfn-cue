@@ -19,17 +19,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The ``AWS::ECS::Cluster`` resource creates an Amazon Elastic Container
 // Service (Amazon ECS) cluster.
 #Properties: close({
-	CapacityProviders?: [...string | fn.#StringExpression] | fn.#ListExpression
-	ClusterName?:       string | fn.#StringExpression
-	ClusterSettings?:   [..._#defs."/$defs/Properties/definitions/ClusterSettings"] | fn.#ListExpression
-	Configuration?:     _#defs."/$defs/Properties/definitions/ClusterConfiguration" | fn.#ObjectExpression
-	DefaultCapacityProviderStrategy?: [..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"] |
-		fn.#ListExpression
-	ServiceConnectDefaults?: _#defs."/$defs/Properties/definitions/ServiceConnectDefaults" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	CapacityProviders?:               [...string | fn.#StringExpression] | fn.#ListExpression
+	ClusterName?:                     string | fn.#StringExpression
+	ClusterSettings?:                 [...#ClusterSettings] | fn.#ListExpression
+	Configuration?:                   #ClusterConfiguration | fn.#ObjectExpression
+	DefaultCapacityProviderStrategy?: [...#CapacityProviderStrategyItem] | fn.#ListExpression
+	ServiceConnectDefaults?:          #ServiceConnectDefaults | fn.#ObjectExpression
+	Tags?:                            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
+#CapacityProviderStrategyItem: close({
 	Base?: int & <=100000 & >=0 |
 		{
 			string &
@@ -66,30 +65,28 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterConfiguration": close({
-	ExecuteCommandConfiguration?: _#defs."/$defs/Properties/definitions/ExecuteCommandConfiguration" |
-		fn.#ObjectExpression
-	ManagedStorageConfiguration?: _#defs."/$defs/Properties/definitions/ManagedStorageConfiguration" |
-		fn.#ObjectExpression
+#ClusterConfiguration: close({
+	ExecuteCommandConfiguration?: #ExecuteCommandConfiguration | fn.#ObjectExpression
+	ManagedStorageConfiguration?: #ManagedStorageConfiguration | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterSettings": close({
+#ClusterSettings: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExecuteCommandConfiguration": close({
+#ExecuteCommandConfiguration: close({
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/ExecuteCommandLogConfiguration" | fn.#ObjectExpression
+	LogConfiguration?: #ExecuteCommandLogConfiguration | fn.#ObjectExpression
 	Logging?:          "DEFAULT" | "NONE" | "OVERRIDE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExecuteCommandLogConfiguration": close({
+#ExecuteCommandLogConfiguration: close({
 	CloudWatchEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CloudWatchLogGroupName?:      string | fn.#StringExpression
 	S3BucketName?:                string | fn.#StringExpression
@@ -98,7 +95,7 @@ _#defs: "/$defs/Properties/definitions/ExecuteCommandLogConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedStorageConfiguration": close({
+#ManagedStorageConfiguration: close({
 	FargateEphemeralStorageKmsKeyId?: string | fn.#StringExpression
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
@@ -106,10 +103,9 @@ _#defs: "/$defs/Properties/definitions/ManagedStorageConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectDefaults": close({Namespace?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#ServiceConnectDefaults: close({Namespace?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

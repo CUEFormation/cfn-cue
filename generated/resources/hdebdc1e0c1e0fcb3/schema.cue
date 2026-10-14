@@ -23,23 +23,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PracticeRunConfiguration!: _
 	...
 }]) & close({
-	PracticeRunConfiguration?: _#defs."/$defs/Properties/definitions/PracticeRunConfiguration"
+	PracticeRunConfiguration?: #PracticeRunConfiguration
 	ResourceIdentifier?:       strings.MaxRunes(1024) & strings.MinRunes(8) | fn.#StringExpression
-	ZonalAutoshiftStatus?:     _#defs."/$defs/Properties/definitions/ZonalAutoshiftStatus"
+	ZonalAutoshiftStatus?:     #ZonalAutoshiftStatus
 })
 
-_#defs: "/$defs/Properties/definitions/ControlCondition": close({
+#ControlCondition: close({
 	AlarmIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(8) & =~"^.*$" | fn.#StringExpression
-	Type!:            _#defs."/$defs/Properties/definitions/ControlConditionType"
+	Type!:            #ControlConditionType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ControlConditionType": strings.MaxRunes(10) &
-strings.MinRunes(8) &
-=~"^[a-zA-Z]*$" |
-fn.#StringExpression
+#ControlConditionType: strings.MaxRunes(10) & strings.MinRunes(8) & =~"^[a-zA-Z]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PracticeRunConfiguration": close({
+#PracticeRunConfiguration: close({
 	BlockedDates?: list.MaxItems(15) & [...] & [
 		...strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9]{4}-[0-9]{2}-[0-9]{2}$" | fn.#StringExpression
 	] |
@@ -51,14 +48,12 @@ _#defs: "/$defs/Properties/definitions/PracticeRunConfiguration": close({
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	BlockingAlarms?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ControlCondition"] |
-		fn.#ListExpression
-	OutcomeAlarms!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ControlCondition"] |
-		fn.#ListExpression
+	BlockingAlarms?: list.MaxItems(1) & list.MinItems(1) & [...#ControlCondition] | fn.#ListExpression
+	OutcomeAlarms!:  list.MaxItems(1) & list.MinItems(1) & [...#ControlCondition] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ZonalAutoshiftStatus": "ENABLED" | fn.#StringExpression
+#ZonalAutoshiftStatus: "ENABLED" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ARCZonalShift::ZonalAutoshiftConfiguration"
 	Properties?: #Properties

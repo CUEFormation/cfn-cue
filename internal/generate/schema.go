@@ -30,6 +30,7 @@ type converter struct {
 	rules            []*fieldRules
 	iam              bool
 	iamHits          map[string]bool
+	hoisted          map[string]bool
 }
 
 func (c *converter) warn(path, key, detail string) {
@@ -105,7 +106,7 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 				continue
 			}
 			if strings.HasPrefix(r, "#") {
-				m[k] = "#/$defs/Properties" + strings.TrimPrefix(r, "#")
+				m[k] = c.localRef(r)
 			} else {
 				m[k] = r
 			}
@@ -309,7 +310,7 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 		c.removeReadOnly(s)
 	}
 	preservePatternReferences(s)
-	c.iamHits, c.rules = map[string]bool{}, nil
+	c.iamHits, c.rules, c.hoisted = map[string]bool{}, nil, hoistable(s)
 	n := c.normalize(s, "#", false, s, map[string]bool{})
 	if template && c.iam {
 		for _, path := range sortedStringKeys(iamPolicies[c.resource]) {
@@ -319,7 +320,7 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 		}
 		c.selectPolicy(n.(map[string]any))
 	}
-	wrapper := map[string]any{"$schema": "https://json-schema.org/draft/2020-12/schema", "$defs": map[string]any{"Properties": n}, "$ref": "#/$defs/Properties"}
+	wrapper := map[string]any{"$schema": "https://json-schema.org/draft/2020-12/schema", "$defs": c.hoist(n.(map[string]any)), "$ref": "#/$defs/Properties"}
 	b, e := json.Marshal(wrapper)
 	if e != nil {
 		return nil, e
@@ -348,6 +349,7 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 		f, e = jsonschema.Extract(v, cfg)
 	}
 	if e == nil {
+		propertiesFirst(f)
 		simplifyApplicators(f)
 		if e = c.applyRules(f); e != nil {
 			return nil, e
@@ -598,4 +600,67 @@ func removeInstancePath(s, root map[string]any, parts []string, depth int) bool 
 		return false
 	}
 	return removeInstancePath(sub, root, parts[1:], depth+1)
+}
+
+// definitionName matches provider definitions that become package-level
+// definitions such as #Tag. Names starting with an underscore are generated.
+var definitionName = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`)
+
+// hoistable lists the provider definitions to place beside #Properties. The
+// extractor names only direct children of $defs; anything deeper becomes a
+// hidden _#defs entry that other packages cannot reference. Names that would
+// replace #Properties or #Resource stay nested.
+func hoistable(root map[string]any) map[string]bool {
+	out := map[string]bool{}
+	defs, _ := root["definitions"].(map[string]any)
+	for name := range defs {
+		if definitionName.MatchString(name) && name != "Properties" && name != "Resource" {
+			out[name] = true
+		}
+	}
+	return out
+}
+
+// localRef rewrites a provider reference for the wrapper built by hoist.
+func (c *converter) localRef(r string) string {
+	if rest, ok := strings.CutPrefix(r, "#/definitions/"); ok {
+		if name, _, _ := strings.Cut(rest, "/"); c.hoisted[name] {
+			return "#/$defs/" + rest
+		}
+	}
+	return "#/$defs/Properties" + strings.TrimPrefix(r, "#")
+}
+
+// hoist moves hoistable definitions out of the normalized root schema.
+func (c *converter) hoist(root map[string]any) map[string]any {
+	out := map[string]any{"Properties": root}
+	defs, _ := root["definitions"].(map[string]any)
+	for name := range c.hoisted {
+		out[name] = defs[name]
+		delete(defs, name)
+	}
+	if defs != nil && len(defs) == 0 {
+		delete(root, "definitions")
+	}
+	return out
+}
+
+// propertiesFirst moves #Properties, which carries the resource description,
+// ahead of the hoisted definitions the extractor emits in name order.
+func propertiesFirst(f *ast.File) {
+	first := -1
+	for i, d := range f.Decls {
+		field, ok := d.(*ast.Field)
+		if !ok {
+			continue
+		}
+		if first < 0 {
+			first = i
+		}
+		if label, ok := field.Label.(*ast.Ident); ok && label.Name == "#Properties" {
+			copy(f.Decls[first+1:i+1], f.Decls[first:i])
+			f.Decls[first] = field
+			return
+		}
+	}
 }

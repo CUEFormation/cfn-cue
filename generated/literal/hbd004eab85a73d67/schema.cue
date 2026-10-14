@@ -19,7 +19,7 @@ import (
 
 	// An optional description of the workflow definition's purpose and functionality.
 	Description?:  strings.MaxRunes(4000) & strings.MinRunes(1)
-	ExportConfig?: _#defs."/$defs/Properties/definitions/WorkflowExportConfig"
+	ExportConfig?: #WorkflowExportConfig
 
 	// The name of the workflow definition. Must be unique within your account and region.
 	Name!: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,40}$"
@@ -29,7 +29,7 @@ import (
 })
 
 // Configuration settings for exporting workflow execution data and logs to Amazon S3.
-_#defs: "/$defs/Properties/definitions/WorkflowExportConfig": close({
+#WorkflowExportConfig: close({
 	// The name of the Amazon S3 bucket for exporting workflow data.
 	S3BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$"
 

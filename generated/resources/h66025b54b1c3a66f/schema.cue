@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,19 +15,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::AppIntegrations::DataIntegration
 #Properties: close({
 	Description?:       strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	FileConfiguration?: _#defs."/$defs/Properties/definitions/FileConfiguration" | fn.#ObjectExpression
+	FileConfiguration?: #FileConfiguration | fn.#ObjectExpression
 	KmsKey!:            strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 	Name!:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
-	ObjectConfiguration?: _#defs."/$defs/Properties/definitions/ObjectConfiguration" | fn.#ObjectExpression
-	ScheduleConfig?:      _#defs."/$defs/Properties/definitions/ScheduleConfig" | fn.#ObjectExpression
+	ObjectConfiguration?: #ObjectConfiguration | fn.#ObjectExpression
+	ScheduleConfig?:      #ScheduleConfig | fn.#ObjectExpression
 	SourceURI!: strings.MaxRunes(1000) &
 	strings.MinRunes(1) &
 	=~"^(\\w+\\:\\/\\/[\\w.-]+[\\w/!@#+=.-]+$)|(\\w+\\:\\/\\/[\\w.-]+[\\w/!@#+=.-]+[\\w/!@#+=.-]+[\\w/!@#+=.,-]+$)" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FileConfiguration": close({
+#FileConfiguration: close({
 	Filters?: close({
 
 		{[=~"^[A-Za-z]"]: list.MaxItems(2048) & list.MinItems(1) & [
@@ -42,7 +42,7 @@ _#defs: "/$defs/Properties/definitions/FileConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectConfiguration": close({
+#ObjectConfiguration: close({
 
 	{
 		[=~"^.+$"]: close({
@@ -55,14 +55,14 @@ _#defs: "/$defs/Properties/definitions/ObjectConfiguration": close({
 	}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduleConfig": close({
+#ScheduleConfig: close({
 	FirstExecutionFrom?: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 	Object?:             strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
 	ScheduleExpression!: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

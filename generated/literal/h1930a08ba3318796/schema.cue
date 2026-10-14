@@ -13,46 +13,44 @@ import (
 #Properties: close({
 	Arn?:                string
 	AwsAccountId?:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
-	CustomInstructions?: _#defs."/$defs/Properties/definitions/CustomInstructions"
-	DataSetRelations?:   list.MaxItems(32) & [...] & [..._#defs."/$defs/Properties/definitions/DataSetRelation"]
-	DataSets?:    list.MaxItems(32) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DataSetReference"]
-	Description?: strings.MaxRunes(256) & strings.MinRunes(0)
-	FolderArns?:  list.MaxItems(20) & [...] & [...string]
-	Name?:        strings.MaxRunes(128) & strings.MinRunes(1)
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"]
-	Tags?:        list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TopicId?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_.\\\\+]*$"
+	CustomInstructions?: #CustomInstructions
+	DataSetRelations?:   list.MaxItems(32) & [...] & [...#DataSetRelation]
+	DataSets?:           list.MaxItems(32) & list.MinItems(1) & [...#DataSetReference]
+	Description?:        strings.MaxRunes(256) & strings.MinRunes(0)
+	FolderArns?:         list.MaxItems(20) & [...] & [...string]
+	Name?:               strings.MaxRunes(128) & strings.MinRunes(1)
+	Permissions?:        list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission]
+	Tags?:               list.MaxItems(200) & list.MinItems(1) & [...#Tag]
+	TopicId?:            strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_.\\\\+]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/CustomInstructions": close(
-	{CustomInstructionsString!: strings.MaxRunes(5000) & strings.MinRunes(0)},
-)
+#CustomInstructions: close({CustomInstructionsString!: strings.MaxRunes(5000) & strings.MinRunes(0)})
 
 // A dataset reference used by a V2 (SEMANTIC_VIEW) topic.
-_#defs: "/$defs/Properties/definitions/DataSetReference": close({
+#DataSetReference: close({
 	DataSetArn!:  string
 	DataSetName?: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
 // A relation between two datasets referenced by a V2 (SEMANTIC_VIEW) topic.
-_#defs: "/$defs/Properties/definitions/DataSetRelation": close({
-	Left!:  _#defs."/$defs/Properties/definitions/DataSetRelationEndpoint"
-	Right!: _#defs."/$defs/Properties/definitions/DataSetRelationEndpoint"
+#DataSetRelation: close({
+	Left!:  #DataSetRelationEndpoint
+	Right!: #DataSetRelationEndpoint
 })
 
-_#defs: "/$defs/Properties/definitions/DataSetRelationEndpoint": close({
+#DataSetRelationEndpoint: close({
 	ColumnNames!: list.MaxItems(5) & list.MinItems(1) & [...string]
 	DataSetArn!:  string
 })
 
-_#defs: "/$defs/Properties/definitions/ResourcePermission": close({
+#ResourcePermission: close({
 	Actions!:   list.MaxItems(20) & list.MinItems(1) & [...string]
 	Principal!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
 // <p>The key or keys of the key-value pairs for the resource tag or tags assigned to the
 // resource.</p>
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// <p>Tag key.</p>
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -60,9 +58,9 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/TopicV2Details": close({
-	DataSetRelations?: list.MaxItems(32) & [...] & [..._#defs."/$defs/Properties/definitions/DataSetRelation"]
-	DataSets?:    list.MaxItems(32) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DataSetReference"]
-	Description?: strings.MaxRunes(256) & strings.MinRunes(0)
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(1)
+#TopicV2Details: close({
+	DataSetRelations?: list.MaxItems(32) & [...] & [...#DataSetRelation]
+	DataSets?:         list.MaxItems(32) & list.MinItems(1) & [...#DataSetReference]
+	Description?:      strings.MaxRunes(256) & strings.MinRunes(0)
+	Name!:             strings.MaxRunes(128) & strings.MinRunes(1)
 })

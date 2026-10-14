@@ -12,12 +12,12 @@ import "strings"
 	InternetGatewayId?: string
 
 	// Any tags to assign to the internet gateway.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // Specifies a tag. For more information, see [Resource
 // tags](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

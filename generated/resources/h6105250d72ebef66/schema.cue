@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"struct"
 )
 
@@ -19,15 +19,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Represents a runtime environment that can run migrated mainframe applications.
 #Properties: close({
 	Description?:            strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	EngineType!:             _#defs."/$defs/Properties/definitions/EngineType"
+	EngineType!:             #EngineType
 	EngineVersion?:          =~"^\\S{1,10}$" | fn.#StringExpression
-	HighAvailabilityConfig?: _#defs."/$defs/Properties/definitions/HighAvailabilityConfig"
+	HighAvailabilityConfig?: #HighAvailabilityConfig
 	InstanceType!:           =~"^\\S{1,20}$" | fn.#StringExpression
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) & strings.MaxRunes(2048) |
 	fn.#StringExpression
 	Name!:                       =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-	NetworkType?:                _#defs."/$defs/Properties/definitions/NetworkType"
+	NetworkType?:                #NetworkType
 	PreferredMaintenanceWindow?: =~"^\\S{1,50}$" | fn.#StringExpression
 	PubliclyAccessible?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SecurityGroupIds?: [
@@ -36,26 +36,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	StorageConfigurations?: [..._#defs."/$defs/Properties/definitions/StorageConfiguration"] | fn.#ListExpression
+	StorageConfigurations?: [...#StorageConfiguration] | fn.#ListExpression
 	SubnetIds?:             [...=~"^\\S{1,50}$" | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                  _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	Tags?:                  #TagMap | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EfsStorageConfiguration": close({
+#EfsStorageConfiguration: close({
 	FileSystemId!: =~"^\\S{1,200}$" | fn.#StringExpression
 	MountPoint!:   =~"^\\S{1,200}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EngineType": "microfocus" | "bluage" | fn.#StringExpression
+#EngineType: "microfocus" | "bluage" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FsxStorageConfiguration": close({
+#FsxStorageConfiguration: close({
 	FileSystemId!: =~"^\\S{1,200}$" | fn.#StringExpression
 	MountPoint!:   =~"^\\S{1,200}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HighAvailabilityConfig": close({
+#HighAvailabilityConfig: close({
 	DesiredCapacity!: int & <=100 & >=1 |
 		{
 			string &
@@ -75,17 +75,14 @@ _#defs: "/$defs/Properties/definitions/HighAvailabilityConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkType": "ipv4" | "dual" | fn.#StringExpression
+#NetworkType: "ipv4" | "dual" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageConfiguration": fn.#Object & {...} & matchN(1, [close(
-	{Efs!: _#defs."/$defs/Properties/definitions/EfsStorageConfiguration"},
-), close(
-	{Fsx!: _#defs."/$defs/Properties/definitions/FsxStorageConfiguration"},
-)]) |
+#StorageConfiguration: fn.#Object & {...} & matchN(1, [
+	close({Efs!: #EfsStorageConfiguration}), close({Fsx!: #FsxStorageConfiguration}),
+]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(200) & struct.MinFields(0) & {...} |
-fn.#ObjectExpression
+#TagMap: struct.MaxFields(200) & struct.MinFields(0) & {...} | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::M2::Environment"
 	Properties!: #Properties

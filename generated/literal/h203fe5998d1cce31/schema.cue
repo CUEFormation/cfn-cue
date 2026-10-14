@@ -79,17 +79,17 @@ import (
 	Provider?: string
 
 	// The status of the Amazon DataZone environment.
-	Status?: _#defs."/$defs/Properties/definitions/EnvironmentStatus"
+	Status?: #EnvironmentStatus
 
 	// The timestamp of when the environment was updated.
 	UpdatedAt?: time.Time
 
 	// The user parameters of the Amazon DataZone environment.
-	UserParameters?: [..._#defs."/$defs/Properties/definitions/EnvironmentParameter"]
+	UserParameters?: [...#EnvironmentParameter]
 })
 
 // The parameter details of an environment.
-_#defs: "/$defs/Properties/definitions/EnvironmentParameter": close({
+#EnvironmentParameter: close({
 	// The name of an environment parameter.
 	Name?: string
 
@@ -98,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/EnvironmentParameter": close({
 })
 
 // The status of the Amazon DataZone environment.
-_#defs: "/$defs/Properties/definitions/EnvironmentStatus": "ACTIVE" |
+#EnvironmentStatus: "ACTIVE" |
 	"CREATING" |
 	"UPDATING" |
 	"DELETING" |

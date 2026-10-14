@@ -11,10 +11,10 @@ import "list"
 	Id?:         string
 	MetricName!: string
 	Name!:       string
-	Predicates?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Predicate"]
+	Predicates?: list.UniqueItems() & [...#Predicate]
 })
 
-_#defs: "/$defs/Properties/definitions/Predicate": close({
+#Predicate: close({
 	DataId!:  string
 	Negated!: bool
 	Type!:    string

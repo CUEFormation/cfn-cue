@@ -19,10 +19,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Content!: fn.#Object & {...} |
 	strings.MaxRunes(40000) & strings.MinRunes(1) & =~"[\\s\\S]*" |
 	fn.#StringObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

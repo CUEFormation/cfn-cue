@@ -15,11 +15,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	IdentityName!:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	IdentityType!:     "USER" | "GROUP" | fn.#StringExpression
-	SessionPolicyArn!: _#defs."/$defs/Properties/definitions/IamPolicyArn" | fn.#StringExpression
+	SessionPolicyArn!: #IamPolicyArn | fn.#StringExpression
 	StudioId!:         strings.MaxRunes(256) & strings.MinRunes(4) & =~"^es-[0-9A-Z]+" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IamPolicyArn": strings.MaxRunes(256) &
+#IamPolicyArn: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^arn:aws(-(cn|us-gov|iso-f|iso-e))?:iam::([0-9]{12})?:policy\\/[^.]+$" |
 fn.#StringExpression

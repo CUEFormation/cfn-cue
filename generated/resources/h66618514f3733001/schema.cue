@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
-	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,12 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates and manages a procurement portal preference configuration for
 // e-invoice delivery and purchase order retrieval.
 #Properties: close({
-	BuyerDomain!:     "NetworkID" | fn.#StringExpression
-	BuyerIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
-	Contacts!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Contact"] |
-		fn.#ListExpression
+	BuyerDomain!:                "NetworkID" | fn.#StringExpression
+	BuyerIdentifier!:            strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
+	Contacts!:                   list.MaxItems(1) & list.MinItems(1) & [...#Contact] | fn.#ListExpression
 	EinvoiceDeliveryEnabled!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EinvoiceDeliveryPreference?: _#defs."/$defs/Properties/definitions/EinvoiceDeliveryPreference"
+	EinvoiceDeliveryPreference?: #EinvoiceDeliveryPreference
 	ProcurementPortalInstanceEndpoint?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
 	ProcurementPortalName!:             "SAP_BUSINESS_NETWORK" | "COUPA" | fn.#StringExpression
 	ProcurementPortalSharedSecret?:     strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
@@ -33,21 +32,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	Selector?:           _#defs."/$defs/Properties/definitions/ProcurementPortalPreferenceSelector"
+	Selector?:           #ProcurementPortalPreferenceSelector
 	SupplierDomain!:     "NetworkID" | fn.#StringExpression
 	SupplierIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TestEnvPreference?: _#defs."/$defs/Properties/definitions/TestEnvPreference"
+	Tags?:               list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	TestEnvPreference?:  #TestEnvPreference
 })
 
-_#defs: "/$defs/Properties/definitions/Contact": close({
+#Contact: close({
 	Email?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$" |
 	fn.#StringExpression
 	Name?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EinvoiceDeliveryPreference": close({
+#EinvoiceDeliveryPreference: close({
 	ConnectionTestingMethod?:         "PROD_ENV_DOLLAR_TEST" | "TEST_ENV_REPLAY_TEST" | fn.#StringExpression
 	EinvoiceDeliveryActivationDate?:  time.Time | fn.#StringExpression
 	EinvoiceDeliveryAttachmentTypes?: [..."INVOICE_PDF" | "RFP_PDF" | fn.#StringExpression] | fn.#ListExpression
@@ -61,11 +60,11 @@ _#defs: "/$defs/Properties/definitions/EinvoiceDeliveryPreference": close({
 	] |
 		fn.#ListExpression
 	Protocol?:                 "CXML" | fn.#StringExpression
-	PurchaseOrderDataSources?: [..._#defs."/$defs/Properties/definitions/PurchaseOrderDataSource"] | fn.#ListExpression
+	PurchaseOrderDataSources?: [...#PurchaseOrderDataSource] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProcurementPortalPreferenceSelector": close({
+#ProcurementPortalPreferenceSelector: close({
 	InvoiceUnitArns?: list.MaxItems(500) & [...] & [
 		...strings.MaxRunes(256) &
 		strings.MinRunes(1) &
@@ -76,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/ProcurementPortalPreferenceSelector": clo
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PurchaseOrderDataSource": close({
+#PurchaseOrderDataSource: close({
 	EinvoiceDeliveryDocumentType?: "AWS_CLOUD_INVOICE" |
 		"AWS_CLOUD_CREDIT_MEMO" |
 		"AWS_MARKETPLACE_INVOICE" |
@@ -89,13 +88,13 @@ _#defs: "/$defs/Properties/definitions/PurchaseOrderDataSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TestEnvPreference": close({
+#TestEnvPreference: close({
 	BuyerDomain?:                       "NetworkID" | fn.#StringExpression
 	BuyerIdentifier?:                   strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
 	ProcurementPortalInstanceEndpoint?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression

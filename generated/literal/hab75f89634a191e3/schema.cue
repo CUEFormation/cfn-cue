@@ -8,12 +8,12 @@ import "list"
 
 // Resource Type definition for AWS::WAF::IPSet
 #Properties: close({
-	IPSetDescriptors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/IPSetDescriptor"]
+	IPSetDescriptors?: list.UniqueItems() & [...#IPSetDescriptor]
 	Id?:               string
 	Name!:             string
 })
 
-_#defs: "/$defs/Properties/definitions/IPSetDescriptor": close({
+#IPSetDescriptor: close({
 	Type!:  string
 	Value!: string
 })

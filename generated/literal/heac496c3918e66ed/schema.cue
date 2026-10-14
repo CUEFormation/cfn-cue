@@ -12,86 +12,84 @@ package schema
 	FileSystemTypeVersion?: string
 	Id?:                    string
 	KmsKeyId?:              =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
-	LustreConfiguration?:   _#defs."/$defs/Properties/definitions/LustreConfiguration"
+	LustreConfiguration?:   #LustreConfiguration
 	LustreMountName?:       string
 	NetworkType?:           string
-	OntapConfiguration?:    _#defs."/$defs/Properties/definitions/OntapConfiguration"
-	OpenZFSConfiguration?:  _#defs."/$defs/Properties/definitions/OpenZFSConfiguration"
+	OntapConfiguration?:    #OntapConfiguration
+	OpenZFSConfiguration?:  #OpenZFSConfiguration
 	ResourceARN?:           string
 	RootVolumeId?:          string
 	SecurityGroupIds?:      [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	StorageCapacity?:       int
 	StorageType?:           string
 	SubnetIds!:             [...string]
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"]
-	WindowsConfiguration?:  _#defs."/$defs/Properties/definitions/WindowsConfiguration"
+	Tags?:                  [...#Tag]
+	WindowsConfiguration?:  #WindowsConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/AuditLogConfiguration": close({
+#AuditLogConfiguration: close({
 	AuditLogDestination?:          string
 	FileAccessAuditLogLevel!:      string
 	FileShareAccessAuditLogLevel!: string
 })
 
-_#defs: "/$defs/Properties/definitions/ClientConfigurations": close({
+#ClientConfigurations: close({
 	Clients?: string
 	Options?: [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/DataReadCacheConfiguration": close({
+#DataReadCacheConfiguration: close({
 	SizeGiB?:    int
 	SizingMode?: string
 })
 
-_#defs: "/$defs/Properties/definitions/DiskIopsConfiguration": close({
+#DiskIopsConfiguration: close({
 	Iops?: int
 	Mode?: string
 })
 
-_#defs: "/$defs/Properties/definitions/FsrmConfiguration": close({
+#FsrmConfiguration: close({
 	EventLogDestination?: string
 	FsrmServiceEnabled!:  bool
 })
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	Destination?: string
 	Level!:       string
 })
 
-_#defs: "/$defs/Properties/definitions/LustreConfiguration": close({
+#LustreConfiguration: close({
 	AutoImportPolicy?:              string
 	AutomaticBackupRetentionDays?:  int
 	CopyTagsToBackups?:             bool
 	DailyAutomaticBackupStartTime?: string
 	DataCompressionType?:           string
-	DataReadCacheConfiguration?:    _#defs."/$defs/Properties/definitions/DataReadCacheConfiguration"
+	DataReadCacheConfiguration?:    #DataReadCacheConfiguration
 	DeploymentType?:                string
 	DriveCacheType?:                string
 	EfaEnabled?:                    bool
 	ExportPath?:                    string
 	ImportPath?:                    string
 	ImportedFileChunkSize?:         int
-	LogConfiguration?:              _#defs."/$defs/Properties/definitions/LogConfiguration"
-	MetadataConfiguration?:         _#defs."/$defs/Properties/definitions/MetadataConfiguration"
+	LogConfiguration?:              #LogConfiguration
+	MetadataConfiguration?:         #MetadataConfiguration
 	PerUnitStorageThroughput?:      int
 	ThroughputCapacity?:            int
 	WeeklyMaintenanceStartTime?:    string
 })
 
-_#defs: "/$defs/Properties/definitions/MetadataConfiguration": close({
+#MetadataConfiguration: close({
 	Iops?: int
 	Mode?: string
 })
 
-_#defs: "/$defs/Properties/definitions/NfsExports": close(
-	{ClientConfigurations?: [..._#defs."/$defs/Properties/definitions/ClientConfigurations"]},
-)
+#NfsExports: close({ClientConfigurations?: [...#ClientConfigurations]})
 
-_#defs: "/$defs/Properties/definitions/OntapConfiguration": close({
+#OntapConfiguration: close({
 	AutomaticBackupRetentionDays?:  int
 	DailyAutomaticBackupStartTime?: string
 	DeploymentType!:                string
-	DiskIopsConfiguration?:         _#defs."/$defs/Properties/definitions/DiskIopsConfiguration"
+	DiskIopsConfiguration?:         #DiskIopsConfiguration
 	EndpointIpAddressRange?:        string
 	EndpointIpv6AddressRange?:      string
 	FsxAdminPassword?:              string
@@ -103,39 +101,39 @@ _#defs: "/$defs/Properties/definitions/OntapConfiguration": close({
 	WeeklyMaintenanceStartTime?:    string
 })
 
-_#defs: "/$defs/Properties/definitions/OpenZFSConfiguration": close({
+#OpenZFSConfiguration: close({
 	AutomaticBackupRetentionDays?:  int
 	CopyTagsToBackups?:             bool
 	CopyTagsToVolumes?:             bool
 	DailyAutomaticBackupStartTime?: string
 	DeploymentType!:                string
-	DiskIopsConfiguration?:         _#defs."/$defs/Properties/definitions/DiskIopsConfiguration"
+	DiskIopsConfiguration?:         #DiskIopsConfiguration
 	EndpointIpAddressRange?:        string
 	EndpointIpv6AddressRange?:      string
 	Options?:                       [...string]
 	PreferredSubnetId?:             string
-	ReadCacheConfiguration?:        _#defs."/$defs/Properties/definitions/ReadCacheConfiguration"
-	RootVolumeConfiguration?:       _#defs."/$defs/Properties/definitions/RootVolumeConfiguration"
+	ReadCacheConfiguration?:        #ReadCacheConfiguration
+	RootVolumeConfiguration?:       #RootVolumeConfiguration
 	RouteTableIds?:                 [...string]
 	ThroughputCapacity?:            int
 	WeeklyMaintenanceStartTime?:    string
 })
 
-_#defs: "/$defs/Properties/definitions/ReadCacheConfiguration": close({
+#ReadCacheConfiguration: close({
 	SizeGiB?:    int
 	SizingMode?: string
 })
 
-_#defs: "/$defs/Properties/definitions/RootVolumeConfiguration": close({
+#RootVolumeConfiguration: close({
 	CopyTagsToSnapshots?: bool
 	DataCompressionType?: string
-	NfsExports?:          [..._#defs."/$defs/Properties/definitions/NfsExports"]
+	NfsExports?:          [...#NfsExports]
 	ReadOnly?:            bool
 	RecordSizeKiB?:       int
-	UserAndGroupQuotas?:  [..._#defs."/$defs/Properties/definitions/UserAndGroupQuotas"]
+	UserAndGroupQuotas?:  [...#UserAndGroupQuotas]
 })
 
-_#defs: "/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration": close({
+#SelfManagedActiveDirectoryConfiguration: close({
 	DnsIps?:                              [...string]
 	DomainJoinServiceAccountSecret?:      string
 	DomainName?:                          string
@@ -145,30 +143,29 @@ _#defs: "/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration":
 	UserName?:                            string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/UserAndGroupQuotas": close({
+#UserAndGroupQuotas: close({
 	Id?:                      int
 	StorageCapacityQuotaGiB?: int
 	Type?:                    string
 })
 
-_#defs: "/$defs/Properties/definitions/WindowsConfiguration": close({
-	ActiveDirectoryId?:             string
-	Aliases?:                       [...string]
-	AuditLogConfiguration?:         _#defs."/$defs/Properties/definitions/AuditLogConfiguration"
-	AutomaticBackupRetentionDays?:  int
-	CopyTagsToBackups?:             bool
-	DailyAutomaticBackupStartTime?: string
-	DeploymentType?:                string
-	DiskIopsConfiguration?:         _#defs."/$defs/Properties/definitions/DiskIopsConfiguration"
-	FsrmConfiguration?:             _#defs."/$defs/Properties/definitions/FsrmConfiguration"
-	PreferredSubnetId?:             string
-	SelfManagedActiveDirectoryConfiguration?:
-		_#defs."/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration"
-	ThroughputCapacity!:         int
-	WeeklyMaintenanceStartTime?: string
+#WindowsConfiguration: close({
+	ActiveDirectoryId?:                       string
+	Aliases?:                                 [...string]
+	AuditLogConfiguration?:                   #AuditLogConfiguration
+	AutomaticBackupRetentionDays?:            int
+	CopyTagsToBackups?:                       bool
+	DailyAutomaticBackupStartTime?:           string
+	DeploymentType?:                          string
+	DiskIopsConfiguration?:                   #DiskIopsConfiguration
+	FsrmConfiguration?:                       #FsrmConfiguration
+	PreferredSubnetId?:                       string
+	SelfManagedActiveDirectoryConfiguration?: #SelfManagedActiveDirectoryConfiguration
+	ThroughputCapacity!:                      int
+	WeeklyMaintenanceStartTime?:              string
 })

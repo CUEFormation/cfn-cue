@@ -14,18 +14,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::PaymentCryptography::Key Resource Type
 #Properties: close({
-	DeriveKeyUsage?:         _#defs."/$defs/Properties/definitions/DeriveKeyUsage"
+	DeriveKeyUsage?:         #DeriveKeyUsage
 	Enabled?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Exportable!:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KeyAttributes!:          _#defs."/$defs/Properties/definitions/KeyAttributes"
-	KeyCheckValueAlgorithm?: _#defs."/$defs/Properties/definitions/KeyCheckValueAlgorithm"
+	KeyAttributes!:          #KeyAttributes
+	KeyCheckValueAlgorithm?: #KeyCheckValueAlgorithm
 	Policy?: strings.MaxRunes(20480) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
 	fn.#StringExpression
 	ReplicationRegions?: [...=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$" | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:               list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DeriveKeyUsage": "TR31_B0_BASE_DERIVATION_KEY" |
+#DeriveKeyUsage: "TR31_B0_BASE_DERIVATION_KEY" |
 	"TR31_C0_CARD_VERIFICATION_KEY" |
 	"TR31_D0_SYMMETRIC_DATA_ENCRYPTION_KEY" |
 	"TR31_E0_EMV_MKEY_APP_CRYPTOGRAMS" |
@@ -46,7 +46,7 @@ _#defs: "/$defs/Properties/definitions/DeriveKeyUsage": "TR31_B0_BASE_DERIVATION
 	"TR31_V2_VISA_PIN_VERIFICATION_KEY" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KeyAlgorithm": "TDES_2KEY" |
+#KeyAlgorithm: "TDES_2KEY" |
 	"TDES_3KEY" |
 	"AES_128" |
 	"AES_192" |
@@ -63,27 +63,19 @@ _#defs: "/$defs/Properties/definitions/KeyAlgorithm": "TDES_2KEY" |
 	"ECC_NIST_P521" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KeyAttributes": close({
-	KeyAlgorithm!:  _#defs."/$defs/Properties/definitions/KeyAlgorithm"
-	KeyClass!:      _#defs."/$defs/Properties/definitions/KeyClass"
-	KeyModesOfUse!: _#defs."/$defs/Properties/definitions/KeyModesOfUse"
-	KeyUsage!:      _#defs."/$defs/Properties/definitions/KeyUsage"
+#KeyAttributes: close({
+	KeyAlgorithm!:  #KeyAlgorithm
+	KeyClass!:      #KeyClass
+	KeyModesOfUse!: #KeyModesOfUse
+	KeyUsage!:      #KeyUsage
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyCheckValueAlgorithm": "CMAC" |
-	"ANSI_X9_24" |
-	"HMAC" |
-	"SHA_1" |
-	fn.#StringExpression
+#KeyCheckValueAlgorithm: "CMAC" | "ANSI_X9_24" | "HMAC" | "SHA_1" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KeyClass": "SYMMETRIC_KEY" |
-	"ASYMMETRIC_KEY_PAIR" |
-	"PRIVATE_KEY" |
-	"PUBLIC_KEY" |
-	fn.#StringExpression
+#KeyClass: "SYMMETRIC_KEY" | "ASYMMETRIC_KEY_PAIR" | "PRIVATE_KEY" | "PUBLIC_KEY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KeyModesOfUse": close({
+#KeyModesOfUse: close({
 	Decrypt?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DeriveKey?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Encrypt?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -96,21 +88,13 @@ _#defs: "/$defs/Properties/definitions/KeyModesOfUse": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyOrigin": "EXTERNAL" | "AWS_PAYMENT_CRYPTOGRAPHY" | fn.#StringExpression
+#KeyOrigin: "EXTERNAL" | "AWS_PAYMENT_CRYPTOGRAPHY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KeyReplicationState": "IN_PROGRESS" |
-	"DELETE_IN_PROGRESS" |
-	"FAILED" |
-	"SYNCHRONIZED" |
-	fn.#StringExpression
+#KeyReplicationState: "IN_PROGRESS" | "DELETE_IN_PROGRESS" | "FAILED" | "SYNCHRONIZED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KeyState": "CREATE_IN_PROGRESS" |
-	"CREATE_COMPLETE" |
-	"DELETE_PENDING" |
-	"DELETE_COMPLETE" |
-	fn.#StringExpression
+#KeyState: "CREATE_IN_PROGRESS" | "CREATE_COMPLETE" | "DELETE_PENDING" | "DELETE_COMPLETE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KeyUsage": "TR31_B0_BASE_DERIVATION_KEY" |
+#KeyUsage: "TR31_B0_BASE_DERIVATION_KEY" |
 	"TR31_C0_CARD_VERIFICATION_KEY" |
 	"TR31_D0_SYMMETRIC_DATA_ENCRYPTION_KEY" |
 	"TR31_D1_ASYMMETRIC_KEY_FOR_DATA_ENCRYPTION" |
@@ -136,12 +120,12 @@ _#defs: "/$defs/Properties/definitions/KeyUsage": "TR31_B0_BASE_DERIVATION_KEY" 
 	"TR31_K2_TR34_ASYMMETRIC_KEY" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationStatus": close({
+#ReplicationStatus: close({
 
-	{[=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$"]: _#defs."/$defs/Properties/definitions/ReplicationStatusType"}}) |
+	{[=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$"]: #ReplicationStatusType}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationStatusType": close({
+#ReplicationStatusType: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -153,12 +137,12 @@ _#defs: "/$defs/Properties/definitions/ReplicationStatusType": close({
 	strings.MinRunes(1) &
 	=~"^[a-zA-Z0-9:/_-]+$" |
 	fn.#StringExpression
-	Status!:        _#defs."/$defs/Properties/definitions/KeyReplicationState"
+	Status!:        #KeyReplicationState
 	StatusMessage?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

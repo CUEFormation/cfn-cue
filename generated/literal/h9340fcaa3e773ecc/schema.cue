@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -37,13 +37,13 @@ import (
 	AutoScalingGroupName?: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// The EC2 instance capacity distribution across Availability Zones for the Auto Scaling group.
-	AvailabilityZoneDistribution?: _#defs."/$defs/Properties/definitions/AvailabilityZoneDistribution"
+	AvailabilityZoneDistribution?: #AvailabilityZoneDistribution
 
 	// The Availability Zone IDs where the Auto Scaling group can launch instances.
 	AvailabilityZoneIds?: list.UniqueItems() & [...strings.MaxRunes(255) & strings.MinRunes(1)]
 
 	// The Availability Zone impairment policy for the Auto Scaling group.
-	AvailabilityZoneImpairmentPolicy?: _#defs."/$defs/Properties/definitions/AvailabilityZoneImpairmentPolicy"
+	AvailabilityZoneImpairmentPolicy?: #AvailabilityZoneImpairmentPolicy
 
 	// A list of Availability Zones where instances in the Auto Scaling group can be
 	// created. Used for launching into the default VPC subnet in each Availability
@@ -63,7 +63,7 @@ import (
 	CapacityRebalance?: bool
 
 	// The capacity reservation specification for the Auto Scaling group.
-	CapacityReservationSpecification?: _#defs."/$defs/Properties/definitions/CapacityReservationSpecification"
+	CapacityReservationSpecification?: #CapacityReservationSpecification
 
 	// Reserved.
 	Context?: string
@@ -157,13 +157,13 @@ import (
 	InstanceId?: strings.MaxRunes(19) & strings.MinRunes(1)
 
 	// The instance lifecycle policy for the Auto Scaling group.
-	InstanceLifecyclePolicy?: _#defs."/$defs/Properties/definitions/InstanceLifecyclePolicy"
+	InstanceLifecyclePolicy?: #InstanceLifecyclePolicy
 
 	// An instance maintenance policy. For more information, see [Set instance
 	// maintenance
 	// policy](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-instance-maintenance-policy.html)
 	// in the *Amazon EC2 Auto Scaling User Guide*.
-	InstanceMaintenancePolicy?: _#defs."/$defs/Properties/definitions/InstanceMaintenancePolicy"
+	InstanceMaintenancePolicy?: #InstanceMaintenancePolicy
 
 	// The name of the launch configuration to use to launch instances.
 	// Required only if you don't specify ``LaunchTemplate``,
@@ -179,10 +179,10 @@ import (
 	// in the *Amazon EC2 Auto Scaling User Guide*.
 	// If you omit this property, you must specify ``MixedInstancesPolicy``,
 	// ``LaunchConfigurationName``, or ``InstanceId``.
-	LaunchTemplate?: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification"
+	LaunchTemplate?: #LaunchTemplateSpecification
 
 	// One or more lifecycle hooks to add to the Auto Scaling group before instances are launched.
-	LifecycleHookSpecificationList?: [..._#defs."/$defs/Properties/definitions/LifecycleHookSpecification"]
+	LifecycleHookSpecificationList?: [...#LifecycleHookSpecification]
 
 	// A list of Classic Load Balancers associated with this Auto Scaling group. For
 	// Application Load Balancers, Network Load Balancers, and Gateway Load
@@ -207,7 +207,7 @@ import (
 
 	// Enables the monitoring of group metrics of an Auto Scaling group. By default,
 	// these metrics are disabled.
-	MetricsCollection?: [..._#defs."/$defs/Properties/definitions/MetricsCollection"]
+	MetricsCollection?: [...#MetricsCollection]
 
 	// The minimum size of the group.
 	MinSize!: =~"^[0-9]+$"
@@ -224,7 +224,7 @@ import (
 	// and purchase
 	// options](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-mixed-instances-groups.html)
 	// in the *Amazon EC2 Auto Scaling User Guide*.
-	MixedInstancesPolicy?: _#defs."/$defs/Properties/definitions/MixedInstancesPolicy"
+	MixedInstancesPolicy?: #MixedInstancesPolicy
 
 	// Indicates whether newly launched instances are protected from termination by
 	// Amazon EC2 Auto Scaling when scaling in. For more information about
@@ -233,10 +233,10 @@ import (
 	// protection](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-instance-protection.html)
 	// in the *Amazon EC2 Auto Scaling User Guide*.
 	NewInstancesProtectedFromScaleIn?: bool
-	NotificationConfiguration?:        _#defs."/$defs/Properties/definitions/NotificationConfiguration"
+	NotificationConfiguration?:        #NotificationConfiguration
 
 	// Configures an Auto Scaling group to send notifications when specified events take place.
-	NotificationConfigurations?: [..._#defs."/$defs/Properties/definitions/NotificationConfiguration"]
+	NotificationConfigurations?: [...#NotificationConfiguration]
 
 	// The name of the placement group into which to launch your instances. For more
 	// information, see [Placement
@@ -268,7 +268,7 @@ import (
 	// Scaling groups and
 	// instances](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-tagging.html)
 	// in the *Amazon EC2 Auto Scaling User Guide*.
-	Tags?: [..._#defs."/$defs/Properties/definitions/TagProperty"]
+	Tags?: [...#TagProperty]
 
 	// The Amazon Resource Names (ARN) of the Elastic Load Balancing target groups
 	// to associate with the Auto Scaling group. Instances are registered as
@@ -292,7 +292,7 @@ import (
 	TerminationPolicies?: [...strings.MaxRunes(1600) & strings.MinRunes(1)]
 
 	// The traffic sources associated with this Auto Scaling group.
-	TrafficSources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TrafficSourceIdentifier"]
+	TrafficSources?: list.UniqueItems() & [...#TrafficSourceIdentifier]
 
 	// A list of subnet IDs for a virtual private cloud (VPC) where instances in the
 	// Auto Scaling group can be created.
@@ -344,7 +344,7 @@ import (
 // LaunchTemplateOverrides](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-autoscaling-autoscalinggroup-launchtemplateoverrides.html)
 // property type that describes the minimum and maximum number of accelerators
 // for an instance type.
-_#defs: "/$defs/Properties/definitions/AcceleratorCountRequest": close({
+#AcceleratorCountRequest: close({
 	// The maximum value.
 	Max?: int & >=0
 
@@ -357,7 +357,7 @@ _#defs: "/$defs/Properties/definitions/AcceleratorCountRequest": close({
 // LaunchTemplateOverrides](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-autoscaling-autoscalinggroup-launchtemplateoverrides.html)
 // property type that describes the minimum and maximum total memory size for
 // the accelerators for an instance type, in MiB.
-_#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest": close({
+#AcceleratorTotalMemoryMiBRequest: close({
 	// The memory maximum in MiB.
 	Max?: int & >=0
 
@@ -368,7 +368,7 @@ _#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest": close(
 // ``AvailabilityZoneDistribution`` is a property of the
 // [AWS::AutoScaling::AutoScalingGroup](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-autoscaling-autoscalinggroup.html)
 // resource.
-_#defs: "/$defs/Properties/definitions/AvailabilityZoneDistribution": close({
+#AvailabilityZoneDistribution: close({
 	// If launches fail in an Availability Zone, the following strategies are
 	// available. The default is ``balanced-best-effort``.
 	// + ``balanced-only`` - If launches fail in an Availability Zone, Auto Scaling
@@ -383,7 +383,7 @@ _#defs: "/$defs/Properties/definitions/AvailabilityZoneDistribution": close({
 })
 
 // Describes an Availability Zone impairment policy.
-_#defs: "/$defs/Properties/definitions/AvailabilityZoneImpairmentPolicy": close({
+#AvailabilityZoneImpairmentPolicy: close({
 	// Specifies the health check behavior for the impaired Availability Zone in an
 	// active zonal shift. If you select ``Replace unhealthy``, instances that
 	// appear unhealthy will be replaced in all Availability Zones. If you select
@@ -403,7 +403,7 @@ _#defs: "/$defs/Properties/definitions/AvailabilityZoneImpairmentPolicy": close(
 // LaunchTemplateOverrides](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-autoscaling-autoscalinggroup-launchtemplateoverrides.html)
 // property type that describes the minimum and maximum baseline bandwidth
 // performance for an instance type, in Mbps.
-_#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest": close({
+#BaselineEbsBandwidthMbpsRequest: close({
 	// The maximum value in Mbps.
 	Max?: int & >=0
 
@@ -419,23 +419,21 @@ _#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest": close({
 // Currently, this parameter only supports CPU performance as a baseline
 // performance factor. For example, specifying ``c6i`` uses the CPU performance
 // of the ``c6i`` family as the baseline reference.
-_#defs: "/$defs/Properties/definitions/BaselinePerformanceFactorsRequest": close({
+#BaselinePerformanceFactorsRequest: close({
 	// The CPU performance to consider, using an instance family as the baseline reference.
-	Cpu?: _#defs."/$defs/Properties/definitions/CpuPerformanceFactorRequest"
+	Cpu?: #CpuPerformanceFactorRequest
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationIds": list.UniqueItems() & [
+#CapacityReservationIds: list.UniqueItems() & [
 	...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-_\\/]+$"
 ]
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationResourceGroupArns": list.UniqueItems() & [
-	...strings.MaxRunes(1600) & strings.MinRunes(1)
-]
+#CapacityReservationResourceGroupArns: list.UniqueItems() & [...strings.MaxRunes(1600) & strings.MinRunes(1)]
 
 // Describes the Capacity Reservation preference and targeting options. If you
 // specify ``open`` or ``none`` for ``CapacityReservationPreference``, do not
 // specify a ``CapacityReservationTarget``.
-_#defs: "/$defs/Properties/definitions/CapacityReservationSpecification": close({
+#CapacityReservationSpecification: close({
 	// The capacity reservation preference. The following options are available:
 	// + ``capacity-reservations-only`` - Auto Scaling will only launch instances
 	// into a Capacity Reservation or Capacity Reservation resource group. If
@@ -450,32 +448,32 @@ _#defs: "/$defs/Properties/definitions/CapacityReservationSpecification": close(
 	CapacityReservationPreference!: "capacity-reservations-first" | "capacity-reservations-only" | "default" | "none"
 
 	// Describes a target Capacity Reservation or Capacity Reservation resource group.
-	CapacityReservationTarget?: _#defs."/$defs/Properties/definitions/CapacityReservationTarget"
+	CapacityReservationTarget?: #CapacityReservationTarget
 })
 
 // The target for the Capacity Reservation. Specify Capacity Reservations IDs or
 // Capacity Reservation resource group ARNs.
-_#defs: "/$defs/Properties/definitions/CapacityReservationTarget": close({
+#CapacityReservationTarget: close({
 	// The Capacity Reservation IDs to launch instances into.
-	CapacityReservationIds?: _#defs."/$defs/Properties/definitions/CapacityReservationIds"
+	CapacityReservationIds?: #CapacityReservationIds
 
 	// The resource group ARNs of the Capacity Reservation to launch instances into.
-	CapacityReservationResourceGroupArns?: _#defs."/$defs/Properties/definitions/CapacityReservationResourceGroupArns"
+	CapacityReservationResourceGroupArns?: #CapacityReservationResourceGroupArns
 })
 
 // The CPU performance to consider, using an instance family as the baseline reference.
-_#defs: "/$defs/Properties/definitions/CpuPerformanceFactorRequest": close({
+#CpuPerformanceFactorRequest: close({
 	// Specify an instance family to use as the baseline reference for CPU
 	// performance. All instance types that match your specified attributes will be
 	// compared against the CPU performance of the referenced instance family,
 	// regardless of CPU manufacturer or architecture differences.
 	// Currently only one instance family can be specified in the list.
-	References?: _#defs."/$defs/Properties/definitions/PerformanceFactorReferenceSetRequest"
+	References?: #PerformanceFactorReferenceSetRequest
 })
 
 // Use this structure to specify the capacity types that Amazon EC2 Auto Scaling
 // prioritizes when it launches instances.
-_#defs: "/$defs/Properties/definitions/DistributionSegment": close({
+#DistributionSegment: close({
 	// The capacity types to prioritize, in order. Amazon EC2 Auto Scaling attempts
 	// to launch instances in the priority order of the capacity types, and within
 	// each capacity type, in the order of instance types listed in your launch
@@ -498,12 +496,12 @@ _#defs: "/$defs/Properties/definitions/DistributionSegment": close({
 // For more information, see [Control instance retention with instance lifecycle
 // policies](https://docs.aws.amazon.com/autoscaling/ec2/userguide/instance-lifecycle-policy.html)
 // in the *Amazon EC2 Auto Scaling User Guide*.
-_#defs: "/$defs/Properties/definitions/InstanceLifecyclePolicy": close({
+#InstanceLifecyclePolicy: close({
 	// Specifies the conditions that trigger instance retention behavior. These
 	// triggers determine when instances should move to a ``Retained`` state
 	// instead of automatic termination. This allows you to maintain control over
 	// instance management when lifecycles transition and operations fail.
-	RetentionTriggers?: _#defs."/$defs/Properties/definitions/RetentionTriggers"
+	RetentionTriggers?: #RetentionTriggers
 })
 
 // ``InstanceMaintenancePolicy`` is a property of the
@@ -512,7 +510,7 @@ _#defs: "/$defs/Properties/definitions/InstanceLifecyclePolicy": close({
 // For more information, see [Instance maintenance
 // policies](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-instance-maintenance-policy.html)
 // in the *Amazon EC2 Auto Scaling User Guide*.
-_#defs: "/$defs/Properties/definitions/InstanceMaintenancePolicy": close({
+#InstanceMaintenancePolicy: close({
 	MaxHealthyPercentage?: _
 	if MaxHealthyPercentage != _|_ {
 		MinHealthyPercentage!: _
@@ -573,12 +571,12 @@ _#defs: "/$defs/Properties/definitions/InstanceMaintenancePolicy": close({
 // property of the [AWS::AutoScaling::AutoScalingGroup
 // LaunchTemplate](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-autoscaling-autoscalinggroup-launchtemplate.html)
 // property type.
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
+#InstanceRequirements: close({
 	// The minimum and maximum number of accelerators (GPUs, FPGAs, or AWS
 	// Inferentia chips) for an instance type.
 	// To exclude accelerator-enabled instance types, set ``Max`` to ``0``.
 	// Default: No minimum or maximum limits
-	AcceleratorCount?: _#defs."/$defs/Properties/definitions/AcceleratorCountRequest"
+	AcceleratorCount?: #AcceleratorCountRequest
 
 	// Indicates whether instance types must have accelerators by specific manufacturers.
 	// + For instance types with NVIDIA devices, specify ``nvidia``.
@@ -603,7 +601,7 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 
 	// The minimum and maximum total memory size for the accelerators on an instance type, in MiB.
 	// Default: No minimum or maximum limits
-	AcceleratorTotalMemoryMiB?: _#defs."/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest"
+	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiBRequest
 
 	// Lists the accelerator types that must be on an instance type.
 	// + For instance types with GPU accelerators, specify ``gpu``.
@@ -637,10 +635,10 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 	// instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html)
 	// in the *Amazon EC2 User Guide*.
 	// Default: No minimum or maximum limits
-	BaselineEbsBandwidthMbps?: _#defs."/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest"
+	BaselineEbsBandwidthMbps?: #BaselineEbsBandwidthMbpsRequest
 
 	// The baseline performance factors for the instance requirements.
-	BaselinePerformanceFactors?: _#defs."/$defs/Properties/definitions/BaselinePerformanceFactorsRequest"
+	BaselinePerformanceFactors?: #BaselinePerformanceFactorsRequest
 
 	// Indicates whether burstable performance instance types are included,
 	// excluded, or required. For more information, see [Burstable performance
@@ -728,18 +726,18 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 
 	// The minimum and maximum amount of memory per vCPU for an instance type, in GiB.
 	// Default: No minimum or maximum limits
-	MemoryGiBPerVCpu?: _#defs."/$defs/Properties/definitions/MemoryGiBPerVCpuRequest"
+	MemoryGiBPerVCpu?: #MemoryGiBPerVCpuRequest
 
 	// The minimum and maximum instance memory size for an instance type, in MiB.
-	MemoryMiB!: _#defs."/$defs/Properties/definitions/MemoryMiBRequest"
+	MemoryMiB!: #MemoryMiBRequest
 
 	// The minimum and maximum amount of network bandwidth, in gigabits per second (Gbps).
 	// Default: No minimum or maximum limits
-	NetworkBandwidthGbps?: _#defs."/$defs/Properties/definitions/NetworkBandwidthGbpsRequest"
+	NetworkBandwidthGbps?: #NetworkBandwidthGbpsRequest
 
 	// The minimum and maximum number of network interfaces for an instance type.
 	// Default: No minimum or maximum limits
-	NetworkInterfaceCount?: _#defs."/$defs/Properties/definitions/NetworkInterfaceCountRequest"
+	NetworkInterfaceCount?: #NetworkInterfaceCountRequest
 
 	// [Price protection] The price protection threshold for On-Demand Instances, as
 	// a percentage higher than an identified On-Demand price. The identified
@@ -789,10 +787,10 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 
 	// The minimum and maximum total local storage size for an instance type, in GB.
 	// Default: No minimum or maximum limits
-	TotalLocalStorageGB?: _#defs."/$defs/Properties/definitions/TotalLocalStorageGBRequest"
+	TotalLocalStorageGB?: #TotalLocalStorageGBRequest
 
 	// The minimum and maximum number of vCPUs for an instance type.
-	VCpuCount!: _#defs."/$defs/Properties/definitions/VCpuCountRequest"
+	VCpuCount!: #VCpuCountRequest
 })
 
 // Use this structure to specify the distribution of On-Demand Instances and
@@ -806,16 +804,14 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 // [AWS::AutoScaling::AutoScalingGroup
 // MixedInstancesPolicy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-autoscaling-autoscalinggroup-mixedinstancespolicy.html)
 // property type.
-_#defs: "/$defs/Properties/definitions/InstancesDistribution": close({
+#InstancesDistribution: close({
 	// The Distribution Segments configuration. Each segment contains an ordered
 	// list of capacity types to prioritize.
 	// For more information, see [Use Distribution Segments to target multiple
 	// capacity
 	// types](https://docs.aws.amazon.com/autoscaling/ec2/userguide/use-distribution-segments.html)
 	// in the *Amazon EC2 Auto Scaling User Guide*.
-	DistributionSegments?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DistributionSegment"
-	]
+	DistributionSegments?: list.MaxItems(1) & list.MinItems(1) & [...#DistributionSegment]
 
 	// The allocation strategy to apply to your On-Demand Instances when they are
 	// launched. Possible instance types are determined by the launch template
@@ -911,12 +907,12 @@ _#defs: "/$defs/Properties/definitions/InstancesDistribution": close({
 // ``LaunchTemplate`` is a property of the [AWS::AutoScaling::AutoScalingGroup
 // MixedInstancesPolicy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-autoscaling-autoscalinggroup-mixedinstancespolicy.html)
 // property type.
-_#defs: "/$defs/Properties/definitions/LaunchTemplate": close({
+#LaunchTemplate: close({
 	// The launch template.
-	LaunchTemplateSpecification!: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification"
+	LaunchTemplateSpecification!: #LaunchTemplateSpecification
 
 	// Any properties that you specify override the same properties in the launch template.
-	Overrides?: [..._#defs."/$defs/Properties/definitions/LaunchTemplateOverrides"]
+	Overrides?: [...#LaunchTemplateOverrides]
 })
 
 // Use this structure to let Amazon EC2 Auto Scaling do the following when the
@@ -939,7 +935,7 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplate": close({
 // [AWS::AutoScaling::AutoScalingGroup
 // LaunchTemplate](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-autoscaling-autoscalinggroup-launchtemplate.html)
 // property type.
-_#defs: "/$defs/Properties/definitions/LaunchTemplateOverrides": close({
+#LaunchTemplateOverrides: close({
 	// The ID of the Amazon Machine Image (AMI) to use for instances launched with
 	// this override. When using Instance Refresh with ``ReplaceRootVolume``
 	// strategy, this specifies the AMI for root volume replacement operations.
@@ -961,7 +957,7 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateOverrides": close({
 	// create the AMIs and create a new launch template for each AMI. Then, create
 	// a compatible set of instance requirements for each launch template.
 	// If you specify ``InstanceRequirements``, you can't specify ``InstanceType``.
-	InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirements"
+	InstanceRequirements?: #InstanceRequirements
 
 	// The instance type, such as ``m3.xlarge``. You must specify an instance type
 	// that is supported in your requested Region and Availability Zones. For more
@@ -982,7 +978,7 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateOverrides": close({
 	// You can specify up to 20 launch templates per Auto Scaling group. The launch
 	// templates specified in the overrides and in the ``LaunchTemplate``
 	// definition count towards this limit.
-	LaunchTemplateSpecification?: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification"
+	LaunchTemplateSpecification?: #LaunchTemplateSpecification
 
 	// If you provide a list of instance types to use, you can specify the number of
 	// capacity units provided by each instance type in terms of virtual CPUs,
@@ -1027,7 +1023,7 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateOverrides": close({
 // in the *Amazon EC2 Auto Scaling User Guide*.
 // For examples of launch templates, see [Create launch
 // templates](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-ec2-launch-templates.html).
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": close({
+#LaunchTemplateSpecification: close({
 	// The ID of the launch template.
 	// You must specify the ``LaunchTemplateID`` or the ``LaunchTemplateName``, but not both.
 	LaunchTemplateId?: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -1064,7 +1060,7 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": close({
 // snippet in the
 // [Examples](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-as-lifecyclehook.html#aws-resource-as-lifecyclehook--examples)
 // section of the ``AWS::AutoScaling::LifecycleHook`` resource.
-_#defs: "/$defs/Properties/definitions/LifecycleHookSpecification": close({
+#LifecycleHookSpecification: close({
 	// The action the Auto Scaling group takes when the lifecycle hook timeout
 	// elapses or if an unexpected failure occurs. The default value is
 	// ``ABANDON``.
@@ -1112,7 +1108,7 @@ _#defs: "/$defs/Properties/definitions/LifecycleHookSpecification": close({
 // LaunchTemplateOverrides](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-autoscaling-autoscalinggroup-launchtemplateoverrides.html)
 // property type that describes the minimum and maximum amount of memory per
 // vCPU for an instance type, in GiB.
-_#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpuRequest": close({
+#MemoryGiBPerVCpuRequest: close({
 	// The memory maximum in GiB.
 	Max?: >=0
 
@@ -1125,7 +1121,7 @@ _#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpuRequest": close({
 // LaunchTemplateOverrides](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-autoscaling-autoscalinggroup-launchtemplateoverrides.html)
 // property type that describes the minimum and maximum instance memory size
 // for an instance type, in MiB.
-_#defs: "/$defs/Properties/definitions/MemoryMiBRequest": close({
+#MemoryMiBRequest: close({
 	// The memory maximum in MiB.
 	Max?: int & >=0
 
@@ -1145,7 +1141,7 @@ _#defs: "/$defs/Properties/definitions/MemoryMiBRequest": close({
 // snippet in the
 // [Examples](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-autoscaling-autoscalinggroup.html#aws-resource-autoscaling-autoscalinggroup--examples)
 // section of the ``AWS::AutoScaling::AutoScalingGroup`` resource.
-_#defs: "/$defs/Properties/definitions/MetricsCollection": close({
+#MetricsCollection: close({
 	// The frequency at which Amazon EC2 Auto Scaling sends aggregated data to
 	// CloudWatch. The only valid value is ``1Minute``.
 	Granularity!: string
@@ -1202,13 +1198,13 @@ _#defs: "/$defs/Properties/definitions/MetricsCollection": close({
 // ``MixedInstancesPolicy`` is a property of the
 // [AWS::AutoScaling::AutoScalingGroup](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-autoscaling-autoscalinggroup.html)
 // resource.
-_#defs: "/$defs/Properties/definitions/MixedInstancesPolicy": close({
+#MixedInstancesPolicy: close({
 	// The instances distribution.
-	InstancesDistribution?: _#defs."/$defs/Properties/definitions/InstancesDistribution"
+	InstancesDistribution?: #InstancesDistribution
 
 	// One or more launch templates and the instance types (overrides) that are used
 	// to launch EC2 instances to fulfill the configured capacities.
-	LaunchTemplate!: _#defs."/$defs/Properties/definitions/LaunchTemplate"
+	LaunchTemplate!: #LaunchTemplate
 })
 
 // ``NetworkBandwidthGbpsRequest`` is a property of the ``InstanceRequirements``
@@ -1223,7 +1219,7 @@ _#defs: "/$defs/Properties/definitions/MixedInstancesPolicy": close({
 // information, see [Available instance
 // bandwidth](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-network-bandwidth.html#available-instance-bandwidth)
 // in the *Amazon EC2 User Guide for Linux Instances*.
-_#defs: "/$defs/Properties/definitions/NetworkBandwidthGbpsRequest": close({
+#NetworkBandwidthGbpsRequest: close({
 	// The maximum amount of network bandwidth, in gigabits per second (Gbps).
 	Max?: >=0
 
@@ -1236,7 +1232,7 @@ _#defs: "/$defs/Properties/definitions/NetworkBandwidthGbpsRequest": close({
 // LaunchTemplateOverrides](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-autoscaling-autoscalinggroup-launchtemplateoverrides.html)
 // property type that describes the minimum and maximum number of network
 // interfaces for an instance type.
-_#defs: "/$defs/Properties/definitions/NetworkInterfaceCountRequest": close({
+#NetworkInterfaceCountRequest: close({
 	// The maximum number of network interfaces.
 	Max?: int & >=0
 
@@ -1254,7 +1250,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterfaceCountRequest": close({
 // Scaling group
 // scales](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ASGettingNotifications.html)
 // in the *Amazon EC2 Auto Scaling User Guide*.
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
+#NotificationConfiguration: close({
 	// A list of event types that send a notification. Event types can include any
 	// of the following types.
 	// *Allowed values*:
@@ -1275,7 +1271,7 @@ _#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
 // referenced instance family, regardless of CPU manufacturer or architecture
 // differences.
 // Currently only one instance family can be specified in the list.
-_#defs: "/$defs/Properties/definitions/PerformanceFactorReferenceRequest": close({
+#PerformanceFactorReferenceRequest: close({
 	// The instance family to use as a baseline reference.
 	// Make sure that you specify the correct value for the instance family. The
 	// instance family is everything before the period (.) in the instance type
@@ -1303,16 +1299,14 @@ _#defs: "/$defs/Properties/definitions/PerformanceFactorReferenceRequest": close
 	InstanceFamily?: string
 })
 
-_#defs: "/$defs/Properties/definitions/PerformanceFactorReferenceSetRequest": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/PerformanceFactorReferenceRequest"
-]
+#PerformanceFactorReferenceSetRequest: list.UniqueItems() & [...#PerformanceFactorReferenceRequest]
 
 // Defines the specific triggers that cause instances to be retained in a
 // Retained state rather than terminated. Each trigger corresponds to a
 // different failure scenario during the instance lifecycle. This allows
 // fine-grained control over when to preserve instances for manual
 // intervention.
-_#defs: "/$defs/Properties/definitions/RetentionTriggers": close({
+#RetentionTriggers: close({
 	// Specifies the action when a termination lifecycle hook is abandoned due to
 	// failure, timeout, or explicit abandonment (calling CompleteLifecycleAction).
 	// Set to ``retain`` to move instances to a retained state. Set to ``terminate``
@@ -1335,7 +1329,7 @@ _#defs: "/$defs/Properties/definitions/RetentionTriggers": close({
 // + aws:cloudformation:stack-name
 // + aws:cloudformation:stack-id
 // + aws:cloudformation:logical-id
-_#defs: "/$defs/Properties/definitions/TagProperty": close({
+#TagProperty: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -1354,7 +1348,7 @@ _#defs: "/$defs/Properties/definitions/TagProperty": close({
 // LaunchTemplateOverrides](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-autoscaling-autoscalinggroup-launchtemplateoverrides.html)
 // property type that describes the minimum and maximum total local storage
 // size for an instance type, in GB.
-_#defs: "/$defs/Properties/definitions/TotalLocalStorageGBRequest": close({
+#TotalLocalStorageGBRequest: close({
 	// The storage maximum in GB.
 	Max?: >=0
 
@@ -1363,7 +1357,7 @@ _#defs: "/$defs/Properties/definitions/TotalLocalStorageGBRequest": close({
 })
 
 // Identifying information for a traffic source.
-_#defs: "/$defs/Properties/definitions/TrafficSourceIdentifier": close({
+#TrafficSourceIdentifier: close({
 	// Identifies the traffic source.
 	// For Application Load Balancers, Gateway Load Balancers, Network Load
 	// Balancers, and VPC Lattice, this will be the Amazon Resource Name (ARN) for
@@ -1403,7 +1397,7 @@ _#defs: "/$defs/Properties/definitions/TrafficSourceIdentifier": close({
 // LaunchTemplateOverrides](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-autoscaling-autoscalinggroup-launchtemplateoverrides.html)
 // property type that describes the minimum and maximum number of vCPUs for an
 // instance type.
-_#defs: "/$defs/Properties/definitions/VCpuCountRequest": close({
+#VCpuCountRequest: close({
 	// The maximum number of vCPUs.
 	Max?: int & >=0
 

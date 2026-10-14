@@ -23,14 +23,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // reference](https://docs.aws.amazon.com/securityhub/latest/userguide/standards-reference.html)
 // in the *User Guide*.
 #Properties: close({
-	DisabledStandardsControls?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/StandardsControl"
-	] |
+	DisabledStandardsControls?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#StandardsControl] |
 		fn.#ListExpression
 	StandardsArn!: =~"arn:aws\\S*:securityhub:\\S" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/StandardsControl": close({
+#StandardsControl: close({
 	Reason?:              string | fn.#StringExpression
 	StandardsControlArn!: =~"arn:aws\\S*:securityhub:\\S*" | fn.#StringExpression
 }) |

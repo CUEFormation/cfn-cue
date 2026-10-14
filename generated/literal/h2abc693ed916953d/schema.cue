@@ -28,7 +28,7 @@ import (
 
 	// Contains detailed information about all of the controls of a framework. Each
 	// framework must contain at least one control.
-	FrameworkControls!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/FrameworkControl"]
+	FrameworkControls!: list.UniqueItems() & [...#FrameworkControl]
 
 	// An optional description of the framework with a maximum 1,024 characters.
 	FrameworkDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"\\S"
@@ -55,17 +55,17 @@ import (
 
 	// Metadata that you can assign to help organize the frameworks that you create.
 	// Each tag is a key-value pair.
-	FrameworkTags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	FrameworkTags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ControlInputParameter": close({
+#ControlInputParameter: close({
 	ParameterName!:  string
 	ParameterValue!: string
 })
 
-_#defs: "/$defs/Properties/definitions/FrameworkControl": close({
+#FrameworkControl: close({
 	// A list of ParameterName and ParameterValue pairs.
-	ControlInputParameters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ControlInputParameter"]
+	ControlInputParameters?: list.UniqueItems() & [...#ControlInputParameter]
 
 	// The name of a control. This name is between 1 and 256 characters.
 	ControlName!: string
@@ -83,12 +83,12 @@ _#defs: "/$defs/Properties/definitions/FrameworkControl": close({
 
 		// Describes whether the control scope includes resources with one or more tags.
 		// Each tag is a key-value pair.
-		Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+		Tags?: [...#Tag]
 	})
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

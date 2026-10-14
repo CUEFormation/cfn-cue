@@ -15,11 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	EgressCidrBlocks!: [...string | fn.#StringExpression] | fn.#ListExpression
 	Name!:             string | fn.#StringExpression
-	Networks!: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/GatewayNetwork"] |
-		fn.#ListExpression
+	Networks!:         list.MaxItems(4) & list.MinItems(1) & [...#GatewayNetwork] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/GatewayNetwork": close({
+#GatewayNetwork: close({
 	CidrBlock!: string | fn.#StringExpression
 	Name!:      string | fn.#StringExpression
 }) |

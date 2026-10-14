@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"time"
-	"strings"
 	"list"
+	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -32,10 +32,10 @@ import (
 
 	// An array that defines the set of segment criteria to evaluate when handling
 	// segment groups for the segment.
-	SegmentGroups?: _#defs."/$defs/Properties/definitions/SegmentGroup"
+	SegmentGroups?: #SegmentGroup
 
 	// The segment sort configuration for ordering segment results.
-	SegmentSort?: _#defs."/$defs/Properties/definitions/SegmentSort"
+	SegmentSort?: #SegmentSort
 
 	// The SQL query that defines the segment criteria.
 	SegmentSqlQuery?: strings.MaxRunes(50000) & strings.MinRunes(1)
@@ -44,27 +44,27 @@ import (
 	SegmentType?: "CLASSIC" | "ENHANCED"
 
 	// The tags used to organize, track, or control access for this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // The address based criteria for the segment.
-_#defs: "/$defs/Properties/definitions/AddressDimension": close({
-	City?:       _#defs."/$defs/Properties/definitions/ProfileDimension"
-	Country?:    _#defs."/$defs/Properties/definitions/ProfileDimension"
-	County?:     _#defs."/$defs/Properties/definitions/ProfileDimension"
-	PostalCode?: _#defs."/$defs/Properties/definitions/ProfileDimension"
-	Province?:   _#defs."/$defs/Properties/definitions/ProfileDimension"
-	State?:      _#defs."/$defs/Properties/definitions/ProfileDimension"
+#AddressDimension: close({
+	City?:       #ProfileDimension
+	Country?:    #ProfileDimension
+	County?:     #ProfileDimension
+	PostalCode?: #ProfileDimension
+	Province?:   #ProfileDimension
+	State?:      #ProfileDimension
 })
 
 // Specifies attribute based criteria for a segment.
-_#defs: "/$defs/Properties/definitions/AttributeDimension": close({
-	DimensionType!: _#defs."/$defs/Properties/definitions/AttributeDimensionType"
+#AttributeDimension: close({
+	DimensionType!: #AttributeDimensionType
 	Values!:        list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1)]
 })
 
 // The type of segment dimension to use.
-_#defs: "/$defs/Properties/definitions/AttributeDimensionType": "INCLUSIVE" |
+#AttributeDimensionType: "INCLUSIVE" |
 	"EXCLUSIVE" |
 	"CONTAINS" |
 	"BEGINS_WITH" |
@@ -81,107 +81,103 @@ _#defs: "/$defs/Properties/definitions/AttributeDimensionType": "INCLUSIVE" |
 	"EQUAL"
 
 // Specifies calculated attribute based criteria for a segment.
-_#defs: "/$defs/Properties/definitions/CalculatedAttributeDimension": close({
-	ConditionOverrides?: _#defs."/$defs/Properties/definitions/ConditionOverrides"
-	DimensionType!:      _#defs."/$defs/Properties/definitions/AttributeDimensionType"
+#CalculatedAttributeDimension: close({
+	ConditionOverrides?: #ConditionOverrides
+	DimensionType!:      #AttributeDimensionType
 	Values!:             list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1)]
 })
 
 // One or more calculated attributes to use as criteria for the segment.
-_#defs: "/$defs/Properties/definitions/CalculatedCustomAttributes": close({
+#CalculatedCustomAttributes: close({
 
-	{[=~"^[a-zA-Z_][a-zA-Z_0-9-]*$"]: _#defs."/$defs/Properties/definitions/CalculatedAttributeDimension"}})
+	{[=~"^[a-zA-Z_][a-zA-Z_0-9-]*$"]: #CalculatedAttributeDimension}})
 
 // Overrides the condition block within the original calculated attribute definition.
-_#defs: "/$defs/Properties/definitions/ConditionOverrides": close(
-	{Range?: _#defs."/$defs/Properties/definitions/RangeOverride"},
-)
+#ConditionOverrides: close({Range?: #RangeOverride})
 
 // One or more custom attributes to use as criteria for the segment.
-_#defs: "/$defs/Properties/definitions/CustomAttributes": close({
+#CustomAttributes: close({
 
-	{[=~"^[a-zA-Z_][a-zA-Z_0-9-]*$"]: _#defs."/$defs/Properties/definitions/AttributeDimension"}})
+	{[=~"^[a-zA-Z_][a-zA-Z_0-9-]*$"]: #AttributeDimension}})
 
 // Specifies date based criteria for a segment.
-_#defs: "/$defs/Properties/definitions/DateDimension": close({
-	DimensionType!: _#defs."/$defs/Properties/definitions/DateDimensionType"
+#DateDimension: close({
+	DimensionType!: #DateDimensionType
 	Values!:        list.MaxItems(50) & list.MinItems(1) & [...string]
 })
 
 // The type of segment dimension to use for a date dimension.
-_#defs: "/$defs/Properties/definitions/DateDimensionType": "BEFORE" | "AFTER" | "BETWEEN" | "NOT_BETWEEN" | "ON"
+#DateDimensionType: "BEFORE" | "AFTER" | "BETWEEN" | "NOT_BETWEEN" | "ON"
 
 // The criteria that define the dimensions for the segment.
-_#defs: "/$defs/Properties/definitions/Dimension": matchN(1, [close(
-	{ProfileAttributes!: _#defs."/$defs/Properties/definitions/ProfileAttributes"},
-), close(
-	{CalculatedAttributes?: _#defs."/$defs/Properties/definitions/CalculatedCustomAttributes"},
-)])
+#Dimension: matchN(1, [
+	close({ProfileAttributes!: #ProfileAttributes}), close({CalculatedAttributes?: #CalculatedCustomAttributes}),
+])
 
 // Specifies criteria for a segment using extended-length string values.
-_#defs: "/$defs/Properties/definitions/ExtraLengthValueProfileDimension": close({
-	DimensionType!: _#defs."/$defs/Properties/definitions/StringDimensionType"
+#ExtraLengthValueProfileDimension: close({
+	DimensionType!: #StringDimensionType
 	Values!:        list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(1000) & strings.MinRunes(1)]
 })
 
 // An array that defines the set of segment criteria to evaluate when handling
 // segment groups for the segment.
-_#defs: "/$defs/Properties/definitions/Group": close({
-	Dimensions?:     [..._#defs."/$defs/Properties/definitions/Dimension"]
-	SourceSegments?: [..._#defs."/$defs/Properties/definitions/SourceSegment"]
-	SourceType?:     _#defs."/$defs/Properties/definitions/IncludeOptions"
-	Type?:           _#defs."/$defs/Properties/definitions/IncludeOptions"
+#Group: close({
+	Dimensions?:     [...#Dimension]
+	SourceSegments?: [...#SourceSegment]
+	SourceType?:     #IncludeOptions
+	Type?:           #IncludeOptions
 })
 
 // Specifies the operator on how to handle multiple groups within the same segment.
-_#defs: "/$defs/Properties/definitions/IncludeOptions": "ALL" | "ANY" | "NONE"
+#IncludeOptions: "ALL" | "ANY" | "NONE"
 
 // Specifies the dimension settings within profile attributes for a segment.
-_#defs: "/$defs/Properties/definitions/ProfileAttributes": close({
-	AccountNumber?:         _#defs."/$defs/Properties/definitions/ProfileDimension"
-	AdditionalInformation?: _#defs."/$defs/Properties/definitions/ExtraLengthValueProfileDimension"
-	Address?:               _#defs."/$defs/Properties/definitions/AddressDimension"
-	Attributes?:            _#defs."/$defs/Properties/definitions/CustomAttributes"
-	BillingAddress?:        _#defs."/$defs/Properties/definitions/AddressDimension"
-	BirthDate?:             _#defs."/$defs/Properties/definitions/DateDimension"
-	BusinessEmailAddress?:  _#defs."/$defs/Properties/definitions/ProfileDimension"
-	BusinessName?:          _#defs."/$defs/Properties/definitions/ProfileDimension"
-	BusinessPhoneNumber?:   _#defs."/$defs/Properties/definitions/ProfileDimension"
-	EmailAddress?:          _#defs."/$defs/Properties/definitions/ProfileDimension"
-	FirstName?:             _#defs."/$defs/Properties/definitions/ProfileDimension"
-	GenderString?:          _#defs."/$defs/Properties/definitions/ProfileDimension"
-	HomePhoneNumber?:       _#defs."/$defs/Properties/definitions/ProfileDimension"
-	LastName?:              _#defs."/$defs/Properties/definitions/ProfileDimension"
-	MailingAddress?:        _#defs."/$defs/Properties/definitions/AddressDimension"
-	MiddleName?:            _#defs."/$defs/Properties/definitions/ProfileDimension"
-	MobilePhoneNumber?:     _#defs."/$defs/Properties/definitions/ProfileDimension"
-	PartyTypeString?:       _#defs."/$defs/Properties/definitions/ProfileDimension"
-	PersonalEmailAddress?:  _#defs."/$defs/Properties/definitions/ProfileDimension"
-	PhoneNumber?:           _#defs."/$defs/Properties/definitions/ProfileDimension"
-	ProfileType?:           _#defs."/$defs/Properties/definitions/ProfileTypeDimension"
-	ShippingAddress?:       _#defs."/$defs/Properties/definitions/AddressDimension"
+#ProfileAttributes: close({
+	AccountNumber?:         #ProfileDimension
+	AdditionalInformation?: #ExtraLengthValueProfileDimension
+	Address?:               #AddressDimension
+	Attributes?:            #CustomAttributes
+	BillingAddress?:        #AddressDimension
+	BirthDate?:             #DateDimension
+	BusinessEmailAddress?:  #ProfileDimension
+	BusinessName?:          #ProfileDimension
+	BusinessPhoneNumber?:   #ProfileDimension
+	EmailAddress?:          #ProfileDimension
+	FirstName?:             #ProfileDimension
+	GenderString?:          #ProfileDimension
+	HomePhoneNumber?:       #ProfileDimension
+	LastName?:              #ProfileDimension
+	MailingAddress?:        #AddressDimension
+	MiddleName?:            #ProfileDimension
+	MobilePhoneNumber?:     #ProfileDimension
+	PartyTypeString?:       #ProfileDimension
+	PersonalEmailAddress?:  #ProfileDimension
+	PhoneNumber?:           #ProfileDimension
+	ProfileType?:           #ProfileTypeDimension
+	ShippingAddress?:       #AddressDimension
 })
 
 // Specifies profile based criteria for a segment.
-_#defs: "/$defs/Properties/definitions/ProfileDimension": close({
-	DimensionType!: _#defs."/$defs/Properties/definitions/StringDimensionType"
+#ProfileDimension: close({
+	DimensionType!: #StringDimensionType
 	Values!:        list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1)]
 })
 
 // The type of profile.
-_#defs: "/$defs/Properties/definitions/ProfileType": "ACCOUNT_PROFILE" | "PROFILE"
+#ProfileType: "ACCOUNT_PROFILE" | "PROFILE"
 
 // Specifies profile type based criteria for a segment.
-_#defs: "/$defs/Properties/definitions/ProfileTypeDimension": close({
-	DimensionType!: _#defs."/$defs/Properties/definitions/ProfileTypeDimensionType"
-	Values!:        list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ProfileType"]
+#ProfileTypeDimension: close({
+	DimensionType!: #ProfileTypeDimensionType
+	Values!:        list.MaxItems(1) & list.MinItems(1) & [...#ProfileType]
 })
 
 // The type of segment dimension to use for a profile type dimension.
-_#defs: "/$defs/Properties/definitions/ProfileTypeDimensionType": "INCLUSIVE" | "EXCLUSIVE"
+#ProfileTypeDimensionType: "INCLUSIVE" | "EXCLUSIVE"
 
 // Defines the range to be applied to the calculated attribute definition.
-_#defs: "/$defs/Properties/definitions/RangeOverride": close({
+#RangeOverride: close({
 	// The ending point for this overridden range. Positive numbers indicate how
 	// many days in the past data should be included, and negative numbers indicate
 	// how many days in the future.
@@ -196,50 +192,44 @@ _#defs: "/$defs/Properties/definitions/RangeOverride": close({
 	Unit!: "DAYS"
 })
 
-_#defs: "/$defs/Properties/definitions/SegmentGroup": close({
-	Groups?:  [..._#defs."/$defs/Properties/definitions/Group"]
-	Include?: _#defs."/$defs/Properties/definitions/IncludeOptions"
+#SegmentGroup: close({
+	Groups?:  [...#Group]
+	Include?: #IncludeOptions
 })
 
 // Defines how segments should be sorted and ordered in the results.
-_#defs: "/$defs/Properties/definitions/SegmentSort": close({
+#SegmentSort: close({
 	// A list of attributes used to sort the segments and their ordering preferences.
-	Attributes!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SortAttribute"]
+	Attributes!: list.MaxItems(10) & list.MinItems(1) & [...#SortAttribute]
 })
 
 // The data type of the sort attribute (e.g., string, number, date).
-_#defs: "/$defs/Properties/definitions/SegmentSortDataType": "STRING" | "NUMBER" | "DATE"
+#SegmentSortDataType: "STRING" | "NUMBER" | "DATE"
 
 // The sort order for the attribute (ascending or descending).
-_#defs: "/$defs/Properties/definitions/SegmentSortOrder": "ASC" | "DESC"
+#SegmentSortOrder: "ASC" | "DESC"
 
 // Defines the characteristics and rules for sorting by a specific attribute.
-_#defs: "/$defs/Properties/definitions/SortAttribute": close({
-	DataType?: _#defs."/$defs/Properties/definitions/SegmentSortDataType"
+#SortAttribute: close({
+	DataType?: #SegmentSortDataType
 
 	// The name of the attribute to sort by.
 	Name!:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$"
-	Order!: _#defs."/$defs/Properties/definitions/SegmentSortOrder"
-	Type?:  _#defs."/$defs/Properties/definitions/SortAttributeType"
+	Order!: #SegmentSortOrder
+	Type?:  #SortAttributeType
 })
 
 // The type of attribute (e.g., profile, calculated).
-_#defs: "/$defs/Properties/definitions/SortAttributeType": "PROFILE" | "CALCULATED"
+#SortAttributeType: "PROFILE" | "CALCULATED"
 
 // The base segment to build the segment on.
-_#defs: "/$defs/Properties/definitions/SourceSegment": close(
-	{SegmentDefinitionName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"},
-)
+#SourceSegment: close({SegmentDefinitionName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"})
 
 // The type of segment dimension to use for a string dimension.
-_#defs: "/$defs/Properties/definitions/StringDimensionType": "INCLUSIVE" |
-	"EXCLUSIVE" |
-	"CONTAINS" |
-	"BEGINS_WITH" |
-	"ENDS_WITH"
+#StringDimensionType: "INCLUSIVE" | "EXCLUSIVE" | "CONTAINS" | "BEGINS_WITH" | "ENDS_WITH"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,91 +14,79 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::SageMaker::Model
 #Properties: close({
-	Containers?: list.MaxItems(15) & [...] & [..._#defs."/$defs/Properties/definitions/ContainerDefinition"] |
-		fn.#ListExpression
+	Containers?:             list.MaxItems(15) & [...] & [...#ContainerDefinition] | fn.#ListExpression
 	EnableNetworkIsolation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	InferenceExecutionConfig?: _#defs."/$defs/Properties/definitions/InferenceExecutionConfig"
+	InferenceExecutionConfig?: #InferenceExecutionConfig
 	ModelName?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?$" |
 	fn.#StringExpression
-	PrimaryContainer?: _#defs."/$defs/Properties/definitions/ContainerDefinition"
-	Tags?:             list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcConfig?:        _#defs."/$defs/Properties/definitions/VpcConfig"
+	PrimaryContainer?: #ContainerDefinition
+	Tags?:             list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	VpcConfig?:        #VpcConfig
 })
 
-_#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
+#ContainerDefinition: close({
 	ContainerHostname?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 	fn.#StringExpression
 	Environment?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	Image?:       strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression
-	ImageConfig?: _#defs."/$defs/Properties/definitions/ImageConfig"
+	ImageConfig?: #ImageConfig
 	InferenceSpecificationName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 	fn.#StringExpression
 	Mode?:            "SingleModel" | "MultiModel" | fn.#StringExpression
-	ModelDataSource?: _#defs."/$defs/Properties/definitions/ModelDataSource"
+	ModelDataSource?: #ModelDataSource
 	ModelDataUrl?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
 	fn.#StringExpression
 	ModelPackageName?: strings.MaxRunes(176) & strings.MinRunes(1) | fn.#StringExpression
-	MultiModelConfig?: _#defs."/$defs/Properties/definitions/MultiModelConfig"
+	MultiModelConfig?: #MultiModelConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HubAccessConfig": close(
-	{HubContentArn!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression},
-) |
+#HubAccessConfig: close({HubContentArn!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageConfig": close({
+#ImageConfig: close({
 	RepositoryAccessMode!: "Platform" | "Vpc" | fn.#StringExpression
-	RepositoryAuthConfig?: _#defs."/$defs/Properties/definitions/RepositoryAuthConfig"
+	RepositoryAuthConfig?: #RepositoryAuthConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceExecutionConfig": close(
-	{Mode!: "Serial" | "Direct" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#InferenceExecutionConfig: close({Mode!: "Serial" | "Direct" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelAccessConfig": close(
+#ModelAccessConfig: close(
 	{AcceptEula!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelDataSource": close(
-	{S3DataSource!: _#defs."/$defs/Properties/definitions/S3DataSource"},
-) |
-	fn.#ObjectExpression
+#ModelDataSource: close({S3DataSource!: #S3DataSource}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiModelConfig": close(
-	{ModelCacheSetting?: "Enabled" | "Disabled" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#MultiModelConfig: close({ModelCacheSetting?: "Enabled" | "Disabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RepositoryAuthConfig": close(
+#RepositoryAuthConfig: close(
 	{RepositoryCredentialsProviderArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3DataSource": close({
+#S3DataSource: close({
 	CompressionType!:   "None" | "Gzip" | fn.#StringExpression
-	HubAccessConfig?:   _#defs."/$defs/Properties/definitions/HubAccessConfig"
-	ModelAccessConfig?: _#defs."/$defs/Properties/definitions/ModelAccessConfig"
+	HubAccessConfig?:   #HubAccessConfig
+	ModelAccessConfig?: #ModelAccessConfig
 	S3DataType!:        "S3Prefix" | "S3Object" | fn.#StringExpression
 	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(32) &

@@ -16,17 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcConfig?:   _#defs."/$defs/Properties/definitions/VpcConfig"
+	Tags?:        [...#Tag] | fn.#ListExpression
+	VpcConfig?:   #VpcConfig
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(4096) &

@@ -4,8 +4,8 @@ package schema
 
 import (
 	"strings"
-	"time"
 	"list"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -32,20 +32,18 @@ import (
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]+$"
 
 	// The source configurations for the DataIntegrationFlow.
-	Sources!: list.MaxItems(40) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataIntegrationFlowSource"
-	]
+	Sources!: list.MaxItems(40) & list.MinItems(1) & [...#DataIntegrationFlowSource]
 
 	// The tags for the DataIntegrationFlow.
-	Tags?:           list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Target!:         _#defs."/$defs/Properties/definitions/DataIntegrationFlowTarget"
-	Transformation!: _#defs."/$defs/Properties/definitions/DataIntegrationFlowTransformation"
+	Tags?:           list.MaxItems(200) & list.UniqueItems() & [...#Tag]
+	Target!:         #DataIntegrationFlowTarget
+	Transformation!: #DataIntegrationFlowTransformation
 })
 
 // The DataIntegrationFlow source parameters.
-_#defs: "/$defs/Properties/definitions/DataIntegrationFlowSource": close({
-	DatasetSource?: _#defs."/$defs/Properties/definitions/DatasetSourceConfiguration"
-	S3Source?:      _#defs."/$defs/Properties/definitions/S3SourceConfiguration"
+#DataIntegrationFlowSource: close({
+	DatasetSource?: #DatasetSourceConfiguration
+	S3Source?:      #S3SourceConfiguration
 
 	// The source name that can be used as table alias in SQL transformation query.
 	SourceName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_]+$"
@@ -55,55 +53,55 @@ _#defs: "/$defs/Properties/definitions/DataIntegrationFlowSource": close({
 })
 
 // The DataIntegrationFlow target parameters.
-_#defs: "/$defs/Properties/definitions/DataIntegrationFlowTarget": close({
-	DatasetTarget?: _#defs."/$defs/Properties/definitions/DatasetTargetConfiguration"
+#DataIntegrationFlowTarget: close({
+	DatasetTarget?: #DatasetTargetConfiguration
 
 	// The target type.
 	TargetType!: "DATASET"
 })
 
 // The DataIntegrationFlow transformation parameters.
-_#defs: "/$defs/Properties/definitions/DataIntegrationFlowTransformation": close({
-	SqlTransformation?: _#defs."/$defs/Properties/definitions/SqlTransformationConfiguration"
+#DataIntegrationFlowTransformation: close({
+	SqlTransformation?: #SqlTransformationConfiguration
 
 	// The transformation type.
 	TransformationType!: "SQL" | "NONE"
 })
 
 // The dataset options.
-_#defs: "/$defs/Properties/definitions/DatasetOptions": close({
+#DatasetOptions: close({
 	// The option to perform deduplication on data records sharing same primary key values.
 	DedupeRecords?:  bool
-	DedupeStrategy?: _#defs."/$defs/Properties/definitions/DedupeStrategy"
+	DedupeStrategy?: #DedupeStrategy
 
 	// The load type.
 	LoadType?: "INCREMENTAL" | "REPLACE"
 })
 
 // The dataset source configuration parameters.
-_#defs: "/$defs/Properties/definitions/DatasetSourceConfiguration": close({
+#DatasetSourceConfiguration: close({
 	// The ARN of the dataset.
 	DatasetIdentifier!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[-_/A-Za-z0-9:]+$"
-	Options?:           _#defs."/$defs/Properties/definitions/DatasetOptions"
+	Options?:           #DatasetOptions
 })
 
 // The dataset target configuration parameters.
-_#defs: "/$defs/Properties/definitions/DatasetTargetConfiguration": close({
+#DatasetTargetConfiguration: close({
 	// The dataset ARN.
 	DatasetIdentifier!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[-_/A-Za-z0-9:]+$"
-	Options?:           _#defs."/$defs/Properties/definitions/DatasetOptions"
+	Options?:           #DatasetOptions
 })
 
 // The deduplication strategy.
-_#defs: "/$defs/Properties/definitions/DedupeStrategy": close({
-	FieldPriority?: _#defs."/$defs/Properties/definitions/FieldPriorityDedupeStrategyConfiguration"
+#DedupeStrategy: close({
+	FieldPriority?: #FieldPriorityDedupeStrategyConfiguration
 
 	// The deduplication strategy type.
 	Type!: "FIELD_PRIORITY"
 })
 
 // A deduplication field.
-_#defs: "/$defs/Properties/definitions/FieldPriorityDedupeField": close({
+#FieldPriorityDedupeField: close({
 	// The name of the deduplication field.
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9_]+$"
 
@@ -112,35 +110,35 @@ _#defs: "/$defs/Properties/definitions/FieldPriorityDedupeField": close({
 })
 
 // The field priority deduplication strategy configuration.
-_#defs: "/$defs/Properties/definitions/FieldPriorityDedupeStrategyConfiguration": close({
+#FieldPriorityDedupeStrategyConfiguration: close({
 	// The list of field names and their sort order for deduplication.
-	Fields!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/FieldPriorityDedupeField"]
+	Fields!: list.MaxItems(10) & list.MinItems(1) & [...#FieldPriorityDedupeField]
 })
 
 // The Amazon S3 options.
-_#defs: "/$defs/Properties/definitions/S3Options": close({
+#S3Options: close({
 	// The file type.
 	FileType?: "CSV" | "PARQUET" | "JSON"
 })
 
 // The S3 source configuration parameters.
-_#defs: "/$defs/Properties/definitions/S3SourceConfiguration": close({
+#S3SourceConfiguration: close({
 	// The S3 bucket name.
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$"
-	Options?:    _#defs."/$defs/Properties/definitions/S3Options"
+	Options?:    #S3Options
 
 	// The S3 prefix.
 	Prefix!: strings.MaxRunes(700) & strings.MinRunes(0) & =~"^[/A-Za-z0-9._-]+$"
 })
 
 // The SQL transformation configuration parameters.
-_#defs: "/$defs/Properties/definitions/SqlTransformationConfiguration": close({
+#SqlTransformationConfiguration: close({
 	// The transformation SQL query body based on SparkSQL.
 	Query!: strings.MaxRunes(65535) & strings.MinRunes(1)
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,17 +16,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // actions that can be easily deployed as a single entity in an account and a
 // region or across an entire AWS Organization.
 #Properties: close({
-	ConformancePackInputParameters?: list.MaxItems(60) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ConformancePackInputParameter"
-	] |
+	ConformancePackInputParameters?: list.MaxItems(60) & [...] & [...#ConformancePackInputParameter] |
 		fn.#ListExpression
 	ConformancePackName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*" | fn.#StringExpression
 	DeliveryS3Bucket?:    strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
 	DeliveryS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	TemplateBody?:  strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
-	TemplateS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" | fn.#StringExpression
+	Tags?:                list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	TemplateBody?:        strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
+	TemplateS3Uri?:       strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" | fn.#StringExpression
 	TemplateSSMDocumentDetails?: close({
 		DocumentName?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" |
 		fn.#StringExpression
@@ -36,19 +33,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ConformancePackInputParameter": close({
-	ParameterName!:  _#defs."/$defs/Properties/definitions/ParameterName"
-	ParameterValue!: _#defs."/$defs/Properties/definitions/ParameterValue"
+#ConformancePackInputParameter: close({
+	ParameterName!:  #ParameterName
+	ParameterValue!: #ParameterValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterName": strings.MaxRunes(255) & strings.MinRunes(0) |
-fn.#StringExpression
+#ParameterName: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterValue": strings.MaxRunes(4096) & strings.MinRunes(0) |
-fn.#StringExpression
+#ParameterValue: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,7 +18,7 @@ import (
 	Arn?: string
 
 	// Entries of Prefix List.
-	Entries?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Entry"]
+	Entries?: list.MaxItems(100) & [...] & [...#Entry]
 
 	// Max Entries of Prefix List.
 	MaxEntries?: int & >=1
@@ -33,18 +33,18 @@ import (
 	PrefixListName!: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// Tags for Prefix List
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// Version of Prefix List.
 	Version?: int
 })
 
-_#defs: "/$defs/Properties/definitions/Entry": close({
+#Entry: close({
 	Cidr!:        string & (strings.MaxRunes(46) & strings.MinRunes(1))
 	Description?: strings.MaxRunes(255) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256)
 })

@@ -18,8 +18,8 @@ import (
 
 	// Pre-pass time needed before the contact.
 	ContactPrePassDurationSeconds?: int & <=21600 & >=0
-	DataflowEdges!: list.MaxItems(500) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DataflowEdge"]
-	Id?:            string
+	DataflowEdges!:                 list.MaxItems(500) & list.MinItems(1) & [...#DataflowEdge]
+	Id?:                            string
 
 	// Visibilities with shorter duration than the specified minimum viable contact
 	// duration will be ignored when searching for available contacts.
@@ -31,13 +31,13 @@ import (
 
 	// The ARN of a KMS Key used for encrypting data during transmission from the
 	// source to destination locations.
-	StreamsKmsKey?: _#defs."/$defs/Properties/definitions/StreamsKmsKey"
+	StreamsKmsKey?: #StreamsKmsKey
 
 	// The ARN of the KMS Key or Alias Key role used to define permissions on KMS Key usage.
 	StreamsKmsRole?: strings.MaxRunes(165) &
 	strings.MinRunes(30) &
 	=~"^arn:[a-z0-9-.]{1,63}:iam::[0-9]{12}:role/[\\w+=,.@-]{1,64}$"
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// ARN of a Config resource of type TelemetrySinkConfig used for telemetry data sink configuration.
 	TelemetrySinkConfigArn?: strings.MaxRunes(424) &
@@ -46,12 +46,12 @@ import (
 	TrackingConfigArn!: strings.MaxRunes(424) & strings.MinRunes(82) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
 })
 
-_#defs: "/$defs/Properties/definitions/DataflowEdge": close({
+#DataflowEdge: close({
 	Destination?: string
 	Source?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/StreamsKmsKey": close({
+#StreamsKmsKey: close({
 	KmsAliasArn?:  =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
 	KmsAliasName?: =~"^alias/[a-zA-Z0-9:/_-]+$"
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
@@ -71,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/StreamsKmsKey": close({
 	}
 }) & matchN(>=1, [{KmsKeyArn!: _}, {KmsAliasArn!: _}, {KmsAliasName!: _}])
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$"
 	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$"
 })

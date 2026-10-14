@@ -14,27 +14,22 @@ import (
 	IdentityProviderArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36}){2,}$"
-	IdentityProviderDetails!: _#defs."/$defs/Properties/definitions/IdentityProviderDetails"
+	IdentityProviderDetails!: #IdentityProviderDetails
 	IdentityProviderName!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[^_][\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}][^_]+$"
-	IdentityProviderType!: _#defs."/$defs/Properties/definitions/IdentityProviderType"
+	IdentityProviderType!: #IdentityProviderType
 	PortalArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$"
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/IdentityProviderDetails": close({
+#IdentityProviderDetails: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$"}})
 
-_#defs: "/$defs/Properties/definitions/IdentityProviderType": "SAML" |
-	"Facebook" |
-	"Google" |
-	"LoginWithAmazon" |
-	"SignInWithApple" |
-	"OIDC"
+#IdentityProviderType: "SAML" | "Facebook" | "Google" | "LoginWithAmazon" | "SignInWithApple" | "OIDC"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

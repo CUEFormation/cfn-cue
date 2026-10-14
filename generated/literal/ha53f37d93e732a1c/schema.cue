@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,7 +25,7 @@ import (
 	// An array of key-value pairs to apply to this resource.
 	// For more information, see
 	// [Tag](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-	AccessPointTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AccessPointTag"]
+	AccessPointTags?: list.UniqueItems() & [...#AccessPointTag]
 	Arn?:             string
 
 	// The opaque string specified in the request to ensure idempotent creation.
@@ -41,18 +41,18 @@ import (
 	// The full POSIX identity, including the user ID, group ID, and secondary group
 	// IDs on the access point that is used for all file operations by NFS clients
 	// using the access point.
-	PosixUser?: _#defs."/$defs/Properties/definitions/PosixUser"
+	PosixUser?: #PosixUser
 
 	// The directory on the EFS file system that the access point exposes as the
 	// root directory to NFS clients using the access point.
-	RootDirectory?: _#defs."/$defs/Properties/definitions/RootDirectory"
+	RootDirectory?: #RootDirectory
 })
 
 // A tag is a key-value pair attached to a file system. Allowed characters in
 // the ``Key`` and ``Value`` properties are letters, white space, and numbers
 // that can be represented in UTF-8, and the following characters:``+ - = . _ :
 // /``
-_#defs: "/$defs/Properties/definitions/AccessPointTag": close({
+#AccessPointTag: close({
 	// The tag key (String). The key can't start with ``aws:``.
 	Key?: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -74,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/AccessPointTag": close({
 // If you do not provide ``CreationInfo`` and the specified ``RootDirectory``
 // does not exist, attempts to mount the file system using the access point
 // will fail.
-_#defs: "/$defs/Properties/definitions/CreationInfo": close({
+#CreationInfo: close({
 	// Specifies the POSIX group ID to apply to the ``RootDirectory``. Accepts
 	// values from 0 to 2^32 (4294967295).
 	OwnerGid!: string
@@ -91,7 +91,7 @@ _#defs: "/$defs/Properties/definitions/CreationInfo": close({
 // The full POSIX identity, including the user ID, group ID, and any secondary
 // group IDs, on the access point that is used for all file system operations
 // performed by NFS clients using the access point.
-_#defs: "/$defs/Properties/definitions/PosixUser": close({
+#PosixUser: close({
 	// The POSIX group ID used for all file system operations using this access point.
 	Gid!: string
 
@@ -107,7 +107,7 @@ _#defs: "/$defs/Properties/definitions/PosixUser": close({
 // as the root directory of your file system to applications using the access
 // point. NFS clients using the access point can only access data in the access
 // point's ``RootDirectory`` and its subdirectories.
-_#defs: "/$defs/Properties/definitions/RootDirectory": close({
+#RootDirectory: close({
 	// (Optional) Specifies the POSIX IDs and permissions to apply to the access
 	// point's ``RootDirectory``. If the ``RootDirectory`` > ``Path`` specified
 	// does not exist, EFS creates the root directory using the ``CreationInfo``
@@ -116,7 +116,7 @@ _#defs: "/$defs/Properties/definitions/RootDirectory": close({
 	// If you do not provide ``CreationInfo`` and the specified ``RootDirectory`` >
 	// ``Path`` does not exist, attempts to mount the file system using the access
 	// point will fail.
-	CreationInfo?: _#defs."/$defs/Properties/definitions/CreationInfo"
+	CreationInfo?: #CreationInfo
 
 	// Specifies the path on the EFS file system to expose as the root directory to
 	// NFS clients using the access point to access the EFS file system. A path can

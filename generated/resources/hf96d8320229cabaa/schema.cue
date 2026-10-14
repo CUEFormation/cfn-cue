@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,26 +17,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::ElasticBeanstalk::Application resource specifies an Elastic Beanstalk application.
 #Properties: close({
-	ApplicationName?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:     strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-	ResourceLifecycleConfig?: _#defs."/$defs/Properties/definitions/ApplicationResourceLifecycleConfig" |
-		fn.#ObjectExpression
+	ApplicationName?:         strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	Description?:             strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+	ResourceLifecycleConfig?: #ApplicationResourceLifecycleConfig | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationResourceLifecycleConfig": close({
-	ServiceRole?: string | fn.#StringExpression
-	VersionLifecycleConfig?: _#defs."/$defs/Properties/definitions/ApplicationVersionLifecycleConfig" |
-		fn.#ObjectExpression
+#ApplicationResourceLifecycleConfig: close({
+	ServiceRole?:            string | fn.#StringExpression
+	VersionLifecycleConfig?: #ApplicationVersionLifecycleConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationVersionLifecycleConfig": close({
-	MaxAgeRule?:   _#defs."/$defs/Properties/definitions/MaxAgeRule" | fn.#ObjectExpression
-	MaxCountRule?: _#defs."/$defs/Properties/definitions/MaxCountRule" | fn.#ObjectExpression
+#ApplicationVersionLifecycleConfig: close({
+	MaxAgeRule?:   #MaxAgeRule | fn.#ObjectExpression
+	MaxCountRule?: #MaxCountRule | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaxAgeRule": close({
+#MaxAgeRule: close({
 	DeleteSourceFromS3?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Enabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxAgeInDays?: int |
@@ -56,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/MaxAgeRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaxCountRule": close({
+#MaxCountRule: close({
 	DeleteSourceFromS3?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Enabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxCount?: int |

@@ -21,11 +21,11 @@ import (
 
 	// Description of the report generator.
 	Description?:   string
-	ReportContext!: _#defs."/$defs/Properties/definitions/ReportContext"
+	ReportContext!: #ReportContext
 
 	// The AWS account ID used to create the report generator.
 	ReportCreatorAccount?: string
-	ReportFrequency!:      _#defs."/$defs/Properties/definitions/ReportFrequency"
+	ReportFrequency!:      #ReportFrequency
 
 	// Name of the report generator.
 	ReportGeneratorName!: strings.MaxRunes(100) & strings.MinRunes(1)
@@ -34,14 +34,14 @@ import (
 	ReportType!: [
 		..."LicenseConfigurationSummaryReport" | "LicenseConfigurationUsageReport" | "LicenseAssetGroupUsageReport"
 	]
-	S3Location?: _#defs."/$defs/Properties/definitions/S3Location"
+	S3Location?: #S3Location
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Details of the license configurations and asset groups that this generator reports on.
-_#defs: "/$defs/Properties/definitions/ReportContext": close({
+#ReportContext: close({
 	// Amazon Resource Names (ARNs) of the license asset groups to include in the report.
 	LicenseAssetGroupArns?: [...strings.MaxRunes(2048) & strings.MinRunes(0)]
 
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/ReportContext": close({
 })
 
 // Details about how frequently reports are generated.
-_#defs: "/$defs/Properties/definitions/ReportFrequency": close({
+#ReportFrequency: close({
 	// Time period between each report. The period can be daily, weekly, or monthly.
 	Period?: "DAY" | "WEEK" | "MONTH" | "ONE_TIME"
 
@@ -66,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/ReportFrequency": close({
 })
 
 // Details of the S3 bucket that report generator reports are published to.
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// Name of the S3 bucket reports are published to.
 	Bucket?: string
 
@@ -75,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: string
 

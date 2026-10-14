@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -16,21 +16,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
 	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	ServerSideEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionConfiguration"
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!: _#defs."/$defs/Properties/definitions/AssistantType"
+	ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
+	Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	Type!:                              #AssistantType
 })
 
-_#defs: "/$defs/Properties/definitions/AssistantType": "AGENT" | fn.#StringExpression
+#AssistantType: "AGENT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close({
+#ServerSideEncryptionConfiguration: close({
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) & (strings.MaxRunes(4096) & strings.MinRunes(1)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

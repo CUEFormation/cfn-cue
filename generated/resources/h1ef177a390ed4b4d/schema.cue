@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,28 +14,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Chime::AppInstanceBot
 #Properties: close({
 	AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-	Configuration!:  _#defs."/$defs/Properties/definitions/Configuration"
+	Configuration!:  #Configuration
 	Metadata?:       strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 	Name?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{1000}0-\\x{10FF}FF]*$" |
 	fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Configuration": close(
-	{Lex!: _#defs."/$defs/Properties/definitions/LexConfiguration"},
-) |
-	fn.#ObjectExpression
+#Configuration: close({Lex!: #LexConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InvokedBy": close({
+#InvokedBy: close({
 	StandardMessages!: "AUTO" | "ALL" | "MENTIONS" | "NONE" | fn.#StringExpression
 	TargetedMessages!: "ALL" | "NONE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LexConfiguration": close({
-	InvokedBy?: _#defs."/$defs/Properties/definitions/InvokedBy"
+#LexConfiguration: close({
+	InvokedBy?: #InvokedBy
 	LexBotAliasArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(15) &
 	=~"^arn:aws:lex:[a-z]{2}-[a-z]+-\\d{1}:\\d{12}:bot-alias/[A-Z0-9]{10}/[A-Z0-9]{10}$" |
@@ -46,7 +43,7 @@ _#defs: "/$defs/Properties/definitions/LexConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

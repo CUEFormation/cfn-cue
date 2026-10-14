@@ -10,64 +10,62 @@ package schema
 	ApplicationDescription?: string
 	ApplicationName?:        string
 	Id?:                     string
-	Inputs!:                 [..._#defs."/$defs/Properties/definitions/Input"]
+	Inputs!:                 [...#Input]
 })
 
-_#defs: "/$defs/Properties/definitions/CSVMappingParameters": close({
+#CSVMappingParameters: close({
 	RecordColumnDelimiter!: string
 	RecordRowDelimiter!:    string
 })
 
-_#defs: "/$defs/Properties/definitions/Input": close({
-	InputParallelism?:             _#defs."/$defs/Properties/definitions/InputParallelism"
-	InputProcessingConfiguration?: _#defs."/$defs/Properties/definitions/InputProcessingConfiguration"
-	InputSchema!:                  _#defs."/$defs/Properties/definitions/InputSchema"
-	KinesisFirehoseInput?:         _#defs."/$defs/Properties/definitions/KinesisFirehoseInput"
-	KinesisStreamsInput?:          _#defs."/$defs/Properties/definitions/KinesisStreamsInput"
+#Input: close({
+	InputParallelism?:             #InputParallelism
+	InputProcessingConfiguration?: #InputProcessingConfiguration
+	InputSchema!:                  #InputSchema
+	KinesisFirehoseInput?:         #KinesisFirehoseInput
+	KinesisStreamsInput?:          #KinesisStreamsInput
 	NamePrefix!:                   string
 })
 
-_#defs: "/$defs/Properties/definitions/InputLambdaProcessor": close({
+#InputLambdaProcessor: close({
 	ResourceARN!: string
 	RoleARN!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/InputParallelism": close({Count?: int})
+#InputParallelism: close({Count?: int})
 
-_#defs: "/$defs/Properties/definitions/InputProcessingConfiguration": close(
-	{InputLambdaProcessor?: _#defs."/$defs/Properties/definitions/InputLambdaProcessor"},
-)
+#InputProcessingConfiguration: close({InputLambdaProcessor?: #InputLambdaProcessor})
 
-_#defs: "/$defs/Properties/definitions/InputSchema": close({
-	RecordColumns!:  [..._#defs."/$defs/Properties/definitions/RecordColumn"]
+#InputSchema: close({
+	RecordColumns!:  [...#RecordColumn]
 	RecordEncoding?: string
-	RecordFormat!:   _#defs."/$defs/Properties/definitions/RecordFormat"
+	RecordFormat!:   #RecordFormat
 })
 
-_#defs: "/$defs/Properties/definitions/JSONMappingParameters": close({RecordRowPath!: string})
+#JSONMappingParameters: close({RecordRowPath!: string})
 
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseInput": close({
+#KinesisFirehoseInput: close({
 	ResourceARN!: string
 	RoleARN!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/KinesisStreamsInput": close({
+#KinesisStreamsInput: close({
 	ResourceARN!: string
 	RoleARN!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/MappingParameters": close({
-	CSVMappingParameters?:  _#defs."/$defs/Properties/definitions/CSVMappingParameters"
-	JSONMappingParameters?: _#defs."/$defs/Properties/definitions/JSONMappingParameters"
+#MappingParameters: close({
+	CSVMappingParameters?:  #CSVMappingParameters
+	JSONMappingParameters?: #JSONMappingParameters
 })
 
-_#defs: "/$defs/Properties/definitions/RecordColumn": close({
+#RecordColumn: close({
 	Mapping?: string
 	Name!:    string
 	SqlType!: string
 })
 
-_#defs: "/$defs/Properties/definitions/RecordFormat": close({
-	MappingParameters?: _#defs."/$defs/Properties/definitions/MappingParameters"
+#RecordFormat: close({
+	MappingParameters?: #MappingParameters
 	RecordFormatType!:  string
 })

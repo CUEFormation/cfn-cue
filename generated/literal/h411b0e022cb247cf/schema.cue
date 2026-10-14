@@ -11,32 +11,28 @@ import (
 
 // Creates a package and storage location in an Amazon S3 access point.
 #Properties: close({
-	Arn?:         _#defs."/$defs/Properties/definitions/NodePackageArn"
-	CreatedTime?: _#defs."/$defs/Properties/definitions/Timestamp"
-	PackageId?:   _#defs."/$defs/Properties/definitions/NodePackageId"
+	Arn?:         #NodePackageArn
+	CreatedTime?: #Timestamp
+	PackageId?:   #NodePackageId
 
 	// A name for the package.
-	PackageName!: _#defs."/$defs/Properties/definitions/NodePackageName"
+	PackageName!: #NodePackageName
 
 	// A storage location.
-	StorageLocation?: _#defs."/$defs/Properties/definitions/StorageLocation"
+	StorageLocation?: #StorageLocation
 
 	// Tags for the package.
-	Tags?: _#defs."/$defs/Properties/definitions/TagList"
+	Tags?: #TagList
 })
 
-_#defs: "/$defs/Properties/definitions/NodePackageArn": strings.MaxRunes(255) & strings.MinRunes(1)
+#NodePackageArn: strings.MaxRunes(255) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/NodePackageId": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_\\/]+$"
+#NodePackageId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_\\/]+$"
 
-_#defs: "/$defs/Properties/definitions/NodePackageName": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_]+$"
+#NodePackageName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$"
 
 // A storage location.
-_#defs: "/$defs/Properties/definitions/StorageLocation": close({
+#StorageLocation: close({
 	// The location's binary prefix.
 	BinaryPrefixLocation?: string
 
@@ -53,11 +49,11 @@ _#defs: "/$defs/Properties/definitions/StorageLocation": close({
 	RepoPrefixLocation?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$"
 })
 
-_#defs: "/$defs/Properties/definitions/TagList": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+#TagList: list.UniqueItems() & [...#Tag]
 
-_#defs: "/$defs/Properties/definitions/Timestamp": int
+#Timestamp: int

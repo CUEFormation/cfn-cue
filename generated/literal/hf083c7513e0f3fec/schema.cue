@@ -24,9 +24,7 @@ import (
 	// The monitoring configurations for the container association. Each
 	// configuration specifies an Amazon ECS or Amazon EKS cluster to monitor and
 	// optional attribute filters to narrow which containers are tracked.
-	ContainerMonitoringConfigurations!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ContainerMonitoringConfiguration"
-	]
+	ContainerMonitoringConfigurations!: list.UniqueItems() & [...#ContainerMonitoringConfiguration]
 
 	// A description of the container association.
 	Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$"
@@ -38,7 +36,7 @@ import (
 	Status?: "ACTIVE" | "CREATING" | "DELETING" | "UPDATING"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag]
 
 	// The type of containers to monitor. You can't change the container type after creation.
 	Type!: "ECS" | "EKS"
@@ -46,7 +44,7 @@ import (
 
 // A key-value filter pair used in container association monitoring
 // configurations to narrow which containers are tracked.
-_#defs: "/$defs/Properties/definitions/ContainerAttribute": close({
+#ContainerAttribute: close({
 	// The attribute key to filter on.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$"
 
@@ -57,11 +55,11 @@ _#defs: "/$defs/Properties/definitions/ContainerAttribute": close({
 // Contains the monitoring configuration for a single cluster in a container
 // association. Specifies the cluster ARN and optional attribute filters to
 // narrow which containers are tracked.
-_#defs: "/$defs/Properties/definitions/ContainerMonitoringConfiguration": close({
+#ContainerMonitoringConfiguration: close({
 	// Key-value pairs that filter which containers are tracked. For Amazon EKS, you
 	// can filter by namespace and Kubernetes labels. For Amazon ECS, you can
 	// filter by container instance attributes (EC2 launch type only).
-	AttributeFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ContainerAttribute"]
+	AttributeFilters?: list.UniqueItems() & [...#ContainerAttribute]
 
 	// The ARN of the Amazon ECS or Amazon EKS cluster to monitor. The cluster must
 	// be in the same Region and account as the container association.
@@ -69,7 +67,7 @@ _#defs: "/$defs/Properties/definitions/ContainerMonitoringConfiguration": close(
 })
 
 // A key:value pair associated with an Amazon Web Services resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The part of the key:value pair that defines a tag. Tag keys are case-sensitive.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$"
 

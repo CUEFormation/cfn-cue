@@ -8,24 +8,24 @@ package schema
 #Properties: close({
 	IamRoleArn!:                  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	ProtectedResourceArns?:       [...string]
-	ProtectedResourceConditions?: _#defs."/$defs/Properties/definitions/ProtectedResourceConditions"
+	ProtectedResourceConditions?: #ProtectedResourceConditions
 	ProtectedResourceType!:       string
-	RestoreMetadataOverrides?:    _#defs."/$defs/Properties/definitions/SensitiveStringMap"
+	RestoreMetadataOverrides?:    #SensitiveStringMap
 	RestoreTestingPlanName!:      string
 	RestoreTestingSelectionName!: string
 	ValidationWindowHours?:       int
 })
 
-_#defs: "/$defs/Properties/definitions/KeyValue": close({
+#KeyValue: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/ProtectedResourceConditions": close({
-	StringEquals?:    [..._#defs."/$defs/Properties/definitions/KeyValue"]
-	StringNotEquals?: [..._#defs."/$defs/Properties/definitions/KeyValue"]
+#ProtectedResourceConditions: close({
+	StringEquals?:    [...#KeyValue]
+	StringNotEquals?: [...#KeyValue]
 })
 
-_#defs: "/$defs/Properties/definitions/SensitiveStringMap": close({
+#SensitiveStringMap: close({
 
 	{[=~".+"]: string}})

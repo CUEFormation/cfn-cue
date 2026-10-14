@@ -19,17 +19,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::EC2::NetworkInsightsPath
 #Properties: close({
 	Destination?:         string | fn.#StringExpression
-	DestinationIp?:       _#defs."/$defs/Properties/definitions/IpAddress"
-	DestinationPort?:     _#defs."/$defs/Properties/definitions/Port"
-	FilterAtDestination?: _#defs."/$defs/Properties/definitions/PathFilter"
-	FilterAtSource?:      _#defs."/$defs/Properties/definitions/PathFilter"
-	Protocol!:            _#defs."/$defs/Properties/definitions/Protocol"
+	DestinationIp?:       #IpAddress
+	DestinationPort?:     #Port
+	FilterAtDestination?: #PathFilter
+	FilterAtSource?:      #PathFilter
+	Protocol!:            #Protocol
 	Source!:              string | fn.#StringExpression
-	SourceIp?:            _#defs."/$defs/Properties/definitions/IpAddress"
-	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	SourceIp?:            #IpAddress
+	Tags?:                [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FilterPortRange": close({
+#FilterPortRange: close({
 	FromPort?: int & <=65535 & >=0 |
 		{
 			string &
@@ -65,20 +65,17 @@ _#defs: "/$defs/Properties/definitions/FilterPortRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpAddress": strings.MaxRunes(15) &
-strings.MinRunes(0) &
-=~"^([0-9]{1,3}.){3}[0-9]{1,3}$" |
-fn.#StringExpression
+#IpAddress: strings.MaxRunes(15) & strings.MinRunes(0) & =~"^([0-9]{1,3}.){3}[0-9]{1,3}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PathFilter": close({
-	DestinationAddress?:   _#defs."/$defs/Properties/definitions/IpAddress"
-	DestinationPortRange?: _#defs."/$defs/Properties/definitions/FilterPortRange"
-	SourceAddress?:        _#defs."/$defs/Properties/definitions/IpAddress"
-	SourcePortRange?:      _#defs."/$defs/Properties/definitions/FilterPortRange"
+#PathFilter: close({
+	DestinationAddress?:   #IpAddress
+	DestinationPortRange?: #FilterPortRange
+	SourceAddress?:        #IpAddress
+	SourcePortRange?:      #FilterPortRange
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0 |
+#Port: int & <=65535 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -95,16 +92,15 @@ _#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Protocol": "tcp" | "udp" | fn.#StringExpression
+#Protocol: "tcp" | "udp" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
+#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EC2::NetworkInsightsPath"
 	Properties!: #Properties

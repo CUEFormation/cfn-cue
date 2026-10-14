@@ -14,23 +14,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	DomainName?:            string | fn.#StringExpression
 	EndpointAccessMode?:    string | fn.#StringExpression
-	EndpointConfiguration?: _#defs."/$defs/Properties/definitions/EndpointConfiguration"
+	EndpointConfiguration?: #EndpointConfiguration
 	Policy?:                fn.#Object & {...} | string | fn.#StringObjectExpression
 	RoutingMode?: "BASE_PATH_MAPPING_ONLY" |
 		"ROUTING_RULE_THEN_BASE_PATH_MAPPING" |
 		"ROUTING_RULE_ONLY" |
 		fn.#StringExpression
 	SecurityPolicy?: string | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:           [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({
+#EndpointConfiguration: close({
 	IpAddressType?: string | fn.#StringExpression
 	Types?:         [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |

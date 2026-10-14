@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -35,16 +35,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	DataInputConfiguration!: close({
-		InferenceInputNameConfiguration?: _#defs."/$defs/Properties/definitions/InputNameConfiguration"
+		InferenceInputNameConfiguration?: #InputNameConfiguration
 		InputTimeZoneOffset?:             =~"^(\\+|\\-)[0-9]{2}\\:[0-9]{2}$" | fn.#StringExpression
-		S3InputConfiguration!:            _#defs."/$defs/Properties/definitions/S3InputConfiguration"
+		S3InputConfiguration!:            #S3InputConfiguration
 	}) |
 	fn.#ObjectExpression
 	DataOutputConfiguration!: close({
 		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 		fn.#StringExpression
-		S3OutputConfiguration!: _#defs."/$defs/Properties/definitions/S3OutputConfiguration"
+		S3OutputConfiguration!: #S3OutputConfiguration
 	}) |
 	fn.#ObjectExpression
 	DataUploadFrequency!: "PT5M" | "PT10M" | "PT15M" | "PT30M" | "PT1H" | fn.#StringExpression
@@ -57,37 +57,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
 	fn.#StringExpression
 	ServerSideKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?:               list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Bucket": strings.MaxRunes(63) &
-strings.MinRunes(3) &
-=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
-fn.#StringExpression
+#Bucket: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InputNameConfiguration": close({
+#InputNameConfiguration: close({
 	ComponentTimestampDelimiter?: strings.MaxRunes(1) & strings.MinRunes(0) & =~"^(\\-|\\_|\\s)?$" |
 	fn.#StringExpression
 	TimestampFormat?: =~"^EPOCH|yyyy-MM-dd-HH-mm-ss|yyyyMMddHHmmss$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Prefix": strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+#Prefix: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3InputConfiguration": close({
-	Bucket!: _#defs."/$defs/Properties/definitions/Bucket"
-	Prefix?: _#defs."/$defs/Properties/definitions/Prefix"
+#S3InputConfiguration: close({
+	Bucket!: #Bucket
+	Prefix?: #Prefix
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3OutputConfiguration": close({
-	Bucket!: _#defs."/$defs/Properties/definitions/Bucket"
-	Prefix?: _#defs."/$defs/Properties/definitions/Prefix"
+#S3OutputConfiguration: close({
+	Bucket!: #Bucket
+	Prefix?: #Prefix
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\w+-=\\.:/@]*" | fn.#StringExpression
 }) |

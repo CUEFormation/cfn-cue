@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,31 +15,29 @@ import (
 	ConnectorArn!: strings.MaxRunes(200) &
 	strings.MinRunes(5) &
 	=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
-	Definition!:                    _#defs."/$defs/Properties/definitions/TemplateDefinition"
+	Definition!:                    #TemplateDefinition
 	Name!:                          strings.MaxRunes(64) & strings.MinRunes(1)
 	ReenrollAllCertificateHolders?: bool
-	Tags?:                          _#defs."/$defs/Properties/definitions/Tags"
+	Tags?:                          #Tags
 	TemplateArn?: strings.MaxRunes(200) &
 	strings.MinRunes(5) &
 	=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\\/template\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationPolicies": close({
+#ApplicationPolicies: close({
 	Critical?: bool
-	Policies!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ApplicationPolicy"
-	]
+	Policies!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...#ApplicationPolicy]
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationPolicy": matchN(1, [close(
-	{PolicyType!: _#defs."/$defs/Properties/definitions/ApplicationPolicyType"},
+#ApplicationPolicy: matchN(1, [close(
+	{PolicyType!: #ApplicationPolicyType},
 ), close({
 	PolicyObjectIdentifier!: strings.MaxRunes(64) &
 	strings.MinRunes(1) &
 	=~"^([0-2])\\.([0-9]|([0-3][0-9]))(\\.([0-9]+)){0,126}$"
 })])
 
-_#defs: "/$defs/Properties/definitions/ApplicationPolicyType": "ALL_APPLICATION_POLICIES" |
+#ApplicationPolicyType: "ALL_APPLICATION_POLICIES" |
 	"ANY_PURPOSE" |
 	"ATTESTATION_IDENTITY_KEY_CERTIFICATE" |
 	"CERTIFICATE_REQUEST_AGENT" |
@@ -107,29 +105,27 @@ _#defs: "/$defs/Properties/definitions/ApplicationPolicyType": "ALL_APPLICATION_
 	"WINDOWS_THIRD_PARTY_APPLICATION_COMPONENT" |
 	"WINDOWS_UPDATE"
 
-_#defs: "/$defs/Properties/definitions/CertificateValidity": close({
-	RenewalPeriod!:  _#defs."/$defs/Properties/definitions/ValidityPeriod"
-	ValidityPeriod!: _#defs."/$defs/Properties/definitions/ValidityPeriod"
+#CertificateValidity: close({
+	RenewalPeriod!:  #ValidityPeriod
+	ValidityPeriod!: #ValidityPeriod
 })
 
-_#defs: "/$defs/Properties/definitions/ClientCompatibilityV2": "WINDOWS_SERVER_2003" |
+#ClientCompatibilityV2: "WINDOWS_SERVER_2003" |
 	"WINDOWS_SERVER_2008" |
 	"WINDOWS_SERVER_2008_R2" |
 	"WINDOWS_SERVER_2012" |
 	"WINDOWS_SERVER_2012_R2" |
 	"WINDOWS_SERVER_2016"
 
-_#defs: "/$defs/Properties/definitions/ClientCompatibilityV3": "WINDOWS_SERVER_2008" |
+#ClientCompatibilityV3: "WINDOWS_SERVER_2008" |
 	"WINDOWS_SERVER_2008_R2" |
 	"WINDOWS_SERVER_2012" |
 	"WINDOWS_SERVER_2012_R2" |
 	"WINDOWS_SERVER_2016"
 
-_#defs: "/$defs/Properties/definitions/ClientCompatibilityV4": "WINDOWS_SERVER_2012" |
-	"WINDOWS_SERVER_2012_R2" |
-	"WINDOWS_SERVER_2016"
+#ClientCompatibilityV4: "WINDOWS_SERVER_2012" | "WINDOWS_SERVER_2012_R2" | "WINDOWS_SERVER_2016"
 
-_#defs: "/$defs/Properties/definitions/EnrollmentFlagsV2": close({
+#EnrollmentFlagsV2: close({
 	EnableKeyReuseOnNtTokenKeysetStorageFull?:  bool
 	IncludeSymmetricAlgorithms?:                bool
 	NoSecurityExtension?:                       bool
@@ -137,7 +133,7 @@ _#defs: "/$defs/Properties/definitions/EnrollmentFlagsV2": close({
 	UserInteractionRequired?:                   bool
 })
 
-_#defs: "/$defs/Properties/definitions/EnrollmentFlagsV3": close({
+#EnrollmentFlagsV3: close({
 	EnableKeyReuseOnNtTokenKeysetStorageFull?:  bool
 	IncludeSymmetricAlgorithms?:                bool
 	NoSecurityExtension?:                       bool
@@ -145,7 +141,7 @@ _#defs: "/$defs/Properties/definitions/EnrollmentFlagsV3": close({
 	UserInteractionRequired?:                   bool
 })
 
-_#defs: "/$defs/Properties/definitions/EnrollmentFlagsV4": close({
+#EnrollmentFlagsV4: close({
 	EnableKeyReuseOnNtTokenKeysetStorageFull?:  bool
 	IncludeSymmetricAlgorithms?:                bool
 	NoSecurityExtension?:                       bool
@@ -153,46 +149,46 @@ _#defs: "/$defs/Properties/definitions/EnrollmentFlagsV4": close({
 	UserInteractionRequired?:                   bool
 })
 
-_#defs: "/$defs/Properties/definitions/ExtensionsV2": close({
-	ApplicationPolicies?: _#defs."/$defs/Properties/definitions/ApplicationPolicies"
-	KeyUsage!:            _#defs."/$defs/Properties/definitions/KeyUsage"
+#ExtensionsV2: close({
+	ApplicationPolicies?: #ApplicationPolicies
+	KeyUsage!:            #KeyUsage
 })
 
-_#defs: "/$defs/Properties/definitions/ExtensionsV3": close({
-	ApplicationPolicies?: _#defs."/$defs/Properties/definitions/ApplicationPolicies"
-	KeyUsage!:            _#defs."/$defs/Properties/definitions/KeyUsage"
+#ExtensionsV3: close({
+	ApplicationPolicies?: #ApplicationPolicies
+	KeyUsage!:            #KeyUsage
 })
 
-_#defs: "/$defs/Properties/definitions/ExtensionsV4": close({
-	ApplicationPolicies?: _#defs."/$defs/Properties/definitions/ApplicationPolicies"
-	KeyUsage!:            _#defs."/$defs/Properties/definitions/KeyUsage"
+#ExtensionsV4: close({
+	ApplicationPolicies?: #ApplicationPolicies
+	KeyUsage!:            #KeyUsage
 })
 
-_#defs: "/$defs/Properties/definitions/GeneralFlagsV2": close({
+#GeneralFlagsV2: close({
 	AutoEnrollment?: bool
 	MachineType?:    bool
 })
 
-_#defs: "/$defs/Properties/definitions/GeneralFlagsV3": close({
+#GeneralFlagsV3: close({
 	AutoEnrollment?: bool
 	MachineType?:    bool
 })
 
-_#defs: "/$defs/Properties/definitions/GeneralFlagsV4": close({
+#GeneralFlagsV4: close({
 	AutoEnrollment?: bool
 	MachineType?:    bool
 })
 
-_#defs: "/$defs/Properties/definitions/HashAlgorithm": "SHA256" | "SHA384" | "SHA512"
+#HashAlgorithm: "SHA256" | "SHA384" | "SHA512"
 
-_#defs: "/$defs/Properties/definitions/KeySpec": "KEY_EXCHANGE" | "SIGNATURE"
+#KeySpec: "KEY_EXCHANGE" | "SIGNATURE"
 
-_#defs: "/$defs/Properties/definitions/KeyUsage": close({
+#KeyUsage: close({
 	Critical?:   bool
-	UsageFlags!: _#defs."/$defs/Properties/definitions/KeyUsageFlags"
+	UsageFlags!: #KeyUsageFlags
 })
 
-_#defs: "/$defs/Properties/definitions/KeyUsageFlags": close({
+#KeyUsageFlags: close({
 	DataEncipherment?: bool
 	DigitalSignature?: bool
 	KeyAgreement?:     bool
@@ -200,65 +196,63 @@ _#defs: "/$defs/Properties/definitions/KeyUsageFlags": close({
 	NonRepudiation?:   bool
 })
 
-_#defs: "/$defs/Properties/definitions/KeyUsageProperty": matchN(1, [close(
-	{PropertyType!: _#defs."/$defs/Properties/definitions/KeyUsagePropertyType"},
-), close(
-	{PropertyFlags!: _#defs."/$defs/Properties/definitions/KeyUsagePropertyFlags"},
-)])
+#KeyUsageProperty: matchN(1, [
+	close({PropertyType!: #KeyUsagePropertyType}), close({PropertyFlags!: #KeyUsagePropertyFlags}),
+])
 
-_#defs: "/$defs/Properties/definitions/KeyUsagePropertyFlags": close({
+#KeyUsagePropertyFlags: close({
 	Decrypt?:      bool
 	KeyAgreement?: bool
 	Sign?:         bool
 })
 
-_#defs: "/$defs/Properties/definitions/KeyUsagePropertyType": "ALL"
+#KeyUsagePropertyType: "ALL"
 
-_#defs: "/$defs/Properties/definitions/PrivateKeyAlgorithm": "RSA" | "ECDH_P256" | "ECDH_P384" | "ECDH_P521"
+#PrivateKeyAlgorithm: "RSA" | "ECDH_P256" | "ECDH_P384" | "ECDH_P521"
 
-_#defs: "/$defs/Properties/definitions/PrivateKeyAttributesV2": close({
+#PrivateKeyAttributesV2: close({
 	CryptoProviders?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(100) & strings.MinRunes(1)
 	]
-	KeySpec!:          _#defs."/$defs/Properties/definitions/KeySpec"
+	KeySpec!:          #KeySpec
 	MinimalKeyLength!: >=1
 })
 
-_#defs: "/$defs/Properties/definitions/PrivateKeyAttributesV3": close({
-	Algorithm!: _#defs."/$defs/Properties/definitions/PrivateKeyAlgorithm"
+#PrivateKeyAttributesV3: close({
+	Algorithm!: #PrivateKeyAlgorithm
 	CryptoProviders?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(100) & strings.MinRunes(1)
 	]
-	KeySpec!:          _#defs."/$defs/Properties/definitions/KeySpec"
-	KeyUsageProperty!: _#defs."/$defs/Properties/definitions/KeyUsageProperty"
+	KeySpec!:          #KeySpec
+	KeyUsageProperty!: #KeyUsageProperty
 	MinimalKeyLength!: >=1
 })
 
-_#defs: "/$defs/Properties/definitions/PrivateKeyAttributesV4": close({
-	Algorithm?: _#defs."/$defs/Properties/definitions/PrivateKeyAlgorithm"
+#PrivateKeyAttributesV4: close({
+	Algorithm?: #PrivateKeyAlgorithm
 	CryptoProviders?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(100) & strings.MinRunes(1)
 	]
-	KeySpec!:          _#defs."/$defs/Properties/definitions/KeySpec"
-	KeyUsageProperty?: _#defs."/$defs/Properties/definitions/KeyUsageProperty"
+	KeySpec!:          #KeySpec
+	KeyUsageProperty?: #KeyUsageProperty
 	MinimalKeyLength!: >=1
 })
 
-_#defs: "/$defs/Properties/definitions/PrivateKeyFlagsV2": close({
-	ClientVersion!:               _#defs."/$defs/Properties/definitions/ClientCompatibilityV2"
+#PrivateKeyFlagsV2: close({
+	ClientVersion!:               #ClientCompatibilityV2
 	ExportableKey?:               bool
 	StrongKeyProtectionRequired?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/PrivateKeyFlagsV3": close({
-	ClientVersion!:                      _#defs."/$defs/Properties/definitions/ClientCompatibilityV3"
+#PrivateKeyFlagsV3: close({
+	ClientVersion!:                      #ClientCompatibilityV3
 	ExportableKey?:                      bool
 	RequireAlternateSignatureAlgorithm?: bool
 	StrongKeyProtectionRequired?:        bool
 })
 
-_#defs: "/$defs/Properties/definitions/PrivateKeyFlagsV4": close({
-	ClientVersion!:                      _#defs."/$defs/Properties/definitions/ClientCompatibilityV4"
+#PrivateKeyFlagsV4: close({
+	ClientVersion!:                      #ClientCompatibilityV4
 	ExportableKey?:                      bool
 	RequireAlternateSignatureAlgorithm?: bool
 	RequireSameKeyRenewal?:              bool
@@ -266,7 +260,7 @@ _#defs: "/$defs/Properties/definitions/PrivateKeyFlagsV4": close({
 	UseLegacyProvider?:                  bool
 })
 
-_#defs: "/$defs/Properties/definitions/SubjectNameFlagsV2": close({
+#SubjectNameFlagsV2: close({
 	RequireCommonName?:       bool
 	RequireDirectoryPath?:    bool
 	RequireDnsAsCn?:          bool
@@ -279,7 +273,7 @@ _#defs: "/$defs/Properties/definitions/SubjectNameFlagsV2": close({
 	SanRequireUpn?:           bool
 })
 
-_#defs: "/$defs/Properties/definitions/SubjectNameFlagsV3": close({
+#SubjectNameFlagsV3: close({
 	RequireCommonName?:       bool
 	RequireDirectoryPath?:    bool
 	RequireDnsAsCn?:          bool
@@ -292,7 +286,7 @@ _#defs: "/$defs/Properties/definitions/SubjectNameFlagsV3": close({
 	SanRequireUpn?:           bool
 })
 
-_#defs: "/$defs/Properties/definitions/SubjectNameFlagsV4": close({
+#SubjectNameFlagsV4: close({
 	RequireCommonName?:       bool
 	RequireDirectoryPath?:    bool
 	RequireDnsAsCn?:          bool
@@ -305,62 +299,58 @@ _#defs: "/$defs/Properties/definitions/SubjectNameFlagsV4": close({
 	SanRequireUpn?:           bool
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~".+"]: string}})
 
-_#defs: "/$defs/Properties/definitions/TemplateDefinition": matchN(1, [close(
-	{TemplateV2!: _#defs."/$defs/Properties/definitions/TemplateV2"},
-), close(
-	{TemplateV3!: _#defs."/$defs/Properties/definitions/TemplateV3"},
-), close(
-	{TemplateV4!: _#defs."/$defs/Properties/definitions/TemplateV4"},
-)])
+#TemplateDefinition: matchN(1, [
+	close({TemplateV2!: #TemplateV2}), close({TemplateV3!: #TemplateV3}), close({TemplateV4!: #TemplateV4}),
+])
 
-_#defs: "/$defs/Properties/definitions/TemplateV2": close({
-	CertificateValidity!:  _#defs."/$defs/Properties/definitions/CertificateValidity"
-	EnrollmentFlags!:      _#defs."/$defs/Properties/definitions/EnrollmentFlagsV2"
-	Extensions!:           _#defs."/$defs/Properties/definitions/ExtensionsV2"
-	GeneralFlags!:         _#defs."/$defs/Properties/definitions/GeneralFlagsV2"
-	PrivateKeyAttributes!: _#defs."/$defs/Properties/definitions/PrivateKeyAttributesV2"
-	PrivateKeyFlags!:      _#defs."/$defs/Properties/definitions/PrivateKeyFlagsV2"
-	SubjectNameFlags!:     _#defs."/$defs/Properties/definitions/SubjectNameFlagsV2"
+#TemplateV2: close({
+	CertificateValidity!:  #CertificateValidity
+	EnrollmentFlags!:      #EnrollmentFlagsV2
+	Extensions!:           #ExtensionsV2
+	GeneralFlags!:         #GeneralFlagsV2
+	PrivateKeyAttributes!: #PrivateKeyAttributesV2
+	PrivateKeyFlags!:      #PrivateKeyFlagsV2
+	SubjectNameFlags!:     #SubjectNameFlagsV2
 	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(64) & strings.MinRunes(1)
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/TemplateV3": close({
-	CertificateValidity!:  _#defs."/$defs/Properties/definitions/CertificateValidity"
-	EnrollmentFlags!:      _#defs."/$defs/Properties/definitions/EnrollmentFlagsV3"
-	Extensions!:           _#defs."/$defs/Properties/definitions/ExtensionsV3"
-	GeneralFlags!:         _#defs."/$defs/Properties/definitions/GeneralFlagsV3"
-	HashAlgorithm!:        _#defs."/$defs/Properties/definitions/HashAlgorithm"
-	PrivateKeyAttributes!: _#defs."/$defs/Properties/definitions/PrivateKeyAttributesV3"
-	PrivateKeyFlags!:      _#defs."/$defs/Properties/definitions/PrivateKeyFlagsV3"
-	SubjectNameFlags!:     _#defs."/$defs/Properties/definitions/SubjectNameFlagsV3"
+#TemplateV3: close({
+	CertificateValidity!:  #CertificateValidity
+	EnrollmentFlags!:      #EnrollmentFlagsV3
+	Extensions!:           #ExtensionsV3
+	GeneralFlags!:         #GeneralFlagsV3
+	HashAlgorithm!:        #HashAlgorithm
+	PrivateKeyAttributes!: #PrivateKeyAttributesV3
+	PrivateKeyFlags!:      #PrivateKeyFlagsV3
+	SubjectNameFlags!:     #SubjectNameFlagsV3
 	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(64) & strings.MinRunes(1)
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/TemplateV4": close({
-	CertificateValidity!:  _#defs."/$defs/Properties/definitions/CertificateValidity"
-	EnrollmentFlags!:      _#defs."/$defs/Properties/definitions/EnrollmentFlagsV4"
-	Extensions!:           _#defs."/$defs/Properties/definitions/ExtensionsV4"
-	GeneralFlags!:         _#defs."/$defs/Properties/definitions/GeneralFlagsV4"
-	HashAlgorithm?:        _#defs."/$defs/Properties/definitions/HashAlgorithm"
-	PrivateKeyAttributes!: _#defs."/$defs/Properties/definitions/PrivateKeyAttributesV4"
-	PrivateKeyFlags!:      _#defs."/$defs/Properties/definitions/PrivateKeyFlagsV4"
-	SubjectNameFlags!:     _#defs."/$defs/Properties/definitions/SubjectNameFlagsV4"
+#TemplateV4: close({
+	CertificateValidity!:  #CertificateValidity
+	EnrollmentFlags!:      #EnrollmentFlagsV4
+	Extensions!:           #ExtensionsV4
+	GeneralFlags!:         #GeneralFlagsV4
+	HashAlgorithm?:        #HashAlgorithm
+	PrivateKeyAttributes!: #PrivateKeyAttributesV4
+	PrivateKeyFlags!:      #PrivateKeyFlagsV4
+	SubjectNameFlags!:     #SubjectNameFlagsV4
 	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(64) & strings.MinRunes(1)
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/ValidityPeriod": close({
+#ValidityPeriod: close({
 	Period!:     <=8766000 & >=1
-	PeriodType!: _#defs."/$defs/Properties/definitions/ValidityPeriodType"
+	PeriodType!: #ValidityPeriodType
 })
 
-_#defs: "/$defs/Properties/definitions/ValidityPeriodType": "HOURS" | "DAYS" | "WEEKS" | "MONTHS" | "YEARS"
+#ValidityPeriodType: "HOURS" | "DAYS" | "WEEKS" | "MONTHS" | "YEARS"

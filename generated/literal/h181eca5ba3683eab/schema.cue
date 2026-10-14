@@ -31,10 +31,10 @@ import (
 	Status?: string
 
 	// The source and target member mappings in the Blue/Green Deployment.
-	SwitchoverDetails?: [..._#defs."/$defs/Properties/definitions/SwitchoverDetail"]
+	SwitchoverDetails?: [...#SwitchoverDetail]
 
 	// The tags assigned to the Blue/Green Deployment.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The ARN of the target database in the green environment.
 	Target?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$"
@@ -64,13 +64,13 @@ import (
 	TargetStorageType?: string
 
 	// The provisioning tasks for the Blue/Green Deployment.
-	Tasks?: [..._#defs."/$defs/Properties/definitions/DeploymentTask"]
+	Tasks?: [...#DeploymentTask]
 
 	// Whether to upgrade the storage file system configuration on the target database.
 	UpgradeTargetStorageConfig?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/DeploymentTask": close({
+#DeploymentTask: close({
 	// The name of a Blue/Green Deployment provisioning task.
 	TaskName?: string
 
@@ -78,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentTask": close({
 	TaskStatus?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SwitchoverDetail": close({
+#SwitchoverDetail: close({
 	// The source database member in the Blue/Green Deployment.
 	SourceMember?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$"
 
@@ -89,7 +89,7 @@ _#defs: "/$defs/Properties/definitions/SwitchoverDetail": close({
 	TargetMember?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

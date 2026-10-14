@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,106 +25,92 @@ import (
 
 	// Messaging for when violations are detected in text
 	BlockedOutputsMessaging!:         strings.MaxRunes(500) & strings.MinRunes(1)
-	ContentPolicyConfig?:             _#defs."/$defs/Properties/definitions/AIGuardrailContentPolicyConfig"
-	ContextualGroundingPolicyConfig?: _#defs."/$defs/Properties/definitions/AIGuardrailContextualGroundingPolicyConfig"
+	ContentPolicyConfig?:             #AIGuardrailContentPolicyConfig
+	ContextualGroundingPolicyConfig?: #AIGuardrailContextualGroundingPolicyConfig
 
 	// Description of the guardrail or its version
-	Description?:         strings.MaxRunes(200) & strings.MinRunes(1)
-	ModifiedTimeSeconds?: number
-	Name?:                strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+"
-	SensitiveInformationPolicyConfig?:
-		_#defs."/$defs/Properties/definitions/AIGuardrailSensitiveInformationPolicyConfig"
-	Tags?:              _#defs."/$defs/Properties/definitions/Tags"
-	TopicPolicyConfig?: _#defs."/$defs/Properties/definitions/AIGuardrailTopicPolicyConfig"
-	WordPolicyConfig?:  _#defs."/$defs/Properties/definitions/AIGuardrailWordPolicyConfig"
+	Description?:                      strings.MaxRunes(200) & strings.MinRunes(1)
+	ModifiedTimeSeconds?:              number
+	Name?:                             strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+"
+	SensitiveInformationPolicyConfig?: #AIGuardrailSensitiveInformationPolicyConfig
+	Tags?:                             #Tags
+	TopicPolicyConfig?:                #AIGuardrailTopicPolicyConfig
+	WordPolicyConfig?:                 #AIGuardrailWordPolicyConfig
 })
 
 // Content policy config for a guardrail.
-_#defs: "/$defs/Properties/definitions/AIGuardrailContentPolicyConfig": close({
+#AIGuardrailContentPolicyConfig: close({
 	// List of content filter configs in content policy.
-	FiltersConfig!: list.MaxItems(6) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/GuardrailContentFilterConfig"
-	]
+	FiltersConfig!: list.MaxItems(6) & list.MinItems(1) & [...#GuardrailContentFilterConfig]
 })
 
 // Contextual grounding policy config for a guardrail.
-_#defs: "/$defs/Properties/definitions/AIGuardrailContextualGroundingPolicyConfig": close({
+#AIGuardrailContextualGroundingPolicyConfig: close({
 	// List of contextual grounding filter configs.
-	FiltersConfig!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/GuardrailContextualGroundingFilterConfig"
-	]
+	FiltersConfig!: list.MinItems(1) & [...#GuardrailContextualGroundingFilterConfig]
 })
 
 // Sensitive information policy config for a guardrail.
-_#defs: "/$defs/Properties/definitions/AIGuardrailSensitiveInformationPolicyConfig": close({
+#AIGuardrailSensitiveInformationPolicyConfig: close({
 	// List of entities.
-	PiiEntitiesConfig?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/GuardrailPiiEntityConfig"
-	]
+	PiiEntitiesConfig?: list.MinItems(1) & list.UniqueItems() & [...#GuardrailPiiEntityConfig]
 
 	// List of regex.
-	RegexesConfig?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/GuardrailRegexConfig"]
+	RegexesConfig?: list.MinItems(1) & [...#GuardrailRegexConfig]
 })
 
 // Topic policy config for a guardrail.
-_#defs: "/$defs/Properties/definitions/AIGuardrailTopicPolicyConfig": close({
+#AIGuardrailTopicPolicyConfig: close({
 	// List of topic configs in topic policy.
-	TopicsConfig!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/GuardrailTopicConfig"]
+	TopicsConfig!: list.MinItems(1) & [...#GuardrailTopicConfig]
 })
 
 // Word policy config for a guardrail.
-_#defs: "/$defs/Properties/definitions/AIGuardrailWordPolicyConfig": close({
+#AIGuardrailWordPolicyConfig: close({
 	// A config for the list of managed words.
-	ManagedWordListsConfig?: [..._#defs."/$defs/Properties/definitions/GuardrailManagedWordsConfig"]
+	ManagedWordListsConfig?: [...#GuardrailManagedWordsConfig]
 
 	// List of custom word configs.
-	WordsConfig?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/GuardrailWordConfig"]
+	WordsConfig?: list.MinItems(1) & [...#GuardrailWordConfig]
 })
 
 // Content filter config in content policy.
-_#defs: "/$defs/Properties/definitions/GuardrailContentFilterConfig": close({
-	InputStrength!:  _#defs."/$defs/Properties/definitions/GuardrailFilterStrength"
-	OutputStrength!: _#defs."/$defs/Properties/definitions/GuardrailFilterStrength"
-	Type!:           _#defs."/$defs/Properties/definitions/GuardrailContentFilterType"
+#GuardrailContentFilterConfig: close({
+	InputStrength!:  #GuardrailFilterStrength
+	OutputStrength!: #GuardrailFilterStrength
+	Type!:           #GuardrailContentFilterType
 })
 
 // Type of text to text filter in content policy
-_#defs: "/$defs/Properties/definitions/GuardrailContentFilterType": "SEXUAL" |
-	"VIOLENCE" |
-	"HATE" |
-	"INSULTS" |
-	"MISCONDUCT" |
-	"PROMPT_ATTACK"
+#GuardrailContentFilterType: "SEXUAL" | "VIOLENCE" | "HATE" | "INSULTS" | "MISCONDUCT" | "PROMPT_ATTACK"
 
 // A config for grounding filter.
-_#defs: "/$defs/Properties/definitions/GuardrailContextualGroundingFilterConfig": close({
+#GuardrailContextualGroundingFilterConfig: close({
 	// The threshold for this filter.
 	Threshold!: >=0
-	Type!:      _#defs."/$defs/Properties/definitions/GuardrailContextualGroundingFilterType"
+	Type!:      #GuardrailContextualGroundingFilterType
 })
 
 // Type of contextual grounding filter
-_#defs: "/$defs/Properties/definitions/GuardrailContextualGroundingFilterType": "GROUNDING" | "RELEVANCE"
+#GuardrailContextualGroundingFilterType: "GROUNDING" | "RELEVANCE"
 
 // Strength for filters
-_#defs: "/$defs/Properties/definitions/GuardrailFilterStrength": "NONE" | "LOW" | "MEDIUM" | "HIGH"
+#GuardrailFilterStrength: "NONE" | "LOW" | "MEDIUM" | "HIGH"
 
 // A managed words config.
-_#defs: "/$defs/Properties/definitions/GuardrailManagedWordsConfig": close(
-	{Type!: _#defs."/$defs/Properties/definitions/GuardrailManagedWordsType"},
-)
+#GuardrailManagedWordsConfig: close({Type!: #GuardrailManagedWordsType})
 
 // Options for managed words.
-_#defs: "/$defs/Properties/definitions/GuardrailManagedWordsType": "PROFANITY"
+#GuardrailManagedWordsType: "PROFANITY"
 
 // Pii entity configuration.
-_#defs: "/$defs/Properties/definitions/GuardrailPiiEntityConfig": close({
-	Action!: _#defs."/$defs/Properties/definitions/GuardrailSensitiveInformationAction"
-	Type!:   _#defs."/$defs/Properties/definitions/GuardrailPiiEntityType"
+#GuardrailPiiEntityConfig: close({
+	Action!: #GuardrailSensitiveInformationAction
+	Type!:   #GuardrailPiiEntityType
 })
 
 // The currently supported PII entities
-_#defs: "/$defs/Properties/definitions/GuardrailPiiEntityType": "ADDRESS" |
+#GuardrailPiiEntityType: "ADDRESS" |
 	"AGE" |
 	"AWS_ACCESS_KEY" |
 	"AWS_SECRET_KEY" |
@@ -157,8 +143,8 @@ _#defs: "/$defs/Properties/definitions/GuardrailPiiEntityType": "ADDRESS" |
 	"VEHICLE_IDENTIFICATION_NUMBER"
 
 // A regex configuration.
-_#defs: "/$defs/Properties/definitions/GuardrailRegexConfig": close({
-	Action!: _#defs."/$defs/Properties/definitions/GuardrailSensitiveInformationAction"
+#GuardrailRegexConfig: close({
+	Action!: #GuardrailSensitiveInformationAction
 
 	// The regex description.
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(1)
@@ -171,10 +157,10 @@ _#defs: "/$defs/Properties/definitions/GuardrailRegexConfig": close({
 })
 
 // Options for sensitive information action.
-_#defs: "/$defs/Properties/definitions/GuardrailSensitiveInformationAction": "BLOCK" | "ANONYMIZE"
+#GuardrailSensitiveInformationAction: "BLOCK" | "ANONYMIZE"
 
 // Topic config in topic policy.
-_#defs: "/$defs/Properties/definitions/GuardrailTopicConfig": close({
+#GuardrailTopicConfig: close({
 	// Definition of topic in topic policy
 	Definition!: strings.MaxRunes(200) & strings.MinRunes(1)
 
@@ -183,16 +169,16 @@ _#defs: "/$defs/Properties/definitions/GuardrailTopicConfig": close({
 
 	// Name of topic in topic policy
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ !?.]+$"
-	Type!: _#defs."/$defs/Properties/definitions/GuardrailTopicType"
+	Type!: #GuardrailTopicType
 })
 
 // Type of topic in a policy
-_#defs: "/$defs/Properties/definitions/GuardrailTopicType": "DENY"
+#GuardrailTopicType: "DENY"
 
 // A custom word config.
-_#defs: "/$defs/Properties/definitions/GuardrailWordConfig": close({
+#GuardrailWordConfig: close({
 	// The custom word text.
 	Text!: strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": {...}
+#Tags: {...}

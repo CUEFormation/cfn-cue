@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -19,99 +19,93 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::MWAA::Environment
 #Properties: close({
 	AirflowConfigurationOptions?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	AirflowVersion?:              _#defs."/$defs/Properties/definitions/AirflowVersion"
-	DagS3Path?:                   _#defs."/$defs/Properties/definitions/RelativePath"
-	EndpointManagement?:          _#defs."/$defs/Properties/definitions/EndpointManagement"
-	EnvironmentClass?:            _#defs."/$defs/Properties/definitions/EnvironmentClass"
-	ExecutionRoleArn?:            _#defs."/$defs/Properties/definitions/ExecutionRoleArn"
-	KmsKey?:                      _#defs."/$defs/Properties/definitions/KmsKey"
+	AirflowVersion?:              #AirflowVersion
+	DagS3Path?:                   #RelativePath
+	EndpointManagement?:          #EndpointManagement
+	EnvironmentClass?:            #EnvironmentClass
+	ExecutionRoleArn?:            #ExecutionRoleArn
+	KmsKey?:                      #KmsKey
 	LoggingConfiguration?: close({
 		DagProcessingLogs?: close({
-			Enabled?:  _#defs."/$defs/Properties/definitions/LoggingEnabled"
-			LogLevel?: _#defs."/$defs/Properties/definitions/LoggingLevel"
+			Enabled?:  #LoggingEnabled
+			LogLevel?: #LoggingLevel
 		}) |
 		fn.#ObjectExpression
 		SchedulerLogs?: close({
-			Enabled?:  _#defs."/$defs/Properties/definitions/LoggingEnabled"
-			LogLevel?: _#defs."/$defs/Properties/definitions/LoggingLevel"
+			Enabled?:  #LoggingEnabled
+			LogLevel?: #LoggingLevel
 		}) |
 		fn.#ObjectExpression
 		TaskLogs?: close({
-			Enabled?:  _#defs."/$defs/Properties/definitions/LoggingEnabled"
-			LogLevel?: _#defs."/$defs/Properties/definitions/LoggingLevel"
+			Enabled?:  #LoggingEnabled
+			LogLevel?: #LoggingLevel
 		}) |
 		fn.#ObjectExpression
 		WebserverLogs?: close({
-			Enabled?:  _#defs."/$defs/Properties/definitions/LoggingEnabled"
-			LogLevel?: _#defs."/$defs/Properties/definitions/LoggingLevel"
+			Enabled?:  #LoggingEnabled
+			LogLevel?: #LoggingLevel
 		}) |
 		fn.#ObjectExpression
 		WorkerLogs?: close({
-			Enabled?:  _#defs."/$defs/Properties/definitions/LoggingEnabled"
-			LogLevel?: _#defs."/$defs/Properties/definitions/LoggingLevel"
+			Enabled?:  #LoggingEnabled
+			LogLevel?: #LoggingLevel
 		}) |
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	MaxWebservers?:                _#defs."/$defs/Properties/definitions/MaxWebservers"
-	MaxWorkers?:                   _#defs."/$defs/Properties/definitions/MaxWorkers"
-	MinWebservers?:                _#defs."/$defs/Properties/definitions/MinWebservers"
-	MinWorkers?:                   _#defs."/$defs/Properties/definitions/MinWorkers"
-	Name!:                         _#defs."/$defs/Properties/definitions/EnvironmentName"
-	NetworkConfiguration?:         _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-	PluginsS3ObjectVersion?:       _#defs."/$defs/Properties/definitions/S3ObjectVersion"
-	PluginsS3Path?:                _#defs."/$defs/Properties/definitions/RelativePath"
-	RequirementsS3ObjectVersion?:  _#defs."/$defs/Properties/definitions/S3ObjectVersion"
-	RequirementsS3Path?:           _#defs."/$defs/Properties/definitions/RelativePath"
-	Schedulers?:                   _#defs."/$defs/Properties/definitions/Schedulers"
-	SourceBucketArn?:              _#defs."/$defs/Properties/definitions/S3BucketArn"
-	StartupScriptS3ObjectVersion?: _#defs."/$defs/Properties/definitions/S3ObjectVersion"
-	StartupScriptS3Path?:          _#defs."/$defs/Properties/definitions/RelativePath"
+	MaxWebservers?:                #MaxWebservers
+	MaxWorkers?:                   #MaxWorkers
+	MinWebservers?:                #MinWebservers
+	MinWorkers?:                   #MinWorkers
+	Name!:                         #EnvironmentName
+	NetworkConfiguration?:         #NetworkConfiguration
+	PluginsS3ObjectVersion?:       #S3ObjectVersion
+	PluginsS3Path?:                #RelativePath
+	RequirementsS3ObjectVersion?:  #S3ObjectVersion
+	RequirementsS3Path?:           #RelativePath
+	Schedulers?:                   #Schedulers
+	SourceBucketArn?:              #S3BucketArn
+	StartupScriptS3ObjectVersion?: #S3ObjectVersion
+	StartupScriptS3Path?:          #RelativePath
 	Tags?:                         fn.#Object & {...} | string | fn.#StringObjectExpression
-	WebserverAccessMode?:          _#defs."/$defs/Properties/definitions/WebserverAccessMode"
-	WeeklyMaintenanceWindowStart?: _#defs."/$defs/Properties/definitions/WeeklyMaintenanceWindowStart"
-	WorkerReplacementStrategy?:    _#defs."/$defs/Properties/definitions/WorkerReplacementStrategy"
+	WebserverAccessMode?:          #WebserverAccessMode
+	WeeklyMaintenanceWindowStart?: #WeeklyMaintenanceWindowStart
+	WorkerReplacementStrategy?:    #WorkerReplacementStrategy
 })
 
-_#defs: "/$defs/Properties/definitions/AirflowArn": strings.MaxRunes(1224) &
+#AirflowArn: strings.MaxRunes(1224) &
 strings.MinRunes(1) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:airflow:[a-z0-9\\-]+:\\d{12}:environment/\\w+" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AirflowVersion": strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[0-9a-z.]+$" |
-fn.#StringExpression
+#AirflowVersion: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[0-9a-z.]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CeleryExecutorQueue": strings.MaxRunes(1224) | fn.#StringExpression
+#CeleryExecutorQueue: strings.MaxRunes(1224) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogGroupArn": strings.MaxRunes(1224) &
+#CloudWatchLogGroupArn: strings.MaxRunes(1224) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:logs:[a-z0-9\\-]+:\\d{12}:log-group:\\w+" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigKey": strings.MaxRunes(64) & =~"^[a-z]+([a-z._]*[a-z]+)?$" |
-fn.#StringExpression
+#ConfigKey: strings.MaxRunes(64) & =~"^[a-z]+([a-z._]*[a-z]+)?$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigValue": strings.MaxRunes(256) & =~".*" | fn.#StringExpression
+#ConfigValue: strings.MaxRunes(256) & =~".*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CreatedAt": string | fn.#StringExpression
+#CreatedAt: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseVpcEndpointService": strings.MaxRunes(1224) | fn.#StringExpression
+#DatabaseVpcEndpointService: strings.MaxRunes(1224) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointManagement": "CUSTOMER" | "SERVICE" | fn.#StringExpression
+#EndpointManagement: "CUSTOMER" | "SERVICE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentArn": strings.MaxRunes(1224) &
+#EnvironmentArn: strings.MaxRunes(1224) &
 strings.MinRunes(1) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:airflow:[a-z0-9\\-]+:\\d{12}:environment/\\w+" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentClass": strings.MaxRunes(1024) & strings.MinRunes(1) |
-fn.#StringExpression
+#EnvironmentClass: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentName": strings.MaxRunes(80) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z][0-9a-zA-Z\\-_]*$" |
-fn.#StringExpression
+#EnvironmentName: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z][0-9a-zA-Z\\-_]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentStatus": "CREATING" |
+#EnvironmentStatus: "CREATING" |
 	"CREATE_FAILED" |
 	"AVAILABLE" |
 	"UPDATING" |
@@ -122,65 +116,52 @@ _#defs: "/$defs/Properties/definitions/EnvironmentStatus": "CREATING" |
 	"PENDING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ErrorCode": string | fn.#StringExpression
+#ErrorCode: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ErrorMessage": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$" |
-fn.#StringExpression
+#ErrorMessage: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ExecutionRoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#ExecutionRoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(1224) &
 strings.MinRunes(1) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKey": strings.MaxRunes(1224) &
+#KmsKey: strings.MaxRunes(1224) &
 strings.MinRunes(1) &
 =~"^(((arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:kms:[a-z]{2}-[a-z]+-\\d:\\d+:)?key\\/)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|(arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):kms:[a-z]{2}-[a-z]+-\\d:\\d+:)?alias/.+)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LastUpdate": close({
-	CreatedAt?:                 _#defs."/$defs/Properties/definitions/UpdateCreatedAt"
-	Error?:                     _#defs."/$defs/Properties/definitions/UpdateError"
-	Status?:                    _#defs."/$defs/Properties/definitions/UpdateStatus"
-	WorkerReplacementStrategy?: _#defs."/$defs/Properties/definitions/WorkerReplacementStrategy"
+#LastUpdate: close({
+	CreatedAt?:                 #UpdateCreatedAt
+	Error?:                     #UpdateError
+	Status?:                    #UpdateStatus
+	WorkerReplacementStrategy?: #WorkerReplacementStrategy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close({
-	DagProcessingLogs?: _#defs."/$defs/Properties/definitions/ModuleLoggingConfiguration"
-	SchedulerLogs?:     _#defs."/$defs/Properties/definitions/ModuleLoggingConfiguration"
-	TaskLogs?:          _#defs."/$defs/Properties/definitions/ModuleLoggingConfiguration"
-	WebserverLogs?:     _#defs."/$defs/Properties/definitions/ModuleLoggingConfiguration"
-	WorkerLogs?:        _#defs."/$defs/Properties/definitions/ModuleLoggingConfiguration"
+#LoggingConfiguration: close({
+	DagProcessingLogs?: #ModuleLoggingConfiguration
+	SchedulerLogs?:     #ModuleLoggingConfiguration
+	TaskLogs?:          #ModuleLoggingConfiguration
+	WebserverLogs?:     #ModuleLoggingConfiguration
+	WorkerLogs?:        #ModuleLoggingConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingConfigurationInput": close({
-	DagProcessingLogs?: _#defs."/$defs/Properties/definitions/ModuleLoggingConfigurationInput"
-	SchedulerLogs?:     _#defs."/$defs/Properties/definitions/ModuleLoggingConfigurationInput"
-	TaskLogs?:          _#defs."/$defs/Properties/definitions/ModuleLoggingConfigurationInput"
-	WebserverLogs?:     _#defs."/$defs/Properties/definitions/ModuleLoggingConfigurationInput"
-	WorkerLogs?:        _#defs."/$defs/Properties/definitions/ModuleLoggingConfigurationInput"
+#LoggingConfigurationInput: close({
+	DagProcessingLogs?: #ModuleLoggingConfigurationInput
+	SchedulerLogs?:     #ModuleLoggingConfigurationInput
+	TaskLogs?:          #ModuleLoggingConfigurationInput
+	WebserverLogs?:     #ModuleLoggingConfigurationInput
+	WorkerLogs?:        #ModuleLoggingConfigurationInput
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingEnabled": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#LoggingEnabled: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingLevel": "CRITICAL" |
-	"ERROR" |
-	"WARNING" |
-	"INFO" |
-	"DEBUG" |
-	fn.#StringExpression
+#LoggingLevel: "CRITICAL" | "ERROR" | "WARNING" | "INFO" | "DEBUG" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MaxWebservers": int & >=1 |
+#MaxWebservers: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -196,7 +177,7 @@ _#defs: "/$defs/Properties/definitions/MaxWebservers": int & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MaxWorkers": int & >=1 |
+#MaxWorkers: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -212,7 +193,7 @@ _#defs: "/$defs/Properties/definitions/MaxWorkers": int & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MinWebservers": int & >=1 |
+#MinWebservers: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -228,7 +209,7 @@ _#defs: "/$defs/Properties/definitions/MinWebservers": int & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MinWorkers": int & >=1 |
+#MinWorkers: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -244,39 +225,35 @@ _#defs: "/$defs/Properties/definitions/MinWorkers": int & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ModuleLoggingConfiguration": close({
-	CloudWatchLogGroupArn?: _#defs."/$defs/Properties/definitions/CloudWatchLogGroupArn"
-	Enabled?:               _#defs."/$defs/Properties/definitions/LoggingEnabled"
-	LogLevel?:              _#defs."/$defs/Properties/definitions/LoggingLevel"
+#ModuleLoggingConfiguration: close({
+	CloudWatchLogGroupArn?: #CloudWatchLogGroupArn
+	Enabled?:               #LoggingEnabled
+	LogLevel?:              #LoggingLevel
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModuleLoggingConfigurationInput": close({
-	Enabled?:  _#defs."/$defs/Properties/definitions/LoggingEnabled"
-	LogLevel?: _#defs."/$defs/Properties/definitions/LoggingLevel"
+#ModuleLoggingConfigurationInput: close({
+	Enabled?:  #LoggingEnabled
+	LogLevel?: #LoggingLevel
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
-	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SecurityGroupId"] |
-		fn.#ListExpression
-	SubnetIds?: list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/SubnetId"] |
-		fn.#ListExpression
+#NetworkConfiguration: close({
+	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [...#SecurityGroupId] | fn.#ListExpression
+	SubnetIds?:        list.MaxItems(2) & list.MinItems(2) & [...#SubnetId] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RelativePath": strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" |
-fn.#StringExpression
+#RelativePath: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3BucketArn": strings.MaxRunes(1224) &
+#S3BucketArn: strings.MaxRunes(1224) &
 strings.MinRunes(1) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:s3:::[a-z0-9.\\-]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3ObjectVersion": strings.MaxRunes(1024) & strings.MinRunes(0) |
-fn.#StringExpression
+#S3ObjectVersion: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Schedulers": int & <=5 & >=1 |
+#Schedulers: int & <=5 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -293,47 +270,40 @@ _#defs: "/$defs/Properties/definitions/Schedulers": int & <=5 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(1024) &
 strings.MinRunes(1) &
 =~"^sg-[a-zA-Z0-9\\-._]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceRoleArn": strings.MaxRunes(1224) &
+#ServiceRoleArn: strings.MaxRunes(1224) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SubnetId": strings.MaxRunes(1024) &
-strings.MinRunes(1) &
-=~"^subnet-[a-zA-Z0-9\\-._]+$" |
-fn.#StringExpression
+#SubnetId: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^subnet-[a-zA-Z0-9\\-._]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateCreatedAt": string | fn.#StringExpression
+#UpdateCreatedAt: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateError": close({
-	ErrorCode?:    _#defs."/$defs/Properties/definitions/ErrorCode"
-	ErrorMessage?: _#defs."/$defs/Properties/definitions/ErrorMessage"
+#UpdateError: close({
+	ErrorCode?:    #ErrorCode
+	ErrorMessage?: #ErrorMessage
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateStatus": "SUCCESS" | "PENDING" | "FAILED" | fn.#StringExpression
+#UpdateStatus: "SUCCESS" | "PENDING" | "FAILED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WebserverAccessMode": "PRIVATE_ONLY" |
-	"PUBLIC_ONLY" |
-	"PUBLIC_AND_PRIVATE" |
-	fn.#StringExpression
+#WebserverAccessMode: "PRIVATE_ONLY" | "PUBLIC_ONLY" | "PUBLIC_AND_PRIVATE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WebserverUrl": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^https://.+$" |
-fn.#StringExpression
+#WebserverUrl: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^https://.+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WebserverVpcEndpointService": strings.MaxRunes(1224) | fn.#StringExpression
+#WebserverVpcEndpointService: strings.MaxRunes(1224) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WeeklyMaintenanceWindowStart": strings.MaxRunes(9) &
+#WeeklyMaintenanceWindowStart: strings.MaxRunes(9) &
 strings.MinRunes(1) &
 =~"(MON|TUE|WED|THU|FRI|SAT|SUN):([01]\\d|2[0-3]):(00|30)" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WorkerReplacementStrategy": "FORCED" | "GRACEFUL" | fn.#StringExpression
+#WorkerReplacementStrategy: "FORCED" | "GRACEFUL" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MWAA::Environment"
 	Properties!: #Properties

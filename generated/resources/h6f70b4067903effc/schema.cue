@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -19,29 +19,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::AccessAnalyzer::Analyzer type specifies an analyzer of the user's account
 #Properties: close({
 	AnalyzerConfiguration?: close({
-		InternalAccessConfiguration?: _#defs."/$defs/Properties/definitions/InternalAccessConfiguration"
-		UnusedAccessConfiguration?:   _#defs."/$defs/Properties/definitions/UnusedAccessConfiguration"
+		InternalAccessConfiguration?: #InternalAccessConfiguration
+		UnusedAccessConfiguration?:   #UnusedAccessConfiguration
 	}) |
 	fn.#ObjectExpression
 	AnalyzerName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z_][A-Za-z0-9_.-]*$" | fn.#StringExpression
-	ArchiveRules?: [..._#defs."/$defs/Properties/definitions/ArchiveRule"] | fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	ArchiveRules?: [...#ArchiveRule] | fn.#ListExpression
+	Tags?:         list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	Type!:         strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisRuleCriteria": close({
+#AnalysisRuleCriteria: close({
 	AccountIds?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	ResourceTags?: [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
+	ResourceTags?: [...#Tags] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ArchiveRule": close({
-	Filter!:   list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Filter"] | fn.#ListExpression
+#ArchiveRule: close({
+	Filter!:   list.MinItems(1) & [...#Filter] | fn.#ListExpression
 	RuleName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Filter": close({
+#Filter: close({
 	Contains?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Eq?:       [...string | fn.#StringExpression] | fn.#ListExpression
 	Exists?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -50,35 +50,29 @@ _#defs: "/$defs/Properties/definitions/Filter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InternalAccessAnalysisRuleCriteria": close({
+#InternalAccessAnalysisRuleCriteria: close({
 	AccountIds?:    [...string | fn.#StringExpression] | fn.#ListExpression
 	ResourceArns?:  [...string | fn.#StringExpression] | fn.#ListExpression
 	ResourceTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InternalAccessConfiguration": close({
-	InternalAccessAnalysisRule?: close({
-		Inclusions?: [..._#defs."/$defs/Properties/definitions/InternalAccessAnalysisRuleCriteria"] | fn.#ListExpression
-	}) |
+#InternalAccessConfiguration: close({
+	InternalAccessAnalysisRule?: close({Inclusions?: [...#InternalAccessAnalysisRuleCriteria] | fn.#ListExpression}) |
 		fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
+#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/UnusedAccessConfiguration": close({
-	AnalysisRule?: close(
-		{Exclusions?: [..._#defs."/$defs/Properties/definitions/AnalysisRuleCriteria"] | fn.#ListExpression},
-	) |
-		fn.#ObjectExpression
+#UnusedAccessConfiguration: close({
+	AnalysisRule?: close({Exclusions?: [...#AnalysisRuleCriteria] | fn.#ListExpression}) | fn.#ObjectExpression
 	UnusedAccessAge?: int & <=365 & >=1 |
 		{
 			string &

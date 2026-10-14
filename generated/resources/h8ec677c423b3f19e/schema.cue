@@ -15,20 +15,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::APS::Scraper
 #Properties: close({
 	Alias?:       strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][-.0-9A-Z_a-z]*$" | fn.#StringExpression
-	Destination!: _#defs."/$defs/Properties/definitions/Destination"
-	RoleConfiguration?:           _#defs."/$defs/Properties/definitions/RoleConfiguration"
-	ScrapeConfiguration!:         _#defs."/$defs/Properties/definitions/ScrapeConfiguration"
-	ScraperLoggingConfiguration?: _#defs."/$defs/Properties/definitions/ScraperLoggingConfiguration"
-	Source!:                      _#defs."/$defs/Properties/definitions/Source"
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Destination!: #Destination
+	RoleConfiguration?:           #RoleConfiguration
+	ScrapeConfiguration!:         #ScrapeConfiguration
+	ScraperLoggingConfiguration?: #ScraperLoggingConfiguration
+	Source!:                      #Source
+	Tags?:                        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogDestination": close(
-	{LogGroupArn?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression},
-) |
+#CloudWatchLogDestination: close({LogGroupArn?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComponentConfig": close({
+#ComponentConfig: close({
 	Options?: close({
 
 		{[=~"^[A-Za-z0-9]+$"]: string | fn.#StringExpression}}) |
@@ -36,7 +34,7 @@ _#defs: "/$defs/Properties/definitions/ComponentConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Destination": close({
+#Destination: close({
 	AmpConfiguration?: close(
 		{WorkspaceArn!: =~"^arn:aws[-a-z]*:aps:[-a-z0-9]+:[0-9]{12}:workspace/.+$" | fn.#StringExpression},
 	) |
@@ -53,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/Destination": close({
 }) & matchN(>=1, [{AmpConfiguration!: _}, {CloudWatchConfiguration!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleConfiguration": close({
+#RoleConfiguration: close({
 	SourceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	TargetRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -61,51 +59,42 @@ _#defs: "/$defs/Properties/definitions/RoleConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScrapeConfiguration": close({ConfigurationBlob?: string | fn.#StringExpression}) & matchN(
+#ScrapeConfiguration: close({ConfigurationBlob?: string | fn.#StringExpression}) & matchN(
 	>=1,
 	[{ConfigurationBlob!: _}],
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScraperComponent": close({
-	Config?: _#defs."/$defs/Properties/definitions/ComponentConfig"
-	Type!:   _#defs."/$defs/Properties/definitions/ScraperComponentType"
+#ScraperComponent: close({
+	Config?: #ComponentConfig
+	Type!:   #ScraperComponentType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScraperComponentType": "SERVICE_DISCOVERY" |
-	"COLLECTOR" |
-	"EXPORTER" |
-	fn.#StringExpression
+#ScraperComponentType: "SERVICE_DISCOVERY" | "COLLECTOR" | "EXPORTER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScraperLoggingConfiguration": close({
-	LoggingDestination!: _#defs."/$defs/Properties/definitions/ScraperLoggingDestination"
-	ScraperComponents!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ScraperComponent"
-	] |
-		fn.#ListExpression
+#ScraperLoggingConfiguration: close({
+	LoggingDestination!: #ScraperLoggingDestination
+	ScraperComponents!:  list.MinItems(1) & list.UniqueItems() & [...#ScraperComponent] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScraperLoggingDestination": close(
-	{CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogDestination"},
-) |
-	fn.#ObjectExpression
+#ScraperLoggingDestination: close({CloudWatchLogs?: #CloudWatchLogDestination}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	=~"^sg-[0-9a-z]+$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Source": close({
+#Source: close({
 	EksConfiguration?: close({
 		ClusterArn!:       =~"^arn:aws[-a-z]*:eks:[-a-z0-9]+:[0-9]{12}:cluster/.+$" | fn.#StringExpression
-		SecurityGroupIds?: [..._#defs."/$defs/Properties/definitions/SecurityGroupId"] | fn.#ListExpression
-		SubnetIds!:        [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
+		SecurityGroupIds?: [...#SecurityGroupId] | fn.#ListExpression
+		SubnetIds!:        [...#SubnetId] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 	VpcConfiguration?: close({
-		SecurityGroupIds!: [..._#defs."/$defs/Properties/definitions/SecurityGroupId"] | fn.#ListExpression
-		SubnetIds!:        [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
+		SecurityGroupIds!: [...#SecurityGroupId] | fn.#ListExpression
+		SubnetIds!:        [...#SubnetId] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 	if EksConfiguration != _|_ {
@@ -116,9 +105,9 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 }) & matchN(>=1, [{EksConfiguration!: _}, {VpcConfiguration!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-[0-9a-z]+$" | fn.#StringExpression
+#SubnetId: =~"^subnet-[0-9a-z]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::AutoScaling::WarmPool.
 #Properties: close({
 	AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceReusePolicy?:  _#defs."/$defs/Properties/definitions/InstanceReusePolicy"
+	InstanceReusePolicy?:  #InstanceReusePolicy
 	MaxGroupPreparedCapacity?: int & >=-1 |
 		{
 			string &
@@ -52,7 +52,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PoolState?: "Hibernated" | "Running" | "Stopped" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceReusePolicy": close(
+#InstanceReusePolicy: close(
 	{ReuseOnScaleIn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression

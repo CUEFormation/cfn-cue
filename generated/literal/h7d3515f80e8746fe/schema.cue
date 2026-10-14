@@ -24,14 +24,14 @@ import (
 	]
 
 	// Metadata that can be used to manage the dimension.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// Specifies the type of the dimension.
 	Type!: "TOPIC_FILTER"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

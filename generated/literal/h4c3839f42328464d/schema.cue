@@ -30,20 +30,20 @@ import (
 
 	// The human-readable name of the profile.
 	ProfileName!: strings.MaxRunes(256) & strings.MinRunes(1)
-	Source?:      _#defs."/$defs/Properties/definitions/Source"
+	Source?:      #Source
 
 	// The source format that this profile converts from.
 	SourceFormat!: "CCDA" | "CSV"
 
 	// An array of key-value pairs to apply to this profile.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The target format that this profile converts to. Always FHIR_R4.
 	TargetFormat?: "FHIR_R4"
 })
 
 // Create the profile by cloning a specific version of an existing profile.
-_#defs: "/$defs/Properties/definitions/ExistingVersionedProfileSource": close({
+#ExistingVersionedProfileSource: close({
 	// The unique identifier of the source profile to clone.
 	ProfileId!: string
 
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/ExistingVersionedProfileSource": close({
 })
 
 // Create the profile from raw Velocity template mapping content.
-_#defs: "/$defs/Properties/definitions/ProfileMappingSource": close({
+#ProfileMappingSource: close({
 	// Map of template file paths to their Velocity template content.
 	ProfileMapping!: close({
 
@@ -63,20 +63,20 @@ _#defs: "/$defs/Properties/definitions/ProfileMappingSource": close({
 // Exactly one of the members must be specified. Use StarterProfile (C-CDA
 // only), ProfileMapping (C-CDA or CSV), or ExistingVersionedProfileId to clone
 // an existing profile. Each produces a published profile.
-_#defs: "/$defs/Properties/definitions/Source": close({
-	ExistingVersionedProfileId?: _#defs."/$defs/Properties/definitions/ExistingVersionedProfileSource"
-	ProfileMapping?:             _#defs."/$defs/Properties/definitions/ProfileMappingSource"
-	StarterProfile?:             _#defs."/$defs/Properties/definitions/StarterProfileSource"
+#Source: close({
+	ExistingVersionedProfileId?: #ExistingVersionedProfileSource
+	ProfileMapping?:             #ProfileMappingSource
+	StarterProfile?:             #StarterProfileSource
 })
 
 // Create the profile from a predefined starter profile of transformation templates.
-_#defs: "/$defs/Properties/definitions/StarterProfileSource": close({
+#StarterProfileSource: close({
 	// The name of the starter profile to seed the profile from.
 	StarterProfileName!: string
 })
 
 // A key-value pair to associate with the profile.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

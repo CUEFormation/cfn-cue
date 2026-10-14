@@ -20,17 +20,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		TransitGatewayAddress?: string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?:                       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                       [...#Tag] | fn.#ListExpression
 	TransitGatewayAttachmentId!: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayAttachmentBgpConfiguration": close({
+#TransitGatewayAttachmentBgpConfiguration: close({
 	BgpStatus?:   string | fn.#StringExpression
 	PeerAddress?: string | fn.#StringExpression
 	PeerAsn?: number |
@@ -75,9 +75,8 @@ _#defs: "/$defs/Properties/definitions/TransitGatewayAttachmentBgpConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayConnectPeerConfiguration": close({
-	BgpConfigurations?: [..._#defs."/$defs/Properties/definitions/TransitGatewayAttachmentBgpConfiguration"] |
-		fn.#ListExpression
+#TransitGatewayConnectPeerConfiguration: close({
+	BgpConfigurations?:     [...#TransitGatewayAttachmentBgpConfiguration] | fn.#ListExpression
 	InsideCidrBlocks!:      [...string | fn.#StringExpression] | fn.#ListExpression
 	PeerAddress!:           string | fn.#StringExpression
 	Protocol?:              string | fn.#StringExpression

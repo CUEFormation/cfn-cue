@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"time"
-	"strings"
 	"list"
+	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,7 +14,7 @@ import (
 // the top section and More Info tab of the Cases user interface: Fields to
 // display to the users and Field ordering.
 #Properties: close({
-	Content!: _#defs."/$defs/Properties/definitions/LayoutContent"
+	Content!: #LayoutContent
 
 	// The time at which the layout was created.
 	CreatedTime?: time.Time
@@ -34,24 +34,24 @@ import (
 	// A descriptive name for the layout. Must be unique within the Cases domain and
 	// should clearly indicate the layout's purpose and field organization.
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$"
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Tags?: #Tags
 })
 
 // Defines the field layout for the agent's case interface. Configures which
 // fields appear in the top panel (immediately visible) and More Info tab
 // (expandable section) of the case view, allowing customization of the agent
 // experience.
-_#defs: "/$defs/Properties/definitions/BasicLayout": close({
-	MoreInfo?: _#defs."/$defs/Properties/definitions/LayoutSections"
-	TopPanel?: _#defs."/$defs/Properties/definitions/LayoutSections"
+#BasicLayout: close({
+	MoreInfo?: #LayoutSections
+	TopPanel?: #LayoutSections
 })
 
 // Consists of a group of fields and associated properties.
-_#defs: "/$defs/Properties/definitions/FieldGroup": close({
+#FieldGroup: close({
 	// An ordered list of fields to display in this group. The order determines the
 	// sequence in which fields appear in the agent interface. Each field is
 	// referenced by its unique field ID.
-	Fields!: list.MaxItems(220) & [..._#defs."/$defs/Properties/definitions/FieldItem"]
+	Fields!: list.MaxItems(220) & [...#FieldItem]
 
 	// A descriptive name for the field group. Helps organize related fields
 	// together in the layout interface.
@@ -59,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/FieldGroup": close({
 })
 
 // Field specific properties.
-_#defs: "/$defs/Properties/definitions/FieldItem": close({
+#FieldItem: close({
 	// The unique identifier of a field.
 	Id!: strings.MaxRunes(500) & strings.MinRunes(1)
 })
@@ -67,21 +67,19 @@ _#defs: "/$defs/Properties/definitions/FieldItem": close({
 // Defines the layout structure and field organization for the case interface.
 // Specifies which fields appear in the top panel and More Info tab, and their
 // display order.
-_#defs: "/$defs/Properties/definitions/LayoutContent": close(
-	{Basic!: _#defs."/$defs/Properties/definitions/BasicLayout"},
-)
+#LayoutContent: close({Basic!: #BasicLayout})
 
 // Sections within a panel or tab of the page layout.
-_#defs: "/$defs/Properties/definitions/LayoutSections": close({
+#LayoutSections: close({
 	// Defines the sections within a panel or tab. Contains field groups that
 	// organize related fields together.
-	Sections?: list.MaxItems(1) & [..._#defs."/$defs/Properties/definitions/Section"]
+	Sections?: list.MaxItems(1) & [...#Section]
 })
 
 // A section can be a grouped list of fields.
-_#defs: "/$defs/Properties/definitions/Section": close({FieldGroup!: _#defs."/$defs/Properties/definitions/FieldGroup"})
+#Section: close({FieldGroup!: #FieldGroup})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -96,4 +94,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The tags that you attach to this layout.
-_#defs: "/$defs/Properties/definitions/Tags": [..._#defs."/$defs/Properties/definitions/Tag"]
+#Tags: [...#Tag]

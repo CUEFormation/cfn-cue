@@ -15,34 +15,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ClientToken?:      string | fn.#StringExpression
 	PreserveClientIp?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SecurityGroupIds?: list.MaxItems(16) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/SecurityGroupId"
-	] |
-		fn.#ListExpression
-	SubnetId!: string | fn.#StringExpression
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	SecurityGroupIds?: list.MaxItems(16) & list.UniqueItems() & [...] & [...#SecurityGroupId] | fn.#ListExpression
+	SubnetId!:         string | fn.#StringExpression
+	Tags?:             [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceConnectEndpointDnsNames": close({
+#InstanceConnectEndpointDnsNames: close({
 	DnsName?:     string | fn.#StringExpression
 	FipsDnsName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceConnectEndpointPublicDnsNames": close({
-	Dualstack?: _#defs."/$defs/Properties/definitions/InstanceConnectEndpointDnsNames" & fn.#Object & {...} |
-	fn.#ObjectExpression
-	Ipv4?: _#defs."/$defs/Properties/definitions/InstanceConnectEndpointDnsNames" & fn.#Object & {...} |
-	fn.#ObjectExpression
+#InstanceConnectEndpointPublicDnsNames: close({
+	Dualstack?: #InstanceConnectEndpointDnsNames & fn.#Object & {...} | fn.#ObjectExpression
+	Ipv4?:      #InstanceConnectEndpointDnsNames & fn.#Object & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkInterfaceId": string | fn.#StringExpression
+#NetworkInterfaceId: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

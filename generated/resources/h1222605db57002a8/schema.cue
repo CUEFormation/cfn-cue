@@ -18,24 +18,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::RolesAnywhere::TrustAnchor Resource Type.
 #Properties: close({
-	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:    strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9-_]*$" | fn.#StringExpression
-	NotificationSettings?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/NotificationSetting"] |
-		fn.#ListExpression
-	Source!: _#defs."/$defs/Properties/definitions/Source"
-	Tags?:   list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Enabled?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Name!:                 strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9-_]*$" | fn.#StringExpression
+	NotificationSettings?: list.MaxItems(50) & [...] & [...#NotificationSetting] | fn.#ListExpression
+	Source!:               #Source
+	Tags?:                 list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/NotificationChannel": "ALL" | fn.#StringExpression
+#NotificationChannel: "ALL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationEvent": "CA_CERTIFICATE_EXPIRY" |
-	"END_ENTITY_CERTIFICATE_EXPIRY" |
-	fn.#StringExpression
+#NotificationEvent: "CA_CERTIFICATE_EXPIRY" | "END_ENTITY_CERTIFICATE_EXPIRY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationSetting": close({
-	Channel?: _#defs."/$defs/Properties/definitions/NotificationChannel"
+#NotificationSetting: close({
+	Channel?: #NotificationChannel
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Event!:   _#defs."/$defs/Properties/definitions/NotificationEvent"
+	Event!:   #NotificationEvent
 	Threshold?: <=360 & >=1 |
 		{
 			string &
@@ -59,24 +56,24 @@ _#defs: "/$defs/Properties/definitions/NotificationSetting": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Source": close({
-	SourceData!: _#defs."/$defs/Properties/definitions/SourceData"
-	SourceType!: _#defs."/$defs/Properties/definitions/TrustAnchorType"
+#Source: close({
+	SourceData!: #SourceData
+	SourceType!: #TrustAnchorType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceData": matchN(1, [
+#SourceData: matchN(1, [
 	close({X509CertificateData!: string | fn.#StringExpression}), close({AcmPcaArn!: string | fn.#StringExpression}),
 ]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_.:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[ a-zA-Z0-9_.:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrustAnchorType": "AWS_ACM_PCA" | "CERTIFICATE_BUNDLE" | fn.#StringExpression
+#TrustAnchorType: "AWS_ACM_PCA" | "CERTIFICATE_BUNDLE" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::RolesAnywhere::TrustAnchor"
 	Properties!: #Properties

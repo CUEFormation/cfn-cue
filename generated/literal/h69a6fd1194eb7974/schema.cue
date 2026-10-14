@@ -22,13 +22,13 @@ import (
 // in the *Amazon CloudFront Developer Guide*.
 #Properties: close({
 	// Contains the configuration for a continuous deployment policy.
-	ContinuousDeploymentPolicyConfig!: _#defs."/$defs/Properties/definitions/ContinuousDeploymentPolicyConfig"
+	ContinuousDeploymentPolicyConfig!: #ContinuousDeploymentPolicyConfig
 	Id?:                               string
 	LastModifiedTime?:                 string
 })
 
 // Contains the configuration for a continuous deployment policy.
-_#defs: "/$defs/Properties/definitions/ContinuousDeploymentPolicyConfig": close({
+#ContinuousDeploymentPolicyConfig: close({
 	// A Boolean that indicates whether this continuous deployment policy is enabled
 	// (in effect). When this value is ``true``, this policy is enabled and in
 	// effect. When this value is ``false``, this policy is not enabled and has no
@@ -47,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/ContinuousDeploymentPolicyConfig": close(
 	// This configuration determines the percentage of HTTP requests that are sent
 	// to the staging distribution.
 	SingleWeightPolicyConfig?: close({
-		SessionStickinessConfig?: _#defs."/$defs/Properties/definitions/SessionStickinessConfig"
+		SessionStickinessConfig?: #SessionStickinessConfig
 		Weight!:                  math.MultipleOf(0.01) & <=1 & >=0
 	})
 
@@ -57,7 +57,7 @@ _#defs: "/$defs/Properties/definitions/ContinuousDeploymentPolicyConfig": close(
 
 	// Contains the parameters for routing production traffic from your primary to
 	// staging distributions.
-	TrafficConfig?: _#defs."/$defs/Properties/definitions/TrafficConfig"
+	TrafficConfig?: #TrafficConfig
 
 	// The type of traffic configuration.
 	Type?: "SingleWeight" | "SingleHeader"
@@ -68,7 +68,7 @@ _#defs: "/$defs/Properties/definitions/ContinuousDeploymentPolicyConfig": close(
 // inconsistent experience of sending some of a given user's requests to your
 // staging distribution, while others are sent to your primary distribution.
 // Define the session duration using TTL values.
-_#defs: "/$defs/Properties/definitions/SessionStickinessConfig": close({
+#SessionStickinessConfig: close({
 	// The amount of time after which you want sessions to cease if no requests are
 	// received. Allowed values are 300–3600 seconds (5–60 minutes).
 	IdleTTL!: math.MultipleOf(1) & int & <=3600 & >=300
@@ -79,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/SessionStickinessConfig": close({
 })
 
 // Determines which HTTP requests are sent to the staging distribution.
-_#defs: "/$defs/Properties/definitions/SingleHeaderConfig": close({
+#SingleHeaderConfig: close({
 	// The request header name that you want CloudFront to send to your staging
 	// distribution. The header must contain the prefix ``aws-cf-cd-``.
 	Header!: strings.MaxRunes(256) & strings.MinRunes(1)
@@ -90,13 +90,13 @@ _#defs: "/$defs/Properties/definitions/SingleHeaderConfig": close({
 
 // This configuration determines the percentage of HTTP requests that are sent
 // to the staging distribution.
-_#defs: "/$defs/Properties/definitions/SingleWeightConfig": close({
+#SingleWeightConfig: close({
 	// Session stickiness provides the ability to define multiple requests from a
 	// single viewer as a single session. This prevents the potentially
 	// inconsistent experience of sending some of a given user's requests to your
 	// staging distribution, while others are sent to your primary distribution.
 	// Define the session duration using TTL values.
-	SessionStickinessConfig?: _#defs."/$defs/Properties/definitions/SessionStickinessConfig"
+	SessionStickinessConfig?: #SessionStickinessConfig
 
 	// The percentage of traffic to send to a staging distribution, expressed as a
 	// decimal number between 0 and 0.15. For example, a value of 0.10 means 10% of
@@ -105,12 +105,12 @@ _#defs: "/$defs/Properties/definitions/SingleWeightConfig": close({
 })
 
 // The traffic configuration of your continuous deployment.
-_#defs: "/$defs/Properties/definitions/TrafficConfig": close({
+#TrafficConfig: close({
 	// Determines which HTTP requests are sent to the staging distribution.
-	SingleHeaderConfig?: _#defs."/$defs/Properties/definitions/SingleHeaderConfig"
+	SingleHeaderConfig?: #SingleHeaderConfig
 
 	// Contains the percentage of traffic to send to the staging distribution.
-	SingleWeightConfig?: _#defs."/$defs/Properties/definitions/SingleWeightConfig"
+	SingleWeightConfig?: #SingleWeightConfig
 
 	// The type of traffic configuration.
 	Type!: "SingleWeight" | "SingleHeader"

@@ -23,12 +23,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // test CDN configuration
 // changes](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/continuous-deployment.html)
 // in the *Amazon CloudFront Developer Guide*.
-#Properties: close({
-	ContinuousDeploymentPolicyConfig!: _#defs."/$defs/Properties/definitions/ContinuousDeploymentPolicyConfig" |
-		fn.#ObjectExpression
-})
+#Properties: close({ContinuousDeploymentPolicyConfig!: #ContinuousDeploymentPolicyConfig | fn.#ObjectExpression})
 
-_#defs: "/$defs/Properties/definitions/ContinuousDeploymentPolicyConfig": close({
+#ContinuousDeploymentPolicyConfig: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SingleHeaderPolicyConfig?: close({
 		Header!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -36,38 +33,38 @@ _#defs: "/$defs/Properties/definitions/ContinuousDeploymentPolicyConfig": close(
 	}) |
 	fn.#ObjectExpression
 	SingleWeightPolicyConfig?: close({
-		SessionStickinessConfig?: _#defs."/$defs/Properties/definitions/SessionStickinessConfig"
+		SessionStickinessConfig?: #SessionStickinessConfig
 		Weight!:                  math.MultipleOf(0.01) & <=1 & >=0 | fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
 	StagingDistributionDnsNames!: list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
 		fn.#ListExpression
-	TrafficConfig?: _#defs."/$defs/Properties/definitions/TrafficConfig" | fn.#ObjectExpression
+	TrafficConfig?: #TrafficConfig | fn.#ObjectExpression
 	Type?:          "SingleWeight" | "SingleHeader" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SessionStickinessConfig": close({
+#SessionStickinessConfig: close({
 	IdleTTL!:    math.MultipleOf(1) & int & <=3600 & >=300 | fn.#NumberExpression
 	MaximumTTL!: math.MultipleOf(1) & int & <=3600 & >=300 | fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SingleHeaderConfig": close({
+#SingleHeaderConfig: close({
 	Header!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Value!:  strings.MaxRunes(1783) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SingleWeightConfig": close({
-	SessionStickinessConfig?: _#defs."/$defs/Properties/definitions/SessionStickinessConfig" | fn.#ObjectExpression
+#SingleWeightConfig: close({
+	SessionStickinessConfig?: #SessionStickinessConfig | fn.#ObjectExpression
 	Weight!:                  math.MultipleOf(0.01) & <=1 & >=0 | fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficConfig": close({
-	SingleHeaderConfig?: _#defs."/$defs/Properties/definitions/SingleHeaderConfig" | fn.#ObjectExpression
-	SingleWeightConfig?: _#defs."/$defs/Properties/definitions/SingleWeightConfig" | fn.#ObjectExpression
+#TrafficConfig: close({
+	SingleHeaderConfig?: #SingleHeaderConfig | fn.#ObjectExpression
+	SingleWeightConfig?: #SingleWeightConfig | fn.#ObjectExpression
 	Type!:               "SingleWeight" | "SingleHeader" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

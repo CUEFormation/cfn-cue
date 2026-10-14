@@ -12,14 +12,14 @@ import (
 
 // A billing view is a container of cost & usage metadata.
 #Properties: close({
-	Arn?:             _#defs."/$defs/Properties/definitions/Arn"
-	BillingViewType?: _#defs."/$defs/Properties/definitions/BillingViewType"
+	Arn?:             #Arn
+	BillingViewType?: #BillingViewType
 
 	// The time when the billing view was created.
 	CreatedAt?: number
 	DataFilterExpression?: close({
 		Dimensions?: close({
-			Key?: _#defs."/$defs/Properties/definitions/DimensionKey"
+			Key?: #DimensionKey
 			Values?: list.MaxItems(200) & list.MinItems(1) & [
 				...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*"
 			]
@@ -31,8 +31,8 @@ import (
 			]
 		})
 		TimeRange?: close({
-			BeginDateInclusive?: _#defs."/$defs/Properties/definitions/Timestamp"
-			EndDateInclusive?:   _#defs."/$defs/Properties/definitions/Timestamp"
+			BeginDateInclusive?: #Timestamp
+			EndDateInclusive?:   #Timestamp
 		})
 	})
 	Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^([ a-zA-Z0-9_\\+=\\.\\-@]+)?$"
@@ -45,20 +45,20 @@ import (
 	]
 
 	// An array of key-value pairs associated to the billing view being created.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag]
 
 	// The time when the billing view was last updated.
 	UpdatedAt?: number
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:aws[a-z-]*:(billing)::[0-9]{12}:billingview/[a-zA-Z0-9/:_\\+=\\.\\-@]{0,75}[a-zA-Z0-9]"
+#Arn: =~"arn:aws[a-z-]*:(billing)::[0-9]{12}:billingview/[a-zA-Z0-9/:_\\+=\\.\\-@]{0,75}[a-zA-Z0-9]"
 
-_#defs: "/$defs/Properties/definitions/BillingViewType": "PRIMARY" | "BILLING_GROUP" | "CUSTOM"
+#BillingViewType: "PRIMARY" | "BILLING_GROUP" | "CUSTOM"
 
-_#defs: "/$defs/Properties/definitions/DimensionKey": "LINKED_ACCOUNT"
+#DimensionKey: "LINKED_ACCOUNT"
 
 // A key-value pair to associate with a Billing View.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -73,4 +73,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The time in ISO 8601 format, UTC time (YYYY-MM-DDTHH:MM:SSZ).
-_#defs: "/$defs/Properties/definitions/Timestamp": time.Time
+#Timestamp: time.Time

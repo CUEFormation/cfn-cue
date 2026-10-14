@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Batch::ServiceEnvironment
 #Properties: close({
-	CapacityLimits!:         _#defs."/$defs/Properties/definitions/CapacityLimits"
+	CapacityLimits!:         #CapacityLimits
 	ServiceEnvironmentName?: string | fn.#StringExpression
 	ServiceEnvironmentType!: =~"(?i)^(?:sagemaker_training)$" | fn.#StringExpression
 	State?:                  string | fn.#StringExpression
@@ -24,7 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityLimit": close({
+#CapacityLimit: close({
 	CapacityUnit?: string | fn.#StringExpression
 	MaxCapacity?: int |
 		{
@@ -43,8 +43,7 @@ _#defs: "/$defs/Properties/definitions/CapacityLimit": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityLimits": [..._#defs."/$defs/Properties/definitions/CapacityLimit"] |
-	fn.#ListExpression
+#CapacityLimits: [...#CapacityLimit] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Batch::ServiceEnvironment"
 	Properties!: #Properties

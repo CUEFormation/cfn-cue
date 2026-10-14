@@ -135,7 +135,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"zh-TW" |
 		"zu-ZA" |
 		fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	VocabularyFilterFileUri?: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^(s3://|http(s*)://).+$" |
 	fn.#StringExpression
 	VocabularyFilterName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
@@ -143,7 +143,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

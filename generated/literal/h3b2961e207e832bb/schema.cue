@@ -35,19 +35,19 @@ import (
 	PolicyEngineId?: strings.MaxRunes(59) & strings.MinRunes(12) & =~"^[A-Za-z][A-Za-z0-9_]*-[a-z0-9_]{10}$"
 
 	// The current status of the policy engine
-	Status?: _#defs."/$defs/Properties/definitions/PolicyEngineStatus"
+	Status?: #PolicyEngineStatus
 
 	// Additional information about the policy engine status
 	StatusReasons?: [...string]
 
 	// A list of tags to assign to the policy engine.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The timestamp when the policy engine was last updated
 	UpdatedAt?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/PolicyEngineStatus": "CREATING" |
+#PolicyEngineStatus: "CREATING" |
 	"ACTIVE" |
 	"UPDATING" |
 	"DELETING" |
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/PolicyEngineStatus": "CREATING" |
 	"UPDATE_FAILED" |
 	"DELETE_FAILED"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

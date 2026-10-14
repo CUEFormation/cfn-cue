@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,37 +14,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Config::OrganizationConformancePack.
 #Properties: close({
-	ConformancePackInputParameters?: list.MaxItems(60) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ConformancePackInputParameter"
-	] |
+	ConformancePackInputParameters?: list.MaxItems(60) & [...] & [...#ConformancePackInputParameter] |
 		fn.#ListExpression
 	DeliveryS3Bucket?:    strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
 	DeliveryS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ExcludedAccounts?: list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/AccountId"] |
-		fn.#ListExpression
+	ExcludedAccounts?:    list.MaxItems(1000) & [...] & [...#AccountId] | fn.#ListExpression
 	OrganizationConformancePackName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	TemplateBody?:  strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
 	TemplateS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccountId": =~"^\\d{12}$" | fn.#StringExpression
+#AccountId: =~"^\\d{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConformancePackInputParameter": {
-	ParameterName!:  _#defs."/$defs/Properties/definitions/ParameterName"
-	ParameterValue!: _#defs."/$defs/Properties/definitions/ParameterValue"
+#ConformancePackInputParameter: {
+	ParameterName!:  #ParameterName
+	ParameterValue!: #ParameterValue
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterName": strings.MaxRunes(255) & strings.MinRunes(0) |
-fn.#StringExpression
+#ParameterName: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterValue": strings.MaxRunes(4096) & strings.MinRunes(0) |
-fn.#StringExpression
+#ParameterValue: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

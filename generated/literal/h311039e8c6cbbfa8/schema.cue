@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"list"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,7 +16,7 @@ import (
 #Properties: close({
 	// The Amazon Resource Name (ARN) of the field-level encryption profile.
 	Arn?:                               string
-	FieldLevelEncryptionProfileConfig!: _#defs."/$defs/Properties/definitions/FieldLevelEncryptionProfileConfig"
+	FieldLevelEncryptionProfileConfig!: #FieldLevelEncryptionProfileConfig
 
 	// The identifier that CloudFront assigns to the field-level encryption profile.
 	Id?: string
@@ -26,7 +26,7 @@ import (
 })
 
 // A public key, its provider identity, and the field patterns CloudFront encrypts with that key.
-_#defs: "/$defs/Properties/definitions/EncryptionEntity": close({
+#EncryptionEntity: close({
 	// The request-body field names to encrypt. A pattern is either a full field
 	// name or leading characters followed by a wildcard (*). Patterns are
 	// case-sensitive and must not overlap.
@@ -41,7 +41,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionEntity": close({
 })
 
 // The configuration of a field-level encryption profile.
-_#defs: "/$defs/Properties/definitions/FieldLevelEncryptionProfileConfig": close({
+#FieldLevelEncryptionProfileConfig: close({
 	// A unique value that identifies the creation request. Caller references are
 	// unique within an AWS account and cannot be changed after creation.
 	CallerReference!: string
@@ -50,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/FieldLevelEncryptionProfileConfig": close
 	Comment?: string
 
 	// The encryption entities of the field-level encryption profile. At least one entity is required.
-	EncryptionEntities!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EncryptionEntity"]
+	EncryptionEntities!: list.MinItems(1) & [...#EncryptionEntity]
 
 	// The name of the field-level encryption profile. Names are unique within an AWS account.
 	Name!: string

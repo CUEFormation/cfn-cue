@@ -18,9 +18,7 @@ import (
 		=~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$"
 
 	// The BGP peers configured on this virtual interface.
-	BgpPeers!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/BgpPeer"
-	]
+	BgpPeers!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#BgpPeer]
 
 	// The ID or ARN of the connection or LAG.
 	ConnectionId!: string &
@@ -43,7 +41,7 @@ import (
 	RateLimit?: =~"^[0-9]+\\.?[0-9]*(Mbps|Gbps|Tbps)$"
 
 	// The tags associated with the private virtual interface.
-	Tags?: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MinItems(1) & list.UniqueItems() & [...#Tag]
 
 	// The ID or ARN of the virtual private gateway.
 	VirtualGatewayId?: =~"^(arn:aws[a-z-]*:ec2:[a-z0-9-]+:[0-9]{12}:vpn-gateway/)?vgw-[a-zA-Z0-9]{8,32}$"
@@ -69,7 +67,7 @@ import (
 }) & matchN(>=1, [{DirectConnectGatewayId!: _}, {VirtualGatewayId!: _}])
 
 // Information about a BGP peer.
-_#defs: "/$defs/Properties/definitions/BgpPeer": close({
+#BgpPeer: close({
 	// The address family for the BGP peer.
 	AddressFamily!: =~"^(ipv4)|(ipv6)$"
 
@@ -89,7 +87,7 @@ _#defs: "/$defs/Properties/definitions/BgpPeer": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

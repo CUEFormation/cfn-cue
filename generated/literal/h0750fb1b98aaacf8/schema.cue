@@ -14,72 +14,72 @@ import (
 #Properties: close({
 	// A generated unique ID for the EC2 Auto Scaling group that is associated with
 	// this game server group.
-	AutoScalingGroupArn?: _#defs."/$defs/Properties/definitions/AutoScalingGroupArn"
+	AutoScalingGroupArn?: #AutoScalingGroupArn
 
 	// Configuration settings to define a scaling policy for the Auto Scaling group
 	// that is optimized for game hosting. Updating this game server group property
 	// will not take effect for the created EC2 Auto Scaling group, please update
 	// the EC2 Auto Scaling group directly after creating the resource.
-	AutoScalingPolicy?: _#defs."/$defs/Properties/definitions/AutoScalingPolicy"
+	AutoScalingPolicy?: #AutoScalingPolicy
 
 	// The fallback balancing method to use for the game server group when Spot
 	// Instances in a Region become unavailable or are not viable for game hosting.
-	BalancingStrategy?: _#defs."/$defs/Properties/definitions/BalancingStrategy"
+	BalancingStrategy?: #BalancingStrategy
 
 	// The type of delete to perform.
-	DeleteOption?: _#defs."/$defs/Properties/definitions/DeleteOption"
+	DeleteOption?: #DeleteOption
 
 	// A generated unique ID for the game server group.
-	GameServerGroupArn?: _#defs."/$defs/Properties/definitions/GameServerGroupArn"
+	GameServerGroupArn?: #GameServerGroupArn
 
 	// An identifier for the new game server group.
-	GameServerGroupName!: _#defs."/$defs/Properties/definitions/GameServerGroupName"
+	GameServerGroupName!: #GameServerGroupName
 
 	// A flag that indicates whether instances in the game server group are
 	// protected from early termination.
-	GameServerProtectionPolicy?: _#defs."/$defs/Properties/definitions/GameServerProtectionPolicy"
+	GameServerProtectionPolicy?: #GameServerProtectionPolicy
 
 	// A set of EC2 instance types to use when creating instances in the group.
-	InstanceDefinitions!: _#defs."/$defs/Properties/definitions/InstanceDefinitions"
+	InstanceDefinitions!: #InstanceDefinitions
 
 	// The EC2 launch template that contains configuration settings and game server
 	// code to be deployed to all instances in the game server group. Updating this
 	// game server group property will not take effect for the created EC2 Auto
 	// Scaling group, please update the EC2 Auto Scaling group directly after
 	// creating the resource.
-	LaunchTemplate?: _#defs."/$defs/Properties/definitions/LaunchTemplate"
+	LaunchTemplate?: #LaunchTemplate
 
 	// The maximum number of instances allowed in the EC2 Auto Scaling group.
 	// Updating this game server group property will not take effect for the
 	// created EC2 Auto Scaling group, please update the EC2 Auto Scaling group
 	// directly after creating the resource.
-	MaxSize?: _#defs."/$defs/Properties/definitions/MaxSize"
+	MaxSize?: #MaxSize
 
 	// The minimum number of instances allowed in the EC2 Auto Scaling group.
 	// Updating this game server group property will not take effect for the
 	// created EC2 Auto Scaling group, please update the EC2 Auto Scaling group
 	// directly after creating the resource.
-	MinSize?: _#defs."/$defs/Properties/definitions/MinSize"
+	MinSize?: #MinSize
 
 	// The Amazon Resource Name (ARN) for an IAM role that allows Amazon GameLift to
 	// access your EC2 Auto Scaling groups.
-	RoleArn!: _#defs."/$defs/Properties/definitions/RoleArn"
+	RoleArn!: #RoleArn
 
 	// A list of labels to assign to the new game server group resource. Updating
 	// game server group tags with CloudFormation will not take effect. Please
 	// update this property using AWS GameLift APIs instead.
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Tags?: #Tags
 
 	// A list of virtual private cloud (VPC) subnets to use with instances in the
 	// game server group. Updating this game server group property will not take
 	// effect for the created EC2 Auto Scaling group, please update the EC2 Auto
 	// Scaling group directly after creating the resource.
-	VpcSubnets?: _#defs."/$defs/Properties/definitions/VpcSubnets"
+	VpcSubnets?: #VpcSubnets
 })
 
 // A generated unique ID for the EC2 Auto Scaling group that is associated with
 // this game server group.
-_#defs: "/$defs/Properties/definitions/AutoScalingGroupArn": strings.MaxRunes(256) &
+#AutoScalingGroupArn: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"""
 	[ -\ud7ff\ue000-�𐀀-\U0010ffff\r
@@ -90,126 +90,112 @@ strings.MinRunes(0) &
 // that is optimized for game hosting. Updating this game server group property
 // will not take effect for the created EC2 Auto Scaling group, please update
 // the EC2 Auto Scaling group directly after creating the resource.
-_#defs: "/$defs/Properties/definitions/AutoScalingPolicy": close({
-	EstimatedInstanceWarmup?:     _#defs."/$defs/Properties/definitions/EstimatedInstanceWarmup"
-	TargetTrackingConfiguration!: _#defs."/$defs/Properties/definitions/TargetTrackingConfiguration"
+#AutoScalingPolicy: close({
+	EstimatedInstanceWarmup?:     #EstimatedInstanceWarmup
+	TargetTrackingConfiguration!: #TargetTrackingConfiguration
 })
 
 // The fallback balancing method to use for the game server group when Spot
 // Instances in a Region become unavailable or are not viable for game hosting.
-_#defs: "/$defs/Properties/definitions/BalancingStrategy": "SPOT_ONLY" | "SPOT_PREFERRED" | "ON_DEMAND_ONLY"
+#BalancingStrategy: "SPOT_ONLY" | "SPOT_PREFERRED" | "ON_DEMAND_ONLY"
 
 // A timestamp that indicates when this data object was created.
-_#defs: "/$defs/Properties/definitions/CreationTime": string
+#CreationTime: string
 
 // The type of delete to perform.
-_#defs: "/$defs/Properties/definitions/DeleteOption": "SAFE_DELETE" | "FORCE_DELETE" | "RETAIN"
+#DeleteOption: "SAFE_DELETE" | "FORCE_DELETE" | "RETAIN"
 
 // Length of time, in seconds, it takes for a new instance to start new game
 // server processes and register with GameLift FleetIQ.
-_#defs: "/$defs/Properties/definitions/EstimatedInstanceWarmup": >=1
+#EstimatedInstanceWarmup: >=1
 
 // Properties that describe a game server group resource. A game server group
 // manages certain properties of a corresponding EC2 Auto Scaling group.
-_#defs: "/$defs/Properties/definitions/GameServerGroup": close({
-	AutoScalingGroupArn?:        _#defs."/$defs/Properties/definitions/AutoScalingGroupArn"
-	BalancingStrategy?:          _#defs."/$defs/Properties/definitions/BalancingStrategy"
-	CreationTime?:               _#defs."/$defs/Properties/definitions/CreationTime"
-	GameServerGroupArn?:         _#defs."/$defs/Properties/definitions/GameServerGroupArn"
-	GameServerGroupName?:        _#defs."/$defs/Properties/definitions/GameServerGroupName"
-	GameServerProtectionPolicy?: _#defs."/$defs/Properties/definitions/GameServerProtectionPolicy"
-	InstanceDefinitions?:        _#defs."/$defs/Properties/definitions/InstanceDefinitions"
-	LastUpdatedTime?:            _#defs."/$defs/Properties/definitions/LastUpdatedTime"
-	RoleArn?:                    _#defs."/$defs/Properties/definitions/RoleArn"
-	Status?:                     _#defs."/$defs/Properties/definitions/Status"
-	StatusReason?:               _#defs."/$defs/Properties/definitions/StatusReason"
-	SuspendedActions?:           _#defs."/$defs/Properties/definitions/SuspendedActions"
+#GameServerGroup: close({
+	AutoScalingGroupArn?:        #AutoScalingGroupArn
+	BalancingStrategy?:          #BalancingStrategy
+	CreationTime?:               #CreationTime
+	GameServerGroupArn?:         #GameServerGroupArn
+	GameServerGroupName?:        #GameServerGroupName
+	GameServerProtectionPolicy?: #GameServerProtectionPolicy
+	InstanceDefinitions?:        #InstanceDefinitions
+	LastUpdatedTime?:            #LastUpdatedTime
+	RoleArn?:                    #RoleArn
+	Status?:                     #Status
+	StatusReason?:               #StatusReason
+	SuspendedActions?:           #SuspendedActions
 })
 
 // A generated unique ID for the game server group.
-_#defs: "/$defs/Properties/definitions/GameServerGroupArn": strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^arn:.*:gameservergroup\\/[a-zA-Z0-9-\\.]*"
+#GameServerGroupArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:.*:gameservergroup\\/[a-zA-Z0-9-\\.]*"
 
 // An identifier for the new game server group.
-_#defs: "/$defs/Properties/definitions/GameServerGroupName": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"[a-zA-Z0-9-\\.]+"
+#GameServerGroupName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]+"
 
 // A flag that indicates whether instances in the game server group are
 // protected from early termination.
-_#defs: "/$defs/Properties/definitions/GameServerProtectionPolicy": "NO_PROTECTION" | "FULL_PROTECTION"
+#GameServerProtectionPolicy: "NO_PROTECTION" | "FULL_PROTECTION"
 
 // An allowed instance type for your game server group.
-_#defs: "/$defs/Properties/definitions/InstanceDefinition": close({
-	InstanceType!:     _#defs."/$defs/Properties/definitions/InstanceType"
-	WeightedCapacity?: _#defs."/$defs/Properties/definitions/WeightedCapacity"
+#InstanceDefinition: close({
+	InstanceType!:     #InstanceType
+	WeightedCapacity?: #WeightedCapacity
 })
 
 // A set of EC2 instance types to use when creating instances in the group.
-_#defs: "/$defs/Properties/definitions/InstanceDefinitions": list.MaxItems(20) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/InstanceDefinition"
-]
+#InstanceDefinitions: list.MaxItems(20) & list.MinItems(2) & [...#InstanceDefinition]
 
 // An EC2 instance type designation.
-_#defs: "/$defs/Properties/definitions/InstanceType": string
+#InstanceType: string
 
 // A timestamp that indicates when this game server group was last updated.
-_#defs: "/$defs/Properties/definitions/LastUpdatedTime": string
+#LastUpdatedTime: string
 
 // The EC2 launch template that contains configuration settings and game server
 // code to be deployed to all instances in the game server group. Updating this
 // game server group property will not take effect for the created EC2 Auto
 // Scaling group, please update the EC2 Auto Scaling group directly after
 // creating the resource.
-_#defs: "/$defs/Properties/definitions/LaunchTemplate": close({
-	LaunchTemplateId?:   _#defs."/$defs/Properties/definitions/LaunchTemplateId"
-	LaunchTemplateName?: _#defs."/$defs/Properties/definitions/LaunchTemplateName"
-	Version?:            _#defs."/$defs/Properties/definitions/Version"
+#LaunchTemplate: close({
+	LaunchTemplateId?:   #LaunchTemplateId
+	LaunchTemplateName?: #LaunchTemplateName
+	Version?:            #Version
 })
 
 // A unique identifier for an existing EC2 launch template.
-_#defs: "/$defs/Properties/definitions/LaunchTemplateId": strings.MaxRunes(255) & strings.MinRunes(1)
+#LaunchTemplateId: strings.MaxRunes(255) & strings.MinRunes(1)
 
 // A readable identifier for an existing EC2 launch template.
-_#defs: "/$defs/Properties/definitions/LaunchTemplateName": strings.MaxRunes(128) &
-strings.MinRunes(3) &
-=~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$"
+#LaunchTemplateName: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$"
 
 // The maximum number of instances allowed in the EC2 Auto Scaling group.
 // Updating this game server group property will not take effect for the
 // created EC2 Auto Scaling group, please update the EC2 Auto Scaling group
 // directly after creating the resource.
-_#defs: "/$defs/Properties/definitions/MaxSize": >=1
+#MaxSize: >=1
 
 // The minimum number of instances allowed in the EC2 Auto Scaling group.
 // Updating this game server group property will not take effect for the
 // created EC2 Auto Scaling group, please update the EC2 Auto Scaling group
 // directly after creating the resource.
-_#defs: "/$defs/Properties/definitions/MinSize": >=0
+#MinSize: >=0
 
 // The Amazon Resource Name (ARN) for an IAM role that allows Amazon GameLift to
 // access your EC2 Auto Scaling groups.
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:.*:role\\/[\\w+=,.@-]+"
 
 // The current status of the game server group.
-_#defs: "/$defs/Properties/definitions/Status": "NEW" |
-	"ACTIVATING" |
-	"ACTIVE" |
-	"DELETE_SCHEDULED" |
-	"DELETING" |
-	"DELETED" |
-	"ERROR"
+#Status: "NEW" | "ACTIVATING" | "ACTIVE" | "DELETE_SCHEDULED" | "DELETING" | "DELETED" | "ERROR"
 
 // Additional information about the current game server group status.
-_#defs: "/$defs/Properties/definitions/StatusReason": strings.MaxRunes(1024) & strings.MinRunes(1)
+#StatusReason: strings.MaxRunes(1024) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/SuspendedActions": [..."REPLACE_INSTANCE_TYPES"]
+#SuspendedActions: [..."REPLACE_INSTANCE_TYPES"]
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for a developer-defined key:value pair for tagging an AWS resource.
 	Key?: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -218,29 +204,25 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // A list of labels to assign to the new game server group resource.
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(200) & [...] & [...#Tag]
 
 // Settings for a target-based scaling policy applied to Auto Scaling group.
-_#defs: "/$defs/Properties/definitions/TargetTrackingConfiguration": close(
-	{TargetValue!: _#defs."/$defs/Properties/definitions/TargetValue"},
-)
+#TargetTrackingConfiguration: close({TargetValue!: #TargetValue})
 
 // Desired value to use with a game server group target-based scaling policy.
-_#defs: "/$defs/Properties/definitions/TargetValue": >=0
+#TargetValue: >=0
 
 // The version of the EC2 launch template to use.
-_#defs: "/$defs/Properties/definitions/Version": strings.MaxRunes(128) & strings.MinRunes(1)
+#Version: strings.MaxRunes(128) & strings.MinRunes(1)
 
 // A list of virtual private cloud (VPC) subnets to use with instances in the
 // game server group. Updating this game server group property will not take
 // effect for the created EC2 Auto Scaling group, please update the EC2 Auto
 // Scaling group directly after creating the resource.
-_#defs: "/$defs/Properties/definitions/VpcSubnets": list.MaxItems(20) & list.MinItems(1) & [
+#VpcSubnets: list.MaxItems(20) & list.MinItems(1) & [
 	...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[0-9a-z]+$"
 ]
 
 // Instance weighting that indicates how much this instance type contributes to
 // the total capacity of a game server group.
-_#defs: "/$defs/Properties/definitions/WeightedCapacity": =~"^[\\x{0031}-\\x{0039}][\\x{0030}-\\x{0039}]{0,2}$"
+#WeightedCapacity: =~"^[\\x{0031}-\\x{0039}][\\x{0030}-\\x{0039}]{0,2}$"

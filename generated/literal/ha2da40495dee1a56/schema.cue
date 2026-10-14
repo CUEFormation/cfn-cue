@@ -15,27 +15,21 @@ import (
 	Description?: strings.MaxRunes(160) & strings.MinRunes(0)
 
 	// Start or Stop Launch Launch. Default is not started.
-	ExecutionStatus?: _#defs."/$defs/Properties/definitions/ExecutionStatusObject"
-	Groups!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/LaunchGroupObject"
-	]
-	MetricMonitors?: list.MaxItems(3) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/MetricDefinitionObject"
-	]
-	Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*"
+	ExecutionStatus?: #ExecutionStatusObject
+	Groups!:          list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#LaunchGroupObject]
+	MetricMonitors?:  list.MaxItems(3) & list.UniqueItems() & [...] & [...#MetricDefinitionObject]
+	Name!:            strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*"
 	Project!: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)"
-	RandomizationSalt?: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*"
-	ScheduledSplitsConfig!: list.MaxItems(6) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/StepConfig"
-	]
+	RandomizationSalt?:     strings.MaxRunes(127) & strings.MinRunes(0) & =~".*"
+	ScheduledSplitsConfig!: list.MaxItems(6) & list.MinItems(1) & list.UniqueItems() & [...#StepConfig]
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ExecutionStatusObject": close({
+#ExecutionStatusObject: close({
 	// Provide CANCELLED or COMPLETED as the launch desired state. Defaults to
 	// Completed if not provided.
 	DesiredState?: string
@@ -47,19 +41,19 @@ _#defs: "/$defs/Properties/definitions/ExecutionStatusObject": close({
 	Status!: string
 })
 
-_#defs: "/$defs/Properties/definitions/GroupToWeight": close({
+#GroupToWeight: close({
 	GroupName!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*"
 	SplitWeight!: int
 })
 
-_#defs: "/$defs/Properties/definitions/LaunchGroupObject": close({
+#LaunchGroupObject: close({
 	Description?: strings.MaxRunes(160) & strings.MinRunes(0)
 	Feature!:     string
 	GroupName!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*"
 	Variation!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/MetricDefinitionObject": close({
+#MetricDefinitionObject: close({
 	// The JSON path to reference the entity id in the event.
 	EntityIdKey!: string
 
@@ -74,22 +68,22 @@ _#defs: "/$defs/Properties/definitions/MetricDefinitionObject": close({
 	ValueKey!: string
 })
 
-_#defs: "/$defs/Properties/definitions/SegmentOverride": close({
+#SegmentOverride: close({
 	EvaluationOrder!: int
 	Segment!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:segment/[-a-zA-Z0-9._]*)"
-	Weights!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupToWeight"]
+	Weights!: list.UniqueItems() & [...#GroupToWeight]
 })
 
-_#defs: "/$defs/Properties/definitions/StepConfig": close({
-	GroupWeights!:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupToWeight"]
-	SegmentOverrides?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SegmentOverride"]
+#StepConfig: close({
+	GroupWeights!:     list.UniqueItems() & [...#GroupToWeight]
+	SegmentOverrides?: list.UniqueItems() & [...#SegmentOverride]
 	StartTime!:        string
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

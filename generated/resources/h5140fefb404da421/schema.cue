@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Backup::TieringConfiguration
 #Properties: close({
 	BackupVaultName!:          string | fn.#StringExpression
-	ResourceSelection!:        [..._#defs."/$defs/Properties/definitions/ResourceSelection"] | fn.#ListExpression
+	ResourceSelection!:        [...#ResourceSelection] | fn.#ListExpression
 	TieringConfigurationName!: string | fn.#StringExpression
 	TieringConfigurationTags?: close({
 
@@ -23,7 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceSelection": close({
+#ResourceSelection: close({
 	ResourceType!: string | fn.#StringExpression
 	Resources!:    [...string | fn.#StringExpression] | fn.#ListExpression
 	TieringDownSettingsInDays!: int |

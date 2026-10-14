@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"math"
+	"list"
 	"strings"
 )
 
@@ -89,11 +89,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // contact AWS Support or your Technical Account Manager.
 #Properties: close({
 	AvailabilityZoneRebalancing?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	CapacityProviderStrategy?: [..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"] |
-		fn.#ListExpression
-	Cluster?:                 string | fn.#StringExpression
-	DeploymentConfiguration?: _#defs."/$defs/Properties/definitions/DeploymentConfiguration" | fn.#ObjectExpression
-	DeploymentController?:    _#defs."/$defs/Properties/definitions/DeploymentController" | fn.#ObjectExpression
+	CapacityProviderStrategy?:    [...#CapacityProviderStrategyItem] | fn.#ListExpression
+	Cluster?:                     string | fn.#StringExpression
+	DeploymentConfiguration?:     #DeploymentConfiguration | fn.#ObjectExpression
+	DeploymentController?:        #DeploymentController | fn.#ObjectExpression
 	DesiredCount?: int |
 		{
 			string &
@@ -110,7 +109,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	EnableECSManagedTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ForceNewDeployment?:   _#defs."/$defs/Properties/definitions/ForceNewDeployment" | fn.#ObjectExpression
+	ForceNewDeployment?:   #ForceNewDeployment | fn.#ObjectExpression
 	HealthCheckGracePeriodSeconds?: int |
 		{
 			string &
@@ -125,27 +124,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	LaunchType?:           "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
-	LoadBalancers?:        [..._#defs."/$defs/Properties/definitions/LoadBalancer"] | fn.#ListExpression
-	Monitoring?:           _#defs."/$defs/Properties/definitions/MonitoringConfiguration" | fn.#ObjectExpression
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration" | fn.#ObjectExpression
-	PlacementConstraints?: [..._#defs."/$defs/Properties/definitions/PlacementConstraint"] | fn.#ListExpression
-	PlacementStrategies?:  [..._#defs."/$defs/Properties/definitions/PlacementStrategy"] | fn.#ListExpression
-	PlatformVersion?:      string | fn.#StringExpression
-	PropagateTags?:        "SERVICE" | "TASK_DEFINITION" | fn.#StringExpression
-	Role?:                 string | fn.#StringExpression
-	SchedulingStrategy?:   "DAEMON" | "REPLICA" | fn.#StringExpression
-	ServiceConnectConfiguration?: _#defs."/$defs/Properties/definitions/ServiceConnectConfiguration" |
-		fn.#ObjectExpression
-	ServiceName?:       string | fn.#StringExpression
-	ServiceRegistries?: [..._#defs."/$defs/Properties/definitions/ServiceRegistry"] | fn.#ListExpression
-	Tags?:              list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TaskDefinition?:    string | fn.#StringExpression
-	VolumeConfigurations?: [..._#defs."/$defs/Properties/definitions/ServiceVolumeConfiguration"] | fn.#ListExpression
-	VpcLatticeConfigurations?: [..._#defs."/$defs/Properties/definitions/VpcLatticeConfiguration"] | fn.#ListExpression
+	LaunchType?:                  "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
+	LoadBalancers?:               [...#LoadBalancer] | fn.#ListExpression
+	Monitoring?:                  #MonitoringConfiguration | fn.#ObjectExpression
+	NetworkConfiguration?:        #NetworkConfiguration | fn.#ObjectExpression
+	PlacementConstraints?:        [...#PlacementConstraint] | fn.#ListExpression
+	PlacementStrategies?:         [...#PlacementStrategy] | fn.#ListExpression
+	PlatformVersion?:             string | fn.#StringExpression
+	PropagateTags?:               "SERVICE" | "TASK_DEFINITION" | fn.#StringExpression
+	Role?:                        string | fn.#StringExpression
+	SchedulingStrategy?:          "DAEMON" | "REPLICA" | fn.#StringExpression
+	ServiceConnectConfiguration?: #ServiceConnectConfiguration | fn.#ObjectExpression
+	ServiceName?:                 string | fn.#StringExpression
+	ServiceRegistries?:           [...#ServiceRegistry] | fn.#ListExpression
+	Tags?:                        list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	TaskDefinition?:              string | fn.#StringExpression
+	VolumeConfigurations?:        [...#ServiceVolumeConfiguration] | fn.#ListExpression
+	VpcLatticeConfigurations?:    [...#VpcLatticeConfiguration] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AdvancedConfiguration": close({
+#AdvancedConfiguration: close({
 	AlternateTargetGroupArn!: string | fn.#StringExpression
 	ProductionListenerRule?:  string | fn.#StringExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -154,7 +152,7 @@ _#defs: "/$defs/Properties/definitions/AdvancedConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
+#AwsVpcConfiguration: close({
 	AssignPublicIp?: "DISABLED" | "ENABLED" | fn.#StringExpression
 	SecurityGroups?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -165,7 +163,7 @@ _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CanaryConfiguration": close({
+#CanaryConfiguration: close({
 	CanaryBakeTimeInMinutes?: int & <=1440 & >=0 |
 		{
 			string &
@@ -186,7 +184,7 @@ _#defs: "/$defs/Properties/definitions/CanaryConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
+#CapacityProviderStrategyItem: close({
 	Base?: int & <=100000 & >=0 |
 		{
 			string &
@@ -223,23 +221,23 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentAlarms": close({
+#DeploymentAlarms: close({
 	AlarmNames!: [...string | fn.#StringExpression] | fn.#ListExpression
 	Enable!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Rollback!:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentCircuitBreaker": close({
+#DeploymentCircuitBreaker: close({
 	Enable!:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ResetOnHealthyTask?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Rollback!:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ThresholdConfiguration?: _#defs."/$defs/Properties/definitions/ThresholdConfiguration" | fn.#ObjectExpression
+	ThresholdConfiguration?: #ThresholdConfiguration | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
-	Alarms?: _#defs."/$defs/Properties/definitions/DeploymentAlarms" | fn.#ObjectExpression
+#DeploymentConfiguration: close({
+	Alarms?: #DeploymentAlarms | fn.#ObjectExpression
 	BakeTimeInMinutes?: int & <=1440 & >=0 |
 		{
 			string &
@@ -256,11 +254,11 @@ _#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	CanaryConfiguration?:      _#defs."/$defs/Properties/definitions/CanaryConfiguration" | fn.#ObjectExpression
-	DeploymentCircuitBreaker?: _#defs."/$defs/Properties/definitions/DeploymentCircuitBreaker" | fn.#ObjectExpression
-	EarlySuccessCriteria?: _#defs."/$defs/Properties/definitions/DeploymentEarlySuccessCriteria" | fn.#ObjectExpression
-	LifecycleHooks?:       [..._#defs."/$defs/Properties/definitions/DeploymentLifecycleHook"] | fn.#ListExpression
-	LinearConfiguration?:  _#defs."/$defs/Properties/definitions/LinearConfiguration" | fn.#ObjectExpression
+	CanaryConfiguration?:      #CanaryConfiguration | fn.#ObjectExpression
+	DeploymentCircuitBreaker?: #DeploymentCircuitBreaker | fn.#ObjectExpression
+	EarlySuccessCriteria?:     #DeploymentEarlySuccessCriteria | fn.#ObjectExpression
+	LifecycleHooks?:           [...#DeploymentLifecycleHook] | fn.#ListExpression
+	LinearConfiguration?:      #LinearConfiguration | fn.#ObjectExpression
 	MaximumPercent?: int |
 		{
 			string &
@@ -293,12 +291,9 @@ _#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentController": close(
-	{Type?: "CODE_DEPLOY" | "ECS" | "EXTERNAL" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#DeploymentController: close({Type?: "CODE_DEPLOY" | "ECS" | "EXTERNAL" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentEarlySuccessCriteria": close({
+#DeploymentEarlySuccessCriteria: close({
 	Enable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	HealthyPercent?: int & <=100 & >=0 |
 		{
@@ -320,7 +315,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentEarlySuccessCriteria": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentLifecycleHook": close({
+#DeploymentLifecycleHook: close({
 	HookDetails?:   fn.#Object & {...} | string | fn.#StringObjectExpression
 	HookTargetArn?: string | fn.#StringExpression
 	LifecycleStages!: list.MinItems(1) & [
@@ -338,24 +333,24 @@ _#defs: "/$defs/Properties/definitions/DeploymentLifecycleHook": close({
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	TargetType?:           "AWS_LAMBDA" | "PAUSE" | fn.#StringExpression
-	TimeoutConfiguration?: _#defs."/$defs/Properties/definitions/HookTimeoutConfig" | fn.#ObjectExpression
+	TimeoutConfiguration?: #HookTimeoutConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EBSTagSpecification": close({
+#EBSTagSpecification: close({
 	PropagateTags?: "SERVICE" | "TASK_DEFINITION" | fn.#StringExpression
 	ResourceType!:  "volume" | fn.#StringExpression
-	Tags?:          list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:          list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ForceNewDeployment": close({
+#ForceNewDeployment: close({
 	EnableForceNewDeployment!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ForceNewDeploymentNonce?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HookTimeoutConfig": close({
+#HookTimeoutConfig: close({
 	Action?: "ROLLBACK" | "CONTINUE" | fn.#StringExpression
 	TimeoutInMinutes?: int & <=20160 & >=1 |
 		{
@@ -376,7 +371,7 @@ _#defs: "/$defs/Properties/definitions/HookTimeoutConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LinearConfiguration": close({
+#LinearConfiguration: close({
 	StepBakeTimeInMinutes?: int & <=1440 & >=0 |
 		{
 			string &
@@ -397,8 +392,8 @@ _#defs: "/$defs/Properties/definitions/LinearConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoadBalancer": close({
-	AdvancedConfiguration?: _#defs."/$defs/Properties/definitions/AdvancedConfiguration" | fn.#ObjectExpression
+#LoadBalancer: close({
+	AdvancedConfiguration?: #AdvancedConfiguration | fn.#ObjectExpression
 	ContainerName?:         string | fn.#StringExpression
 	ContainerPort?: int |
 		{
@@ -419,17 +414,17 @@ _#defs: "/$defs/Properties/definitions/LoadBalancer": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	LogDriver?: string | fn.#StringExpression
 	Options?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	SecretOptions?: [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
+	SecretOptions?: [...#Secret] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricConfiguration": close({
+#MetricConfiguration: close({
 	MetricNames!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
 		...("CPUUtilization" | "MemoryUtilization") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
 		fn.#StringExpression
@@ -439,44 +434,38 @@ _#defs: "/$defs/Properties/definitions/MetricConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
-	MetricConfigurations!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MetricConfiguration"
-	] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close(
-	{AwsvpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration" | fn.#ObjectExpression},
+#MonitoringConfiguration: close(
+	{MetricConfigurations!: list.MaxItems(2) & list.MinItems(1) & [...#MetricConfiguration] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementConstraint": close({
+#NetworkConfiguration: close({AwsvpcConfiguration?: #AwsVpcConfiguration | fn.#ObjectExpression}) | fn.#ObjectExpression
+
+#PlacementConstraint: close({
 	Expression?: string | fn.#StringExpression
 	Type!:       "distinctInstance" | "memberOf" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementStrategy": close({
+#PlacementStrategy: close({
 	Field?: string | fn.#StringExpression
 	Type!:  "binpack" | "random" | "spread" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Secret": close({
+#Secret: close({
 	Name!:      string | fn.#StringExpression
 	ValueFrom!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectAccessLogConfiguration": close({
+#ServiceConnectAccessLogConfiguration: close({
 	Format!:                 "TEXT" | "JSON" | fn.#StringExpression
 	IncludeQueryParameters?: "DISABLED" | "ENABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectClientAlias": close({
+#ServiceConnectClientAlias: close({
 	DnsName?: string | fn.#StringExpression
 	Port!: int & <=65535 & >=0 |
 		{
@@ -494,22 +483,21 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectClientAlias": close({
 				)
 		} |
 		fn.#NumberExpression
-	TestTrafficRules?: _#defs."/$defs/Properties/definitions/ServiceConnectTestTrafficRules" | fn.#ObjectExpression
+	TestTrafficRules?: #ServiceConnectTestTrafficRules | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectConfiguration": close({
-	AccessLogConfiguration?: _#defs."/$defs/Properties/definitions/ServiceConnectAccessLogConfiguration" |
-		fn.#ObjectExpression
-	Enabled!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
-	Namespace?:        string | fn.#StringExpression
-	Services?:         [..._#defs."/$defs/Properties/definitions/ServiceConnectService"] | fn.#ListExpression
+#ServiceConnectConfiguration: close({
+	AccessLogConfiguration?: #ServiceConnectAccessLogConfiguration | fn.#ObjectExpression
+	Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	LogConfiguration?:       #LogConfiguration | fn.#ObjectExpression
+	Namespace?:              string | fn.#StringExpression
+	Services?:               [...#ServiceConnectService] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectService": close({
-	ClientAliases?: [..._#defs."/$defs/Properties/definitions/ServiceConnectClientAlias"] | fn.#ListExpression
+#ServiceConnectService: close({
+	ClientAliases?: [...#ServiceConnectClientAlias] | fn.#ListExpression
 	DiscoveryName?: string | fn.#StringExpression
 	IngressPortOverride?: int & <=65535 & >=0 |
 		{
@@ -528,42 +516,34 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectService": close({
 		} |
 		fn.#NumberExpression
 	PortName!: string | fn.#StringExpression
-	Timeout?:  _#defs."/$defs/Properties/definitions/TimeoutConfiguration" | fn.#ObjectExpression
-	Tls?:      _#defs."/$defs/Properties/definitions/ServiceConnectTlsConfiguration" | fn.#ObjectExpression
+	Timeout?:  #TimeoutConfiguration | fn.#ObjectExpression
+	Tls?:      #ServiceConnectTlsConfiguration | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectTestTrafficRules": close(
-	{Header!: _#defs."/$defs/Properties/definitions/ServiceConnectTestTrafficRulesHeader" | fn.#ObjectExpression},
-) |
+#ServiceConnectTestTrafficRules: close({Header!: #ServiceConnectTestTrafficRulesHeader | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectTestTrafficRulesHeader": close({
+#ServiceConnectTestTrafficRulesHeader: close({
 	Name!:  string | fn.#StringExpression
-	Value?: _#defs."/$defs/Properties/definitions/ServiceConnectTestTrafficRulesHeaderValue" | fn.#ObjectExpression
+	Value?: #ServiceConnectTestTrafficRulesHeaderValue | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectTestTrafficRulesHeaderValue": close(
-	{Exact!: string | fn.#StringExpression},
-) |
+#ServiceConnectTestTrafficRulesHeaderValue: close({Exact!: string | fn.#StringExpression}) | fn.#ObjectExpression
+
+#ServiceConnectTlsCertificateAuthority: close({AwsPcaAuthorityArn?: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceConnectTlsCertificateAuthority": close(
-	{AwsPcaAuthorityArn?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/ServiceConnectTlsConfiguration": close({
-	IssuerCertificateAuthority!: _#defs."/$defs/Properties/definitions/ServiceConnectTlsCertificateAuthority" |
-		fn.#ObjectExpression
-	KmsKey?: string | fn.#StringExpression
+#ServiceConnectTlsConfiguration: close({
+	IssuerCertificateAuthority!: #ServiceConnectTlsCertificateAuthority | fn.#ObjectExpression
+	KmsKey?:                     string | fn.#StringExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration": close({
+#ServiceManagedEBSVolumeConfiguration: close({
 	Encrypted?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FilesystemType?: "ext3" | "ext4" | "ntfs" | "xfs" | fn.#StringExpression
 	Iops?: int |
@@ -600,7 +580,7 @@ _#defs: "/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration": cl
 		} |
 		fn.#NumberExpression
 	SnapshotId?:        string | fn.#StringExpression
-	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/EBSTagSpecification"] | fn.#ListExpression
+	TagSpecifications?: [...#EBSTagSpecification] | fn.#ListExpression
 	Throughput?: int |
 		{
 			string &
@@ -633,7 +613,7 @@ _#defs: "/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceRegistry": close({
+#ServiceRegistry: close({
 	ContainerName?: string | fn.#StringExpression
 	ContainerPort?: int |
 		{
@@ -667,20 +647,19 @@ _#defs: "/$defs/Properties/definitions/ServiceRegistry": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceVolumeConfiguration": close({
-	ManagedEBSVolume?: _#defs."/$defs/Properties/definitions/ServiceManagedEBSVolumeConfiguration" |
-		fn.#ObjectExpression
-	Name!: string | fn.#StringExpression
+#ServiceVolumeConfiguration: close({
+	ManagedEBSVolume?: #ServiceManagedEBSVolumeConfiguration | fn.#ObjectExpression
+	Name!:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThresholdConfiguration": close({
+#ThresholdConfiguration: close({
 	Type!: "COUNT" | "BOUNDED_PERCENT" | "UNBOUNDED_PERCENT" | fn.#StringExpression
 	Value!: int |
 		{
@@ -699,7 +678,7 @@ _#defs: "/$defs/Properties/definitions/ThresholdConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeoutConfiguration": close({
+#TimeoutConfiguration: close({
 	IdleTimeoutSeconds?: int & <=2147483647 & >=0 |
 		{
 			string &
@@ -735,17 +714,16 @@ _#defs: "/$defs/Properties/definitions/TimeoutConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcLatticeAdvancedConfiguration": close({
+#VpcLatticeAdvancedConfiguration: close({
 	AlternateTargetGroupArn?: string | fn.#StringExpression
 	ProductionListenerRule?:  string | fn.#StringExpression
 	TestListenerRule?:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcLatticeConfiguration": close({
-	AdvancedConfiguration?: _#defs."/$defs/Properties/definitions/VpcLatticeAdvancedConfiguration" |
-		fn.#ObjectExpression
-	PortName!: string | fn.#StringExpression
+#VpcLatticeConfiguration: close({
+	AdvancedConfiguration?: #VpcLatticeAdvancedConfiguration | fn.#ObjectExpression
+	PortName!:              string | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	TargetGroupArn!: string | fn.#StringExpression

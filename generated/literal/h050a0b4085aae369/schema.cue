@@ -21,20 +21,20 @@ import (
 	OrganizationConfigRuleName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$"
 
 	// This object specifies metadata for your organization's AWS Config Custom Policy rule.
-	OrganizationCustomPolicyRuleMetadata?: _#defs."/$defs/Properties/definitions/OrganizationCustomPolicyRuleMetadata"
+	OrganizationCustomPolicyRuleMetadata?: #OrganizationCustomPolicyRuleMetadata
 
 	// This object specifies organization custom rule metadata such as resource
 	// type, resource ID of AWS resource, Lambda function ARN, and organization
 	// trigger types that trigger AWS Config to evaluate your AWS resources against
 	// a rule.
-	OrganizationCustomRuleMetadata?: _#defs."/$defs/Properties/definitions/OrganizationCustomRuleMetadata"
+	OrganizationCustomRuleMetadata?: #OrganizationCustomRuleMetadata
 
 	// This object specifies organization managed rule metadata such as resource
 	// type and ID of AWS resource along with the rule identifier.
-	OrganizationManagedRuleMetadata?: _#defs."/$defs/Properties/definitions/OrganizationManagedRuleMetadata"
+	OrganizationManagedRuleMetadata?: #OrganizationManagedRuleMetadata
 })
 
-_#defs: "/$defs/Properties/definitions/OrganizationCustomPolicyRuleMetadata": close({
+#OrganizationCustomPolicyRuleMetadata: close({
 	// A list of accounts that you can enable debug logging for your organization
 	// AWS Config Custom Policy rule.
 	DebugLogDeliveryAccounts?: list.MaxItems(1000) & [...] & [...=~"^\\d{12}$"]
@@ -71,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/OrganizationCustomPolicyRuleMetadata": cl
 	TagValueScope?: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/OrganizationCustomRuleMetadata": close({
+#OrganizationCustomRuleMetadata: close({
 	// The description that you provide for your organization AWS Config rule.
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0)
 
@@ -110,7 +110,7 @@ _#defs: "/$defs/Properties/definitions/OrganizationCustomRuleMetadata": close({
 	TagValueScope?: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/OrganizationManagedRuleMetadata": close({
+#OrganizationManagedRuleMetadata: close({
 	// The description that you provide for your organization AWS Config rule.
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0)
 

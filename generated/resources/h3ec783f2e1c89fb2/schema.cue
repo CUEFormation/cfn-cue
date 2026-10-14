@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,12 +13,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::RefactorSpaces::Application Resource Type
 #Properties: close({
-	ApiGatewayProxy?: _#defs."/$defs/Properties/definitions/ApiGatewayProxyInput"
+	ApiGatewayProxy?: #ApiGatewayProxyInput
 	EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
 	fn.#StringExpression
 	Name!:      strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	ProxyType!: _#defs."/$defs/Properties/definitions/ProxyType"
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ProxyType!: #ProxyType
+	Tags?:      [...#Tag] | fn.#ListExpression
 	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(21) &
 	strings.MinRunes(12) &
@@ -26,17 +26,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ApiGatewayEndpointType": "REGIONAL" | "PRIVATE" | fn.#StringExpression
+#ApiGatewayEndpointType: "REGIONAL" | "PRIVATE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ApiGatewayProxyInput": close({
-	EndpointType?: _#defs."/$defs/Properties/definitions/ApiGatewayEndpointType"
+#ApiGatewayProxyInput: close({
+	EndpointType?: #ApiGatewayEndpointType
 	StageName?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9_]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProxyType": "API_GATEWAY" | fn.#StringExpression
+#ProxyType: "API_GATEWAY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

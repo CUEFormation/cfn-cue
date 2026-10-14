@@ -13,39 +13,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 	EntityIdentifier!: string | fn.#StringExpression
 	EntityType!:       "DOMAIN_UNIT" | fn.#StringExpression
-	Owner!:            _#defs."/$defs/Properties/definitions/OwnerProperties" | fn.#ObjectExpression
+	Owner!:            #OwnerProperties | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/OwnerGroupProperties": close({
+#OwnerGroupProperties: close({
 	GroupIdentifier?: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r ]+)" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OwnerGroupPropertiesOutput": close({GroupId?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#OwnerGroupPropertiesOutput: close({GroupId?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OwnerProperties": fn.#Object & {...} & matchN(1, [close(
-	{Group?: _#defs."/$defs/Properties/definitions/OwnerGroupProperties"},
-), close(
-	{User?: _#defs."/$defs/Properties/definitions/OwnerUserProperties"},
-)]) |
+#OwnerProperties: fn.#Object & {...} & matchN(1, [
+	close({Group?: #OwnerGroupProperties}), close({User?: #OwnerUserProperties}),
+]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OwnerPropertiesOutput": close({
-	Group?: _#defs."/$defs/Properties/definitions/OwnerGroupPropertiesOutput"
-	User?:  _#defs."/$defs/Properties/definitions/OwnerUserPropertiesOutput"
+#OwnerPropertiesOutput: close({
+	Group?: #OwnerGroupPropertiesOutput
+	User?:  #OwnerUserPropertiesOutput
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OwnerUserProperties": close({
+#OwnerUserProperties: close({
 	UserIdentifier?: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|^[a-zA-Z_0-9+=,.@-]+$|^arn:aws:iam::\\d{12}:.+$)" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OwnerUserPropertiesOutput": close({UserId?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#OwnerUserPropertiesOutput: close({UserId?: string | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DataZone::Owner"
 	Properties!: #Properties

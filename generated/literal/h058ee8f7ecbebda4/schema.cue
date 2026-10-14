@@ -12,56 +12,48 @@ import (
 // Resource type definition for AWS::SSMIncidents::ResponsePlan
 #Properties: close({
 	// The list of actions.
-	Actions?: list.MaxItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action"]
+	Actions?: list.MaxItems(1) & list.UniqueItems() & [...#Action]
 
 	// The ARN of the response plan.
 	Arn?:         strings.MaxRunes(1000) & =~"^arn:aws(-(cn|us-gov))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
-	ChatChannel?: _#defs."/$defs/Properties/definitions/ChatChannel"
+	ChatChannel?: #ChatChannel
 
 	// The display name of the response plan.
 	DisplayName?: strings.MaxRunes(200) & strings.MinRunes(1)
 
 	// The list of engagements to use.
-	Engagements?:      list.MaxItems(5) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SSMContact"]
-	IncidentTemplate!: _#defs."/$defs/Properties/definitions/IncidentTemplate"
+	Engagements?:      list.MaxItems(5) & list.UniqueItems() & [...#SSMContact]
+	IncidentTemplate!: #IncidentTemplate
 
 	// The list of integrations.
-	Integrations?: list.MaxItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Integration"]
+	Integrations?: list.MaxItems(1) & list.UniqueItems() & [...#Integration]
 
 	// The name of the response plan.
 	Name!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]*$"
 
 	// The tags to apply to the response plan.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // The automation configuration to launch.
-_#defs: "/$defs/Properties/definitions/Action": close(
-	{SsmAutomation?: _#defs."/$defs/Properties/definitions/SsmAutomation"},
-)
+#Action: close({SsmAutomation?: #SsmAutomation})
 
 // The chat channel configuration.
-_#defs: "/$defs/Properties/definitions/ChatChannel": close(
-	{ChatbotSns?: _#defs."/$defs/Properties/definitions/ChatbotSns"},
-)
+#ChatChannel: close({ChatbotSns?: #ChatbotSns})
 
-_#defs: "/$defs/Properties/definitions/ChatbotSns": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/SnsArn"
-]
+#ChatbotSns: list.UniqueItems() & [...#SnsArn]
 
 // A parameter with a dynamic value to set when starting the SSM automation document.
-_#defs: "/$defs/Properties/definitions/DynamicSsmParameter": close({
+#DynamicSsmParameter: close({
 	Key!:   strings.MaxRunes(50) & strings.MinRunes(1)
-	Value!: _#defs."/$defs/Properties/definitions/DynamicSsmParameterValue"
+	Value!: #DynamicSsmParameterValue
 })
 
 // Value of the dynamic parameter to set when starting the SSM automation document.
-_#defs: "/$defs/Properties/definitions/DynamicSsmParameterValue": close(
-	{Variable?: _#defs."/$defs/Properties/definitions/VariableType"},
-)
+#DynamicSsmParameterValue: close({Variable?: #VariableType})
 
 // The incident template configuration.
-_#defs: "/$defs/Properties/definitions/IncidentTemplate": close({
+#IncidentTemplate: close({
 	// The deduplication string.
 	DedupeString?: strings.MaxRunes(1000) & strings.MinRunes(1)
 
@@ -69,10 +61,10 @@ _#defs: "/$defs/Properties/definitions/IncidentTemplate": close({
 	Impact!: int & <=5 & >=1
 
 	// Tags that get applied to incidents created by the StartIncident API action.
-	IncidentTags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	IncidentTags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The list of notification targets.
-	NotificationTargets?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/NotificationTargetItem"]
+	NotificationTargets?: list.MaxItems(10) & [...] & [...#NotificationTargetItem]
 
 	// The summary string.
 	Summary?: strings.MaxRunes(4000) & strings.MinRunes(1)
@@ -81,42 +73,37 @@ _#defs: "/$defs/Properties/definitions/IncidentTemplate": close({
 	Title!: strings.MaxRunes(200)
 })
 
-_#defs: "/$defs/Properties/definitions/Integration": close(
-	{PagerDutyConfiguration?: _#defs."/$defs/Properties/definitions/PagerDutyConfiguration"},
-) & matchN(>=1, [{PagerDutyConfiguration!: _}])
+#Integration: close({PagerDutyConfiguration?: #PagerDutyConfiguration}) & matchN(>=1, [{PagerDutyConfiguration!: _}])
 
 // A notification target.
-_#defs: "/$defs/Properties/definitions/NotificationTargetItem": close(
-	{SnsTopicArn?: _#defs."/$defs/Properties/definitions/SnsArn"},
-)
+#NotificationTargetItem: close({SnsTopicArn?: #SnsArn})
 
 // The pagerDuty configuration to use when starting the incident.
-_#defs: "/$defs/Properties/definitions/PagerDutyConfiguration": close({
+#PagerDutyConfiguration: close({
 	// The name of the pagerDuty configuration.
 	Name!:                           strings.MaxRunes(200) & strings.MinRunes(1)
-	PagerDutyIncidentConfiguration!: _#defs."/$defs/Properties/definitions/PagerDutyIncidentConfiguration"
+	PagerDutyIncidentConfiguration!: #PagerDutyIncidentConfiguration
 
 	// The AWS secrets manager secretId storing the pagerDuty token.
 	SecretId!: strings.MaxRunes(512) & strings.MinRunes(1)
 })
 
 // The pagerDuty incident configuration.
-_#defs: "/$defs/Properties/definitions/PagerDutyIncidentConfiguration": close({
+#PagerDutyIncidentConfiguration: close({
 	// The pagerDuty serviceId.
 	ServiceId!: strings.MaxRunes(200) & strings.MinRunes(1)
 })
 
 // The ARN of the contact.
-_#defs: "/$defs/Properties/definitions/SSMContact": strings.MaxRunes(1000) &
-=~"^arn:aws(-(cn|us-gov))?:ssm-contacts:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
+#SSMContact: strings.MaxRunes(1000) & =~"^arn:aws(-(cn|us-gov))?:ssm-contacts:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
 
 // The ARN of the Chatbot SNS topic.
-_#defs: "/$defs/Properties/definitions/SnsArn": =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
+#SnsArn: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
 strings.MaxRunes(1000) &
 =~"^arn:aws(-(cn|us-gov))?:sns:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$"
 
 // The configuration to use when starting the SSM automation document.
-_#defs: "/$defs/Properties/definitions/SsmAutomation": close({
+#SsmAutomation: close({
 	// The document name to use when starting the SSM automation document.
 	DocumentName!: strings.MaxRunes(128)
 
@@ -124,14 +111,10 @@ _#defs: "/$defs/Properties/definitions/SsmAutomation": close({
 	DocumentVersion?: strings.MaxRunes(128)
 
 	// The parameters with dynamic values to set when starting the SSM automation document.
-	DynamicParameters?: list.MaxItems(200) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DynamicSsmParameter"
-	]
+	DynamicParameters?: list.MaxItems(200) & list.UniqueItems() & [...#DynamicSsmParameter]
 
 	// The parameters to set when starting the SSM automation document.
-	Parameters?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SsmParameter"
-	]
+	Parameters?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#SsmParameter]
 
 	// The role ARN to use when starting the SSM automation document.
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -143,19 +126,19 @@ _#defs: "/$defs/Properties/definitions/SsmAutomation": close({
 })
 
 // A parameter to set when starting the SSM automation document.
-_#defs: "/$defs/Properties/definitions/SsmParameter": close({
+#SsmParameter: close({
 	Key!:    strings.MaxRunes(50) & strings.MinRunes(1)
-	Values!: list.MaxItems(10) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SsmParameterValue"]
+	Values!: list.MaxItems(10) & list.UniqueItems() & [...#SsmParameterValue]
 })
 
 // A value of the parameter to set when starting the SSM automation document.
-_#defs: "/$defs/Properties/definitions/SsmParameterValue": strings.MaxRunes(10000)
+#SsmParameterValue: strings.MaxRunes(10000)
 
 // A key-value pair to tag a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
 // The variable types used as dynamic parameter value when starting the SSM automation document.
-_#defs: "/$defs/Properties/definitions/VariableType": "INCIDENT_RECORD_ARN" | "INVOLVED_RESOURCES"
+#VariableType: "INCIDENT_RECORD_ARN" | "INVOLVED_RESOURCES"

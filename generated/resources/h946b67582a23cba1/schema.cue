@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -14,17 +14,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::WorkSpacesWeb::BrowserSettings Resource Type
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
+	AdditionalEncryptionContext?: #EncryptionContextMap
 	BrowserPolicy?: strings.MaxRunes(131072) & strings.MinRunes(2) & =~"^\\{[\\S\\s]*\\}\\s*$" | fn.#StringExpression
 	CustomerManagedKey?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	WebContentFilteringPolicy?: _#defs."/$defs/Properties/definitions/WebContentFilteringPolicy"
+	Tags?:                      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	WebContentFilteringPolicy?: #WebContentFilteringPolicy
 })
 
-_#defs: "/$defs/Properties/definitions/Category": "Cults" |
+#Category: "Cults" |
 	"Gambling" |
 	"Nudity" |
 	"Pornography" |
@@ -53,29 +53,26 @@ _#defs: "/$defs/Properties/definitions/Category": "Cults" |
 	"ParkedDomains" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
+#EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
+#Unit: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebContentFilteringPolicy": close({
+#WebContentFilteringPolicy: close({
 	AllowedUrls?: list.MaxItems(1000) & list.MinItems(1) & [
 		...=~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" |
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	BlockedCategories?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Category"
-	] |
-		fn.#ListExpression
+	BlockedCategories?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...#Category] | fn.#ListExpression
 	BlockedUrls?: list.MaxItems(1000) & list.MinItems(1) & [
 		...=~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" |
 			fn.#StringExpression

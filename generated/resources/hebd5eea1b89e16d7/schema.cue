@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,14 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::RDS::DBSecurityGroup
 #Properties: close({
-	DBSecurityGroupIngress!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Ingress"] |
-		fn.#ListExpression
-	EC2VpcId?:         string | fn.#StringExpression
-	GroupDescription!: string | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	DBSecurityGroupIngress!: list.UniqueItems() & [...#Ingress] | fn.#ListExpression
+	EC2VpcId?:               string | fn.#StringExpression
+	GroupDescription!:       string | fn.#StringExpression
+	Tags?:                   [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Ingress": close({
+#Ingress: close({
 	CIDRIP?: string | fn.#StringExpression
 	EC2SecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
@@ -29,7 +28,7 @@ _#defs: "/$defs/Properties/definitions/Ingress": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

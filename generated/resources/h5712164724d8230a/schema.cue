@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,20 +17,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Glue::TableOptimizer
 #Properties: close({
-	CatalogId!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TableName!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TableOptimizerConfiguration!: _#defs."/$defs/Properties/definitions/TableOptimizerConfiguration" |
-		fn.#ObjectExpression
-	Type!: "compaction" | "orphan_file_deletion" | "retention" | fn.#StringExpression
+	CatalogId!:                   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	DatabaseName!:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	TableName!:                   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	TableOptimizerConfiguration!: #TableOptimizerConfiguration | fn.#ObjectExpression
+	Type!:                        "compaction" | "orphan_file_deletion" | "retention" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CompactionConfiguration": close({
-	IcebergConfiguration?: _#defs."/$defs/Properties/definitions/IcebergCompactionConfiguration" | fn.#ObjectExpression
-}) |
+#CompactionConfiguration: close({IcebergConfiguration?: #IcebergCompactionConfiguration | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergCompactionConfiguration": close({
+#IcebergCompactionConfiguration: close({
 	DeleteFileThreshold?: int |
 		{
 			string &
@@ -63,7 +60,7 @@ _#defs: "/$defs/Properties/definitions/IcebergCompactionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergConfiguration": close({
+#IcebergConfiguration: close({
 	Location?: string | fn.#StringExpression
 	OrphanFileRetentionPeriodInDays?: int |
 		{
@@ -82,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/IcebergConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergRetentionConfiguration": close({
+#IcebergRetentionConfiguration: close({
 	CleanExpiredFiles?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NumberOfSnapshotsToRetain?: int |
 		{
@@ -115,30 +112,24 @@ _#defs: "/$defs/Properties/definitions/IcebergRetentionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OrphanFileDeletionConfiguration": close(
-	{IcebergConfiguration?: _#defs."/$defs/Properties/definitions/IcebergConfiguration" | fn.#ObjectExpression},
-) |
+#OrphanFileDeletionConfiguration: close({IcebergConfiguration?: #IcebergConfiguration | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetentionConfiguration": close(
-	{IcebergConfiguration?: _#defs."/$defs/Properties/definitions/IcebergRetentionConfiguration" | fn.#ObjectExpression},
-) |
+#RetentionConfiguration: close({IcebergConfiguration?: #IcebergRetentionConfiguration | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableOptimizerConfiguration": close({
-	CompactionConfiguration?: _#defs."/$defs/Properties/definitions/CompactionConfiguration" | fn.#ObjectExpression
+#TableOptimizerConfiguration: close({
+	CompactionConfiguration?: #CompactionConfiguration | fn.#ObjectExpression
 	Enabled!:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OrphanFileDeletionConfiguration?: _#defs."/$defs/Properties/definitions/OrphanFileDeletionConfiguration" |
-		fn.#ObjectExpression
-	RetentionConfiguration?: _#defs."/$defs/Properties/definitions/RetentionConfiguration" | fn.#ObjectExpression
+	OrphanFileDeletionConfiguration?: #OrphanFileDeletionConfiguration | fn.#ObjectExpression
+	RetentionConfiguration?:          #RetentionConfiguration | fn.#ObjectExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
+	VpcConfiguration?: #VpcConfiguration | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({GlueConnectionName?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#VpcConfiguration: close({GlueConnectionName?: string | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Glue::TableOptimizer"
 	Properties!: #Properties

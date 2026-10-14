@@ -26,17 +26,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"TERRAFORM_CLOUD" |
 		"EXTERNAL" |
 		fn.#StringExpression
-	ProvisioningArtifactParameters?: [..._#defs."/$defs/Properties/definitions/ProvisioningArtifactProperties"] |
-		fn.#ListExpression
+	ProvisioningArtifactParameters?: [...#ProvisioningArtifactProperties] | fn.#ListExpression
 	ReplaceProvisioningArtifacts?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SourceConnection?:             _#defs."/$defs/Properties/definitions/SourceConnection" | fn.#ObjectExpression
+	SourceConnection?:             #SourceConnection | fn.#ObjectExpression
 	SupportDescription?:           strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
 	SupportEmail?:                 strings.MaxRunes(254) & strings.MinRunes(0) | fn.#StringExpression
 	SupportUrl?:                   strings.MaxRunes(2083) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                         list.MaxItems(20) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CodeStarParameters": close({
+#CodeStarParameters: close({
 	ArtifactPath!:  strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 	Branch!:        strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
 	ConnectionArn!: strings.MaxRunes(1224) & strings.MinRunes(1) | fn.#StringExpression
@@ -44,12 +43,9 @@ _#defs: "/$defs/Properties/definitions/CodeStarParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionParameters": close(
-	{CodeStar?: _#defs."/$defs/Properties/definitions/CodeStarParameters" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#ConnectionParameters: close({CodeStar?: #CodeStarParameters | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisioningArtifactProperties": close({
+#ProvisioningArtifactProperties: close({
 	Description?:               string | fn.#StringExpression
 	DisableTemplateValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Info!:                      fn.#Object & {...} | string | fn.#StringObjectExpression
@@ -64,14 +60,13 @@ _#defs: "/$defs/Properties/definitions/ProvisioningArtifactProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceConnection": close({
-	ConnectionParameters!: close({CodeStar?: _#defs."/$defs/Properties/definitions/CodeStarParameters"}) |
-		fn.#ObjectExpression
-	Type!: "CODESTAR" | fn.#StringExpression
+#SourceConnection: close({
+	ConnectionParameters!: close({CodeStar?: #CodeStarParameters}) | fn.#ObjectExpression
+	Type!:                 "CODESTAR" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

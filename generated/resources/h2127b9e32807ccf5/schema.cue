@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // AWS::NetworkManager::ConnectPeer Resource Type Definition.
 #Properties: close({
-	BgpOptions?: _#defs."/$defs/Properties/definitions/BgpOptions" | fn.#ObjectExpression
+	BgpOptions?: #BgpOptions | fn.#ObjectExpression
 	ConnectAttachmentId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^attachment-([0-9a-f]{8,17})$" |
 	fn.#StringExpression
 	CoreNetworkAddress?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
@@ -29,10 +29,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(0) &
 	=~"^arn:[^:]{1,63}:ec2:[^:]{0,63}:[^:]{0,63}:subnet\\/subnet-[0-9a-f]{8,17}$|^$" |
 	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/BgpOptions": close({
+#BgpOptions: close({
 	PeerAsn?: number |
 		{
 			string &
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/BgpOptions": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectPeerBgpConfiguration": close({
+#ConnectPeerBgpConfiguration: close({
 	CoreNetworkAddress?: string | fn.#StringExpression
 	CoreNetworkAsn?: number |
 		{
@@ -99,22 +99,22 @@ _#defs: "/$defs/Properties/definitions/ConnectPeerBgpConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectPeerConfiguration": close({
-	BgpConfigurations?:  [..._#defs."/$defs/Properties/definitions/ConnectPeerBgpConfiguration"] | fn.#ListExpression
+#ConnectPeerConfiguration: close({
+	BgpConfigurations?:  [...#ConnectPeerBgpConfiguration] | fn.#ListExpression
 	CoreNetworkAddress?: string | fn.#StringExpression
 	InsideCidrBlocks?:   [...string | fn.#StringExpression] | fn.#ListExpression
 	PeerAddress?:        string | fn.#StringExpression
-	Protocol?:           _#defs."/$defs/Properties/definitions/TunnelProtocol"
+	Protocol?:           #TunnelProtocol
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TunnelProtocol": string | fn.#StringExpression
+#TunnelProtocol: string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::NetworkManager::ConnectPeer"
 	Properties!: #Properties

@@ -18,22 +18,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // An event trigger resource of Amazon Connect Customer Profiles
 #Properties: close({
-	Description?:            _#defs."/$defs/Properties/definitions/Description"
-	DomainName!:             _#defs."/$defs/Properties/definitions/DomainName"
-	EventTriggerConditions!: _#defs."/$defs/Properties/definitions/EventTriggerConditions"
-	EventTriggerLimits?:     _#defs."/$defs/Properties/definitions/EventTriggerLimits"
-	EventTriggerName!:       _#defs."/$defs/Properties/definitions/EventTriggerName"
-	ObjectTypeName!:         _#defs."/$defs/Properties/definitions/ObjectTypeName"
-	SegmentFilter?:          _#defs."/$defs/Properties/definitions/SegmentFilter"
-	Tags?:                   _#defs."/$defs/Properties/definitions/Tags"
+	Description?:            #Description
+	DomainName!:             #DomainName
+	EventTriggerConditions!: #EventTriggerConditions
+	EventTriggerLimits?:     #EventTriggerLimits
+	EventTriggerName!:       #EventTriggerName
+	ObjectTypeName!:         #ObjectTypeName
+	SegmentFilter?:          #SegmentFilter
+	Tags?:                   #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+#Description: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DomainName": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
-fn.#StringExpression
+#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EventExpiration": int |
+#EventExpiration: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -47,41 +46,29 @@ _#defs: "/$defs/Properties/definitions/EventExpiration": int |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/EventTriggerCondition": close({
-	EventTriggerDimensions!: _#defs."/$defs/Properties/definitions/EventTriggerDimensions"
-	LogicalOperator!:        _#defs."/$defs/Properties/definitions/EventTriggerLogicalOperator"
+#EventTriggerCondition: close({
+	EventTriggerDimensions!: #EventTriggerDimensions
+	LogicalOperator!:        #EventTriggerLogicalOperator
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventTriggerConditions": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/EventTriggerCondition"
-] |
-	fn.#ListExpression
+#EventTriggerConditions: list.MaxItems(5) & list.MinItems(1) & [...#EventTriggerCondition] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/EventTriggerDimension": close(
-	{ObjectAttributes!: _#defs."/$defs/Properties/definitions/ObjectAttributes"},
-) |
-	fn.#ObjectExpression
+#EventTriggerDimension: close({ObjectAttributes!: #ObjectAttributes}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventTriggerDimensions": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/EventTriggerDimension"
-] |
-	fn.#ListExpression
+#EventTriggerDimensions: list.MaxItems(10) & list.MinItems(1) & [...#EventTriggerDimension] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/EventTriggerLimits": close({
-	EventExpiration?: _#defs."/$defs/Properties/definitions/EventExpiration"
-	Periods?:         _#defs."/$defs/Properties/definitions/Periods"
+#EventTriggerLimits: close({
+	EventExpiration?: #EventExpiration
+	Periods?:         #Periods
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventTriggerLogicalOperator": "ANY" | "ALL" | "NONE" | fn.#StringExpression
+#EventTriggerLogicalOperator: "ANY" | "ALL" | "NONE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EventTriggerName": strings.MaxRunes(64) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9_-]+$" |
-fn.#StringExpression
+#EventTriggerName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectAttribute": close({
+#ObjectAttribute: close({
 	ComparisonOperator!: "INCLUSIVE" |
 		"EXCLUSIVE" |
 		"CONTAINS" |
@@ -107,17 +94,11 @@ _#defs: "/$defs/Properties/definitions/ObjectAttribute": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectAttributes": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ObjectAttribute"
-] |
-	fn.#ListExpression
+#ObjectAttributes: list.MaxItems(10) & list.MinItems(1) & [...#ObjectAttribute] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectTypeName": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z_][a-zA-Z_0-9-]*$" |
-fn.#StringExpression
+#ObjectTypeName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Period": close({
+#Period: close({
 	MaxInvocationsPerProfile?: int & <=1000 & >=1 |
 		{
 			string &
@@ -155,24 +136,17 @@ _#defs: "/$defs/Properties/definitions/Period": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Periods": list.MaxItems(4) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/Period"
-] |
-	fn.#ListExpression
+#Periods: list.MaxItems(4) & list.MinItems(1) & [...#Period] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SegmentFilter": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
-fn.#StringExpression
+#SegmentFilter: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::CustomerProfiles::EventTrigger"
 	Properties!: #Properties

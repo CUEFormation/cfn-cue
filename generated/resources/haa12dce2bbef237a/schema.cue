@@ -31,7 +31,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	RemoteIpv4NetworkCidr?: string | fn.#StringExpression
 	RemoteIpv6NetworkCidr?: string | fn.#StringExpression
 	StaticRoutesOnly?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                  [...#Tag] | fn.#ListExpression
 	TransitGatewayId?:      string | fn.#StringExpression
 	TransportTransitGatewayAttachmentId?: string | fn.#StringExpression
 	TunnelBandwidth?:                     "standard" | "large" | fn.#StringExpression
@@ -39,11 +39,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Type!:                                string | fn.#StringExpression
 	VpnConcentratorId?:                   string | fn.#StringExpression
 	VpnGatewayId?:                        string | fn.#StringExpression
-	VpnTunnelOptionsSpecifications?: [..._#defs."/$defs/Properties/definitions/VpnTunnelOptionsSpecification"] |
-		fn.#ListExpression
+	VpnTunnelOptionsSpecifications?:      [...#VpnTunnelOptionsSpecification] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CloudwatchLogOptionsSpecification": close({
+#CloudwatchLogOptionsSpecification: close({
 	BgpLogEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	BgpLogGroupArn?:     string | fn.#StringExpression
 	BgpLogOutputFormat?: "json" | "text" | fn.#StringExpression
@@ -53,56 +52,52 @@ _#defs: "/$defs/Properties/definitions/CloudwatchLogOptionsSpecification": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IKEVersionsRequestListValue": close(
-	{Value?: "ikev1" | "ikev2" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#IKEVersionsRequestListValue: close({Value?: "ikev1" | "ikev2" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Phase1DHGroupNumbersRequestListValue": close({
+#Phase1DHGroupNumbersRequestListValue: close({
 	Value?: (==2 | ==14 | ==15 | ==16 | ==17 | ==18 | ==19 | ==20 | ==21 | ==22 | ==23 | ==24) & int |
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Phase1EncryptionAlgorithmsRequestListValue": close(
+#Phase1EncryptionAlgorithmsRequestListValue: close(
 	{Value?: "AES128" | "AES256" | "AES128-GCM-16" | "AES256-GCM-16" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Phase1IntegrityAlgorithmsRequestListValue": close(
+#Phase1IntegrityAlgorithmsRequestListValue: close(
 	{Value?: "SHA1" | "SHA2-256" | "SHA2-384" | "SHA2-512" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Phase2DHGroupNumbersRequestListValue": close({
+#Phase2DHGroupNumbersRequestListValue: close({
 	Value?: (==2 | ==5 | ==14 | ==15 | ==16 | ==17 | ==18 | ==19 | ==20 | ==21 | ==22 | ==23 | ==24) & int |
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Phase2EncryptionAlgorithmsRequestListValue": close(
+#Phase2EncryptionAlgorithmsRequestListValue: close(
 	{Value?: "AES128" | "AES256" | "AES128-GCM-16" | "AES256-GCM-16" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Phase2IntegrityAlgorithmsRequestListValue": close(
+#Phase2IntegrityAlgorithmsRequestListValue: close(
 	{Value?: "SHA1" | "SHA2-256" | "SHA2-384" | "SHA2-512" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpnTunnelLogOptionsSpecification": close({
-	CloudwatchLogOptions?: _#defs."/$defs/Properties/definitions/CloudwatchLogOptionsSpecification" |
-		fn.#ObjectExpression
-}) |
+#VpnTunnelLogOptionsSpecification: close(
+	{CloudwatchLogOptions?: #CloudwatchLogOptionsSpecification | fn.#ObjectExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpnTunnelOptionsSpecification": close({
+#VpnTunnelOptionsSpecification: close({
 	DPDTimeoutAction?: "clear" | "none" | "restart" | fn.#StringExpression
 	DPDTimeoutSeconds?: int & >=30 |
 		{
@@ -120,14 +115,11 @@ _#defs: "/$defs/Properties/definitions/VpnTunnelOptionsSpecification": close({
 		} |
 		fn.#NumberExpression
 	EnableTunnelLifecycleControl?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IKEVersions?: [..._#defs."/$defs/Properties/definitions/IKEVersionsRequestListValue"] | fn.#ListExpression
-	LogOptions?:  _#defs."/$defs/Properties/definitions/VpnTunnelLogOptionsSpecification" | fn.#ObjectExpression
-	Phase1DHGroupNumbers?: [..._#defs."/$defs/Properties/definitions/Phase1DHGroupNumbersRequestListValue"] |
-		fn.#ListExpression
-	Phase1EncryptionAlgorithms?: [..._#defs."/$defs/Properties/definitions/Phase1EncryptionAlgorithmsRequestListValue"] |
-		fn.#ListExpression
-	Phase1IntegrityAlgorithms?: [..._#defs."/$defs/Properties/definitions/Phase1IntegrityAlgorithmsRequestListValue"] |
-		fn.#ListExpression
+	IKEVersions?:                  [...#IKEVersionsRequestListValue] | fn.#ListExpression
+	LogOptions?:                   #VpnTunnelLogOptionsSpecification | fn.#ObjectExpression
+	Phase1DHGroupNumbers?:         [...#Phase1DHGroupNumbersRequestListValue] | fn.#ListExpression
+	Phase1EncryptionAlgorithms?:   [...#Phase1EncryptionAlgorithmsRequestListValue] | fn.#ListExpression
+	Phase1IntegrityAlgorithms?:    [...#Phase1IntegrityAlgorithmsRequestListValue] | fn.#ListExpression
 	Phase1LifetimeSeconds?: int & <=28800 & >=900 |
 		{
 			string &
@@ -144,12 +136,9 @@ _#defs: "/$defs/Properties/definitions/VpnTunnelOptionsSpecification": close({
 				)
 		} |
 		fn.#NumberExpression
-	Phase2DHGroupNumbers?: [..._#defs."/$defs/Properties/definitions/Phase2DHGroupNumbersRequestListValue"] |
-		fn.#ListExpression
-	Phase2EncryptionAlgorithms?: [..._#defs."/$defs/Properties/definitions/Phase2EncryptionAlgorithmsRequestListValue"] |
-		fn.#ListExpression
-	Phase2IntegrityAlgorithms?: [..._#defs."/$defs/Properties/definitions/Phase2IntegrityAlgorithmsRequestListValue"] |
-		fn.#ListExpression
+	Phase2DHGroupNumbers?:       [...#Phase2DHGroupNumbersRequestListValue] | fn.#ListExpression
+	Phase2EncryptionAlgorithms?: [...#Phase2EncryptionAlgorithmsRequestListValue] | fn.#ListExpression
+	Phase2IntegrityAlgorithms?:  [...#Phase2IntegrityAlgorithmsRequestListValue] | fn.#ListExpression
 	Phase2LifetimeSeconds?: int & <=3600 & >=900 |
 		{
 			string &

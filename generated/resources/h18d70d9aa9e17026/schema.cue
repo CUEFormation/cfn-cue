@@ -21,10 +21,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name?:                  =~"^[0-9A-Za-z_-]{1,128}$" | fn.#StringExpression
 	RegularExpressionList!: [...strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
 	Scope!:                 "CLOUDFRONT" | "REGIONAL" | fn.#StringExpression
-	Tags?:                  list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                  list.MinItems(1) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,20 +18,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::CustomerProfiles::Recommender
 #Properties: close({
-	Description?:           _#defs."/$defs/Properties/definitions/Description"
-	DomainName!:            _#defs."/$defs/Properties/definitions/DomainName"
-	RecommenderConfig?:     _#defs."/$defs/Properties/definitions/RecommenderConfig"
-	RecommenderName!:       _#defs."/$defs/Properties/definitions/RecommenderName"
-	RecommenderRecipeName!: _#defs."/$defs/Properties/definitions/RecommenderRecipeName"
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Description?:           #Description
+	DomainName!:            #DomainName
+	RecommenderConfig?:     #RecommenderConfig
+	RecommenderName!:       #RecommenderName
+	RecommenderRecipeName!: #RecommenderRecipeName
+	Tags?:                  list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+#Description: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DomainName": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
-fn.#StringExpression
+#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EventParameters": close({
+#EventParameters: close({
 	EventType!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	EventValueThreshold?: number |
 		{
@@ -55,25 +54,16 @@ _#defs: "/$defs/Properties/definitions/EventParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventsConfig": close({
-	EventParametersList!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EventParameters"
-	] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/RecommenderConfig": close(
-	{EventsConfig?: _#defs."/$defs/Properties/definitions/EventsConfig"},
+#EventsConfig: close(
+	{EventParametersList!: list.MaxItems(10) & list.MinItems(1) & [...#EventParameters] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecommenderName": strings.MaxRunes(64) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9_-]+$" |
-fn.#StringExpression
+#RecommenderConfig: close({EventsConfig?: #EventsConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecommenderRecipeName": ("frequently-paired-items" |
+#RecommenderName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+
+#RecommenderRecipeName: ("frequently-paired-items" |
 	"personalized-ranking" |
 	"popular-items" |
 	"recommended-for-you" |
@@ -81,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/RecommenderRecipeName": ("frequently-pair
 	"trending-now") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RecommenderStatus": "PENDING" |
+#RecommenderStatus: "PENDING" |
 	"IN_PROGRESS" |
 	"STOPPING" |
 	"STARTING" |
@@ -91,22 +81,22 @@ _#defs: "/$defs/Properties/definitions/RecommenderStatus": "PENDING" |
 	"DELETING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RecommenderUpdate": close({
+#RecommenderUpdate: close({
 	CreationDateTime?:    string | fn.#StringExpression
 	FailureReason?:       string | fn.#StringExpression
 	LastUpdatedDateTime?: string | fn.#StringExpression
-	RecommenderConfig?:   _#defs."/$defs/Properties/definitions/RecommenderConfig"
-	Status?:              _#defs."/$defs/Properties/definitions/RecommenderStatus"
+	RecommenderConfig?:   #RecommenderConfig
+	Status?:              #RecommenderStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrainingMetrics": close({
+#TrainingMetrics: close({
 	Metrics?: close({
 		coverage?: number |
 			{

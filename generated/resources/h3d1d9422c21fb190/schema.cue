@@ -11,26 +11,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::KinesisAnalyticsV2::ApplicationOutput
 #Properties: close({
 	ApplicationName!: string | fn.#StringExpression
-	Output!:          _#defs."/$defs/Properties/definitions/Output"
+	Output!:          #Output
 })
 
-_#defs: "/$defs/Properties/definitions/DestinationSchema": close({RecordFormatType?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#DestinationSchema: close({RecordFormatType?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseOutput": close({ResourceARN!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#KinesisFirehoseOutput: close({ResourceARN!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisStreamsOutput": close({ResourceARN!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#KinesisStreamsOutput: close({ResourceARN!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaOutput": close({ResourceARN!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#LambdaOutput: close({ResourceARN!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Output": close({
-	DestinationSchema!:     _#defs."/$defs/Properties/definitions/DestinationSchema"
-	KinesisFirehoseOutput?: _#defs."/$defs/Properties/definitions/KinesisFirehoseOutput"
-	KinesisStreamsOutput?:  _#defs."/$defs/Properties/definitions/KinesisStreamsOutput"
-	LambdaOutput?:          _#defs."/$defs/Properties/definitions/LambdaOutput"
+#Output: close({
+	DestinationSchema!:     #DestinationSchema
+	KinesisFirehoseOutput?: #KinesisFirehoseOutput
+	KinesisStreamsOutput?:  #KinesisStreamsOutput
+	LambdaOutput?:          #LambdaOutput
 	Name?:                  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

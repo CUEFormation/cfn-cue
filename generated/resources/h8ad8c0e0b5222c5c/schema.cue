@@ -16,20 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	NetworkType?: "IPV4" | "DUALSTACK" | fn.#StringExpression
-	Tags?: [
-		..._#defs."/$defs/Properties/definitions/Tag" & (null | bool | number | string | list.MaxItems(20) | {...}) |
-		fn.#ObjectExpression
-	] |
+	Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
 	fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ClusterEndpoint": close({
+#ClusterEndpoint: close({
 	Endpoint?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Region?:   strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |

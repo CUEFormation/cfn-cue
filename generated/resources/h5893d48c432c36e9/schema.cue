@@ -15,37 +15,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // model (that is, defines what data can be captured on cases) in a Cases
 // domain.
 #Properties: close({
-	Attributes?:  _#defs."/$defs/Properties/definitions/FieldAttributes" | fn.#ObjectExpression
+	Attributes?:  #FieldAttributes | fn.#ObjectExpression
 	Description?: strings.MaxRunes(255) | fn.#StringExpression
 	DomainId?:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/Tags"
-	Type!:        _#defs."/$defs/Properties/definitions/FieldType"
+	Tags?:        #Tags
+	Type!:        #FieldType
 })
 
-_#defs: "/$defs/Properties/definitions/FieldAttributes": close(
-	{Text?: _#defs."/$defs/Properties/definitions/TextAttributes"},
-) |
-	fn.#ObjectExpression
+#FieldAttributes: close({Text?: #TextAttributes}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldType": "Text" |
-	"Number" |
-	"Boolean" |
-	"DateTime" |
-	"SingleSelect" |
-	"Url" |
-	"User" |
-	fn.#StringExpression
+#FieldType: "Text" | "Number" | "Boolean" | "DateTime" | "SingleSelect" | "Url" | "User" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+#Tags: [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TextAttributes": close(
+#TextAttributes: close(
 	{IsMultiline!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression

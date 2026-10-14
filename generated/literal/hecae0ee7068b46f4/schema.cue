@@ -14,8 +14,8 @@ import (
 	ApplicationProtocol?:       "SECURE_MQTT" | "MQTT_WSS" | "HTTPS" | "DEFAULT"
 	Arn?:                       string
 	AuthenticationType?:        "AWS_X509" | "CUSTOM_AUTH" | "AWS_SIGV4" | "CUSTOM_AUTH_X509" | "DEFAULT"
-	AuthorizerConfig?:          _#defs."/$defs/Properties/definitions/AuthorizerConfig"
-	ClientCertificateConfig?:   _#defs."/$defs/Properties/definitions/ClientCertificateConfig"
+	AuthorizerConfig?:          #AuthorizerConfig
+	ClientCertificateConfig?:   #ClientCertificateConfig
 	DomainConfigurationName?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w.-]+$"
 	DomainConfigurationStatus?: "ENABLED" | "DISABLED"
 	DomainName?:                strings.MaxRunes(253) & strings.MinRunes(1) & =~"^[\\s\\S]*$"
@@ -25,26 +25,26 @@ import (
 		strings.MinRunes(1) &
 		=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$"
 	]
-	ServerCertificateConfig?: _#defs."/$defs/Properties/definitions/ServerCertificateConfig"
-	ServerCertificates?:      [..._#defs."/$defs/Properties/definitions/ServerCertificateSummary"]
+	ServerCertificateConfig?: #ServerCertificateConfig
+	ServerCertificates?:      [...#ServerCertificateSummary]
 	ServiceType?:             "DATA" | "CREDENTIAL_PROVIDER" | "JOBS"
-	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TlsConfig?:               _#defs."/$defs/Properties/definitions/TlsConfig"
+	Tags?:                    list.UniqueItems() & [...#Tag]
+	TlsConfig?:               #TlsConfig
 	ValidationCertificateArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/AuthorizerConfig": close({
+#AuthorizerConfig: close({
 	AllowAuthorizerOverride?: bool
 	DefaultAuthorizerName?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w=,@-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/ClientCertificateConfig": close(
+#ClientCertificateConfig: close(
 	{ClientCertificateCallbackArn?: strings.MaxRunes(170) & strings.MinRunes(1) & =~"^[\\s\\S]*$"},
 )
 
-_#defs: "/$defs/Properties/definitions/ServerCertificateConfig": close({
+#ServerCertificateConfig: close({
 	EnableOCSPCheck?: bool
 	OcspAuthorizedResponderArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/ServerCertificateConfig": close({
 	OcspLambdaArn?: strings.MaxRunes(170) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ServerCertificateSummary": close({
+#ServerCertificateSummary: close({
 	ServerCertificateArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$"
@@ -60,11 +60,9 @@ _#defs: "/$defs/Properties/definitions/ServerCertificateSummary": close({
 	ServerCertificateStatusDetail?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TlsConfig": close(
-	{SecurityPolicy?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\s\\S]*$"},
-)
+#TlsConfig: close({SecurityPolicy?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\s\\S]*$"})

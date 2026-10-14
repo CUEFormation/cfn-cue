@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -18,25 +18,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates a package and storage location in an Amazon S3 access point.
 #Properties: close({
-	PackageName!:     _#defs."/$defs/Properties/definitions/NodePackageName" | fn.#StringExpression
+	PackageName!:     #NodePackageName | fn.#StringExpression
 	StorageLocation?: close({}) | fn.#ObjectExpression
-	Tags?:            _#defs."/$defs/Properties/definitions/TagList" | fn.#ListExpression
+	Tags?:            #TagList | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/NodePackageArn": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
+#NodePackageArn: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NodePackageId": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_\\/]+$" |
-fn.#StringExpression
+#NodePackageId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_\\/]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NodePackageName": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_]+$" |
-fn.#StringExpression
+#NodePackageName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageLocation": close({
+#StorageLocation: close({
 	BinaryPrefixLocation?:    string | fn.#StringExpression
 	Bucket?:                  string | fn.#StringExpression
 	GeneratedPrefixLocation?: string | fn.#StringExpression
@@ -45,16 +38,15 @@ _#defs: "/$defs/Properties/definitions/StorageLocation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagList": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
+#TagList: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": int |
+#Timestamp: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &

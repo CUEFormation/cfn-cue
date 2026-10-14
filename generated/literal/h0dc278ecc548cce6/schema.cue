@@ -12,80 +12,78 @@ import (
 // Resource schema for AWS::MWAA::Environment
 #Properties: close({
 	AirflowConfigurationOptions?:  string | {...}
-	AirflowVersion?:               _#defs."/$defs/Properties/definitions/AirflowVersion"
-	Arn?:                          _#defs."/$defs/Properties/definitions/EnvironmentArn"
-	CeleryExecutorQueue?:          _#defs."/$defs/Properties/definitions/CeleryExecutorQueue"
-	DagS3Path?:                    _#defs."/$defs/Properties/definitions/RelativePath"
-	DatabaseVpcEndpointService?:   _#defs."/$defs/Properties/definitions/DatabaseVpcEndpointService"
-	EndpointManagement?:           _#defs."/$defs/Properties/definitions/EndpointManagement"
-	EnvironmentClass?:             _#defs."/$defs/Properties/definitions/EnvironmentClass"
-	ExecutionRoleArn?:             _#defs."/$defs/Properties/definitions/ExecutionRoleArn"
-	KmsKey?:                       _#defs."/$defs/Properties/definitions/KmsKey"
-	LoggingConfiguration?:         _#defs."/$defs/Properties/definitions/LoggingConfiguration"
-	MaxWebservers?:                _#defs."/$defs/Properties/definitions/MaxWebservers"
-	MaxWorkers?:                   _#defs."/$defs/Properties/definitions/MaxWorkers"
-	MinWebservers?:                _#defs."/$defs/Properties/definitions/MinWebservers"
-	MinWorkers?:                   _#defs."/$defs/Properties/definitions/MinWorkers"
-	Name!:                         _#defs."/$defs/Properties/definitions/EnvironmentName"
-	NetworkConfiguration?:         _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-	PluginsS3ObjectVersion?:       _#defs."/$defs/Properties/definitions/S3ObjectVersion"
-	PluginsS3Path?:                _#defs."/$defs/Properties/definitions/RelativePath"
-	RequirementsS3ObjectVersion?:  _#defs."/$defs/Properties/definitions/S3ObjectVersion"
-	RequirementsS3Path?:           _#defs."/$defs/Properties/definitions/RelativePath"
-	Schedulers?:                   _#defs."/$defs/Properties/definitions/Schedulers"
-	SourceBucketArn?:              _#defs."/$defs/Properties/definitions/S3BucketArn"
-	StartupScriptS3ObjectVersion?: _#defs."/$defs/Properties/definitions/S3ObjectVersion"
-	StartupScriptS3Path?:          _#defs."/$defs/Properties/definitions/RelativePath"
+	AirflowVersion?:               #AirflowVersion
+	Arn?:                          #EnvironmentArn
+	CeleryExecutorQueue?:          #CeleryExecutorQueue
+	DagS3Path?:                    #RelativePath
+	DatabaseVpcEndpointService?:   #DatabaseVpcEndpointService
+	EndpointManagement?:           #EndpointManagement
+	EnvironmentClass?:             #EnvironmentClass
+	ExecutionRoleArn?:             #ExecutionRoleArn
+	KmsKey?:                       #KmsKey
+	LoggingConfiguration?:         #LoggingConfiguration
+	MaxWebservers?:                #MaxWebservers
+	MaxWorkers?:                   #MaxWorkers
+	MinWebservers?:                #MinWebservers
+	MinWorkers?:                   #MinWorkers
+	Name!:                         #EnvironmentName
+	NetworkConfiguration?:         #NetworkConfiguration
+	PluginsS3ObjectVersion?:       #S3ObjectVersion
+	PluginsS3Path?:                #RelativePath
+	RequirementsS3ObjectVersion?:  #S3ObjectVersion
+	RequirementsS3Path?:           #RelativePath
+	Schedulers?:                   #Schedulers
+	SourceBucketArn?:              #S3BucketArn
+	StartupScriptS3ObjectVersion?: #S3ObjectVersion
+	StartupScriptS3Path?:          #RelativePath
 	Tags?:                         string | {...}
-	WebserverAccessMode?:          _#defs."/$defs/Properties/definitions/WebserverAccessMode"
-	WebserverUrl?:                 _#defs."/$defs/Properties/definitions/WebserverUrl"
-	WebserverVpcEndpointService?:  _#defs."/$defs/Properties/definitions/WebserverVpcEndpointService"
-	WeeklyMaintenanceWindowStart?: _#defs."/$defs/Properties/definitions/WeeklyMaintenanceWindowStart"
-	WorkerReplacementStrategy?:    _#defs."/$defs/Properties/definitions/WorkerReplacementStrategy"
+	WebserverAccessMode?:          #WebserverAccessMode
+	WebserverUrl?:                 #WebserverUrl
+	WebserverVpcEndpointService?:  #WebserverVpcEndpointService
+	WeeklyMaintenanceWindowStart?: #WeeklyMaintenanceWindowStart
+	WorkerReplacementStrategy?:    #WorkerReplacementStrategy
 })
 
-_#defs: "/$defs/Properties/definitions/AirflowArn": strings.MaxRunes(1224) &
+#AirflowArn: strings.MaxRunes(1224) &
 strings.MinRunes(1) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:airflow:[a-z0-9\\-]+:\\d{12}:environment/\\w+"
 
 // Version of airflow to deploy to the environment.
-_#defs: "/$defs/Properties/definitions/AirflowVersion": strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[0-9a-z.]+$"
+#AirflowVersion: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[0-9a-z.]+$"
 
 // The celery executor queue associated with the environment.
-_#defs: "/$defs/Properties/definitions/CeleryExecutorQueue": strings.MaxRunes(1224)
+#CeleryExecutorQueue: strings.MaxRunes(1224)
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogGroupArn": strings.MaxRunes(1224) &
+#CloudWatchLogGroupArn: strings.MaxRunes(1224) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:logs:[a-z0-9\\-]+:\\d{12}:log-group:\\w+"
 
-_#defs: "/$defs/Properties/definitions/ConfigKey": strings.MaxRunes(64) & =~"^[a-z]+([a-z._]*[a-z]+)?$"
+#ConfigKey: strings.MaxRunes(64) & =~"^[a-z]+([a-z._]*[a-z]+)?$"
 
-_#defs: "/$defs/Properties/definitions/ConfigValue": strings.MaxRunes(256) & =~".*"
+#ConfigValue: strings.MaxRunes(256) & =~".*"
 
 // When the environment resource was created.
-_#defs: "/$defs/Properties/definitions/CreatedAt": string
+#CreatedAt: string
 
 // The database VPC endpoint service name.
-_#defs: "/$defs/Properties/definitions/DatabaseVpcEndpointService": strings.MaxRunes(1224)
+#DatabaseVpcEndpointService: strings.MaxRunes(1224)
 
 // Defines whether the VPC endpoints configured for the environment are created,
 // and managed, by the customer or by Amazon MWAA.
-_#defs: "/$defs/Properties/definitions/EndpointManagement": "CUSTOMER" | "SERVICE"
+#EndpointManagement: "CUSTOMER" | "SERVICE"
 
 // ARN for the MWAA environment.
-_#defs: "/$defs/Properties/definitions/EnvironmentArn": strings.MaxRunes(1224) &
+#EnvironmentArn: strings.MaxRunes(1224) &
 strings.MinRunes(1) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:airflow:[a-z0-9\\-]+:\\d{12}:environment/\\w+"
 
 // Templated configuration for airflow processes and backing infrastructure.
-_#defs: "/$defs/Properties/definitions/EnvironmentClass": strings.MaxRunes(1024) & strings.MinRunes(1)
+#EnvironmentClass: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 // Customer-defined identifier for the environment, unique per customer region.
-_#defs: "/$defs/Properties/definitions/EnvironmentName": strings.MaxRunes(80) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z][0-9a-zA-Z\\-_]*$"
+#EnvironmentName: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z][0-9a-zA-Z\\-_]*$"
 
 // The status of the environment.
-_#defs: "/$defs/Properties/definitions/EnvironmentStatus": "CREATING" |
+#EnvironmentStatus: "CREATING" |
 	"CREATE_FAILED" |
 	"AVAILABLE" |
 	"UPDATING" |
@@ -96,13 +94,13 @@ _#defs: "/$defs/Properties/definitions/EnvironmentStatus": "CREATING" |
 	"PENDING"
 
 // The error code associated with an error.
-_#defs: "/$defs/Properties/definitions/ErrorCode": string
+#ErrorCode: string
 
 // Error message describing a failed operation.
-_#defs: "/$defs/Properties/definitions/ErrorMessage": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$"
+#ErrorMessage: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$"
 
 // IAM role to be used by tasks.
-_#defs: "/$defs/Properties/definitions/ExecutionRoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#ExecutionRoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(1224) &
 strings.MinRunes(1) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
@@ -124,124 +122,122 @@ strings.MinRunes(1) &
 // AWS authenticates the CMK asynchronously. Therefore, if you specify an ID,
 // alias, or ARN that is not valid, the action can appear to complete, but
 // eventually fails.
-_#defs: "/$defs/Properties/definitions/KmsKey": strings.MaxRunes(1224) &
+#KmsKey: strings.MaxRunes(1224) &
 strings.MinRunes(1) &
 =~"^(((arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:kms:[a-z]{2}-[a-z]+-\\d:\\d+:)?key\\/)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|(arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):kms:[a-z]{2}-[a-z]+-\\d:\\d+:)?alias/.+)$"
 
 // Details about the last update performed on the environment.
-_#defs: "/$defs/Properties/definitions/LastUpdate": close({
-	CreatedAt?:                 _#defs."/$defs/Properties/definitions/UpdateCreatedAt"
-	Error?:                     _#defs."/$defs/Properties/definitions/UpdateError"
-	Status?:                    _#defs."/$defs/Properties/definitions/UpdateStatus"
-	WorkerReplacementStrategy?: _#defs."/$defs/Properties/definitions/WorkerReplacementStrategy"
+#LastUpdate: close({
+	CreatedAt?:                 #UpdateCreatedAt
+	Error?:                     #UpdateError
+	Status?:                    #UpdateStatus
+	WorkerReplacementStrategy?: #WorkerReplacementStrategy
 })
 
 // Logging configuration for the environment.
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close({
-	DagProcessingLogs?: _#defs."/$defs/Properties/definitions/ModuleLoggingConfiguration"
-	SchedulerLogs?:     _#defs."/$defs/Properties/definitions/ModuleLoggingConfiguration"
-	TaskLogs?:          _#defs."/$defs/Properties/definitions/ModuleLoggingConfiguration"
-	WebserverLogs?:     _#defs."/$defs/Properties/definitions/ModuleLoggingConfiguration"
-	WorkerLogs?:        _#defs."/$defs/Properties/definitions/ModuleLoggingConfiguration"
+#LoggingConfiguration: close({
+	DagProcessingLogs?: #ModuleLoggingConfiguration
+	SchedulerLogs?:     #ModuleLoggingConfiguration
+	TaskLogs?:          #ModuleLoggingConfiguration
+	WebserverLogs?:     #ModuleLoggingConfiguration
+	WorkerLogs?:        #ModuleLoggingConfiguration
 })
 
 // Configures logging for the environment.
-_#defs: "/$defs/Properties/definitions/LoggingConfigurationInput": close({
-	DagProcessingLogs?: _#defs."/$defs/Properties/definitions/ModuleLoggingConfigurationInput"
-	SchedulerLogs?:     _#defs."/$defs/Properties/definitions/ModuleLoggingConfigurationInput"
-	TaskLogs?:          _#defs."/$defs/Properties/definitions/ModuleLoggingConfigurationInput"
-	WebserverLogs?:     _#defs."/$defs/Properties/definitions/ModuleLoggingConfigurationInput"
-	WorkerLogs?:        _#defs."/$defs/Properties/definitions/ModuleLoggingConfigurationInput"
+#LoggingConfigurationInput: close({
+	DagProcessingLogs?: #ModuleLoggingConfigurationInput
+	SchedulerLogs?:     #ModuleLoggingConfigurationInput
+	TaskLogs?:          #ModuleLoggingConfigurationInput
+	WebserverLogs?:     #ModuleLoggingConfigurationInput
+	WorkerLogs?:        #ModuleLoggingConfigurationInput
 })
 
-_#defs: "/$defs/Properties/definitions/LoggingEnabled": bool
+#LoggingEnabled: bool
 
-_#defs: "/$defs/Properties/definitions/LoggingLevel": "CRITICAL" | "ERROR" | "WARNING" | "INFO" | "DEBUG"
+#LoggingLevel: "CRITICAL" | "ERROR" | "WARNING" | "INFO" | "DEBUG"
 
 // Maximum webserver compute units.
-_#defs: "/$defs/Properties/definitions/MaxWebservers": int & >=1
+#MaxWebservers: int & >=1
 
 // Maximum worker compute units.
-_#defs: "/$defs/Properties/definitions/MaxWorkers": int & >=1
+#MaxWorkers: int & >=1
 
 // Minimum webserver compute units.
-_#defs: "/$defs/Properties/definitions/MinWebservers": int & >=1
+#MinWebservers: int & >=1
 
 // Minimum worker compute units.
-_#defs: "/$defs/Properties/definitions/MinWorkers": int & >=1
+#MinWorkers: int & >=1
 
 // Logging configuration for a specific airflow component.
-_#defs: "/$defs/Properties/definitions/ModuleLoggingConfiguration": close({
-	CloudWatchLogGroupArn?: _#defs."/$defs/Properties/definitions/CloudWatchLogGroupArn"
-	Enabled?:               _#defs."/$defs/Properties/definitions/LoggingEnabled"
-	LogLevel?:              _#defs."/$defs/Properties/definitions/LoggingLevel"
+#ModuleLoggingConfiguration: close({
+	CloudWatchLogGroupArn?: #CloudWatchLogGroupArn
+	Enabled?:               #LoggingEnabled
+	LogLevel?:              #LoggingLevel
 })
 
 // Configures airflow component logging for the environment.
-_#defs: "/$defs/Properties/definitions/ModuleLoggingConfigurationInput": close({
-	Enabled?:  _#defs."/$defs/Properties/definitions/LoggingEnabled"
-	LogLevel?: _#defs."/$defs/Properties/definitions/LoggingLevel"
+#ModuleLoggingConfigurationInput: close({
+	Enabled?:  #LoggingEnabled
+	LogLevel?: #LoggingLevel
 })
 
 // Configures the network resources of the environment.
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
+#NetworkConfiguration: close({
 	// A list of security groups to use for the environment.
-	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SecurityGroupId"]
+	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [...#SecurityGroupId]
 
 	// A list of subnets to use for the environment. These must be private subnets,
 	// in the same VPC, in two different availability zones.
-	SubnetIds?: list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/SubnetId"]
+	SubnetIds?: list.MaxItems(2) & list.MinItems(2) & [...#SubnetId]
 })
 
 // Represents an S3 prefix relative to the root of an S3 bucket.
-_#defs: "/$defs/Properties/definitions/RelativePath": strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*"
+#RelativePath: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*"
 
 // ARN for the AWS S3 bucket to use as the source of DAGs and plugins for the environment.
-_#defs: "/$defs/Properties/definitions/S3BucketArn": strings.MaxRunes(1224) &
+#S3BucketArn: strings.MaxRunes(1224) &
 strings.MinRunes(1) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:s3:::[a-z0-9.\\-]+$"
 
 // Represents an version ID for an S3 object.
-_#defs: "/$defs/Properties/definitions/S3ObjectVersion": strings.MaxRunes(1024) & strings.MinRunes(0)
+#S3ObjectVersion: strings.MaxRunes(1024) & strings.MinRunes(0)
 
 // Scheduler compute units.
-_#defs: "/$defs/Properties/definitions/Schedulers": int & <=5 & >=1
+#Schedulers: int & <=5 & >=1
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 strings.MaxRunes(1024) &
 strings.MinRunes(1) &
 =~"^sg-[a-zA-Z0-9\\-._]+$"
 
 // IAM role to be used by MWAA to perform AWS API calls on behalf of the customer.
-_#defs: "/$defs/Properties/definitions/ServiceRoleArn": strings.MaxRunes(1224) &
+#ServiceRoleArn: strings.MaxRunes(1224) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
-_#defs: "/$defs/Properties/definitions/SubnetId": strings.MaxRunes(1024) &
-strings.MinRunes(1) &
-=~"^subnet-[a-zA-Z0-9\\-._]+$"
+#SubnetId: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^subnet-[a-zA-Z0-9\\-._]+$"
 
 // When the update request was created.
-_#defs: "/$defs/Properties/definitions/UpdateCreatedAt": string
+#UpdateCreatedAt: string
 
 // The error associated with an update request.
-_#defs: "/$defs/Properties/definitions/UpdateError": close({
-	ErrorCode?:    _#defs."/$defs/Properties/definitions/ErrorCode"
-	ErrorMessage?: _#defs."/$defs/Properties/definitions/ErrorMessage"
+#UpdateError: close({
+	ErrorCode?:    #ErrorCode
+	ErrorMessage?: #ErrorMessage
 })
 
-_#defs: "/$defs/Properties/definitions/UpdateStatus": "SUCCESS" | "PENDING" | "FAILED"
+#UpdateStatus: "SUCCESS" | "PENDING" | "FAILED"
 
 // Choice for mode of webserver access including over public internet or via private VPC endpoint.
-_#defs: "/$defs/Properties/definitions/WebserverAccessMode": "PRIVATE_ONLY" | "PUBLIC_ONLY" | "PUBLIC_AND_PRIVATE"
+#WebserverAccessMode: "PRIVATE_ONLY" | "PUBLIC_ONLY" | "PUBLIC_AND_PRIVATE"
 
 // Url endpoint for the environment's Airflow UI.
-_#defs: "/$defs/Properties/definitions/WebserverUrl": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^https://.+$"
+#WebserverUrl: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^https://.+$"
 
 // The webserver VPC endpoint service name, applicable if private webserver access mode selected.
-_#defs: "/$defs/Properties/definitions/WebserverVpcEndpointService": strings.MaxRunes(1224)
+#WebserverVpcEndpointService: strings.MaxRunes(1224)
 
 // Start time for the weekly maintenance window.
-_#defs: "/$defs/Properties/definitions/WeeklyMaintenanceWindowStart": strings.MaxRunes(9) &
+#WeeklyMaintenanceWindowStart: strings.MaxRunes(9) &
 strings.MinRunes(1) &
 =~"(MON|TUE|WED|THU|FRI|SAT|SUN):([01]\\d|2[0-3]):(00|30)"
 
@@ -250,4 +246,4 @@ strings.MinRunes(1) &
 // stopped and replaced without waiting for tasks to complete before an update.
 // GRACEFUL means Apache Airflow workers will be able to complete running tasks
 // for up to 12 hours during an update before being stopped and replaced.
-_#defs: "/$defs/Properties/definitions/WorkerReplacementStrategy": "FORCED" | "GRACEFUL"
+#WorkerReplacementStrategy: "FORCED" | "GRACEFUL"

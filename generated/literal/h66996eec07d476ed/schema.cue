@@ -14,49 +14,47 @@ import (
 #Properties: close({
 	CapabilityArn?:         strings.MaxRunes(255) & strings.MinRunes(1)
 	CapabilityId?:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
-	Configuration!:         _#defs."/$defs/Properties/definitions/CapabilityConfiguration"
+	Configuration!:         #CapabilityConfiguration
 	CreatedAt?:             time.Time
-	InstructionsDocuments?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/S3Location"]
+	InstructionsDocuments?: list.MaxItems(5) & [...] & [...#S3Location]
 	ModifiedAt?:            time.Time
 	Name!:                  strings.MaxRunes(254) & strings.MinRunes(1)
-	Tags?:                  list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Type!:                  _#defs."/$defs/Properties/definitions/CapabilityType"
+	Tags?:                  list.MaxItems(200) & [...] & [...#Tag]
+	Type!:                  #CapabilityType
 })
 
-_#defs: "/$defs/Properties/definitions/CapabilityConfiguration": close(
-	{Edi!: _#defs."/$defs/Properties/definitions/EdiConfiguration"},
-)
+#CapabilityConfiguration: close({Edi!: #EdiConfiguration})
 
-_#defs: "/$defs/Properties/definitions/CapabilityDirection": "INBOUND" | "OUTBOUND"
+#CapabilityDirection: "INBOUND" | "OUTBOUND"
 
-_#defs: "/$defs/Properties/definitions/CapabilityType": "edi"
+#CapabilityType: "edi"
 
-_#defs: "/$defs/Properties/definitions/EdiConfiguration": close({
-	CapabilityDirection?: _#defs."/$defs/Properties/definitions/CapabilityDirection"
-	InputLocation!:       _#defs."/$defs/Properties/definitions/S3Location"
-	OutputLocation!:      _#defs."/$defs/Properties/definitions/S3Location"
+#EdiConfiguration: close({
+	CapabilityDirection?: #CapabilityDirection
+	InputLocation!:       #S3Location
+	OutputLocation!:      #S3Location
 	TransformerId!:       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
-	Type!:                _#defs."/$defs/Properties/definitions/EdiType"
+	Type!:                #EdiType
 })
 
-_#defs: "/$defs/Properties/definitions/EdiType": close({X12Details!: _#defs."/$defs/Properties/definitions/X12Details"})
+#EdiType: close({X12Details!: #X12Details})
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	BucketName?: strings.MaxRunes(63) & strings.MinRunes(3)
 	Key?:        strings.MaxRunes(1024) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/X12Details": close({
-	TransactionSet?: _#defs."/$defs/Properties/definitions/X12TransactionSet"
-	Version?:        _#defs."/$defs/Properties/definitions/X12Version"
+#X12Details: close({
+	TransactionSet?: #X12TransactionSet
+	Version?:        #X12Version
 })
 
-_#defs: "/$defs/Properties/definitions/X12TransactionSet": "X12_100" |
+#X12TransactionSet: "X12_100" |
 	"X12_101" |
 	"X12_102" |
 	"X12_103" |
@@ -399,9 +397,4 @@ _#defs: "/$defs/Properties/definitions/X12TransactionSet": "X12_100" |
 	"X12_837_X298" |
 	"X12_999_X231"
 
-_#defs: "/$defs/Properties/definitions/X12Version": "VERSION_4010" |
-	"VERSION_4030" |
-	"VERSION_4050" |
-	"VERSION_4060" |
-	"VERSION_5010" |
-	"VERSION_5010_HIPAA"
+#X12Version: "VERSION_4010" | "VERSION_4030" | "VERSION_4050" | "VERSION_4060" | "VERSION_5010" | "VERSION_5010_HIPAA"

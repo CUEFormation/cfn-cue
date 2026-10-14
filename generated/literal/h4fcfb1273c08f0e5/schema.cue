@@ -36,10 +36,10 @@ import "strings"
 	SubnetId!: string
 
 	// The tags assigned to the subnet CIDR reservation.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag. Amazon EC2 reserves keys beginning with 'aws:' for
 	// internal use and rejects them for this resource. Amazon EC2 accepts a
 	// maximum of 128 Unicode characters.

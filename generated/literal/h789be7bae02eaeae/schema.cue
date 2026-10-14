@@ -16,7 +16,7 @@ import (
 	// context](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#encrypt_context)
 	// in the *Key Management Service Developer Guide*.
 	// You can only include this parameter if you specify the ``KMSKeyId`` parameter.
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
+	AdditionalEncryptionContext?: #EncryptionContextMap
 	CreateTime?:                  string
 
 	// Data filters for the integration. These filters determine which tables from
@@ -43,7 +43,7 @@ import (
 	// A list of tags. For more information, see [Tagging Amazon RDS
 	// Resources](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.html)
 	// in the *Amazon RDS User Guide.*.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The ARN of the Redshift data warehouse to use as the target for replication.
 	TargetArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
@@ -51,7 +51,7 @@ import (
 
 // An optional set of non-secret key–value pairs that contains additional
 // contextual information about the data.
-_#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
+#EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0)}})
 
@@ -61,7 +61,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
 // in the *Amazon RDS User Guide* or [Tagging Amazon Aurora and Amazon RDS
 // Resources](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_Tagging.html)
 // in the *Amazon Aurora User Guide*.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A key is the required name of the tag. The string value can be from 1 to 128
 	// Unicode characters in length and can't be prefixed with ``aws:`` or
 	// ``rds:``. The string can only contain only the set of Unicode letters,
@@ -78,6 +78,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // An array of key-value pairs to apply to this resource.
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...#Tag]

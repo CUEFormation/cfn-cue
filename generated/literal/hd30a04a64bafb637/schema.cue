@@ -15,14 +15,14 @@ import (
 	CreatedAt?: time.Time
 
 	// Tags for the target domain
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// Unique identifier of the target domain
 	TargetDomainId?: string
 
 	// Domain name of the target domain
 	TargetDomainName!:    string
-	VerificationDetails?: _#defs."/$defs/Properties/definitions/VerificationDetails"
+	VerificationDetails?: #VerificationDetails
 
 	// Verification method for the target domain
 	VerificationMethod!: "DNS_TXT" | "HTTP_ROUTE" | "PRIVATE_VPC"
@@ -38,7 +38,7 @@ import (
 })
 
 // Represents DNS TXT verification details
-_#defs: "/$defs/Properties/definitions/DnsVerification": close({
+#DnsVerification: close({
 	// Record name to be added in DNS for target domain
 	DnsRecordName?: string
 
@@ -50,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/DnsVerification": close({
 })
 
 // Represents HTTP route verification details
-_#defs: "/$defs/Properties/definitions/HttpVerification": close({
+#HttpVerification: close({
 	// Route path where verification token should be placed
 	RoutePath?: string
 
@@ -59,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/HttpVerification": close({
 })
 
 // A key-value pair to associate with a resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -68,9 +68,9 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Verification details to verify registered target domain
-_#defs: "/$defs/Properties/definitions/VerificationDetails": close({
-	DnsTxt?:    _#defs."/$defs/Properties/definitions/DnsVerification"
-	HttpRoute?: _#defs."/$defs/Properties/definitions/HttpVerification"
+#VerificationDetails: close({
+	DnsTxt?:    #DnsVerification
+	HttpRoute?: #HttpVerification
 
 	// Type of domain ownership verification method
 	Method?: "DNS_TXT" | "HTTP_ROUTE" | "PRIVATE_VPC"

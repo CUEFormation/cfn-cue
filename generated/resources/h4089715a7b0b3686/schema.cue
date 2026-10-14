@@ -16,17 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::Location::APIKey Resource Type
 #Properties: close({
 	Description?:  strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	ExpireTime?:   _#defs."/$defs/Properties/definitions/iso8601UTC"
+	ExpireTime?:   #iso8601UTC
 	ForceDelete?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ForceUpdate?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KeyName!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
 	NoExpiry?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Restrictions!: _#defs."/$defs/Properties/definitions/ApiKeyRestrictions"
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Restrictions!: #ApiKeyRestrictions
+	Tags?:         list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AndroidApp": close({
+#AndroidApp: close({
 	CertificateFingerprint!: strings.MaxRunes(59) & strings.MinRunes(59) & =~"^([A-Fa-f0-9]{2}:){19}[A-Fa-f0-9]{2}$" |
 	fn.#StringExpression
 	Package!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([A-Za-z][A-Za-z\\d_]*\\.)+[A-Za-z][A-Za-z\\d_]*$" |
@@ -34,16 +33,14 @@ _#defs: "/$defs/Properties/definitions/AndroidApp": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApiKeyRestrictions": close({
+#ApiKeyRestrictions: close({
 	AllowActions!: list.MaxItems(24) & list.MinItems(1) & [
 		...strings.MaxRunes(200) & strings.MinRunes(5) & =~"^(geo|geo-routes|geo-places|geo-maps):\\w*\\*?$" |
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	AllowAndroidApps?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/AndroidApp"] |
-		fn.#ListExpression
-	AllowAppleApps?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/AppleApp"] |
-		fn.#ListExpression
+	AllowAndroidApps?: list.MaxItems(5) & [...] & [...#AndroidApp] | fn.#ListExpression
+	AllowAppleApps?:   list.MaxItems(5) & [...] & [...#AppleApp] | fn.#ListExpression
 	AllowReferers?: list.MaxItems(5) & [...] & [
 		...strings.MaxRunes(253) & =~"^([\\w!$&()*+,./:;=?@\\x60-]|%([\\dA-Fa-f]{2}|[\\dA-Fa-f]?\\*))+$" |
 		fn.#StringExpression
@@ -58,19 +55,19 @@ _#defs: "/$defs/Properties/definitions/ApiKeyRestrictions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AppleApp": close({
+#AppleApp: close({
 	BundleId!: strings.MaxRunes(155) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+(\\.[A-Za-z0-9\\-]+)+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(50) & close({
+#TagMap: struct.MaxFields(50) & close({
 
 	{[=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$"]: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
@@ -78,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(50) & close({
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/iso8601UTC": =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
+#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
 	fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Location::APIKey"

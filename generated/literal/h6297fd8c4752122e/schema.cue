@@ -39,7 +39,7 @@ import "strings"
 	// The connection endpoint for connecting to an Amazon Redshift cluster through the proxy.
 	VpcEndpoint?: close({
 		// One or more network interfaces of the endpoint. Also known as an interface endpoint.
-		NetworkInterfaces?: [..._#defs."/$defs/Properties/definitions/NetworkInterface"]
+		NetworkInterfaces?: [...#NetworkInterface]
 
 		// The connection endpoint ID for connecting an Amazon Redshift cluster through the proxy.
 		VpcEndpointId?: string
@@ -54,11 +54,11 @@ import "strings"
 	]
 
 	// A list of Virtual Private Cloud (VPC) security groups to be associated with the endpoint.
-	VpcSecurityGroups?: [..._#defs."/$defs/Properties/definitions/VpcSecurityGroup"]
+	VpcSecurityGroups?: [...#VpcSecurityGroup]
 })
 
 // Describes a network interface.
-_#defs: "/$defs/Properties/definitions/NetworkInterface": close({
+#NetworkInterface: close({
 	// The Availability Zone.
 	AvailabilityZone?: string
 
@@ -73,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 })
 
 // Describes the members of a VPC security group.
-_#defs: "/$defs/Properties/definitions/VpcSecurityGroup": close({
+#VpcSecurityGroup: close({
 	// The status of the VPC security group.
 	Status?: string
 

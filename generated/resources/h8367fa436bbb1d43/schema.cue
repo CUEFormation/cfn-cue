@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -25,7 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Control!: close({
 		AttributeValues?: close({
 
-			{[=~"^[a-zA-Z0-9._-]+$"]: _#defs."/$defs/Properties/definitions/AttributeValue"}}) |
+			{[=~"^[a-zA-Z0-9._-]+$"]: #AttributeValue}}) |
 		fn.#ObjectExpression
 		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 		Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -55,11 +55,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Hypothesis?:     strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	LaunchCriteria?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:           strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	Treatments!: list.MaxItems(5) & list.MinItems(1) & [...close({
 		AttributeValues?: close({
 
-			{[=~"^[a-zA-Z0-9._-]+$"]: _#defs."/$defs/Properties/definitions/AttributeValue"}}) |
+			{[=~"^[a-zA-Z0-9._-]+$"]: #AttributeValue}}) |
 		fn.#ObjectExpression
 		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 		Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -87,7 +87,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeValue": close({
+#AttributeValue: close({
 	BooleanValue?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NumberArray?: [
 		...number |
@@ -135,16 +135,16 @@ _#defs: "/$defs/Properties/definitions/AttributeValue": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Treatment": close({
+#Treatment: close({
 	AttributeValues?: close({
 
-		{[=~"^[a-zA-Z0-9._-]+$"]: _#defs."/$defs/Properties/definitions/AttributeValue"}}) |
+		{[=~"^[a-zA-Z0-9._-]+$"]: #AttributeValue}}) |
 	fn.#ObjectExpression
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

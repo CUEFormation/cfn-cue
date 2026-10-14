@@ -6,37 +6,35 @@ package schema
 
 // Resource Type definition for AWS::Greengrass::FunctionDefinitionVersion
 #Properties: close({
-	DefaultConfig?:        _#defs."/$defs/Properties/definitions/DefaultConfig"
+	DefaultConfig?:        #DefaultConfig
 	FunctionDefinitionId!: string
-	Functions!:            [..._#defs."/$defs/Properties/definitions/Function"]
+	Functions!:            [...#Function]
 	Id?:                   string
 })
 
-_#defs: "/$defs/Properties/definitions/DefaultConfig": close(
-	{Execution!: _#defs."/$defs/Properties/definitions/Execution"},
-)
+#DefaultConfig: close({Execution!: #Execution})
 
-_#defs: "/$defs/Properties/definitions/Environment": close({
+#Environment: close({
 	AccessSysfs?:            bool
-	Execution?:              _#defs."/$defs/Properties/definitions/Execution"
-	ResourceAccessPolicies?: [..._#defs."/$defs/Properties/definitions/ResourceAccessPolicy"]
+	Execution?:              #Execution
+	ResourceAccessPolicies?: [...#ResourceAccessPolicy]
 	Variables?:              string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/Execution": close({
+#Execution: close({
 	IsolationMode?: string
-	RunAs?:         _#defs."/$defs/Properties/definitions/RunAs"
+	RunAs?:         #RunAs
 })
 
-_#defs: "/$defs/Properties/definitions/Function": close({
+#Function: close({
 	FunctionArn!:           =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
-	FunctionConfiguration!: _#defs."/$defs/Properties/definitions/FunctionConfiguration"
+	FunctionConfiguration!: #FunctionConfiguration
 	Id!:                    string
 })
 
-_#defs: "/$defs/Properties/definitions/FunctionConfiguration": close({
+#FunctionConfiguration: close({
 	EncodingType?: string
-	Environment?:  _#defs."/$defs/Properties/definitions/Environment"
+	Environment?:  #Environment
 	ExecArgs?:     string
 	Executable?:   string
 	MemorySize?:   int
@@ -44,12 +42,12 @@ _#defs: "/$defs/Properties/definitions/FunctionConfiguration": close({
 	Timeout?:      int
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceAccessPolicy": close({
+#ResourceAccessPolicy: close({
 	Permission?: string
 	ResourceId!: string
 })
 
-_#defs: "/$defs/Properties/definitions/RunAs": close({
+#RunAs: close({
 	Gid?: int
 	Uid?: int
 })

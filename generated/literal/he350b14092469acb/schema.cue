@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -47,7 +47,7 @@ import (
 	// The AWS Key Management Service (KMS) policy document that defines permissions
 	// for key usage within the ODB network.
 	KmsPolicyDocument?: strings.MaxRunes(20480) & strings.MinRunes(3)
-	ManagedServices?:   _#defs."/$defs/Properties/definitions/ManagedServices"
+	ManagedServices?:   #ManagedServices
 
 	// The unique identifier of the OCI network anchor for the ODB network.
 	OciNetworkAnchorId?: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -78,7 +78,7 @@ import (
 	StsPolicyDocument?: strings.MaxRunes(20480) & strings.MinRunes(3)
 
 	// Tags to assign to the Odb Network.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// Specifies the configuration for Zero-ETL access from the ODB network.
 	ZeroEtlAccess?: "ENABLED" | "DISABLED"
@@ -86,7 +86,7 @@ import (
 
 // The configuration access for the cross-Region Amazon S3 database restore
 // source for the ODB network.
-_#defs: "/$defs/Properties/definitions/CrossRegionS3RestoreSourcesAccess": close({
+#CrossRegionS3RestoreSourcesAccess: close({
 	// The IPv4 addresses allowed for cross-Region Amazon S3 restore access.
 	Ipv4Addresses?: [...string]
 
@@ -94,18 +94,16 @@ _#defs: "/$defs/Properties/definitions/CrossRegionS3RestoreSourcesAccess": close
 	Region?: string
 
 	// The current status of the cross-Region Amazon S3 restore access configuration.
-	Status?: _#defs."/$defs/Properties/definitions/ManagedResourceStatus"
+	Status?: #ManagedResourceStatus
 })
 
 // The status of the managed resource access.
-_#defs: "/$defs/Properties/definitions/ManagedResourceStatus": "ENABLED" | "ENABLING" | "DISABLED" | "DISABLING"
+#ManagedResourceStatus: "ENABLED" | "ENABLING" | "DISABLED" | "DISABLING"
 
 // The managed services configuration for the ODB network.
-_#defs: "/$defs/Properties/definitions/ManagedServices": close({
+#ManagedServices: close({
 	// The access configuration for the cross-Region Amazon S3 database restore source.
-	CrossRegionS3RestoreSourcesAccess?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/CrossRegionS3RestoreSourcesAccess"
-	]
+	CrossRegionS3RestoreSourcesAccess?: list.UniqueItems() & [...#CrossRegionS3RestoreSourcesAccess]
 
 	// The AWS Key Management Service (KMS) access configuration.
 	KmsAccess?: close({
@@ -119,7 +117,7 @@ _#defs: "/$defs/Properties/definitions/ManagedServices": close({
 		KmsPolicyDocument?: string
 
 		// The status of the AWS KMS access.
-		Status?: _#defs."/$defs/Properties/definitions/ManagedResourceStatus"
+		Status?: #ManagedResourceStatus
 	})
 
 	// The managed Amazon S3 backup access configuration.
@@ -128,7 +126,7 @@ _#defs: "/$defs/Properties/definitions/ManagedServices": close({
 		Ipv4Addresses?: [...string]
 
 		// The status of the managed Amazon S3 backup access.
-		Status?: _#defs."/$defs/Properties/definitions/ManagedResourceStatus"
+		Status?: #ManagedResourceStatus
 	})
 
 	// The IPv4 CIDR blocks for the managed services.
@@ -149,7 +147,7 @@ _#defs: "/$defs/Properties/definitions/ManagedServices": close({
 		S3PolicyDocument?: string
 
 		// The status of the Amazon S3 access.
-		Status?: _#defs."/$defs/Properties/definitions/ManagedResourceStatus"
+		Status?: #ManagedResourceStatus
 	})
 
 	// The Amazon Resource Name (ARN) of the service network.
@@ -173,7 +171,7 @@ _#defs: "/$defs/Properties/definitions/ManagedServices": close({
 		Ipv4Addresses?: [...string]
 
 		// The status of the AWS STS access.
-		Status?: _#defs."/$defs/Properties/definitions/ManagedResourceStatus"
+		Status?: #ManagedResourceStatus
 
 		// The endpoint policy for the AWS STS access.
 		StsPolicyDocument?: string
@@ -185,12 +183,12 @@ _#defs: "/$defs/Properties/definitions/ManagedServices": close({
 		Cidr?: string
 
 		// The status of the Zero-ETL access.
-		Status?: _#defs."/$defs/Properties/definitions/ManagedResourceStatus"
+		Status?: #ManagedResourceStatus
 	})
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that's 1 to 128 Unicode
 	// characters in length and can't be prefixed with aws:. You can use any of the
 	// following characters: the set of Unicode letters, digits, whitespace, _, .,

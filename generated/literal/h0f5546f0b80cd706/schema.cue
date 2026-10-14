@@ -21,16 +21,16 @@ import "strings"
 	PackId?: strings.MaxRunes(64) & strings.MinRunes(8) & =~"^(srp)-(am|cm)-[a-zA-Z0-9\\-]+$"
 
 	// Security requirements within this pack
-	SecurityRequirements?: [..._#defs."/$defs/Properties/definitions/SecurityRequirement"]
+	SecurityRequirements?: [...#SecurityRequirement]
 
 	// Whether the pack is enabled or disabled
 	Status?: "ENABLED" | "DISABLED"
 
 	// Tags for the security requirement pack
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/SecurityRequirement": close({
+#SecurityRequirement: close({
 	// Description of the security requirement
 	Description!: strings.MaxRunes(500)
 
@@ -48,7 +48,7 @@ _#defs: "/$defs/Properties/definitions/SecurityRequirement": close({
 })
 
 // A key-value pair to associate with a resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

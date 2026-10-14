@@ -14,38 +14,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SageMaker::Workteam
 #Properties: close({
-	Description!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	MemberDefinitions!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MemberDefinition"
-	] |
-		fn.#ListExpression
-	NotificationConfiguration?: _#defs."/$defs/Properties/definitions/NotificationConfiguration" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Description!:               strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+	MemberDefinitions!:         list.MaxItems(10) & list.MinItems(1) & [...#MemberDefinition] | fn.#ListExpression
+	NotificationConfiguration?: #NotificationConfiguration | fn.#ObjectExpression
+	Tags?:                      list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	WorkforceName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9\\-]){0,62}$" |
 	fn.#StringExpression
 	WorkteamName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CognitoMemberDefinition": close({
+#CognitoMemberDefinition: close({
 	CognitoClientId!:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	CognitoUserGroup!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	CognitoUserPool!:  strings.MaxRunes(55) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemberDefinition": close({
-	CognitoMemberDefinition?: _#defs."/$defs/Properties/definitions/CognitoMemberDefinition" | fn.#ObjectExpression
-	OidcMemberDefinition?:    _#defs."/$defs/Properties/definitions/OidcMemberDefinition" | fn.#ObjectExpression
+#MemberDefinition: close({
+	CognitoMemberDefinition?: #CognitoMemberDefinition | fn.#ObjectExpression
+	OidcMemberDefinition?:    #OidcMemberDefinition | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": close(
+#NotificationConfiguration: close(
 	{NotificationTopicArn!: =~"^arn:aws[a-z\\-]*:sns:[a-z0-9\\-]*:[0-9]{12}:[a-zA-Z0-9_.-]*$" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OidcMemberDefinition": close({
+#OidcMemberDefinition: close({
 	OidcGroups!: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -53,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/OidcMemberDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

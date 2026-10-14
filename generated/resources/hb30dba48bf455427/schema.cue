@@ -10,13 +10,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // AWS::PCS::Queue resource creates an AWS PCS queue.
 #Properties: close({
-	ClusterId!: string | fn.#StringExpression
-	ComputeNodeGroupConfigurations?: [..._#defs."/$defs/Properties/definitions/ComputeNodeGroupConfiguration"] |
-		fn.#ListExpression
-	Name?: string | fn.#StringExpression
-	SlurmConfiguration?: close(
-		{SlurmCustomSettings?: [..._#defs."/$defs/Properties/definitions/SlurmCustomSetting"] | fn.#ListExpression},
-	) |
+	ClusterId!:                      string | fn.#StringExpression
+	ComputeNodeGroupConfigurations?: [...#ComputeNodeGroupConfiguration] | fn.#ListExpression
+	Name?:                           string | fn.#StringExpression
+	SlurmConfiguration?: close({SlurmCustomSettings?: [...#SlurmCustomSetting] | fn.#ListExpression}) |
 		fn.#ObjectExpression
 	Tags?: close({
 
@@ -24,18 +21,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ComputeNodeGroupConfiguration": close(
-	{ComputeNodeGroupId?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#ComputeNodeGroupConfiguration: close({ComputeNodeGroupId?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ErrorInfo": close({
+#ErrorInfo: close({
 	Code?:    string | fn.#StringExpression
 	Message?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlurmCustomSetting": close({
+#SlurmCustomSetting: close({
 	ParameterName!:  string | fn.#StringExpression
 	ParameterValue!: string | fn.#StringExpression
 }) |

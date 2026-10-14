@@ -22,21 +22,21 @@ import (
 // [](https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html)
 // to manage API requests.
 #Properties: close({
-	ApiStages?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ApiStage"]
+	ApiStages?:     list.UniqueItems() & [...#ApiStage]
 	Description?:   string
 	Id?:            string
-	Quota?:         _#defs."/$defs/Properties/definitions/QuotaSettings"
-	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag"]
-	Throttle?:      _#defs."/$defs/Properties/definitions/ThrottleSettings"
+	Quota?:         #QuotaSettings
+	Tags?:          [...#Tag]
+	Throttle?:      #ThrottleSettings
 	UsagePlanName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ApiStage": close({
+#ApiStage: close({
 	ApiId?: string
 	Stage?: string
 	Throttle?: close({
 
-		{[=~".*"]: _#defs."/$defs/Properties/definitions/ThrottleSettings"}})
+		{[=~".*"]: #ThrottleSettings}})
 })
 
 // ``QuotaSettings`` is a property of the
@@ -49,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/ApiStage": close({
 // to monitor costs and
 // [](https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html)
 // to manage API requests.
-_#defs: "/$defs/Properties/definitions/QuotaSettings": close({
+#QuotaSettings: close({
 	Limit?:  int & >=0
 	Offset?: int & >=0
 	Period?: string
@@ -58,7 +58,7 @@ _#defs: "/$defs/Properties/definitions/QuotaSettings": close({
 // An array of key-value pairs to apply to this resource.
 // For more information, see
 // [Tag](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string you can use to assign a value. The combination of tag keys and
 	// values can help you organize and categorize your resources.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
@@ -71,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // [AWS::ApiGateway::UsagePlan](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-usageplan.html)
 // resource that specifies the overall request rate (average requests per
 // second) and burst capacity when users call your REST APIs.
-_#defs: "/$defs/Properties/definitions/ThrottleSettings": close({
+#ThrottleSettings: close({
 	BurstLimit?: int & >=0
 	RateLimit?:  >=0
 })

@@ -11,71 +11,67 @@ import (
 
 // Definition of AWS::BCMDataExports::Export Resource Type
 #Properties: close({
-	Export!: _#defs."/$defs/Properties/definitions/Export"
+	Export!: #Export
 	ExportArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[-a-z0-9]*:(bcm-data-exports):[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$"
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceTag"]
+	Tags?: list.MaxItems(200) & [...] & [...#ResourceTag]
 })
 
-_#defs: "/$defs/Properties/definitions/CompressionOption": "GZIP" | "PARQUET" | "ZIP"
+#CompressionOption: "GZIP" | "PARQUET" | "ZIP"
 
-_#defs: "/$defs/Properties/definitions/DataQuery": close({
+#DataQuery: close({
 	QueryStatement!:      strings.MaxRunes(36000) & strings.MinRunes(1) & =~"^[\\S\\s]*$"
-	TableConfigurations?: _#defs."/$defs/Properties/definitions/TableConfigurations"
+	TableConfigurations?: #TableConfigurations
 })
 
-_#defs: "/$defs/Properties/definitions/DestinationConfigurations": close(
-	{S3Destination!: _#defs."/$defs/Properties/definitions/S3Destination"},
-)
+#DestinationConfigurations: close({S3Destination!: #S3Destination})
 
-_#defs: "/$defs/Properties/definitions/Export": close({
-	DataQuery!:                 _#defs."/$defs/Properties/definitions/DataQuery"
+#Export: close({
+	DataQuery!:                 #DataQuery
 	Description?:               strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$"
-	DestinationConfigurations!: _#defs."/$defs/Properties/definitions/DestinationConfigurations"
+	DestinationConfigurations!: #DestinationConfigurations
 	ExportArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[-a-z0-9]*:(bcm-data-exports):[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$"
 	Name!:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z\\-_]+$"
-	RefreshCadence!: _#defs."/$defs/Properties/definitions/RefreshCadence"
+	RefreshCadence!: #RefreshCadence
 })
 
-_#defs: "/$defs/Properties/definitions/FormatOption": "TEXT_OR_CSV" | "PARQUET"
+#FormatOption: "TEXT_OR_CSV" | "PARQUET"
 
-_#defs: "/$defs/Properties/definitions/FrequencyOption": "SYNCHRONOUS"
+#FrequencyOption: "SYNCHRONOUS"
 
-_#defs: "/$defs/Properties/definitions/OverwriteOption": "CREATE_NEW_REPORT" | "OVERWRITE_REPORT"
+#OverwriteOption: "CREATE_NEW_REPORT" | "OVERWRITE_REPORT"
 
-_#defs: "/$defs/Properties/definitions/RefreshCadence": close(
-	{Frequency!: _#defs."/$defs/Properties/definitions/FrequencyOption"},
-)
+#RefreshCadence: close({Frequency!: #FrequencyOption})
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/S3Destination": close({
+#S3Destination: close({
 	S3Bucket!:               strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$"
 	S3BucketOwner?:          strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
-	S3OutputConfigurations!: _#defs."/$defs/Properties/definitions/S3OutputConfigurations"
+	S3OutputConfigurations!: #S3OutputConfigurations
 	S3Prefix!:               strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$"
 	S3Region!:               strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/S3OutputConfigurations": close({
-	Compression!: _#defs."/$defs/Properties/definitions/CompressionOption"
-	Format!:      _#defs."/$defs/Properties/definitions/FormatOption"
-	OutputType!:  _#defs."/$defs/Properties/definitions/S3OutputType"
-	Overwrite!:   _#defs."/$defs/Properties/definitions/OverwriteOption"
+#S3OutputConfigurations: close({
+	Compression!: #CompressionOption
+	Format!:      #FormatOption
+	OutputType!:  #S3OutputType
+	Overwrite!:   #OverwriteOption
 })
 
-_#defs: "/$defs/Properties/definitions/S3OutputType": "CUSTOM" | "ATHENA" | "REDSHIFT"
+#S3OutputType: "CUSTOM" | "ATHENA" | "REDSHIFT"
 
-_#defs: "/$defs/Properties/definitions/TableConfigurations": close({
+#TableConfigurations: close({
 
-	{[=~"^[\\S\\s]*$"]: _#defs."/$defs/Properties/definitions/TableProperties"}})
+	{[=~"^[\\S\\s]*$"]: #TableProperties}})
 
-_#defs: "/$defs/Properties/definitions/TableProperties": close({
+#TableProperties: close({
 
 	{[=~"^[\\S\\s]*$"]: strings.MaxRunes(16384) & strings.MinRunes(0) & =~"^[\\S\\s]*$"}})

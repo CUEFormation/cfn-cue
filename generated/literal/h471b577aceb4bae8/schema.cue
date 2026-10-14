@@ -17,10 +17,10 @@ import (
 	=~"^arn:aws[-a-z0-9]*:app-integrations:[-a-z0-9]*:[0-9]{12}:application/[-a-zA-Z0-9]*"
 
 	// The application configuration. Cannot be used when IsService is true.
-	ApplicationConfig?: _#defs."/$defs/Properties/definitions/ApplicationConfig"
+	ApplicationConfig?: #ApplicationConfig
 
 	// Application source config
-	ApplicationSourceConfig!: close({ExternalUrlConfig!: _#defs."/$defs/Properties/definitions/ExternalUrlConfig"})
+	ApplicationSourceConfig!: close({ExternalUrlConfig!: #ExternalUrlConfig})
 
 	// The type of application
 	ApplicationType?: "STANDARD" | "SERVICE" | "MCP_SERVER"
@@ -32,7 +32,7 @@ import (
 	Id?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$"
 
 	// The iframe configuration
-	IframeConfig?: _#defs."/$defs/Properties/definitions/IframeConfig"
+	IframeConfig?: #IframeConfig
 
 	// The initialization timeout in milliseconds. Required when IsService is true.
 	InitializationTimeout?: int & <=600000 & >=1
@@ -47,38 +47,32 @@ import (
 	Namespace!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$"
 
 	// The configuration of events or requests that the application has access to.
-	Permissions?: list.MaxItems(150) & [...] & [..._#defs."/$defs/Properties/definitions/Permissions"]
+	Permissions?: list.MaxItems(150) & [...] & [...#Permissions]
 
 	// The tags (keys and values) associated with the application.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationConfig": close(
-	{ContactHandling?: _#defs."/$defs/Properties/definitions/ContactHandling"},
-)
+#ApplicationConfig: close({ContactHandling?: #ContactHandling})
 
-_#defs: "/$defs/Properties/definitions/ApprovedOrigins": strings.MaxRunes(1000) &
-strings.MinRunes(1) &
-=~"^\\w+\\:\\/\\/.*$"
+#ApprovedOrigins: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\w+\\:\\/\\/.*$"
 
-_#defs: "/$defs/Properties/definitions/ContactHandling": close({Scope!: "CROSS_CONTACTS" | "PER_CONTACT"})
+#ContactHandling: close({Scope!: "CROSS_CONTACTS" | "PER_CONTACT"})
 
-_#defs: "/$defs/Properties/definitions/ExternalUrlConfig": close({
+#ExternalUrlConfig: close({
 	AccessUrl!:       strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\w+\\:\\/\\/.*$"
-	ApprovedOrigins?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/ApprovedOrigins"]
+	ApprovedOrigins?: list.MaxItems(50) & [...] & [...#ApprovedOrigins]
 })
 
-_#defs: "/$defs/Properties/definitions/IframeConfig": close({
+#IframeConfig: close({
 	Allow?:   list.MaxItems(25) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z-]+$"]
 	Sandbox?: list.MaxItems(25) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z-]+$"]
 })
 
-_#defs: "/$defs/Properties/definitions/Permissions": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\/\\._\\-\\*]+$"
+#Permissions: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\/\\._\\-\\*]+$"
 
 // A label for tagging Application resources
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A key to identify the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

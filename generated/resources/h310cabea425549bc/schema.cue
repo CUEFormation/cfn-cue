@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,14 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Wisdom::ContentAssociation Resource Type
 #Properties: close({
-	Association!:     _#defs."/$defs/Properties/definitions/ContentAssociationContents" | fn.#ObjectExpression
+	Association!:     #ContentAssociationContents | fn.#ObjectExpression
 	AssociationType!: "AMAZON_CONNECT_GUIDE" | fn.#StringExpression
 	ContentId!:       =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
 	KnowledgeBaseId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AmazonConnectGuideAssociationData": close({
+#AmazonConnectGuideAssociationData: close({
 	FlowId?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-z-]+?:[a-z-]+?:[a-z0-9-]*?:([0-9]{12})?:[a-zA-Z0-9-:/]+$" |
@@ -28,12 +28,10 @@ _#defs: "/$defs/Properties/definitions/AmazonConnectGuideAssociationData": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContentAssociationContents": close(
-	{AmazonConnectGuideAssociation!: _#defs."/$defs/Properties/definitions/AmazonConnectGuideAssociationData"},
-) |
+#ContentAssociationContents: close({AmazonConnectGuideAssociation!: #AmazonConnectGuideAssociationData}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

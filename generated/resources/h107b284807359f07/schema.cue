@@ -19,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::RolesAnywhere::Profile Resource Type
 #Properties: close({
 	AcceptRoleSessionName?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AttributeMappings?:     [..._#defs."/$defs/Properties/definitions/AttributeMapping"] | fn.#ListExpression
+	AttributeMappings?:     [...#AttributeMapping] | fn.#ListExpression
 	DurationSeconds?: <=43200 & >=900 |
 		{
 			string &
@@ -50,24 +50,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 	fn.#ListExpression
 	SessionPolicy?: string | fn.#StringExpression
-	Tags?:          list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:          list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeMapping": close({
-	CertificateField!: _#defs."/$defs/Properties/definitions/CertificateField"
-	MappingRules!:     [..._#defs."/$defs/Properties/definitions/MappingRule"] | fn.#ListExpression
+#AttributeMapping: close({
+	CertificateField!: #CertificateField
+	MappingRules!:     [...#MappingRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CertificateField": "x509Subject" |
-	"x509Issuer" |
-	"x509SAN" |
-	fn.#StringExpression
+#CertificateField: "x509Subject" | "x509Issuer" | "x509SAN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MappingRule": close({Specifier!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#MappingRule: close({Specifier!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_.:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[ a-zA-Z0-9_.:/=+@-]*$" | fn.#StringExpression
 }) |

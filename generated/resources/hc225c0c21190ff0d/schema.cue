@@ -17,11 +17,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	InstanceId!:               strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	IntegrationAssociationId!: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                     list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                     list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	UseCaseType!:              "RULES_EVALUATION" | "CONNECT_CAMPAIGNS" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |

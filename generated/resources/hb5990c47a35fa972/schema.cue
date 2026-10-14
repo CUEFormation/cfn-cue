@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -28,32 +28,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KinesisDataStream!:  _
 	...
 }]) & close({
-	BoundingBoxRegionsOfInterest?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/BoundingBox"] |
-		fn.#ListExpression
-	ConnectedHomeSettings?: _#defs."/$defs/Properties/definitions/ConnectedHomeSettings"
-	DataSharingPreference?: _#defs."/$defs/Properties/definitions/DataSharingPreference"
-	FaceSearchSettings?:    _#defs."/$defs/Properties/definitions/FaceSearchSettings"
-	KinesisDataStream?:     _#defs."/$defs/Properties/definitions/KinesisDataStream"
-	KinesisVideoStream!:    _#defs."/$defs/Properties/definitions/KinesisVideoStream"
+	BoundingBoxRegionsOfInterest?: list.UniqueItems() & [...] & [...#BoundingBox] | fn.#ListExpression
+	ConnectedHomeSettings?:        #ConnectedHomeSettings
+	DataSharingPreference?:        #DataSharingPreference
+	FaceSearchSettings?:           #FaceSearchSettings
+	KinesisDataStream?:            #KinesisDataStream
+	KinesisVideoStream!:           #KinesisVideoStream
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 	fn.#StringExpression
 	Name?:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]+" | fn.#StringExpression
-	NotificationChannel?: _#defs."/$defs/Properties/definitions/NotificationChannel"
-	PolygonRegionsOfInterest?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Polygon"] |
-		fn.#ListExpression
+	NotificationChannel?: #NotificationChannel
+	PolygonRegionsOfInterest?: list.UniqueItems() & [...] & [...#Polygon] | fn.#ListExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
 	fn.#StringExpression
-	S3Destination?: _#defs."/$defs/Properties/definitions/S3Destination"
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	S3Destination?: #S3Destination
+	Tags?:          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) | fn.#StringExpression
+#Arn: strings.MaxRunes(2048) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BoundingBox": close({
+#BoundingBox: close({
 	Height!: <=100 & >=0 |
 		{
 			string &
@@ -137,8 +134,8 @@ _#defs: "/$defs/Properties/definitions/BoundingBox": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectedHomeSettings": close({
-	Labels!: _#defs."/$defs/Properties/definitions/Labels"
+#ConnectedHomeSettings: close({
+	Labels!: #Labels
 	MinConfidence?: <=100 & >=0 |
 		{
 			string &
@@ -162,12 +159,12 @@ _#defs: "/$defs/Properties/definitions/ConnectedHomeSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSharingPreference": close(
+#DataSharingPreference: close(
 	{OptIn!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FaceSearchSettings": close({
+#FaceSearchSettings: close({
 	CollectionId!: strings.MaxRunes(255) & =~"\\A[a-zA-Z0-9_\\.\\-]+$" | fn.#StringExpression
 	FaceMatchThreshold?: <=100 & >=0 |
 		{
@@ -192,27 +189,22 @@ _#defs: "/$defs/Properties/definitions/FaceSearchSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisDataStream": close(
+#KinesisDataStream: close(
 	{Arn!: strings.MaxRunes(2048) & =~"(^arn:([a-z\\d-]+):kinesis:([a-z\\d-]+):\\d{12}:.+$)" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisVideoStream": close({
+#KinesisVideoStream: close({
 	Arn!: strings.MaxRunes(2048) & =~"(^arn:([a-z\\d-]+):kinesisvideo:([a-z\\d-]+):\\d{12}:.+$)" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Labels": list.MinItems(1) & list.UniqueItems() & [
-	...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-] |
+#Labels: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationChannel": close(
-	{Arn!: strings.MaxRunes(2048) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#NotificationChannel: close({Arn!: strings.MaxRunes(2048) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Point": close({
+#Point: close({
 	X!: number |
 		{
 			string &
@@ -254,18 +246,15 @@ _#defs: "/$defs/Properties/definitions/Point": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Polygon": list.MinItems(3) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Point"
-] |
-	fn.#ListExpression
+#Polygon: list.MinItems(3) & list.UniqueItems() & [...#Point] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/S3Destination": close({
+#S3Destination: close({
 	BucketName!:      strings.MaxRunes(63) | fn.#StringExpression
 	ObjectKeyPrefix?: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" | fn.#StringExpression
 }) |

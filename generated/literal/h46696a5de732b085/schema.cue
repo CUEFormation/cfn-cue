@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,53 +16,46 @@ import (
 		=~"^arn:(aws[a-zA-Z-]*)?:inspector2:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:owner/(\\d{12}|o-[a-z0-9]{10,32})/codesecurity-configuration/[a-f0-9-]{36}$"
 
 	// Code Security Scan Configuration
-	Configuration?: _#defs."/$defs/Properties/definitions/CodeSecurityScanConfiguration"
+	Configuration?: #CodeSecurityScanConfiguration
 
 	// Configuration Level
-	Level?: _#defs."/$defs/Properties/definitions/ConfigurationLevel"
+	Level?: #ConfigurationLevel
 
 	// Code Security Scan Configuration name
 	Name?: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$"
 
 	// Scope Settings
-	ScopeSettings?: _#defs."/$defs/Properties/definitions/ScopeSettings"
-	Tags?:          _#defs."/$defs/Properties/definitions/TagMap"
+	ScopeSettings?: #ScopeSettings
+	Tags?:          #TagMap
 })
 
-_#defs: "/$defs/Properties/definitions/CodeSecurityScanConfiguration": close({
-	continuousIntegrationScanConfiguration?:
-		_#defs."/$defs/Properties/definitions/ContinuousIntegrationScanConfiguration"
-	periodicScanConfiguration?: _#defs."/$defs/Properties/definitions/PeriodicScanConfiguration"
-	ruleSetCategories!: list.MaxItems(3) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RuleSetCategory"
-	]
+#CodeSecurityScanConfiguration: close({
+	continuousIntegrationScanConfiguration?: #ContinuousIntegrationScanConfiguration
+	periodicScanConfiguration?:              #PeriodicScanConfiguration
+	ruleSetCategories!:                      list.MaxItems(3) & list.MinItems(1) & [...#RuleSetCategory]
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigurationLevel": "ORGANIZATION" | "ACCOUNT"
+#ConfigurationLevel: "ORGANIZATION" | "ACCOUNT"
 
-_#defs: "/$defs/Properties/definitions/ContinuousIntegrationScanConfiguration": close({
-	supportedEvents!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ContinuousIntegrationScanEvent"
-	]
-})
+#ContinuousIntegrationScanConfiguration: close(
+	{supportedEvents!: list.MaxItems(2) & list.MinItems(1) & [...#ContinuousIntegrationScanEvent]},
+)
 
-_#defs: "/$defs/Properties/definitions/ContinuousIntegrationScanEvent": "PULL_REQUEST" | "PUSH"
+#ContinuousIntegrationScanEvent: "PULL_REQUEST" | "PUSH"
 
-_#defs: "/$defs/Properties/definitions/PeriodicScanConfiguration": close({
-	frequency?:           _#defs."/$defs/Properties/definitions/PeriodicScanFrequency"
+#PeriodicScanConfiguration: close({
+	frequency?:           #PeriodicScanFrequency
 	frequencyExpression?: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/PeriodicScanFrequency": "WEEKLY" | "MONTHLY" | "NEVER"
+#PeriodicScanFrequency: "WEEKLY" | "MONTHLY" | "NEVER"
 
-_#defs: "/$defs/Properties/definitions/ProjectSelectionScope": "ALL"
+#ProjectSelectionScope: "ALL"
 
-_#defs: "/$defs/Properties/definitions/RuleSetCategory": "SAST" | "IAC" | "SCA"
+#RuleSetCategory: "SAST" | "IAC" | "SCA"
 
-_#defs: "/$defs/Properties/definitions/ScopeSettings": close(
-	{projectSelectionScope?: _#defs."/$defs/Properties/definitions/ProjectSelectionScope"},
-)
+#ScopeSettings: close({projectSelectionScope?: #ProjectSelectionScope})
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~"^.{2,127}$"]: =~"^.{1,255}$"}})

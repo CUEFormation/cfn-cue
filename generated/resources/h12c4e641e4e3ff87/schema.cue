@@ -14,18 +14,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::MediaTailor::Program
 #Properties: close({
-	AdBreaks?:              [..._#defs."/$defs/Properties/definitions/AdBreak"] | fn.#ListExpression
-	AudienceMedia?:         [..._#defs."/$defs/Properties/definitions/AudienceMedia"] | fn.#ListExpression
+	AdBreaks?:              [...#AdBreak] | fn.#ListExpression
+	AudienceMedia?:         [...#AudienceMedia] | fn.#ListExpression
 	ChannelName!:           string | fn.#StringExpression
 	LiveSourceName?:        string | fn.#StringExpression
 	ProgramName!:           string | fn.#StringExpression
-	ScheduleConfiguration?: _#defs."/$defs/Properties/definitions/ScheduleConfiguration" | fn.#ObjectExpression
+	ScheduleConfiguration?: #ScheduleConfiguration | fn.#ObjectExpression
 	SourceLocationName!:    string | fn.#StringExpression
 	VodSourceName?:         string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AdBreak": close({
-	AdBreakMetadata?: [..._#defs."/$defs/Properties/definitions/KeyValuePair"] | fn.#ListExpression
+#AdBreak: close({
+	AdBreakMetadata?: [...#KeyValuePair] | fn.#ListExpression
 	MessageType?:     "SPLICE_INSERT" | "TIME_SIGNAL" | fn.#StringExpression
 	OffsetMillis!: int |
 		{
@@ -41,15 +41,15 @@ _#defs: "/$defs/Properties/definitions/AdBreak": close({
 				)
 		} |
 		fn.#NumberExpression
-	Slate?:               _#defs."/$defs/Properties/definitions/SlateSource"
-	SpliceInsertMessage?: _#defs."/$defs/Properties/definitions/SpliceInsertMessage"
-	TimeSignalMessage?:   _#defs."/$defs/Properties/definitions/TimeSignalMessage"
+	Slate?:               #SlateSource
+	SpliceInsertMessage?: #SpliceInsertMessage
+	TimeSignalMessage?:   #TimeSignalMessage
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AlternateMedia": close({
-	AdBreaks?:  [..._#defs."/$defs/Properties/definitions/AdBreak"] | fn.#ListExpression
-	ClipRange?: _#defs."/$defs/Properties/definitions/ClipRange"
+#AlternateMedia: close({
+	AdBreaks?:  [...#AdBreak] | fn.#ListExpression
+	ClipRange?: #ClipRange
 	DurationMillis?: int |
 		{
 			string &
@@ -84,13 +84,13 @@ _#defs: "/$defs/Properties/definitions/AlternateMedia": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudienceMedia": close({
-	AlternateMedia?: [..._#defs."/$defs/Properties/definitions/AlternateMedia"] | fn.#ListExpression
+#AudienceMedia: close({
+	AlternateMedia?: [...#AlternateMedia] | fn.#ListExpression
 	Audience?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClipRange": close({
+#ClipRange: close({
 	EndOffsetMillis?: int |
 		{
 			string &
@@ -122,19 +122,19 @@ _#defs: "/$defs/Properties/definitions/ClipRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyValuePair": close({
+#KeyValuePair: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close({
-	ClipRange?:  _#defs."/$defs/Properties/definitions/ClipRange"
-	Transition!: _#defs."/$defs/Properties/definitions/Transition"
+#ScheduleConfiguration: close({
+	ClipRange?:  #ClipRange
+	Transition!: #Transition
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SegmentationDescriptor": close({
+#SegmentationDescriptor: close({
 	SegmentNum?: int |
 		{
 			string &
@@ -237,13 +237,13 @@ _#defs: "/$defs/Properties/definitions/SegmentationDescriptor": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlateSource": close({
+#SlateSource: close({
 	SourceLocationName?: string | fn.#StringExpression
 	VodSourceName?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpliceInsertMessage": close({
+#SpliceInsertMessage: close({
 	AvailNum?: int |
 		{
 			string &
@@ -303,12 +303,10 @@ _#defs: "/$defs/Properties/definitions/SpliceInsertMessage": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeSignalMessage": close(
-	{SegmentationDescriptors?: [..._#defs."/$defs/Properties/definitions/SegmentationDescriptor"] | fn.#ListExpression},
-) |
+#TimeSignalMessage: close({SegmentationDescriptors?: [...#SegmentationDescriptor] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Transition": close({
+#Transition: close({
 	DurationMillis?: int |
 		{
 			string &

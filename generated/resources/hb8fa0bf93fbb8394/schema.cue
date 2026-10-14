@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,26 +15,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::Textract::Adapter resource creates an Amazon Textract adapter, which
 // can be fine-tuned for enhanced performance on user-provided documents.
 #Properties: close({
-	AdapterName!:  _#defs."/$defs/Properties/definitions/AdapterName"
-	AutoUpdate?:   _#defs."/$defs/Properties/definitions/AutoUpdate"
-	Description?:  _#defs."/$defs/Properties/definitions/AdapterDescription"
-	FeatureTypes!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/FeatureType"] | fn.#ListExpression
-	Tags?:         list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	AdapterName!:  #AdapterName
+	AutoUpdate?:   #AutoUpdate
+	Description?:  #AdapterDescription
+	FeatureTypes!: list.MinItems(1) & [...#FeatureType] | fn.#ListExpression
+	Tags?:         list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AdapterDescription": strings.MaxRunes(256) &
+#AdapterDescription: strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^[a-zA-Z0-9\\s!\"\\#\\$%'&\\(\\)\\*\\+\\,\\-\\./:;=\\?@\\[\\\\\\]\\^_`\\{\\|\\}~><]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AdapterName": strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" |
-fn.#StringExpression
+#AdapterName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutoUpdate": "ENABLED" | "DISABLED" | fn.#StringExpression
+#AutoUpdate: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FeatureType": "QUERIES" | fn.#StringExpression
+#FeatureType: "QUERIES" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

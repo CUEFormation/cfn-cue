@@ -29,27 +29,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CreateDatabaseDefaultPermissions?:             [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
 	CreateTableDefaultPermissions?:                [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
 	Description?:                                  strings.MaxRunes(2048) | fn.#StringExpression
-	FederatedCatalog?:                             _#defs."/$defs/Properties/definitions/FederatedCatalog"
+	FederatedCatalog?:                             #FederatedCatalog
 	Name!:                                         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	OverwriteChildResourcePermissionsWithDefault?: "Accept" | "Deny" | fn.#StringExpression
 	Parameters?: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TargetRedshiftCatalog?: _#defs."/$defs/Properties/definitions/TargetRedshiftCatalog"
+	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	TargetRedshiftCatalog?: #TargetRedshiftCatalog
 })
 
-_#defs: "/$defs/Properties/definitions/CatalogProperties": close({
+#CatalogProperties: close({
 	CustomProperties?: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	DataLakeAccessProperties?: _#defs."/$defs/Properties/definitions/DataLakeAccessProperties"
+	DataLakeAccessProperties?: #DataLakeAccessProperties
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataLakeAccessProperties": close({
+#DataLakeAccessProperties: close({
 	AllowFullTableExternalDataAccess?: "True" | "False" | fn.#StringExpression
 	CatalogType?:                      string | fn.#StringExpression
 	DataLakeAccess?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -61,18 +61,18 @@ _#defs: "/$defs/Properties/definitions/DataLakeAccessProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close(
+#DataLakePrincipal: close(
 	{DataLakePrincipalIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FederatedCatalog": close({
+#FederatedCatalog: close({
 	ConnectionName?: string | fn.#StringExpression
 	Identifier?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrincipalPermissions": close({
+#PrincipalPermissions: close({
 	Permissions?: [
 		..."ALL" |
 			"SELECT" |
@@ -86,18 +86,17 @@ _#defs: "/$defs/Properties/definitions/PrincipalPermissions": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Principal?: _#defs."/$defs/Properties/definitions/DataLakePrincipal"
+	Principal?: #DataLakePrincipal
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetRedshiftCatalog": close({CatalogArn!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#TargetRedshiftCatalog: close({CatalogArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Glue::Catalog"
 	Properties!: #Properties

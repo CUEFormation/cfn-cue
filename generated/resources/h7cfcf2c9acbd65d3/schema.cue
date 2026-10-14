@@ -22,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CertificateExport?:                        "ENABLED" | "DISABLED" | fn.#StringExpression
 	CertificateTransparencyLoggingPreference?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	DomainName!:                               string | fn.#StringExpression
-	DomainValidationOptions?: [..._#defs."/$defs/Properties/definitions/DomainValidationOption"] | fn.#ListExpression
+	DomainValidationOptions?:                  [...#DomainValidationOption] | fn.#ListExpression
 	Id?: null |
 	bool |
 	"true" |
@@ -55,18 +55,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ValueExpression
 	KeyAlgorithm?:            string | fn.#StringExpression
 	SubjectAlternativeNames?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	ValidationMethod?: string | fn.#StringExpression
+	Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	ValidationMethod?:        string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DomainValidationOption": close({
+#DomainValidationOption: close({
 	DomainName?:       string | fn.#StringExpression
 	HostedZoneId?:     string | fn.#StringExpression
 	ValidationDomain?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

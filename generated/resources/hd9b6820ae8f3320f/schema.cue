@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -15,22 +15,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::Route53GlobalResolver::DnsView
 #Properties: close({
 	ClientToken?:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:           _#defs."/$defs/Properties/definitions/ResourceDescription"
-	DnssecValidation?:      _#defs."/$defs/Properties/definitions/DnsSecValidationType"
-	EdnsClientSubnet?:      _#defs."/$defs/Properties/definitions/EdnsClientSubnetType"
-	FirewallRulesFailOpen?: _#defs."/$defs/Properties/definitions/FirewallRulesFailOpenType"
+	Description?:           #ResourceDescription
+	DnssecValidation?:      #DnsSecValidationType
+	EdnsClientSubnet?:      #EdnsClientSubnetType
+	FirewallRulesFailOpen?: #FirewallRulesFailOpenType
 	GlobalResolverId!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-	Name!:                  _#defs."/$defs/Properties/definitions/ResourceName"
-	Tags?:                  list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Name!:                  #ResourceName
+	Tags?:                  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DnsSecValidationType": "ENABLED" | "DISABLED" | fn.#StringExpression
+#DnsSecValidationType: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EdnsClientSubnetType": "ENABLED" | "DISABLED" | fn.#StringExpression
+#EdnsClientSubnetType: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FirewallRulesFailOpenType": "ENABLED" | "DISABLED" | fn.#StringExpression
+#FirewallRulesFailOpenType: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProfileResourceStatus": "CREATING" |
+#ProfileResourceStatus: "CREATING" |
 	"OPERATIONAL" |
 	"UPDATING" |
 	"ENABLING" |
@@ -39,12 +39,11 @@ _#defs: "/$defs/Properties/definitions/ProfileResourceStatus": "CREATING" |
 	"DELETING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceDescription": strings.MaxRunes(256) & strings.MinRunes(1) |
-fn.#StringExpression
+#ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -24,11 +24,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^arn:aws[a-z\\-]*:iam::[0-9]{12}:role/.+$" |
 	fn.#StringExpression
 	Name!:    =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" | fn.#StringExpression
-	Outputs!: [..._#defs."/$defs/Properties/definitions/GetOutput"] | fn.#ListExpression
-	Tags?:    _#defs."/$defs/Properties/definitions/TagMap"
+	Outputs!: [...#GetOutput] | fn.#ListExpression
+	Tags?:    #TagMap
 })
 
-_#defs: "/$defs/Properties/definitions/AspectRatio": close({
+#AspectRatio: close({
 	Height!: int |
 		{
 			string &
@@ -60,58 +60,51 @@ _#defs: "/$defs/Properties/definitions/AspectRatio": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClippingConfig": close({
+#ClippingConfig: close({
 	CallbackMetadata?:        strings.MaxRunes(1024) & =~"^[\\w \\-\\.',@:;]*$" | fn.#StringExpression
-	DataSourceConfiguration?: _#defs."/$defs/Properties/definitions/DataSourceConfiguration"
+	DataSourceConfiguration?: #DataSourceConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CroppingConfig": close({
-	TemplateGroups?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TemplateGroup"] |
-		fn.#ListExpression
-}) |
+#CroppingConfig: close(
+	{TemplateGroups?: list.MaxItems(4) & list.MinItems(1) & [...#TemplateGroup] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceConfiguration": close(
-	{FixtureId!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#DataSourceConfiguration: close({FixtureId!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GetOutput": close({
+#GetOutput: close({
 	Description?:  strings.MaxRunes(1024) & =~"^[\\w \\-\\.',@:;]*$" | fn.#StringExpression
 	Name!:         =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" | fn.#StringExpression
-	OutputConfig!: _#defs."/$defs/Properties/definitions/OutputConfig"
-	Status!:       _#defs."/$defs/Properties/definitions/OutputStatus"
+	OutputConfig!: #OutputConfig
+	Status!:       #OutputStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OutputConfig": matchN(1, [close(
-	{Cropping!: _#defs."/$defs/Properties/definitions/CroppingConfig"},
-), close(
-	{Clipping!: _#defs."/$defs/Properties/definitions/ClippingConfig"},
-), close(
-	{Subtitling!: _#defs."/$defs/Properties/definitions/SubtitlingConfig"},
-)]) |
+#OutputConfig: matchN(1, [
+	close({Cropping!: #CroppingConfig}), close({Clipping!: #ClippingConfig}), close({Subtitling!: #SubtitlingConfig}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/OutputStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
+#OutputStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProfanityFilterMode": "DISABLED" | "CENSOR" | "DROP" | fn.#StringExpression
+#ProfanityFilterMode: "DISABLED" | "CENSOR" | "DROP" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SubtitlingConfig": close({
-	AspectRatio?:     _#defs."/$defs/Properties/definitions/AspectRatio"
+#SubtitlingConfig: close({
+	AspectRatio?:     #AspectRatio
 	Dictionary?:      strings.MaxRunes(19) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	Language!:        _#defs."/$defs/Properties/definitions/TranscriptionLanguage"
-	ProfanityFilter?: _#defs."/$defs/Properties/definitions/ProfanityFilterMode"
+	Language!:        #TranscriptionLanguage
+	ProfanityFilter?: #ProfanityFilterMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TemplateGroup": close({
+#TemplateGroup: close({
 	Name!: =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" | fn.#StringExpression
 	TemplateUris!: list.MaxItems(2) & list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(10) & =~"^s3://[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]/.+$" |
@@ -121,7 +114,7 @@ _#defs: "/$defs/Properties/definitions/TemplateGroup": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TranscriptionLanguage": "eng" |
+#TranscriptionLanguage: "eng" |
 	"eng-au" |
 	"eng-gb" |
 	"eng-us" |

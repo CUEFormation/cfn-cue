@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,15 +18,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // HealthLake FHIR Datastore
 #Properties: close({
-	DatastoreName?:                 _#defs."/$defs/Properties/definitions/DatastoreName"
-	DatastoreTypeVersion!:          _#defs."/$defs/Properties/definitions/DatastoreTypeVersion"
-	IdentityProviderConfiguration?: _#defs."/$defs/Properties/definitions/IdentityProviderConfiguration"
-	PreloadDataConfig?:             _#defs."/$defs/Properties/definitions/PreloadDataConfig"
-	SseConfiguration?:              _#defs."/$defs/Properties/definitions/SseConfiguration"
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	DatastoreName?:                 #DatastoreName
+	DatastoreTypeVersion!:          #DatastoreTypeVersion
+	IdentityProviderConfiguration?: #IdentityProviderConfiguration
+	PreloadDataConfig?:             #PreloadDataConfig
+	SseConfiguration?:              #SseConfiguration
+	Tags?:                          list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CreatedAt": close({
+#CreatedAt: close({
 	Nanos!: int |
 		{
 			string &
@@ -45,27 +45,21 @@ _#defs: "/$defs/Properties/definitions/CreatedAt": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatastoreArn": =~"^arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:healthlake:[a-zA-Z0-9-]+:[0-9]{12}:datastore/.+?" |
+#DatastoreArn: =~"^arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:healthlake:[a-zA-Z0-9-]+:[0-9]{12}:datastore/.+?" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatastoreEndpoint": strings.MaxRunes(10000) | fn.#StringExpression
+#DatastoreEndpoint: strings.MaxRunes(10000) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatastoreId": strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+#DatastoreId: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatastoreName": strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-%@]*)$" |
+#DatastoreName: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-%@]*)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatastoreStatus": "CREATING" |
-	"ACTIVE" |
-	"DELETING" |
-	"DELETED" |
-	fn.#StringExpression
+#DatastoreStatus: "CREATING" | "ACTIVE" | "DELETING" | "DELETED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatastoreTypeVersion": "R4" | fn.#StringExpression
+#DatastoreTypeVersion: "R4" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IdentityProviderConfiguration": close({
+#IdentityProviderConfiguration: close({
 	AuthorizationStrategy!: "SMART_ON_FHIR_V1" | "AWS_AUTH" | "SMART_ON_FHIR" | fn.#StringExpression
 	FineGrainedAuthorizationEnabled?: bool |
 		"true" |
@@ -83,7 +77,7 @@ _#defs: "/$defs/Properties/definitions/IdentityProviderConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KmsEncryptionConfig": close({
+#KmsEncryptionConfig: close({
 	CmkType!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KMS_KEY" | fn.#StringExpression
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) &
@@ -94,15 +88,11 @@ _#defs: "/$defs/Properties/definitions/KmsEncryptionConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PreloadDataConfig": close({PreloadDataType!: "SYNTHEA" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#PreloadDataConfig: close({PreloadDataType!: "SYNTHEA" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SseConfiguration": close(
-	{KmsEncryptionConfig!: _#defs."/$defs/Properties/definitions/KmsEncryptionConfig"},
-) |
-	fn.#ObjectExpression
+#SseConfiguration: close({KmsEncryptionConfig!: #KmsEncryptionConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

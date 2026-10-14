@@ -21,28 +21,28 @@ import "list"
 	// Dataflow Endpoint Group State Change event will be emitted when the Dataflow
 	// Endpoint Group enters and exits the PREPASS state.
 	ContactPrePassDurationSeconds?: int & <=480 & >=30
-	EndpointDetails?:               list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EndpointDetails"]
-	Endpoints?: list.MaxItems(12) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CreateEndpointDetails"]
-	Id?:        string
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"]
+	EndpointDetails?:               list.MinItems(1) & [...#EndpointDetails]
+	Endpoints?:                     list.MaxItems(12) & list.MinItems(1) & [...#CreateEndpointDetails]
+	Id?:                            string
+	Tags?:                          [...#Tag]
 })
 
 // The status of AgentEndpoint.
-_#defs: "/$defs/Properties/definitions/AgentStatus": "SUCCESS" | "FAILED" | "ACTIVE" | "INACTIVE"
+#AgentStatus: "SUCCESS" | "FAILED" | "ACTIVE" | "INACTIVE"
 
 // The results of the audit.
-_#defs: "/$defs/Properties/definitions/AuditResults": "HEALTHY" | "UNHEALTHY"
+#AuditResults: "HEALTHY" | "UNHEALTHY"
 
 // Socket address of an uplink or downlink agent endpoint with an optional mtu.
-_#defs: "/$defs/Properties/definitions/ConnectionDetails": close({
+#ConnectionDetails: close({
 	// Maximum transmission unit (MTU) size in bytes of a dataflow endpoint.
 	Mtu?:           int & <=1500 & >=1400
-	SocketAddress!: _#defs."/$defs/Properties/definitions/SocketAddress"
+	SocketAddress!: #SocketAddress
 })
 
-_#defs: "/$defs/Properties/definitions/CreateEndpointDetails": close({
-	DownlinkAwsGroundStationAgentEndpoint?: _#defs."/$defs/Properties/definitions/DownlinkAwsGroundStationAgentEndpoint"
-	UplinkAwsGroundStationAgentEndpoint?:   _#defs."/$defs/Properties/definitions/UplinkAwsGroundStationAgentEndpoint"
+#CreateEndpointDetails: close({
+	DownlinkAwsGroundStationAgentEndpoint?: #DownlinkAwsGroundStationAgentEndpoint
+	UplinkAwsGroundStationAgentEndpoint?:   #UplinkAwsGroundStationAgentEndpoint
 	if UplinkAwsGroundStationAgentEndpoint != _|_ {
 		DownlinkAwsGroundStationAgentEndpoint?: error(
 			"DownlinkAwsGroundStationAgentEndpoint cannot be used with UplinkAwsGroundStationAgentEndpoint; set exactly one of UplinkAwsGroundStationAgentEndpoint, DownlinkAwsGroundStationAgentEndpoint",
@@ -51,35 +51,34 @@ _#defs: "/$defs/Properties/definitions/CreateEndpointDetails": close({
 }) & matchN(>=1, [{UplinkAwsGroundStationAgentEndpoint!: _}, {DownlinkAwsGroundStationAgentEndpoint!: _}])
 
 // Information about DownlinkAwsGroundStationAgentEndpoint used for create
-_#defs: "/$defs/Properties/definitions/DownlinkAwsGroundStationAgentEndpoint": close({
-	DataflowDetails!: _#defs."/$defs/Properties/definitions/DownlinkDataflowDetails"
+#DownlinkAwsGroundStationAgentEndpoint: close({
+	DataflowDetails!: #DownlinkDataflowDetails
 	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$"
 })
 
 // Information about DownlinkAwsGroundStationAgentEndpoint
-_#defs: "/$defs/Properties/definitions/DownlinkAwsGroundStationAgentEndpointDetails": close({
-	AgentStatus?:     _#defs."/$defs/Properties/definitions/AgentStatus"
-	AuditResults?:    _#defs."/$defs/Properties/definitions/AuditResults"
-	DataflowDetails!: _#defs."/$defs/Properties/definitions/DownlinkDataflowDetails"
+#DownlinkAwsGroundStationAgentEndpointDetails: close({
+	AgentStatus?:     #AgentStatus
+	AuditResults?:    #AuditResults
+	DataflowDetails!: #DownlinkDataflowDetails
 	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$"
 })
 
 // Connection details for downlink, from ground station to agent, and customer to agent
-_#defs: "/$defs/Properties/definitions/DownlinkConnectionDetails": close({
-	AgentIpAndPortAddress!: _#defs."/$defs/Properties/definitions/RangedConnectionDetails"
-	EgressAddressAndPort!:  _#defs."/$defs/Properties/definitions/ConnectionDetails"
+#DownlinkConnectionDetails: close({
+	AgentIpAndPortAddress!: #RangedConnectionDetails
+	EgressAddressAndPort!:  #ConnectionDetails
 })
 
 // Dataflow details for downlink
-_#defs: "/$defs/Properties/definitions/DownlinkDataflowDetails": close(
-	{AgentConnectionDetails?: _#defs."/$defs/Properties/definitions/DownlinkConnectionDetails"},
-) & matchN(>=1, [{AgentConnectionDetails!: _}])
+#DownlinkDataflowDetails: close({AgentConnectionDetails?: #DownlinkConnectionDetails}) & matchN(
+	>=1,
+	[{AgentConnectionDetails!: _}],
+)
 
-_#defs: "/$defs/Properties/definitions/EndpointDetails": close({
-	DownlinkAwsGroundStationAgentEndpoint?:
-		_#defs."/$defs/Properties/definitions/DownlinkAwsGroundStationAgentEndpointDetails"
-	UplinkAwsGroundStationAgentEndpoint?:
-		_#defs."/$defs/Properties/definitions/UplinkAwsGroundStationAgentEndpointDetails"
+#EndpointDetails: close({
+	DownlinkAwsGroundStationAgentEndpoint?: #DownlinkAwsGroundStationAgentEndpointDetails
+	UplinkAwsGroundStationAgentEndpoint?:   #UplinkAwsGroundStationAgentEndpointDetails
 	if UplinkAwsGroundStationAgentEndpoint != _|_ {
 		DownlinkAwsGroundStationAgentEndpoint?: error(
 			"DownlinkAwsGroundStationAgentEndpoint cannot be used with UplinkAwsGroundStationAgentEndpoint; set exactly one of UplinkAwsGroundStationAgentEndpoint, DownlinkAwsGroundStationAgentEndpoint",
@@ -88,7 +87,7 @@ _#defs: "/$defs/Properties/definitions/EndpointDetails": close({
 }) & matchN(>=1, [{UplinkAwsGroundStationAgentEndpoint!: _}, {DownlinkAwsGroundStationAgentEndpoint!: _}])
 
 // An integer range that has a minimum and maximum value.
-_#defs: "/$defs/Properties/definitions/IntegerRange": close({
+#IntegerRange: close({
 	// A maximum value.
 	Maximum!: int
 
@@ -97,22 +96,22 @@ _#defs: "/$defs/Properties/definitions/IntegerRange": close({
 })
 
 // Socket address of an uplink or downlink agent endpoint with a port range and an optional mtu.
-_#defs: "/$defs/Properties/definitions/RangedConnectionDetails": close({
+#RangedConnectionDetails: close({
 	// Maximum transmission unit (MTU) size in bytes of a dataflow endpoint.
 	Mtu?:           int & <=1500 & >=1400
-	SocketAddress!: _#defs."/$defs/Properties/definitions/RangedSocketAddress"
+	SocketAddress!: #RangedSocketAddress
 })
 
 // A socket address with a port range.
-_#defs: "/$defs/Properties/definitions/RangedSocketAddress": close({
+#RangedSocketAddress: close({
 	// IPv4 socket address.
 	Name!: =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$"
 
 	// Port range of a socket address.
-	PortRange!: _#defs."/$defs/Properties/definitions/IntegerRange"
+	PortRange!: #IntegerRange
 })
 
-_#defs: "/$defs/Properties/definitions/SocketAddress": close({
+#SocketAddress: close({
 	// IPv4 socket address.
 	Name!: string
 
@@ -120,32 +119,33 @@ _#defs: "/$defs/Properties/definitions/SocketAddress": close({
 	Port!: int
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$"
 	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$"
 })
 
 // Information about UplinkAwsGroundStationAgentEndpoint used for create
-_#defs: "/$defs/Properties/definitions/UplinkAwsGroundStationAgentEndpoint": close({
-	DataflowDetails!: _#defs."/$defs/Properties/definitions/UplinkDataflowDetails"
+#UplinkAwsGroundStationAgentEndpoint: close({
+	DataflowDetails!: #UplinkDataflowDetails
 	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$"
 })
 
 // Information about UplinkAwsGroundStationAgentEndpoint
-_#defs: "/$defs/Properties/definitions/UplinkAwsGroundStationAgentEndpointDetails": close({
-	AgentStatus?:     _#defs."/$defs/Properties/definitions/AgentStatus"
-	AuditResults?:    _#defs."/$defs/Properties/definitions/AuditResults"
-	DataflowDetails!: _#defs."/$defs/Properties/definitions/UplinkDataflowDetails"
+#UplinkAwsGroundStationAgentEndpointDetails: close({
+	AgentStatus?:     #AgentStatus
+	AuditResults?:    #AuditResults
+	DataflowDetails!: #UplinkDataflowDetails
 	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$"
 })
 
 // Connection details for uplink, from ground station to agent, and customer to agent
-_#defs: "/$defs/Properties/definitions/UplinkConnectionDetails": close({
-	AgentIpAndPortAddress!: _#defs."/$defs/Properties/definitions/RangedConnectionDetails"
-	IngressAddressAndPort!: _#defs."/$defs/Properties/definitions/ConnectionDetails"
+#UplinkConnectionDetails: close({
+	AgentIpAndPortAddress!: #RangedConnectionDetails
+	IngressAddressAndPort!: #ConnectionDetails
 })
 
 // Dataflow details for uplink
-_#defs: "/$defs/Properties/definitions/UplinkDataflowDetails": close(
-	{AgentConnectionDetails?: _#defs."/$defs/Properties/definitions/UplinkConnectionDetails"},
-) & matchN(>=1, [{AgentConnectionDetails!: _}])
+#UplinkDataflowDetails: close({AgentConnectionDetails?: #UplinkConnectionDetails}) & matchN(
+	>=1,
+	[{AgentConnectionDetails!: _}],
+)

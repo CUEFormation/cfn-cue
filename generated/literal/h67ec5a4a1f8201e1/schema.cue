@@ -21,7 +21,7 @@ import (
 	CreatorRequestId?: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// FirewallRules
-	FirewallRules?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/FirewallRule"]
+	FirewallRules?: list.UniqueItems() & [...#FirewallRule]
 
 	// ResourceId
 	Id?: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -49,23 +49,23 @@ import (
 	StatusMessage?: string
 
 	// Tags
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // Configuration for an advanced content category rule type.
-_#defs: "/$defs/Properties/definitions/FirewallAdvancedContentCategoryConfig": close({
+#FirewallAdvancedContentCategoryConfig: close({
 	// The content category value.
 	Category!: strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
 // Configuration for an advanced threat category rule type.
-_#defs: "/$defs/Properties/definitions/FirewallAdvancedThreatCategoryConfig": close({
+#FirewallAdvancedThreatCategoryConfig: close({
 	// The threat category value.
 	Category!: strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
 // Firewall Rule associating the Rule Group to a Domain List or advanced rule type
-_#defs: "/$defs/Properties/definitions/FirewallRule": close({
+#FirewallRule: close({
 	// Rule Action
 	Action!: "ALLOW" | "BLOCK" | "ALERT"
 
@@ -95,7 +95,7 @@ _#defs: "/$defs/Properties/definitions/FirewallRule": close({
 
 	// Advanced firewall rule type. Mutually exclusive with FirewallDomainListId and
 	// DnsThreatProtection/ConfidenceThreshold.
-	FirewallRuleType?: _#defs."/$defs/Properties/definitions/FirewallRuleType"
+	FirewallRuleType?: #FirewallRuleType
 
 	// ResourceId
 	FirewallThreatProtectionId?: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -112,10 +112,10 @@ _#defs: "/$defs/Properties/definitions/FirewallRule": close({
 
 // Firewall rule type union. Exactly one member must be set. Mutually exclusive
 // with FirewallDomainListId and DnsThreatProtection/ConfidenceThreshold.
-_#defs: "/$defs/Properties/definitions/FirewallRuleType": close({
-	FirewallAdvancedContentCategory?: _#defs."/$defs/Properties/definitions/FirewallAdvancedContentCategoryConfig"
-	FirewallAdvancedThreatCategory?:  _#defs."/$defs/Properties/definitions/FirewallAdvancedThreatCategoryConfig"
-	PartnerThreatProtection?:         _#defs."/$defs/Properties/definitions/PartnerThreatProtectionConfig"
+#FirewallRuleType: close({
+	FirewallAdvancedContentCategory?: #FirewallAdvancedContentCategoryConfig
+	FirewallAdvancedThreatCategory?:  #FirewallAdvancedThreatCategoryConfig
+	PartnerThreatProtection?:         #PartnerThreatProtectionConfig
 	if PartnerThreatProtection != _|_ {
 		FirewallAdvancedContentCategory?: error(
 			"FirewallAdvancedContentCategory cannot be used with PartnerThreatProtection; set exactly one of PartnerThreatProtection, FirewallAdvancedContentCategory, FirewallAdvancedThreatCategory",
@@ -135,13 +135,13 @@ _#defs: "/$defs/Properties/definitions/FirewallRuleType": close({
 )
 
 // Configuration for a partner threat protection rule type.
-_#defs: "/$defs/Properties/definitions/PartnerThreatProtectionConfig": close({
+#PartnerThreatProtectionConfig: close({
 	// The partner identifier value.
 	Partner!: strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

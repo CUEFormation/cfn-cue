@@ -10,28 +10,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Macie AllowList resource schema
 #Properties: close({
-	Criteria!:    _#defs."/$defs/Properties/definitions/Criteria" | fn.#ObjectExpression
+	Criteria!:    #Criteria | fn.#ObjectExpression
 	Description?: string | fn.#StringExpression
 	Name!:        string | fn.#StringExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:        [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Criteria": fn.#Object & {...} & matchN(1, [close(
-	{Regex!: string | fn.#StringExpression},
-), close(
-	{S3WordsList!: _#defs."/$defs/Properties/definitions/S3WordsList" | fn.#ObjectExpression},
-)]) |
+#Criteria: fn.#Object & {...} & matchN(1, [
+	close({Regex!: string | fn.#StringExpression}), close({S3WordsList!: #S3WordsList | fn.#ObjectExpression}),
+]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Regex": string | fn.#StringExpression
+#Regex: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3WordsList": close({
+#S3WordsList: close({
 	BucketName!: string | fn.#StringExpression
 	ObjectKey!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Status": "OK" |
+#Status: "OK" |
 	"S3_OBJECT_NOT_FOUND" |
 	"S3_USER_ACCESS_DENIED" |
 	"S3_OBJECT_ACCESS_DENIED" |
@@ -41,7 +39,7 @@ _#defs: "/$defs/Properties/definitions/Status": "OK" |
 	"UNKNOWN_ERROR" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

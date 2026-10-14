@@ -14,19 +14,19 @@ import (
 	Arn?: strings.MaxRunes(1011) &
 	strings.MinRunes(1) &
 	=~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$"
-	Configuration!:      _#defs."/$defs/Properties/definitions/TelemetryPipelineConfiguration"
+	Configuration!:      #TelemetryPipelineConfiguration
 	Name?:               strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+"
-	Pipeline?:           _#defs."/$defs/Properties/definitions/TelemetryPipeline"
+	Pipeline?:           #TelemetryPipeline
 	PipelineIdentifier?: strings.MaxRunes(512) & strings.MinRunes(1)
-	Status?:             _#defs."/$defs/Properties/definitions/TelemetryPipelineStatus"
-	StatusReason?:       _#defs."/$defs/Properties/definitions/TelemetryPipelineStatusReason"
+	Status?:             #TelemetryPipelineStatus
+	StatusReason?:       #TelemetryPipelineStatusReason
 
 	// An array of key-value pairs to apply to this resource
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // A key-value pair to associate with a resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -40,32 +40,25 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TelemetryPipeline": close({
+#TelemetryPipeline: close({
 	Arn?: strings.MaxRunes(1011) &
 	strings.MinRunes(1) &
 	=~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$"
-	Configuration?:       _#defs."/$defs/Properties/definitions/TelemetryPipelineConfiguration"
+	Configuration?:       #TelemetryPipelineConfiguration
 	CreatedTimeStamp?:    number
 	LastUpdateTimeStamp?: number
 	Name?:                strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+"
-	Status?:              _#defs."/$defs/Properties/definitions/TelemetryPipelineStatus"
-	StatusReason?:        _#defs."/$defs/Properties/definitions/TelemetryPipelineStatusReason"
+	Status?:              #TelemetryPipelineStatus
+	StatusReason?:        #TelemetryPipelineStatusReason
 
 	// An array of key-value pairs to apply to this resource
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/TelemetryPipelineConfiguration": close(
-	{Body!: strings.MaxRunes(24000) & strings.MinRunes(1)},
-)
+#TelemetryPipelineConfiguration: close({Body!: strings.MaxRunes(24000) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/TelemetryPipelineStatus": "CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETING" |
-	"CREATE_FAILED" |
-	"UPDATE_FAILED"
+#TelemetryPipelineStatus: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | "CREATE_FAILED" | "UPDATE_FAILED"
 
-_#defs: "/$defs/Properties/definitions/TelemetryPipelineStatusReason": close({Description?: string})
+#TelemetryPipelineStatusReason: close({Description?: string})
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})

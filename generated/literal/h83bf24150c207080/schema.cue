@@ -9,7 +9,7 @@ import "list"
 // Resource Type definition for AWS::GuardDuty::MalwareProtectionPlan
 #Properties: close({
 	// Specifies the action that is to be applied to the Malware Protection plan resource.
-	Actions?: _#defs."/$defs/Properties/definitions/CFNActions"
+	Actions?: #CFNActions
 
 	// Amazon Resource Name (ARN) of the protected resource.
 	Arn?: string
@@ -22,7 +22,7 @@ import "list"
 
 	// Information about the protected resource. Presently, S3Bucket is the only
 	// supported protected resource.
-	ProtectedResource!: _#defs."/$defs/Properties/definitions/CFNProtectedResource"
+	ProtectedResource!: #CFNProtectedResource
 
 	// IAM role that includes the permissions required to scan and (optionally) add
 	// tags to the associated protected resource.
@@ -32,20 +32,20 @@ import "list"
 	Status?: string
 
 	// Status details associated with the Malware Protection plan resource status.
-	StatusReasons?: [..._#defs."/$defs/Properties/definitions/CFNStatusReasons"]
+	StatusReasons?: [...#CFNStatusReasons]
 
 	// The tags to be added to the created Malware Protection plan resource. Each
 	// tag consists of a key and an optional value, both of which you need to
 	// specify.
-	Tags?: [..._#defs."/$defs/Properties/definitions/TagItem"]
+	Tags?: [...#TagItem]
 })
 
-_#defs: "/$defs/Properties/definitions/CFNActions": close({
+#CFNActions: close({
 	// Contains information about tagging status of the Malware Protection plan resource.
-	Tagging?: _#defs."/$defs/Properties/definitions/CFNTagging"
+	Tagging?: #CFNTagging
 })
 
-_#defs: "/$defs/Properties/definitions/CFNProtectedResource": close({
+#CFNProtectedResource: close({
 	// Information about the protected S3 bucket resource.
 	S3Bucket!: close({
 		// Name of the S3 bucket.
@@ -57,7 +57,7 @@ _#defs: "/$defs/Properties/definitions/CFNProtectedResource": close({
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/CFNStatusReasons": close({
+#CFNStatusReasons: close({
 	// The status code of the Malware Protection plan.
 	Code?: string
 
@@ -65,12 +65,12 @@ _#defs: "/$defs/Properties/definitions/CFNStatusReasons": close({
 	Message?: string
 })
 
-_#defs: "/$defs/Properties/definitions/CFNTagging": close({
+#CFNTagging: close({
 	// Indicates whether or not you chose GuardDuty to add a predefined tag to the scanned S3 object.
 	Status?: "DISABLED" | "ENABLED"
 })
 
-_#defs: "/$defs/Properties/definitions/TagItem": close({
+#TagItem: close({
 	Key!:   string
 	Value!: string
 })

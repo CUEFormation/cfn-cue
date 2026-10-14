@@ -19,11 +19,11 @@ import (
 
 	// The case-sensitive name of the new group. Names must be unique.
 	GroupName!:             strings.MaxRunes(32) & strings.MinRunes(1)
-	InsightsConfiguration?: _#defs."/$defs/Properties/definitions/InsightsConfiguration"
-	Tags?:                  _#defs."/$defs/Properties/definitions/Tags"
+	InsightsConfiguration?: #InsightsConfiguration
+	Tags?:                  #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/InsightsConfiguration": close({
+#InsightsConfiguration: close({
 	// Set the InsightsEnabled value to true to enable insights or false to disable insights.
 	InsightsEnabled?: bool
 
@@ -33,7 +33,7 @@ _#defs: "/$defs/Properties/definitions/InsightsConfiguration": close({
 	NotificationsEnabled?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -42,6 +42,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // An array of key-value pairs to apply to this resource.
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(200) & [...] & [...#Tag]

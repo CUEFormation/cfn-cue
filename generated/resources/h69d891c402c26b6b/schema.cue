@@ -24,10 +24,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:                  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
 	SiteId!:                strings.MaxRunes(255) & strings.MinRunes(1) & =~"^os-[a-f0-9]{17}$" | fn.#StringExpression
 	SupportedHardwareType?: "RACK" | "SERVER" | fn.#StringExpression
-	Tags?:                  list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 }) & matchN(>=1, [{AvailabilityZone!: _}, {AvailabilityZoneId!: _}])
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S \\n]+$" | fn.#StringExpression
 }) |

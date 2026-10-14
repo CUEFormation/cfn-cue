@@ -13,18 +13,18 @@ import (
 #Properties: close({
 	Arn?:           string
 	DeleteReports?: bool
-	ExportConfig!:  _#defs."/$defs/Properties/definitions/ReportExportConfig"
+	ExportConfig!:  #ReportExportConfig
 	Name?:          strings.MaxRunes(128) & strings.MinRunes(2)
-	Tags?:          list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:          list.MaxItems(50) & [...] & [...#Tag]
 	Type!:          "TEST" | "CODE_COVERAGE"
 })
 
-_#defs: "/$defs/Properties/definitions/ReportExportConfig": close({
+#ReportExportConfig: close({
 	ExportConfigType!: "S3" | "NO_EXPORT"
-	S3Destination?:    _#defs."/$defs/Properties/definitions/S3ReportExportConfig"
+	S3Destination?:    #S3ReportExportConfig
 })
 
-_#defs: "/$defs/Properties/definitions/S3ReportExportConfig": close({
+#S3ReportExportConfig: close({
 	Bucket!:             strings.MinRunes(1)
 	BucketOwner?:        string
 	EncryptionDisabled?: bool
@@ -33,7 +33,7 @@ _#defs: "/$defs/Properties/definitions/S3ReportExportConfig": close({
 	Path?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$"
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=@+\\-]*)$"
 })

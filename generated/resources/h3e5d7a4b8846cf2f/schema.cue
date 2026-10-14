@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -19,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:       strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	GlueVersion?:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
-	InputRecordTables!: _#defs."/$defs/Properties/definitions/InputRecordTables" | fn.#ObjectExpression
+	InputRecordTables!: #InputRecordTables | fn.#ObjectExpression
 	MaxCapacity?: <=100 & >=1 |
 		{
 			string &
@@ -86,12 +86,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	TransformEncryption?: _#defs."/$defs/Properties/definitions/TransformEncryption" | fn.#ObjectExpression
-	TransformParameters!: _#defs."/$defs/Properties/definitions/TransformParameters" | fn.#ObjectExpression
+	TransformEncryption?: #TransformEncryption | fn.#ObjectExpression
+	TransformParameters!: #TransformParameters | fn.#ObjectExpression
 	WorkerType?:          "G.025X" | "G.1X" | "G.2X" | "G.4X" | "G.8X" | "Standard" | "Z.2X" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FindMatchesParameters": close({
+#FindMatchesParameters: close({
 	AccuracyCostTradeoff?: number |
 		{
 			string &
@@ -135,7 +135,7 @@ _#defs: "/$defs/Properties/definitions/FindMatchesParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GlueTables": close({
+#GlueTables: close({
 	CatalogId?:      string | fn.#StringExpression
 	ConnectionName?: string | fn.#StringExpression
 	DatabaseName!:   string | fn.#StringExpression
@@ -143,12 +143,9 @@ _#defs: "/$defs/Properties/definitions/GlueTables": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputRecordTables": close(
-	{GlueTables?: [..._#defs."/$defs/Properties/definitions/GlueTables"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#InputRecordTables: close({GlueTables?: [...#GlueTables] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MLUserDataEncryption": close({
+#MLUserDataEncryption: close({
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) & (strings.MaxRunes(255) & strings.MinRunes(1)) |
 	fn.#StringExpression
@@ -156,20 +153,20 @@ _#defs: "/$defs/Properties/definitions/MLUserDataEncryption": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransformEncryption": close({
-	MLUserDataEncryption?:             _#defs."/$defs/Properties/definitions/MLUserDataEncryption"
+#TransformEncryption: close({
+	MLUserDataEncryption?:             #MLUserDataEncryption
 	TaskRunSecurityConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransformParameters": close({
-	FindMatchesParameters?: _#defs."/$defs/Properties/definitions/FindMatchesParameters"
+#TransformParameters: close({
+	FindMatchesParameters?: #FindMatchesParameters
 	TransformType!:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

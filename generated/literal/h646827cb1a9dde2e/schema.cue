@@ -9,12 +9,12 @@ import "strings"
 // AWS::RoboMaker::RobotApplicationVersion resource creates an AWS RoboMaker
 // RobotApplicationVersion. This helps you control which code your robot uses.
 #Properties: close({
-	Application!:        _#defs."/$defs/Properties/definitions/Arn"
+	Application!:        #Arn
 	ApplicationVersion?: string
-	Arn?:                _#defs."/$defs/Properties/definitions/Arn"
+	Arn?:                #Arn
 
 	// The revision ID of robot application.
 	CurrentRevisionId?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]*"
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*"
+#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*"

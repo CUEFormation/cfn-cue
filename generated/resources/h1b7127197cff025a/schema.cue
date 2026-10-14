@@ -16,11 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		StaticSourcesSupport?:         "disable" | "enable" | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:             [...#Tag] | fn.#ListExpression
 	TransitGatewayId!: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |

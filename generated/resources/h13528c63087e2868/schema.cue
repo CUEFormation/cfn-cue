@@ -21,7 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	GraphName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
 	fn.#StringExpression
-	ImportTask?: _#defs."/$defs/Properties/definitions/ImportTask" | fn.#ObjectExpression
+	ImportTask?: #ImportTask | fn.#ObjectExpression
 	KmsKeyIdentifier?: strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"arn:aws(|-cn|-us-gov|-iso|-iso-b|-iso-e|-iso-f|-eusc):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}" |
@@ -59,20 +59,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VectorSearchConfiguration?: _#defs."/$defs/Properties/definitions/VectorSearchConfiguration" | fn.#ObjectExpression
+	Tags?:                      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	VectorSearchConfiguration?: #VectorSearchConfiguration | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ImportOptions": close(
-	{Neptune?: _#defs."/$defs/Properties/definitions/NeptuneImportOptions" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#ImportOptions: close({Neptune?: #NeptuneImportOptions | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImportTask": close({
+#ImportTask: close({
 	BlankNodeHandling?: "convertToIri" | fn.#StringExpression
 	FailOnError?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Format?:            "CSV" | "OPEN_CYPHER" | "PARQUET" | "NTRIPLES" | fn.#StringExpression
-	ImportOptions?:     _#defs."/$defs/Properties/definitions/ImportOptions" | fn.#ObjectExpression
+	ImportOptions?:     #ImportOptions | fn.#ObjectExpression
 	MaxProvisionedMemory?: int & <=24576 & >=16 |
 		{
 			string &
@@ -115,7 +112,7 @@ _#defs: "/$defs/Properties/definitions/ImportTask": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NeptuneImportOptions": close({
+#NeptuneImportOptions: close({
 	PreserveDefaultVertexLabels?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PreserveEdgeIds?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	S3ExportKmsKeyId!:            strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
@@ -123,13 +120,13 @@ _#defs: "/$defs/Properties/definitions/NeptuneImportOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VectorSearchConfiguration": close({
+#VectorSearchConfiguration: close({
 	VectorSearchDimension!: int |
 		{
 			string &

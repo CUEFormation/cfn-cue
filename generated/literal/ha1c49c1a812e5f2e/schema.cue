@@ -18,7 +18,7 @@ import (
 
 	// The default value for the cost category
 	DefaultValue?:   strings.MaxRunes(50) & strings.MinRunes(1)
-	EffectiveStart?: _#defs."/$defs/Properties/definitions/ZonedDateTime"
+	EffectiveStart?: #ZonedDateTime
 	Name!:           strings.MaxRunes(50) & strings.MinRunes(1)
 	RuleVersion!:    "CostCategoryExpression.v1"
 
@@ -29,11 +29,11 @@ import (
 	SplitChargeRules?: string
 
 	// Tags to assign to the cost category.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceTag"]
+	Tags?: list.MaxItems(200) & [...] & [...#ResourceTag]
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	// The key name for the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -42,6 +42,6 @@ _#defs: "/$defs/Properties/definitions/ResourceTag": close({
 })
 
 // ISO 8601 date time with offset format
-_#defs: "/$defs/Properties/definitions/ZonedDateTime": strings.MaxRunes(25) &
+#ZonedDateTime: strings.MaxRunes(25) &
 strings.MinRunes(20) &
 =~"^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(([+-]\\d\\d:\\d\\d)|Z)$"

@@ -16,17 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ProfileDescription!: strings.MaxRunes(100) & strings.MinRunes(3) | fn.#StringExpression
 	ProfileName!:        strings.MaxRunes(100) & strings.MinRunes(3) | fn.#StringExpression
-	ProfileQuestions!:   [..._#defs."/$defs/Properties/definitions/ProfileQuestionUpdate"] | fn.#ListExpression
-	Tags?:               list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ProfileQuestions!:   [...#ProfileQuestionUpdate] | fn.#ListExpression
+	Tags?:               list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ProfileQuestionUpdate": close({
+#ProfileQuestionUpdate: close({
 	QuestionId?:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	SelectedChoiceIds?: [...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

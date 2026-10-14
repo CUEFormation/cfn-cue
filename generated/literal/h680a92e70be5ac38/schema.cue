@@ -8,74 +8,68 @@ import "strings"
 
 // Resource Type definition for AWS::SageMaker::ImageVersion
 #Properties: close({
-	Alias?:           _#defs."/$defs/Properties/definitions/Alias"
-	Aliases?:         _#defs."/$defs/Properties/definitions/Aliases"
-	BaseImage!:       _#defs."/$defs/Properties/definitions/BaseImage"
-	ContainerImage?:  _#defs."/$defs/Properties/definitions/ContainerImage"
-	Horovod?:         _#defs."/$defs/Properties/definitions/Horovod"
-	ImageArn?:        _#defs."/$defs/Properties/definitions/ImageArn"
-	ImageName!:       _#defs."/$defs/Properties/definitions/ImageName"
-	ImageVersionArn?: _#defs."/$defs/Properties/definitions/ImageVersionArn"
-	JobType?:         _#defs."/$defs/Properties/definitions/JobType"
-	MLFramework?:     _#defs."/$defs/Properties/definitions/MLFramework"
-	Processor?:       _#defs."/$defs/Properties/definitions/Processor"
-	ProgrammingLang?: _#defs."/$defs/Properties/definitions/ProgrammingLang"
-	ReleaseNotes?:    _#defs."/$defs/Properties/definitions/ReleaseNotes"
-	VendorGuidance?:  _#defs."/$defs/Properties/definitions/VendorGuidance"
-	Version?:         _#defs."/$defs/Properties/definitions/Version"
+	Alias?:           #Alias
+	Aliases?:         #Aliases
+	BaseImage!:       #BaseImage
+	ContainerImage?:  #ContainerImage
+	Horovod?:         #Horovod
+	ImageArn?:        #ImageArn
+	ImageName!:       #ImageName
+	ImageVersionArn?: #ImageVersionArn
+	JobType?:         #JobType
+	MLFramework?:     #MLFramework
+	Processor?:       #Processor
+	ProgrammingLang?: #ProgrammingLang
+	ReleaseNotes?:    #ReleaseNotes
+	VendorGuidance?:  #VendorGuidance
+	Version?:         #Version
 })
 
 // The alias of the image version.
-_#defs: "/$defs/Properties/definitions/Alias": strings.MaxRunes(128) & strings.MinRunes(1)
+#Alias: strings.MaxRunes(128) & strings.MinRunes(1)
 
 // List of aliases for the image version.
-_#defs: "/$defs/Properties/definitions/Aliases": [..._#defs."/$defs/Properties/definitions/Alias"]
+#Aliases: [...#Alias]
 
 // The registry path of the container image on which this image version is based.
-_#defs: "/$defs/Properties/definitions/BaseImage": strings.MaxRunes(255) & strings.MinRunes(1) & =~".+"
+#BaseImage: strings.MaxRunes(255) & strings.MinRunes(1) & =~".+"
 
 // The registry path of the container image that contains this image version.
-_#defs: "/$defs/Properties/definitions/ContainerImage": strings.MaxRunes(255) & strings.MinRunes(1) & =~".+"
+#ContainerImage: strings.MaxRunes(255) & strings.MinRunes(1) & =~".+"
 
 // Indicates Horovod compatibility.
-_#defs: "/$defs/Properties/definitions/Horovod": bool
+#Horovod: bool
 
 // The Amazon Resource Name (ARN) of the parent image.
-_#defs: "/$defs/Properties/definitions/ImageArn": strings.MaxRunes(256) &
+#ImageArn: strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[\\w]+)*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:image\\/[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$"
 
 // The name of the image this version belongs to.
-_#defs: "/$defs/Properties/definitions/ImageName": strings.MaxRunes(63) &
-strings.MinRunes(1) &
-=~"^[A-Za-z0-9]([-.]?[A-Za-z0-9])*$"
+#ImageName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[A-Za-z0-9]([-.]?[A-Za-z0-9])*$"
 
 // The Amazon Resource Name (ARN) of the image version.
-_#defs: "/$defs/Properties/definitions/ImageVersionArn": strings.MaxRunes(256) &
+#ImageVersionArn: strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[\\w]+)*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:image-version\\/[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*\\/[0-9]+$"
 
 // Indicates SageMaker job type compatibility.
-_#defs: "/$defs/Properties/definitions/JobType": "TRAINING" | "INFERENCE" | "NOTEBOOK_KERNEL"
+#JobType: "TRAINING" | "INFERENCE" | "NOTEBOOK_KERNEL"
 
 // The machine learning framework vended in the image version.
-_#defs: "/$defs/Properties/definitions/MLFramework": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z]+ ?\\d+\\.\\d+(\\.\\d+)?$"
+#MLFramework: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z]+ ?\\d+\\.\\d+(\\.\\d+)?$"
 
 // Indicates CPU or GPU compatibility.
-_#defs: "/$defs/Properties/definitions/Processor": "CPU" | "GPU"
+#Processor: "CPU" | "GPU"
 
 // The supported programming language and its version.
-_#defs: "/$defs/Properties/definitions/ProgrammingLang": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z]+ ?\\d+\\.\\d+(\\.\\d+)?$"
+#ProgrammingLang: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z]+ ?\\d+\\.\\d+(\\.\\d+)?$"
 
 // The maintainer description of the image version.
-_#defs: "/$defs/Properties/definitions/ReleaseNotes": strings.MaxRunes(255) & strings.MinRunes(1) & =~".*"
+#ReleaseNotes: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*"
 
 // The availability of the image version specified by the maintainer.
-_#defs: "/$defs/Properties/definitions/VendorGuidance": "NOT_PROVIDED" | "STABLE" | "TO_BE_ARCHIVED" | "ARCHIVED"
+#VendorGuidance: "NOT_PROVIDED" | "STABLE" | "TO_BE_ARCHIVED" | "ARCHIVED"
 
 // The version number of the image version.
-_#defs: "/$defs/Properties/definitions/Version": int & >=1
+#Version: int & >=1

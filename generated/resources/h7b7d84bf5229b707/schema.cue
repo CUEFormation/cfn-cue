@@ -10,14 +10,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Greengrass::Group
 #Properties: close({
-	InitialVersion?: _#defs."/$defs/Properties/definitions/GroupVersion"
+	InitialVersion?: #GroupVersion
 	Name!:           string | fn.#StringExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/GroupVersion": close({
+#GroupVersion: close({
 	ConnectorDefinitionVersionArn?:    string | fn.#StringExpression
 	CoreDefinitionVersionArn?:         string | fn.#StringExpression
 	DeviceDefinitionVersionArn?:       string | fn.#StringExpression

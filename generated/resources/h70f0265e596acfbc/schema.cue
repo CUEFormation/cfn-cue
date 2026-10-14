@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -18,13 +18,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::IVS::Stage.
 #Properties: close({
-	AutoParticipantRecordingConfiguration?: _#defs."/$defs/Properties/definitions/AutoParticipantRecordingConfiguration"
+	AutoParticipantRecordingConfiguration?: #AutoParticipantRecordingConfiguration
 	Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AutoParticipantRecordingConfiguration": close({
-	HlsConfiguration?: _#defs."/$defs/Properties/definitions/HlsConfiguration"
+#AutoParticipantRecordingConfiguration: close({
+	HlsConfiguration?: #HlsConfiguration
 	MediaTypes?: list.MaxItems(1) & list.UniqueItems() & [...] & [
 		..."AUDIO_VIDEO" | "AUDIO_ONLY" | fn.#StringExpression
 	] |
@@ -49,16 +49,14 @@ _#defs: "/$defs/Properties/definitions/AutoParticipantRecordingConfiguration": c
 	strings.MinRunes(0) &
 	=~"^$|^arn:aws:ivs:[a-z0-9-]+:[0-9]+:storage-configuration/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
-	ThumbnailConfiguration?: _#defs."/$defs/Properties/definitions/ThumbnailConfiguration"
+	ThumbnailConfiguration?: #ThumbnailConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HlsConfiguration": close(
-	{ParticipantRecordingHlsConfiguration?: _#defs."/$defs/Properties/definitions/ParticipantRecordingHlsConfiguration"},
-) |
+#HlsConfiguration: close({ParticipantRecordingHlsConfiguration?: #ParticipantRecordingHlsConfiguration}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParticipantRecordingHlsConfiguration": close({
+#ParticipantRecordingHlsConfiguration: close({
 	TargetSegmentDurationSeconds?: int & <=10 & >=2 |
 		{
 			string &
@@ -78,13 +76,13 @@ _#defs: "/$defs/Properties/definitions/ParticipantRecordingHlsConfiguration": cl
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThumbnailConfiguration": close({
+#ThumbnailConfiguration: close({
 	ParticipantThumbnailConfiguration?: close({
 		RecordingMode?: "INTERVAL" | "DISABLED" | fn.#StringExpression
 		Storage?: list.MaxItems(2) & list.UniqueItems() & [...] & [..."SEQUENTIAL" | "LATEST" | fn.#StringExpression] |

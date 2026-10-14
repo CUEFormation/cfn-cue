@@ -19,18 +19,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Audiences?:              [...string | fn.#StringExpression] | fn.#ListExpression
 	ChannelName!:            string | fn.#StringExpression
-	FillerSlate?:            _#defs."/$defs/Properties/definitions/SlateSource"
-	LogConfiguration?:       _#defs."/$defs/Properties/definitions/LogConfigurationForChannel"
-	Outputs!:                [..._#defs."/$defs/Properties/definitions/RequestOutputItem"] | fn.#ListExpression
-	PlaybackMode!:           _#defs."/$defs/Properties/definitions/PlaybackMode"
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Tier?:                   _#defs."/$defs/Properties/definitions/Tier"
-	TimeShiftConfiguration?: _#defs."/$defs/Properties/definitions/TimeShiftConfiguration"
+	FillerSlate?:            #SlateSource
+	LogConfiguration?:       #LogConfigurationForChannel
+	Outputs!:                [...#RequestOutputItem] | fn.#ListExpression
+	PlaybackMode!:           #PlaybackMode
+	Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	Tier?:                   #Tier
+	TimeShiftConfiguration?: #TimeShiftConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/AdMarkupType": "DATERANGE" | "SCTE35_ENHANCED" | fn.#StringExpression
+#AdMarkupType: "DATERANGE" | "SCTE35_ENHANCED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DashPlaylistSettings": close({
+#DashPlaylistSettings: close({
 	ManifestWindowSeconds?: number |
 		{
 			string &
@@ -110,8 +110,8 @@ _#defs: "/$defs/Properties/definitions/DashPlaylistSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HlsPlaylistSettings": close({
-	AdMarkupType?: [..._#defs."/$defs/Properties/definitions/AdMarkupType"] | fn.#ListExpression
+#HlsPlaylistSettings: close({
+	AdMarkupType?: [...#AdMarkupType] | fn.#ListExpression
 	ManifestWindowSeconds?: number |
 		{
 			string &
@@ -134,38 +134,35 @@ _#defs: "/$defs/Properties/definitions/HlsPlaylistSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfigurationForChannel": close(
-	{LogTypes?: [..._#defs."/$defs/Properties/definitions/LogType"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#LogConfigurationForChannel: close({LogTypes?: [...#LogType] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogType": "AS_RUN" | fn.#StringExpression
+#LogType: "AS_RUN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PlaybackMode": "LOOP" | "LINEAR" | fn.#StringExpression
+#PlaybackMode: "LOOP" | "LINEAR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RequestOutputItem": close({
-	DashPlaylistSettings?: _#defs."/$defs/Properties/definitions/DashPlaylistSettings"
-	HlsPlaylistSettings?:  _#defs."/$defs/Properties/definitions/HlsPlaylistSettings"
+#RequestOutputItem: close({
+	DashPlaylistSettings?: #DashPlaylistSettings
+	HlsPlaylistSettings?:  #HlsPlaylistSettings
 	ManifestName!:         string | fn.#StringExpression
 	SourceGroup!:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlateSource": close({
+#SlateSource: close({
 	SourceLocationName?: string | fn.#StringExpression
 	VodSourceName?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tier": "BASIC" | "STANDARD" | fn.#StringExpression
+#Tier: "BASIC" | "STANDARD" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TimeShiftConfiguration": close({
+#TimeShiftConfiguration: close({
 	MaxTimeDelaySeconds!: number |
 		{
 			string &

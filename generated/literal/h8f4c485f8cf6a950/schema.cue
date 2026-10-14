@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"strings"
 	"struct"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,30 +14,30 @@ import (
 // private workforce that you can use to label your training data using Amazon
 // SageMaker Ground Truth.
 #Properties: close({
-	CognitoConfig?: _#defs."/$defs/Properties/definitions/CognitoConfig"
+	CognitoConfig?: #CognitoConfig
 
 	// The IP address type for the workforce. IPv4 only or dualstack (IPv4 and IPv6).
 	IpAddressType?:  "ipv4" | "dualstack"
-	OidcConfig?:     _#defs."/$defs/Properties/definitions/OidcConfig"
-	SourceIpConfig?: _#defs."/$defs/Properties/definitions/SourceIpConfig"
+	OidcConfig?:     #OidcConfig
+	SourceIpConfig?: #SourceIpConfig
 
 	// The subdomain for your OIDC Identity Provider.
 	SubDomain?: string
 
 	// An array of key-value pairs.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The Amazon Resource Name (ARN) of the private workforce.
 	WorkforceArn?: strings.MaxRunes(256) & =~"^arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:workforce/.*$"
 
 	// The name of the private workforce.
 	WorkforceName!:      strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9\\-]){0,62}$"
-	WorkforceVpcConfig?: _#defs."/$defs/Properties/definitions/WorkforceVpcConfigRequest"
+	WorkforceVpcConfig?: #WorkforceVpcConfigRequest
 })
 
 // The configuration of an Amazon Cognito workforce. A single Cognito workforce
 // is created using and corresponds to a single Amazon Cognito user pool.
-_#defs: "/$defs/Properties/definitions/CognitoConfig": close({
+#CognitoConfig: close({
 	// The client ID for your Amazon Cognito user pool.
 	ClientId!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[ -~]+$"
 
@@ -46,7 +46,7 @@ _#defs: "/$defs/Properties/definitions/CognitoConfig": close({
 })
 
 // The configuration of an OIDC Identity Provider (IdP) private workforce.
-_#defs: "/$defs/Properties/definitions/OidcConfig": close({
+#OidcConfig: close({
 	// A string to string map of identifiers specific to the custom identity provider (IdP) being used.
 	AuthenticationRequestExtraParams?: struct.MaxFields(10) & close({
 
@@ -82,7 +82,7 @@ _#defs: "/$defs/Properties/definitions/OidcConfig": close({
 })
 
 // A list of IP address ranges used to access your training data.
-_#defs: "/$defs/Properties/definitions/SourceIpConfig": close({
+#SourceIpConfig: close({
 	// A list of one to ten Classless Inter-Domain Routing (CIDR) values.
 	Cidrs!: list.MaxItems(10) & [
 		...strings.MaxRunes(64) &
@@ -91,7 +91,7 @@ _#defs: "/$defs/Properties/definitions/SourceIpConfig": close({
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -100,7 +100,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The VPC configuration for the workforce.
-_#defs: "/$defs/Properties/definitions/WorkforceVpcConfigRequest": close({
+#WorkforceVpcConfigRequest: close({
 	// The VPC security group IDs.
 	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &

@@ -39,12 +39,12 @@ import (
 
 	// The name of the SSM document.
 	Name!:           =~"^[a-zA-Z0-9_\\-.:/]{3,200}$"
-	OutputLocation?: _#defs."/$defs/Properties/definitions/InstanceAssociationOutputLocation"
+	OutputLocation?: #InstanceAssociationOutputLocation
 
 	// Parameter values that the SSM document uses at runtime.
 	Parameters?: close({
 
-		{[=~".{1,255}"]: _#defs."/$defs/Properties/definitions/ParameterValues"}})
+		{[=~".{1,255}"]: #ParameterValues}})
 
 	// A Cron or Rate expression that specifies when the association is applied to the target.
 	ScheduleExpression?: strings.MaxRunes(256) & strings.MinRunes(1)
@@ -52,33 +52,31 @@ import (
 	SyncCompliance?:     "AUTO" | "MANUAL"
 
 	// A key-value pair to associate with a resource.
-	Tags?: list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(1000) & [...] & [...#Tag]
 
 	// The targets that the SSM document sends commands to.
-	Targets?:                      list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Target"]
+	Targets?:                      list.MaxItems(5) & [...] & [...#Target]
 	WaitForSuccessTimeoutSeconds?: int & <=172800 & >=15
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceAssociationOutputLocation": close(
-	{S3Location?: _#defs."/$defs/Properties/definitions/S3OutputLocation"},
-)
+#InstanceAssociationOutputLocation: close({S3Location?: #S3OutputLocation})
 
-_#defs: "/$defs/Properties/definitions/ParameterValues": [...string]
+#ParameterValues: [...string]
 
-_#defs: "/$defs/Properties/definitions/S3BucketName": strings.MaxRunes(63) & strings.MinRunes(3)
+#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3)
 
-_#defs: "/$defs/Properties/definitions/S3KeyPrefix": strings.MaxRunes(1024) & strings.MinRunes(0)
+#S3KeyPrefix: strings.MaxRunes(1024) & strings.MinRunes(0)
 
-_#defs: "/$defs/Properties/definitions/S3OutputLocation": close({
-	OutputS3BucketName?: _#defs."/$defs/Properties/definitions/S3BucketName"
-	OutputS3KeyPrefix?:  _#defs."/$defs/Properties/definitions/S3KeyPrefix"
-	OutputS3Region?:     _#defs."/$defs/Properties/definitions/S3Region"
+#S3OutputLocation: close({
+	OutputS3BucketName?: #S3BucketName
+	OutputS3KeyPrefix?:  #S3KeyPrefix
+	OutputS3Region?:     #S3Region
 })
 
-_#defs: "/$defs/Properties/definitions/S3Region": strings.MaxRunes(20) & strings.MinRunes(3)
+#S3Region: strings.MaxRunes(20) & strings.MinRunes(3)
 
 // Metadata that you assign to your AWS resources.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -86,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/Target": close({
+#Target: close({
 	Key!: strings.MaxRunes(163) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]{1,128}$|resource-groups:Name"
 	Values!: list.MaxItems(50) & [...] & [...string & string]
 })

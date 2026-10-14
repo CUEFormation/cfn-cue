@@ -10,13 +10,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // AWS::EC2::TransitGatewayPolicyTableEntry Resource Definition
 #Properties: close({
-	PolicyRule!:                  _#defs."/$defs/Properties/definitions/TransitGatewayPolicyRule" | fn.#ObjectExpression
+	PolicyRule!:                  #TransitGatewayPolicyRule | fn.#ObjectExpression
 	PolicyRuleNumber!:            string | fn.#StringExpression
 	TargetRouteTableId!:          string | fn.#StringExpression
 	TransitGatewayPolicyTableId!: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayPolicyRule": close({
+#TransitGatewayPolicyRule: close({
 	DestinationCidrBlock?: string | fn.#StringExpression
 	DestinationPortRange?: string | fn.#StringExpression
 	Protocol?:             string | fn.#StringExpression

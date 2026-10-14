@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,10 +14,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Glue::DataCatalogEncryptionSettings
 #Properties: close({
 	CatalogId!:                     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DataCatalogEncryptionSettings!: _#defs."/$defs/Properties/definitions/DataCatalogEncryptionSettings"
+	DataCatalogEncryptionSettings!: #DataCatalogEncryptionSettings
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionPasswordEncryption": close({
+#ConnectionPasswordEncryption: close({
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
@@ -32,13 +32,13 @@ _#defs: "/$defs/Properties/definitions/ConnectionPasswordEncryption": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataCatalogEncryptionSettings": close({
-	ConnectionPasswordEncryption?: _#defs."/$defs/Properties/definitions/ConnectionPasswordEncryption"
-	EncryptionAtRest?:             _#defs."/$defs/Properties/definitions/EncryptionAtRest"
+#DataCatalogEncryptionSettings: close({
+	ConnectionPasswordEncryption?: #ConnectionPasswordEncryption
+	EncryptionAtRest?:             #EncryptionAtRest
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionAtRest": close({
+#EncryptionAtRest: close({
 	CatalogEncryptionMode?: "DISABLED" | "SSE-KMS" | "SSE-KMS-WITH-SERVICE-ROLE" | fn.#StringExpression
 	CatalogEncryptionServiceRole?: =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:iam::[0-9]{12}:role/.+$" |
 		fn.#StringExpression

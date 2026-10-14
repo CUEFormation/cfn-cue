@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"time"
 	"strings"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -41,38 +41,38 @@ import (
 	SchemaType!: "AGENTCORE_EVALUATION_PREDEFINED_V1" |
 		"AGENTCORE_EVALUATION_SIMULATED_V1" |
 		"GENERIC_EVALUATION_PREDEFINED_V1"
-	Source?: _#defs."/$defs/Properties/definitions/DataSourceType"
+	Source?: #DataSourceType
 
 	// The current status of the dataset.
 	Status?: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "CREATE_FAILED" | "UPDATE_FAILED" | "DELETE_FAILED"
 
 	// A list of tags to assign to the dataset.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The timestamp when the dataset was last updated.
 	UpdatedAt?: time.Time
 })
 
 // Source of initial examples. Provide either inline examples or an S3 URI pointing to a JSONL file.
-_#defs: "/$defs/Properties/definitions/DataSourceType": close({
-	InlineExamples?: _#defs."/$defs/Properties/definitions/InlineExamplesSource"
-	S3Source?:       _#defs."/$defs/Properties/definitions/S3Source"
+#DataSourceType: close({
+	InlineExamples?: #InlineExamplesSource
+	S3Source?:       #S3Source
 })
 
 // Inline examples provided directly in the request body.
-_#defs: "/$defs/Properties/definitions/InlineExamplesSource": close({
+#InlineExamplesSource: close({
 	// Examples to add. Each example is a free-form JSON document validated against
 	// the declared schemaType.
 	Examples!: list.MaxItems(1000) & list.MinItems(1) & [...{...}]
 })
 
 // S3 location of a JSONL file containing dataset examples.
-_#defs: "/$defs/Properties/definitions/S3Source": close({
+#S3Source: close({
 	// S3 URI of the JSONL file (e.g. s3://my-bucket/path/to/examples.jsonl).
 	S3Uri!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

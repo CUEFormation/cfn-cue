@@ -10,7 +10,7 @@ import "strings"
 #Properties: close({
 	// The Amazon Resource Name (ARN) of the Route Server Peer.
 	Arn?:        string
-	BgpOptions!: _#defs."/$defs/Properties/definitions/BgpOptions"
+	BgpOptions!: #BgpOptions
 
 	// Elastic Network Interface IP address owned by the Route Server Endpoint
 	EndpointEniAddress?: string
@@ -34,14 +34,14 @@ import "strings"
 	SubnetId?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// VPC ID
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // BGP Options
-_#defs: "/$defs/Properties/definitions/BgpOptions": close({
+#BgpOptions: close({
 	// BGP ASN of the Route Server Peer
 	PeerAsn?: int & <=4294967294 & >=1
 
@@ -50,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/BgpOptions": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

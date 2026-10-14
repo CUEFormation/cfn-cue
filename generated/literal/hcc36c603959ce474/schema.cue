@@ -16,7 +16,7 @@ import "strings"
 // Identity Center to log into the Amazon DataZone Data Portal and access
 // projects where they have memberships.
 #Properties: close({
-	Details?: _#defs."/$defs/Properties/definitions/UserProfileDetails"
+	Details?: #UserProfileDetails
 
 	// The identifier of the Amazon DataZone domain in which the user profile is created.
 	DomainId?: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$"
@@ -29,17 +29,17 @@ import "strings"
 
 	// The session name of the user profile.
 	SessionName?: strings.MaxRunes(64) & strings.MinRunes(2)
-	Status?:      _#defs."/$defs/Properties/definitions/UserProfileStatus"
-	Type?:        _#defs."/$defs/Properties/definitions/UserProfileType"
+	Status?:      #UserProfileStatus
+	Type?:        #UserProfileType
 
 	// The ID of the user.
 	UserIdentifier!:
 		=~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|^[a-zA-Z_0-9+=,.@-]+$|^arn:aws:iam::\\d{12}:.+$)"
-	UserType?: _#defs."/$defs/Properties/definitions/UserType"
+	UserType?: #UserType
 })
 
 // The details of the IAM User Profile.
-_#defs: "/$defs/Properties/definitions/IamUserProfileDetails": close({
+#IamUserProfileDetails: close({
 	// The ARN of the IAM User Profile.
 	Arn?: string
 
@@ -51,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/IamUserProfileDetails": close({
 })
 
 // The details of the SSO User Profile.
-_#defs: "/$defs/Properties/definitions/SsoUserProfileDetails": close({
+#SsoUserProfileDetails: close({
 	// The First Name of the IAM User Profile.
 	FirstName?: string
 
@@ -62,17 +62,13 @@ _#defs: "/$defs/Properties/definitions/SsoUserProfileDetails": close({
 	Username?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9+=,.@-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/UserProfileDetails": matchN(1, [close(
-	{Iam!: _#defs."/$defs/Properties/definitions/IamUserProfileDetails"},
-), close(
-	{Sso!: _#defs."/$defs/Properties/definitions/SsoUserProfileDetails"},
-)])
+#UserProfileDetails: matchN(1, [close({Iam!: #IamUserProfileDetails}), close({Sso!: #SsoUserProfileDetails})])
 
 // The status of the user profile.
-_#defs: "/$defs/Properties/definitions/UserProfileStatus": "ASSIGNED" | "NOT_ASSIGNED" | "ACTIVATED" | "DEACTIVATED"
+#UserProfileStatus: "ASSIGNED" | "NOT_ASSIGNED" | "ACTIVATED" | "DEACTIVATED"
 
 // The type of the user profile.
-_#defs: "/$defs/Properties/definitions/UserProfileType": "IAM" | "SSO"
+#UserProfileType: "IAM" | "SSO"
 
 // The type of the user.
-_#defs: "/$defs/Properties/definitions/UserType": "IAM_USER" | "IAM_ROLE" | "SSO_USER" | "IAM_ROLE_SESSION"
+#UserType: "IAM_USER" | "IAM_ROLE" | "SSO_USER" | "IAM_ROLE_SESSION"

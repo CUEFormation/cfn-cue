@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Backup::RestoreTestingPlan Resource Type
 #Properties: close({
-	RecoveryPointSelection!:     _#defs."/$defs/Properties/definitions/RestoreTestingRecoveryPointSelection"
+	RecoveryPointSelection!:     #RestoreTestingRecoveryPointSelection
 	RestoreTestingPlanName!:     string | fn.#StringExpression
 	ScheduleExpression!:         string | fn.#StringExpression
 	ScheduleExpressionTimezone?: string | fn.#StringExpression
@@ -36,15 +36,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/RestoreTestingRecoveryPointSelection": close({
-	Algorithm!:     _#defs."/$defs/Properties/definitions/RestoreTestingRecoveryPointSelectionAlgorithm"
-	ExcludeVaults?: [...string | fn.#StringExpression] | fn.#ListExpression
-	IncludeVaults!: [...string | fn.#StringExpression] | fn.#ListExpression
-	RecoveryPointTypes!: [..._#defs."/$defs/Properties/definitions/RestoreTestingRecoveryPointType"] |
-		fn.#ListExpression
+#RestoreTestingRecoveryPointSelection: close({
+	Algorithm!:          #RestoreTestingRecoveryPointSelectionAlgorithm
+	ExcludeVaults?:      [...string | fn.#StringExpression] | fn.#ListExpression
+	IncludeVaults!:      [...string | fn.#StringExpression] | fn.#ListExpression
+	RecoveryPointTypes!: [...#RestoreTestingRecoveryPointType] | fn.#ListExpression
 	SelectionWindowDays?: int |
 		{
 			string &
@@ -62,15 +61,11 @@ _#defs: "/$defs/Properties/definitions/RestoreTestingRecoveryPointSelection": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RestoreTestingRecoveryPointSelectionAlgorithm": "LATEST_WITHIN_WINDOW" |
-	"RANDOM_WITHIN_WINDOW" |
-	fn.#StringExpression
+#RestoreTestingRecoveryPointSelectionAlgorithm: "LATEST_WITHIN_WINDOW" | "RANDOM_WITHIN_WINDOW" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RestoreTestingRecoveryPointType": "SNAPSHOT" |
-	"CONTINUOUS" |
-	fn.#StringExpression
+#RestoreTestingRecoveryPointType: "SNAPSHOT" | "CONTINUOUS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

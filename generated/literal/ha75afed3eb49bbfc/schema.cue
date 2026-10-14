@@ -21,15 +21,15 @@ import (
 
 	// The IAM policy arn for pods
 	PodExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1)
-	Selectors!:           list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Selector"]
+	Selectors!:           list.MinItems(1) & [...#Selector]
 	Subnets?:             [...string]
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // A key-value pair to associate with a pod.
-_#defs: "/$defs/Properties/definitions/Label": close({
+#Label: close({
 	// The key name of the label.
 	Key!: strings.MaxRunes(127) & strings.MinRunes(1)
 
@@ -37,13 +37,13 @@ _#defs: "/$defs/Properties/definitions/Label": close({
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Selector": close({
-	Labels?:    [..._#defs."/$defs/Properties/definitions/Label"]
+#Selector: close({
+	Labels?:    [...#Label]
 	Namespace!: strings.MinRunes(1)
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

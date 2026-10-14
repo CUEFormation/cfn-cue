@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"struct"
 	"time"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
+	"struct"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -30,7 +30,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DateTimeFormat": time.Time | fn.#StringExpression
+#DateTimeFormat: time.Time | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::IoTTwinMaker::Workspace"
 	Properties!: #Properties

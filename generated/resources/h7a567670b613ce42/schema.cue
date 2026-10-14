@@ -17,11 +17,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [Restricting access to an
 // origin](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-origin.html)
 // in the *Amazon CloudFront Developer Guide*.
-#Properties: close({
-	OriginAccessControlConfig!: _#defs."/$defs/Properties/definitions/OriginAccessControlConfig" | fn.#ObjectExpression
-})
+#Properties: close({OriginAccessControlConfig!: #OriginAccessControlConfig | fn.#ObjectExpression})
 
-_#defs: "/$defs/Properties/definitions/OriginAccessControlConfig": close({
+#OriginAccessControlConfig: close({
 	Description?:                   string | fn.#StringExpression
 	Name!:                          string | fn.#StringExpression
 	OriginAccessControlOriginType!: =~"^(s3|mediastore|lambda|mediapackagev2)$" | fn.#StringExpression

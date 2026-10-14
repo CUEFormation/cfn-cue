@@ -20,7 +20,7 @@ import (
 	Arn?: =~"^arn:aws[a-z-]*:interconnect:[^:]+:[0-9]{12}:connection/mcc-[a-z0-9]{8}$"
 
 	// The logical attachment point in your AWS network where the managed connection will be connected.
-	AttachPoint!: _#defs."/$defs/Properties/definitions/AttachPoint"
+	AttachPoint!: #AttachPoint
 
 	// The bandwidth of the connection (e.g., 50Mbps, 1Gbps). Required when creating
 	// a connection through AWS.
@@ -43,7 +43,7 @@ import (
 	OwnerAccount?: string
 
 	// The partner cloud service provider.
-	Provider?: _#defs."/$defs/Properties/definitions/Provider"
+	Provider?: #Provider
 
 	// The remote account identifier for the connection. Required when creating a
 	// connection through AWS. Replaces RemoteOwnerAccount.
@@ -63,14 +63,14 @@ import (
 	State?: "available" | "requested" | "pending" | "down" | "deleting" | "deleted" | "failed"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The type of managed connection.
 	Type?: strings.MaxRunes(32) & strings.MinRunes(5)
 })
 
 // The logical attachment point in your AWS network where the managed connection will be connected.
-_#defs: "/$defs/Properties/definitions/AttachPoint": close({
+#AttachPoint: close({
 	// The ARN of the resource to attach to.
 	Arn?: string
 
@@ -79,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/AttachPoint": close({
 })
 
 // The partner cloud service provider.
-_#defs: "/$defs/Properties/definitions/Provider": close({
+#Provider: close({
 	// The name of the cloud service provider.
 	CloudServiceProvider?: strings.MaxRunes(32)
 
@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/Provider": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

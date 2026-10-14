@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -23,16 +23,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^[A-Za-z0-9]([A-Za-z0-9\\:\\-\\_\\.\\@]{0,62}[A-Za-z0-9])?$" |
 	fn.#StringExpression
-	ExpirationSettings?: _#defs."/$defs/Properties/definitions/ExpirationSettings"
+	ExpirationSettings?: #ExpirationSettings
 	Metadata?:           strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 	Name?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{1000}0-\\x{10FF}FF]*$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ExpirationSettings": close({
+#ExpirationSettings: close({
 	ExpirationCriterion!: "CREATED_TIMESTAMP" | fn.#StringExpression
 	ExpirationDays!: int & <=5475 & >=1 |
 		{
@@ -53,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/ExpirationSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

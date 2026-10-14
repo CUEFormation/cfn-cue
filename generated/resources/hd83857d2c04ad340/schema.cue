@@ -16,11 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Data!:      string | fn.#StringExpression
 	Name!:      strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	Workspace!: =~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

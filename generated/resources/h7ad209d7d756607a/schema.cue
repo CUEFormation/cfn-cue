@@ -14,11 +14,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::ApiGatewayV2::Stage
 #Properties: close({
-	AccessLogSettings?:    _#defs."/$defs/Properties/definitions/AccessLogSettings" | fn.#ObjectExpression
+	AccessLogSettings?:    #AccessLogSettings | fn.#ObjectExpression
 	ApiId!:                string | fn.#StringExpression
 	AutoDeploy?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ClientCertificateId?:  string | fn.#StringExpression
-	DefaultRouteSettings?: _#defs."/$defs/Properties/definitions/RouteSettings" | fn.#ObjectExpression
+	DefaultRouteSettings?: #RouteSettings | fn.#ObjectExpression
 	DeploymentId?:         string | fn.#StringExpression
 	Description?:          string | fn.#StringExpression
 	RouteSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
@@ -30,13 +30,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessLogSettings": close({
+#AccessLogSettings: close({
 	DestinationArn?: string | fn.#StringExpression
 	Format?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RouteSettings": close({
+#RouteSettings: close({
 	DataTraceEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DetailedMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LoggingLevel?:           string | fn.#StringExpression

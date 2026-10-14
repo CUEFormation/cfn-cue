@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -19,14 +19,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:             strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
 	Nodes?:            list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	SignalCatalogArn!: string | fn.#StringExpression
-	Status?:           _#defs."/$defs/Properties/definitions/ManifestStatus"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Status?:           #ManifestStatus
+	Tags?:             list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ManifestStatus": "ACTIVE" | "DRAFT" | fn.#StringExpression
+#ManifestStatus: "ACTIVE" | "DRAFT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

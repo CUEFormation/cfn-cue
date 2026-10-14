@@ -15,7 +15,7 @@ import (
 	strings.MinRunes(20) &
 	=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetworkserviceassociation/snsa-[0-9a-z]{17}$"
 	CreatedAt?: string
-	DnsEntry?:  _#defs."/$defs/Properties/definitions/DnsEntry"
+	DnsEntry?:  #DnsEntry
 	Id?:        strings.MaxRunes(2048) & strings.MinRunes(17) & =~"^snsa-[0-9a-z]{17}$"
 	ServiceArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -34,15 +34,15 @@ import (
 	=~"^((sn-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetwork/sn-[0-9a-z]{17}))$"
 	ServiceNetworkName?: strings.MaxRunes(63) & strings.MinRunes(3)
 	Status?:             "CREATE_IN_PROGRESS" | "ACTIVE" | "DELETE_IN_PROGRESS" | "CREATE_FAILED" | "DELETE_FAILED"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:               list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/DnsEntry": close({
+#DnsEntry: close({
 	DomainName?:   string
 	HostedZoneId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

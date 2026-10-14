@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -38,34 +38,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	S3?:   _#defs."/$defs/Properties/definitions/S3" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	S3?:   #S3 | fn.#ObjectExpression
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AutoExportPolicy": close(
-	{Events!: _#defs."/$defs/Properties/definitions/EventTypes"},
-) |
-	fn.#ObjectExpression
+#AutoExportPolicy: close({Events!: #EventTypes}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoImportPolicy": close(
-	{Events!: _#defs."/$defs/Properties/definitions/EventTypes"},
-) |
-	fn.#ObjectExpression
+#AutoImportPolicy: close({Events!: #EventTypes}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventType": "NEW" | "CHANGED" | "DELETED" | fn.#StringExpression
+#EventType: "NEW" | "CHANGED" | "DELETED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EventTypes": list.MaxItems(3) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/EventType"
-] |
-	fn.#ListExpression
+#EventTypes: list.MaxItems(3) & list.UniqueItems() & [...] & [...#EventType] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/S3": close({
-	AutoExportPolicy?: _#defs."/$defs/Properties/definitions/AutoExportPolicy"
-	AutoImportPolicy?: _#defs."/$defs/Properties/definitions/AutoImportPolicy"
+#S3: close({
+	AutoExportPolicy?: #AutoExportPolicy
+	AutoImportPolicy?: #AutoImportPolicy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

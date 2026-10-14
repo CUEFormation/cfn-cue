@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SSM::PatchBaseline
 #Properties: close({
-	ApprovalRules?: _#defs."/$defs/Properties/definitions/RuleGroup"
+	ApprovalRules?: #RuleGroup
 	ApprovedPatches?: list.MaxItems(50) & [...] & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -41,7 +41,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AvailableSecurityUpdatesComplianceStatus?: "NON_COMPLIANT" | "COMPLIANT" | fn.#StringExpression
 	DefaultBaseline?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	GlobalFilters?:   _#defs."/$defs/Properties/definitions/PatchFilterGroup" | fn.#ObjectExpression
+	GlobalFilters?:   #PatchFilterGroup | fn.#ObjectExpression
 	Name!:            strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
 	OperatingSystem?: "WINDOWS" |
 		"AMAZON_LINUX" |
@@ -65,11 +65,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 	fn.#ListExpression
 	RejectedPatchesAction?: "ALLOW_AS_DEPENDENCY" | "BLOCK" | fn.#StringExpression
-	Sources?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/PatchSource"] | fn.#ListExpression
-	Tags?:    list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Sources?:               list.MaxItems(20) & [...] & [...#PatchSource] | fn.#ListExpression
+	Tags?:                  list.MaxItems(1000) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/PatchFilter": close({
+#PatchFilter: close({
 	Key?: "ADVISORY_ID" |
 		"ARCH" |
 		"BUGZILLA_ID" |
@@ -95,13 +95,10 @@ _#defs: "/$defs/Properties/definitions/PatchFilter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PatchFilterGroup": close({
-	PatchFilters?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/PatchFilter"] |
-		fn.#ListExpression
-}) |
+#PatchFilterGroup: close({PatchFilters?: list.MaxItems(5) & [...] & [...#PatchFilter] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PatchSource": close({
+#PatchSource: close({
 	Configuration?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Name?:          =~"^[a-zA-Z0-9_\\-.]{3,50}$" | fn.#StringExpression
 	Products?: list.MaxItems(20) & [...] & [...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression] |
@@ -109,7 +106,7 @@ _#defs: "/$defs/Properties/definitions/PatchSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
+#Rule: close({
 	ApproveAfterDays?: int & <=360 & >=0 |
 		{
 			string &
@@ -129,16 +126,13 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 	ApproveUntilDate?:  strings.MaxRunes(10) & strings.MinRunes(0) | fn.#StringExpression
 	ComplianceLevel?:   "CRITICAL" | "HIGH" | "INFORMATIONAL" | "LOW" | "MEDIUM" | "UNSPECIFIED" | fn.#StringExpression
 	EnableNonSecurity?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PatchFilterGroup?:  _#defs."/$defs/Properties/definitions/PatchFilterGroup"
+	PatchFilterGroup?:  #PatchFilterGroup
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleGroup": close(
-	{PatchRules?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#RuleGroup: close({PatchRules?: list.MaxItems(10) & [...] & [...#Rule] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

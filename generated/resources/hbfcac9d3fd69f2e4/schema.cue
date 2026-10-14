@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -18,10 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Kinesis::Stream
 #Properties: close({
-	DesiredShardLevelMetrics?: list.MaxItems(7) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EnhancedMetric"
-	] |
-		fn.#ListExpression
+	DesiredShardLevelMetrics?: list.MaxItems(7) & list.UniqueItems() & [...#EnhancedMetric] | fn.#ListExpression
 	MaxRecordSizeInKiB?: int & <=10240 & >=1024 |
 		{
 			string &
@@ -72,9 +69,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	StreamEncryption?:  _#defs."/$defs/Properties/definitions/StreamEncryption" | fn.#ObjectExpression
-	StreamModeDetails?: _#defs."/$defs/Properties/definitions/StreamModeDetails" | fn.#ObjectExpression
-	Tags?:              list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	StreamEncryption?:  #StreamEncryption | fn.#ObjectExpression
+	StreamModeDetails?: #StreamModeDetails | fn.#ObjectExpression
+	Tags?:              list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	WarmThroughputMiBps?: int & >=0 |
 		{
 			string &
@@ -92,7 +89,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EnhancedMetric": "IncomingBytes" |
+#EnhancedMetric: "IncomingBytes" |
 	"IncomingRecords" |
 	"OutgoingBytes" |
 	"OutgoingRecords" |
@@ -102,24 +99,21 @@ _#defs: "/$defs/Properties/definitions/EnhancedMetric": "IncomingBytes" |
 	"ALL" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StreamEncryption": close({
+#StreamEncryption: close({
 	EncryptionType!: "KMS" | fn.#StringExpression
 	KeyId!:          string & (strings.MaxRunes(2048) & strings.MinRunes(1)) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamModeDetails": close(
-	{StreamMode!: "ON_DEMAND" | "PROVISIONED" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#StreamModeDetails: close({StreamMode!: "ON_DEMAND" | "PROVISIONED" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WarmThroughputObject": close({
+#WarmThroughputObject: close({
 	CurrentMiBps?: int |
 		{
 			string &

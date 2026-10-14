@@ -20,13 +20,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Name?:            strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	NodeJsVersion?:   strings.MaxRunes(16) & strings.MinRunes(0) & =~"^\\d+\\.[x0-9]+$" | fn.#StringExpression
-	StorageLocation!: _#defs."/$defs/Properties/definitions/S3Location" & fn.#Object & {...} | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	Version?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	StorageLocation!: #S3Location & fn.#Object & {...} | fn.#ObjectExpression
+	Tags?:            list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	Version?:         strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!:        strings.MinRunes(1) | fn.#StringExpression
 	Key!:           strings.MinRunes(1) | fn.#StringExpression
 	ObjectVersion?: strings.MinRunes(1) | fn.#StringExpression
@@ -35,7 +34,7 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

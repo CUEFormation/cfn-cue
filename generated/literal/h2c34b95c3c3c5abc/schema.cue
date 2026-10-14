@@ -13,29 +13,29 @@ import (
 #Properties: close({
 	AccessSourceId?: strings.MaxRunes(64) & strings.MinRunes(1)
 	Arn?:            strings.MaxRunes(2048) & strings.MinRunes(1)
-	Cidr!:           _#defs."/$defs/Properties/definitions/Cidr"
+	Cidr!:           #Cidr
 	ClientToken?:    strings.MaxRunes(256) & strings.MinRunes(1)
 	CreatedAt?:      string
 	DnsViewId!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$"
-	IpAddressType?:  _#defs."/$defs/Properties/definitions/IpAddressType"
-	Name?:           _#defs."/$defs/Properties/definitions/ResourceName"
-	Protocol!:       _#defs."/$defs/Properties/definitions/DnsProtocol"
-	Status?:         _#defs."/$defs/Properties/definitions/CRResourceStatus"
-	Tags?:           list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	IpAddressType?:  #IpAddressType
+	Name?:           #ResourceName
+	Protocol!:       #DnsProtocol
+	Status?:         #CRResourceStatus
+	Tags?:           list.MaxItems(50) & [...#Tag]
 	UpdatedAt?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/CRResourceStatus": "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING"
+#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING"
 
-_#defs: "/$defs/Properties/definitions/Cidr": strings.MaxRunes(42) & strings.MinRunes(1)
+#Cidr: strings.MaxRunes(42) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/DnsProtocol": "DO53" | "DOH" | "DOT"
+#DnsProtocol: "DO53" | "DOH" | "DOT"
 
-_#defs: "/$defs/Properties/definitions/IpAddressType": "IPV4" | "IPV6"
+#IpAddressType: "IPV4" | "IPV6"
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(64) & strings.MinRunes(1)
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

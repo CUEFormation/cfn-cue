@@ -28,14 +28,14 @@ package schema
 	// The ID of the VPC with which you are creating the VPC peering connection. You
 	// must specify this parameter in the request.
 	PeerVpcId!: string
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:      [...#Tag]
 
 	// The ID of the VPC.
 	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

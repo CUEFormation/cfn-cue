@@ -11,10 +11,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::PinpointEmail::DedicatedIpPool
 #Properties: close({
 	PoolName?: string | fn.#StringExpression
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
+	Tags?:     [...#Tags] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |

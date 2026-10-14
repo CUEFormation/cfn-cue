@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,7 +12,7 @@ import (
 // Resource type definition for AWS::SageMaker::Model
 #Properties: close({
 	// Specifies the containers in the inference pipeline.
-	Containers?: list.MaxItems(15) & [...] & [..._#defs."/$defs/Properties/definitions/ContainerDefinition"]
+	Containers?: list.MaxItems(15) & [...] & [...#ContainerDefinition]
 
 	// Isolates the model container. No inbound or outbound network calls can be
 	// made to or from the model container.
@@ -23,25 +23,25 @@ import (
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
-	InferenceExecutionConfig?: _#defs."/$defs/Properties/definitions/InferenceExecutionConfig"
+	InferenceExecutionConfig?: #InferenceExecutionConfig
 
 	// The Amazon Resource Name (ARN) of the model.
 	ModelArn?: string
 
 	// The name of the new model.
 	ModelName?:        strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?$"
-	PrimaryContainer?: _#defs."/$defs/Properties/definitions/ContainerDefinition"
+	PrimaryContainer?: #ContainerDefinition
 
 	// An array of key-value pairs. You can use tags to categorize your AWS
 	// resources in different ways, for example, by purpose, owner, or environment.
 	// For more information, see [Tagging AWS
 	// Resources](https://docs.aws.amazon.com/general/latest/gr/aws_tagging.html).
-	Tags?:      list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
+	Tags?:      list.MaxItems(50) & [...] & [...#Tag]
+	VpcConfig?: #VpcConfig
 })
 
 // Describes the container, as part of model definition.
-_#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
+#ContainerDefinition: close({
 	// This parameter is ignored for models that contain only a PrimaryContainer.
 	//
 	// When a ContainerDefinition is part of an inference pipeline, the value of the
@@ -66,14 +66,14 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 	// formats. For more information, see [Using Your Own Algorithms with Amazon
 	// SageMaker](https://docs.aws.amazon.com/sagemaker/latest/dg/your-algorithms.html).
 	Image?:       strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$"
-	ImageConfig?: _#defs."/$defs/Properties/definitions/ImageConfig"
+	ImageConfig?: #ImageConfig
 
 	// The inference specification name in the model package version.
 	InferenceSpecificationName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$"
 
 	// Whether the container hosts a single model or multiple models.
 	Mode?:            "SingleModel" | "MultiModel"
-	ModelDataSource?: _#defs."/$defs/Properties/definitions/ModelDataSource"
+	ModelDataSource?: #ModelDataSource
 
 	// The S3 path where the model artifacts, which result from model training, are
 	// stored. This path must point to a single gzip compressed tar archive
@@ -93,27 +93,27 @@ _#defs: "/$defs/Properties/definitions/ContainerDefinition": close({
 
 	// The name or Amazon Resource Name (ARN) of the model package to use to create the model.
 	ModelPackageName?: strings.MaxRunes(176) & strings.MinRunes(1)
-	MultiModelConfig?: _#defs."/$defs/Properties/definitions/MultiModelConfig"
+	MultiModelConfig?: #MultiModelConfig
 })
 
 // Configuration information specifying which hub contents have accessible deployment options.
-_#defs: "/$defs/Properties/definitions/HubAccessConfig": close({
+#HubAccessConfig: close({
 	// The ARN of the hub content for which deployment access is allowed.
 	HubContentArn!: strings.MaxRunes(255) & strings.MinRunes(0)
 })
 
 // Specifies whether the model container is in Amazon ECR or a private Docker
 // registry accessible from your Amazon Virtual Private Cloud (VPC).
-_#defs: "/$defs/Properties/definitions/ImageConfig": close({
+#ImageConfig: close({
 	// Set this to one of the following values: Platform - The model image is hosted
 	// in Amazon ECR. Vpc - The model image is hosted in a private Docker registry
 	// in your VPC.
 	RepositoryAccessMode!: "Platform" | "Vpc"
-	RepositoryAuthConfig?: _#defs."/$defs/Properties/definitions/RepositoryAuthConfig"
+	RepositoryAuthConfig?: #RepositoryAuthConfig
 })
 
 // Specifies details about how containers in a multi-container endpoint are run.
-_#defs: "/$defs/Properties/definitions/InferenceExecutionConfig": close({
+#InferenceExecutionConfig: close({
 	// How containers in a multi-container are run.
 	Mode!: "Serial" | "Direct"
 })
@@ -121,7 +121,7 @@ _#defs: "/$defs/Properties/definitions/InferenceExecutionConfig": close({
 // The access configuration file to control access to the ML model. You can
 // explicitly accept the model end-user license agreement (EULA) within the
 // `ModelAccessConfig`.
-_#defs: "/$defs/Properties/definitions/ModelAccessConfig": close({
+#ModelAccessConfig: close({
 	// Specifies agreement to the model end-user license agreement (EULA). The
 	// `AcceptEula` value must be explicitly defined as `True` in order to accept
 	// the EULA that this model requires. You are responsible for reviewing and
@@ -132,12 +132,10 @@ _#defs: "/$defs/Properties/definitions/ModelAccessConfig": close({
 
 // Specifies the location of ML model data to deploy. If specified, you must
 // specify one and only one of the available data sources.
-_#defs: "/$defs/Properties/definitions/ModelDataSource": close(
-	{S3DataSource!: _#defs."/$defs/Properties/definitions/S3DataSource"},
-)
+#ModelDataSource: close({S3DataSource!: #S3DataSource})
 
 // Specifies additional configuration for multi-model endpoints.
-_#defs: "/$defs/Properties/definitions/MultiModelConfig": close({
+#MultiModelConfig: close({
 	// Whether to cache models for a multi-model endpoint. By default, multi-model
 	// endpoints cache models so that a model does not have to be loaded into
 	// memory each time it is invoked. Some use cases do not benefit from model
@@ -154,7 +152,7 @@ _#defs: "/$defs/Properties/definitions/MultiModelConfig": close({
 // `ImageConfig` object that you passed to a call to `CreateModel` and the
 // private Docker registry where the model image is hosted requires
 // authentication.
-_#defs: "/$defs/Properties/definitions/RepositoryAuthConfig": close({
+#RepositoryAuthConfig: close({
 	// The Amazon Resource Name (ARN) of an AWS Lambda function that provides
 	// credentials to authenticate to the private Docker registry where your model
 	// image is hosted. For information about how to create an AWS Lambda function,
@@ -165,11 +163,11 @@ _#defs: "/$defs/Properties/definitions/RepositoryAuthConfig": close({
 })
 
 // Specifies the S3 location of ML model data to deploy.
-_#defs: "/$defs/Properties/definitions/S3DataSource": close({
+#S3DataSource: close({
 	// Specifies how the ML model data is prepared.
 	CompressionType!:   "None" | "Gzip"
-	HubAccessConfig?:   _#defs."/$defs/Properties/definitions/HubAccessConfig"
-	ModelAccessConfig?: _#defs."/$defs/Properties/definitions/ModelAccessConfig"
+	HubAccessConfig?:   #HubAccessConfig
+	ModelAccessConfig?: #ModelAccessConfig
 
 	// Specifies the type of ML model data to deploy.
 	S3DataType!: "S3Prefix" | "S3Object"
@@ -178,7 +176,7 @@ _#defs: "/$defs/Properties/definitions/S3DataSource": close({
 	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag value.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -191,7 +189,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // to and from your resources by configuring a VPC. For more information, see
 // [Give SageMaker Access to Resources in your Amazon
 // VPC](https://docs.aws.amazon.com/sagemaker/latest/dg/infrastructure-give-access.html).
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	// The VPC security group IDs, in the form `sg-xxxxxxxx`. Specify the security
 	// groups for the VPC that is specified in the `Subnets` field.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [

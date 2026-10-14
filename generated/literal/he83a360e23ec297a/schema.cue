@@ -45,10 +45,10 @@ import (
 	PeeringId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^peering-([0-9a-f]{8,17})$"
 
 	// The attachment to move from one network function group to another.
-	ProposedNetworkFunctionGroupChange?: _#defs."/$defs/Properties/definitions/ProposedNetworkFunctionGroupChange"
+	ProposedNetworkFunctionGroupChange?: #ProposedNetworkFunctionGroupChange
 
 	// The attachment to move from one segment to another.
-	ProposedSegmentChange?: _#defs."/$defs/Properties/definitions/ProposedSegmentChange"
+	ProposedSegmentChange?: #ProposedSegmentChange
 
 	// The ARN of the Resource.
 	ResourceArn?: string
@@ -63,7 +63,7 @@ import (
 	State?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The Arn of transit gateway route table.
 	TransitGatewayRouteTableArn!: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
@@ -73,7 +73,7 @@ import (
 })
 
 // The attachment to move from one network function group to another.
-_#defs: "/$defs/Properties/definitions/ProposedNetworkFunctionGroupChange": close({
+#ProposedNetworkFunctionGroupChange: close({
 	// The rule number in the policy document that applies to this change.
 	AttachmentPolicyRuleNumber?: int
 
@@ -81,11 +81,11 @@ _#defs: "/$defs/Properties/definitions/ProposedNetworkFunctionGroupChange": clos
 	NetworkFunctionGroupName?: string
 
 	// The key-value tags that changed for the network function group.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The attachment to move from one segment to another.
-_#defs: "/$defs/Properties/definitions/ProposedSegmentChange": close({
+#ProposedSegmentChange: close({
 	// The rule number in the policy document that applies to this change.
 	AttachmentPolicyRuleNumber?: int
 
@@ -93,11 +93,11 @@ _#defs: "/$defs/Properties/definitions/ProposedSegmentChange": close({
 	SegmentName?: string
 
 	// The key-value tags that changed for the segment.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

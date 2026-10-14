@@ -15,10 +15,10 @@ import (
 	AddonInstanceId?:     strings.MaxRunes(67) & strings.MinRunes(4) & =~"^ai-[a-zA-Z0-9]{1,64}$"
 	AddonName?:           string
 	AddonSubscriptionId!: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^as-[a-zA-Z0-9]{1,64}$"
-	Tags?:                list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

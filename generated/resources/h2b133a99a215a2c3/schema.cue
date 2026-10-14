@@ -40,11 +40,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	LoadBalancerName!:         =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
 	SessionStickinessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SessionStickinessLBCookieDurationSeconds?: string | fn.#StringExpression
-	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TlsPolicyName?: string | fn.#StringExpression
+	Tags?:                                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	TlsPolicyName?:                            string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

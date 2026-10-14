@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"list"
 )
 
@@ -18,76 +18,76 @@ import (
 	// The Amazon Resource Name (ARN) of the payment credential provider
 	CredentialProviderArn?:
 		=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b|aws-iso-e|aws-iso-f|aws-eusc):(acps|bedrock-agentcore):[A-Za-z0-9-]{1,64}:[0-9]{12}:token-vault/[a-zA-Z0-9-.]+/paymentcredentialprovider/[a-zA-Z0-9_.-]+$"
-	CredentialProviderVendor!: _#defs."/$defs/Properties/definitions/PaymentCredentialProviderVendorType"
+	CredentialProviderVendor!: #PaymentCredentialProviderVendorType
 
 	// The timestamp when the credential provider was last updated
 	LastUpdatedTime?: time.Time
 
 	// Unique name for the payment credential provider
 	Name!:                        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$"
-	ProviderConfigurationInput?:  _#defs."/$defs/Properties/definitions/PaymentProviderConfigurationInput"
-	ProviderConfigurationOutput?: _#defs."/$defs/Properties/definitions/PaymentProviderConfigurationOutput"
+	ProviderConfigurationInput?:  #PaymentProviderConfigurationInput
+	ProviderConfigurationOutput?: #PaymentProviderConfigurationOutput
 
 	// Tags for the payment credential provider
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 })
 
 // Coinbase CDP configuration with API credentials
-_#defs: "/$defs/Properties/definitions/CoinbaseCdpConfigurationInput": close({
+#CoinbaseCdpConfigurationInput: close({
 	// The Coinbase CDP API key ID
 	ApiKeyId!: strings.MaxRunes(512) & strings.MinRunes(1)
 
 	// The Coinbase CDP API key secret
 	ApiKeySecret?:       strings.MaxRunes(2048) & strings.MinRunes(1)
-	ApiKeySecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
-	ApiKeySecretSource?: _#defs."/$defs/Properties/definitions/SecretSourceType"
+	ApiKeySecretConfig?: #SecretReference
+	ApiKeySecretSource?: #SecretSourceType
 
 	// The Coinbase CDP wallet secret
 	WalletSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1)
-	WalletSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
-	WalletSecretSource?: _#defs."/$defs/Properties/definitions/SecretSourceType"
+	WalletSecretConfig?: #SecretReference
+	WalletSecretSource?: #SecretSourceType
 })
 
 // Coinbase CDP configuration output with secret ARNs
-_#defs: "/$defs/Properties/definitions/CoinbaseCdpConfigurationOutput": close({
+#CoinbaseCdpConfigurationOutput: close({
 	// The Coinbase CDP API key ID
 	ApiKeyId!:        strings.MaxRunes(512) & strings.MinRunes(1)
-	ApiKeySecretArn!: _#defs."/$defs/Properties/definitions/SecretInfo"
+	ApiKeySecretArn!: #SecretInfo
 
 	// The JSON key within the secret that contains the API key secret value
 	ApiKeySecretJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1)
-	ApiKeySecretSource?:  _#defs."/$defs/Properties/definitions/SecretSourceType"
-	WalletSecretArn?:     _#defs."/$defs/Properties/definitions/SecretInfo"
+	ApiKeySecretSource?:  #SecretSourceType
+	WalletSecretArn?:     #SecretInfo
 
 	// The JSON key within the secret that contains the wallet secret value
 	WalletSecretJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1)
-	WalletSecretSource?:  _#defs."/$defs/Properties/definitions/SecretSourceType"
+	WalletSecretSource?:  #SecretSourceType
 })
 
 // Supported vendor types for payment providers
-_#defs: "/$defs/Properties/definitions/PaymentCredentialProviderVendorType": "CoinbaseCDP" | "StripePrivy"
+#PaymentCredentialProviderVendorType: "CoinbaseCDP" | "StripePrivy"
 
 // Provider configuration input containing secrets for creation/update
-_#defs: "/$defs/Properties/definitions/PaymentProviderConfigurationInput": close({
-	CoinbaseCdpConfiguration?: _#defs."/$defs/Properties/definitions/CoinbaseCdpConfigurationInput"
-	StripePrivyConfiguration?: _#defs."/$defs/Properties/definitions/StripePrivyConfigurationInput"
+#PaymentProviderConfigurationInput: close({
+	CoinbaseCdpConfiguration?: #CoinbaseCdpConfigurationInput
+	StripePrivyConfiguration?: #StripePrivyConfigurationInput
 })
 
 // Provider configuration output containing secret ARNs (no raw secrets)
-_#defs: "/$defs/Properties/definitions/PaymentProviderConfigurationOutput": close({
-	CoinbaseCdpConfiguration?: _#defs."/$defs/Properties/definitions/CoinbaseCdpConfigurationOutput"
-	StripePrivyConfiguration?: _#defs."/$defs/Properties/definitions/StripePrivyConfigurationOutput"
+#PaymentProviderConfigurationOutput: close({
+	CoinbaseCdpConfiguration?: #CoinbaseCdpConfigurationOutput
+	StripePrivyConfiguration?: #StripePrivyConfigurationOutput
 })
 
 // Contains information about a secret in AWS Secrets Manager
-_#defs: "/$defs/Properties/definitions/SecretInfo": close({
+#SecretInfo: close({
 	// The ARN of the secret in AWS Secrets Manager
 	SecretArn!:
 		=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b|aws-iso-e|aws-iso-f|aws-eusc):secretsmanager:[A-Za-z0-9-]{1,64}:[0-9]{12}:secret:[a-zA-Z0-9-_/+=.@!]+$"
 })
 
 // A reference to a customer-provided secret stored in AWS Secrets Manager
-_#defs: "/$defs/Properties/definitions/SecretReference": close({
+#SecretReference: close({
 	// The JSON key within the secret that contains the credential value
 	JsonKey!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -97,47 +97,47 @@ _#defs: "/$defs/Properties/definitions/SecretReference": close({
 
 // The source of the secret. Use MANAGED for service-managed secrets or EXTERNAL
 // for customer-provided secrets.
-_#defs: "/$defs/Properties/definitions/SecretSourceType": "MANAGED" | "EXTERNAL"
+#SecretSourceType: "MANAGED" | "EXTERNAL"
 
 // Stripe Privy configuration with credentials
-_#defs: "/$defs/Properties/definitions/StripePrivyConfigurationInput": close({
+#StripePrivyConfigurationInput: close({
 	// The app ID provided by Privy
 	AppId!: strings.MaxRunes(512) & strings.MinRunes(1)
 
 	// The app secret provided by Privy
 	AppSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1)
-	AppSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
-	AppSecretSource?: _#defs."/$defs/Properties/definitions/SecretSourceType"
+	AppSecretConfig?: #SecretReference
+	AppSecretSource?: #SecretSourceType
 
 	// The authorization ID for the Stripe Privy integration
 	AuthorizationId!: strings.MaxRunes(512) & strings.MinRunes(1)
 
 	// The authorization private key for the Stripe Privy integration
 	AuthorizationPrivateKey?:       strings.MaxRunes(4096) & strings.MinRunes(1)
-	AuthorizationPrivateKeyConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
-	AuthorizationPrivateKeySource?: _#defs."/$defs/Properties/definitions/SecretSourceType"
+	AuthorizationPrivateKeyConfig?: #SecretReference
+	AuthorizationPrivateKeySource?: #SecretSourceType
 })
 
 // Stripe Privy configuration output with secret ARNs
-_#defs: "/$defs/Properties/definitions/StripePrivyConfigurationOutput": close({
+#StripePrivyConfigurationOutput: close({
 	// The app ID provided by Privy
 	AppId!:        strings.MaxRunes(512) & strings.MinRunes(1)
-	AppSecretArn!: _#defs."/$defs/Properties/definitions/SecretInfo"
+	AppSecretArn!: #SecretInfo
 
 	// The JSON key within the secret that contains the app secret value
 	AppSecretJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1)
-	AppSecretSource?:  _#defs."/$defs/Properties/definitions/SecretSourceType"
+	AppSecretSource?:  #SecretSourceType
 
 	// The authorization ID for the Stripe Privy integration
 	AuthorizationId!:            strings.MaxRunes(512) & strings.MinRunes(1)
-	AuthorizationPrivateKeyArn!: _#defs."/$defs/Properties/definitions/SecretInfo"
+	AuthorizationPrivateKeyArn!: #SecretInfo
 
 	// The JSON key within the secret that contains the authorization private key value
 	AuthorizationPrivateKeyJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1)
-	AuthorizationPrivateKeySource?:  _#defs."/$defs/Properties/definitions/SecretSourceType"
+	AuthorizationPrivateKeySource?:  #SecretSourceType
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 })

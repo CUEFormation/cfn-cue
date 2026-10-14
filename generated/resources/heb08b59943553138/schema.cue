@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -18,16 +18,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EnvironmentIdentifier?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 	Identifier?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 	Name!:       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-	Parameters?: _#defs."/$defs/Properties/definitions/AwsConsoleLinkParameters" | fn.#ObjectExpression
+	Parameters?: #AwsConsoleLinkParameters | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AwsConsoleLinkParameters": close(
-	{Uri?: _#defs."/$defs/Properties/definitions/EnvironmentActionURI"},
-) |
-	fn.#ObjectExpression
+#AwsConsoleLinkParameters: close({Uri?: #EnvironmentActionURI}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentActionURI": strings.MaxRunes(2048) & strings.MinRunes(1) |
-fn.#StringExpression
+#EnvironmentActionURI: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DataZone::EnvironmentActions"
 	Properties!: #Properties

@@ -11,8 +11,8 @@ import (
 
 // Resource Type definition for AWS::DataSync::LocationFSxWindows.
 #Properties: close({
-	CmkSecretConfig?:    _#defs."/$defs/Properties/definitions/CmkSecretConfig"
-	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig"
+	CmkSecretConfig?:    #CmkSecretConfig
+	CustomSecretConfig?: #CustomSecretConfig
 
 	// The name of the Windows domain that the FSx for Windows server belongs to.
 	Domain?: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^([A-Za-z0-9]+[A-Za-z0-9-.]*)*[A-Za-z0-9-]*[A-Za-z0-9]$"
@@ -29,7 +29,7 @@ import (
 
 	// The URL of the FSx for Windows location that was described.
 	LocationUri?:         strings.MaxRunes(4356) & =~"^(efs|nfs|s3|smb|fsxw)://[a-zA-Z0-9./\\-]+$"
-	ManagedSecretConfig?: _#defs."/$defs/Properties/definitions/ManagedSecretConfig"
+	ManagedSecretConfig?: #ManagedSecretConfig
 
 	// The password of the user who has the permissions to access files and folders
 	// in the FSx for Windows file system.
@@ -46,7 +46,7 @@ import (
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 
 	// The user who has the permissions to access files and folders in the FSx for Windows file system.
 	User!: strings.MaxRunes(104) & =~"^[^\\x5B\\x5D\\\\/:;|=,+*?]{1,104}$"
@@ -55,7 +55,7 @@ import (
 // Specifies configuration information for a DataSync-managed secret, such as an
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location, and a customer-managed AWS KMS key.
-_#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
+#CmkSecretConfig: close({
 	// Specifies the ARN for the customer-managed AWS KMS key used to encrypt the
 	// secret specified for SecretArn. DataSync provides this key to AWS Secrets
 	// Manager.
@@ -74,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location, and an IAM role that DataSync can assume and
 // access the customer-managed secret.
-_#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
+#CustomSecretConfig: close({
 	// Specifies the ARN for the AWS Identity and Access Management role that
 	// DataSync uses to access the secret specified for SecretArn.
 	SecretAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -92,14 +92,14 @@ _#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location. DataSync uses the default AWS-managed KMS key to
 // encrypt this secret in AWS Secrets Manager.
-_#defs: "/$defs/Properties/definitions/ManagedSecretConfig": close({
+#ManagedSecretConfig: close({
 	// Specifies the ARN for an AWS Secrets Manager secret.
 	SecretArn!: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for an AWS resource tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$"
 

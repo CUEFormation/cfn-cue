@@ -14,10 +14,10 @@ import "strings"
 	Name!:                          strings.MaxRunes(256) & strings.MinRunes(1)
 	PackageCleanup?:                bool
 	RebootAfterUse?:                bool
-	Tags?:                          [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                          [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

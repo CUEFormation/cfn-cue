@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -21,16 +21,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	EngineName!:             string | fn.#StringExpression
 	MajorEngineVersion!:     string | fn.#StringExpression
-	OptionConfigurations?:   [..._#defs."/$defs/Properties/definitions/OptionConfiguration"] | fn.#ListExpression
+	OptionConfigurations?:   [...#OptionConfiguration] | fn.#ListExpression
 	OptionGroupDescription!: string | fn.#StringExpression
 	OptionGroupName?:        string | fn.#StringExpression
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                   [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/OptionConfiguration": close({
+#OptionConfiguration: close({
 	DBSecurityGroupMemberships?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	OptionName!:                 string | fn.#StringExpression
-	OptionSettings?:             [..._#defs."/$defs/Properties/definitions/OptionSetting"] | fn.#ListExpression
+	OptionSettings?:             [...#OptionSetting] | fn.#ListExpression
 	OptionVersion?:              string | fn.#StringExpression
 	Port?: int |
 		{
@@ -50,13 +50,13 @@ _#defs: "/$defs/Properties/definitions/OptionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OptionSetting": close({
+#OptionSetting: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

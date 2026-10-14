@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,62 +14,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A Kendra FAQ resource
 #Properties: close({
-	Description?:  _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	FileFormat?:   _#defs."/$defs/Properties/definitions/FileFormat" | fn.#StringExpression
-	IndexId!:      _#defs."/$defs/Properties/definitions/IndexId" | fn.#StringExpression
-	LanguageCode?: _#defs."/$defs/Properties/definitions/LanguageCode"
-	Name!:         _#defs."/$defs/Properties/definitions/FaqName" | fn.#StringExpression
-	RoleArn!:      _#defs."/$defs/Properties/definitions/RoleArn" | fn.#StringExpression
-	S3Path!:       _#defs."/$defs/Properties/definitions/S3Path" | fn.#ObjectExpression
-	Tags?:         _#defs."/$defs/Properties/definitions/TagList" | fn.#ListExpression
+	Description?:  #Description | fn.#StringExpression
+	FileFormat?:   #FileFormat | fn.#StringExpression
+	IndexId!:      #IndexId | fn.#StringExpression
+	LanguageCode?: #LanguageCode
+	Name!:         #FaqName | fn.#StringExpression
+	RoleArn!:      #RoleArn | fn.#StringExpression
+	S3Path!:       #S3Path | fn.#ObjectExpression
+	Tags?:         #TagList | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\P{C}*$" |
+#Description: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\P{C}*$" | fn.#StringExpression
+
+#FaqName: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
+
+#FileFormat: "CSV" | "CSV_WITH_HEADER" | "JSON" | fn.#StringExpression
+
+#Id: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+
+#IndexId: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" | fn.#StringExpression
+
+#LanguageCode: strings.MaxRunes(10) & strings.MinRunes(2) & =~"[a-zA-Z-]*" | fn.#StringExpression
+
+#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(1)) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FaqName": strings.MaxRunes(100) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
+#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FileFormat": "CSV" | "CSV_WITH_HEADER" | "JSON" | fn.#StringExpression
+#S3ObjectKey: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/IndexId": strings.MaxRunes(36) &
-strings.MinRunes(36) &
-=~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/LanguageCode": strings.MaxRunes(10) & strings.MinRunes(2) & =~"[a-zA-Z-]*" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(1)) |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/S3BucketName": strings.MaxRunes(63) &
-strings.MinRunes(3) &
-=~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/S3ObjectKey": strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/S3Path": close({
-	Bucket!: _#defs."/$defs/Properties/definitions/S3BucketName"
-	Key!:    _#defs."/$defs/Properties/definitions/S3ObjectKey"
+#S3Path: close({
+	Bucket!: #S3BucketName
+	Key!:    #S3ObjectKey
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagList": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#TagList: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Kendra::Faq"
 	Properties!: #Properties

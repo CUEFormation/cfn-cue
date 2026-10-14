@@ -7,31 +7,31 @@ package schema
 // Resource Type definition for AWS::Backup::BackupSelection
 #Properties: close({
 	BackupPlanId!:    string
-	BackupSelection!: _#defs."/$defs/Properties/definitions/BackupSelectionResourceType"
+	BackupSelection!: #BackupSelectionResourceType
 	Id?:              string
 	SelectionId?:     string
 })
 
-_#defs: "/$defs/Properties/definitions/BackupSelectionResourceType": close({
+#BackupSelectionResourceType: close({
 	Conditions?: close({
-		StringEquals?:    [..._#defs."/$defs/Properties/definitions/ConditionParameter"]
-		StringLike?:      [..._#defs."/$defs/Properties/definitions/ConditionParameter"]
-		StringNotEquals?: [..._#defs."/$defs/Properties/definitions/ConditionParameter"]
-		StringNotLike?:   [..._#defs."/$defs/Properties/definitions/ConditionParameter"]
+		StringEquals?:    [...#ConditionParameter]
+		StringLike?:      [...#ConditionParameter]
+		StringNotEquals?: [...#ConditionParameter]
+		StringNotLike?:   [...#ConditionParameter]
 	})
 	IamRoleArn!:    =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	ListOfTags?:    [..._#defs."/$defs/Properties/definitions/ConditionResourceType"]
+	ListOfTags?:    [...#ConditionResourceType]
 	NotResources?:  [...string]
 	Resources?:     [...string]
 	SelectionName!: =~"^[a-zA-Z0-9\\-\\_\\.\\:]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/ConditionParameter": close({
+#ConditionParameter: close({
 	ConditionKey?:   string
 	ConditionValue?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ConditionResourceType": close({
+#ConditionResourceType: close({
 	ConditionKey!:   string
 	ConditionType!:  =~"(?i)^(?:stringequals)$"
 	ConditionValue!: string

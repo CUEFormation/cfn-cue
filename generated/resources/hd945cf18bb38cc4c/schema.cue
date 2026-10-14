@@ -16,13 +16,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	BackupId?:             string | fn.#StringExpression
 	Name!:                 string | fn.#StringExpression
-	OntapConfiguration?:   _#defs."/$defs/Properties/definitions/OntapConfiguration"
-	OpenZFSConfiguration?: _#defs."/$defs/Properties/definitions/OpenZFSConfiguration"
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	OntapConfiguration?:   #OntapConfiguration
+	OpenZFSConfiguration?: #OpenZFSConfiguration
+	Tags?:                 [...#Tag] | fn.#ListExpression
 	VolumeType?:           string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AggregateConfiguration": close({
+#AggregateConfiguration: close({
 	Aggregates?: [...string | fn.#StringExpression] | fn.#ListExpression
 	ConstituentsPerAggregate?: int |
 		{
@@ -41,7 +41,7 @@ _#defs: "/$defs/Properties/definitions/AggregateConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutocommitPeriod": close({
+#AutocommitPeriod: close({
 	Type!: string | fn.#StringExpression
 	Value?: int |
 		{
@@ -60,40 +60,37 @@ _#defs: "/$defs/Properties/definitions/AutocommitPeriod": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientConfigurations": close({
+#ClientConfigurations: close({
 	Clients!: string | fn.#StringExpression
 	Options!: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NfsExports": close(
-	{ClientConfigurations!: [..._#defs."/$defs/Properties/definitions/ClientConfigurations"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#NfsExports: close({ClientConfigurations!: [...#ClientConfigurations] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OntapConfiguration": close({
-	AggregateConfiguration?:   _#defs."/$defs/Properties/definitions/AggregateConfiguration"
+#OntapConfiguration: close({
+	AggregateConfiguration?:   #AggregateConfiguration
 	CopyTagsToBackups?:        string | fn.#StringExpression
 	JunctionPath?:             string | fn.#StringExpression
 	OntapVolumeType?:          string | fn.#StringExpression
 	SecurityStyle?:            string | fn.#StringExpression
 	SizeInBytes?:              string | fn.#StringExpression
 	SizeInMegabytes?:          string | fn.#StringExpression
-	SnaplockConfiguration?:    _#defs."/$defs/Properties/definitions/SnaplockConfiguration"
+	SnaplockConfiguration?:    #SnaplockConfiguration
 	SnapshotPolicy?:           string | fn.#StringExpression
 	StorageEfficiencyEnabled?: string | fn.#StringExpression
 	StorageVirtualMachineId!:  string | fn.#StringExpression
-	TieringPolicy?:            _#defs."/$defs/Properties/definitions/TieringPolicy"
+	TieringPolicy?:            #TieringPolicy
 	VolumeStyle?:              string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenZFSConfiguration": close({
+#OpenZFSConfiguration: close({
 	CopyTagsToSnapshots?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DataCompressionType?: string | fn.#StringExpression
-	NfsExports?:          [..._#defs."/$defs/Properties/definitions/NfsExports"] | fn.#ListExpression
+	NfsExports?:          [...#NfsExports] | fn.#ListExpression
 	Options?:             [...string | fn.#StringExpression] | fn.#ListExpression
-	OriginSnapshot?:      _#defs."/$defs/Properties/definitions/OriginSnapshot"
+	OriginSnapshot?:      #OriginSnapshot
 	ParentVolumeId!:      string | fn.#StringExpression
 	ReadOnly?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RecordSizeKiB?: int |
@@ -138,17 +135,17 @@ _#defs: "/$defs/Properties/definitions/OpenZFSConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	UserAndGroupQuotas?: [..._#defs."/$defs/Properties/definitions/UserAndGroupQuotas"] | fn.#ListExpression
+	UserAndGroupQuotas?: [...#UserAndGroupQuotas] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginSnapshot": close({
+#OriginSnapshot: close({
 	CopyStrategy!: string | fn.#StringExpression
 	SnapshotARN!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
+#RetentionPeriod: close({
 	Type!: string | fn.#StringExpression
 	Value?: int |
 		{
@@ -167,30 +164,30 @@ _#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnaplockConfiguration": close({
+#SnaplockConfiguration: close({
 	AuditLogVolume?:          string | fn.#StringExpression
-	AutocommitPeriod?:        _#defs."/$defs/Properties/definitions/AutocommitPeriod"
+	AutocommitPeriod?:        #AutocommitPeriod
 	PrivilegedDelete?:        string | fn.#StringExpression
-	RetentionPeriod?:         _#defs."/$defs/Properties/definitions/SnaplockRetentionPeriod"
+	RetentionPeriod?:         #SnaplockRetentionPeriod
 	SnaplockType!:            string | fn.#StringExpression
 	VolumeAppendModeEnabled?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnaplockRetentionPeriod": close({
-	DefaultRetention!: _#defs."/$defs/Properties/definitions/RetentionPeriod"
-	MaximumRetention!: _#defs."/$defs/Properties/definitions/RetentionPeriod"
-	MinimumRetention!: _#defs."/$defs/Properties/definitions/RetentionPeriod"
+#SnaplockRetentionPeriod: close({
+	DefaultRetention!: #RetentionPeriod
+	MaximumRetention!: #RetentionPeriod
+	MinimumRetention!: #RetentionPeriod
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TieringPolicy": close({
+#TieringPolicy: close({
 	CoolingPeriod?: int |
 		{
 			string &
@@ -209,7 +206,7 @@ _#defs: "/$defs/Properties/definitions/TieringPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserAndGroupQuotas": close({
+#UserAndGroupQuotas: close({
 	Id!: int |
 		{
 			string &

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,22 +15,22 @@ import (
 	ControlIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$"
 
 	// Parameters to configure the enabled control behavior.
-	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EnabledControlParameter"]
+	Parameters?: list.MinItems(1) & [...#EnabledControlParameter]
 
 	// A set of tags to assign to the enabled control.
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 
 	// Arn for Organizational unit to which the control needs to be applied
 	TargetIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/EnabledControlParameter": close({
+#EnabledControlParameter: close({
 	Key!:   string
 	Value!: bool | number | string | list.MinItems(1) & [...bool | number | string | {...}] | {...}
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)

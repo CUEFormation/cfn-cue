@@ -24,11 +24,11 @@ package schema
 	ReplicationInstancePublicIpAddresses?:  string
 	ReplicationSubnetGroupIdentifier?:      string
 	ResourceIdentifier?:                    string
-	Tags?:                                  [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                                  [...#Tag]
 	VpcSecurityGroupIds?:                   [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

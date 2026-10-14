@@ -79,7 +79,7 @@ import (
 
 	// The AWS Identity and Access Management (IAM) service roles associated with
 	// the Autonomous VM cluster.
-	IamRoles?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/IamRole"]
+	IamRoles?: list.UniqueItems() & [...#IamRole]
 
 	// Indicates whether mutual TLS (mTLS) authentication is enabled for the Autonomous VM cluster.
 	IsMtlsEnabledVmCluster?: bool
@@ -90,7 +90,7 @@ import (
 
 	// The scheduling details for the maintenance window. Patching and system
 	// updates take place during the maintenance window.
-	MaintenanceWindow?: _#defs."/$defs/Properties/definitions/MaintenanceWindow"
+	MaintenanceWindow?: #MaintenanceWindow
 
 	// The minimum value to which you can scale down the maximum number of Autonomous CDBs.
 	MaxAcdsLowestScaledValue?: int
@@ -147,7 +147,7 @@ import (
 	Shape?: string
 
 	// The tags associated with the Autonomous VM cluster.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The time zone of the Autonomous VM cluster.
 	TimeZone?: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -159,7 +159,7 @@ import (
 
 // An AWS Identity and Access Management (IAM) service role associated with the
 // Autonomous VM cluster.
-_#defs: "/$defs/Properties/definitions/IamRole": close({
+#IamRole: close({
 	// The AWS integration configuration settings for the AWS Identity and Access
 	// Management (IAM) service role.
 	AwsIntegration?: string
@@ -173,7 +173,7 @@ _#defs: "/$defs/Properties/definitions/IamRole": close({
 
 // The scheduling details for the maintenance window. Patching and system
 // updates take place during the maintenance window.
-_#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
+#MaintenanceWindow: close({
 	// The days of the week when maintenance can be performed.
 	DaysOfWeek?: [..."MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY"]
 
@@ -207,7 +207,7 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that's 1 to 128 Unicode
 	// characters in length and can't be prefixed with aws:. You can use any of the
 	// following characters: the set of Unicode letters, digits, whitespace, _, .,

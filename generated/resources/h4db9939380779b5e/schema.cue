@@ -15,58 +15,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // a collection of branches.
 #Properties: close({
 	AccessToken?:              strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^(?s).+$" | fn.#StringExpression
-	AutoBranchCreationConfig?: _#defs."/$defs/Properties/definitions/AutoBranchCreationConfig"
-	BasicAuthConfig?:          _#defs."/$defs/Properties/definitions/BasicAuthConfig"
+	AutoBranchCreationConfig?: #AutoBranchCreationConfig
+	BasicAuthConfig?:          #BasicAuthConfig
 	BuildSpec?:                strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
-	CacheConfig?:              _#defs."/$defs/Properties/definitions/CacheConfig"
+	CacheConfig?:              #CacheConfig
 	ComputeRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(1000) &
 	strings.MinRunes(0) &
 	=~"(?s).*" |
 	fn.#StringExpression
 	CustomHeaders?:            strings.MaxRunes(25000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
-	CustomRules?:              [..._#defs."/$defs/Properties/definitions/CustomRule"] | fn.#ListExpression
+	CustomRules?:              [...#CustomRule] | fn.#ListExpression
 	Description?:              strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
 	EnableBranchAutoDeletion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnvironmentVariables?:     [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"] | fn.#ListExpression
+	EnvironmentVariables?:     [...#EnvironmentVariable] | fn.#ListExpression
 	IAMServiceRole?:           strings.MaxRunes(1000) & strings.MinRunes(1) & =~"(?s).*" | fn.#StringExpression
-	JobConfig?:                _#defs."/$defs/Properties/definitions/JobConfig"
+	JobConfig?:                #JobConfig
 	Name!:                     strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
 	OauthToken?:               strings.MaxRunes(4096) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
 	Platform?:                 "WEB" | "WEB_DYNAMIC" | "WEB_COMPUTE" | fn.#StringExpression
 	Repository?:               strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
-	Tags?:                     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                     [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AutoBranchCreationConfig": close({
+#AutoBranchCreationConfig: close({
 	AutoBranchCreationPatterns?: [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
-	BasicAuthConfig?:            _#defs."/$defs/Properties/definitions/BasicAuthConfig"
+	BasicAuthConfig?:            #BasicAuthConfig
 	BuildSpec?:                  strings.MaxRunes(25000) & strings.MinRunes(1) & =~"^(?s).+$" | fn.#StringExpression
 	EnableAutoBranchCreation?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableAutoBuild?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnablePerformanceMode?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnablePullRequestPreview?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnvironmentVariables?:       [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"] | fn.#ListExpression
+	EnvironmentVariables?:       [...#EnvironmentVariable] | fn.#ListExpression
 	Framework?:                  strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
 	PullRequestEnvironmentName?: strings.MaxRunes(20) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
 	Stage?: "EXPERIMENTAL" | "BETA" | "PULL_REQUEST" | "PRODUCTION" | "DEVELOPMENT" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BasicAuthConfig": close({
+#BasicAuthConfig: close({
 	EnableBasicAuth?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Password?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Username?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CacheConfig": close(
-	{Type?: "AMPLIFY_MANAGED" | "AMPLIFY_MANAGED_NO_COOKIES" | fn.#StringExpression},
-) |
+#CacheConfig: close({Type?: "AMPLIFY_MANAGED" | "AMPLIFY_MANAGED_NO_COOKIES" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomRule": close({
+#CustomRule: close({
 	Condition?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
 	Source!:    strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
 	Status?:    strings.MaxRunes(7) & strings.MinRunes(3) & =~".{3,7}" | fn.#StringExpression
@@ -74,18 +72,16 @@ _#defs: "/$defs/Properties/definitions/CustomRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Name!:  strings.MaxRunes(255) & =~"(?s).*" | fn.#StringExpression
 	Value!: strings.MaxRunes(5500) & =~"(?s).*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobConfig": close(
-	{BuildComputeType!: "STANDARD_8GB" | "LARGE_16GB" | "XLARGE_72GB" | fn.#StringExpression},
-) |
+#JobConfig: close({BuildComputeType!: "STANDARD_8GB" | "LARGE_16GB" | "XLARGE_72GB" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

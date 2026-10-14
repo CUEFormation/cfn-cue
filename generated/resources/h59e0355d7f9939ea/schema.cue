@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Integration from a source AWS service to a Redshift cluster
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
+	AdditionalEncryptionContext?: #EncryptionContextMap
 	IntegrationName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
 	fn.#StringExpression
 	KMSKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -24,28 +24,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-z\\-]*:(s3|dynamodb):.*:.*:[a-zA-Z0-9._\\-\\/]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	TargetArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:redshift(-serverless)?:[a-z0-9\\-]+:[0-9]{12}:(namespace\\/|namespace:)[a-z0-9\\-]+$" |
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
+#EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Redshift::Integration"
 	Properties!: #Properties

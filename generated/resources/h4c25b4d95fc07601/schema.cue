@@ -24,10 +24,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DBSubnetGroupName?:          string | fn.#StringExpression
 	PreferredMaintenanceWindow?: string | fn.#StringExpression
 	PubliclyAccessible?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                       list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

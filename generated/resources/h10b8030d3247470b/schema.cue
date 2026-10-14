@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // recommendations.
 #Properties: close({
 	Content!:     fn.#Object & {...} | fn.#ObjectExpression
-	ContextType!: _#defs."/$defs/Properties/definitions/ContextType"
+	ContextType!: #ContextType
 	ProfileArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws([a-z0-9-]+)?:wellarchitected:[a-z0-9-]{6,64}:[0-9]{12}:agent-profile/[a-zA-Z0-9_-]+$" |
@@ -25,15 +25,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Title!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\P{C}]+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationType": "SAS" | "DESKTOP_APPLICATION" | "OTHER" | fn.#StringExpression
+#ApplicationType: "SAS" | "DESKTOP_APPLICATION" | "OTHER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ContextType": "APPLICATION" | fn.#StringExpression
+#ContextType: "APPLICATION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Criticality": "MISSION_CRITICAL" |
-	"BUSINESS_CRITICAL" |
-	"NON_CRITICAL" |
-	"TEST_DEVELOPMENT" |
-	fn.#StringExpression
+#Criticality: "MISSION_CRITICAL" | "BUSINESS_CRITICAL" | "NON_CRITICAL" | "TEST_DEVELOPMENT" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::WellArchitected::AgentContext"
 	Properties!: #Properties

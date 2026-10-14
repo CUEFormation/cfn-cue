@@ -7,11 +7,11 @@ package schema
 // Resource Type definition for AWS::IoTThingsGraph::FlowTemplate
 #Properties: close({
 	CompatibleNamespaceVersion?: number
-	Definition!:                 _#defs."/$defs/Properties/definitions/DefinitionDocument"
+	Definition!:                 #DefinitionDocument
 	Id?:                         string
 })
 
-_#defs: "/$defs/Properties/definitions/DefinitionDocument": close({
+#DefinitionDocument: close({
 	Language!: string
 	Text!:     string
 })

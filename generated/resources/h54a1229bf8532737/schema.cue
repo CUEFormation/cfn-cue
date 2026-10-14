@@ -18,19 +18,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The `AWS::Redshift::ScheduledAction` resource creates an Amazon Redshift Scheduled Action.
 #Properties: close({
 	Enable?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EndTime?:                    _#defs."/$defs/Properties/definitions/timestamp" | fn.#StringExpression
+	EndTime?:                    #timestamp | fn.#StringExpression
 	IamRole?:                    strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 	Schedule?:                   strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 	ScheduledActionDescription?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 	ScheduledActionName!:        strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	StartTime?:                  _#defs."/$defs/Properties/definitions/timestamp" | fn.#StringExpression
-	TargetAction?:               _#defs."/$defs/Properties/definitions/ScheduledActionType" | fn.#ObjectExpression
+	StartTime?:                  #timestamp | fn.#StringExpression
+	TargetAction?:               #ScheduledActionType | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/PauseClusterMessage": close({ClusterIdentifier!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#PauseClusterMessage: close({ClusterIdentifier!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResizeClusterMessage": close({
+#ResizeClusterMessage: close({
 	Classic?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ClusterIdentifier!: string | fn.#StringExpression
 	ClusterType?:       string | fn.#StringExpression
@@ -52,19 +51,18 @@ _#defs: "/$defs/Properties/definitions/ResizeClusterMessage": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResumeClusterMessage": close({ClusterIdentifier!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#ResumeClusterMessage: close({ClusterIdentifier!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduledActionType": fn.#Object & {...} & matchN(1, [close(
-	{ResizeCluster?: _#defs."/$defs/Properties/definitions/ResizeClusterMessage"},
+#ScheduledActionType: fn.#Object & {...} & matchN(1, [close(
+	{ResizeCluster?: #ResizeClusterMessage},
 ), close(
-	{PauseCluster?: _#defs."/$defs/Properties/definitions/PauseClusterMessage"},
+	{PauseCluster?: #PauseClusterMessage},
 ), close(
-	{ResumeCluster?: _#defs."/$defs/Properties/definitions/ResumeClusterMessage"},
+	{ResumeCluster?: #ResumeClusterMessage},
 )]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/timestamp": string | fn.#StringExpression
+#timestamp: string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Redshift::ScheduledAction"
 	Properties!: #Properties

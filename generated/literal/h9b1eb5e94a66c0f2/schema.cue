@@ -15,16 +15,16 @@ import "list"
 	Id?: string
 
 	// The network service that is associated with the traffic mirror filter.
-	NetworkServices?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TrafficMirrorNetworkService"]
+	NetworkServices?: list.UniqueItems() & [...#TrafficMirrorNetworkService]
 
 	// The tags for a traffic mirror filter.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
 // The network service traffic that is associated with the traffic mirror filter.
-_#defs: "/$defs/Properties/definitions/TrafficMirrorNetworkService": "amazon-dns"
+#TrafficMirrorNetworkService: "amazon-dns"

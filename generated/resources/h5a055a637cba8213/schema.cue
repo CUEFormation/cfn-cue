@@ -14,8 +14,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Amazon OpenSearchService application resource
 #Properties: close({
-	AppConfigs?:  [..._#defs."/$defs/Properties/definitions/AppConfig"] | fn.#ListExpression
-	DataSources?: [..._#defs."/$defs/Properties/definitions/DataSource"] | fn.#ListExpression
+	AppConfigs?:  [...#AppConfig] | fn.#ListExpression
+	DataSources?: [...#DataSource] | fn.#ListExpression
 	Endpoint?:    string | fn.#StringExpression
 	IamIdentityCenterOptions?: close({
 		Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -30,26 +30,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^arn:aws(-[a-z]+)*:kms:[a-z0-9-]+:\\d{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(40) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AppConfig": close({
-	Key!:   _#defs."/$defs/Properties/definitions/AppConfigType" | fn.#StringExpression
+#AppConfig: close({
+	Key!:   #AppConfigType | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AppConfigType": "opensearchDashboards.dashboardAdmin.users" |
+#AppConfigType: "opensearchDashboards.dashboardAdmin.users" |
 	"opensearchDashboards.dashboardAdmin.groups" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataSource": close({
+#DataSource: close({
 	DataSourceArn!:         _#defs."/$defs/Properties/definitions/_PropertyRefb91010e65b1f7292" | fn.#StringExpression
 	DataSourceDescription?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

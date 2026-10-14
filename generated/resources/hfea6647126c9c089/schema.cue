@@ -13,18 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::IoT::TopicRuleDestination
 #Properties: close({
-	HttpUrlProperties?:  _#defs."/$defs/Properties/definitions/HttpUrlDestinationSummary" | fn.#ObjectExpression
-	InfluxDBProperties?: _#defs."/$defs/Properties/definitions/InfluxDBDestinationProperties" | fn.#ObjectExpression
-	Status?:             _#defs."/$defs/Properties/definitions/TopicRuleDestinationStatus" | fn.#StringExpression
-	VpcProperties?:      _#defs."/$defs/Properties/definitions/VpcDestinationProperties" | fn.#ObjectExpression
+	HttpUrlProperties?:  #HttpUrlDestinationSummary | fn.#ObjectExpression
+	InfluxDBProperties?: #InfluxDBDestinationProperties | fn.#ObjectExpression
+	Status?:             #TopicRuleDestinationStatus | fn.#StringExpression
+	VpcProperties?:      #VpcDestinationProperties | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/HttpUrlDestinationSummary": close(
-	{ConfirmationUrl?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#HttpUrlDestinationSummary: close({ConfirmationUrl?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InfluxDBDestinationProperties": close({
+#InfluxDBDestinationProperties: close({
 	Endpoint!:        string | fn.#StringExpression
 	InfluxDBVersion!: string | fn.#StringExpression
 	SecretId!:        string | fn.#StringExpression
@@ -33,12 +30,9 @@ _#defs: "/$defs/Properties/definitions/InfluxDBDestinationProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TopicRuleDestinationStatus": "ENABLED" |
-	"IN_PROGRESS" |
-	"DISABLED" |
-	fn.#StringExpression
+#TopicRuleDestinationStatus: "ENABLED" | "IN_PROGRESS" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VpcDestinationProperties": close({
+#VpcDestinationProperties: close({
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	SecurityGroups?: list.UniqueItems() & [

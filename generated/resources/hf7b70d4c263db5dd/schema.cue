@@ -14,15 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::SES::ConfigurationSetEventDestination
 #Properties: close({
 	ConfigurationSetName!: string | fn.#StringExpression
-	EventDestination!:     _#defs."/$defs/Properties/definitions/EventDestination" | fn.#ObjectExpression
+	EventDestination!:     #EventDestination | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchDestination": close(
-	{DimensionConfigurations?: [..._#defs."/$defs/Properties/definitions/DimensionConfiguration"] | fn.#ListExpression},
-) |
+#CloudWatchDestination: close({DimensionConfigurations?: [...#DimensionConfiguration] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DimensionConfiguration": close({
+#DimensionConfiguration: close({
 	DefaultDimensionValue!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,256}$" |
 	fn.#StringExpression
 	DimensionName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
@@ -36,7 +34,7 @@ _#defs: "/$defs/Properties/definitions/DimensionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventBridgeDestination": close({
+#EventBridgeDestination: close({
 	EventBusArn!: strings.MaxRunes(1024) &
 	strings.MinRunes(36) &
 	=~"^arn:aws[a-z0-9-]*:events:[a-z0-9-]+:\\d{12}:event-bus/[^:]+$" |
@@ -44,26 +42,25 @@ _#defs: "/$defs/Properties/definitions/EventBridgeDestination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventDestination": close({
-	CloudWatchDestination?:  _#defs."/$defs/Properties/definitions/CloudWatchDestination" | fn.#ObjectExpression
-	Enabled?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EventBridgeDestination?: _#defs."/$defs/Properties/definitions/EventBridgeDestination" | fn.#ObjectExpression
-	KinesisFirehoseDestination?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestination" |
-		fn.#ObjectExpression
-	MatchingEventTypes!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Name?:               =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
-	SnsDestination?:     _#defs."/$defs/Properties/definitions/SnsDestination" | fn.#ObjectExpression
+#EventDestination: close({
+	CloudWatchDestination?:      #CloudWatchDestination | fn.#ObjectExpression
+	Enabled?:                    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EventBridgeDestination?:     #EventBridgeDestination | fn.#ObjectExpression
+	KinesisFirehoseDestination?: #KinesisFirehoseDestination | fn.#ObjectExpression
+	MatchingEventTypes!:         [...string | fn.#StringExpression] | fn.#ListExpression
+	Name?:                       =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
+	SnsDestination?:             #SnsDestination | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
+#KinesisFirehoseDestination: close({
 	DeliveryStreamARN!: string | fn.#StringExpression
 	IAMRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnsDestination": close({
+#SnsDestination: close({
 	TopicARN!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(1024) &
 	strings.MinRunes(36) &

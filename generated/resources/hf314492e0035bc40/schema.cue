@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -20,16 +20,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ConfigurationValues?: strings.MinRunes(1) | fn.#StringExpression
 	NamespaceConfig?: close({Namespace!: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression}) |
 	fn.#ObjectExpression
-	PodIdentityAssociations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PodIdentityAssociation"] |
-		fn.#ListExpression
-	PreserveOnDelete?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResolveConflicts?: ("NONE" | "OVERWRITE" | "PRESERVE") & strings.MinRunes(1) | fn.#StringExpression
+	PodIdentityAssociations?: list.UniqueItems() & [...#PodIdentityAssociation] | fn.#ListExpression
+	PreserveOnDelete?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ResolveConflicts?:        ("NONE" | "OVERWRITE" | "PRESERVE") & strings.MinRunes(1) | fn.#StringExpression
 	ServiceAccountRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/PodIdentityAssociation": close({
+#PodIdentityAssociation: close({
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:(role)\\/*" |
 		fn.#StringExpression
@@ -37,7 +36,7 @@ _#defs: "/$defs/Properties/definitions/PodIdentityAssociation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |

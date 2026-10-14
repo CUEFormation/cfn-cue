@@ -99,10 +99,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
 	fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?: #TagMap
 })
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,14 +17,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::EMR::InstanceFleetConfig
 #Properties: close({
-	ClusterId!:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	InstanceFleetType!:   string | fn.#StringExpression
-	InstanceTypeConfigs?: [..._#defs."/$defs/Properties/definitions/InstanceTypeConfig"] | fn.#ListExpression
-	LaunchSpecifications?: _#defs."/$defs/Properties/definitions/InstanceFleetProvisioningSpecifications" |
-		fn.#ObjectExpression
-	Name?: string | fn.#StringExpression
-	ResizeSpecifications?: _#defs."/$defs/Properties/definitions/InstanceFleetResizingSpecifications" |
-		fn.#ObjectExpression
+	ClusterId!:            strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	InstanceFleetType!:    string | fn.#StringExpression
+	InstanceTypeConfigs?:  [...#InstanceTypeConfig] | fn.#ListExpression
+	LaunchSpecifications?: #InstanceFleetProvisioningSpecifications | fn.#ObjectExpression
+	Name?:                 string | fn.#StringExpression
+	ResizeSpecifications?: #InstanceFleetResizingSpecifications | fn.#ObjectExpression
 	TargetOnDemandCapacity?: int |
 		{
 			string &
@@ -55,18 +53,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationConfiguration": close({
+#ApplicationConfiguration: close({
 	Classification?: string | fn.#StringExpression
 	ConfigurationProperties?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Configurations?: [..._#defs."/$defs/Properties/definitions/ApplicationConfiguration"] | fn.#ListExpression
+	Configurations?: [...#ApplicationConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
-	VolumeSpecification!: _#defs."/$defs/Properties/definitions/VolumeSpecification" | fn.#ObjectExpression
+#EbsBlockDeviceConfig: close({
+	VolumeSpecification!: #VolumeSpecification | fn.#ObjectExpression
 	VolumesPerInstance?: int |
 		{
 			string &
@@ -84,27 +82,25 @@ _#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsConfiguration": close({
-	EbsBlockDeviceConfigs?: [..._#defs."/$defs/Properties/definitions/EbsBlockDeviceConfig"] | fn.#ListExpression
+#EbsConfiguration: close({
+	EbsBlockDeviceConfigs?: [...#EbsBlockDeviceConfig] | fn.#ListExpression
 	EbsOptimized?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceFleetProvisioningSpecifications": close({
-	OnDemandSpecification?: _#defs."/$defs/Properties/definitions/OnDemandProvisioningSpecification" |
-		fn.#ObjectExpression
-	SpotSpecification?: _#defs."/$defs/Properties/definitions/SpotProvisioningSpecification" | fn.#ObjectExpression
+#InstanceFleetProvisioningSpecifications: close({
+	OnDemandSpecification?: #OnDemandProvisioningSpecification | fn.#ObjectExpression
+	SpotSpecification?:     #SpotProvisioningSpecification | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceFleetResizingSpecifications": close({
-	OnDemandResizeSpecification?: _#defs."/$defs/Properties/definitions/OnDemandResizingSpecification" |
-		fn.#ObjectExpression
-	SpotResizeSpecification?: _#defs."/$defs/Properties/definitions/SpotResizingSpecification" | fn.#ObjectExpression
+#InstanceFleetResizingSpecifications: close({
+	OnDemandResizeSpecification?: #OnDemandResizingSpecification | fn.#ObjectExpression
+	SpotResizeSpecification?:     #SpotResizingSpecification | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceTypeConfig": close({
+#InstanceTypeConfig: close({
 	BidPrice?: string | fn.#StringExpression
 	BidPriceAsPercentageOfOnDemandPrice?: number |
 		{
@@ -125,9 +121,9 @@ _#defs: "/$defs/Properties/definitions/InstanceTypeConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	Configurations?:   [..._#defs."/$defs/Properties/definitions/ApplicationConfiguration"] | fn.#ListExpression
+	Configurations?:   [...#ApplicationConfiguration] | fn.#ListExpression
 	CustomAmiId?:      string | fn.#StringExpression
-	EbsConfiguration?: _#defs."/$defs/Properties/definitions/EbsConfiguration" | fn.#ObjectExpression
+	EbsConfiguration?: #EbsConfiguration | fn.#ObjectExpression
 	InstanceType!:     string | fn.#StringExpression
 	Priority?: number |
 		{
@@ -165,23 +161,22 @@ _#defs: "/$defs/Properties/definitions/InstanceTypeConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnDemandCapacityReservationOptions": close({
+#OnDemandCapacityReservationOptions: close({
 	CapacityReservationPreference?:       string | fn.#StringExpression
 	CapacityReservationResourceGroupArn?: string | fn.#StringExpression
 	UsageStrategy?:                       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnDemandProvisioningSpecification": close({
+#OnDemandProvisioningSpecification: close({
 	AllocationStrategy!:         string | fn.#StringExpression
-	CapacityReservationOptions?: _#defs."/$defs/Properties/definitions/OnDemandCapacityReservationOptions"
+	CapacityReservationOptions?: #OnDemandCapacityReservationOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnDemandResizingSpecification": close({
-	AllocationStrategy?: string | fn.#StringExpression
-	CapacityReservationOptions?: _#defs."/$defs/Properties/definitions/OnDemandCapacityReservationOptions" |
-		fn.#ObjectExpression
+#OnDemandResizingSpecification: close({
+	AllocationStrategy?:         string | fn.#StringExpression
+	CapacityReservationOptions?: #OnDemandCapacityReservationOptions | fn.#ObjectExpression
 	TimeoutDurationMinutes?: int |
 		{
 			string &
@@ -199,7 +194,7 @@ _#defs: "/$defs/Properties/definitions/OnDemandResizingSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpotProvisioningSpecification": close({
+#SpotProvisioningSpecification: close({
 	AllocationStrategy?: string | fn.#StringExpression
 	BlockDurationMinutes?: int |
 		{
@@ -233,7 +228,7 @@ _#defs: "/$defs/Properties/definitions/SpotProvisioningSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpotResizingSpecification": close({
+#SpotResizingSpecification: close({
 	AllocationStrategy?: string | fn.#StringExpression
 	TimeoutDurationMinutes?: int |
 		{
@@ -252,7 +247,7 @@ _#defs: "/$defs/Properties/definitions/SpotResizingSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VolumeSpecification": close({
+#VolumeSpecification: close({
 	Iops?: int |
 		{
 			string &

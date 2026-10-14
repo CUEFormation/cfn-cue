@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -18,15 +18,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	BucketAccountId?: strings.MaxRunes(64) & =~"^\\d{12}$" | fn.#StringExpression
 	Name?:   strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
 	Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	PublicAccessBlockConfiguration?: _#defs."/$defs/Properties/definitions/PublicAccessBlockConfiguration" |
-		fn.#ObjectExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
+	PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration | fn.#ObjectExpression
+	Tags?:                           [...#Tag] | fn.#ListExpression
+	VpcConfiguration?:               #VpcConfiguration | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
+#Arn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": {
+#PublicAccessBlockConfiguration: {
 	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -34,13 +33,13 @@ _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": {
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": {
+#VpcConfiguration: {
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
 	fn.#StringExpression
 	...

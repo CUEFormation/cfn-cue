@@ -17,18 +17,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(600) & strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression
 	Name!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\s\\x00]( *[^\\s\\x00])*$" | fn.#StringExpression
-	ScopeTags?:   _#defs."/$defs/Properties/definitions/ScopeTagsMap" | fn.#ObjectExpression
-	SourceConfigurations!: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/SourceConfiguration"] |
-		fn.#ListExpression
-	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ScopeTags?:   #ScopeTagsMap | fn.#ObjectExpression
+	SourceConfigurations!:  list.MaxItems(2) & [...] & [...#SourceConfiguration] | fn.#ListExpression
+	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	TargetDeployment?:      "SINGLE_ACCOUNT" | "MULTI_ACCOUNT" | fn.#StringExpression
-	TargetNetwork!:         _#defs."/$defs/Properties/definitions/TargetNetwork" | fn.#ObjectExpression
-	TargetS3Configuration!: _#defs."/$defs/Properties/definitions/TargetS3Configuration" | fn.#ObjectExpression
+	TargetNetwork!:         #TargetNetwork | fn.#ObjectExpression
+	TargetS3Configuration!: #TargetS3Configuration | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ScopeTagsMap": struct.MaxFields(40) & {...} | fn.#ObjectExpression
+#ScopeTagsMap: struct.MaxFields(40) & {...} | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceConfiguration": close({
+#SourceConfiguration: close({
 	SourceEnvironment!: "NSX" |
 		"VSPHERE" |
 		"FORTIGATE_FIREWALL" |
@@ -37,24 +36,24 @@ _#defs: "/$defs/Properties/definitions/SourceConfiguration": close({
 		"LOGICAL_MODEL" |
 		"MODELIZE_IT" |
 		fn.#StringExpression
-	SourceS3Configuration!: _#defs."/$defs/Properties/definitions/SourceS3Configuration"
+	SourceS3Configuration!: #SourceS3Configuration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceS3Configuration": close({
+#SourceS3Configuration: close({
 	S3Bucket!:      =~"^[a-zA-Z0-9.\\-_]{1,255}$" | fn.#StringExpression
 	S3BucketOwner!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12,}" | fn.#StringExpression
 	S3Key!:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetNetwork": close({
+#TargetNetwork: close({
 	InboundCidr?: strings.MaxRunes(18) &
 	strings.MinRunes(9) &
 	=~"^((25[0-4]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])/(1[6-9]|2[0-8])$" |
@@ -71,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/TargetNetwork": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetS3Configuration": close({
+#TargetS3Configuration: close({
 	S3Bucket!:      =~"^[a-zA-Z0-9.\\-_]{1,255}$" | fn.#StringExpression
 	S3BucketOwner!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12,}" | fn.#StringExpression
 }) |

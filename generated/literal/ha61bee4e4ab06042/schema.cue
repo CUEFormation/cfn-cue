@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"list"
 	"struct"
 )
@@ -16,162 +16,154 @@ import (
 	CreationTime?:    time.Time
 	Description?:     strings.MaxRunes(1000) & strings.MinRunes(0)
 	LastUpdateTime?:  time.Time
-	LatestVersion?:   _#defs."/$defs/Properties/definitions/TestCaseLatestVersion"
+	LatestVersion?:   #TestCaseLatestVersion
 	Name!:            =~"^[A-Za-z][A-Za-z0-9_\\-]{1,59}$"
-	Status?:          _#defs."/$defs/Properties/definitions/TestCaseLifecycle"
-	Steps!:           list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Step"]
-	Tags?:            _#defs."/$defs/Properties/definitions/TagMap"
+	Status?:          #TestCaseLifecycle
+	Steps!:           list.MaxItems(20) & list.MinItems(1) & [...#Step]
+	Tags?:            #TagMap
 	TestCaseArn?:     string
 	TestCaseId?:      =~"^[A-Za-z0-9:/\\-]{1,100}$"
 	TestCaseVersion?: number
 })
 
-_#defs: "/$defs/Properties/definitions/Batch": close({
+#Batch: close({
 	BatchJobName!:       =~"^\\S{1,1000}$"
-	BatchJobParameters?: _#defs."/$defs/Properties/definitions/BatchJobParameters"
+	BatchJobParameters?: #BatchJobParameters
 	ExportDataSetNames?: [...=~"^\\S{1,100}$"]
 })
 
-_#defs: "/$defs/Properties/definitions/BatchJobParameters": close({
+#BatchJobParameters: close({
 
 	{[=~".+"]: string}})
 
-_#defs: "/$defs/Properties/definitions/CaptureTool": "Precisely" | "AWS DMS"
+#CaptureTool: "Precisely" | "AWS DMS"
 
-_#defs: "/$defs/Properties/definitions/CloudFormationAction": close({
-	ActionType?: _#defs."/$defs/Properties/definitions/CloudFormationActionType"
+#CloudFormationAction: close({
+	ActionType?: #CloudFormationActionType
 	Resource!:   =~"^\\S{1,1000}$"
 })
 
-_#defs: "/$defs/Properties/definitions/CloudFormationActionType": "Create" | "Delete"
+#CloudFormationActionType: "Create" | "Delete"
 
-_#defs: "/$defs/Properties/definitions/CompareAction": close({
-	Input!:  _#defs."/$defs/Properties/definitions/Input"
-	Output?: _#defs."/$defs/Properties/definitions/Output"
+#CompareAction: close({
+	Input!:  #Input
+	Output?: #Output
 })
 
-_#defs: "/$defs/Properties/definitions/DataSet": close({
+#DataSet: close({
 	Ccsid!:  =~"^\\S{1,50}$"
-	Format!: _#defs."/$defs/Properties/definitions/Format"
+	Format!: #Format
 	Length!: number
 	Name!:   =~"^\\S{1,100}$"
-	Type!:   _#defs."/$defs/Properties/definitions/DataSetType"
+	Type!:   #DataSetType
 })
 
-_#defs: "/$defs/Properties/definitions/DataSetType": "PS"
+#DataSetType: "PS"
 
-_#defs: "/$defs/Properties/definitions/DatabaseCDC": close({
-	SourceMetadata!: _#defs."/$defs/Properties/definitions/SourceDatabaseMetadata"
-	TargetMetadata!: _#defs."/$defs/Properties/definitions/TargetDatabaseMetadata"
+#DatabaseCDC: close({
+	SourceMetadata!: #SourceDatabaseMetadata
+	TargetMetadata!: #TargetDatabaseMetadata
 })
 
-_#defs: "/$defs/Properties/definitions/FileMetadata": matchN(1, [close(
-	{DataSets!: [..._#defs."/$defs/Properties/definitions/DataSet"]},
-), close(
-	{DatabaseCDC!: _#defs."/$defs/Properties/definitions/DatabaseCDC"},
-)])
+#FileMetadata: matchN(1, [close({DataSets!: [...#DataSet]}), close({DatabaseCDC!: #DatabaseCDC})])
 
-_#defs: "/$defs/Properties/definitions/Format": "FIXED" | "VARIABLE" | "LINE_SEQUENTIAL"
+#Format: "FIXED" | "VARIABLE" | "LINE_SEQUENTIAL"
 
-_#defs: "/$defs/Properties/definitions/Input": close({File!: _#defs."/$defs/Properties/definitions/InputFile"})
+#Input: close({File!: #InputFile})
 
-_#defs: "/$defs/Properties/definitions/InputFile": close({
-	FileMetadata!:   _#defs."/$defs/Properties/definitions/FileMetadata"
+#InputFile: close({
+	FileMetadata!:   #FileMetadata
 	SourceLocation!: =~"^\\S{1,1000}$"
 	TargetLocation!: =~"^\\S{1,1000}$"
 })
 
-_#defs: "/$defs/Properties/definitions/M2ManagedActionProperties": close({
+#M2ManagedActionProperties: close({
 	ForceStop?:             bool
 	ImportDataSetLocation?: =~"^\\S{1,1000}$"
 })
 
-_#defs: "/$defs/Properties/definitions/M2ManagedActionType": "Configure" | "Deconfigure"
+#M2ManagedActionType: "Configure" | "Deconfigure"
 
-_#defs: "/$defs/Properties/definitions/M2ManagedApplicationAction": close({
-	ActionType!: _#defs."/$defs/Properties/definitions/M2ManagedActionType"
-	Properties?: _#defs."/$defs/Properties/definitions/M2ManagedActionProperties"
+#M2ManagedApplicationAction: close({
+	ActionType!: #M2ManagedActionType
+	Properties?: #M2ManagedActionProperties
 	Resource!:   =~"^\\S{1,1000}$"
 })
 
-_#defs: "/$defs/Properties/definitions/M2NonManagedActionType": "Configure" | "Deconfigure"
+#M2NonManagedActionType: "Configure" | "Deconfigure"
 
-_#defs: "/$defs/Properties/definitions/M2NonManagedApplicationAction": close({
-	ActionType!: _#defs."/$defs/Properties/definitions/M2NonManagedActionType"
+#M2NonManagedApplicationAction: close({
+	ActionType!: #M2NonManagedActionType
 	Resource!:   =~"^\\S{1,1000}$"
 })
 
-_#defs: "/$defs/Properties/definitions/MainframeAction": close({
-	ActionType!: _#defs."/$defs/Properties/definitions/MainframeActionType"
-	Properties?: _#defs."/$defs/Properties/definitions/MainframeActionProperties"
+#MainframeAction: close({
+	ActionType!: #MainframeActionType
+	Properties?: #MainframeActionProperties
 	Resource!:   =~"^\\S{1,1000}$"
 })
 
-_#defs: "/$defs/Properties/definitions/MainframeActionProperties": close({DmsTaskArn?: =~"^\\S{1,1000}$"})
+#MainframeActionProperties: close({DmsTaskArn?: =~"^\\S{1,1000}$"})
 
-_#defs: "/$defs/Properties/definitions/MainframeActionType": matchN(1, [close(
-	{Batch!: _#defs."/$defs/Properties/definitions/Batch"},
+#MainframeActionType: matchN(1, [close({Batch!: #Batch}), close({Tn3270!: #TN3270})])
+
+#Output: close({File!: #OutputFile})
+
+#OutputFile: close({FileLocation?: strings.MaxRunes(1024) & strings.MinRunes(0)})
+
+#ResourceAction: matchN(1, [close(
+	{M2ManagedApplicationAction!: #M2ManagedApplicationAction},
 ), close(
-	{Tn3270!: _#defs."/$defs/Properties/definitions/TN3270"},
+	{M2NonManagedApplicationAction!: #M2NonManagedApplicationAction},
+), close(
+	{CloudFormationAction!: #CloudFormationAction},
 )])
 
-_#defs: "/$defs/Properties/definitions/Output": close({File!: _#defs."/$defs/Properties/definitions/OutputFile"})
-
-_#defs: "/$defs/Properties/definitions/OutputFile": close({FileLocation?: strings.MaxRunes(1024) & strings.MinRunes(0)})
-
-_#defs: "/$defs/Properties/definitions/ResourceAction": matchN(1, [close(
-	{M2ManagedApplicationAction!: _#defs."/$defs/Properties/definitions/M2ManagedApplicationAction"},
-), close(
-	{M2NonManagedApplicationAction!: _#defs."/$defs/Properties/definitions/M2NonManagedApplicationAction"},
-), close(
-	{CloudFormationAction!: _#defs."/$defs/Properties/definitions/CloudFormationAction"},
-)])
-
-_#defs: "/$defs/Properties/definitions/Script": close({
+#Script: close({
 	ScriptLocation!: strings.MaxRunes(1024) & strings.MinRunes(0)
-	Type!:           _#defs."/$defs/Properties/definitions/ScriptType"
+	Type!:           #ScriptType
 })
 
-_#defs: "/$defs/Properties/definitions/ScriptType": "Selenium"
+#ScriptType: "Selenium"
 
-_#defs: "/$defs/Properties/definitions/SourceDatabase": "z/OS-DB2"
+#SourceDatabase: "z/OS-DB2"
 
-_#defs: "/$defs/Properties/definitions/SourceDatabaseMetadata": close({
-	CaptureTool!: _#defs."/$defs/Properties/definitions/CaptureTool"
-	Type!:        _#defs."/$defs/Properties/definitions/SourceDatabase"
+#SourceDatabaseMetadata: close({
+	CaptureTool!: #CaptureTool
+	Type!:        #SourceDatabase
 })
 
-_#defs: "/$defs/Properties/definitions/Step": close({
-	Action!:      _#defs."/$defs/Properties/definitions/StepAction"
+#Step: close({
+	Action!:      #StepAction
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(0)
 	Name!:        =~"^[A-Za-z][A-Za-z0-9_\\-]{1,59}$"
 })
 
-_#defs: "/$defs/Properties/definitions/StepAction": matchN(1, [close(
-	{ResourceAction!: _#defs."/$defs/Properties/definitions/ResourceAction"},
+#StepAction: matchN(1, [close(
+	{ResourceAction!: #ResourceAction},
 ), close(
-	{MainframeAction!: _#defs."/$defs/Properties/definitions/MainframeAction"},
+	{MainframeAction!: #MainframeAction},
 ), close(
-	{CompareAction!: _#defs."/$defs/Properties/definitions/CompareAction"},
+	{CompareAction!: #CompareAction},
 )])
 
-_#defs: "/$defs/Properties/definitions/TN3270": close({
+#TN3270: close({
 	ExportDataSetNames?: [...=~"^\\S{1,100}$"]
-	Script!:             _#defs."/$defs/Properties/definitions/Script"
+	Script!:             #Script
 })
 
-_#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(200) & struct.MinFields(0) & {...}
+#TagMap: struct.MaxFields(200) & struct.MinFields(0) & {...}
 
-_#defs: "/$defs/Properties/definitions/TargetDatabase": "PostgreSQL"
+#TargetDatabase: "PostgreSQL"
 
-_#defs: "/$defs/Properties/definitions/TargetDatabaseMetadata": close({
-	CaptureTool!: _#defs."/$defs/Properties/definitions/CaptureTool"
-	Type!:        _#defs."/$defs/Properties/definitions/TargetDatabase"
+#TargetDatabaseMetadata: close({
+	CaptureTool!: #CaptureTool
+	Type!:        #TargetDatabase
 })
 
-_#defs: "/$defs/Properties/definitions/TestCaseLatestVersion": close({
-	Status!:  _#defs."/$defs/Properties/definitions/TestCaseLifecycle"
+#TestCaseLatestVersion: close({
+	Status!:  #TestCaseLifecycle
 	Version!: number
 })
 
-_#defs: "/$defs/Properties/definitions/TestCaseLifecycle": "Active" | "Deleting"
+#TestCaseLifecycle: "Active" | "Deleting"

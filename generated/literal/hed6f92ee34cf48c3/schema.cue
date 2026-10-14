@@ -12,116 +12,116 @@ import (
 // Definition of AWS::AmplifyUIBuilder::Component Resource Type
 #Properties: close({
 	AppId?:                string
-	BindingProperties?:    _#defs."/$defs/Properties/definitions/ComponentBindingProperties"
-	Children?:             [..._#defs."/$defs/Properties/definitions/ComponentChild"]
-	CollectionProperties?: _#defs."/$defs/Properties/definitions/ComponentCollectionProperties"
+	BindingProperties?:    #ComponentBindingProperties
+	Children?:             [...#ComponentChild]
+	CollectionProperties?: #ComponentCollectionProperties
 	ComponentType?:        strings.MaxRunes(255) & strings.MinRunes(1)
 	CreatedAt?:            time.Time
 	EnvironmentName?:      string
-	Events?:               _#defs."/$defs/Properties/definitions/ComponentEvents"
+	Events?:               #ComponentEvents
 	Id?:                   string
 	ModifiedAt?:           time.Time
 	Name?:                 strings.MaxRunes(255) & strings.MinRunes(1)
-	Overrides?:            _#defs."/$defs/Properties/definitions/ComponentOverrides"
-	Properties?:           _#defs."/$defs/Properties/definitions/ComponentProperties"
+	Overrides?:            #ComponentOverrides
+	Properties?:           #ComponentProperties
 	SchemaVersion?:        string
 	SourceId?:             string
-	Tags?:                 _#defs."/$defs/Properties/definitions/Tags"
-	Variants?:             [..._#defs."/$defs/Properties/definitions/ComponentVariant"]
+	Tags?:                 #Tags
+	Variants?:             [...#ComponentVariant]
 })
 
-_#defs: "/$defs/Properties/definitions/ActionParameters": close({
-	Anchor?: _#defs."/$defs/Properties/definitions/ComponentProperty"
-	Fields?: _#defs."/$defs/Properties/definitions/ComponentProperties"
-	Global?: _#defs."/$defs/Properties/definitions/ComponentProperty"
-	Id?:     _#defs."/$defs/Properties/definitions/ComponentProperty"
+#ActionParameters: close({
+	Anchor?: #ComponentProperty
+	Fields?: #ComponentProperties
+	Global?: #ComponentProperty
+	Id?:     #ComponentProperty
 	Model?:  string
-	State?:  _#defs."/$defs/Properties/definitions/MutationActionSetStateParameter"
-	Target?: _#defs."/$defs/Properties/definitions/ComponentProperty"
-	Type?:   _#defs."/$defs/Properties/definitions/ComponentProperty"
-	Url?:    _#defs."/$defs/Properties/definitions/ComponentProperty"
+	State?:  #MutationActionSetStateParameter
+	Target?: #ComponentProperty
+	Type?:   #ComponentProperty
+	Url?:    #ComponentProperty
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentBindingProperties": close({
+#ComponentBindingProperties: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentBindingPropertiesValue"}})
+	{[=~".+"]: #ComponentBindingPropertiesValue}})
 
-_#defs: "/$defs/Properties/definitions/ComponentBindingPropertiesValue": close({
-	BindingProperties?: _#defs."/$defs/Properties/definitions/ComponentBindingPropertiesValueProperties"
+#ComponentBindingPropertiesValue: close({
+	BindingProperties?: #ComponentBindingPropertiesValueProperties
 	DefaultValue?:      string
 	Type?:              string
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentBindingPropertiesValueProperties": close({
+#ComponentBindingPropertiesValueProperties: close({
 	Bucket?:        string
 	DefaultValue?:  string
 	Field?:         string
 	Key?:           string
 	Model?:         string
-	Predicates?:    [..._#defs."/$defs/Properties/definitions/Predicate"]
+	Predicates?:    [...#Predicate]
 	SlotName?:      string
 	UserAttribute?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentChild": close({
-	Children?:      [..._#defs."/$defs/Properties/definitions/ComponentChild"]
+#ComponentChild: close({
+	Children?:      [...#ComponentChild]
 	ComponentType!: string
-	Events?:        _#defs."/$defs/Properties/definitions/ComponentEvents"
+	Events?:        #ComponentEvents
 	Name!:          string
-	Properties!:    _#defs."/$defs/Properties/definitions/ComponentProperties"
+	Properties!:    #ComponentProperties
 	SourceId?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentCollectionProperties": close({
+#ComponentCollectionProperties: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentDataConfiguration"}})
+	{[=~".+"]: #ComponentDataConfiguration}})
 
-_#defs: "/$defs/Properties/definitions/ComponentConditionProperty": close({
-	Else?:        _#defs."/$defs/Properties/definitions/ComponentProperty"
+#ComponentConditionProperty: close({
+	Else?:        #ComponentProperty
 	Field?:       string
 	Operand?:     string
 	OperandType?: string
 	Operator?:    string
 	Property?:    string
-	Then?:        _#defs."/$defs/Properties/definitions/ComponentProperty"
+	Then?:        #ComponentProperty
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentDataConfiguration": close({
+#ComponentDataConfiguration: close({
 	Identifiers?: [...string]
 	Model!:       string
-	Predicate?:   _#defs."/$defs/Properties/definitions/Predicate"
-	Sort?:        [..._#defs."/$defs/Properties/definitions/SortProperty"]
+	Predicate?:   #Predicate
+	Sort?:        [...#SortProperty]
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentEvent": close({
+#ComponentEvent: close({
 	Action?:       string
 	BindingEvent?: string
-	Parameters?:   _#defs."/$defs/Properties/definitions/ActionParameters"
+	Parameters?:   #ActionParameters
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentEvents": close({
+#ComponentEvents: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentEvent"}})
+	{[=~".+"]: #ComponentEvent}})
 
-_#defs: "/$defs/Properties/definitions/ComponentOverrides": close({
+#ComponentOverrides: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentOverridesValue"}})
+	{[=~".+"]: #ComponentOverridesValue}})
 
-_#defs: "/$defs/Properties/definitions/ComponentOverridesValue": close({
+#ComponentOverridesValue: close({
 
 	{[=~".+"]: string}})
 
-_#defs: "/$defs/Properties/definitions/ComponentProperties": close({
+#ComponentProperties: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentProperty"}})
+	{[=~".+"]: #ComponentProperty}})
 
-_#defs: "/$defs/Properties/definitions/ComponentProperty": close({
-	BindingProperties?:           _#defs."/$defs/Properties/definitions/ComponentPropertyBindingProperties"
-	Bindings?:                    _#defs."/$defs/Properties/definitions/FormBindings"
-	CollectionBindingProperties?: _#defs."/$defs/Properties/definitions/ComponentPropertyBindingProperties"
+#ComponentProperty: close({
+	BindingProperties?:           #ComponentPropertyBindingProperties
+	Bindings?:                    #FormBindings
+	CollectionBindingProperties?: #ComponentPropertyBindingProperties
 	ComponentName?:               string
-	Concat?:                      [..._#defs."/$defs/Properties/definitions/ComponentProperty"]
-	Condition?:                   _#defs."/$defs/Properties/definitions/ComponentConditionProperty"
+	Concat?:                      [...#ComponentProperty]
+	Condition?:                   #ComponentConditionProperty
 	Configured?:                  bool
 	DefaultValue?:                string
 	Event?:                       string
@@ -133,49 +133,49 @@ _#defs: "/$defs/Properties/definitions/ComponentProperty": close({
 	Value?:                       string
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentPropertyBindingProperties": close({
+#ComponentPropertyBindingProperties: close({
 	Field?:    string
 	Property!: string
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentVariant": close({
-	Overrides?:     _#defs."/$defs/Properties/definitions/ComponentOverrides"
-	VariantValues?: _#defs."/$defs/Properties/definitions/ComponentVariantValues"
+#ComponentVariant: close({
+	Overrides?:     #ComponentOverrides
+	VariantValues?: #ComponentVariantValues
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentVariantValues": close({
+#ComponentVariantValues: close({
 
 	{[=~".+"]: string}})
 
-_#defs: "/$defs/Properties/definitions/FormBindingElement": close({
+#FormBindingElement: close({
 	Element!:  string
 	Property!: string
 })
 
-_#defs: "/$defs/Properties/definitions/FormBindings": close({
+#FormBindings: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/FormBindingElement"}})
+	{[=~".+"]: #FormBindingElement}})
 
-_#defs: "/$defs/Properties/definitions/MutationActionSetStateParameter": close({
+#MutationActionSetStateParameter: close({
 	ComponentName!: string
 	Property!:      string
-	Set!:           _#defs."/$defs/Properties/definitions/ComponentProperty"
+	Set!:           #ComponentProperty
 })
 
-_#defs: "/$defs/Properties/definitions/Predicate": close({
-	And?:         [..._#defs."/$defs/Properties/definitions/Predicate"]
+#Predicate: close({
+	And?:         [...#Predicate]
 	Field?:       string
 	Operand?:     string
 	OperandType?: =~"^boolean|string|number$"
 	Operator?:    string
-	Or?:          [..._#defs."/$defs/Properties/definitions/Predicate"]
+	Or?:          [...#Predicate]
 })
 
-_#defs: "/$defs/Properties/definitions/SortDirection": "ASC" | "DESC"
+#SortDirection: "ASC" | "DESC"
 
-_#defs: "/$defs/Properties/definitions/SortProperty": close({
-	Direction!: _#defs."/$defs/Properties/definitions/SortDirection"
+#SortProperty: close({
+	Direction!: #SortDirection
 	Field!:     string
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": {...}
+#Tags: {...}

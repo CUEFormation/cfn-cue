@@ -14,11 +14,9 @@ import (
 	Arn?: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*/feature/[-a-zA-Z0-9._]*"
-	DefaultVariation?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*"
-	Description?:      strings.MaxRunes(160) & strings.MinRunes(0)
-	EntityOverrides?: list.MaxItems(2500) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/EntityOverride"
-	]
+	DefaultVariation?:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*"
+	Description?:        strings.MaxRunes(160) & strings.MinRunes(0)
+	EntityOverrides?:    list.MaxItems(2500) & list.UniqueItems() & [...] & [...#EntityOverride]
 	EvaluationStrategy?: "ALL_RULES" | "DEFAULT_VARIATION"
 	Name!:               strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*"
 	Project!: strings.MaxRunes(2048) &
@@ -26,19 +24,17 @@ import (
 	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Variations!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/VariationObject"
-	]
+	Tags?:       list.UniqueItems() & [...#Tag]
+	Variations!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#VariationObject]
 })
 
-_#defs: "/$defs/Properties/definitions/EntityOverride": close({
+#EntityOverride: close({
 	EntityId?:  string
 	Variation?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -52,7 +48,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/VariationObject": matchN(1, [{
+#VariationObject: matchN(1, [{
 	VariationName!: _
 	StringValue!:   _
 	...

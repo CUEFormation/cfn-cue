@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -43,72 +43,62 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KeySchema?:            null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
 	...
 }, _) & {...} & close({
-	AttributeDefinitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AttributeDefinition"] |
-		fn.#ListExpression
-	BillingMode?: "PAY_PER_REQUEST" | "PROVISIONED" | fn.#StringExpression
-	ContributorInsightsSpecification?: _#defs."/$defs/Properties/definitions/ContributorInsightsSpecification" |
-		fn.#ObjectExpression
+	AttributeDefinitions?:             list.UniqueItems() & [...#AttributeDefinition] | fn.#ListExpression
+	BillingMode?:                      "PAY_PER_REQUEST" | "PROVISIONED" | fn.#StringExpression
+	ContributorInsightsSpecification?: #ContributorInsightsSpecification | fn.#ObjectExpression
 	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	GlobalSecondaryIndexes?:    [..._#defs."/$defs/Properties/definitions/GlobalSecondaryIndex"] | fn.#ListExpression
-	ImportSourceSpecification?: _#defs."/$defs/Properties/definitions/ImportSourceSpecification" | fn.#ObjectExpression
+	GlobalSecondaryIndexes?:    [...#GlobalSecondaryIndex] | fn.#ListExpression
+	ImportSourceSpecification?: #ImportSourceSpecification | fn.#ObjectExpression
 	KeySchema!: matchN(1, [
-		_#defs."/$defs/Properties/definitions/KeySchema" &
-		(null | bool | number | string | list.MaxItems(2) & list.MinItems(1) | {...}),
+		#KeySchema & (null | bool | number | string | list.MaxItems(2) & list.MinItems(1) | {...}),
 		string | {...}
 	]) &
 	(null | bool | number | string | list.MinItems(1) | {...}) |
 	fn.#ValueExpression
-	KinesisStreamSpecification?: _#defs."/$defs/Properties/definitions/KinesisStreamSpecification" |
-		fn.#ObjectExpression
-	LocalSecondaryIndexes?: [..._#defs."/$defs/Properties/definitions/LocalSecondaryIndex"] | fn.#ListExpression
-	OnDemandThroughput?:    _#defs."/$defs/Properties/definitions/OnDemandThroughput" | fn.#ObjectExpression
-	PointInTimeRecoverySpecification?: _#defs."/$defs/Properties/definitions/PointInTimeRecoverySpecification" |
-		fn.#ObjectExpression
-	ProvisionedThroughput?:   _#defs."/$defs/Properties/definitions/ProvisionedThroughput" | fn.#ObjectExpression
-	ResourcePolicy?:          _#defs."/$defs/Properties/definitions/ResourcePolicy" | fn.#ObjectExpression
-	SSESpecification?:        _#defs."/$defs/Properties/definitions/SSESpecification" | fn.#ObjectExpression
-	StreamSpecification?:     _#defs."/$defs/Properties/definitions/StreamSpecification" | fn.#ObjectExpression
-	TableClass?:              "STANDARD" | "STANDARD_INFREQUENT_ACCESS" | fn.#StringExpression
-	TableName?:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TimeToLiveSpecification?: _#defs."/$defs/Properties/definitions/TimeToLiveSpecification" | fn.#ObjectExpression
-	VectorIndexes?: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VectorIndex"] |
-		fn.#ListExpression
-	WarmThroughput?: _#defs."/$defs/Properties/definitions/WarmThroughput" | fn.#ObjectExpression
+	KinesisStreamSpecification?:       #KinesisStreamSpecification | fn.#ObjectExpression
+	LocalSecondaryIndexes?:            [...#LocalSecondaryIndex] | fn.#ListExpression
+	OnDemandThroughput?:               #OnDemandThroughput | fn.#ObjectExpression
+	PointInTimeRecoverySpecification?: #PointInTimeRecoverySpecification | fn.#ObjectExpression
+	ProvisionedThroughput?:            #ProvisionedThroughput | fn.#ObjectExpression
+	ResourcePolicy?:                   #ResourcePolicy | fn.#ObjectExpression
+	SSESpecification?:                 #SSESpecification | fn.#ObjectExpression
+	StreamSpecification?:              #StreamSpecification | fn.#ObjectExpression
+	TableClass?:                       "STANDARD" | "STANDARD_INFREQUENT_ACCESS" | fn.#StringExpression
+	TableName?:                        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Tags?:                             [...#Tag] | fn.#ListExpression
+	TimeToLiveSpecification?:          #TimeToLiveSpecification | fn.#ObjectExpression
+	VectorIndexes?:                    list.MinItems(1) & list.UniqueItems() & [...#VectorIndex] | fn.#ListExpression
+	WarmThroughput?:                   #WarmThroughput | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeDefinition": close({
+#AttributeDefinition: close({
 	AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	AttributeType!: "B" | "N" | "S" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContributorInsightsSpecification": close({
+#ContributorInsightsSpecification: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Mode?:    "ACCESSED_AND_THROTTLED_KEYS" | "THROTTLED_KEYS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Csv": close({
+#Csv: close({
 	Delimiter?:  string | fn.#StringExpression
 	HeaderList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeprecatedHashKeyElement": close({
+#DeprecatedHashKeyElement: close({
 	AttributeName!: string | fn.#StringExpression
 	AttributeType!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeprecatedKeySchema": close(
-	{HashKeyElement!: _#defs."/$defs/Properties/definitions/DeprecatedHashKeyElement"},
-) |
-	fn.#ObjectExpression
+#DeprecatedKeySchema: close({HashKeyElement!: #DeprecatedHashKeyElement}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GlobalSecondaryIndex": close({
-	ContributorInsightsSpecification?: _#defs."/$defs/Properties/definitions/ContributorInsightsSpecification" |
-		fn.#ObjectExpression
+#GlobalSecondaryIndex: close({
+	ContributorInsightsSpecification?: #ContributorInsightsSpecification | fn.#ObjectExpression
 	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
 	KeySchema!: list.MinItems(1) & list.UniqueItems() & [...close({
 		AttributeName!: string | fn.#StringExpression
@@ -116,27 +106,24 @@ _#defs: "/$defs/Properties/definitions/GlobalSecondaryIndex": close({
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	OnDemandThroughput?:    _#defs."/$defs/Properties/definitions/OnDemandThroughput" | fn.#ObjectExpression
-	Projection!:            _#defs."/$defs/Properties/definitions/Projection" | fn.#ObjectExpression
-	ProvisionedThroughput?: _#defs."/$defs/Properties/definitions/ProvisionedThroughput" | fn.#ObjectExpression
-	WarmThroughput?:        _#defs."/$defs/Properties/definitions/WarmThroughput" | fn.#ObjectExpression
+	OnDemandThroughput?:    #OnDemandThroughput | fn.#ObjectExpression
+	Projection!:            #Projection | fn.#ObjectExpression
+	ProvisionedThroughput?: #ProvisionedThroughput | fn.#ObjectExpression
+	WarmThroughput?:        #WarmThroughput | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImportSourceSpecification": close({
+#ImportSourceSpecification: close({
 	InputCompressionType?: string | fn.#StringExpression
 	InputFormat!:          string | fn.#StringExpression
-	InputFormatOptions?:   _#defs."/$defs/Properties/definitions/InputFormatOptions" | fn.#ObjectExpression
-	S3BucketSource!:       _#defs."/$defs/Properties/definitions/S3BucketSource" | fn.#ObjectExpression
+	InputFormatOptions?:   #InputFormatOptions | fn.#ObjectExpression
+	S3BucketSource!:       #S3BucketSource | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputFormatOptions": close(
-	{Csv?: _#defs."/$defs/Properties/definitions/Csv" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#InputFormatOptions: close({Csv?: #Csv | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeySchema": list.UniqueItems() & {
+#KeySchema: list.UniqueItems() & {
 	[...]
 	[0]: {
 		KeyType!: "HASH" | fn.#StringExpression
@@ -170,22 +157,21 @@ _#defs: "/$defs/Properties/definitions/KeySchema": list.UniqueItems() & {
 } |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisStreamSpecification": close({
+#KinesisStreamSpecification: close({
 	ApproximateCreationDateTimePrecision?: "MICROSECOND" | "MILLISECOND" | fn.#StringExpression
 	StreamArn!:                            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LocalSecondaryIndex": close({
+#LocalSecondaryIndex: close({
 	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	KeySchema!: _#defs."/$defs/Properties/definitions/KeySchema" &
-	(null | bool | number | string | list.MaxItems(2) & list.MinItems(2) | {...}) |
+	KeySchema!: #KeySchema & (null | bool | number | string | list.MaxItems(2) & list.MinItems(2) | {...}) |
 	fn.#ListExpression
-	Projection!: _#defs."/$defs/Properties/definitions/Projection" | fn.#ObjectExpression
+	Projection!: #Projection | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnDemandThroughput": close({
+#OnDemandThroughput: close({
 	MaxReadRequestUnits?: int & >=1 |
 		{
 			string &
@@ -219,7 +205,7 @@ _#defs: "/$defs/Properties/definitions/OnDemandThroughput": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PointInTimeRecoverySpecification": close({
+#PointInTimeRecoverySpecification: close({
 	RecoveryPeriodInDays?: _
 	if RecoveryPeriodInDays != _|_ {
 		PointInTimeRecoveryEnabled!: _
@@ -245,14 +231,14 @@ _#defs: "/$defs/Properties/definitions/PointInTimeRecoverySpecification": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Projection": close({
+#Projection: close({
 	NonKeyAttributes?: [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	ProjectionType?: "ALL" | "INCLUDE" | "KEYS_ONLY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
+#ProvisionedThroughput: close({
 	ReadCapacityUnits!: int & >=0 |
 		{
 			string &
@@ -286,19 +272,17 @@ _#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": close(
-	{PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression},
-) |
+#ResourcePolicy: close({PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3BucketSource": close({
+#S3BucketSource: close({
 	S3Bucket!:      string | fn.#StringExpression
 	S3BucketOwner?: string | fn.#StringExpression
 	S3KeyPrefix?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SSESpecification": close({
+#SSESpecification: close({
 	KMSMasterKeyId?: _
 	if KMSMasterKeyId != _|_ {
 		SSEType!: _
@@ -310,37 +294,35 @@ _#defs: "/$defs/Properties/definitions/SSESpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SearchSchemaElement": close({
+#SearchSchemaElement: close({
 	AttributeName!:           strings.MaxRunes(65535) & strings.MinRunes(0) | fn.#StringExpression
 	SearchSchemaElementType!: "HASH" | "INLINE_FILTER" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamSpecification": close({
-	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy" | fn.#ObjectExpression
+#StreamSpecification: close({
+	ResourcePolicy?: #ResourcePolicy | fn.#ObjectExpression
 	StreamViewType!: "KEYS_ONLY" | "NEW_AND_OLD_IMAGES" | "NEW_IMAGE" | "OLD_IMAGE" | fn.#StringExpression
-	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeToLiveSpecification": close({
+#TimeToLiveSpecification: close({
 	AttributeName?: string | fn.#StringExpression
 	Enabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VectorAttribute": close(
-	{AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#VectorAttribute: close({AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VectorIndex": close({
+#VectorIndex: close({
 	Dimensions!: int & <=4096 & >=1 |
 		{
 			string &
@@ -359,16 +341,13 @@ _#defs: "/$defs/Properties/definitions/VectorIndex": close({
 		fn.#NumberExpression
 	DistanceFunction!: "COSINE" | "DOT_PRODUCT" | "EUCLIDEAN" | fn.#StringExpression
 	IndexName!:        strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Projection!:       _#defs."/$defs/Properties/definitions/Projection"
-	SearchSchema?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SearchSchemaElement"
-	] |
-		fn.#ListExpression
-	VectorAttribute!: _#defs."/$defs/Properties/definitions/VectorAttribute"
+	Projection!:       #Projection
+	SearchSchema?:     list.MinItems(1) & list.UniqueItems() & [...#SearchSchemaElement] | fn.#ListExpression
+	VectorAttribute!:  #VectorAttribute
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WarmThroughput": close({
+#WarmThroughput: close({
 	ReadUnitsPerSecond?: int & >=1 |
 		{
 			string &

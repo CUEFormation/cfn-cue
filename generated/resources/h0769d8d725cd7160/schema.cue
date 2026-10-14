@@ -3,10 +3,10 @@
 package schema
 
 import (
+	"struct"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"struct"
 )
 
 import cfnScalarStrings "strings"
@@ -27,40 +27,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Entries!: list.MaxItems(1000) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LimitEntry"] |
-		fn.#ListExpression
+	Entries!:           list.MaxItems(1000) & list.MinItems(1) & [...#LimitEntry] | fn.#ListExpression
 	GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
 	RateLimitId?: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_\\.]{0,62}[a-zA-Z0-9]$" |
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Dimensions": struct.MaxFields(10) & struct.MinFields(1) & close({
+#Dimensions: struct.MaxFields(10) & struct.MinFields(1) & close({
 
 	{[=~"^(targetName|toolName|qualifiedModelId|\\$\\.context\\.iam\\.principal|\\$\\.context\\.iam\\.sourceIdentity|\\$\\.context\\.jwt\\.[a-zA-Z_][a-zA-Z0-9_\\-\\.]{0,61}[a-zA-Z0-9_])$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayRateLimitStatus": "CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETING" |
-	fn.#StringExpression
+#GatewayRateLimitStatus: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LimitEntry": close({
-	Connections?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RateConfig"] |
-		fn.#ListExpression
-	Dimensions!: _#defs."/$defs/Properties/definitions/Dimensions"
-	Requests?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RateConfig"] |
-		fn.#ListExpression
-	Tokens?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RateConfig"] |
-		fn.#ListExpression
+#LimitEntry: close({
+	Connections?: list.MaxItems(1) & list.MinItems(1) & [...#RateConfig] | fn.#ListExpression
+	Dimensions!:  #Dimensions
+	Requests?:    list.MaxItems(1) & list.MinItems(1) & [...#RateConfig] | fn.#ListExpression
+	Tokens?:      list.MaxItems(1) & list.MinItems(1) & [...#RateConfig] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Period": "second" | "minute" | fn.#StringExpression
+#Period: "second" | "minute" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RateConfig": close({
-	Period!: _#defs."/$defs/Properties/definitions/Period"
+#RateConfig: close({
+	Period!: #Period
 	Rate!: <=10000000 & >=0 |
 		{
 			string &

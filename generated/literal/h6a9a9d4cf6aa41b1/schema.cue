@@ -19,12 +19,12 @@ import "strings"
 	// The Amazon Resource Name (ARN) for the session policy that will be applied to
 	// the user or group. Session policies refine Studio user permissions without
 	// the need to use multiple IAM user roles.
-	SessionPolicyArn!: _#defs."/$defs/Properties/definitions/IamPolicyArn"
+	SessionPolicyArn!: #IamPolicyArn
 
 	// The ID of the Amazon EMR Studio to which the user or group will be mapped.
 	StudioId!: strings.MaxRunes(256) & strings.MinRunes(4) & =~"^es-[0-9A-Z]+"
 })
 
-_#defs: "/$defs/Properties/definitions/IamPolicyArn": strings.MaxRunes(256) &
+#IamPolicyArn: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^arn:aws(-(cn|us-gov|iso-f|iso-e))?:iam::([0-9]{12})?:policy\\/[^.]+$"

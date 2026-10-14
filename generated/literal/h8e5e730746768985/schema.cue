@@ -19,17 +19,17 @@ import (
 
 	// The name of the OIDC provider configuration.
 	IdentityProviderConfigName?: string
-	Oidc?:                       _#defs."/$defs/Properties/definitions/OidcIdentityProviderConfig"
+	Oidc?:                       #OidcIdentityProviderConfig
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The type of the identity provider configuration.
 	Type!: "oidc"
 })
 
 // An object representing an OpenID Connect (OIDC) configuration.
-_#defs: "/$defs/Properties/definitions/OidcIdentityProviderConfig": close({
+#OidcIdentityProviderConfig: close({
 	// This is also known as audience. The ID for the client application that makes
 	// authentication requests to the OpenID identity provider.
 	ClientId!: string
@@ -44,7 +44,7 @@ _#defs: "/$defs/Properties/definitions/OidcIdentityProviderConfig": close({
 	// The URL of the OpenID identity provider that allows the API server to
 	// discover public signing keys for verifying tokens.
 	IssuerUrl!:      string
-	RequiredClaims?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RequiredClaim"]
+	RequiredClaims?: list.UniqueItems() & [...#RequiredClaim]
 
 	// The JSON Web Token (JWT) claim to use as the username. The default is sub,
 	// which is expected to be a unique identifier of the end user. You can choose
@@ -63,7 +63,7 @@ _#defs: "/$defs/Properties/definitions/OidcIdentityProviderConfig": close({
 // The key value pairs that describe required claims in the identity token. If
 // set, each claim is verified to be present in the token with a matching
 // value.
-_#defs: "/$defs/Properties/definitions/RequiredClaim": close({
+#RequiredClaim: close({
 	// The key of the requiredClaims.
 	Key!: strings.MaxRunes(63) & strings.MinRunes(1)
 
@@ -72,7 +72,7 @@ _#defs: "/$defs/Properties/definitions/RequiredClaim": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

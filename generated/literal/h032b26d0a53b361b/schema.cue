@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -29,7 +29,7 @@ import (
 	LatestVersionNumber?:  string
 
 	// The information for the launch template.
-	LaunchTemplateData!: _#defs."/$defs/Properties/definitions/LaunchTemplateData"
+	LaunchTemplateData!: #LaunchTemplateData
 	LaunchTemplateId?:   string
 
 	// A name for the launch template.
@@ -40,7 +40,7 @@ import (
 	// To specify the tags for resources that are created during instance launch,
 	// use
 	// [TagSpecifications](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html#cfn-ec2-launchtemplate-launchtemplatedata-tagspecifications).
-	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/LaunchTemplateTagSpecification"]
+	TagSpecifications?: [...#LaunchTemplateTagSpecification]
 
 	// A description for the first version of the launch template.
 	VersionDescription?: strings.MaxRunes(255) & strings.MinRunes(0)
@@ -48,7 +48,7 @@ import (
 
 // The minimum and maximum number of accelerators (GPUs, FPGAs, or AWS
 // Inferentia chips) on an instance.
-_#defs: "/$defs/Properties/definitions/AcceleratorCount": close({
+#AcceleratorCount: close({
 	// The maximum number of accelerators. To specify no maximum limit, omit this
 	// parameter. To exclude accelerator-enabled instance types, set ``Max`` to
 	// ``0``.
@@ -59,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/AcceleratorCount": close({
 })
 
 // The minimum and maximum amount of total accelerator memory, in MiB.
-_#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiB": close({
+#AcceleratorTotalMemoryMiB: close({
 	// The maximum amount of accelerator memory, in MiB. To specify no maximum
 	// limit, omit this parameter.
 	Max?: int
@@ -73,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiB": close({
 // information, see [Amazon EBS–optimized
 // instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html)
 // in the *Amazon EC2 User Guide*.
-_#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbps": close({
+#BaselineEbsBandwidthMbps: close({
 	// The maximum baseline bandwidth, in Mbps. To specify no maximum limit, omit this parameter.
 	Max?: int
 
@@ -89,9 +89,9 @@ _#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbps": close({
 // Currently, this parameter only supports CPU performance as a baseline
 // performance factor. For example, specifying ``c6i`` would use the CPU
 // performance of the ``c6i`` family as the baseline reference.
-_#defs: "/$defs/Properties/definitions/BaselinePerformanceFactors": close({
+#BaselinePerformanceFactors: close({
 	// The CPU performance to consider, using an instance family as the baseline reference.
-	Cpu?: _#defs."/$defs/Properties/definitions/Cpu"
+	Cpu?: #Cpu
 })
 
 // Specifies a block device mapping for a launch template. You must specify
@@ -99,12 +99,12 @@ _#defs: "/$defs/Properties/definitions/BaselinePerformanceFactors": close({
 // ``NoDevice``, or ``VirtualName``.
 // ``BlockDeviceMapping`` is a property of [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
+#BlockDeviceMapping: close({
 	// The device name (for example, /dev/sdh or xvdh).
 	DeviceName?: string
 
 	// Parameters used to automatically set up EBS volumes when the instance is launched.
-	Ebs?: _#defs."/$defs/Properties/definitions/Ebs"
+	Ebs?: #Ebs
 
 	// To omit the device from the block device mapping, specify an empty string.
 	NoDevice?: string
@@ -129,7 +129,7 @@ _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 // ``CapacityReservationSpecification`` is a property of
 // [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/CapacityReservationSpecification": close({
+#CapacityReservationSpecification: close({
 	// Indicates the instance's Capacity Reservation preferences. Possible preferences include:
 	// + ``capacity-reservations-only`` - The instance will only run in a Capacity
 	// Reservation or Capacity Reservation group. If capacity isn't available, the
@@ -142,14 +142,14 @@ _#defs: "/$defs/Properties/definitions/CapacityReservationSpecification": close(
 	CapacityReservationPreference?: "capacity-reservations-only" | "none" | "open"
 
 	// Information about the target Capacity Reservation or Capacity Reservation group.
-	CapacityReservationTarget?: _#defs."/$defs/Properties/definitions/CapacityReservationTarget"
+	CapacityReservationTarget?: #CapacityReservationTarget
 })
 
 // Specifies a target Capacity Reservation.
 // ``CapacityReservationTarget`` is a property of the [Amazon EC2 LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html)
 // property type.
-_#defs: "/$defs/Properties/definitions/CapacityReservationTarget": close({
+#CapacityReservationTarget: close({
 	// The ID of the Capacity Reservation in which to run the instance.
 	CapacityReservationId?: string
 
@@ -162,7 +162,7 @@ _#defs: "/$defs/Properties/definitions/CapacityReservationTarget": close({
 // For more information, see [Connection tracking
 // timeouts](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#connection-tracking-timeouts)
 // in the *Amazon EC2 User Guide*.
-_#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({
+#ConnectionTrackingSpecification: close({
 	// Timeout (in seconds) for idle TCP connections in an established state. Min:
 	// 60 seconds. Max: 432000 seconds (5 days). Default: 350 seconds for Nitro v6
 	// instance types (excluding P6e-GB200); 432000 seconds for all other instance
@@ -182,12 +182,12 @@ _#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({
 
 // Specifies the CPU performance to consider when using an instance family as
 // the baseline reference.
-_#defs: "/$defs/Properties/definitions/Cpu": close({
+#Cpu: close({
 	// The instance family to use as the baseline reference for CPU performance. All
 	// instance types that match your specified attributes are compared against the
 	// CPU performance of the referenced instance family, regardless of CPU
 	// manufacturer or architecture differences.
-	References?: _#defs."/$defs/Properties/definitions/References"
+	References?: #References
 })
 
 // Specifies the CPU options for an instance. For more information, see
@@ -196,7 +196,7 @@ _#defs: "/$defs/Properties/definitions/Cpu": close({
 // in the *User Guide*.
 // ``CpuOptions`` is a property of [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/CpuOptions": close({
+#CpuOptions: close({
 	// Indicates whether to enable the instance for AMD SEV-SNP. AMD SEV-SNP is
 	// supported with M6a, R6a, and C6a instance types only. For more information,
 	// see [AMD SEV-SNP for Amazon EC2
@@ -218,7 +218,7 @@ _#defs: "/$defs/Properties/definitions/CpuOptions": close({
 // Specifies the credit option for CPU usage of a T2, T3, or T3a instance.
 // ``CreditSpecification`` is a property of [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/CreditSpecification": close({
+#CreditSpecification: close({
 	// The credit option for CPU usage of a T instance.
 	// Valid values: ``standard`` | ``unlimited``
 	CpuCredits?: string
@@ -227,7 +227,7 @@ _#defs: "/$defs/Properties/definitions/CreditSpecification": close({
 // Parameters for a block device for an EBS volume in an Amazon EC2 launch template.
 // ``Ebs`` is a property of [AWS::EC2::LaunchTemplate
 // BlockDeviceMapping](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-blockdevicemapping.html).
-_#defs: "/$defs/Properties/definitions/Ebs": close({
+#Ebs: close({
 	// Indicates whether the EBS volume is deleted on instance termination.
 	DeleteOnTermination?: bool
 	EbsCardIndex?:        int
@@ -313,12 +313,12 @@ _#defs: "/$defs/Properties/definitions/Ebs": close({
 // applications are designed to handle network packets that are out of order to
 // reduce the overhead for packet delivery at the network layer. When ENA
 // Express is enabled, you can specify whether UDP network traffic uses it.
-_#defs: "/$defs/Properties/definitions/EnaSrdSpecification": close({
+#EnaSrdSpecification: close({
 	// Indicates whether ENA Express is enabled for the network interface.
 	EnaSrdEnabled?: bool
 
 	// Configures ENA Express for UDP network traffic.
-	EnaSrdUdpSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdUdpSpecification"
+	EnaSrdUdpSpecification?: #EnaSrdUdpSpecification
 })
 
 // ENA Express is compatible with both TCP and UDP transport protocols. When
@@ -327,14 +327,14 @@ _#defs: "/$defs/Properties/definitions/EnaSrdSpecification": close({
 // without a need for retransmission, such as live video broadcasting or other
 // near-real-time applications. For UDP traffic, you can specify whether to use
 // ENA Express, based on your application environment needs.
-_#defs: "/$defs/Properties/definitions/EnaSrdUdpSpecification": close({
+#EnaSrdUdpSpecification: close({
 	// Indicates whether UDP traffic to and from the instance uses ENA Express. To
 	// specify this setting, you must first enable ENA Express.
 	EnaSrdUdpEnabled?: bool
 })
 
 // Indicates whether the instance is enabled for AWS Nitro Enclaves.
-_#defs: "/$defs/Properties/definitions/EnclaveOptions": close({
+#EnclaveOptions: close({
 	// If this parameter is set to ``true``, the instance is enabled for AWS Nitro
 	// Enclaves; otherwise, it is not enabled for AWS Nitro Enclaves.
 	Enabled?: bool
@@ -348,7 +348,7 @@ _#defs: "/$defs/Properties/definitions/EnclaveOptions": close({
 // in the *Amazon EC2 User Guide*.
 // ``HibernationOptions`` is a property of [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/HibernationOptions": close({
+#HibernationOptions: close({
 	// If you set this parameter to ``true``, the instance is enabled for hibernation.
 	// Default: ``false``
 	Configured?: bool
@@ -361,7 +361,7 @@ _#defs: "/$defs/Properties/definitions/HibernationOptions": close({
 // specify either the name or the ARN of the instance profile, but not both.
 // ``IamInstanceProfile`` is a property of [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/IamInstanceProfile": close({
+#IamInstanceProfile: close({
 	// The Amazon Resource Name (ARN) of the instance profile.
 	Arn?: string
 
@@ -372,12 +372,12 @@ _#defs: "/$defs/Properties/definitions/IamInstanceProfile": close({
 // Specifies the market (purchasing) option for an instance.
 // ``InstanceMarketOptions`` is a property of the [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/InstanceMarketOptions": close({
+#InstanceMarketOptions: close({
 	// The market type.
 	MarketType?: "capacity-block" | "interruptible-capacity-reservation" | "on-demand" | "spot"
 
 	// The options for Spot Instances.
-	SpotOptions?: _#defs."/$defs/Properties/definitions/SpotOptions"
+	SpotOptions?: #SpotOptions
 })
 
 // The attributes for the instance types. When you specify instance attributes,
@@ -412,12 +412,12 @@ _#defs: "/$defs/Properties/definitions/InstanceMarketOptions": close({
 // and [Spot placement
 // score](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-placement-score.html)
 // in the *Amazon EC2 User Guide*.
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
+#InstanceRequirements: close({
 	// The minimum and maximum number of accelerators (GPUs, FPGAs, or AWS
 	// Inferentia chips) on an instance.
 	// To exclude accelerator-enabled instance types, set ``Max`` to ``0``.
 	// Default: No minimum or maximum limits
-	AcceleratorCount?: _#defs."/$defs/Properties/definitions/AcceleratorCount"
+	AcceleratorCount?: #AcceleratorCount
 
 	// Indicates whether instance types must have accelerators by specific manufacturers.
 	// + For instance types with AWS devices, specify ``amazon-web-services``.
@@ -475,7 +475,7 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 
 	// The minimum and maximum amount of total accelerator memory, in MiB.
 	// Default: No minimum or maximum limits
-	AcceleratorTotalMemoryMiB?: _#defs."/$defs/Properties/definitions/AcceleratorTotalMemoryMiB"
+	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiB
 
 	// The accelerator types that must be on the instance type.
 	// + For instance types with FPGA accelerators, specify ``fpga``.
@@ -514,7 +514,7 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 	// instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-optimized.html)
 	// in the *Amazon EC2 User Guide*.
 	// Default: No minimum or maximum limits
-	BaselineEbsBandwidthMbps?: _#defs."/$defs/Properties/definitions/BaselineEbsBandwidthMbps"
+	BaselineEbsBandwidthMbps?: #BaselineEbsBandwidthMbps
 
 	// The baseline performance to consider, using an instance family as a baseline
 	// reference. The instance family establishes the lowest acceptable level of
@@ -525,7 +525,7 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 	// information, see [Performance
 	// protection](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-attribute-based-instance-type-selection.html#ec2fleet-abis-performance-protection)
 	// in the *Amazon EC2 User Guide*.
-	BaselinePerformanceFactors?: _#defs."/$defs/Properties/definitions/BaselinePerformanceFactors"
+	BaselinePerformanceFactors?: #BaselinePerformanceFactors
 
 	// Indicates whether burstable performance T instance types are included,
 	// excluded, or required. For more information, see [Burstable performance
@@ -616,18 +616,18 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 
 	// The minimum and maximum amount of memory per vCPU, in GiB.
 	// Default: No minimum or maximum limits
-	MemoryGiBPerVCpu?: _#defs."/$defs/Properties/definitions/MemoryGiBPerVCpu"
+	MemoryGiBPerVCpu?: #MemoryGiBPerVCpu
 
 	// The minimum and maximum amount of memory, in MiB.
-	MemoryMiB?: _#defs."/$defs/Properties/definitions/MemoryMiB"
+	MemoryMiB?: #MemoryMiB
 
 	// The minimum and maximum amount of network bandwidth, in gigabits per second (Gbps).
 	// Default: No minimum or maximum limits
-	NetworkBandwidthGbps?: _#defs."/$defs/Properties/definitions/NetworkBandwidthGbps"
+	NetworkBandwidthGbps?: #NetworkBandwidthGbps
 
 	// The minimum and maximum number of network interfaces.
 	// Default: No minimum or maximum limits
-	NetworkInterfaceCount?: _#defs."/$defs/Properties/definitions/NetworkInterfaceCount"
+	NetworkInterfaceCount?: #NetworkInterfaceCount
 
 	// [Price protection] The price protection threshold for On-Demand Instances, as
 	// a percentage higher than an identified On-Demand price. The identified
@@ -683,16 +683,16 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 
 	// The minimum and maximum amount of total local storage, in GB.
 	// Default: No minimum or maximum limits
-	TotalLocalStorageGB?: _#defs."/$defs/Properties/definitions/TotalLocalStorageGB"
+	TotalLocalStorageGB?: #TotalLocalStorageGB
 
 	// The minimum and maximum number of vCPUs.
-	VCpuCount?: _#defs."/$defs/Properties/definitions/VCpuCount"
+	VCpuCount?: #VCpuCount
 })
 
 // Specifies an IPv4 prefix for a network interface.
 // ``Ipv4PrefixSpecification`` is a property of [AWS::EC2::LaunchTemplate
 // NetworkInterface](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-networkinterface.html).
-_#defs: "/$defs/Properties/definitions/Ipv4PrefixSpecification": close({
+#Ipv4PrefixSpecification: close({
 	// The IPv4 prefix. For information, see [Assigning prefixes to network
 	// interfaces](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-prefix-eni.html)
 	// in the *Amazon EC2 User Guide*.
@@ -702,7 +702,7 @@ _#defs: "/$defs/Properties/definitions/Ipv4PrefixSpecification": close({
 // Specifies an IPv6 address in an Amazon EC2 launch template.
 // ``Ipv6Add`` is a property of [AWS::EC2::LaunchTemplate
 // NetworkInterface](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-networkinterface.html).
-_#defs: "/$defs/Properties/definitions/Ipv6Add": close({
+#Ipv6Add: close({
 	// One or more specific IPv6 addresses from the IPv6 CIDR block range of your
 	// subnet. You can't use this option if you're specifying a number of IPv6
 	// addresses.
@@ -712,31 +712,31 @@ _#defs: "/$defs/Properties/definitions/Ipv6Add": close({
 // Specifies an IPv6 prefix for a network interface.
 // ``Ipv6PrefixSpecification`` is a property of [AWS::EC2::LaunchTemplate
 // NetworkInterface](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-networkinterface.html).
-_#defs: "/$defs/Properties/definitions/Ipv6PrefixSpecification": close({
+#Ipv6PrefixSpecification: close({
 	// The IPv6 prefix.
 	Ipv6Prefix?: string
 })
 
 // The information to include in the launch template.
 // You must specify at least one parameter for the launch template data.
-_#defs: "/$defs/Properties/definitions/LaunchTemplateData": close({
+#LaunchTemplateData: close({
 	// The block device mapping.
-	BlockDeviceMappings?: [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"]
+	BlockDeviceMappings?: [...#BlockDeviceMapping]
 
 	// The Capacity Reservation targeting option. If you do not specify this
 	// parameter, the instance's Capacity Reservation preference defaults to
 	// ``open``, which enables it to run in any open Capacity Reservation that has
 	// matching attributes (instance type, platform, Availability Zone).
-	CapacityReservationSpecification?: _#defs."/$defs/Properties/definitions/CapacityReservationSpecification"
+	CapacityReservationSpecification?: #CapacityReservationSpecification
 
 	// The CPU options for the instance. For more information, see [CPU options for
 	// Amazon EC2
 	// instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-optimize-cpu.html)
 	// in the *Amazon EC2 User Guide*.
-	CpuOptions?: _#defs."/$defs/Properties/definitions/CpuOptions"
+	CpuOptions?: #CpuOptions
 
 	// The credit option for CPU usage of the instance. Valid only for T instances.
-	CreditSpecification?: _#defs."/$defs/Properties/definitions/CreditSpecification"
+	CreditSpecification?: #CreditSpecification
 
 	// Indicates whether to enable the instance for stop protection. For more
 	// information, see [Enable stop protection for your EC2
@@ -763,7 +763,7 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateData": close({
 	// Enclaves?](https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave.html)
 	// in the *Nitro Enclaves User Guide*.
 	// You can't enable AWS Nitro Enclaves and hibernation on the same instance.
-	EnclaveOptions?: _#defs."/$defs/Properties/definitions/EnclaveOptions"
+	EnclaveOptions?: #EnclaveOptions
 
 	// Indicates whether an instance is enabled for hibernation. This parameter is
 	// valid only if the instance meets the [hibernation
@@ -771,10 +771,10 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateData": close({
 	// For more information, see [Hibernate your Amazon EC2
 	// instance](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html)
 	// in the *Amazon EC2 User Guide*.
-	HibernationOptions?: _#defs."/$defs/Properties/definitions/HibernationOptions"
+	HibernationOptions?: #HibernationOptions
 
 	// The name or Amazon Resource Name (ARN) of an IAM instance profile.
-	IamInstanceProfile?: _#defs."/$defs/Properties/definitions/IamInstanceProfile"
+	IamInstanceProfile?: #IamInstanceProfile
 
 	// The ID of the AMI. Alternatively, you can specify a Systems Manager
 	// parameter, which will resolve to an AMI ID on launch.
@@ -795,7 +795,7 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateData": close({
 	InstanceInitiatedShutdownBehavior?: "stop" | "terminate"
 
 	// The market (purchasing) option for the instances.
-	InstanceMarketOptions?: _#defs."/$defs/Properties/definitions/InstanceMarketOptions"
+	InstanceMarketOptions?: #InstanceMarketOptions
 
 	// The attributes for the instance types. When you specify instance attributes,
 	// Amazon EC2 will identify instance types with these attributes.
@@ -829,7 +829,7 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateData": close({
 	// and [Spot placement
 	// score](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-placement-score.html)
 	// in the *Amazon EC2 User Guide*.
-	InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirements"
+	InstanceRequirements?: #InstanceRequirements
 
 	// The instance type. For more information, see [Amazon EC2 instance
 	// types](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html)
@@ -853,37 +853,37 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateData": close({
 	KeyName?: string
 
 	// The license configurations.
-	LicenseSpecifications?: [..._#defs."/$defs/Properties/definitions/LicenseSpecification"]
+	LicenseSpecifications?: [...#LicenseSpecification]
 
 	// The maintenance options of your instance.
-	MaintenanceOptions?: _#defs."/$defs/Properties/definitions/MaintenanceOptions"
+	MaintenanceOptions?: #MaintenanceOptions
 
 	// The metadata options for the instance. For more information, see [Configure
 	// the Instance Metadata Service
 	// options](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html)
 	// in the *Amazon EC2 User Guide*.
-	MetadataOptions?: _#defs."/$defs/Properties/definitions/MetadataOptions"
+	MetadataOptions?: #MetadataOptions
 
 	// The monitoring for the instance.
-	Monitoring?: _#defs."/$defs/Properties/definitions/Monitoring"
+	Monitoring?: #Monitoring
 
 	// The network interfaces for the instance.
-	NetworkInterfaces?: [..._#defs."/$defs/Properties/definitions/NetworkInterface"]
+	NetworkInterfaces?: [...#NetworkInterface]
 
 	// The settings for the network performance options for the instance. For more
 	// information, see [EC2 instance bandwidth weighting
 	// configuration](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configure-bandwidth-weighting.html).
-	NetworkPerformanceOptions?: _#defs."/$defs/Properties/definitions/NetworkPerformanceOptions"
+	NetworkPerformanceOptions?: #NetworkPerformanceOptions
 
 	// The placement for the instance.
-	Placement?: _#defs."/$defs/Properties/definitions/Placement"
+	Placement?: #Placement
 
 	// The hostname type for EC2 instances launched into this subnet and how DNS A
 	// and AAAA record queries should be handled. For more information, see [Amazon
 	// EC2 instance hostname
 	// types](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-naming.html)
 	// in the *User Guide*.
-	PrivateDnsNameOptions?: _#defs."/$defs/Properties/definitions/PrivateDnsNameOptions"
+	PrivateDnsNameOptions?: #PrivateDnsNameOptions
 
 	// The ID of the RAM disk.
 	// We recommend that you use PV-GRUB instead of kernels and RAM disks. For more
@@ -906,7 +906,7 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateData": close({
 	// The tags to apply to resources that are created during instance launch.
 	// To tag the launch template itself, use
 	// [TagSpecifications](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-launchtemplate.html#cfn-ec2-launchtemplate-tagspecifications).
-	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/TagSpecification"]
+	TagSpecifications?: [...#TagSpecification]
 
 	// The user data to make available to the instance. You must provide
 	// base64-encoded text. User data is limited to 16 KB. For more information,
@@ -928,7 +928,7 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateData": close({
 // TagSpecification](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-tagspecification.html).
 // ``LaunchTemplateTagSpecification`` is a property of
 // [AWS::EC2::LaunchTemplate](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-launchtemplate.html).
-_#defs: "/$defs/Properties/definitions/LaunchTemplateTagSpecification": close({
+#LaunchTemplateTagSpecification: close({
 	// The type of resource. To tag a launch template, ``ResourceType`` must be ``launch-template``.
 	ResourceType?: "application-status-check" |
 		"capacity-block" |
@@ -1044,25 +1044,25 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateTagSpecification": close({
 		"vpn-gateway"
 
 	// The tags for the resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // Specifies a license configuration for an instance.
 // ``LicenseSpecification`` is a property of [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/LicenseSpecification": close({
+#LicenseSpecification: close({
 	// The Amazon Resource Name (ARN) of the license configuration.
 	LicenseConfigurationArn?: string
 })
 
 // The maintenance options of your instance.
-_#defs: "/$defs/Properties/definitions/MaintenanceOptions": close({
+#MaintenanceOptions: close({
 	// Disables the automatic recovery behavior of your instance or sets it to default.
 	AutoRecovery?: "default" | "disabled"
 })
 
 // The minimum and maximum amount of memory per vCPU, in GiB.
-_#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpu": close({
+#MemoryGiBPerVCpu: close({
 	// The maximum amount of memory per vCPU, in GiB. To specify no maximum limit, omit this parameter.
 	Max?: number
 
@@ -1071,7 +1071,7 @@ _#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpu": close({
 })
 
 // The minimum and maximum amount of memory, in MiB.
-_#defs: "/$defs/Properties/definitions/MemoryMiB": close({
+#MemoryMiB: close({
 	// The maximum amount of memory, in MiB. To specify no maximum limit, omit this parameter.
 	Max?: int
 
@@ -1085,7 +1085,7 @@ _#defs: "/$defs/Properties/definitions/MemoryMiB": close({
 // in the *Amazon EC2 User Guide*.
 // ``MetadataOptions`` is a property of [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/MetadataOptions": close({
+#MetadataOptions: close({
 	// Enables or disables the HTTP metadata endpoint on your instances. If the
 	// parameter is not specified, the default state is ``enabled``.
 	// If you specify a value of ``disabled``, you will not be able to access your instance metadata.
@@ -1132,7 +1132,7 @@ _#defs: "/$defs/Properties/definitions/MetadataOptions": close({
 // in the *User Guide*.
 // ``Monitoring`` is a property of [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/Monitoring": close({
+#Monitoring: close({
 	// Specify ``true`` to enable detailed monitoring. Otherwise, basic monitoring is enabled.
 	Enabled?: bool
 })
@@ -1145,7 +1145,7 @@ _#defs: "/$defs/Properties/definitions/Monitoring": close({
 // information, see [Available instance
 // bandwidth](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-network-bandwidth.html#available-instance-bandwidth)
 // in the *Amazon EC2 User Guide*.
-_#defs: "/$defs/Properties/definitions/NetworkBandwidthGbps": close({
+#NetworkBandwidthGbps: close({
 	// The maximum amount of network bandwidth, in Gbps. To specify no maximum
 	// limit, omit this parameter.
 	Max?: number
@@ -1158,7 +1158,7 @@ _#defs: "/$defs/Properties/definitions/NetworkBandwidthGbps": close({
 // Specifies the parameters for a network interface.
 // ``NetworkInterface`` is a property of [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/NetworkInterface": close({
+#NetworkInterface: close({
 	// Associates a Carrier IP address with eth0 for a new network interface.
 	// Use this option when you launch an instance in a Wavelength Zone and want to
 	// associate a Carrier IP address with the network interface. For more
@@ -1175,7 +1175,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 	AssociatePublicIpAddress?: bool
 
 	// A connection tracking specification for the network interface.
-	ConnectionTrackingSpecification?: _#defs."/$defs/Properties/definitions/ConnectionTrackingSpecification"
+	ConnectionTrackingSpecification?: #ConnectionTrackingSpecification
 
 	// Indicates whether the network interface is deleted when the instance is terminated.
 	DeleteOnTermination?: bool
@@ -1197,7 +1197,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 	EnaQueueCount?: int
 
 	// The ENA Express configuration for the network interface.
-	EnaSrdSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdSpecification"
+	EnaSrdSpecification?: #EnaSrdSpecification
 
 	// The IDs of one or more security groups.
 	Groups?: [...string]
@@ -1219,7 +1219,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 
 	// One or more IPv4 prefixes to be assigned to the network interface. You cannot
 	// use this option if you use the ``Ipv4PrefixCount`` option.
-	Ipv4Prefixes?: [..._#defs."/$defs/Properties/definitions/Ipv4PrefixSpecification"]
+	Ipv4Prefixes?: [...#Ipv4PrefixSpecification]
 
 	// The number of IPv6 addresses to assign to a network interface. Amazon EC2
 	// automatically selects the IPv6 addresses from the subnet range. You can't
@@ -1229,7 +1229,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 	// One or more specific IPv6 addresses from the IPv6 CIDR block range of your
 	// subnet. You can't use this option if you're specifying a number of IPv6
 	// addresses.
-	Ipv6Addresses?: [..._#defs."/$defs/Properties/definitions/Ipv6Add"]
+	Ipv6Addresses?: [...#Ipv6Add]
 
 	// The number of IPv6 prefixes to be automatically assigned to the network
 	// interface. You cannot use this option if you use the ``Ipv6Prefix`` option.
@@ -1237,7 +1237,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 
 	// One or more IPv6 prefixes to be assigned to the network interface. You cannot
 	// use this option if you use the ``Ipv6PrefixCount`` option.
-	Ipv6Prefixes?: [..._#defs."/$defs/Properties/definitions/Ipv6PrefixSpecification"]
+	Ipv6Prefixes?: [...#Ipv6PrefixSpecification]
 
 	// The index of the network card. Some instance types support multiple network
 	// cards. The primary network interface must be assigned to network card index
@@ -1259,7 +1259,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 	PrivateIpAddress?: string
 
 	// One or more private IPv4 addresses.
-	PrivateIpAddresses?: [..._#defs."/$defs/Properties/definitions/PrivateIpAdd"]
+	PrivateIpAddresses?: [...#PrivateIpAdd]
 
 	// The number of secondary private IPv4 addresses to assign to a network interface.
 	SecondaryPrivateIpAddressCount?: int
@@ -1275,7 +1275,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 })
 
 // The minimum and maximum number of network interfaces.
-_#defs: "/$defs/Properties/definitions/NetworkInterfaceCount": close({
+#NetworkInterfaceCount: close({
 	// The maximum number of network interfaces. To specify no maximum limit, omit this parameter.
 	Max?: int
 
@@ -1284,7 +1284,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterfaceCount": close({
 })
 
 // Contains settings for the network performance options for the instance.
-_#defs: "/$defs/Properties/definitions/NetworkPerformanceOptions": close({
+#NetworkPerformanceOptions: close({
 	// Specify the bandwidth weighting option to boost the associated type of
 	// baseline bandwidth, as follows:
 	// + default This option uses the standard bandwidth configuration for your
@@ -1297,7 +1297,7 @@ _#defs: "/$defs/Properties/definitions/NetworkPerformanceOptions": close({
 // Specifies the placement of an instance.
 // ``Placement`` is a property of [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/Placement": close({
+#Placement: close({
 	// The affinity setting for an instance on a Dedicated Host.
 	Affinity?: string
 
@@ -1337,7 +1337,7 @@ _#defs: "/$defs/Properties/definitions/Placement": close({
 // EC2 instance hostname
 // types](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-naming.html)
 // in the *User Guide*.
-_#defs: "/$defs/Properties/definitions/PrivateDnsNameOptions": close({
+#PrivateDnsNameOptions: close({
 	// Indicates whether to respond to DNS queries for instance hostnames with DNS AAAA records.
 	EnableResourceNameDnsAAAARecord?: bool
 
@@ -1357,7 +1357,7 @@ _#defs: "/$defs/Properties/definitions/PrivateDnsNameOptions": close({
 // Specifies a secondary private IPv4 address for a network interface.
 // ``PrivateIpAdd`` is a property of [AWS::EC2::LaunchTemplate
 // NetworkInterface](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-networkinterface.html).
-_#defs: "/$defs/Properties/definitions/PrivateIpAdd": close({
+#PrivateIpAdd: close({
 	// Indicates whether the private IPv4 address is the primary private IPv4
 	// address. Only one IPv4 address can be designated as primary.
 	Primary?: bool
@@ -1367,7 +1367,7 @@ _#defs: "/$defs/Properties/definitions/PrivateIpAdd": close({
 })
 
 // Specifies an instance family to use as the baseline reference for CPU performance.
-_#defs: "/$defs/Properties/definitions/Reference": close({
+#Reference: close({
 	// The instance family to use as a baseline reference.
 	// Ensure that you specify the correct value for the instance family. The
 	// instance family is everything before the period (``.``) in the instance type
@@ -1396,14 +1396,12 @@ _#defs: "/$defs/Properties/definitions/Reference": close({
 // A list of references to be used as baseline for the CPU performance.
 // Currently, you can only specify a single reference across different instance
 // type variations such as CPU manufacturers, architectures etc.
-_#defs: "/$defs/Properties/definitions/References": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Reference"
-]
+#References: list.UniqueItems() & [...#Reference]
 
 // Specifies options for Spot Instances.
 // ``SpotOptions`` is a property of [AWS::EC2::LaunchTemplate
 // InstanceMarketOptions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata-instancemarketoptions.html).
-_#defs: "/$defs/Properties/definitions/SpotOptions": close({
+#SpotOptions: close({
 	// Deprecated.
 	BlockDurationMinutes?: int
 
@@ -1441,7 +1439,7 @@ _#defs: "/$defs/Properties/definitions/SpotOptions": close({
 
 // Specifies a tag. For more information, see [Resource
 // tags](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: string
 
@@ -1455,7 +1453,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // [TagSpecifications](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html#cfn-ec2-launchtemplate-launchtemplatedata-tagspecifications)
 // is a property of [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-_#defs: "/$defs/Properties/definitions/TagSpecification": close({
+#TagSpecification: close({
 	// The type of resource to tag. You can specify tags for the following resource
 	// types only: ``instance`` | ``volume`` | ``network-interface`` |
 	// ``spot-instances-request``. If the instance does not include the resource
@@ -1577,11 +1575,11 @@ _#defs: "/$defs/Properties/definitions/TagSpecification": close({
 		"vpn-gateway"
 
 	// The tags to apply to the resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // The minimum and maximum amount of total local storage, in GB.
-_#defs: "/$defs/Properties/definitions/TotalLocalStorageGB": close({
+#TotalLocalStorageGB: close({
 	// The maximum amount of total local storage, in GB. To specify no maximum
 	// limit, omit this parameter.
 	Max?: number
@@ -1592,7 +1590,7 @@ _#defs: "/$defs/Properties/definitions/TotalLocalStorageGB": close({
 })
 
 // The minimum and maximum number of vCPUs.
-_#defs: "/$defs/Properties/definitions/VCpuCount": close({
+#VCpuCount: close({
 	// The maximum number of vCPUs. To specify no maximum limit, omit this parameter.
 	Max?: int
 

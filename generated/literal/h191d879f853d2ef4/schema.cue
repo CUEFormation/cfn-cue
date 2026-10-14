@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -26,18 +26,16 @@ import (
 	CWEMonitorEnabled?: bool
 
 	// The monitoring settings of the components.
-	ComponentMonitoringSettings?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ComponentMonitoringSetting"
-	]
+	ComponentMonitoringSettings?: list.MinItems(1) & [...#ComponentMonitoringSetting]
 
 	// The custom grouped components.
-	CustomComponents?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomComponent"]
+	CustomComponents?: list.MinItems(1) & [...#CustomComponent]
 
 	// The grouping type of the application
 	GroupingType?: "ACCOUNT_BASED"
 
 	// The log pattern sets.
-	LogPatternSets?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogPatternSet"]
+	LogPatternSets?: list.MinItems(1) & [...#LogPatternSet]
 
 	// When set to true, creates opsItems for any problems detected on an application.
 	OpsCenterEnabled?: bool
@@ -57,11 +55,11 @@ import (
 	=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$"
 
 	// The tags of Application Insights application.
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag]
 })
 
 // A CloudWatch alarm to be monitored for the component.
-_#defs: "/$defs/Properties/definitions/Alarm": close({
+#Alarm: close({
 	// The name of the CloudWatch alarm to be monitored for the component.
 	AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -70,24 +68,22 @@ _#defs: "/$defs/Properties/definitions/Alarm": close({
 })
 
 // A metric to be monitored for the component.
-_#defs: "/$defs/Properties/definitions/AlarmMetric": close({
+#AlarmMetric: close({
 	// The name of the metric to be monitored for the component.
 	AlarmMetricName!: string
 })
 
 // The configuration settings of the component.
-_#defs: "/$defs/Properties/definitions/ComponentConfiguration": close({
+#ComponentConfiguration: close({
 	// The configuration settings
-	ConfigurationDetails?: _#defs."/$defs/Properties/definitions/ConfigurationDetails"
+	ConfigurationDetails?: #ConfigurationDetails
 
 	// Sub component configurations of the component.
-	SubComponentTypeConfigurations?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/SubComponentTypeConfiguration"
-	]
+	SubComponentTypeConfigurations?: list.MinItems(1) & [...#SubComponentTypeConfiguration]
 })
 
 // The monitoring setting of the component.
-_#defs: "/$defs/Properties/definitions/ComponentMonitoringSetting": close({
+#ComponentMonitoringSetting: close({
 	// The ARN of the compnonent.
 	ComponentARN?: strings.MaxRunes(300) &
 	strings.MinRunes(20) &
@@ -100,10 +96,10 @@ _#defs: "/$defs/Properties/definitions/ComponentMonitoringSetting": close({
 	ComponentName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\d\\w\\-_.+]*$"
 
 	// The monitoring configuration of the component.
-	CustomComponentConfiguration?: _#defs."/$defs/Properties/definitions/ComponentConfiguration"
+	CustomComponentConfiguration?: #ComponentConfiguration
 
 	// The overwritten settings on default component monitoring configuration.
-	DefaultOverwriteComponentConfiguration?: _#defs."/$defs/Properties/definitions/ComponentConfiguration"
+	DefaultOverwriteComponentConfiguration?: #ComponentConfiguration
 
 	// The tier of the application component.
 	Tier!: =~"^[A-Z][A-Z_]*$"
@@ -115,41 +111,41 @@ _#defs: "/$defs/Properties/definitions/ComponentMonitoringSetting": close({
 }) & matchN(>=1, [{ComponentName!: _}, {ComponentARN!: _}])
 
 // The configuration settings.
-_#defs: "/$defs/Properties/definitions/ConfigurationDetails": close({
+#ConfigurationDetails: close({
 	// A list of metrics to monitor for the component.
-	AlarmMetrics?: [..._#defs."/$defs/Properties/definitions/AlarmMetric"]
+	AlarmMetrics?: [...#AlarmMetric]
 
 	// A list of alarms to monitor for the component.
-	Alarms?: [..._#defs."/$defs/Properties/definitions/Alarm"]
+	Alarms?: [...#Alarm]
 
 	// The HA cluster Prometheus Exporter settings.
-	HAClusterPrometheusExporter?: _#defs."/$defs/Properties/definitions/HAClusterPrometheusExporter"
+	HAClusterPrometheusExporter?: #HAClusterPrometheusExporter
 
 	// The HANA DB Prometheus Exporter settings.
-	HANAPrometheusExporter?: _#defs."/$defs/Properties/definitions/HANAPrometheusExporter"
+	HANAPrometheusExporter?: #HANAPrometheusExporter
 
 	// The JMX Prometheus Exporter settings.
-	JMXPrometheusExporter?: _#defs."/$defs/Properties/definitions/JMXPrometheusExporter"
+	JMXPrometheusExporter?: #JMXPrometheusExporter
 
 	// A list of logs to monitor for the component.
-	Logs?: [..._#defs."/$defs/Properties/definitions/Log"]
+	Logs?: [...#Log]
 
 	// The NetWeaver Prometheus Exporter settings.
-	NetWeaverPrometheusExporter?: _#defs."/$defs/Properties/definitions/NetWeaverPrometheusExporter"
+	NetWeaverPrometheusExporter?: #NetWeaverPrometheusExporter
 
 	// A list of processes to monitor for the component. Only Windows EC2 instances
 	// can have a processes section.
-	Processes?: [..._#defs."/$defs/Properties/definitions/Process"]
+	Processes?: [...#Process]
 
 	// The SQL Prometheus Exporter settings.
-	SQLServerPrometheusExporter?: _#defs."/$defs/Properties/definitions/SQLServerPrometheusExporter"
+	SQLServerPrometheusExporter?: #SQLServerPrometheusExporter
 
 	// A list of Windows Events to log.
-	WindowsEvents?: [..._#defs."/$defs/Properties/definitions/WindowsEvent"]
+	WindowsEvents?: [...#WindowsEvent]
 })
 
 // The custom grouped component.
-_#defs: "/$defs/Properties/definitions/CustomComponent": close({
+#CustomComponent: close({
 	// The name of the component.
 	ComponentName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\d\\w\\-_.+]*$"
 
@@ -162,16 +158,16 @@ _#defs: "/$defs/Properties/definitions/CustomComponent": close({
 })
 
 // The level of event to log.
-_#defs: "/$defs/Properties/definitions/EventLevel": "INFORMATION" | "WARNING" | "ERROR" | "CRITICAL" | "VERBOSE"
+#EventLevel: "INFORMATION" | "WARNING" | "ERROR" | "CRITICAL" | "VERBOSE"
 
 // The HA cluster Prometheus Exporter settings.
-_#defs: "/$defs/Properties/definitions/HAClusterPrometheusExporter": close({
+#HAClusterPrometheusExporter: close({
 	// Prometheus exporter port.
 	PrometheusPort?: string
 })
 
 // The HANA DB Prometheus Exporter settings.
-_#defs: "/$defs/Properties/definitions/HANAPrometheusExporter": close({
+#HANAPrometheusExporter: close({
 	// A flag which indicates agreeing to install SAP HANA DB client.
 	AgreeToInstallHANADBClient!: bool
 
@@ -192,7 +188,7 @@ _#defs: "/$defs/Properties/definitions/HANAPrometheusExporter": close({
 })
 
 // The JMX Prometheus Exporter settings.
-_#defs: "/$defs/Properties/definitions/JMXPrometheusExporter": close({
+#JMXPrometheusExporter: close({
 	// Java agent host port
 	HostPort?: string
 
@@ -204,7 +200,7 @@ _#defs: "/$defs/Properties/definitions/JMXPrometheusExporter": close({
 })
 
 // A log to be monitored for the component.
-_#defs: "/$defs/Properties/definitions/Log": close({
+#Log: close({
 	// The type of encoding of the logs to be monitored.
 	Encoding?: "utf-8" | "utf-16" | "ascii"
 
@@ -222,7 +218,7 @@ _#defs: "/$defs/Properties/definitions/Log": close({
 })
 
 // The log pattern.
-_#defs: "/$defs/Properties/definitions/LogPattern": close({
+#LogPattern: close({
 	// The log pattern.
 	Pattern!: strings.MaxRunes(50) & strings.MinRunes(1)
 
@@ -234,16 +230,16 @@ _#defs: "/$defs/Properties/definitions/LogPattern": close({
 })
 
 // The log pattern set.
-_#defs: "/$defs/Properties/definitions/LogPatternSet": close({
+#LogPatternSet: close({
 	// The log patterns of a set.
-	LogPatterns!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogPattern"]
+	LogPatterns!: list.MinItems(1) & [...#LogPattern]
 
 	// The name of the log pattern set.
 	PatternSetName!: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*"
 })
 
 // The NetWeaver Prometheus Exporter Settings.
-_#defs: "/$defs/Properties/definitions/NetWeaverPrometheusExporter": close({
+#NetWeaverPrometheusExporter: close({
 	// SAP instance numbers for ASCS, ERS, and App Servers.
 	InstanceNumbers!: [...strings.MaxRunes(2) & strings.MinRunes(1) & =~"\\b([0-9]|[0-9][0-9])\\b"]
 
@@ -255,16 +251,16 @@ _#defs: "/$defs/Properties/definitions/NetWeaverPrometheusExporter": close({
 })
 
 // A process to be monitored for the component.
-_#defs: "/$defs/Properties/definitions/Process": close({
+#Process: close({
 	// A list of metrics to monitor for the component.
-	AlarmMetrics!: [..._#defs."/$defs/Properties/definitions/AlarmMetric"]
+	AlarmMetrics!: [...#AlarmMetric]
 
 	// The name of the process to be monitored for the component.
 	ProcessName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_,-]+$"
 })
 
 // The SQL prometheus exporter settings.
-_#defs: "/$defs/Properties/definitions/SQLServerPrometheusExporter": close({
+#SQLServerPrometheusExporter: close({
 	// Prometheus exporter port.
 	PrometheusPort!: string
 
@@ -274,32 +270,32 @@ _#defs: "/$defs/Properties/definitions/SQLServerPrometheusExporter": close({
 })
 
 // The configuration settings of sub components.
-_#defs: "/$defs/Properties/definitions/SubComponentConfigurationDetails": close({
+#SubComponentConfigurationDetails: close({
 	// A list of metrics to monitor for the component.
-	AlarmMetrics?: [..._#defs."/$defs/Properties/definitions/AlarmMetric"]
+	AlarmMetrics?: [...#AlarmMetric]
 
 	// A list of logs to monitor for the component.
-	Logs?: [..._#defs."/$defs/Properties/definitions/Log"]
+	Logs?: [...#Log]
 
 	// A list of processes to monitor for the component. Only Windows EC2 instances
 	// can have a processes section.
-	Processes?: [..._#defs."/$defs/Properties/definitions/Process"]
+	Processes?: [...#Process]
 
 	// A list of Windows Events to log.
-	WindowsEvents?: [..._#defs."/$defs/Properties/definitions/WindowsEvent"]
+	WindowsEvents?: [...#WindowsEvent]
 })
 
 // One type sub component configurations for the component.
-_#defs: "/$defs/Properties/definitions/SubComponentTypeConfiguration": close({
+#SubComponentTypeConfiguration: close({
 	// The configuration settings of sub components.
-	SubComponentConfigurationDetails!: _#defs."/$defs/Properties/definitions/SubComponentConfigurationDetails"
+	SubComponentConfigurationDetails!: #SubComponentConfigurationDetails
 
 	// The sub component type.
 	SubComponentType!: "AWS::EC2::Instance" | "AWS::EC2::Volume"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -314,9 +310,9 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // A Windows Event to be monitored for the component.
-_#defs: "/$defs/Properties/definitions/WindowsEvent": close({
+#WindowsEvent: close({
 	// The levels of event to log.
-	EventLevels!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EventLevel"]
+	EventLevels!: list.MinItems(1) & [...#EventLevel]
 
 	// The type of Windows Events to log.
 	EventName!: strings.MaxRunes(260) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_ \\\\/-]+$"

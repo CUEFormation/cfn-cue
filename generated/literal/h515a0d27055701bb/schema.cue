@@ -12,7 +12,7 @@ import (
 // Resource Type definition for AWS::Lightsail::Disk
 #Properties: close({
 	// An array of objects representing the add-ons to enable for the new instance.
-	AddOns?: [..._#defs."/$defs/Properties/definitions/AddOn"]
+	AddOns?: [...#AddOn]
 
 	// Name of the attached Lightsail Instance
 	AttachedTo?: string
@@ -34,7 +34,7 @@ import (
 
 	// Check is Disk is attached state
 	IsAttached?: bool
-	Location?:   _#defs."/$defs/Properties/definitions/Location"
+	Location?:   #Location
 
 	// Path of the attached Disk
 	Path?: string
@@ -52,14 +52,14 @@ import (
 	SupportCode?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // A addon associate with a resource.
-_#defs: "/$defs/Properties/definitions/AddOn": close({
+#AddOn: close({
 	// The add-on type
 	AddOnType!:                ("AutoSnapshot" | "StopInstanceOnIdle") & (strings.MaxRunes(128) & strings.MinRunes(1))
-	AutoSnapshotAddOnRequest?: _#defs."/$defs/Properties/definitions/AutoSnapshotAddOn"
+	AutoSnapshotAddOnRequest?: #AutoSnapshotAddOn
 
 	// Status of the Addon
 	Status?: "Enabling" | "Disabling" | "Enabled" | "Terminating" | "Terminated" | "Disabled" | "Failed"
@@ -67,13 +67,13 @@ _#defs: "/$defs/Properties/definitions/AddOn": close({
 
 // An object that represents additional parameters when enabling or modifying
 // the automatic snapshot add-on
-_#defs: "/$defs/Properties/definitions/AutoSnapshotAddOn": close({
+#AutoSnapshotAddOn: close({
 	// The daily time when an automatic snapshot will be created.
 	SnapshotTimeOfDay?: =~"^[0-9]{2}:00$"
 })
 
 // Location of a resource.
-_#defs: "/$defs/Properties/definitions/Location": close({
+#Location: close({
 	// The Availability Zone in which to create your disk. Use the following format:
 	// us-east-2a (case sensitive). Be sure to add the include Availability Zones
 	// parameter to your request.
@@ -84,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/Location": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

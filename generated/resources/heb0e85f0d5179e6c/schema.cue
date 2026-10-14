@@ -15,16 +15,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:             strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	DomainIdentifier!:        =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	Model!:                   _#defs."/$defs/Properties/definitions/Model" & fn.#Object & {...} | fn.#ObjectExpression
+	Model!:                   #Model & fn.#Object & {...} | fn.#ObjectExpression
 	Name!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	OwningProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 	Status?:                  "ENABLED" | "DISABLED" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Model": close(
-	{Smithy?: strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#Model: close({Smithy?: strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DataZone::FormType"
 	Properties!: #Properties

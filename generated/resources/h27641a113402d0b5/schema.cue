@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -29,16 +29,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ManageAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
 		fn.#StringExpression
-	ProvisioningConfigurations?: [..._#defs."/$defs/Properties/definitions/ProvisioningConfiguration"] |
-		fn.#ListExpression
+	ProvisioningConfigurations?: [...#ProvisioningConfiguration] | fn.#ListExpression
 	ProvisioningRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
 		fn.#StringExpression
-	RegionalParameters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RegionalParameter"] |
-		fn.#ListExpression
+	RegionalParameters?: list.UniqueItems() & [...#RegionalParameter] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/LakeFormationConfiguration": close({
+#LakeFormationConfiguration: close({
 	LocationRegistrationExcludeS3Locations?: list.MaxItems(20) & [...] & [
 		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^s3://.+$" | fn.#StringExpression
 	] |
@@ -48,18 +46,15 @@ _#defs: "/$defs/Properties/definitions/LakeFormationConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Parameter": close({
+#Parameter: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisioningConfiguration": close(
-	{LakeFormationConfiguration!: _#defs."/$defs/Properties/definitions/LakeFormationConfiguration"},
-) |
-	fn.#ValueExpression
+#ProvisioningConfiguration: close({LakeFormationConfiguration!: #LakeFormationConfiguration}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RegionalParameter": close({
-	Parameters?: _#defs."/$defs/Properties/definitions/Parameter"
+#RegionalParameter: close({
+	Parameters?: #Parameter
 	Region?:     =~"^[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -18,30 +18,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::ElasticLoadBalancing::LoadBalancer
 #Properties: close({
-	AccessLoggingPolicy?: _#defs."/$defs/Properties/definitions/AccessLoggingPolicy" | fn.#ObjectExpression
-	AppCookieStickinessPolicy?: [..._#defs."/$defs/Properties/definitions/AppCookieStickinessPolicy"] |
-		fn.#ListExpression
-	AvailabilityZones?:        [...string | fn.#StringExpression] | fn.#ListExpression
-	ConnectionDrainingPolicy?: _#defs."/$defs/Properties/definitions/ConnectionDrainingPolicy" | fn.#ObjectExpression
-	ConnectionSettings?:       _#defs."/$defs/Properties/definitions/ConnectionSettings" | fn.#ObjectExpression
-	CrossZone?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HealthCheck?:              _#defs."/$defs/Properties/definitions/HealthCheck" | fn.#ObjectExpression
-	Instances?:                [...string | fn.#StringExpression] | fn.#ListExpression
-	LBCookieStickinessPolicy?: [..._#defs."/$defs/Properties/definitions/LBCookieStickinessPolicy"] | fn.#ListExpression
-	Listeners!:                [..._#defs."/$defs/Properties/definitions/Listeners"] | fn.#ListExpression
-	LoadBalancerName?:         string | fn.#StringExpression
-	Policies?:                 [..._#defs."/$defs/Properties/definitions/Policies"] | fn.#ListExpression
-	Scheme?:                   string | fn.#StringExpression
+	AccessLoggingPolicy?:       #AccessLoggingPolicy | fn.#ObjectExpression
+	AppCookieStickinessPolicy?: [...#AppCookieStickinessPolicy] | fn.#ListExpression
+	AvailabilityZones?:         [...string | fn.#StringExpression] | fn.#ListExpression
+	ConnectionDrainingPolicy?:  #ConnectionDrainingPolicy | fn.#ObjectExpression
+	ConnectionSettings?:        #ConnectionSettings | fn.#ObjectExpression
+	CrossZone?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	HealthCheck?:               #HealthCheck | fn.#ObjectExpression
+	Instances?:                 [...string | fn.#StringExpression] | fn.#ListExpression
+	LBCookieStickinessPolicy?:  [...#LBCookieStickinessPolicy] | fn.#ListExpression
+	Listeners!:                 [...#Listeners] | fn.#ListExpression
+	LoadBalancerName?:          string | fn.#StringExpression
+	Policies?:                  [...#Policies] | fn.#ListExpression
+	Scheme?:                    string | fn.#StringExpression
 	SecurityGroups?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
 	Subnets?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:    list.MinItems(1) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessLoggingPolicy": close({
+#AccessLoggingPolicy: close({
 	EmitInterval?: int |
 		{
 			string &
@@ -62,13 +61,13 @@ _#defs: "/$defs/Properties/definitions/AccessLoggingPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AppCookieStickinessPolicy": close({
+#AppCookieStickinessPolicy: close({
 	CookieName!: string | fn.#StringExpression
 	PolicyName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionDrainingPolicy": close({
+#ConnectionDrainingPolicy: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Timeout?: int |
 		{
@@ -87,7 +86,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionDrainingPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionSettings": close({
+#ConnectionSettings: close({
 	IdleTimeout!: int |
 		{
 			string &
@@ -105,7 +104,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionSettings": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheck": close({
+#HealthCheck: close({
 	HealthyThreshold!:   string | fn.#StringExpression
 	Interval!:           string | fn.#StringExpression
 	Target!:             string | fn.#StringExpression
@@ -114,13 +113,13 @@ _#defs: "/$defs/Properties/definitions/HealthCheck": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LBCookieStickinessPolicy": close({
+#LBCookieStickinessPolicy: close({
 	CookieExpirationPeriod?: string | fn.#StringExpression
 	PolicyName?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Listeners": close({
+#Listeners: close({
 	InstancePort!:     string | fn.#StringExpression
 	InstanceProtocol?: =~"(?i)^(?:http|https|tcp|ssl)$" | fn.#StringExpression
 	LoadBalancerPort!: string | fn.#StringExpression
@@ -130,8 +129,8 @@ _#defs: "/$defs/Properties/definitions/Listeners": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Policies": close({
-	Attributes!:        [..._#defs."/$defs/Properties/definitions/PolicyItem"] | fn.#ListExpression
+#Policies: close({
+	Attributes!:        [...#PolicyItem] | fn.#ListExpression
 	InstancePorts?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	LoadBalancerPorts?: [...string | fn.#StringExpression] | fn.#ListExpression
 	PolicyName!:        string | fn.#StringExpression
@@ -139,19 +138,19 @@ _#defs: "/$defs/Properties/definitions/Policies": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyItem": close({
+#PolicyItem: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceSecurityGroup": close({
+#SourceSecurityGroup: close({
 	GroupName?:  string | fn.#StringExpression
 	OwnerAlias?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

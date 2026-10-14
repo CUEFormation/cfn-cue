@@ -14,15 +14,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::EC2::ClientVpnEndpoint
 #Properties: close({
-	AuthenticationOptions!: [..._#defs."/$defs/Properties/definitions/ClientAuthenticationRequest"] | fn.#ListExpression
-	AuthorizationPolicy?:   _#defs."/$defs/Properties/definitions/AuthorizationPolicy"
-	ClientCidrBlock?:       string | fn.#StringExpression
-	ClientConnectOptions?:  _#defs."/$defs/Properties/definitions/ClientConnectOptions"
-	ClientLoginBannerOptions?:      _#defs."/$defs/Properties/definitions/ClientLoginBannerOptions"
-	ClientRouteEnforcementOptions?: _#defs."/$defs/Properties/definitions/ClientRouteEnforcementOptions"
-	ConnectionLogOptions!:          _#defs."/$defs/Properties/definitions/ConnectionLogOptions"
+	AuthenticationOptions!:         [...#ClientAuthenticationRequest] | fn.#ListExpression
+	AuthorizationPolicy?:           #AuthorizationPolicy
+	ClientCidrBlock?:               string | fn.#StringExpression
+	ClientConnectOptions?:          #ClientConnectOptions
+	ClientLoginBannerOptions?:      #ClientLoginBannerOptions
+	ClientRouteEnforcementOptions?: #ClientRouteEnforcementOptions
+	ConnectionLogOptions!:          #ConnectionLogOptions
 	Description?:                   string | fn.#StringExpression
-	DevicePostureOptions?:          _#defs."/$defs/Properties/definitions/DevicePostureOptions"
+	DevicePostureOptions?:          #DevicePostureOptions
 	DisconnectOnSessionTimeout?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DnsServers?:                 [...string | fn.#StringExpression] | fn.#ListExpression
 	EndpointIpAddressType?:      string | fn.#StringExpression
@@ -48,9 +48,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	SplitTunnel?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TagSpecifications?:           [..._#defs."/$defs/Properties/definitions/TagSpecification"] | fn.#ListExpression
+	TagSpecifications?:           [...#TagSpecification] | fn.#ListExpression
 	TrafficIpAddressType?:        string | fn.#StringExpression
-	TransitGatewayConfiguration?: _#defs."/$defs/Properties/definitions/TransitGatewayConfiguration"
+	TransitGatewayConfiguration?: #TransitGatewayConfiguration
 	TransportProtocol?:           string | fn.#StringExpression
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
@@ -70,45 +70,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AuthorizationPolicy": close({
+#AuthorizationPolicy: close({
 	Description?:    string | fn.#StringExpression
 	PolicyDocument!: string | fn.#StringExpression
 	ShadowMode?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CertificateAuthenticationRequest": close(
-	{ClientRootCertificateChainArn!: string | fn.#StringExpression},
-) |
+#CertificateAuthenticationRequest: close({ClientRootCertificateChainArn!: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientAuthenticationRequest": close({
-	ActiveDirectory?:         _#defs."/$defs/Properties/definitions/DirectoryServiceAuthenticationRequest"
-	FederatedAuthentication?: _#defs."/$defs/Properties/definitions/FederatedAuthenticationRequest"
-	MutualAuthentication?:    _#defs."/$defs/Properties/definitions/CertificateAuthenticationRequest"
+#ClientAuthenticationRequest: close({
+	ActiveDirectory?:         #DirectoryServiceAuthenticationRequest
+	FederatedAuthentication?: #FederatedAuthenticationRequest
+	MutualAuthentication?:    #CertificateAuthenticationRequest
 	Type!:                    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientConnectOptions": close({
+#ClientConnectOptions: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LambdaFunctionArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientLoginBannerOptions": close({
+#ClientLoginBannerOptions: close({
 	BannerText?: string | fn.#StringExpression
 	Enabled!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientRouteEnforcementOptions": close(
+#ClientRouteEnforcementOptions: close(
 	{Enforced?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionLogOptions": close({
+#ConnectionLogOptions: close({
 	CloudwatchLogGroup?:  string | fn.#StringExpression
 	CloudwatchLogStream?: string | fn.#StringExpression
 	Enabled!:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -123,43 +121,40 @@ _#defs: "/$defs/Properties/definitions/ConnectionLogOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DevicePostureOptions": close({
+#DevicePostureOptions: close({
 	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TrustProviders!: [..._#defs."/$defs/Properties/definitions/DevicePostureTrustProvider"] | fn.#ListExpression
+	TrustProviders!: [...#DevicePostureTrustProvider] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DevicePostureTrustProvider": close({
+#DevicePostureTrustProvider: close({
 	PublicSigningKeyUrl?: string | fn.#StringExpression
 	TenantId!:            string | fn.#StringExpression
 	TrustProviderType!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DirectoryServiceAuthenticationRequest": close(
-	{DirectoryId!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#DirectoryServiceAuthenticationRequest: close({DirectoryId!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FederatedAuthenticationRequest": close({
+#FederatedAuthenticationRequest: close({
 	SAMLProviderArn!:            string | fn.#StringExpression
 	SelfServiceSAMLProviderArn?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagSpecification": close({
+#TagSpecification: close({
 	ResourceType!: string | fn.#StringExpression
-	Tags!:         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags!:         [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayConfiguration": close({
+#TransitGatewayConfiguration: close({
 	AvailabilityZoneIds?: [...string | fn.#StringExpression] | fn.#ListExpression
 	AvailabilityZones?:   [...string | fn.#StringExpression] | fn.#ListExpression
 	TransitGatewayId!:    string | fn.#StringExpression

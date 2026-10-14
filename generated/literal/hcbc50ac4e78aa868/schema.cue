@@ -8,20 +8,18 @@ import "strings"
 
 // Definition of AWS::ResourceExplorer2::View Resource Type
 #Properties: close({
-	Filters?:            _#defs."/$defs/Properties/definitions/SearchFilter"
-	IncludedProperties?: [..._#defs."/$defs/Properties/definitions/IncludedProperty"]
+	Filters?:            #SearchFilter
+	IncludedProperties?: [...#IncludedProperty]
 	Scope?:              string
-	Tags?:               _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?:               #TagMap
 	ViewArn?:            string
 	ViewName!:           =~"^[a-zA-Z0-9\\-]{1,64}$"
 })
 
-_#defs: "/$defs/Properties/definitions/IncludedProperty": close({Name!: strings.MaxRunes(1011) & strings.MinRunes(1)})
+#IncludedProperty: close({Name!: strings.MaxRunes(1011) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/SearchFilter": close(
-	{FilterString!: strings.MaxRunes(2048) & strings.MinRunes(0)},
-)
+#SearchFilter: close({FilterString!: strings.MaxRunes(2048) & strings.MinRunes(0)})
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: string}})

@@ -11,7 +11,7 @@ package schema
 
 	// State of the transit gateway policy table
 	State?: string
-	Tags?:  [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:  [...#Tag]
 
 	// The Id of transit gateway
 	TransitGatewayId!: string
@@ -20,7 +20,7 @@ package schema
 	TransitGatewayPolicyTableId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

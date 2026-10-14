@@ -40,10 +40,10 @@ import (
 	RegistrationType!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_]+$"
 
 	// An array of tags (key and value pairs) to associate with the registration.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key identifier, or name, of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

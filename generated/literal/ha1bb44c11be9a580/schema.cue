@@ -28,7 +28,7 @@ package schema
 	SchemaVersion?: string
 
 	// Tags associated with the resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/TagsEntry"]
+	Tags?: [...#TagsEntry]
 
 	// The type of schema. Valid types include OpenApi3 and JSONSchemaDraft4.
 	Type!: string
@@ -37,7 +37,7 @@ package schema
 	VersionCreatedDate?: string
 })
 
-_#defs: "/$defs/Properties/definitions/TagsEntry": close({
+#TagsEntry: close({
 	Key!:   string
 	Value!: string
 })

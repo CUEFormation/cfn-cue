@@ -13,64 +13,55 @@ import (
 #Properties: close({
 	ARecord?:                   string
 	IngressPointArn?:           string
-	IngressPointConfiguration?: _#defs."/$defs/Properties/definitions/IngressPointConfiguration"
+	IngressPointConfiguration?: #IngressPointConfiguration
 	IngressPointId?:            strings.MaxRunes(100) & strings.MinRunes(1)
 	IngressPointName?:          strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$"
-	NetworkConfiguration?:      _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	NetworkConfiguration?:      #NetworkConfiguration
 	RuleSetId!:                 strings.MaxRunes(100) & strings.MinRunes(1)
-	Status?:                    _#defs."/$defs/Properties/definitions/IngressPointStatus"
-	StatusToUpdate?:            _#defs."/$defs/Properties/definitions/IngressPointStatusToUpdate"
-	Tags?:                      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TlsPolicy?:                 _#defs."/$defs/Properties/definitions/TlsPolicy"
+	Status?:                    #IngressPointStatus
+	StatusToUpdate?:            #IngressPointStatusToUpdate
+	Tags?:                      list.MaxItems(200) & [...] & [...#Tag]
+	TlsPolicy?:                 #TlsPolicy
 	TrafficPolicyId!:           strings.MaxRunes(100) & strings.MinRunes(1)
-	Type!:                      _#defs."/$defs/Properties/definitions/IngressPointType"
+	Type!:                      #IngressPointType
 })
 
-_#defs: "/$defs/Properties/definitions/IngressPointConfiguration": matchN(1, [close(
+#IngressPointConfiguration: matchN(1, [close(
 	{SmtpPassword!: strings.MaxRunes(64) & strings.MinRunes(8) & =~"^[A-Za-z0-9!@#$%^&*()_+\\-=\\[\\]{}|.,?]+$"},
 ), close({
 	SecretArn!: =~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=,.@-]+$"
 }), close(
-	{TlsAuthConfiguration!: _#defs."/$defs/Properties/definitions/TlsAuthConfiguration"},
+	{TlsAuthConfiguration!: #TlsAuthConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/IngressPointStatus": "PROVISIONING" |
-	"DEPROVISIONING" |
-	"UPDATING" |
-	"ACTIVE" |
-	"CLOSED" |
-	"FAILED"
+#IngressPointStatus: "PROVISIONING" | "DEPROVISIONING" | "UPDATING" | "ACTIVE" | "CLOSED" | "FAILED"
 
-_#defs: "/$defs/Properties/definitions/IngressPointStatusToUpdate": "ACTIVE" | "CLOSED"
+#IngressPointStatusToUpdate: "ACTIVE" | "CLOSED"
 
-_#defs: "/$defs/Properties/definitions/IngressPointType": "OPEN" | "AUTH" | "MTLS"
+#IngressPointType: "OPEN" | "AUTH" | "MTLS"
 
-_#defs: "/$defs/Properties/definitions/IpType": "IPV4" | "DUAL_STACK"
+#IpType: "IPV4" | "DUAL_STACK"
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": matchN(1, [close(
-	{PublicNetworkConfiguration!: _#defs."/$defs/Properties/definitions/PublicNetworkConfiguration"},
+#NetworkConfiguration: matchN(1, [close(
+	{PublicNetworkConfiguration!: #PublicNetworkConfiguration},
 ), close(
-	{PrivateNetworkConfiguration!: _#defs."/$defs/Properties/definitions/PrivateNetworkConfiguration"},
+	{PrivateNetworkConfiguration!: #PrivateNetworkConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/PrivateNetworkConfiguration": close({VpcEndpointId!: =~"^vpce-[a-zA-Z0-9]{17}$"})
+#PrivateNetworkConfiguration: close({VpcEndpointId!: =~"^vpce-[a-zA-Z0-9]{17}$"})
 
-_#defs: "/$defs/Properties/definitions/PublicNetworkConfiguration": close(
-	{IpType!: _#defs."/$defs/Properties/definitions/IpType"},
-)
+#PublicNetworkConfiguration: close({IpType!: #IpType})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TlsAuthConfiguration": close(
-	{TrustStore!: _#defs."/$defs/Properties/definitions/TrustStore"},
-)
+#TlsAuthConfiguration: close({TrustStore!: #TrustStore})
 
-_#defs: "/$defs/Properties/definitions/TlsPolicy": "REQUIRED" | "OPTIONAL" | "FIPS"
+#TlsPolicy: "REQUIRED" | "OPTIONAL" | "FIPS"
 
-_#defs: "/$defs/Properties/definitions/TrustStore": close({
+#TrustStore: close({
 	CAContent!:  strings.MaxRunes(500000) & strings.MinRunes(1) & =~"^[\\P{C}\\s]*$"
 	CrlContent?: strings.MaxRunes(500000) & strings.MinRunes(1) & =~"^[\\P{C}\\s]*$"
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &

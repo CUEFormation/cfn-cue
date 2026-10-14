@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -14,33 +14,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SES::MultiRegionEndpoint
 #Properties: close({
-	Details!:      _#defs."/$defs/Properties/definitions/Details"
+	Details!:      #Details
 	EndpointName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" | fn.#StringExpression
-	Tags?:         _#defs."/$defs/Properties/definitions/Tags"
+	Tags?:         #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Details": close(
-	{RouteDetails!: _#defs."/$defs/Properties/definitions/RouteDetails"},
-) |
-	fn.#ObjectExpression
+#Details: close({RouteDetails!: #RouteDetails}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Region": string | fn.#StringExpression
+#Region: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouteDetails": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	...close({Region!: _#defs."/$defs/Properties/definitions/Region"}) | fn.#ObjectExpression
+#RouteDetails: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
+	...close({Region!: #Region}) | fn.#ObjectExpression
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SES::MultiRegionEndpoint"
 	Properties!: #Properties

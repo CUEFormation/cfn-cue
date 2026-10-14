@@ -36,11 +36,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	DeviceName?: string | fn.#StringExpression
 	IpAddress!:  string | fn.#StringExpression
-	Tags?:       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:       [...#Tag] | fn.#ListExpression
 	Type!:       string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

@@ -18,11 +18,11 @@ import "list"
 		{[=~"[a-zA-Z0-9]+"]: string}
 		...
 	}
-	ChefConfiguration?:         _#defs."/$defs/Properties/definitions/ChefConfiguration"
+	ChefConfiguration?:         #ChefConfiguration
 	CloneAppIds?:               list.UniqueItems() & [...string]
 	ClonePermissions?:          bool
-	ConfigurationManager?:      _#defs."/$defs/Properties/definitions/StackConfigurationManager"
-	CustomCookbooksSource?:     _#defs."/$defs/Properties/definitions/Source"
+	ConfigurationManager?:      #StackConfigurationManager
+	CustomCookbooksSource?:     #Source
 	CustomJson?:                string | {...}
 	DefaultAvailabilityZone?:   string
 	DefaultInstanceProfileArn!: string
@@ -31,36 +31,36 @@ import "list"
 	DefaultSshKeyName?:         string
 	DefaultSubnetId?:           string
 	EcsClusterArn?:             string
-	ElasticIps?:                list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ElasticIp"]
+	ElasticIps?:                list.UniqueItems() & [...#ElasticIp]
 	HostnameTheme?:             string
 	Id?:                        string
 	Name!:                      string
-	RdsDbInstances?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RdsDbInstance"]
+	RdsDbInstances?:            list.UniqueItems() & [...#RdsDbInstance]
 	ServiceRoleArn!:            =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	SourceStackId?:             string
-	Tags?:                      [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                      [...#Tag]
 	UseCustomCookbooks?:        bool
 	UseOpsworksSecurityGroups?: bool
 	"VpcId"?:                   =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/ChefConfiguration": close({
+#ChefConfiguration: close({
 	BerkshelfVersion?: string
 	ManageBerkshelf?:  bool
 })
 
-_#defs: "/$defs/Properties/definitions/ElasticIp": close({
+#ElasticIp: close({
 	Ip!:   string
 	Name?: string
 })
 
-_#defs: "/$defs/Properties/definitions/RdsDbInstance": close({
+#RdsDbInstance: close({
 	DbPassword!:       string
 	DbUser!:           string
 	RdsDbInstanceArn!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Source": close({
+#Source: close({
 	Password?: string
 	Revision?: string
 	SshKey?:   string
@@ -69,12 +69,12 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 	Username?: string
 })
 
-_#defs: "/$defs/Properties/definitions/StackConfigurationManager": close({
+#StackConfigurationManager: close({
 	Name?:    string
 	Version?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

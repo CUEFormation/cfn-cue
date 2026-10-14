@@ -11,74 +11,68 @@ import (
 
 // Definition of AWS::AIOps::InvestigationGroup Resource Type
 #Properties: close({
-	Arn?: _#defs."/$defs/Properties/definitions/InvestigationGroupArn"
+	Arn?: #InvestigationGroupArn
 
 	// An array of key-value pairs of notification channels to apply to this resource.
-	ChatbotNotificationChannels?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ChatbotNotificationChannel"
-	]
-	CreatedAt?: _#defs."/$defs/Properties/definitions/Timestamp"
-	CreatedBy?: _#defs."/$defs/Properties/definitions/StringWithPatternAndLengthLimits"
+	ChatbotNotificationChannels?: list.UniqueItems() & [...#ChatbotNotificationChannel]
+	CreatedAt?:                   #Timestamp
+	CreatedBy?:                   #StringWithPatternAndLengthLimits
 
 	// An array of cross account configurations.
-	CrossAccountConfigurations?: list.MaxItems(25) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/CrossAccountConfiguration"
-	]
-	EncryptionConfig?: _#defs."/$defs/Properties/definitions/EncryptionConfigMap"
+	CrossAccountConfigurations?: list.MaxItems(25) & list.UniqueItems() & [...] & [...#CrossAccountConfiguration]
+	EncryptionConfig?:           #EncryptionConfigMap
 
 	// Investigation Group policy
 	InvestigationGroupPolicy?: string
 
 	// Flag to enable cloud trail history
 	IsCloudTrailEventHistoryEnabled?: bool
-	LastModifiedAt?:                  _#defs."/$defs/Properties/definitions/StringWithPatternAndLengthLimits"
-	LastModifiedBy?:                  _#defs."/$defs/Properties/definitions/StringWithPatternAndLengthLimits"
-	Name!:                            _#defs."/$defs/Properties/definitions/StringWithPatternAndLengthLimits"
+	LastModifiedAt?:                  #StringWithPatternAndLengthLimits
+	LastModifiedBy?:                  #StringWithPatternAndLengthLimits
+	Name!:                            #StringWithPatternAndLengthLimits
 
 	// The number of days to retain the investigation group
 	RetentionInDays?: int & <=90 & >=7
-	RoleArn?:         _#defs."/$defs/Properties/definitions/RoleArn"
+	RoleArn?:         #RoleArn
 	TagKeyBoundaries?: list.UniqueItems() & [
 		...strings.MaxRunes(200) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$"
 	]
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ChatbotNotificationChannel": close({
+#ChatbotNotificationChannel: close({
 	ChatConfigurationArns?: list.UniqueItems() & [...string]
 	SNSTopicArn?:
 		=~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
-_#defs: "/$defs/Properties/definitions/CrossAccountConfiguration": close(
-	{SourceRoleArn?: _#defs."/$defs/Properties/definitions/RoleArn"},
-)
+#CrossAccountConfiguration: close({SourceRoleArn?: #RoleArn})
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfigMap": close({
+#EncryptionConfigMap: close({
 	EncryptionConfigurationType?: strings.MaxRunes(128) & strings.MinRunes(1)
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(256) & strings.MinRunes(1))
 })
 
 // The Investigation Group's ARN.
-_#defs: "/$defs/Properties/definitions/InvestigationGroupArn": strings.MaxRunes(2048) & strings.MinRunes(20)
+#InvestigationGroupArn: strings.MaxRunes(2048) & strings.MinRunes(20)
 
 // The Investigation Role's ARN.
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:.*$"
 
 // User friendly name for resources.
-_#defs: "/$defs/Properties/definitions/StringWithPatternAndLengthLimits": strings.MaxRunes(512) &
+#StringWithPatternAndLengthLimits: strings.MaxRunes(512) &
 strings.MinRunes(1) &
 =~"^[\\-_A-Za-z0-9\\[\\]\\(\\)\\{\\}\\.: ]+$"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
 // The timestamp value.
-_#defs: "/$defs/Properties/definitions/Timestamp": string
+#Timestamp: string

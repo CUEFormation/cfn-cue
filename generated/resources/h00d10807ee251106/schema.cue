@@ -14,13 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for EKS CertificateAuthority.
 #Properties: close({ClusterName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression})
 
-_#defs: "/$defs/Properties/definitions/ScheduledEvents": close({
+#ScheduledEvents: close({
 	FinalAutoActivation?: string | fn.#StringExpression
 	FirstAutoActivation?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Validity": close({
+#Validity: close({
 	NotAfter?:  string | fn.#StringExpression
 	NotBefore?: string | fn.#StringExpression
 }) |

@@ -26,10 +26,10 @@ import (
 	// The tags for the namespace. Each tag consists of a key and an optional value,
 	// both of which you define. Tag keys can have a maximum character length of
 	// 128 characters, and tag values can have a maximum length of 256 characters.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

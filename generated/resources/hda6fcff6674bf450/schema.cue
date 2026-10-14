@@ -22,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	SourceDBClusterIdentifier?: matchN(1, [=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$", string]) | fn.#StringExpression
 	StorageEncrypted?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	if SourceDBClusterIdentifier != _|_ {
 		Engine?: error(
 			"Engine cannot be used with SourceDBClusterIdentifier; set exactly one of SourceDBClusterIdentifier, Engine",
@@ -30,10 +30,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}
 }) & matchN(>=1, [{SourceDBClusterIdentifier!: _}, {Engine!: _}])
 
-_#defs: "/$defs/Properties/definitions/GlobalEndpoint": close({Address?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#GlobalEndpoint: close({Address?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

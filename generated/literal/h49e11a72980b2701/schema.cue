@@ -6,7 +6,7 @@ package schema
 
 // Resource Type definition for AWS::CodeStar::GitHubRepository
 #Properties: close({
-	Code?:                  _#defs."/$defs/Properties/definitions/Code"
+	Code?:                  #Code
 	ConnectionArn?:         string
 	EnableIssues?:          bool
 	Id?:                    string
@@ -17,9 +17,9 @@ package schema
 	RepositoryOwner!:       string
 })
 
-_#defs: "/$defs/Properties/definitions/Code": close({S3!: _#defs."/$defs/Properties/definitions/S3"})
+#Code: close({S3!: #S3})
 
-_#defs: "/$defs/Properties/definitions/S3": close({
+#S3: close({
 	Bucket!:        string
 	Key!:           string
 	ObjectVersion?: string

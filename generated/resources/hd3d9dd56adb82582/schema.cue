@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	InternetGatewayExclusionMode!: "allow-bidirectional" | "allow-egress" | fn.#StringExpression
 	SubnetId?:                     string | fn.#StringExpression
-	Tags?:                         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                         [...#Tag] | fn.#ListExpression
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	if VpcId != _|_ {
@@ -23,7 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}
 }) & matchN(>=1, [{VpcId!: _}, {SubnetId!: _}])
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

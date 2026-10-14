@@ -18,18 +18,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ExportBucketArn?:          strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 	LaunchDisposition?:        "STOPPED" | "STARTED" | fn.#StringExpression
 	LaunchIntoSourceInstance?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Licensing?:                _#defs."/$defs/Properties/definitions/Licensing"
+	Licensing?:                #Licensing
 	PostLaunchEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                     [...#Tag] | fn.#ListExpression
 	TargetInstanceTypeRightSizingMethod?: "NONE" | "BASIC" | "IN_AWS" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Licensing": close(
-	{OsByol?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
+#Licensing: close({OsByol?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

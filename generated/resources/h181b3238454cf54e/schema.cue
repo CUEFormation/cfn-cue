@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
+	"strings"
 	"time"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -24,56 +24,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Description?:    strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:           strings.MaxRunes(50) & strings.MinRunes(2) | fn.#StringExpression
-	ScheduleConfig!: _#defs."/$defs/Properties/definitions/ScheduleConfig" | fn.#ObjectExpression
+	ScheduleConfig!: #ScheduleConfig | fn.#ObjectExpression
 	ScheduledReportExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@_/-]+$" |
 	fn.#StringExpression
-	Tags?:                    list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	WidgetDateRangeOverride?: _#defs."/$defs/Properties/definitions/DateTimeRange" | fn.#ObjectExpression
+	Tags?:                    list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+	WidgetDateRangeOverride?: #DateTimeRange | fn.#ObjectExpression
 	WidgetIds?:               list.MaxItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DateTimeRange": close({
-	EndTime!:   _#defs."/$defs/Properties/definitions/DateTimeValue" | fn.#ObjectExpression
-	StartTime!: _#defs."/$defs/Properties/definitions/DateTimeValue" | fn.#ObjectExpression
+#DateTimeRange: close({
+	EndTime!:   #DateTimeValue | fn.#ObjectExpression
+	StartTime!: #DateTimeValue | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DateTimeType": "ABSOLUTE" | "RELATIVE" | fn.#StringExpression
+#DateTimeType: "ABSOLUTE" | "RELATIVE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DateTimeValue": close({
-	Type!:  _#defs."/$defs/Properties/definitions/DateTimeType" | fn.#StringExpression
+#DateTimeValue: close({
+	Type!:  #DateTimeType | fn.#StringExpression
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthStatus": close({
+#HealthStatus: close({
 	LastRefreshedAt?: time.Time | fn.#StringExpression
-	StatusCode!:      _#defs."/$defs/Properties/definitions/HealthStatusCode" | fn.#StringExpression
+	StatusCode!:      #HealthStatusCode | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthStatusCode": "HEALTHY" | "UNHEALTHY" | fn.#StringExpression
+#HealthStatusCode: "HEALTHY" | "UNHEALTHY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduleConfig": close({
+#ScheduleConfig: close({
 	ScheduleExpression?:         strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
 	ScheduleExpressionTimeZone?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	SchedulePeriod?:             _#defs."/$defs/Properties/definitions/SchedulePeriod" | fn.#ObjectExpression
-	State?:                      _#defs."/$defs/Properties/definitions/ScheduleState" | fn.#StringExpression
+	SchedulePeriod?:             #SchedulePeriod | fn.#ObjectExpression
+	State?:                      #ScheduleState | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchedulePeriod": close({
+#SchedulePeriod: close({
 	EndTime?:   time.Time | fn.#StringExpression
 	StartTime?: time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduleState": "ENABLED" | "DISABLED" | fn.#StringExpression
+#ScheduleState: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
 }) |

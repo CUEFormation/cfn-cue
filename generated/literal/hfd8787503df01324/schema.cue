@@ -17,22 +17,22 @@ import (
 	QueryString?:     strings.MaxRunes(1000) & strings.MinRunes(1)
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?:           list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:           list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 	ThingGroupName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+"
 	ThingGroupProperties?: close({
-		AttributePayload?:      _#defs."/$defs/Properties/definitions/AttributePayload"
+		AttributePayload?:      #AttributePayload
 		ThingGroupDescription?: strings.MaxRunes(2028) & strings.MinRunes(0)
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/AttributePayload": close({
+#AttributePayload: close({
 	Attributes?: close({
 
 		{[=~"[a-zA-Z0-9_.,@/:#-]+"]: string}})
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Tag key (1-128 chars). No 'aws:' prefix. Allows: [A-Za-z0-9 _.:/=+-]
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

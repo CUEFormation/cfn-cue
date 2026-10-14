@@ -15,10 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 	DataSetId?:    string | fn.#StringExpression
-	Schedule?:     _#defs."/$defs/Properties/definitions/RefreshScheduleMap"
+	Schedule?:     #RefreshScheduleMap
 })
 
-_#defs: "/$defs/Properties/definitions/RefreshScheduleMap": close({
+#RefreshScheduleMap: close({
 	RefreshType?: "FULL_REFRESH" | "INCREMENTAL_REFRESH" | fn.#StringExpression
 	ScheduleFrequency?: close({
 		Interval?: "MINUTE15" | "MINUTE30" | "HOURLY" | "DAILY" | "WEEKLY" | "MONTHLY" | fn.#StringExpression

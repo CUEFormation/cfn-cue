@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::Lambda::EventInvokeConfig resource configures options for
 // asynchronous invocation on a version or an alias.
 #Properties: close({
-	DestinationConfig?: _#defs."/$defs/Properties/definitions/DestinationConfig"
+	DestinationConfig?: #DestinationConfig
 	FunctionName!: =~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]+(-[a-z]+)+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?$" |
 		fn.#StringExpression
 	MaximumEventAgeInSeconds?: int & <=21600 & >=60 |
@@ -56,13 +56,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Qualifier!: =~"^\\$(LATEST(\\.PUBLISHED)?)|[a-zA-Z0-9$_-]{1,129}$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DestinationConfig": close({
-	OnFailure?: _#defs."/$defs/Properties/definitions/OnFailure"
-	OnSuccess?: _#defs."/$defs/Properties/definitions/OnSuccess"
+#DestinationConfig: close({
+	OnFailure?: #OnFailure
+	OnSuccess?: #OnSuccess
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnFailure": close({
+#OnFailure: close({
 	Destination!: strings.MaxRunes(350) &
 	strings.MinRunes(0) &
 	=~"^$|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:([a-z]+(-[a-z]+)+-\\d{1})?:(\\d{12})?:(.*)" |
@@ -70,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/OnFailure": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnSuccess": close({
+#OnSuccess: close({
 	Destination!: strings.MaxRunes(350) &
 	strings.MinRunes(0) &
 	=~"^$|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:([a-z]+(-[a-z]+)+-\\d{1})?:(\\d{12})?:(.*)" |

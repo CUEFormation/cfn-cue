@@ -18,15 +18,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::RDS::DBProxyTargetGroup
 #Properties: close({
-	ConnectionPoolConfigurationInfo?: _#defs."/$defs/Properties/definitions/ConnectionPoolConfigurationInfoFormat"
+	ConnectionPoolConfigurationInfo?: #ConnectionPoolConfigurationInfoFormat
 	DBClusterIdentifiers?:            [...string | fn.#StringExpression] | fn.#ListExpression
 	DBInstanceIdentifiers?:           [...string | fn.#StringExpression] | fn.#ListExpression
 	DBProxyName!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-z][0-z]*" | fn.#StringExpression
-	Tags?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	TargetGroupName!: "default" & (strings.MaxRunes(63) & strings.MinRunes(1)) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionPoolConfigurationInfoFormat": close({
+#ConnectionPoolConfigurationInfoFormat: close({
 	ConnectionBorrowTimeout?: int |
 		{
 			string &
@@ -78,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionPoolConfigurationInfoFormat": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

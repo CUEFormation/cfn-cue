@@ -45,7 +45,7 @@ import (
 	// + Amazon Simple Queue Service
 	//
 	// Once configured, log entries are sent to Amazon CloudWatch Logs.
-	DeliveryStatusLogging?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LoggingConfig"]
+	DeliveryStatusLogging?: list.UniqueItems() & [...#LoggingConfig]
 
 	// The display name to use for an SNS topic with SMS subscriptions. The display
 	// name must be maximum 100 characters long, including hyphens (-), underscores
@@ -79,12 +79,12 @@ import (
 	// resource and it creates an associated subscription resource, the associated
 	// subscription is not deleted when the ``AWS::SNS::Topic`` resource is
 	// deleted.
-	Subscription?: [..._#defs."/$defs/Properties/definitions/Subscription"]
+	Subscription?: [...#Subscription]
 
 	// The list of tags to add to a new topic.
 	// To be able to tag a topic on creation, you must have the ``sns:CreateTopic``
 	// and ``sns:TagResource`` permissions.
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:     [...#Tag]
 	TopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 
 	// The name of the topic you want to create. Topic names must include only
@@ -110,7 +110,7 @@ import (
 // The ``LoggingConfig`` property type specifies the ``Delivery`` status logging
 // configuration for an
 // [AWS::SNS::Topic](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-sns-topic.html).
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+#LoggingConfig: close({
 	// The IAM role ARN to be used when logging failed message deliveries in Amazon CloudWatch.
 	FailureFeedbackRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
@@ -133,7 +133,7 @@ _#defs: "/$defs/Properties/definitions/LoggingConfig": close({
 // filtering, raw message delivery, and cross-region subscriptions), use the
 // [AWS::SNS::Subscription](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-sns-subscription.html)
 // resource.
-_#defs: "/$defs/Properties/definitions/Subscription": close({
+#Subscription: close({
 	// The endpoint that receives notifications from the SNS topic. The endpoint
 	// value depends on the protocol that you specify. For more information, see
 	// the ``Endpoint`` parameter of the ``Subscribe`` action in the *API
@@ -146,7 +146,7 @@ _#defs: "/$defs/Properties/definitions/Subscription": close({
 })
 
 // The list of tags to be added to the specified topic.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The required key portion of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

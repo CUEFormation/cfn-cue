@@ -25,20 +25,20 @@ import (
 	CidrBlock?: strings.MaxRunes(20) & strings.MinRunes(1)
 
 	// The time the endpoint was created.
-	CreationTime?: _#defs."/$defs/Properties/definitions/iso8601UTC"
+	CreationTime?: #iso8601UTC
 
 	// The ID of the customer-owned IPv4 pool for the Endpoint. IP addresses will be
 	// allocated from this pool for the endpoint.
 	CustomerOwnedIpv4Pool?: =~"^ipv4pool-coip-([0-9a-f]{17})$"
 
 	// The failure reason, if any, for a create or delete endpoint operation.
-	FailedReason?: _#defs."/$defs/Properties/definitions/FailedReason"
+	FailedReason?: #FailedReason
 
 	// The ID of the endpoint.
 	Id?: strings.MaxRunes(500) & strings.MinRunes(5) & =~"^[a-zA-Z0-9]{19}$"
 
 	// The network interfaces of the endpoint.
-	NetworkInterfaces?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/NetworkInterface"]
+	NetworkInterfaces?: list.UniqueItems() & [...#NetworkInterface]
 
 	// The id of the customer outpost on which the bucket resides.
 	OutpostId!: =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$"
@@ -54,7 +54,7 @@ import (
 	SubnetId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^subnet-([0-9a-f]{8}|[0-9a-f]{17})$"
 })
 
-_#defs: "/$defs/Properties/definitions/FailedReason": close({
+#FailedReason: close({
 	// The failure code, if any, for a create or delete endpoint operation.
 	ErrorCode?: string
 
@@ -63,9 +63,7 @@ _#defs: "/$defs/Properties/definitions/FailedReason": close({
 })
 
 // The container for the network interface.
-_#defs: "/$defs/Properties/definitions/NetworkInterface": close(
-	{NetworkInterfaceId!: strings.MaxRunes(100) & strings.MinRunes(1)},
-)
+#NetworkInterface: close({NetworkInterfaceId!: strings.MaxRunes(100) & strings.MinRunes(1)})
 
 // The date value in ISO 8601 format. The timezone is always UTC. (YYYY-MM-DDThh:mm:ssZ)
-_#defs: "/$defs/Properties/definitions/iso8601UTC": =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$"
+#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$"

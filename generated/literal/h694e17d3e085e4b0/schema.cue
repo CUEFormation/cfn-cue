@@ -18,7 +18,7 @@ package schema
 	ResponseModels?:           string | {...}
 
 	// The route response parameters.
-	ResponseParameters?: _#defs."/$defs/Properties/definitions/RouteParameters"
+	ResponseParameters?: #RouteParameters
 
 	// The route ID.
 	RouteId!:         string
@@ -29,16 +29,16 @@ package schema
 })
 
 // Specifies whether the parameter is required.
-_#defs: "/$defs/Properties/definitions/ParameterConstraints": close({
+#ParameterConstraints: close({
 	// Specifies whether the parameter is required.
 	Required!: bool
 })
 
-_#defs: "/$defs/Properties/definitions/RouteParameters": null |
+#RouteParameters: null |
 bool |
 number |
 string |
 [...] |
 close({
 
-	{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/ParameterConstraints"}})
+	{[=~"^.+$"]: #ParameterConstraints}})

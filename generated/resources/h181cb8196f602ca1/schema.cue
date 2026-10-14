@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,12 +15,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // RoboMaker SimulationApplicationVersion. This helps you control which code
 // your simulation uses.
 #Properties: close({
-	Application!:       _#defs."/$defs/Properties/definitions/Arn"
+	Application!:       #Arn
 	CurrentRevisionId?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]*" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" |
-	fn.#StringExpression
+#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::RoboMaker::SimulationApplicationVersion"
 	Properties!: #Properties

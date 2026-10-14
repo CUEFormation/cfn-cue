@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"time"
 	"strings"
 	"list"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,7 +20,7 @@ import (
 
 	// The description of the registry record.
 	Description?: strings.MaxRunes(4096) & strings.MinRunes(1)
-	Descriptors!: _#defs."/$defs/Properties/definitions/Descriptors"
+	Descriptors!: #Descriptors
 
 	// The human-readable display name of the registry record.
 	DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -35,7 +35,7 @@ import (
 
 	// The unique identifier of the registry record.
 	RecordId?:   strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[a-zA-Z0-9]{12}$"
-	RecordType!: _#defs."/$defs/Properties/definitions/RecordType"
+	RecordType!: #RecordType
 
 	// The version of the registry record.
 	RecordVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9.-]+$"
@@ -52,75 +52,65 @@ import (
 	RegistryId?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(arn:aws(-[^:]+)?:agent-registry:[a-z0-9-]+:[0-9]{12}:registry/)?[a-zA-Z0-9]{12,16}$"
-	Status?: _#defs."/$defs/Properties/definitions/RegistryRecordStatus"
+	Status?: #RegistryRecordStatus
 
 	// Tags to assign to the registry record.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The timestamp when the registry record was last updated.
 	UpdatedAt?: time.Time
 })
 
 // The A2A agent card descriptor, populated when the record type is AGENT.
-_#defs: "/$defs/Properties/definitions/A2aAgentCardDescriptor": close({
-	Data?: _#defs."/$defs/Properties/definitions/DescriptorData"
+#A2aAgentCardDescriptor: close({
+	Data?: #DescriptorData
 
 	// Version of the descriptor type schema.
 	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1)
-	Source?:            _#defs."/$defs/Properties/definitions/DescriptorSource"
+	Source?:            #DescriptorSource
 })
 
 // The AG-UI (Agent-User Interaction) descriptor, populated for records detected
 // from an AG-UI protocol source. This descriptor is source-only: its content
 // is synchronized from the configured source URL rather than supplied inline.
-_#defs: "/$defs/Properties/definitions/AgUiDescriptor": close(
-	{Source?: _#defs."/$defs/Properties/definitions/SourceOnlyDescriptorSource"},
-)
+#AgUiDescriptor: close({Source?: #SourceOnlyDescriptorSource})
 
 // Additional data associated with an agent skills definition descriptor.
-_#defs: "/$defs/Properties/definitions/AgentSkillsAdditionalData": close(
-	{SkillMd?: _#defs."/$defs/Properties/definitions/AgentSkillsMdDescriptor"},
-)
+#AgentSkillsAdditionalData: close({SkillMd?: #AgentSkillsMdDescriptor})
 
 // The agent skills definition descriptor, populated when the record type is SKILL.
-_#defs: "/$defs/Properties/definitions/AgentSkillsDefinitionDescriptor": close({
-	AdditionalData?: _#defs."/$defs/Properties/definitions/AgentSkillsAdditionalData"
-	Data?:           _#defs."/$defs/Properties/definitions/DescriptorData"
+#AgentSkillsDefinitionDescriptor: close({
+	AdditionalData?: #AgentSkillsAdditionalData
+	Data?:           #DescriptorData
 
 	// Version of the descriptor type schema.
 	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
 // Markdown-format descriptor containing an agent skills document.
-_#defs: "/$defs/Properties/definitions/AgentSkillsMdDescriptor": close({
-	Data?: _#defs."/$defs/Properties/definitions/DescriptorData"
+#AgentSkillsMdDescriptor: close({
+	Data?: #DescriptorData
 
 	// Version of the descriptor type schema.
 	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1)
-	Source?:            _#defs."/$defs/Properties/definitions/SkillMdSource"
+	Source?:            #SkillMdSource
 })
 
 // The custom descriptor, populated when the record type is CUSTOM.
-_#defs: "/$defs/Properties/definitions/CustomDescriptor": close(
-	{Data?: _#defs."/$defs/Properties/definitions/DescriptorData"},
-)
+#CustomDescriptor: close({Data?: #DescriptorData})
 
 // Descriptor payload data.
-_#defs: "/$defs/Properties/definitions/DescriptorData": strings.MaxRunes(102400) & strings.MinRunes(1)
+#DescriptorData: strings.MaxRunes(102400) & strings.MinRunes(1)
 
 // The source configuration that defines where descriptor content is retrieved from.
-_#defs: "/$defs/Properties/definitions/DescriptorSource": close(
-	{FromUrl?: _#defs."/$defs/Properties/definitions/DescriptorSourceFromUrl"},
-)
+#DescriptorSource: close({FromUrl?: #DescriptorSourceFromUrl})
 
 // URL-based descriptor source configuration, with credential provider
 // configurations for authenticated URL retrieval.
-_#defs: "/$defs/Properties/definitions/DescriptorSourceFromUrl": close({
+#DescriptorSourceFromUrl: close({
 	// The credential providers used to authenticate when fetching descriptor
 	// content from the source URL.
-	CredentialProviderConfigurations?: list.MaxItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RegistryRecordCredentialProviderConfiguration"
-	]
+	CredentialProviderConfigurations?: list.MaxItems(1) & [...#RegistryRecordCredentialProviderConfiguration]
 
 	// URL source for descriptor content.
 	Url!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$"
@@ -128,62 +118,58 @@ _#defs: "/$defs/Properties/definitions/DescriptorSourceFromUrl": close({
 
 // The typed set of descriptors for a registry record. Exactly one descriptor
 // field is populated based on the record type.
-_#defs: "/$defs/Properties/definitions/Descriptors": close({
-	A2aAgentCard?:          _#defs."/$defs/Properties/definitions/A2aAgentCardDescriptor"
-	AgentSkillsDefinition?: _#defs."/$defs/Properties/definitions/AgentSkillsDefinitionDescriptor"
-	Agui?:                  _#defs."/$defs/Properties/definitions/AgUiDescriptor"
-	Custom?:                _#defs."/$defs/Properties/definitions/CustomDescriptor"
-	Http?:                  _#defs."/$defs/Properties/definitions/HttpDescriptor"
-	McpServer?:             _#defs."/$defs/Properties/definitions/McpServerDescriptor"
+#Descriptors: close({
+	A2aAgentCard?:          #A2aAgentCardDescriptor
+	AgentSkillsDefinition?: #AgentSkillsDefinitionDescriptor
+	Agui?:                  #AgUiDescriptor
+	Custom?:                #CustomDescriptor
+	Http?:                  #HttpDescriptor
+	McpServer?:             #McpServerDescriptor
 })
 
 // The HTTP descriptor, populated for records detected from an HTTP protocol
 // source. This descriptor is source-only: its content is synchronized from the
 // configured source URL rather than supplied inline.
-_#defs: "/$defs/Properties/definitions/HttpDescriptor": close(
-	{Source?: _#defs."/$defs/Properties/definitions/SourceOnlyDescriptorSource"},
-)
+#HttpDescriptor: close({Source?: #SourceOnlyDescriptorSource})
 
 // Additional data associated with an MCP server descriptor.
-_#defs: "/$defs/Properties/definitions/McpServerAdditionalData": close(
-	{Tools?: _#defs."/$defs/Properties/definitions/McpToolsDescriptor"},
-)
+#McpServerAdditionalData: close({Tools?: #McpToolsDescriptor})
 
 // The MCP server descriptor, populated when the record type is MCP.
-_#defs: "/$defs/Properties/definitions/McpServerDescriptor": close({
-	AdditionalData?: _#defs."/$defs/Properties/definitions/McpServerAdditionalData"
-	Data?:           _#defs."/$defs/Properties/definitions/DescriptorData"
+#McpServerDescriptor: close({
+	AdditionalData?: #McpServerAdditionalData
+	Data?:           #DescriptorData
 
 	// Version of the descriptor type schema.
 	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1)
-	Source?:            _#defs."/$defs/Properties/definitions/DescriptorSource"
+	Source?:            #DescriptorSource
 })
 
 // The MCP tools descriptor.
-_#defs: "/$defs/Properties/definitions/McpToolsDescriptor": close({
-	Data?: _#defs."/$defs/Properties/definitions/DescriptorData"
+#McpToolsDescriptor: close({
+	Data?: #DescriptorData
 
 	// Version of the tools descriptor schema.
 	DataSchemaVersion?: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
 // The type of the registry record.
-_#defs: "/$defs/Properties/definitions/RecordType": "MCP" | "AGENT" | "SKILL" | "CUSTOM" | "GATEWAY"
+#RecordType: "MCP" | "AGENT" | "SKILL" | "CUSTOM" | "GATEWAY"
 
 // A credential provider configuration used for authenticated descriptor retrieval.
-_#defs: "/$defs/Properties/definitions/RegistryRecordCredentialProviderConfiguration": close({
-	CredentialProvider!:     _#defs."/$defs/Properties/definitions/RegistryRecordCredentialProviderUnion"
+#RegistryRecordCredentialProviderConfiguration: close({
+	CredentialProvider!:     #RegistryRecordCredentialProviderUnion
 	CredentialProviderType!: "OAUTH" | "IAM"
 })
 
 // The credential provider details. Specify exactly one member.
-_#defs: "/$defs/Properties/definitions/RegistryRecordCredentialProviderUnion": close({
-	IamCredentialProvider?:   _#defs."/$defs/Properties/definitions/RegistryRecordIamCredentialProvider"
-	OauthCredentialProvider?: _#defs."/$defs/Properties/definitions/RegistryRecordOAuthCredentialProvider"
+#RegistryRecordCredentialProviderUnion: close({
+	IamCredentialProvider?:   #RegistryRecordIamCredentialProvider
+	OauthCredentialProvider?: #RegistryRecordOAuthCredentialProvider
 })
 
 // IAM credential provider configuration.
-_#defs: "/$defs/Properties/definitions/RegistryRecordIamCredentialProvider": close({
+#RegistryRecordIamCredentialProvider: close({
 	// The SigV4 signing region.
 	Region?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9-]+$"
 
@@ -198,7 +184,7 @@ _#defs: "/$defs/Properties/definitions/RegistryRecordIamCredentialProvider": clo
 })
 
 // OAuth credential provider configuration.
-_#defs: "/$defs/Properties/definitions/RegistryRecordOAuthCredentialProvider": close({
+#RegistryRecordOAuthCredentialProvider: close({
 	// Additional custom parameters for the OAuth flow.
 	CustomParameters?: close({
 
@@ -215,7 +201,7 @@ _#defs: "/$defs/Properties/definitions/RegistryRecordOAuthCredentialProvider": c
 })
 
 // The lifecycle status of the registry record.
-_#defs: "/$defs/Properties/definitions/RegistryRecordStatus": "DRAFT" |
+#RegistryRecordStatus: "DRAFT" |
 	"PENDING_APPROVAL" |
 	"APPROVED" |
 	"REJECTED" |
@@ -227,12 +213,10 @@ _#defs: "/$defs/Properties/definitions/RegistryRecordStatus": "DRAFT" |
 
 // Source configuration for a SkillMd document. Unlike MCP/A2A sources, SkillMd
 // does not support credential providers.
-_#defs: "/$defs/Properties/definitions/SkillMdSource": close(
-	{FromUrl?: _#defs."/$defs/Properties/definitions/SkillMdSourceFromUrl"},
-)
+#SkillMdSource: close({FromUrl?: #SkillMdSourceFromUrl})
 
 // URL-based source for SkillMd content (sync is skipped; content is provided inline via Data).
-_#defs: "/$defs/Properties/definitions/SkillMdSourceFromUrl": close({
+#SkillMdSourceFromUrl: close({
 	// URL source for the SkillMd document.
 	Url!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$"
 })
@@ -240,18 +224,16 @@ _#defs: "/$defs/Properties/definitions/SkillMdSourceFromUrl": close({
 // Source configuration for a source-only descriptor. Unlike
 // mcpServer/a2aAgentCard sources, source-only descriptors do not support
 // credential providers.
-_#defs: "/$defs/Properties/definitions/SourceOnlyDescriptorSource": close(
-	{FromUrl?: _#defs."/$defs/Properties/definitions/SourceOnlyDescriptorSourceFromUrl"},
-)
+#SourceOnlyDescriptorSource: close({FromUrl?: #SourceOnlyDescriptorSourceFromUrl})
 
 // URL-based source configuration for a source-only descriptor.
-_#defs: "/$defs/Properties/definitions/SourceOnlyDescriptorSourceFromUrl": close({
+#SourceOnlyDescriptorSourceFromUrl: close({
 	// URL source for descriptor content.
 	Url!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$"
 })
 
 // A tag to assign to the registry record.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 

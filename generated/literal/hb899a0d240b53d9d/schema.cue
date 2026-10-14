@@ -29,8 +29,8 @@ import (
 	// this resource. You can perform updates that require no or some interruption.
 	// If you must replace the resource, specify a new name.
 	Name?:      string
-	StageKeys?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StageKey"]
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"]
+	StageKeys?: list.UniqueItems() & [...#StageKey]
+	Tags?:      [...#Tag]
 	Value?:     string
 })
 
@@ -39,7 +39,7 @@ import (
 // resource that specifies the stage to associate with the API key. This
 // association allows only clients with the key to make requests to methods in
 // that stage.
-_#defs: "/$defs/Properties/definitions/StageKey": close({
+#StageKey: close({
 	RestApiId?: string
 	StageName?: string
 })
@@ -47,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/StageKey": close({
 // An array of key-value pairs to apply to this resource.
 // For more information, see
 // [Tag](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string you can use to assign a value. The combination of tag keys and
 	// values can help you organize and categorize your resources.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)

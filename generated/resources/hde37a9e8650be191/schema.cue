@@ -15,10 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DBSubnetGroupDescription!: string | fn.#StringExpression
 	DBSubnetGroupName?:        string | fn.#StringExpression
 	SubnetIds!:                [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                     [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

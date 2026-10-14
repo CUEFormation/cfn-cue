@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"time"
-	"strings"
 	"list"
+	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,7 +14,7 @@ import (
 // to define a set of remote operations that are sent to and run on one or more
 // devices (things or thing groups) connected to AWS IoT.
 #Properties: close({
-	AbortConfig?: _#defs."/$defs/Properties/definitions/AbortConfig"
+	AbortConfig?: #AbortConfig
 
 	// The Amazon Resource Name (ARN) of the job.
 	Arn?: string
@@ -41,8 +41,8 @@ import (
 	// An S3 link, or S3 object URL, to the job document. The link is an Amazon S3
 	// object URL and is required if you don't specify a value for document.
 	DocumentSource?:             strings.MaxRunes(1350) & strings.MinRunes(1)
-	JobExecutionsRetryConfig?:   _#defs."/$defs/Properties/definitions/JobExecutionsRetryConfig"
-	JobExecutionsRolloutConfig?: _#defs."/$defs/Properties/definitions/JobExecutionsRolloutConfig"
+	JobExecutionsRetryConfig?:   #JobExecutionsRetryConfig
+	JobExecutionsRolloutConfig?: #JobExecutionsRolloutConfig
 
 	// A job identifier which must be unique for your AWS account. We recommend
 	// using a UUID. Alpha-numeric characters, '-' and '_' are valid for use here.
@@ -50,11 +50,11 @@ import (
 
 	// The ARN of the job template used to create the job.
 	JobTemplateArn?:     strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$"
-	PresignedUrlConfig?: _#defs."/$defs/Properties/definitions/PresignedUrlConfig"
-	SchedulingConfig?:   _#defs."/$defs/Properties/definitions/SchedulingConfig"
+	PresignedUrlConfig?: #PresignedUrlConfig
+	SchedulingConfig?:   #SchedulingConfig
 
 	// Metadata which can be used to manage the job.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// Specifies whether the job will continue to run (CONTINUOUS), or will be
 	// complete after all those things specified as targets have completed the job
@@ -63,17 +63,17 @@ import (
 
 	// A list of things and thing groups to which the job should be sent.
 	Targets!:       list.MinItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(0)]
-	TimeoutConfig?: _#defs."/$defs/Properties/definitions/TimeoutConfig"
+	TimeoutConfig?: #TimeoutConfig
 })
 
 // The criteria that determine when and how a job abort takes place.
-_#defs: "/$defs/Properties/definitions/AbortConfig": close({
+#AbortConfig: close({
 	// The list of criteria that determine when and how to abort the job.
-	CriteriaList!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AbortCriteria"]
+	CriteriaList!: list.MinItems(1) & [...#AbortCriteria]
 })
 
 // The criteria that determine when and how a job abort takes place.
-_#defs: "/$defs/Properties/definitions/AbortCriteria": close({
+#AbortCriteria: close({
 	// The type of job action to take to initiate the job abort.
 	Action!: "CANCEL"
 
@@ -89,26 +89,26 @@ _#defs: "/$defs/Properties/definitions/AbortCriteria": close({
 })
 
 // Allows you to create an exponential rate of rollout for a job.
-_#defs: "/$defs/Properties/definitions/ExponentialRolloutRate": close({
+#ExponentialRolloutRate: close({
 	// The minimum number of things that will be notified of a pending job, per
 	// minute at the start of job rollout.
 	BaseRatePerMinute!: int & <=1000 & >=1
 
 	// The exponential factor to increase the rate of rollout for a job.
 	IncrementFactor!:      <=5 & >=1.1
-	RateIncreaseCriteria!: _#defs."/$defs/Properties/definitions/RateIncreaseCriteria"
+	RateIncreaseCriteria!: #RateIncreaseCriteria
 })
 
 // The configuration that determines how many retries are allowed for each failure type for a job.
-_#defs: "/$defs/Properties/definitions/JobExecutionsRetryConfig": close({
+#JobExecutionsRetryConfig: close({
 	// The list of criteria that determines how many retries are allowed for each
 	// failure type for a job.
-	CriteriaList!: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RetryCriteria"]
+	CriteriaList!: list.MaxItems(2) & list.MinItems(1) & [...#RetryCriteria]
 })
 
 // Allows you to create a staged rollout of a job.
-_#defs: "/$defs/Properties/definitions/JobExecutionsRolloutConfig": close({
-	ExponentialRate?: _#defs."/$defs/Properties/definitions/ExponentialRolloutRate"
+#JobExecutionsRolloutConfig: close({
+	ExponentialRate?: #ExponentialRolloutRate
 
 	// The maximum number of things that will be notified of a pending job, per
 	// minute. This parameter allows you to create a staged rollout.
@@ -118,7 +118,7 @@ _#defs: "/$defs/Properties/definitions/JobExecutionsRolloutConfig": close({
 // An optional configuration within the SchedulingConfig to setup a recurring
 // maintenance window with a predetermined start time and duration for the
 // rollout of a job document to all devices in a target group for a job.
-_#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
+#MaintenanceWindow: close({
 	// Displays the duration of the next maintenance window.
 	DurationInMinutes!: int & <=1430 & >=1
 
@@ -127,7 +127,7 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
 })
 
 // Configuration for pre-signed S3 URLs.
-_#defs: "/$defs/Properties/definitions/PresignedUrlConfig": close({
+#PresignedUrlConfig: close({
 	// How long (in seconds) pre-signed URLs are valid. Valid values are 60 - 3600,
 	// the default value is 3600 seconds.
 	ExpiresInSec?: int & <=3600 & >=60
@@ -138,7 +138,7 @@ _#defs: "/$defs/Properties/definitions/PresignedUrlConfig": close({
 })
 
 // Allows you to define a criteria to initiate the increase in rate of rollout for a job.
-_#defs: "/$defs/Properties/definitions/RateIncreaseCriteria": close({
+#RateIncreaseCriteria: close({
 	// The threshold for number of notified things that will initiate the increase in rate of rollout.
 	NumberOfNotifiedThings?: int & >=1
 
@@ -147,7 +147,7 @@ _#defs: "/$defs/Properties/definitions/RateIncreaseCriteria": close({
 })
 
 // The criteria that determines how many retries are allowed for each failure type for a job.
-_#defs: "/$defs/Properties/definitions/RetryCriteria": close({
+#RetryCriteria: close({
 	// The type of job execution failures that can initiate a job retry.
 	FailureType!: "FAILED" | "TIMED_OUT" | "ALL"
 
@@ -157,7 +157,7 @@ _#defs: "/$defs/Properties/definitions/RetryCriteria": close({
 
 // Specifies the date and time that a job will begin the rollout of the job
 // document to all devices in the target group.
-_#defs: "/$defs/Properties/definitions/SchedulingConfig": close({
+#SchedulingConfig: close({
 	// Specifies the end behavior for all job executions after a job reaches the selected endTime.
 	EndBehavior?: "STOP_ROLLOUT" | "CANCEL" | "FORCE_CANCEL"
 
@@ -166,7 +166,7 @@ _#defs: "/$defs/Properties/definitions/SchedulingConfig": close({
 	EndTime?: strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// An optional configuration within the SchedulingConfig to setup a recurring maintenance window.
-	MaintenanceWindows?: [..._#defs."/$defs/Properties/definitions/MaintenanceWindow"]
+	MaintenanceWindows?: [...#MaintenanceWindow]
 
 	// The time a job will begin rollout of the job document to all devices in the
 	// target group for a job.
@@ -174,7 +174,7 @@ _#defs: "/$defs/Properties/definitions/SchedulingConfig": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -183,7 +183,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Specifies the amount of time each device has to finish its execution of the job.
-_#defs: "/$defs/Properties/definitions/TimeoutConfig": close({
+#TimeoutConfig: close({
 	// Specifies the amount of time, in minutes, this device has to finish execution
 	// of this job. The timeout interval can be anywhere between 1 minute and 7
 	// days (1 to 10080 minutes).

@@ -15,7 +15,7 @@ import "list"
 	CreatedAt?: string
 
 	// An array of key-value pairs containing information about the domain entries.
-	DomainEntries?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DomainEntry"]
+	DomainEntries?: list.UniqueItems() & [...#DomainEntry]
 
 	// The name of the domain to manage in Lightsail.
 	DomainName!: string
@@ -36,11 +36,11 @@ import "list"
 	SupportCode?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Describes the domain recordset entry (e.g., A record, CNAME record, TXT record, etc.)
-_#defs: "/$defs/Properties/definitions/DomainEntry": close({
+#DomainEntry: close({
 	// The ID of the domain recordset entry.
 	Id?: string
 
@@ -63,7 +63,7 @@ _#defs: "/$defs/Properties/definitions/DomainEntry": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: string
 

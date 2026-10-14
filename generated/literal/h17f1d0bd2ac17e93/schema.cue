@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -45,63 +45,59 @@ import (
 	State?: "DISABLED" | "ENABLED" | "ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS"
 
 	// Any tags assigned to the event rule.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// Adds the specified targets to the specified rule, or updates the targets if
 	// they are already associated with the rule.
 	// Targets are the resources that are invoked when a rule is triggered.
-	Targets?: list.MaxItems(5) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Target"]
+	Targets?: list.MaxItems(5) & list.UniqueItems() & [...#Target]
 }) & matchN(>=1, [{EventPattern!: _}, {ScheduleExpression!: _}])
 
-_#defs: "/$defs/Properties/definitions/AppSyncParameters": close({GraphQLOperation!: string})
+#AppSyncParameters: close({GraphQLOperation!: string})
 
-_#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
+#AwsVpcConfiguration: close({
 	AssignPublicIp?: "DISABLED" | "ENABLED"
 	SecurityGroups?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	Subnets!:        [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/BatchArrayProperties": close({Size?: int})
+#BatchArrayProperties: close({Size?: int})
 
-_#defs: "/$defs/Properties/definitions/BatchParameters": close({
-	ArrayProperties?: _#defs."/$defs/Properties/definitions/BatchArrayProperties"
+#BatchParameters: close({
+	ArrayProperties?: #BatchArrayProperties
 	JobDefinition!:   string
 	JobName!:         string
-	RetryStrategy?:   _#defs."/$defs/Properties/definitions/BatchRetryStrategy"
+	RetryStrategy?:   #BatchRetryStrategy
 })
 
-_#defs: "/$defs/Properties/definitions/BatchRetryStrategy": close({Attempts?: int})
+#BatchRetryStrategy: close({Attempts?: int})
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
+#CapacityProviderStrategyItem: close({
 	Base?:             int & <=100000 & >=0
 	CapacityProvider!: strings.MaxRunes(255) & strings.MinRunes(1)
 	Weight?:           int & <=1000 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/DeadLetterConfig": close({Arn?: strings.MaxRunes(1600) & strings.MinRunes(1)})
+#DeadLetterConfig: close({Arn?: strings.MaxRunes(1600) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/EcsParameters": close({
-	CapacityProviderStrategy?: list.MaxItems(6) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"
-	]
-	EnableECSManagedTags?: bool
-	EnableExecuteCommand?: bool
-	Group?:                string
-	LaunchType?:           "EC2" | "EXTERNAL" | "FARGATE"
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-	PlacementConstraints?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/PlacementConstraint"
-	]
-	PlacementStrategies?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PlacementStrategy"]
-	PlatformVersion?:     string
-	PropagateTags?:       "TASK_DEFINITION"
-	ReferenceId?:         strings.MaxRunes(1024) & strings.MinRunes(0)
-	TagList?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TaskCount?:           int & >=1
-	TaskDefinitionArn!:   strings.MaxRunes(1600) & strings.MinRunes(1)
+#EcsParameters: close({
+	CapacityProviderStrategy?: list.MaxItems(6) & list.UniqueItems() & [...] & [...#CapacityProviderStrategyItem]
+	EnableECSManagedTags?:     bool
+	EnableExecuteCommand?:     bool
+	Group?:                    string
+	LaunchType?:               "EC2" | "EXTERNAL" | "FARGATE"
+	NetworkConfiguration?:     #NetworkConfiguration
+	PlacementConstraints?:     list.MaxItems(10) & list.UniqueItems() & [...] & [...#PlacementConstraint]
+	PlacementStrategies?:      list.UniqueItems() & [...#PlacementStrategy]
+	PlatformVersion?:          string
+	PropagateTags?:            "TASK_DEFINITION"
+	ReferenceId?:              strings.MaxRunes(1024) & strings.MinRunes(0)
+	TagList?:                  list.UniqueItems() & [...#Tag]
+	TaskCount?:                int & >=1
+	TaskDefinitionArn!:        strings.MaxRunes(1600) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/HttpParameters": close({
+#HttpParameters: close({
 	HeaderParameters?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string}})
@@ -111,32 +107,28 @@ _#defs: "/$defs/Properties/definitions/HttpParameters": close({
 		{[=~"[a-zA-Z0-9]+"]: string}})
 })
 
-_#defs: "/$defs/Properties/definitions/InputTransformer": close({
+#InputTransformer: close({
 	InputPathsMap?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string}})
 	InputTemplate!: strings.MaxRunes(8192) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/KinesisParameters": close(
-	{PartitionKeyPath!: strings.MaxRunes(256) & strings.MinRunes(0)},
-)
+#KinesisParameters: close({PartitionKeyPath!: strings.MaxRunes(256) & strings.MinRunes(0)})
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close(
-	{AwsVpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration"},
-)
+#NetworkConfiguration: close({AwsVpcConfiguration?: #AwsVpcConfiguration})
 
-_#defs: "/$defs/Properties/definitions/PlacementConstraint": close({
+#PlacementConstraint: close({
 	Expression?: strings.MaxRunes(2000) & strings.MinRunes(0)
 	Type?:       "distinctInstance" | "memberOf"
 })
 
-_#defs: "/$defs/Properties/definitions/PlacementStrategy": close({
+#PlacementStrategy: close({
 	Field?: string
 	Type?:  string
 })
 
-_#defs: "/$defs/Properties/definitions/RedshiftDataParameters": close({
+#RedshiftDataParameters: close({
 	Database!: strings.MaxRunes(64) & strings.MinRunes(1)
 	DbUser?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	SecretManagerArn?: strings.MaxRunes(1600) &
@@ -148,58 +140,54 @@ _#defs: "/$defs/Properties/definitions/RedshiftDataParameters": close({
 	WithEvent?:     bool
 })
 
-_#defs: "/$defs/Properties/definitions/RetryPolicy": close({
+#RetryPolicy: close({
 	MaximumEventAgeInSeconds?: int & <=86400 & >=60
 	MaximumRetryAttempts?:     int & <=185 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/RunCommandParameters": close({
-	RunCommandTargets!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/RunCommandTarget"
-	]
-})
+#RunCommandParameters: close(
+	{RunCommandTargets!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#RunCommandTarget]},
+)
 
-_#defs: "/$defs/Properties/definitions/RunCommandTarget": close({
+#RunCommandTarget: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$"
 	Values!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(256) & strings.MinRunes(1)
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/SageMakerPipelineParameter": close({
+#SageMakerPipelineParameter: close({
 	Name!:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9_-]*[a-zA-Z0-9])?$"
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/SageMakerPipelineParameters": close({
-	PipelineParameterList?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/SageMakerPipelineParameter"
-	]
-})
+#SageMakerPipelineParameters: close(
+	{PipelineParameterList?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#SageMakerPipelineParameter]},
+)
 
-_#defs: "/$defs/Properties/definitions/SqsParameters": close({MessageGroupId!: string})
+#SqsParameters: close({MessageGroupId!: string})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Target": close({
-	AppSyncParameters?:           _#defs."/$defs/Properties/definitions/AppSyncParameters"
+#Target: close({
+	AppSyncParameters?:           #AppSyncParameters
 	Arn!:                         strings.MaxRunes(1600) & strings.MinRunes(1)
-	BatchParameters?:             _#defs."/$defs/Properties/definitions/BatchParameters"
-	DeadLetterConfig?:            _#defs."/$defs/Properties/definitions/DeadLetterConfig"
-	EcsParameters?:               _#defs."/$defs/Properties/definitions/EcsParameters"
-	HttpParameters?:              _#defs."/$defs/Properties/definitions/HttpParameters"
+	BatchParameters?:             #BatchParameters
+	DeadLetterConfig?:            #DeadLetterConfig
+	EcsParameters?:               #EcsParameters
+	HttpParameters?:              #HttpParameters
 	Id!:                          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$"
 	Input?:                       strings.MaxRunes(8192) & strings.MinRunes(0)
 	InputPath?:                   strings.MaxRunes(256) & strings.MinRunes(0)
-	InputTransformer?:            _#defs."/$defs/Properties/definitions/InputTransformer"
-	KinesisParameters?:           _#defs."/$defs/Properties/definitions/KinesisParameters"
-	RedshiftDataParameters?:      _#defs."/$defs/Properties/definitions/RedshiftDataParameters"
-	RetryPolicy?:                 _#defs."/$defs/Properties/definitions/RetryPolicy"
+	InputTransformer?:            #InputTransformer
+	KinesisParameters?:           #KinesisParameters
+	RedshiftDataParameters?:      #RedshiftDataParameters
+	RetryPolicy?:                 #RetryPolicy
 	RoleArn?:                     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1600) & strings.MinRunes(1))
-	RunCommandParameters?:        _#defs."/$defs/Properties/definitions/RunCommandParameters"
-	SageMakerPipelineParameters?: _#defs."/$defs/Properties/definitions/SageMakerPipelineParameters"
-	SqsParameters?:               _#defs."/$defs/Properties/definitions/SqsParameters"
+	RunCommandParameters?:        #RunCommandParameters
+	SageMakerPipelineParameters?: #SageMakerPipelineParameters
+	SqsParameters?:               #SqsParameters
 })

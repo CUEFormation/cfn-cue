@@ -22,16 +22,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // refresh schedule and modify dashboard widgets.
 #Properties: close({
 	Name?:            strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
-	RefreshSchedule?: _#defs."/$defs/Properties/definitions/RefreshSchedule" | fn.#ObjectExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	RefreshSchedule?: #RefreshSchedule | fn.#ObjectExpression
+	Tags?:            [...#Tag] | fn.#ListExpression
 	TerminationProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Widgets?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Widget"] | fn.#ListExpression
+	Widgets?:                      list.UniqueItems() & [...#Widget] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/QueryParameter": strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" |
-fn.#StringExpression
+#QueryParameter: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RefreshSchedule": close({
+#RefreshSchedule: close({
 	Frequency?: close({
 		Unit!: "HOURS" | "DAYS" | fn.#StringExpression
 		Value!: int |
@@ -57,18 +56,17 @@ _#defs: "/$defs/Properties/definitions/RefreshSchedule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": string | fn.#StringExpression
+#Timestamp: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Widget": close({
-	QueryParameters?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/QueryParameter"] |
-		fn.#ListExpression
-	QueryStatement!: strings.MaxRunes(10000) & strings.MinRunes(1) & =~"(?s).*" | fn.#StringExpression
+#Widget: close({
+	QueryParameters?: list.MaxItems(10) & list.MinItems(1) & [...#QueryParameter] | fn.#ListExpression
+	QueryStatement!:  strings.MaxRunes(10000) & strings.MinRunes(1) & =~"(?s).*" | fn.#StringExpression
 	ViewProperties?: close({
 
 		{[=~"^[a-zA-Z0-9._-]{3,128}$"]: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._\\- ]+$" |

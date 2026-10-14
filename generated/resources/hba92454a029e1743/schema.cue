@@ -11,10 +11,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Greengrass::DeviceDefinitionVersion
 #Properties: close({
 	DeviceDefinitionId!: string | fn.#StringExpression
-	Devices!:            [..._#defs."/$defs/Properties/definitions/Device"] | fn.#ListExpression
+	Devices!:            [...#Device] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Device": close({
+#Device: close({
 	CertificateArn!: string | fn.#StringExpression
 	Id!:             string | fn.#StringExpression
 	SyncShadow?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

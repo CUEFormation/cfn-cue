@@ -8,24 +8,24 @@ package schema
 #Properties: close({
 	AccessPolicy?:    string | {...}
 	BackupVaultArn?:  string
-	BackupVaultName!: _#defs."/$defs/Properties/definitions/BackupVaultNamePattern"
+	BackupVaultName!: #BackupVaultNamePattern
 	BackupVaultTags?: close({
 
 		{[=~"^.{1,128}$"]: string}})
 	EncryptionKeyArn?:  string
-	LockConfiguration?: _#defs."/$defs/Properties/definitions/LockConfigurationType"
-	Notifications?:     _#defs."/$defs/Properties/definitions/NotificationObjectType"
+	LockConfiguration?: #LockConfigurationType
+	Notifications?:     #NotificationObjectType
 })
 
-_#defs: "/$defs/Properties/definitions/BackupVaultNamePattern": =~"^[a-zA-Z0-9\\-\\_]{2,50}$"
+#BackupVaultNamePattern: =~"^[a-zA-Z0-9\\-\\_]{2,50}$"
 
-_#defs: "/$defs/Properties/definitions/LockConfigurationType": close({
+#LockConfigurationType: close({
 	ChangeableForDays?: int
 	MaxRetentionDays?:  int
 	MinRetentionDays!:  int
 })
 
-_#defs: "/$defs/Properties/definitions/NotificationObjectType": close({
+#NotificationObjectType: close({
 	BackupVaultEvents!: [...string]
 	SNSTopicArn!:       =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })

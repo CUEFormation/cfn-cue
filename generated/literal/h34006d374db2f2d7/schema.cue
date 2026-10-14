@@ -19,7 +19,16 @@ import "strings"
 
 	// Resources shared using the attachment.
 	Resources?: [..._#defs."/$defs/Properties/definitions/Resource"]
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:      [...#Tag]
+})
+
+// Tag is a key-value pair associated with Cross Account Attachment.
+#Tag: close({
+	// Key of the tag. Value can be 1 to 127 characters.
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1)
+
+	// Value for the tag. Value can be 1 to 255 characters.
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
 // ARN of resource to share.
@@ -27,13 +36,4 @@ _#defs: "/$defs/Properties/definitions/Resource": close({
 	Cidr?:       strings.MaxRunes(255) & strings.MinRunes(0)
 	EndpointId?: strings.MaxRunes(255) & strings.MinRunes(0)
 	Region?:     strings.MaxRunes(255) & strings.MinRunes(0)
-})
-
-// Tag is a key-value pair associated with Cross Account Attachment.
-_#defs: "/$defs/Properties/definitions/Tag": close({
-	// Key of the tag. Value can be 1 to 127 characters.
-	Key!: strings.MaxRunes(127) & strings.MinRunes(1)
-
-	// Value for the tag. Value can be 1 to 255 characters.
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1)
 })

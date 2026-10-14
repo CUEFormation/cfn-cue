@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -15,65 +15,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Events::Endpoint.
 #Properties: close({
 	Description?:       strings.MaxRunes(512) & =~".*" | fn.#StringExpression
-	EventBuses!:        _#defs."/$defs/Properties/definitions/EventBuses"
+	EventBuses!:        #EventBuses
 	Name?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" | fn.#StringExpression
-	ReplicationConfig?: _#defs."/$defs/Properties/definitions/ReplicationConfig"
+	ReplicationConfig?: #ReplicationConfig
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$" |
 	fn.#StringExpression
-	RoutingConfig!: _#defs."/$defs/Properties/definitions/RoutingConfig"
+	RoutingConfig!: #RoutingConfig
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointEventBus": close(
-	{EventBusArn!: _#defs."/$defs/Properties/definitions/EventBusArn"},
-) |
-	fn.#ObjectExpression
+#EndpointEventBus: close({EventBusArn!: #EventBusArn}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventBusArn": strings.MaxRunes(512) &
+#EventBusArn: strings.MaxRunes(512) &
 strings.MinRunes(1) &
 =~"^arn:aws[a-z-]*:events:[a-z]+-[a-z-]+-\\d+:\\d{12}:event-bus/[\\w.-]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EventBuses": list.MaxItems(2) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/EndpointEventBus"
-] |
-	fn.#ListExpression
+#EventBuses: list.MaxItems(2) & list.MinItems(2) & [...#EndpointEventBus] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/FailoverConfig": close({
-	Primary!:   _#defs."/$defs/Properties/definitions/Primary"
-	Secondary!: _#defs."/$defs/Properties/definitions/Secondary"
+#FailoverConfig: close({
+	Primary!:   #Primary
+	Secondary!: #Secondary
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheck": strings.MaxRunes(1600) &
+#HealthCheck: strings.MaxRunes(1600) &
 strings.MinRunes(1) &
 =~"^arn:aws([a-z]|\\-)*:route53:::healthcheck/[\\-a-z0-9]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Primary": close(
-	{HealthCheck!: _#defs."/$defs/Properties/definitions/HealthCheck"},
-) |
-	fn.#ObjectExpression
+#Primary: close({HealthCheck!: #HealthCheck}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationConfig": close(
-	{State!: _#defs."/$defs/Properties/definitions/ReplicationState"},
-) |
-	fn.#ObjectExpression
+#ReplicationConfig: close({State!: #ReplicationState}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationState": "ENABLED" | "DISABLED" | fn.#StringExpression
+#ReplicationState: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Route": strings.MaxRunes(20) & strings.MinRunes(9) & =~"^[\\-a-z0-9]+$" |
-fn.#StringExpression
+#Route: strings.MaxRunes(20) & strings.MinRunes(9) & =~"^[\\-a-z0-9]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingConfig": close(
-	{FailoverConfig!: _#defs."/$defs/Properties/definitions/FailoverConfig"},
-) |
-	fn.#ObjectExpression
+#RoutingConfig: close({FailoverConfig!: #FailoverConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Secondary": close({Route!: _#defs."/$defs/Properties/definitions/Route"}) |
-	fn.#ObjectExpression
+#Secondary: close({Route!: #Route}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Events::Endpoint"
 	Properties!: #Properties

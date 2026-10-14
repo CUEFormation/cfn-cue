@@ -30,13 +30,13 @@ import (
 	ResourceARN?: strings.MaxRunes(512) & strings.MinRunes(8)
 
 	// The tags to apply to the backup at backup creation.
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 
 	// The type of the backup.
 	Type?: "AUTOMATIC" | "USER_INITIATED" | "AWS_BACKUP"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

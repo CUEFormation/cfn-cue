@@ -40,11 +40,11 @@ import (
 	SessionStatus?: "ACTIVE" | "EXPIRED" | "ENDED"
 
 	// A list of tags associated with the session.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 })
 
 // A tag associated with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 

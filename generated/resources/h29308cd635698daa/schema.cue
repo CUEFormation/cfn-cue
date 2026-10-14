@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"struct"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"struct"
 	"list"
 )
 
@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // integration. V1 supports AWS_CONFIG_SLREC, AWS_INTEGRATION, and
 // EXTERNAL_AGENT.
 #Properties: close({
-	Credential?: _#defs."/$defs/Properties/definitions/IntegrationCredential"
+	Credential?: #IntegrationCredential
 	IntegrationAttributes?: struct.MaxFields(50) & close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
@@ -35,7 +35,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IntegrationCredential": close({
+#IntegrationCredential: close({
 	ApiKeyCredential!: close({ApiKeyValue!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression}) |
 	fn.#ObjectExpression
 }) |

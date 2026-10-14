@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -30,7 +30,7 @@ import (
 	FormTypeIdentifier?: strings.MaxRunes(385) & strings.MinRunes(1)
 
 	// The model of this Amazon DataZone metadata form type.
-	Model!: _#defs."/$defs/Properties/definitions/Model"
+	Model!: #Model
 
 	// The name of this Amazon DataZone metadata form type.
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1)
@@ -49,4 +49,4 @@ import (
 })
 
 // Indicates the smithy model of the API.
-_#defs: "/$defs/Properties/definitions/Model": close({Smithy?: strings.MaxRunes(100000) & strings.MinRunes(1)})
+#Model: close({Smithy?: strings.MaxRunes(100000) & strings.MinRunes(1)})

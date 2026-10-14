@@ -12,12 +12,12 @@ import "struct"
 #Properties: close({
 	// The Amazon Resource Name of the Security Hub V2 resource.
 	HubV2Arn?:        string
-	NetworkScanning?: _#defs."/$defs/Properties/definitions/NetworkScanning"
-	SubscribedAt?:    _#defs."/$defs/Properties/definitions/ISO8601DateString"
-	Tags?:            _#defs."/$defs/Properties/definitions/Tags"
+	NetworkScanning?: #NetworkScanning
+	SubscribedAt?:    #ISO8601DateString
+	Tags?:            #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/ISO8601DateString": =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$"
+#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$"
 
 // Configuration for the Network Scanning opt-in feature of Security Hub V2.
 // Network Scanning is available in the AWS commercial partition only;
@@ -27,7 +27,7 @@ _#defs: "/$defs/Properties/definitions/ISO8601DateString": =~"^(\\d\\d\\d\\d)-([
 // it, the feature is left as-is, so a stack that does not manage Network
 // Scanning will not disable it. Network Scanning requires Security Hub V2 to
 // be enabled in the same account and Region.
-_#defs: "/$defs/Properties/definitions/NetworkScanning": close({
+#NetworkScanning: close({
 	// Whether the Network Scanning feature is enabled for this account and Region.
 	Status!: "ENABLED" | "DISABLED"
 })
@@ -36,4 +36,4 @@ _#defs: "/$defs/Properties/definitions/NetworkScanning": close({
 // specify a key that is 1 to 128 Unicode characters in length and cannot be
 // prefixed with aws:. You can use any of the following characters: the set of
 // Unicode letters, digits, whitespace, _, ., /, =, +, and -.
-_#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(50) & {...}
+#Tags: struct.MaxFields(50) & {...}

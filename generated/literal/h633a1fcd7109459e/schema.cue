@@ -19,15 +19,13 @@ import (
 
 	// <p>Groupings of columns that work together in certain Amazon QuickSight
 	// features. Currently, only geospatial hierarchy is supported.</p>
-	ColumnGroups?: list.MaxItems(8) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnGroup"]
+	ColumnGroups?: list.MaxItems(8) & list.MinItems(1) & [...#ColumnGroup]
 
 	// <p>A set of one or more definitions of a <code>
 	// <a
 	// href="https://docs.aws.amazon.com/quicksight/latest/APIReference/API_ColumnLevelPermissionRule.html">ColumnLevelPermissionRule</a>
 	// </code>.</p>
-	ColumnLevelPermissionRules?: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ColumnLevelPermissionRule"
-	]
+	ColumnLevelPermissionRules?: list.MinItems(1) & [...#ColumnLevelPermissionRule]
 
 	// <p>The amount of SPICE capacity used by this dataset. This is 0 if the dataset isn't
 	// imported into SPICE.</p>
@@ -35,74 +33,74 @@ import (
 
 	// <p>The time that this dataset was created.</p>
 	CreatedTime?:               string
-	DataPrepConfiguration?:     _#defs."/$defs/Properties/definitions/DataPrepConfiguration"
+	DataPrepConfiguration?:     #DataPrepConfiguration
 	DataSetId?:                 string
-	DataSetRefreshProperties?:  _#defs."/$defs/Properties/definitions/DataSetRefreshProperties"
-	DataSetUsageConfiguration?: _#defs."/$defs/Properties/definitions/DataSetUsageConfiguration"
+	DataSetRefreshProperties?:  #DataSetRefreshProperties
+	DataSetUsageConfiguration?: #DataSetUsageConfiguration
 
 	// <p>The parameter declarations of the dataset.</p>
-	DatasetParameters?: list.MaxItems(32) & [...] & [..._#defs."/$defs/Properties/definitions/DatasetParameter"]
-	FieldFolders?:      _#defs."/$defs/Properties/definitions/FieldFolderMap"
+	DatasetParameters?: list.MaxItems(32) & [...] & [...#DatasetParameter]
+	FieldFolders?:      #FieldFolderMap
 
 	// <p>When you create the dataset, Amazon QuickSight adds the dataset to these folders.</p>
 	FolderArns?:          list.MaxItems(10) & [...] & [...string]
-	ImportMode?:          _#defs."/$defs/Properties/definitions/DataSetImportMode"
-	IngestionWaitPolicy?: _#defs."/$defs/Properties/definitions/IngestionWaitPolicy"
+	ImportMode?:          #DataSetImportMode
+	IngestionWaitPolicy?: #IngestionWaitPolicy
 
 	// <p>The last time that this dataset was updated.</p>
 	LastUpdatedTime?: string
-	LogicalTableMap?: _#defs."/$defs/Properties/definitions/LogicalTableMap"
+	LogicalTableMap?: #LogicalTableMap
 
 	// <p>The display name for the dataset.</p>
 	Name?: strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// <p>The list of columns after all transforms. These columns are available in templates,
 	// analyses, and dashboards.</p>
-	OutputColumns?:            [..._#defs."/$defs/Properties/definitions/OutputColumn"]
-	PerformanceConfiguration?: _#defs."/$defs/Properties/definitions/PerformanceConfiguration"
+	OutputColumns?:            [...#OutputColumn]
+	PerformanceConfiguration?: #PerformanceConfiguration
 
 	// <p>A list of resource permissions on the dataset.</p>
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"]
-	PhysicalTableMap?:                   _#defs."/$defs/Properties/definitions/PhysicalTableMap"
-	RowLevelPermissionDataSet?:          _#defs."/$defs/Properties/definitions/RowLevelPermissionDataSet"
-	RowLevelPermissionTagConfiguration?: _#defs."/$defs/Properties/definitions/RowLevelPermissionTagConfiguration"
-	SemanticModelConfiguration?:         _#defs."/$defs/Properties/definitions/SemanticModelConfiguration"
+	Permissions?:                        list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission]
+	PhysicalTableMap?:                   #PhysicalTableMap
+	RowLevelPermissionDataSet?:          #RowLevelPermissionDataSet
+	RowLevelPermissionTagConfiguration?: #RowLevelPermissionTagConfiguration
+	SemanticModelConfiguration?:         #SemanticModelConfiguration
 
 	// <p>Contains a map of the key-value pairs for the resource tag or tags
 	// assigned to the dataset.</p>
-	Tags?:  list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
-	UseAs?: _#defs."/$defs/Properties/definitions/DataSetUseAs"
+	Tags?:  list.MaxItems(200) & list.MinItems(1) & [...#Tag]
+	UseAs?: #DataSetUseAs
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalNotes": close({Text?: strings.MaxRunes(2000) & strings.MinRunes(0)})
+#AdditionalNotes: close({Text?: strings.MaxRunes(2000) & strings.MinRunes(0)})
 
-_#defs: "/$defs/Properties/definitions/AggregateOperation": close({
-	Aggregations!:       list.MaxItems(128) & [...] & [..._#defs."/$defs/Properties/definitions/Aggregation"]
+#AggregateOperation: close({
+	Aggregations!:       list.MaxItems(128) & [...] & [...#Aggregation]
 	Alias!:              strings.MaxRunes(64) & strings.MinRunes(1)
 	GroupByColumnNames?: list.MaxItems(128) & [...] & [...strings.MaxRunes(127) & strings.MinRunes(1)]
-	Source!:             _#defs."/$defs/Properties/definitions/TransformOperationSource"
+	Source!:             #TransformOperationSource
 })
 
-_#defs: "/$defs/Properties/definitions/Aggregation": close({
-	AggregationFunction!: _#defs."/$defs/Properties/definitions/DataPrepAggregationFunction"
+#Aggregation: close({
+	AggregationFunction!: #DataPrepAggregationFunction
 	NewColumnId!:         strings.MaxRunes(64) & strings.MinRunes(1)
 	NewColumnName!:       strings.MaxRunes(127) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/AppendOperation": close({
+#AppendOperation: close({
 	Alias!:           strings.MaxRunes(64) & strings.MinRunes(1)
-	AppendedColumns!: list.MaxItems(2048) & [...] & [..._#defs."/$defs/Properties/definitions/AppendedColumn"]
-	FirstSource?:     _#defs."/$defs/Properties/definitions/TransformOperationSource"
-	SecondSource?:    _#defs."/$defs/Properties/definitions/TransformOperationSource"
+	AppendedColumns!: list.MaxItems(2048) & [...] & [...#AppendedColumn]
+	FirstSource?:     #TransformOperationSource
+	SecondSource?:    #TransformOperationSource
 })
 
-_#defs: "/$defs/Properties/definitions/AppendedColumn": close({
+#AppendedColumn: close({
 	ColumnName!:  strings.MaxRunes(127) & strings.MinRunes(1)
 	NewColumnId!: strings.MaxRunes(64) & strings.MinRunes(1)
 })
 
 // <p>A calculated column for a dataset.</p>
-_#defs: "/$defs/Properties/definitions/CalculatedColumn": close({
+#CalculatedColumn: close({
 	// <p>A unique ID to identify a calculated column. During a dataset update, if the column ID
 	// of a calculated column matches that of an existing calculated column, Amazon QuickSight
 	// preserves the existing calculated column.</p>
@@ -116,31 +114,29 @@ _#defs: "/$defs/Properties/definitions/CalculatedColumn": close({
 })
 
 // <p>A transform operation that casts a column to a different type.</p>
-_#defs: "/$defs/Properties/definitions/CastColumnTypeOperation": close({
+#CastColumnTypeOperation: close({
 	// <p>Column name.</p>
 	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1)
 
 	// <p>When casting a column from string to datetime type, you can supply a string in a
 	// format supported by Amazon QuickSight to denote the source data format.</p>
 	Format?:        strings.MaxRunes(32) & strings.MinRunes(0)
-	NewColumnType!: _#defs."/$defs/Properties/definitions/ColumnDataType"
-	SubType?:       _#defs."/$defs/Properties/definitions/ColumnDataSubType"
+	NewColumnType!: #ColumnDataType
+	SubType?:       #ColumnDataSubType
 })
 
-_#defs: "/$defs/Properties/definitions/CastColumnTypesOperation": close({
-	Alias!: strings.MaxRunes(64) & strings.MinRunes(1)
-	CastColumnTypeOperations!: list.MaxItems(2048) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CastColumnTypeOperation"
-	]
-	Source!: _#defs."/$defs/Properties/definitions/TransformOperationSource"
+#CastColumnTypesOperation: close({
+	Alias!:                    strings.MaxRunes(64) & strings.MinRunes(1)
+	CastColumnTypeOperations!: list.MaxItems(2048) & [...] & [...#CastColumnTypeOperation]
+	Source!:                   #TransformOperationSource
 })
 
-_#defs: "/$defs/Properties/definitions/ColumnDataSubType": "FLOAT" | "FIXED"
+#ColumnDataSubType: "FLOAT" | "FIXED"
 
-_#defs: "/$defs/Properties/definitions/ColumnDataType": "STRING" | "INTEGER" | "DECIMAL" | "DATETIME"
+#ColumnDataType: "STRING" | "INTEGER" | "DECIMAL" | "DATETIME"
 
 // <p>Metadata that contains a description for a column.</p>
-_#defs: "/$defs/Properties/definitions/ColumnDescription": close({
+#ColumnDescription: close({
 	// <p>The text of a description for a column.</p>
 	Text?: strings.MaxRunes(500) & strings.MinRunes(0)
 })
@@ -148,9 +144,7 @@ _#defs: "/$defs/Properties/definitions/ColumnDescription": close({
 // <p>Groupings of columns that work together in certain Amazon QuickSight features. This is
 // a variant type structure. For this structure to be valid, only one of the attributes can
 // be non-null.</p>
-_#defs: "/$defs/Properties/definitions/ColumnGroup": close(
-	{GeoSpatialColumnGroup?: _#defs."/$defs/Properties/definitions/GeoSpatialColumnGroup"},
-)
+#ColumnGroup: close({GeoSpatialColumnGroup?: #GeoSpatialColumnGroup})
 
 // <p>A rule defined to grant access on one or more restricted columns.
 // Each dataset can have multiple rules.
@@ -158,7 +152,7 @@ _#defs: "/$defs/Properties/definitions/ColumnGroup": close(
 // Each rule must contain at least one column and at least one user or group.
 // To be able to see a restricted column, a user or group needs to be added
 // to a rule for that column.</p>
-_#defs: "/$defs/Properties/definitions/ColumnLevelPermissionRule": close({
+#ColumnLevelPermissionRule: close({
 	// <p>An array of column names.</p>
 	ColumnNames?: list.MinItems(1) & [...string]
 
@@ -166,15 +160,13 @@ _#defs: "/$defs/Properties/definitions/ColumnLevelPermissionRule": close({
 	Principals?: list.MaxItems(100) & list.MinItems(1) & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/ColumnSemanticProperty": close({
-	AdditionalNotes?: _#defs."/$defs/Properties/definitions/AdditionalNotes"
-	Description?:     _#defs."/$defs/Properties/definitions/ColumnDescription"
-	SemanticType?:    _#defs."/$defs/Properties/definitions/ColumnSemanticType"
+#ColumnSemanticProperty: close({
+	AdditionalNotes?: #AdditionalNotes
+	Description?:     #ColumnDescription
+	SemanticType?:    #ColumnSemanticType
 })
 
-_#defs: "/$defs/Properties/definitions/ColumnSemanticType": close(
-	{GeographicalRole?: _#defs."/$defs/Properties/definitions/GeoSpatialDataRole"},
-)
+#ColumnSemanticType: close({GeographicalRole?: #GeoSpatialDataRole})
 
 // <p>A tag for a column in a
 // <code>
@@ -184,36 +176,34 @@ _#defs: "/$defs/Properties/definitions/ColumnSemanticType": close(
 // structure. This is a
 // variant type structure. For this structure to be valid, only one of the attributes can
 // be non-null.</p>
-_#defs: "/$defs/Properties/definitions/ColumnTag": close({
-	ColumnDescription?:    _#defs."/$defs/Properties/definitions/ColumnDescription"
-	ColumnGeographicRole?: _#defs."/$defs/Properties/definitions/GeoSpatialDataRole"
+#ColumnTag: close({
+	ColumnDescription?:    #ColumnDescription
+	ColumnGeographicRole?: #GeoSpatialDataRole
 })
 
-_#defs: "/$defs/Properties/definitions/ColumnTagName": "COLUMN_GEOGRAPHIC_ROLE" | "COLUMN_DESCRIPTION"
+#ColumnTagName: "COLUMN_GEOGRAPHIC_ROLE" | "COLUMN_DESCRIPTION"
 
-_#defs: "/$defs/Properties/definitions/ColumnToUnpivot": close({
+#ColumnToUnpivot: close({
 	ColumnName?: strings.MaxRunes(127) & strings.MinRunes(1)
 	NewValue?:   strings.MaxRunes(2047) & strings.MinRunes(0)
 })
 
 // <p>A transform operation that creates calculated columns. Columns created in one such
 // operation form a lexical closure.</p>
-_#defs: "/$defs/Properties/definitions/CreateColumnsOperation": close({
+#CreateColumnsOperation: close({
 	Alias?: strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// <p>Calculated columns to create.</p>
-	Columns!: list.MaxItems(256) & [...] & [..._#defs."/$defs/Properties/definitions/CalculatedColumn"]
-	Source?:  _#defs."/$defs/Properties/definitions/TransformOperationSource"
+	Columns!: list.MaxItems(256) & [...] & [...#CalculatedColumn]
+	Source?:  #TransformOperationSource
 })
 
-_#defs: "/$defs/Properties/definitions/CustomInstruction": close(
-	{InlineCustomInstruction?: _#defs."/$defs/Properties/definitions/InlineCustomInstruction"},
-)
+#CustomInstruction: close({InlineCustomInstruction?: #InlineCustomInstruction})
 
 // <p>A physical table type built from the results of the custom SQL query.</p>
-_#defs: "/$defs/Properties/definitions/CustomSql": close({
+#CustomSql: close({
 	// <p>The column schema from the SQL query result set.</p>
-	Columns!: list.MaxItems(2048) & [...] & [..._#defs."/$defs/Properties/definitions/InputColumn"]
+	Columns!: list.MaxItems(2048) & [...] & [...#InputColumn]
 
 	// <p>The Amazon Resource Name (ARN) of the data source.</p>
 	DataSourceArn!: string
@@ -225,35 +215,35 @@ _#defs: "/$defs/Properties/definitions/CustomSql": close({
 	SqlQuery!: strings.MaxRunes(168000) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/DataPrepAggregationFunction": close({
-	ListAggregation?:       _#defs."/$defs/Properties/definitions/DataPrepListAggregationFunction"
-	PercentileAggregation?: _#defs."/$defs/Properties/definitions/DataPrepPercentileAggregationFunction"
-	SimpleAggregation?:     _#defs."/$defs/Properties/definitions/DataPrepSimpleAggregationFunction"
+#DataPrepAggregationFunction: close({
+	ListAggregation?:       #DataPrepListAggregationFunction
+	PercentileAggregation?: #DataPrepPercentileAggregationFunction
+	SimpleAggregation?:     #DataPrepSimpleAggregationFunction
 })
 
-_#defs: "/$defs/Properties/definitions/DataPrepConfiguration": close({
-	DestinationTableMap!: _#defs."/$defs/Properties/definitions/DestinationTableMap"
-	SourceTableMap!:      _#defs."/$defs/Properties/definitions/SourceTableMap"
-	TransformStepMap!:    _#defs."/$defs/Properties/definitions/TransformStepMap"
+#DataPrepConfiguration: close({
+	DestinationTableMap!: #DestinationTableMap
+	SourceTableMap!:      #SourceTableMap
+	TransformStepMap!:    #TransformStepMap
 })
 
-_#defs: "/$defs/Properties/definitions/DataPrepListAggregationFunction": close({
+#DataPrepListAggregationFunction: close({
 	Distinct!:        bool
 	InputColumnName?: strings.MaxRunes(127) & strings.MinRunes(1)
 	Separator!:       string
 })
 
-_#defs: "/$defs/Properties/definitions/DataPrepPercentileAggregationFunction": close({
+#DataPrepPercentileAggregationFunction: close({
 	InputColumnName?: strings.MaxRunes(127) & strings.MinRunes(1)
 	PercentileValue!: <=100 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/DataPrepSimpleAggregationFunction": close({
-	FunctionType!:    _#defs."/$defs/Properties/definitions/DataPrepSimpleAggregationFunctionType"
+#DataPrepSimpleAggregationFunction: close({
+	FunctionType!:    #DataPrepSimpleAggregationFunctionType
 	InputColumnName?: strings.MaxRunes(127) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/DataPrepSimpleAggregationFunctionType": "COUNT" |
+#DataPrepSimpleAggregationFunctionType: "COUNT" |
 	"DISTINCT_COUNT" |
 	"SUM" |
 	"AVERAGE" |
@@ -263,118 +253,109 @@ _#defs: "/$defs/Properties/definitions/DataPrepSimpleAggregationFunctionType": "
 	"VARIANCE" |
 	"STANDARD_DEVIATION"
 
-_#defs: "/$defs/Properties/definitions/DataSetColumnIdMapping": close({
+#DataSetColumnIdMapping: close({
 	SourceColumnId!: strings.MaxRunes(256) & strings.MinRunes(1)
 	TargetColumnId!: strings.MaxRunes(64) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/DataSetDateComparisonFilterCondition": close({
-	Operator!: _#defs."/$defs/Properties/definitions/DataSetDateComparisonFilterOperator"
-	Value?:    _#defs."/$defs/Properties/definitions/DataSetDateFilterValue"
+#DataSetDateComparisonFilterCondition: close({
+	Operator!: #DataSetDateComparisonFilterOperator
+	Value?:    #DataSetDateFilterValue
 })
 
-_#defs: "/$defs/Properties/definitions/DataSetDateComparisonFilterOperator": "BEFORE" |
-	"BEFORE_OR_EQUALS_TO" |
-	"AFTER" |
-	"AFTER_OR_EQUALS_TO"
+#DataSetDateComparisonFilterOperator: "BEFORE" | "BEFORE_OR_EQUALS_TO" | "AFTER" | "AFTER_OR_EQUALS_TO"
 
-_#defs: "/$defs/Properties/definitions/DataSetDateFilterCondition": close({
+#DataSetDateFilterCondition: close({
 	ColumnName?:                strings.MaxRunes(127) & strings.MinRunes(1)
-	ComparisonFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetDateComparisonFilterCondition"
-	RangeFilterCondition?:      _#defs."/$defs/Properties/definitions/DataSetDateRangeFilterCondition"
+	ComparisonFilterCondition?: #DataSetDateComparisonFilterCondition
+	RangeFilterCondition?:      #DataSetDateRangeFilterCondition
 })
 
-_#defs: "/$defs/Properties/definitions/DataSetDateFilterValue": close({StaticValue?: time.Time})
+#DataSetDateFilterValue: close({StaticValue?: time.Time})
 
-_#defs: "/$defs/Properties/definitions/DataSetDateRangeFilterCondition": close({
+#DataSetDateRangeFilterCondition: close({
 	IncludeMaximum?: bool
 	IncludeMinimum?: bool
-	RangeMaximum?:   _#defs."/$defs/Properties/definitions/DataSetDateFilterValue"
-	RangeMinimum?:   _#defs."/$defs/Properties/definitions/DataSetDateFilterValue"
+	RangeMaximum?:   #DataSetDateFilterValue
+	RangeMinimum?:   #DataSetDateFilterValue
 })
 
-_#defs: "/$defs/Properties/definitions/DataSetImportMode": "SPICE" | "DIRECT_QUERY"
+#DataSetImportMode: "SPICE" | "DIRECT_QUERY"
 
-_#defs: "/$defs/Properties/definitions/DataSetNumericComparisonFilterCondition": close({
-	Operator!: _#defs."/$defs/Properties/definitions/DataSetNumericComparisonFilterOperator"
-	Value?:    _#defs."/$defs/Properties/definitions/DataSetNumericFilterValue"
+#DataSetNumericComparisonFilterCondition: close({
+	Operator!: #DataSetNumericComparisonFilterOperator
+	Value?:    #DataSetNumericFilterValue
 })
 
-_#defs: "/$defs/Properties/definitions/DataSetNumericComparisonFilterOperator": "EQUALS" |
+#DataSetNumericComparisonFilterOperator: "EQUALS" |
 	"DOES_NOT_EQUAL" |
 	"GREATER_THAN" |
 	"GREATER_THAN_OR_EQUALS_TO" |
 	"LESS_THAN" |
 	"LESS_THAN_OR_EQUALS_TO"
 
-_#defs: "/$defs/Properties/definitions/DataSetNumericFilterCondition": close({
+#DataSetNumericFilterCondition: close({
 	ColumnName?:                strings.MaxRunes(127) & strings.MinRunes(1)
-	ComparisonFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetNumericComparisonFilterCondition"
-	RangeFilterCondition?:      _#defs."/$defs/Properties/definitions/DataSetNumericRangeFilterCondition"
+	ComparisonFilterCondition?: #DataSetNumericComparisonFilterCondition
+	RangeFilterCondition?:      #DataSetNumericRangeFilterCondition
 })
 
-_#defs: "/$defs/Properties/definitions/DataSetNumericFilterValue": close({StaticValue?: number})
+#DataSetNumericFilterValue: close({StaticValue?: number})
 
-_#defs: "/$defs/Properties/definitions/DataSetNumericRangeFilterCondition": close({
+#DataSetNumericRangeFilterCondition: close({
 	IncludeMaximum?: bool
 	IncludeMinimum?: bool
-	RangeMaximum?:   _#defs."/$defs/Properties/definitions/DataSetNumericFilterValue"
-	RangeMinimum?:   _#defs."/$defs/Properties/definitions/DataSetNumericFilterValue"
+	RangeMaximum?:   #DataSetNumericFilterValue
+	RangeMinimum?:   #DataSetNumericFilterValue
 })
 
 // <p>The refresh properties of a dataset.</p>
-_#defs: "/$defs/Properties/definitions/DataSetRefreshProperties": close({
-	FailureConfiguration?: _#defs."/$defs/Properties/definitions/RefreshFailureConfiguration"
-	RefreshConfiguration?: _#defs."/$defs/Properties/definitions/RefreshConfiguration"
+#DataSetRefreshProperties: close({
+	FailureConfiguration?: #RefreshFailureConfiguration
+	RefreshConfiguration?: #RefreshConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/DataSetSemanticDescription": close(
-	{Text!: strings.MaxRunes(500) & strings.MinRunes(1)},
-)
+#DataSetSemanticDescription: close({Text!: strings.MaxRunes(500) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/DataSetSemanticMetadata": close({
-	CustomInstructions?: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/CustomInstruction"
-	]
-	Description?: _#defs."/$defs/Properties/definitions/DataSetSemanticDescription"
+#DataSetSemanticMetadata: close({
+	CustomInstructions?: list.MaxItems(2) & list.MinItems(1) & [...#CustomInstruction]
+	Description?:        #DataSetSemanticDescription
 })
 
-_#defs: "/$defs/Properties/definitions/DataSetStringComparisonFilterCondition": close({
-	Operator!: _#defs."/$defs/Properties/definitions/DataSetStringComparisonFilterOperator"
-	Value?:    _#defs."/$defs/Properties/definitions/DataSetStringFilterValue"
+#DataSetStringComparisonFilterCondition: close({
+	Operator!: #DataSetStringComparisonFilterOperator
+	Value?:    #DataSetStringFilterValue
 })
 
-_#defs: "/$defs/Properties/definitions/DataSetStringComparisonFilterOperator": "EQUALS" |
+#DataSetStringComparisonFilterOperator: "EQUALS" |
 	"DOES_NOT_EQUAL" |
 	"CONTAINS" |
 	"DOES_NOT_CONTAIN" |
 	"STARTS_WITH" |
 	"ENDS_WITH"
 
-_#defs: "/$defs/Properties/definitions/DataSetStringFilterCondition": close({
+#DataSetStringFilterCondition: close({
 	ColumnName?:                strings.MaxRunes(127) & strings.MinRunes(1)
-	ComparisonFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetStringComparisonFilterCondition"
-	ListFilterCondition?:       _#defs."/$defs/Properties/definitions/DataSetStringListFilterCondition"
+	ComparisonFilterCondition?: #DataSetStringComparisonFilterCondition
+	ListFilterCondition?:       #DataSetStringListFilterCondition
 })
 
-_#defs: "/$defs/Properties/definitions/DataSetStringFilterValue": close(
-	{StaticValue?: strings.MaxRunes(512) & strings.MinRunes(0)},
-)
+#DataSetStringFilterValue: close({StaticValue?: strings.MaxRunes(512) & strings.MinRunes(0)})
 
-_#defs: "/$defs/Properties/definitions/DataSetStringListFilterCondition": close({
-	Operator!: _#defs."/$defs/Properties/definitions/DataSetStringListFilterOperator"
-	Values?:   _#defs."/$defs/Properties/definitions/DataSetStringListFilterValue"
+#DataSetStringListFilterCondition: close({
+	Operator!: #DataSetStringListFilterOperator
+	Values?:   #DataSetStringListFilterValue
 })
 
-_#defs: "/$defs/Properties/definitions/DataSetStringListFilterOperator": "INCLUDE" | "EXCLUDE"
+#DataSetStringListFilterOperator: "INCLUDE" | "EXCLUDE"
 
-_#defs: "/$defs/Properties/definitions/DataSetStringListFilterValue": close(
+#DataSetStringListFilterValue: close(
 	{StaticValues?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(0)]},
 )
 
 // <p>The usage configuration to apply to child datasets that reference this
 // dataset as a source.</p>
-_#defs: "/$defs/Properties/definitions/DataSetUsageConfiguration": close({
+#DataSetUsageConfiguration: close({
 	// <p>An option that controls whether a child dataset of a direct query can use
 	// this dataset as a source.</p>
 	DisableUseAsDirectQuerySource?: bool
@@ -384,70 +365,70 @@ _#defs: "/$defs/Properties/definitions/DataSetUsageConfiguration": close({
 	DisableUseAsImportedSource?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/DataSetUseAs": "RLS_RULES"
+#DataSetUseAs: "RLS_RULES"
 
 // <p>A dataset parameter.</p>
-_#defs: "/$defs/Properties/definitions/DatasetParameter": close({
-	DateTimeDatasetParameter?: _#defs."/$defs/Properties/definitions/DateTimeDatasetParameter"
-	DecimalDatasetParameter?:  _#defs."/$defs/Properties/definitions/DecimalDatasetParameter"
-	IntegerDatasetParameter?:  _#defs."/$defs/Properties/definitions/IntegerDatasetParameter"
-	StringDatasetParameter?:   _#defs."/$defs/Properties/definitions/StringDatasetParameter"
+#DatasetParameter: close({
+	DateTimeDatasetParameter?: #DateTimeDatasetParameter
+	DecimalDatasetParameter?:  #DecimalDatasetParameter
+	IntegerDatasetParameter?:  #IntegerDatasetParameter
+	StringDatasetParameter?:   #StringDatasetParameter
 })
 
-_#defs: "/$defs/Properties/definitions/DatasetParameterValueType": "MULTI_VALUED" | "SINGLE_VALUED"
+#DatasetParameterValueType: "MULTI_VALUED" | "SINGLE_VALUED"
 
 // <p>A date time parameter for a dataset.</p>
-_#defs: "/$defs/Properties/definitions/DateTimeDatasetParameter": close({
-	DefaultValues?: _#defs."/$defs/Properties/definitions/DateTimeDatasetParameterDefaultValues"
+#DateTimeDatasetParameter: close({
+	DefaultValues?: #DateTimeDatasetParameterDefaultValues
 
 	// <p>An identifier for the parameter that is created in the dataset.</p>
 	Id!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
 
 	// <p>The name of the date time parameter that is created in the dataset.</p>
 	Name!:            strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$"
-	TimeGranularity?: _#defs."/$defs/Properties/definitions/TimeGranularity"
-	ValueType!:       _#defs."/$defs/Properties/definitions/DatasetParameterValueType"
+	TimeGranularity?: #TimeGranularity
+	ValueType!:       #DatasetParameterValueType
 })
 
 // <p>The default values of a date time parameter.</p>
-_#defs: "/$defs/Properties/definitions/DateTimeDatasetParameterDefaultValues": close({
+#DateTimeDatasetParameterDefaultValues: close({
 	// <p>A list of static default values for a given date time parameter.</p>
 	StaticValues?: list.MaxItems(32) & [...] & [...string]
 })
 
 // <p>A decimal parameter for a dataset.</p>
-_#defs: "/$defs/Properties/definitions/DecimalDatasetParameter": close({
-	DefaultValues?: _#defs."/$defs/Properties/definitions/DecimalDatasetParameterDefaultValues"
+#DecimalDatasetParameter: close({
+	DefaultValues?: #DecimalDatasetParameterDefaultValues
 
 	// <p>An identifier for the decimal parameter created in the dataset.</p>
 	Id!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
 
 	// <p>The name of the decimal parameter that is created in the dataset.</p>
 	Name!:      strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$"
-	ValueType!: _#defs."/$defs/Properties/definitions/DatasetParameterValueType"
+	ValueType!: #DatasetParameterValueType
 })
 
 // <p>The default values of a decimal parameter.</p>
-_#defs: "/$defs/Properties/definitions/DecimalDatasetParameterDefaultValues": close({
+#DecimalDatasetParameterDefaultValues: close({
 	// <p>A list of static default values for a given decimal parameter.</p>
 	StaticValues?: list.MaxItems(32) & [...] & [...number]
 })
 
-_#defs: "/$defs/Properties/definitions/DestinationTable": close({
+#DestinationTable: close({
 	Alias!:  strings.MaxRunes(64) & strings.MinRunes(1)
-	Source!: _#defs."/$defs/Properties/definitions/DestinationTableSource"
+	Source!: #DestinationTableSource
 })
 
-_#defs: "/$defs/Properties/definitions/DestinationTableMap": struct.MaxFields(1) & struct.MinFields(1) & close({
+#DestinationTableMap: struct.MaxFields(1) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/DestinationTable"}})
+	{[=~"^[0-9a-zA-Z-]*$"]: #DestinationTable}})
 
-_#defs: "/$defs/Properties/definitions/DestinationTableSource": close(
+#DestinationTableSource: close(
 	{TransformOperationId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$"},
 )
 
 // <p>A FieldFolder element is a folder that contains fields and nested subfolders.</p>
-_#defs: "/$defs/Properties/definitions/FieldFolder": close({
+#FieldFolder: close({
 	// <p>A folder has a list of columns. A column can only be in one folder.</p>
 	Columns?: list.MaxItems(5000) & [...] & [...string]
 
@@ -455,41 +436,41 @@ _#defs: "/$defs/Properties/definitions/FieldFolder": close({
 	Description?: strings.MaxRunes(500) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/FieldFolderMap": close({
+#FieldFolderMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/FieldFolder"}})
+	{[=~".+"]: #FieldFolder}})
 
-_#defs: "/$defs/Properties/definitions/FileFormat": "CSV" | "TSV" | "CLF" | "ELF" | "XLSX" | "JSON"
+#FileFormat: "CSV" | "TSV" | "CLF" | "ELF" | "XLSX" | "JSON"
 
 // <p>A transform operation that filters rows based on a condition.</p>
-_#defs: "/$defs/Properties/definitions/FilterOperation": close({
+#FilterOperation: close({
 	// <p>An expression that must evaluate to a Boolean value. Rows for which the expression
 	// evaluates to true are kept in the dataset.</p>
 	ConditionExpression?:    strings.MaxRunes(4096) & strings.MinRunes(1)
-	DateFilterCondition?:    _#defs."/$defs/Properties/definitions/DataSetDateFilterCondition"
-	NumericFilterCondition?: _#defs."/$defs/Properties/definitions/DataSetNumericFilterCondition"
-	StringFilterCondition?:  _#defs."/$defs/Properties/definitions/DataSetStringFilterCondition"
+	DateFilterCondition?:    #DataSetDateFilterCondition
+	NumericFilterCondition?: #DataSetNumericFilterCondition
+	StringFilterCondition?:  #DataSetStringFilterCondition
 })
 
-_#defs: "/$defs/Properties/definitions/FiltersOperation": close({
+#FiltersOperation: close({
 	Alias!:            strings.MaxRunes(64) & strings.MinRunes(1)
-	FilterOperations!: list.MaxItems(128) & [...] & [..._#defs."/$defs/Properties/definitions/FilterOperation"]
-	Source!:           _#defs."/$defs/Properties/definitions/TransformOperationSource"
+	FilterOperations!: list.MaxItems(128) & [...] & [...#FilterOperation]
+	Source!:           #TransformOperationSource
 })
 
 // <p>Geospatial column group that denotes a hierarchy.</p>
-_#defs: "/$defs/Properties/definitions/GeoSpatialColumnGroup": close({
+#GeoSpatialColumnGroup: close({
 	// <p>Columns in this hierarchy.</p>
 	Columns!:     list.MaxItems(16) & list.MinItems(1) & [...strings.MaxRunes(127) & strings.MinRunes(1)]
-	CountryCode?: _#defs."/$defs/Properties/definitions/GeoSpatialCountryCode"
+	CountryCode?: #GeoSpatialCountryCode
 
 	// <p>A display name for the hierarchy.</p>
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/GeoSpatialCountryCode": "US"
+#GeoSpatialCountryCode: "US"
 
-_#defs: "/$defs/Properties/definitions/GeoSpatialDataRole": "COUNTRY" |
+#GeoSpatialDataRole: "COUNTRY" |
 	"STATE" |
 	"COUNTY" |
 	"CITY" |
@@ -501,26 +482,22 @@ _#defs: "/$defs/Properties/definitions/GeoSpatialDataRole": "COUNTRY" |
 	"CENSUS_BLOCK_GROUP" |
 	"CENSUS_BLOCK"
 
-_#defs: "/$defs/Properties/definitions/ImportTableOperation": close({
+#ImportTableOperation: close({
 	Alias!:  strings.MaxRunes(64) & strings.MinRunes(1)
-	Source!: _#defs."/$defs/Properties/definitions/ImportTableOperationSource"
+	Source!: #ImportTableOperationSource
 })
 
-_#defs: "/$defs/Properties/definitions/ImportTableOperationSource": close({
-	ColumnIdMappings?: list.MaxItems(2048) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataSetColumnIdMapping"
-	]
-	SourceTableId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$"
+#ImportTableOperationSource: close({
+	ColumnIdMappings?: list.MaxItems(2048) & list.MinItems(1) & [...#DataSetColumnIdMapping]
+	SourceTableId!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$"
 })
 
 // <p>The incremental refresh configuration for a dataset.</p>
-_#defs: "/$defs/Properties/definitions/IncrementalRefresh": close(
-	{LookbackWindow!: _#defs."/$defs/Properties/definitions/LookbackWindow"},
-)
+#IncrementalRefresh: close({LookbackWindow!: #LookbackWindow})
 
 // <p>Wait policy to use when creating/updating dataset. Default is to wait for
 // SPICE ingestion to finish with timeout of 36 hours.</p>
-_#defs: "/$defs/Properties/definitions/IngestionWaitPolicy": close({
+#IngestionWaitPolicy: close({
 	// <p>The maximum time (in hours) to wait for Ingestion to complete. Default timeout is 36 hours.
 	// Applicable only when DataSetImportMode mode is set to SPICE and
 	// WaitForSpiceIngestion is set to true.</p>
@@ -531,137 +508,126 @@ _#defs: "/$defs/Properties/definitions/IngestionWaitPolicy": close({
 	WaitForSpiceIngestion?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/InlineCustomInstruction": close({
+#InlineCustomInstruction: close({
 	InstructionText!:          strings.MaxRunes(50000) & strings.MinRunes(0)
-	UploadedDocumentMetadata?: _#defs."/$defs/Properties/definitions/UploadedDocumentMetadata"
+	UploadedDocumentMetadata?: #UploadedDocumentMetadata
 })
 
 // <p>Metadata for a column that is used as the input of a transform operation.</p>
-_#defs: "/$defs/Properties/definitions/InputColumn": close({
+#InputColumn: close({
 	Id?: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// <p>The name of this column in the underlying data source.</p>
 	Name!:    strings.MaxRunes(127) & strings.MinRunes(1)
-	SubType?: _#defs."/$defs/Properties/definitions/ColumnDataSubType"
-	Type!:    _#defs."/$defs/Properties/definitions/InputColumnDataType"
+	SubType?: #ColumnDataSubType
+	Type!:    #InputColumnDataType
 })
 
-_#defs: "/$defs/Properties/definitions/InputColumnDataType": "STRING" |
-	"INTEGER" |
-	"DECIMAL" |
-	"DATETIME" |
-	"BIT" |
-	"BOOLEAN" |
-	"JSON" |
-	"SEMISTRUCT"
+#InputColumnDataType: "STRING" | "INTEGER" | "DECIMAL" | "DATETIME" | "BIT" | "BOOLEAN" | "JSON" | "SEMISTRUCT"
 
 // <p>An integer parameter for a dataset.</p>
-_#defs: "/$defs/Properties/definitions/IntegerDatasetParameter": close({
-	DefaultValues?: _#defs."/$defs/Properties/definitions/IntegerDatasetParameterDefaultValues"
+#IntegerDatasetParameter: close({
+	DefaultValues?: #IntegerDatasetParameterDefaultValues
 
 	// <p>An identifier for the integer parameter created in the dataset.</p>
 	Id!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
 
 	// <p>The name of the integer parameter that is created in the dataset.</p>
 	Name!:      strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$"
-	ValueType!: _#defs."/$defs/Properties/definitions/DatasetParameterValueType"
+	ValueType!: #DatasetParameterValueType
 })
 
 // <p>The default values of an integer parameter.</p>
-_#defs: "/$defs/Properties/definitions/IntegerDatasetParameterDefaultValues": close({
+#IntegerDatasetParameterDefaultValues: close({
 	// <p>A list of static default values for a given integer parameter.</p>
 	StaticValues?: list.MaxItems(32) & [...] & [...int]
 })
 
 // <p>The instructions associated with a join. </p>
-_#defs: "/$defs/Properties/definitions/JoinInstruction": close({
-	LeftJoinKeyProperties?: _#defs."/$defs/Properties/definitions/JoinKeyProperties"
+#JoinInstruction: close({
+	LeftJoinKeyProperties?: #JoinKeyProperties
 
 	// <p>The operand on the left side of a join.</p>
 	LeftOperand!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$"
 
 	// <p>The join instructions provided in the <code>ON</code> clause of a join.</p>
 	OnClause!:               strings.MaxRunes(512) & strings.MinRunes(1)
-	RightJoinKeyProperties?: _#defs."/$defs/Properties/definitions/JoinKeyProperties"
+	RightJoinKeyProperties?: #JoinKeyProperties
 
 	// <p>The operand on the right side of a join.</p>
 	RightOperand!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$"
-	Type!:         _#defs."/$defs/Properties/definitions/JoinType"
+	Type!:         #JoinType
 })
 
 // <p>Properties associated with the columns participating in a join.</p>
-_#defs: "/$defs/Properties/definitions/JoinKeyProperties": close({
+#JoinKeyProperties: close({
 	// <p>A value that indicates that a row in a table is uniquely identified by the columns in
 	// a join key. This is used by Amazon QuickSight to optimize query performance.</p>
 	UniqueKey?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/JoinOperandProperties": close({
-	OutputColumnNameOverrides!: list.MaxItems(2048) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/OutputColumnNameOverride"
-	]
-})
+#JoinOperandProperties: close(
+	{OutputColumnNameOverrides!: list.MaxItems(2048) & list.MinItems(1) & [...#OutputColumnNameOverride]},
+)
 
-_#defs: "/$defs/Properties/definitions/JoinOperation": close({
+#JoinOperation: close({
 	Alias!:                  strings.MaxRunes(64) & strings.MinRunes(1)
-	LeftOperand!:            _#defs."/$defs/Properties/definitions/TransformOperationSource"
-	LeftOperandProperties?:  _#defs."/$defs/Properties/definitions/JoinOperandProperties"
+	LeftOperand!:            #TransformOperationSource
+	LeftOperandProperties?:  #JoinOperandProperties
 	OnClause!:               strings.MaxRunes(512) & strings.MinRunes(1)
-	RightOperand!:           _#defs."/$defs/Properties/definitions/TransformOperationSource"
-	RightOperandProperties?: _#defs."/$defs/Properties/definitions/JoinOperandProperties"
-	Type!:                   _#defs."/$defs/Properties/definitions/JoinOperationType"
+	RightOperand!:           #TransformOperationSource
+	RightOperandProperties?: #JoinOperandProperties
+	Type!:                   #JoinOperationType
 })
 
-_#defs: "/$defs/Properties/definitions/JoinOperationType": "INNER" | "OUTER" | "LEFT" | "RIGHT"
+#JoinOperationType: "INNER" | "OUTER" | "LEFT" | "RIGHT"
 
-_#defs: "/$defs/Properties/definitions/JoinType": "INNER" | "OUTER" | "LEFT" | "RIGHT"
+#JoinType: "INNER" | "OUTER" | "LEFT" | "RIGHT"
 
 // <p>A <i>logical table</i> is a unit that joins and that data
 // transformations operate on. A logical table has a source, which can be either a physical
 // table or result of a join. When a logical table points to a physical table, the logical
 // table acts as a mutable copy of that physical table through transform operations.</p>
-_#defs: "/$defs/Properties/definitions/LogicalTable": close({
+#LogicalTable: close({
 	// <p>A display name for the logical table.</p>
 	Alias!: strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// <p>Transform operations that act on this logical table. For this structure to
 	// be valid, only one of the attributes can be non-null. </p>
-	DataTransforms?: list.MaxItems(2048) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TransformOperation"
-	]
-	Source!: _#defs."/$defs/Properties/definitions/LogicalTableSource"
+	DataTransforms?: list.MaxItems(2048) & list.MinItems(1) & [...#TransformOperation]
+	Source!:         #LogicalTableSource
 })
 
-_#defs: "/$defs/Properties/definitions/LogicalTableMap": struct.MaxFields(256) & struct.MinFields(1) & close({
+#LogicalTableMap: struct.MaxFields(256) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/LogicalTable"}})
+	{[=~"^[0-9a-zA-Z-]*$"]: #LogicalTable}})
 
 // <p>Information about the source of a logical table. This is a variant type structure. For
 // this structure to be valid, only one of the attributes can be non-null.</p>
-_#defs: "/$defs/Properties/definitions/LogicalTableSource": close({
+#LogicalTableSource: close({
 	// <p>The Amazon Resource Number (ARN) of the parent dataset.</p>
 	DataSetArn?:      string
-	JoinInstruction?: _#defs."/$defs/Properties/definitions/JoinInstruction"
+	JoinInstruction?: #JoinInstruction
 
 	// <p>Physical table ID.</p>
 	PhysicalTableId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$"
 })
 
 // <p>The lookback window setup of an incremental refresh configuration.</p>
-_#defs: "/$defs/Properties/definitions/LookbackWindow": close({
+#LookbackWindow: close({
 	// <p>The name of the lookback window column.</p>
 	ColumnName!: string
 
 	// <p>The lookback window column size.</p>
 	Size!:     >=1
-	SizeUnit!: _#defs."/$defs/Properties/definitions/LookbackWindowSizeUnit"
+	SizeUnit!: #LookbackWindowSizeUnit
 })
 
-_#defs: "/$defs/Properties/definitions/LookbackWindowSizeUnit": "HOUR" | "DAY" | "WEEK"
+#LookbackWindowSizeUnit: "HOUR" | "DAY" | "WEEK"
 
 // <p>The configuration that overrides the existing default values for a dataset
 // parameter that is inherited from another dataset.</p>
-_#defs: "/$defs/Properties/definitions/NewDefaultValues": close({
+#NewDefaultValues: close({
 	// <p>A list of static default values for a given date time parameter.</p>
 	DateTimeStaticValues?: list.MaxItems(32) & [...] & [...string]
 
@@ -676,26 +642,26 @@ _#defs: "/$defs/Properties/definitions/NewDefaultValues": close({
 })
 
 // <p>Output column.</p>
-_#defs: "/$defs/Properties/definitions/OutputColumn": close({
+#OutputColumn: close({
 	// <p>A description for a column.</p>
 	Description?: strings.MaxRunes(500) & strings.MinRunes(0)
 	Id?:          strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// <p>The display name of the column..</p>
 	Name?:    strings.MaxRunes(127) & strings.MinRunes(1)
-	SubType?: _#defs."/$defs/Properties/definitions/ColumnDataSubType"
-	Type?:    _#defs."/$defs/Properties/definitions/ColumnDataType"
+	SubType?: #ColumnDataSubType
+	Type?:    #ColumnDataType
 })
 
-_#defs: "/$defs/Properties/definitions/OutputColumnNameOverride": close({
+#OutputColumnNameOverride: close({
 	OutputColumnName!: strings.MaxRunes(127) & strings.MinRunes(1)
 	SourceColumnName?: strings.MaxRunes(127) & strings.MinRunes(1)
 })
 
 // <p>A transform operation that overrides the dataset parameter values that are
 // defined in another dataset.</p>
-_#defs: "/$defs/Properties/definitions/OverrideDatasetParameterOperation": close({
-	NewDefaultValues?: _#defs."/$defs/Properties/definitions/NewDefaultValues"
+#OverrideDatasetParameterOperation: close({
+	NewDefaultValues?: #NewDefaultValues
 
 	// <p>The new name for the parameter.</p>
 	NewParameterName?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$"
@@ -704,43 +670,41 @@ _#defs: "/$defs/Properties/definitions/OverrideDatasetParameterOperation": close
 	ParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/ParentDataSet": close({
+#ParentDataSet: close({
 	DataSetArn!:   string
-	InputColumns!: list.MaxItems(2048) & [...] & [..._#defs."/$defs/Properties/definitions/InputColumn"]
+	InputColumns!: list.MaxItems(2048) & [...] & [...#InputColumn]
 })
 
-_#defs: "/$defs/Properties/definitions/PerformanceConfiguration": close(
-	{UniqueKeys?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/UniqueKey"]},
-)
+#PerformanceConfiguration: close({UniqueKeys?: list.MaxItems(1) & list.MinItems(1) & [...#UniqueKey]})
 
 // <p>A view of a data source that contains information about the shape of the data in the
 // underlying source. This is a variant type structure. For this structure to be valid,
 // only one of the attributes can be non-null.</p>
-_#defs: "/$defs/Properties/definitions/PhysicalTable": close({
-	CustomSql?:       _#defs."/$defs/Properties/definitions/CustomSql"
-	RelationalTable?: _#defs."/$defs/Properties/definitions/RelationalTable"
-	S3Source?:        _#defs."/$defs/Properties/definitions/S3Source"
-	SaaSTable?:       _#defs."/$defs/Properties/definitions/SaaSTable"
+#PhysicalTable: close({
+	CustomSql?:       #CustomSql
+	RelationalTable?: #RelationalTable
+	S3Source?:        #S3Source
+	SaaSTable?:       #SaaSTable
 })
 
-_#defs: "/$defs/Properties/definitions/PhysicalTableMap": struct.MaxFields(32) & struct.MinFields(0) & close({
+#PhysicalTableMap: struct.MaxFields(32) & struct.MinFields(0) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/PhysicalTable"}})
+	{[=~"^[0-9a-zA-Z-]*$"]: #PhysicalTable}})
 
-_#defs: "/$defs/Properties/definitions/PivotConfiguration": close({
+#PivotConfiguration: close({
 	LabelColumnName?: strings.MaxRunes(127) & strings.MinRunes(1)
-	PivotedLabels!:   list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/PivotedLabel"]
+	PivotedLabels!:   list.MaxItems(100) & [...] & [...#PivotedLabel]
 })
 
-_#defs: "/$defs/Properties/definitions/PivotOperation": close({
+#PivotOperation: close({
 	Alias!:                    strings.MaxRunes(64) & strings.MinRunes(1)
 	GroupByColumnNames?:       list.MaxItems(128) & [...] & [...strings.MaxRunes(127) & strings.MinRunes(1)]
-	PivotConfiguration!:       _#defs."/$defs/Properties/definitions/PivotConfiguration"
-	Source!:                   _#defs."/$defs/Properties/definitions/TransformOperationSource"
-	ValueColumnConfiguration!: _#defs."/$defs/Properties/definitions/ValueColumnConfiguration"
+	PivotConfiguration!:       #PivotConfiguration
+	Source!:                   #TransformOperationSource
+	ValueColumnConfiguration!: #ValueColumnConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/PivotedLabel": close({
+#PivotedLabel: close({
 	LabelName!:     strings.MaxRunes(2047) & strings.MinRunes(0)
 	NewColumnId!:   strings.MaxRunes(64) & strings.MinRunes(1)
 	NewColumnName!: strings.MaxRunes(127) & strings.MinRunes(1)
@@ -748,31 +712,25 @@ _#defs: "/$defs/Properties/definitions/PivotedLabel": close({
 
 // <p>A transform operation that projects columns. Operations that come after a projection
 // can only refer to projected columns.</p>
-_#defs: "/$defs/Properties/definitions/ProjectOperation": close({
+#ProjectOperation: close({
 	Alias?: strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// <p>Projected columns.</p>
 	ProjectedColumns?: list.MaxItems(2048) & [...] & [...string]
-	Source?:           _#defs."/$defs/Properties/definitions/TransformOperationSource"
+	Source?:           #TransformOperationSource
 })
 
 // <p>The refresh configuration of a dataset.</p>
-_#defs: "/$defs/Properties/definitions/RefreshConfiguration": close(
-	{IncrementalRefresh!: _#defs."/$defs/Properties/definitions/IncrementalRefresh"},
-)
+#RefreshConfiguration: close({IncrementalRefresh!: #IncrementalRefresh})
 
-_#defs: "/$defs/Properties/definitions/RefreshFailureAlertStatus": "ENABLED" | "DISABLED"
+#RefreshFailureAlertStatus: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/RefreshFailureConfiguration": close(
-	{EmailAlert?: _#defs."/$defs/Properties/definitions/RefreshFailureEmailAlert"},
-)
+#RefreshFailureConfiguration: close({EmailAlert?: #RefreshFailureEmailAlert})
 
-_#defs: "/$defs/Properties/definitions/RefreshFailureEmailAlert": close(
-	{AlertStatus?: _#defs."/$defs/Properties/definitions/RefreshFailureAlertStatus"},
-)
+#RefreshFailureEmailAlert: close({AlertStatus?: #RefreshFailureAlertStatus})
 
 // <p>A physical table type for relational data sources.</p>
-_#defs: "/$defs/Properties/definitions/RelationalTable": close({
+#RelationalTable: close({
 	// <p>The catalog associated with a table.</p>
 	Catalog?: strings.MaxRunes(256) & strings.MinRunes(0)
 
@@ -780,7 +738,7 @@ _#defs: "/$defs/Properties/definitions/RelationalTable": close({
 	DataSourceArn!: string
 
 	// <p>The column schema of the table.</p>
-	InputColumns!: list.MaxItems(2048) & [...] & [..._#defs."/$defs/Properties/definitions/InputColumn"]
+	InputColumns!: list.MaxItems(2048) & [...] & [...#InputColumn]
 
 	// <p>The name of the relational table.</p>
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1)
@@ -790,7 +748,7 @@ _#defs: "/$defs/Properties/definitions/RelationalTable": close({
 })
 
 // <p>A transform operation that renames a column.</p>
-_#defs: "/$defs/Properties/definitions/RenameColumnOperation": close({
+#RenameColumnOperation: close({
 	// <p>The name of the column to be renamed.</p>
 	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1)
 
@@ -798,16 +756,14 @@ _#defs: "/$defs/Properties/definitions/RenameColumnOperation": close({
 	NewColumnName!: strings.MaxRunes(127) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/RenameColumnsOperation": close({
-	Alias!: strings.MaxRunes(64) & strings.MinRunes(1)
-	RenameColumnOperations!: list.MaxItems(2048) & [...] & [
-		..._#defs."/$defs/Properties/definitions/RenameColumnOperation"
-	]
-	Source!: _#defs."/$defs/Properties/definitions/TransformOperationSource"
+#RenameColumnsOperation: close({
+	Alias!:                  strings.MaxRunes(64) & strings.MinRunes(1)
+	RenameColumnOperations!: list.MaxItems(2048) & [...] & [...#RenameColumnOperation]
+	Source!:                 #TransformOperationSource
 })
 
 // <p>Permission for the resource.</p>
-_#defs: "/$defs/Properties/definitions/ResourcePermission": close({
+#ResourcePermission: close({
 	// <p>The IAM action to grant or revoke permissions on.</p>
 	Actions!: list.MaxItems(30) & list.MinItems(1) & [...string]
 
@@ -831,9 +787,9 @@ _#defs: "/$defs/Properties/definitions/ResourcePermission": close({
 	Principal!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/RowLevelPermissionConfiguration": close({
-	RowLevelPermissionDataSet?: _#defs."/$defs/Properties/definitions/RowLevelPermissionDataSet"
-	TagConfiguration?:          _#defs."/$defs/Properties/definitions/RowLevelPermissionTagConfiguration"
+#RowLevelPermissionConfiguration: close({
+	RowLevelPermissionDataSet?: #RowLevelPermissionDataSet
+	TagConfiguration?:          #RowLevelPermissionTagConfiguration
 })
 
 // <p>Information about a dataset that contains permissions for row-level security (RLS).
@@ -846,24 +802,24 @@ _#defs: "/$defs/Properties/definitions/RowLevelPermissionConfiguration": close({
 // <p>The option to deny permissions by setting <code>PermissionPolicy</code> to
 // <code>DENY_ACCESS</code> is
 // not supported for new RLS datasets.</p>
-_#defs: "/$defs/Properties/definitions/RowLevelPermissionDataSet": close({
+#RowLevelPermissionDataSet: close({
 	// <p>The Amazon Resource Name (ARN) of the dataset that contains permissions for RLS.</p>
 	Arn!:           string
-	FormatVersion?: _#defs."/$defs/Properties/definitions/RowLevelPermissionFormatVersion"
+	FormatVersion?: #RowLevelPermissionFormatVersion
 
 	// <p>The namespace associated with the dataset that contains permissions for RLS.</p>
 	Namespace?:        strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[a-zA-Z0-9._-]*$"
-	PermissionPolicy!: _#defs."/$defs/Properties/definitions/RowLevelPermissionPolicy"
-	Status?:           _#defs."/$defs/Properties/definitions/Status"
+	PermissionPolicy!: #RowLevelPermissionPolicy
+	Status?:           #Status
 })
 
-_#defs: "/$defs/Properties/definitions/RowLevelPermissionFormatVersion": "VERSION_1" | "VERSION_2"
+#RowLevelPermissionFormatVersion: "VERSION_1" | "VERSION_2"
 
-_#defs: "/$defs/Properties/definitions/RowLevelPermissionPolicy": "GRANT_ACCESS" | "DENY_ACCESS"
+#RowLevelPermissionPolicy: "GRANT_ACCESS" | "DENY_ACCESS"
 
 // <p>The configuration of tags on a dataset to set row-level security. </p>
-_#defs: "/$defs/Properties/definitions/RowLevelPermissionTagConfiguration": close({
-	Status?: _#defs."/$defs/Properties/definitions/Status"
+#RowLevelPermissionTagConfiguration: close({
+	Status?: #Status
 
 	// <p>A list of tag configuration rules to apply to a dataset. All tag
 	// configurations have the OR condition. Tags within each tile will be joined
@@ -875,13 +831,11 @@ _#defs: "/$defs/Properties/definitions/RowLevelPermissionTagConfiguration": clos
 
 	// <p>A set of rules associated with row-level security, such as the tag names
 	// and columns that they are assigned to.</p>
-	TagRules!: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RowLevelPermissionTagRule"
-	]
+	TagRules!: list.MaxItems(50) & list.MinItems(1) & [...#RowLevelPermissionTagRule]
 })
 
 // <p>A set of rules associated with a tag.</p>
-_#defs: "/$defs/Properties/definitions/RowLevelPermissionTagRule": close({
+#RowLevelPermissionTagRule: close({
 	// <p>The column name that a tag key is assigned to.</p>
 	ColumnName!: string
 
@@ -900,7 +854,7 @@ _#defs: "/$defs/Properties/definitions/RowLevelPermissionTagRule": close({
 })
 
 // <p>A physical table type for an S3 data source.</p>
-_#defs: "/$defs/Properties/definitions/S3Source": close({
+#S3Source: close({
 	// <p>The Amazon Resource Name (ARN) for the data source.</p>
 	DataSourceArn!: string
 
@@ -909,84 +863,78 @@ _#defs: "/$defs/Properties/definitions/S3Source": close({
 	// <p>For files that aren't JSON, only <code>STRING</code> data types are
 	// supported in input columns.</p>
 	// </note>
-	InputColumns!:   list.MaxItems(2048) & [...] & [..._#defs."/$defs/Properties/definitions/InputColumn"]
-	UploadSettings?: _#defs."/$defs/Properties/definitions/UploadSettings"
+	InputColumns!:   list.MaxItems(2048) & [...] & [...#InputColumn]
+	UploadSettings?: #UploadSettings
 })
 
-_#defs: "/$defs/Properties/definitions/SaaSTable": close({
+#SaaSTable: close({
 	DataSourceArn!: string
-	InputColumns!:  list.MaxItems(2048) & [...] & [..._#defs."/$defs/Properties/definitions/InputColumn"]
-	TablePath!:     list.MaxItems(32) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TablePathElement"]
+	InputColumns!:  list.MaxItems(2048) & [...] & [...#InputColumn]
+	TablePath!:     list.MaxItems(32) & list.MinItems(1) & [...#TablePathElement]
 })
 
-_#defs: "/$defs/Properties/definitions/SemanticModelConfiguration": close({
-	SemanticMetadata?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataSetSemanticMetadata"
-	]
-	TableMap?: _#defs."/$defs/Properties/definitions/SemanticTableMap"
+#SemanticModelConfiguration: close({
+	SemanticMetadata?: list.MaxItems(1) & list.MinItems(1) & [...#DataSetSemanticMetadata]
+	TableMap?:         #SemanticTableMap
 })
 
-_#defs: "/$defs/Properties/definitions/SemanticTable": close({
+#SemanticTable: close({
 	Alias!:                           strings.MaxRunes(64) & strings.MinRunes(1)
 	DestinationTableId!:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$"
-	RowLevelPermissionConfiguration?: _#defs."/$defs/Properties/definitions/RowLevelPermissionConfiguration"
-	SemanticMetadata?:                _#defs."/$defs/Properties/definitions/TableSemanticMetadata"
+	RowLevelPermissionConfiguration?: #RowLevelPermissionConfiguration
+	SemanticMetadata?:                #TableSemanticMetadata
 })
 
-_#defs: "/$defs/Properties/definitions/SemanticTableMap": struct.MaxFields(1) & struct.MinFields(1) & close({
+#SemanticTableMap: struct.MaxFields(1) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/SemanticTable"}})
+	{[=~"^[0-9a-zA-Z-]*$"]: #SemanticTable}})
 
-_#defs: "/$defs/Properties/definitions/SharedColumnSemanticMetadata": close({
-	ColumnNames?: list.MinItems(1) & [...string]
-	ColumnProperties!: list.MaxItems(3) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ColumnSemanticProperty"
-	]
+#SharedColumnSemanticMetadata: close({
+	ColumnNames?:      list.MinItems(1) & [...string]
+	ColumnProperties!: list.MaxItems(3) & list.MinItems(1) & [...#ColumnSemanticProperty]
 })
 
-_#defs: "/$defs/Properties/definitions/SourceTable": close({
-	DataSet?:         _#defs."/$defs/Properties/definitions/ParentDataSet"
+#SourceTable: close({
+	DataSet?:         #ParentDataSet
 	PhysicalTableId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/SourceTableMap": struct.MaxFields(32) & struct.MinFields(1) & close({
+#SourceTableMap: struct.MaxFields(32) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/SourceTable"}})
+	{[=~"^[0-9a-zA-Z-]*$"]: #SourceTable}})
 
-_#defs: "/$defs/Properties/definitions/Status": "ENABLED" | "DISABLED"
+#Status: "ENABLED" | "DISABLED"
 
 // <p>A string parameter for a dataset.</p>
-_#defs: "/$defs/Properties/definitions/StringDatasetParameter": close({
-	DefaultValues?: _#defs."/$defs/Properties/definitions/StringDatasetParameterDefaultValues"
+#StringDatasetParameter: close({
+	DefaultValues?: #StringDatasetParameterDefaultValues
 
 	// <p>An identifier for the string parameter that is created in the dataset.</p>
 	Id!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
 
 	// <p>The name of the string parameter that is created in the dataset.</p>
 	Name!:      strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$"
-	ValueType!: _#defs."/$defs/Properties/definitions/DatasetParameterValueType"
+	ValueType!: #DatasetParameterValueType
 })
 
 // <p>The default values of a string parameter.</p>
-_#defs: "/$defs/Properties/definitions/StringDatasetParameterDefaultValues": close({
+#StringDatasetParameterDefaultValues: close({
 	// <p>A list of static default values for a given string parameter.</p>
 	StaticValues?: list.MaxItems(32) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(0)]
 })
 
-_#defs: "/$defs/Properties/definitions/TablePathElement": close({
+#TablePathElement: close({
 	Id?:   strings.MaxRunes(256) & strings.MinRunes(1)
 	Name?: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/TableSemanticMetadata": close({
-	ColumnMetadata?: list.MaxItems(2000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/SharedColumnSemanticMetadata"
-	]
-})
+#TableSemanticMetadata: close(
+	{ColumnMetadata?: list.MaxItems(2000) & list.MinItems(1) & [...#SharedColumnSemanticMetadata]},
+)
 
 // <p>The key or keys of the key-value pairs for the resource tag or tags assigned to the
 // resource.</p>
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// <p>Tag key.</p>
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -995,7 +943,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // <p>A transform operation that tags a column with additional information.</p>
-_#defs: "/$defs/Properties/definitions/TagColumnOperation": close({
+#TagColumnOperation: close({
 	// <p>The column that this operation acts on.</p>
 	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1)
 
@@ -1003,67 +951,57 @@ _#defs: "/$defs/Properties/definitions/TagColumnOperation": close({
 	// <note>
 	// <p>This is not tags for the Amazon Web Services tagging feature.</p>
 	// </note>
-	Tags!: list.MaxItems(16) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnTag"]
+	Tags!: list.MaxItems(16) & list.MinItems(1) & [...#ColumnTag]
 })
 
-_#defs: "/$defs/Properties/definitions/TextQualifier": "DOUBLE_QUOTE" | "SINGLE_QUOTE"
+#TextQualifier: "DOUBLE_QUOTE" | "SINGLE_QUOTE"
 
-_#defs: "/$defs/Properties/definitions/TimeGranularity": "YEAR" |
-	"QUARTER" |
-	"MONTH" |
-	"WEEK" |
-	"DAY" |
-	"HOUR" |
-	"MINUTE" |
-	"SECOND" |
-	"MILLISECOND"
+#TimeGranularity: "YEAR" | "QUARTER" | "MONTH" | "WEEK" | "DAY" | "HOUR" | "MINUTE" | "SECOND" | "MILLISECOND"
 
 // <p>A data transformation on a logical table. This is a variant type structure. For this
 // structure to be valid, only one of the attributes can be non-null.</p>
-_#defs: "/$defs/Properties/definitions/TransformOperation": close({
-	CastColumnTypeOperation?:           _#defs."/$defs/Properties/definitions/CastColumnTypeOperation"
-	CreateColumnsOperation?:            _#defs."/$defs/Properties/definitions/CreateColumnsOperation"
-	FilterOperation?:                   _#defs."/$defs/Properties/definitions/FilterOperation"
-	OverrideDatasetParameterOperation?: _#defs."/$defs/Properties/definitions/OverrideDatasetParameterOperation"
-	ProjectOperation?:                  _#defs."/$defs/Properties/definitions/ProjectOperation"
-	RenameColumnOperation?:             _#defs."/$defs/Properties/definitions/RenameColumnOperation"
-	TagColumnOperation?:                _#defs."/$defs/Properties/definitions/TagColumnOperation"
-	UntagColumnOperation?:              _#defs."/$defs/Properties/definitions/UntagColumnOperation"
+#TransformOperation: close({
+	CastColumnTypeOperation?:           #CastColumnTypeOperation
+	CreateColumnsOperation?:            #CreateColumnsOperation
+	FilterOperation?:                   #FilterOperation
+	OverrideDatasetParameterOperation?: #OverrideDatasetParameterOperation
+	ProjectOperation?:                  #ProjectOperation
+	RenameColumnOperation?:             #RenameColumnOperation
+	TagColumnOperation?:                #TagColumnOperation
+	UntagColumnOperation?:              #UntagColumnOperation
 })
 
-_#defs: "/$defs/Properties/definitions/TransformOperationSource": close({
-	ColumnIdMappings?: list.MaxItems(2048) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataSetColumnIdMapping"
-	]
+#TransformOperationSource: close({
+	ColumnIdMappings?:     list.MaxItems(2048) & list.MinItems(1) & [...#DataSetColumnIdMapping]
 	TransformOperationId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/TransformStep": close({
-	AggregateStep?:       _#defs."/$defs/Properties/definitions/AggregateOperation"
-	AppendStep?:          _#defs."/$defs/Properties/definitions/AppendOperation"
-	CastColumnTypesStep?: _#defs."/$defs/Properties/definitions/CastColumnTypesOperation"
-	CreateColumnsStep?:   _#defs."/$defs/Properties/definitions/CreateColumnsOperation"
-	FiltersStep?:         _#defs."/$defs/Properties/definitions/FiltersOperation"
-	ImportTableStep?:     _#defs."/$defs/Properties/definitions/ImportTableOperation"
-	JoinStep?:            _#defs."/$defs/Properties/definitions/JoinOperation"
-	PivotStep?:           _#defs."/$defs/Properties/definitions/PivotOperation"
-	ProjectStep?:         _#defs."/$defs/Properties/definitions/ProjectOperation"
-	RenameColumnsStep?:   _#defs."/$defs/Properties/definitions/RenameColumnsOperation"
-	UnpivotStep?:         _#defs."/$defs/Properties/definitions/UnpivotOperation"
+#TransformStep: close({
+	AggregateStep?:       #AggregateOperation
+	AppendStep?:          #AppendOperation
+	CastColumnTypesStep?: #CastColumnTypesOperation
+	CreateColumnsStep?:   #CreateColumnsOperation
+	FiltersStep?:         #FiltersOperation
+	ImportTableStep?:     #ImportTableOperation
+	JoinStep?:            #JoinOperation
+	PivotStep?:           #PivotOperation
+	ProjectStep?:         #ProjectOperation
+	RenameColumnsStep?:   #RenameColumnsOperation
+	UnpivotStep?:         #UnpivotOperation
 })
 
-_#defs: "/$defs/Properties/definitions/TransformStepMap": struct.MaxFields(256) & struct.MinFields(1) & close({
+#TransformStepMap: struct.MaxFields(256) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: _#defs."/$defs/Properties/definitions/TransformStep"}})
+	{[=~"^[0-9a-zA-Z-]*$"]: #TransformStep}})
 
-_#defs: "/$defs/Properties/definitions/UniqueKey": close(
+#UniqueKey: close(
 	{ColumnNames!: list.MaxItems(1) & list.MinItems(1) & [...strings.MaxRunes(127) & strings.MinRunes(1)]},
 )
 
-_#defs: "/$defs/Properties/definitions/UnpivotOperation": close({
+#UnpivotOperation: close({
 	Alias!:                    strings.MaxRunes(64) & strings.MinRunes(1)
-	ColumnsToUnpivot!:         list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ColumnToUnpivot"]
-	Source!:                   _#defs."/$defs/Properties/definitions/TransformOperationSource"
+	ColumnsToUnpivot!:         list.MaxItems(100) & [...] & [...#ColumnToUnpivot]
+	Source!:                   #TransformOperationSource
 	UnpivotedLabelColumnId!:   strings.MaxRunes(64) & strings.MinRunes(1)
 	UnpivotedLabelColumnName!: strings.MaxRunes(127) & strings.MinRunes(1)
 	UnpivotedValueColumnId!:   strings.MaxRunes(64) & strings.MinRunes(1)
@@ -1071,32 +1009,28 @@ _#defs: "/$defs/Properties/definitions/UnpivotOperation": close({
 })
 
 // <p>A transform operation that removes tags associated with a column.</p>
-_#defs: "/$defs/Properties/definitions/UntagColumnOperation": close({
+#UntagColumnOperation: close({
 	// <p>The column that this operation acts on.</p>
 	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1)
 
 	// <p>The column tags to remove from this column.</p>
-	TagNames!: [..._#defs."/$defs/Properties/definitions/ColumnTagName"]
+	TagNames!: [...#ColumnTagName]
 })
 
 // <p>Information about the format for a source file or files.</p>
-_#defs: "/$defs/Properties/definitions/UploadSettings": close({
+#UploadSettings: close({
 	// <p>Whether the file has a header row, or the files each have a header row.</p>
 	ContainsHeader?: bool
 
 	// <p>The delimiter between values in the file.</p>
 	Delimiter?: strings.MaxRunes(1) & strings.MinRunes(1)
-	Format?:    _#defs."/$defs/Properties/definitions/FileFormat"
+	Format?:    #FileFormat
 
 	// <p>A row number to start reading data from.</p>
 	StartFromRow?:  >=1
-	TextQualifier?: _#defs."/$defs/Properties/definitions/TextQualifier"
+	TextQualifier?: #TextQualifier
 })
 
-_#defs: "/$defs/Properties/definitions/UploadedDocumentMetadata": close(
-	{Name?: strings.MaxRunes(127) & strings.MinRunes(1)},
-)
+#UploadedDocumentMetadata: close({Name?: strings.MaxRunes(127) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/ValueColumnConfiguration": close(
-	{AggregationFunction?: _#defs."/$defs/Properties/definitions/DataPrepAggregationFunction"},
-)
+#ValueColumnConfiguration: close({AggregationFunction?: #DataPrepAggregationFunction})

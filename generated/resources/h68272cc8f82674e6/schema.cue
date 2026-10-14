@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,18 +16,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The key value store holds keys and their corresponding values.
 #Properties: close({
 	Comment?:      strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	ImportSource?: _#defs."/$defs/Properties/definitions/ImportSource" | fn.#ObjectExpression
+	ImportSource?: #ImportSource | fn.#ObjectExpression
 	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
-	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:         [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ImportSource": close({
+#ImportSource: close({
 	SourceArn!:  string | fn.#StringExpression
 	SourceType!: "S3" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

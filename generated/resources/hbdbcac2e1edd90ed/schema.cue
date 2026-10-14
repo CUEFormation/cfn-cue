@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -17,17 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // enabling discovery and control of third-party cloud devices.
 #Properties: close({
 	Description?:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\- ]+$" | fn.#StringExpression
-	EndpointConfig!: _#defs."/$defs/Properties/definitions/EndpointConfig"
+	EndpointConfig!: #EndpointConfig
 	EndpointType?:   "LAMBDA" | fn.#StringExpression
 	Name!:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointConfig": close(
-	{Lambda?: _#defs."/$defs/Properties/definitions/LambdaConfig"},
-) |
-	fn.#ObjectExpression
+#EndpointConfig: close({Lambda?: #LambdaConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaConfig": close({
+#LambdaConfig: close({
 	Arn!: =~"^(arn:aws:lambda:[0-9a-zA-Z-]+:[0-9]+:function:)?([a-zA-Z0-9-_]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?)$" |
 		fn.#StringExpression
 }) |

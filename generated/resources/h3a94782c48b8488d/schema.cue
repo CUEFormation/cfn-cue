@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -16,22 +16,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	LastUplinkReceivedAt?: string | fn.#StringExpression
-	LoRaWAN!:              _#defs."/$defs/Properties/definitions/LoRaWANGateway" | fn.#ObjectExpression
+	LoRaWAN!:              #LoRaWANGateway | fn.#ObjectExpression
 	Name?:                 strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	ThingArn?:  string | fn.#StringExpression
-	ThingName?: string | fn.#StringExpression
+	Tags?:                 list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	ThingArn?:             string | fn.#StringExpression
+	ThingName?:            string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/LoRaWANGateway": close({
+#LoRaWANGateway: close({
 	GatewayEui!: =~"^(([0-9A-Fa-f]{2}-){7}|([0-9A-Fa-f]{2}:){7}|([0-9A-Fa-f]{2}\\s){7}|([0-9A-Fa-f]{2}){7})([0-9A-Fa-f]{2})$" |
 		fn.#StringExpression
 	RfRegion!: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

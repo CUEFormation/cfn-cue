@@ -39,11 +39,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:        strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	ResetOrderNumber?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	State!:            "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type?: "ROUTABLE" | "CUSTOM" | "OFFLINE" | fn.#StringExpression
+	Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	Type?:             "ROUTABLE" | "CUSTOM" | "OFFLINE" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |

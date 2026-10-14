@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,20 +14,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Represents a custom dictionary for improving transcription accuracy
 #Properties: close({
 	Entries?:  strings.MaxRunes(40960) | fn.#StringExpression
-	Language!: _#defs."/$defs/Properties/definitions/DictionaryLanguage"
+	Language!: #DictionaryLanguage
 	Name!:     =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" | fn.#StringExpression
-	Tags?:     _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?:     #TagMap
 })
 
-_#defs: "/$defs/Properties/definitions/DictionaryLanguage": "eng" |
-	"fra" |
-	"ita" |
-	"deu" |
-	"spa" |
-	"por" |
-	fn.#StringExpression
+#DictionaryLanguage: "eng" | "fra" | "ita" | "deu" | "spa" | "por" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
 fn.#ObjectExpression

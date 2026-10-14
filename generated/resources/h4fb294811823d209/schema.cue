@@ -28,7 +28,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		[...] |
 		fn.#StringNumberBooleanListObjectExpression}}) |
 	fn.#ObjectExpression
-	Tags?:        list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:        list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	TemplateURL!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	TimeoutInMinutes?: int & >=1 |
 		{
@@ -47,7 +47,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

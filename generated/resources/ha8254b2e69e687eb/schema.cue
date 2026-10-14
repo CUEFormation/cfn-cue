@@ -26,14 +26,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 	LogType?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
 	Name!:        strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
-	ResourceArn?: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ResourceArn?: #Arn | fn.#StringExpression
+	Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" |
-fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

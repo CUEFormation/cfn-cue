@@ -23,10 +23,10 @@ import (
 
 		{[=~".*"]: string}})
 	TargetAddress?: strings.MaxRunes(2048) & strings.MinRunes(1)
-	Targets!:       list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/Target"]
+	Targets!:       list.MaxItems(10) & [...#Target]
 })
 
-_#defs: "/$defs/Properties/definitions/Target": close({
+#Target: close({
 	TargetAddress!: string
 	TargetType!:    string
 })

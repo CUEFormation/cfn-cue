@@ -19,21 +19,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // featured in the search results.
 #Properties: close({
 	Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-	FeaturedDocuments?: [..._#defs."/$defs/Properties/definitions/FeaturedDocument"] | fn.#ListExpression
+	FeaturedDocuments?: [...#FeaturedDocument] | fn.#ListExpression
 	FeaturedResultsSetName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][ a-zA-Z0-9_-]*$" |
 	fn.#StringExpression
 	IndexId!:    strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" | fn.#StringExpression
 	QueryTexts?: list.MaxItems(49) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 	Status?:     "ACTIVE" | "INACTIVE" | fn.#StringExpression
-	Tags?:       list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:       list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FeaturedDocument": close(
-	{Id?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#FeaturedDocument: close({Id?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

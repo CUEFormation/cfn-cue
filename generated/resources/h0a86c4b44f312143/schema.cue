@@ -19,28 +19,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Lightsail::Distribution
 #Properties: close({
 	BundleId!:              string | fn.#StringExpression
-	CacheBehaviorSettings?: _#defs."/$defs/Properties/definitions/CacheSettings" | fn.#ObjectExpression
-	CacheBehaviors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CacheBehaviorPerPath"] |
-		fn.#ListExpression
-	CertificateName?:      =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-	DefaultCacheBehavior!: _#defs."/$defs/Properties/definitions/CacheBehavior" | fn.#ObjectExpression
-	DistributionName!:     =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
-	IpAddressType?:        "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
-	IsEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Origin!:               _#defs."/$defs/Properties/definitions/InputOrigin" | fn.#ObjectExpression
-	Tags?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	CacheBehaviorSettings?: #CacheSettings | fn.#ObjectExpression
+	CacheBehaviors?:        list.UniqueItems() & [...#CacheBehaviorPerPath] | fn.#ListExpression
+	CertificateName?:       =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
+	DefaultCacheBehavior!:  #CacheBehavior | fn.#ObjectExpression
+	DistributionName!:      =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
+	IpAddressType?:         "dualstack" | "ipv4" | "ipv6" | fn.#StringExpression
+	IsEnabled?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Origin!:                #InputOrigin | fn.#ObjectExpression
+	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CacheBehavior": close({Behavior?: "cache" | "dont-cache" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#CacheBehavior: close({Behavior?: "cache" | "dont-cache" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CacheBehaviorPerPath": close({
+#CacheBehaviorPerPath: close({
 	Behavior?: "cache" | "dont-cache" | fn.#StringExpression
 	Path?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CacheSettings": close({
+#CacheSettings: close({
 	AllowedHTTPMethods?: =~"\\S" | fn.#StringExpression
 	CachedHTTPMethods?:  =~"\\S" | fn.#StringExpression
 	DefaultTTL?: int |
@@ -57,9 +55,9 @@ _#defs: "/$defs/Properties/definitions/CacheSettings": close({
 				)
 		} |
 		fn.#NumberExpression
-	ForwardedCookies?:      _#defs."/$defs/Properties/definitions/CookieObject" | fn.#ObjectExpression
-	ForwardedHeaders?:      _#defs."/$defs/Properties/definitions/HeaderObject" | fn.#ObjectExpression
-	ForwardedQueryStrings?: _#defs."/$defs/Properties/definitions/QueryStringObject" | fn.#ObjectExpression
+	ForwardedCookies?:      #CookieObject | fn.#ObjectExpression
+	ForwardedHeaders?:      #HeaderObject | fn.#ObjectExpression
+	ForwardedQueryStrings?: #QueryStringObject | fn.#ObjectExpression
 	MaximumTTL?: int |
 		{
 			string &
@@ -91,19 +89,19 @@ _#defs: "/$defs/Properties/definitions/CacheSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CookieObject": close({
+#CookieObject: close({
 	CookiesAllowList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Option?:           "all" | "allow-list" | "none" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HeaderObject": close({
+#HeaderObject: close({
 	HeadersAllowList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Option?:           "all" | "allow-list" | "none" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputOrigin": close({
+#InputOrigin: close({
 	Name?:           =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
 	ProtocolPolicy?: "http-only" | "https-only" | fn.#StringExpression
 	RegionName?: "ap-east-1" |
@@ -130,13 +128,13 @@ _#defs: "/$defs/Properties/definitions/InputOrigin": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryStringObject": close({
+#QueryStringObject: close({
 	Option?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	QueryStringsAllowList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

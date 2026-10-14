@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -20,46 +20,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AppImageConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
 	fn.#StringExpression
-	CodeEditorAppImageConfig?: _#defs."/$defs/Properties/definitions/CodeEditorAppImageConfig" | fn.#ObjectExpression
-	JupyterLabAppImageConfig?: _#defs."/$defs/Properties/definitions/JupyterLabAppImageConfig" | fn.#ObjectExpression
-	KernelGatewayImageConfig?: _#defs."/$defs/Properties/definitions/KernelGatewayImageConfig" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	CodeEditorAppImageConfig?: #CodeEditorAppImageConfig | fn.#ObjectExpression
+	JupyterLabAppImageConfig?: #JupyterLabAppImageConfig | fn.#ObjectExpression
+	KernelGatewayImageConfig?: #KernelGatewayImageConfig | fn.#ObjectExpression
+	Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CodeEditorAppImageConfig": close(
-	{ContainerConfig?: _#defs."/$defs/Properties/definitions/ContainerConfig" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#CodeEditorAppImageConfig: close({ContainerConfig?: #ContainerConfig | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerConfig": close({
-	ContainerArguments?: list.MaxItems(50) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomImageContainerArguments"
-	] |
-		fn.#ListExpression
-	ContainerEntrypoint?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomImageContainerEntrypoint"
-	] |
-		fn.#ListExpression
-	ContainerEnvironmentVariables?: list.MaxItems(25) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CustomImageContainerEnvironmentVariable"
-	] |
+#ContainerConfig: close({
+	ContainerArguments?:  list.MaxItems(50) & [...] & [...#CustomImageContainerArguments] | fn.#ListExpression
+	ContainerEntrypoint?: list.MaxItems(1) & [...] & [...#CustomImageContainerEntrypoint] | fn.#ListExpression
+	ContainerEnvironmentVariables?: list.MaxItems(25) & [...] & [...#CustomImageContainerEnvironmentVariable] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomImageContainerArguments": strings.MaxRunes(64) & strings.MinRunes(1) |
-fn.#StringExpression
+#CustomImageContainerArguments: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomImageContainerEntrypoint": strings.MaxRunes(256) & strings.MinRunes(1) |
-fn.#StringExpression
+#CustomImageContainerEntrypoint: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomImageContainerEnvironmentVariable": close({
+#CustomImageContainerEnvironmentVariable: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FileSystemConfig": close({
+#FileSystemConfig: close({
 	DefaultGid?: int & <=65535 & >=0 |
 		{
 			string &
@@ -96,25 +83,21 @@ _#defs: "/$defs/Properties/definitions/FileSystemConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JupyterLabAppImageConfig": close(
-	{ContainerConfig?: _#defs."/$defs/Properties/definitions/ContainerConfig" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#JupyterLabAppImageConfig: close({ContainerConfig?: #ContainerConfig | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KernelGatewayImageConfig": close({
-	FileSystemConfig?: _#defs."/$defs/Properties/definitions/FileSystemConfig" | fn.#ObjectExpression
-	KernelSpecs!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/KernelSpec"] |
-		fn.#ListExpression
+#KernelGatewayImageConfig: close({
+	FileSystemConfig?: #FileSystemConfig | fn.#ObjectExpression
+	KernelSpecs!:      list.MaxItems(1) & list.MinItems(1) & [...#KernelSpec] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KernelSpec": close({
+#KernelSpec: close({
 	DisplayName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

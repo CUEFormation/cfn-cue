@@ -13,18 +13,18 @@ import (
 #Properties: close({
 	// Schedule cron
 	CronExpression!: strings.MaxRunes(512) & strings.MinRunes(1)
-	JobNames?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/JobName"]
+	JobNames?:       list.MaxItems(50) & list.UniqueItems() & [...] & [...#JobName]
 
 	// Schedule Name
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1)
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // Job name
-_#defs: "/$defs/Properties/definitions/JobName": strings.MaxRunes(255) & strings.MinRunes(1)
+#JobName: strings.MaxRunes(255) & strings.MinRunes(1)
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

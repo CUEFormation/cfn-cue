@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,19 +18,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::S3Tables::Table
 #Properties: close({
-	Compaction?:                _#defs."/$defs/Properties/definitions/Compaction"
-	IcebergMetadata?:           _#defs."/$defs/Properties/definitions/IcebergMetadata"
-	Namespace!:                 _#defs."/$defs/Properties/definitions/Namespace"
-	OpenTableFormat!:           _#defs."/$defs/Properties/definitions/OpenTableFormat"
-	SnapshotManagement?:        _#defs."/$defs/Properties/definitions/SnapshotManagement"
-	StorageClassConfiguration?: _#defs."/$defs/Properties/definitions/StorageClassConfiguration"
-	TableBucketARN!:            _#defs."/$defs/Properties/definitions/TableBucketARN"
-	TableName!:                 _#defs."/$defs/Properties/definitions/TableName"
-	Tags?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	WithoutMetadata?: _#defs."/$defs/Properties/definitions/WithoutMetadata"
+	Compaction?:                #Compaction
+	IcebergMetadata?:           #IcebergMetadata
+	Namespace!:                 #Namespace
+	OpenTableFormat!:           #OpenTableFormat
+	SnapshotManagement?:        #SnapshotManagement
+	StorageClassConfiguration?: #StorageClassConfiguration
+	TableBucketARN!:            #TableBucketARN
+	TableName!:                 #TableName
+	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	WithoutMetadata?:           #WithoutMetadata
 })
 
-_#defs: "/$defs/Properties/definitions/Compaction": close({
+#Compaction: close({
 	Status?: "enabled" | "disabled" | fn.#StringExpression
 	TargetFileSizeMB?: int & >=64 |
 		{
@@ -50,16 +50,16 @@ _#defs: "/$defs/Properties/definitions/Compaction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergMetadata": close({
-	IcebergPartitionSpec?: _#defs."/$defs/Properties/definitions/IcebergPartitionSpec"
-	IcebergSchema?:        _#defs."/$defs/Properties/definitions/IcebergSchema" | fn.#ObjectExpression
-	IcebergSchemaV2?:      _#defs."/$defs/Properties/definitions/IcebergSchemaV2" | fn.#ObjectExpression
-	IcebergSortOrder?:     _#defs."/$defs/Properties/definitions/IcebergSortOrder"
-	TableProperties?:      _#defs."/$defs/Properties/definitions/TableProperties"
+#IcebergMetadata: close({
+	IcebergPartitionSpec?: #IcebergPartitionSpec
+	IcebergSchema?:        #IcebergSchema | fn.#ObjectExpression
+	IcebergSchemaV2?:      #IcebergSchemaV2 | fn.#ObjectExpression
+	IcebergSortOrder?:     #IcebergSortOrder
+	TableProperties?:      #TableProperties
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergPartitionField": close({
+#IcebergPartitionField: close({
 	FieldId?: int |
 		{
 			string &
@@ -93,13 +93,10 @@ _#defs: "/$defs/Properties/definitions/IcebergPartitionField": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergPartitionFieldList": [
-	..._#defs."/$defs/Properties/definitions/IcebergPartitionField"
-] |
-	fn.#ListExpression
+#IcebergPartitionFieldList: [...#IcebergPartitionField] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergPartitionSpec": close({
-	Fields!: _#defs."/$defs/Properties/definitions/IcebergPartitionFieldList" | fn.#ListExpression
+#IcebergPartitionSpec: close({
+	Fields!: #IcebergPartitionFieldList | fn.#ListExpression
 	SpecId?: int |
 		{
 			string &
@@ -117,12 +114,9 @@ _#defs: "/$defs/Properties/definitions/IcebergPartitionSpec": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergSchema": close(
-	{SchemaFieldList!: _#defs."/$defs/Properties/definitions/SchemaFieldList"},
-) |
-	fn.#ObjectExpression
+#IcebergSchema: close({SchemaFieldList!: #SchemaFieldList}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergSchemaV2": close({
+#IcebergSchemaV2: close({
 	IdentifierFieldIds?: [
 		...int |
 			{
@@ -156,12 +150,12 @@ _#defs: "/$defs/Properties/definitions/IcebergSchemaV2": close({
 				)
 		} |
 		fn.#NumberExpression
-	SchemaV2FieldList!: _#defs."/$defs/Properties/definitions/SchemaV2FieldList" | fn.#ListExpression
+	SchemaV2FieldList!: #SchemaV2FieldList | fn.#ListExpression
 	SchemaV2FieldType!: "struct" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergSortField": close({
+#IcebergSortField: close({
 	Direction!: "asc" | "desc" | fn.#StringExpression
 	NullOrder!: "nulls-first" | "nulls-last" | fn.#StringExpression
 	SourceId!: int |
@@ -182,13 +176,10 @@ _#defs: "/$defs/Properties/definitions/IcebergSortField": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergSortFieldList": [
-	..._#defs."/$defs/Properties/definitions/IcebergSortField"
-] |
-	fn.#ListExpression
+#IcebergSortFieldList: [...#IcebergSortField] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergSortOrder": close({
-	Fields!: _#defs."/$defs/Properties/definitions/IcebergSortFieldList" | fn.#ListExpression
+#IcebergSortOrder: close({
+	Fields!: #IcebergSortFieldList | fn.#ListExpression
 	OrderId?: int |
 		{
 			string &
@@ -206,12 +197,11 @@ _#defs: "/$defs/Properties/definitions/IcebergSortOrder": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Namespace": strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$" |
-fn.#StringExpression
+#Namespace: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OpenTableFormat": "ICEBERG" | fn.#StringExpression
+#OpenTableFormat: "ICEBERG" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaField": close({
+#SchemaField: close({
 	Id?: int |
 		{
 			string &
@@ -232,10 +222,9 @@ _#defs: "/$defs/Properties/definitions/SchemaField": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaFieldList": [..._#defs."/$defs/Properties/definitions/SchemaField"] |
-	fn.#ListExpression
+#SchemaFieldList: [...#SchemaField] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaV2Field": close({
+#SchemaV2Field: close({
 	Doc?: string | fn.#StringExpression
 	Id!: int |
 		{
@@ -257,10 +246,9 @@ _#defs: "/$defs/Properties/definitions/SchemaV2Field": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaV2FieldList": [..._#defs."/$defs/Properties/definitions/SchemaV2Field"] |
-	fn.#ListExpression
+#SchemaV2FieldList: [...#SchemaV2Field] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SnapshotManagement": close({
+#SnapshotManagement: close({
 	MaxSnapshotAgeHours?: int & >=1 |
 		{
 			string &
@@ -295,34 +283,31 @@ _#defs: "/$defs/Properties/definitions/SnapshotManagement": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageClassConfiguration": close(
-	{StorageClass?: "STANDARD" | "INTELLIGENT_TIERING" | fn.#StringExpression},
-) |
+#StorageClassConfiguration: close({StorageClass?: "STANDARD" | "INTELLIGENT_TIERING" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableARN": string | fn.#StringExpression
+#TableARN: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TableBucketARN": =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" |
-	fn.#StringExpression
+#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TableName": string | fn.#StringExpression
+#TableName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TableProperties": close({
+#TableProperties: close({
 
 	{[=~"^.+$"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VersionToken": string | fn.#StringExpression
+#VersionToken: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WarehouseLocation": string | fn.#StringExpression
+#WarehouseLocation: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WithoutMetadata": "Yes" | fn.#StringExpression
+#WithoutMetadata: "Yes" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::S3Tables::Table"
 	Properties!: #Properties

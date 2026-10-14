@@ -6,55 +6,55 @@ package schema
 
 // Resource Type definition for AWS::AutoScalingPlans::ScalingPlan
 #Properties: close({
-	ApplicationSource!:   _#defs."/$defs/Properties/definitions/ApplicationSource"
+	ApplicationSource!:   #ApplicationSource
 	Id?:                  string
-	ScalingInstructions!: [..._#defs."/$defs/Properties/definitions/ScalingInstruction"]
+	ScalingInstructions!: [...#ScalingInstruction]
 	ScalingPlanName?:     string
 	ScalingPlanVersion?:  string
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationSource": close({
+#ApplicationSource: close({
 	CloudFormationStackARN?: string
-	TagFilters?:             [..._#defs."/$defs/Properties/definitions/TagFilter"]
+	TagFilters?:             [...#TagFilter]
 })
 
-_#defs: "/$defs/Properties/definitions/CustomizedLoadMetricSpecification": close({
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/MetricDimension"]
+#CustomizedLoadMetricSpecification: close({
+	Dimensions?: [...#MetricDimension]
 	MetricName!: string
 	Namespace!:  string
 	Statistic!:  string
 	Unit?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/CustomizedScalingMetricSpecification": close({
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/MetricDimension"]
+#CustomizedScalingMetricSpecification: close({
+	Dimensions?: [...#MetricDimension]
 	MetricName!: string
 	Namespace!:  string
 	Statistic!:  string
 	Unit?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/MetricDimension": close({
+#MetricDimension: close({
 	Name!:  string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/PredefinedLoadMetricSpecification": close({
+#PredefinedLoadMetricSpecification: close({
 	PredefinedLoadMetricType!: string
 	ResourceLabel?:            string
 })
 
-_#defs: "/$defs/Properties/definitions/PredefinedScalingMetricSpecification": close({
+#PredefinedScalingMetricSpecification: close({
 	PredefinedScalingMetricType!: string
 	ResourceLabel?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/ScalingInstruction": close({
-	CustomizedLoadMetricSpecification?:    _#defs."/$defs/Properties/definitions/CustomizedLoadMetricSpecification"
+#ScalingInstruction: close({
+	CustomizedLoadMetricSpecification?:    #CustomizedLoadMetricSpecification
 	DisableDynamicScaling?:                bool
 	MaxCapacity!:                          int
 	MinCapacity!:                          int
-	PredefinedLoadMetricSpecification?:    _#defs."/$defs/Properties/definitions/PredefinedLoadMetricSpecification"
+	PredefinedLoadMetricSpecification?:    #PredefinedLoadMetricSpecification
 	PredictiveScalingMaxCapacityBehavior?: string
 	PredictiveScalingMaxCapacityBuffer?:   int
 	PredictiveScalingMode?:                string
@@ -63,19 +63,19 @@ _#defs: "/$defs/Properties/definitions/ScalingInstruction": close({
 	ScalingPolicyUpdateBehavior?:          string
 	ScheduledActionBufferTime?:            int
 	ServiceNamespace!:                     string
-	TargetTrackingConfigurations!:         [..._#defs."/$defs/Properties/definitions/TargetTrackingConfiguration"]
+	TargetTrackingConfigurations!:         [...#TargetTrackingConfiguration]
 })
 
-_#defs: "/$defs/Properties/definitions/TagFilter": close({
+#TagFilter: close({
 	Key!:    string
 	Values?: [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingConfiguration": close({
-	CustomizedScalingMetricSpecification?: _#defs."/$defs/Properties/definitions/CustomizedScalingMetricSpecification"
+#TargetTrackingConfiguration: close({
+	CustomizedScalingMetricSpecification?: #CustomizedScalingMetricSpecification
 	DisableScaleIn?:                       bool
 	EstimatedInstanceWarmup?:              int
-	PredefinedScalingMetricSpecification?: _#defs."/$defs/Properties/definitions/PredefinedScalingMetricSpecification"
+	PredefinedScalingMetricSpecification?: #PredefinedScalingMetricSpecification
 	ScaleInCooldown?:                      int
 	ScaleOutCooldown?:                     int
 	TargetValue!:                          number

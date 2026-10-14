@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,30 +14,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Schema of AWS::EC2::IPAM Type
 #Properties: close({
-	DefaultResourceDiscoveryOrganizationalUnitExclusions?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IpamOrganizationalUnitExclusion"
-	] |
+	DefaultResourceDiscoveryOrganizationalUnitExclusions?: list.UniqueItems() & [...#IpamOrganizationalUnitExclusion] |
 		fn.#ListExpression
 	Description?:      string | fn.#StringExpression
 	EnablePrivateGua?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MeteredAccount?:   "ipam-owner" | "resource-owner" | fn.#StringExpression
-	OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/IpamOperatingRegion"
-	] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Tier?: "free" | "advanced" | fn.#StringExpression
+	OperatingRegions?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#IpamOperatingRegion] | fn.#ListExpression
+	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	Tier?:             "free" | "advanced" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IpamOperatingRegion": close({RegionName!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#IpamOperatingRegion: close({RegionName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpamOrganizationalUnitExclusion": close(
-	{OrganizationsEntityPath!: strings.MinRunes(1) | fn.#StringExpression},
-) |
+#IpamOrganizationalUnitExclusion: close({OrganizationsEntityPath!: strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -6,24 +6,24 @@ package schema
 
 // Resource Type definition for AWS::PinpointEmail::ConfigurationSet
 #Properties: close({
-	DeliveryOptions?:   _#defs."/$defs/Properties/definitions/DeliveryOptions"
+	DeliveryOptions?:   #DeliveryOptions
 	Id?:                string
 	Name!:              string
-	ReputationOptions?: _#defs."/$defs/Properties/definitions/ReputationOptions"
-	SendingOptions?:    _#defs."/$defs/Properties/definitions/SendingOptions"
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tags"]
-	TrackingOptions?:   _#defs."/$defs/Properties/definitions/TrackingOptions"
+	ReputationOptions?: #ReputationOptions
+	SendingOptions?:    #SendingOptions
+	Tags?:              [...#Tags]
+	TrackingOptions?:   #TrackingOptions
 })
 
-_#defs: "/$defs/Properties/definitions/DeliveryOptions": close({SendingPoolName?: string})
+#DeliveryOptions: close({SendingPoolName?: string})
 
-_#defs: "/$defs/Properties/definitions/ReputationOptions": close({ReputationMetricsEnabled?: bool})
+#ReputationOptions: close({ReputationMetricsEnabled?: bool})
 
-_#defs: "/$defs/Properties/definitions/SendingOptions": close({SendingEnabled?: bool})
+#SendingOptions: close({SendingEnabled?: bool})
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/TrackingOptions": close({CustomRedirectDomain?: string})
+#TrackingOptions: close({CustomRedirectDomain?: string})

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -25,24 +25,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Name?:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
 	Password?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[ -~]+$" | fn.#StringExpression
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:     [...#Tag] | fn.#ListExpression
 	Username?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[ -\\.0-\\[\\]-~]*[!-\\.0-\\[\\]-~][ -\\.0-\\[\\]-~]*$" |
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/HypervisorState": "PENDING" |
-	"ONLINE" |
-	"OFFLINE" |
-	"ERROR" |
-	fn.#StringExpression
+#HypervisorState: "PENDING" | "ONLINE" | "OFFLINE" | "ERROR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SyncMetadataStatus": "PENDING" |
-	"IN_PROGRESS" |
-	"FAILED" |
-	"SUCCEEDED" |
-	fn.#StringExpression
+#SyncMetadataStatus: "PENDING" | "IN_PROGRESS" | "FAILED" | "SUCCEEDED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression
 }) |

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -23,11 +23,11 @@ import (
 	// (ARNs) for the ACM certificate and WAF web ACL. These are specific values
 	// that you can override or disable from the multi-tenant distribution that was
 	// used to create the distribution tenant.
-	Customizations?: _#defs."/$defs/Properties/definitions/Customizations"
+	Customizations?: #Customizations
 
 	// The ID of the multi-tenant distribution.
 	DistributionId!: string
-	DomainResults?:  [..._#defs."/$defs/Properties/definitions/DomainResult"]
+	DomainResults?:  [...#DomainResult]
 
 	// The domains associated with the distribution tenant.
 	Domains!: [...string]
@@ -40,7 +40,7 @@ import (
 	LastModifiedTime?: time.Time
 
 	// An object that represents the request for the Amazon CloudFront managed ACM certificate.
-	ManagedCertificateRequest?: _#defs."/$defs/Properties/definitions/ManagedCertificateRequest"
+	ManagedCertificateRequest?: #ManagedCertificateRequest
 
 	// The name of the distribution tenant.
 	Name!: string
@@ -48,15 +48,15 @@ import (
 	// A list of parameter values to add to the resource. A parameter is specified
 	// as a key-value pair. A valid parameter value must exist for any parameter
 	// that is marked as required in the multi-tenant distribution.
-	Parameters?: [..._#defs."/$defs/Properties/definitions/Parameter"]
+	Parameters?: [...#Parameter]
 	Status?:     string
 
 	// A complex type that contains zero or more ``Tag`` elements.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // The ACMlong (ACM) certificate associated with your distribution.
-_#defs: "/$defs/Properties/definitions/Certificate": close({
+#Certificate: close({
 	// The Amazon Resource Name (ARN) of the ACM certificate.
 	Arn?: string
 })
@@ -66,19 +66,19 @@ _#defs: "/$defs/Properties/definitions/Certificate": close({
 // (ARNs) for the ACM certificate and WAF web ACL. These are specific values
 // that you can override or disable from the multi-tenant distribution that was
 // used to create the distribution tenant.
-_#defs: "/$defs/Properties/definitions/Customizations": close({
+#Customizations: close({
 	// The ACMlong (ACM) certificate.
-	Certificate?: _#defs."/$defs/Properties/definitions/Certificate"
+	Certificate?: #Certificate
 
 	// The geographic restrictions.
-	GeoRestrictions?: _#defs."/$defs/Properties/definitions/GeoRestrictionCustomization"
+	GeoRestrictions?: #GeoRestrictionCustomization
 
 	// The WAF web ACL.
-	WebAcl?: _#defs."/$defs/Properties/definitions/WebAclCustomization"
+	WebAcl?: #WebAclCustomization
 })
 
 // The details about the domain result.
-_#defs: "/$defs/Properties/definitions/DomainResult": close({
+#DomainResult: close({
 	// The specified domain.
 	Domain?: string
 
@@ -87,7 +87,7 @@ _#defs: "/$defs/Properties/definitions/DomainResult": close({
 })
 
 // The customizations that you specified for the distribution tenant for geographic restrictions.
-_#defs: "/$defs/Properties/definitions/GeoRestrictionCustomization": close({
+#GeoRestrictionCustomization: close({
 	// The locations for geographic restrictions.
 	Locations?: [...string]
 
@@ -102,7 +102,7 @@ _#defs: "/$defs/Properties/definitions/GeoRestrictionCustomization": close({
 })
 
 // An object that represents the request for the Amazon CloudFront managed ACM certificate.
-_#defs: "/$defs/Properties/definitions/ManagedCertificateRequest": close({
+#ManagedCertificateRequest: close({
 	// You can opt out of certificate transparency logging by specifying the
 	// ``disabled`` option. Opt in by specifying ``enabled``. For more information,
 	// see [Certificate Transparency
@@ -130,7 +130,7 @@ _#defs: "/$defs/Properties/definitions/ManagedCertificateRequest": close({
 // A list of parameter values to add to the resource. A parameter is specified
 // as a key-value pair. A valid parameter value must exist for any parameter
 // that is marked as required in the multi-tenant distribution.
-_#defs: "/$defs/Properties/definitions/Parameter": close({
+#Parameter: close({
 	// The parameter name.
 	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$"
 
@@ -139,7 +139,7 @@ _#defs: "/$defs/Properties/definitions/Parameter": close({
 })
 
 // A complex type that contains ``Tag`` key and ``Tag`` value.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string that contains ``Tag`` key.
 	// The string length should be between 1 and 128 characters. Valid characters
 	// include ``a-z``, ``A-Z``, ``0-9``, space, and the special characters ``_ - .
@@ -154,7 +154,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The WAF web ACL customization specified for the distribution tenant.
-_#defs: "/$defs/Properties/definitions/WebAclCustomization": close({
+#WebAclCustomization: close({
 	// The action for the WAF web ACL customization. You can specify ``override`` to
 	// specify a separate WAF web ACL for the distribution tenant. If you specify
 	// ``disable``, the distribution tenant won't have WAF web ACL protections and

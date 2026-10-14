@@ -26,7 +26,7 @@ import (
 
 	// The date when the monitor was last updated.
 	LastUpdatedDate?: strings.MaxRunes(40) & strings.MinRunes(0) & =~"(\\d{4}-\\d{2}-\\d{2})(T\\d{2}:\\d{2}:\\d{2}Z)?"
-	MonitorArn?:      _#defs."/$defs/Properties/definitions/Arn"
+	MonitorArn?:      #Arn
 
 	// The dimensions to evaluate
 	MonitorDimension?: "SERVICE" | "LINKED_ACCOUNT" | "TAG" | "COST_CATEGORY"
@@ -37,14 +37,14 @@ import (
 	MonitorType!:          "DIMENSIONAL" | "CUSTOM"
 
 	// Tags to assign to monitor.
-	ResourceTags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceTag"]
+	ResourceTags?: list.MaxItems(200) & [...] & [...#ResourceTag]
 })
 
 // Monitor ARN
-_#defs: "/$defs/Properties/definitions/Arn": =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$"
+#Arn: =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	// The key name for the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

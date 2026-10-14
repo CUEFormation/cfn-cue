@@ -13,16 +13,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // distribution.
 #Properties: close({
 	DistributionId!:         string | fn.#StringExpression
-	MonitoringSubscription!: _#defs."/$defs/Properties/definitions/MonitoringSubscription" | fn.#ObjectExpression
+	MonitoringSubscription!: #MonitoringSubscription | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/MonitoringSubscription": close({
-	RealtimeMetricsSubscriptionConfig?: _#defs."/$defs/Properties/definitions/RealtimeMetricsSubscriptionConfig" |
-		fn.#ObjectExpression
-}) |
+#MonitoringSubscription: close(
+	{RealtimeMetricsSubscriptionConfig?: #RealtimeMetricsSubscriptionConfig | fn.#ObjectExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RealtimeMetricsSubscriptionConfig": close(
+#RealtimeMetricsSubscriptionConfig: close(
 	{RealtimeMetricsSubscriptionStatus!: "Enabled" | "Disabled" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression

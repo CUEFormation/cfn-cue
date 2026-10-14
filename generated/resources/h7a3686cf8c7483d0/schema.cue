@@ -53,21 +53,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"TransitGatewayAttachment" |
 		"RegionalNatGateway" |
 		fn.#StringExpression
-	TagFieldSpecifications?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TagFieldSpecification"
-	] |
+	TagFieldSpecifications?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [...#TagFieldSpecification] |
 		fn.#ListExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:        [...#Tag] | fn.#ListExpression
 	TrafficType?: "ACCEPT" | "ALL" | "REJECT" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagFieldSpecification": close({
+#TagFieldSpecification: close({
 	ResourceType!: "auto-scaling-group" | "instance" | "network-interface" | fn.#StringExpression
 	TagKeys!: list.MaxItems(2) & list.MinItems(1) & [
 		...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression

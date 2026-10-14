@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::SES::MailManagerRelay Resource Type
 #Properties: close({
-	Authentication!: _#defs."/$defs/Properties/definitions/RelayAuthentication"
+	Authentication!: #RelayAuthentication
 	RelayName?:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
 	ServerName!:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\.]+$" | fn.#StringExpression
 	ServerPort!: <=65535 & >=1 |
@@ -41,20 +41,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/NoAuthentication": close({}) | fn.#ObjectExpression
+#NoAuthentication: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RelayAuthentication": matchN(1, [close({
+#RelayAuthentication: matchN(1, [close({
 	SecretArn!: =~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=,.@-]+$" |
 		fn.#StringExpression
 }), close(
-	{NoAuthentication!: _#defs."/$defs/Properties/definitions/NoAuthentication"},
+	{NoAuthentication!: #NoAuthentication},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

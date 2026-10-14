@@ -13,23 +13,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::S3Tables::TablePolicy
 #Properties: close({
-	ResourcePolicy!: _#defs."/$defs/Properties/definitions/ResourcePolicy"
-	TableARN!:       _#defs."/$defs/Properties/definitions/TableARN"
+	ResourcePolicy!: #ResourcePolicy
+	TableARN!:       #TableARN
 })
 
-_#defs: "/$defs/Properties/definitions/Namespace": strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$" |
-fn.#StringExpression
+#Namespace: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": fn.#Object & {...} |
-strings.MaxRunes(20480) & strings.MinRunes(1) |
-fn.#StringObjectExpression
+#ResourcePolicy: fn.#Object & {...} | strings.MaxRunes(20480) & strings.MinRunes(1) | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableARN": string | fn.#StringExpression
+#TableARN: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TableBucketARN": =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" |
-	fn.#StringExpression
+#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TableName": string | fn.#StringExpression
+#TableName: string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::S3Tables::TablePolicy"
 	Properties!: #Properties

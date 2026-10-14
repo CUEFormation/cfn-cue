@@ -57,7 +57,7 @@ import (
 	// Metadata to assign to the configuration profile. Tags help organize and
 	// categorize your AWS AppConfig resources. Each tag consists of a key and an
 	// optional value, both of which you define.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tags"]
+	Tags?: [...#Tags]
 
 	// The type of configurations contained in the profile. When calling this API,
 	// enter one of the following values for Type: AWS.AppConfig.FeatureFlags,
@@ -65,13 +65,13 @@ import (
 	Type?: =~"^[a-zA-Z\\.]+"
 
 	// A list of methods for validating the configuration.
-	Validators?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/Validators"]
+	Validators?: list.MaxItems(2) & [...] & [...#Validators]
 })
 
 // Metadata to assign to the configuration profile. Tags help organize and
 // categorize your AWS AppConfig resources. Each tag consists of a key and an
 // optional value, both of which you define.
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	// The key-value string map. The tag key can be up to 128 characters and must not start with aws:.
 	Key?: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -80,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/Tags": close({
 })
 
 // A list of methods for validating the configuration.
-_#defs: "/$defs/Properties/definitions/Validators": close({
+#Validators: close({
 	// Either the JSON Schema content or the Amazon Resource Name (ARN) of an Lambda function.
 	Content?: strings.MaxRunes(32768) & strings.MinRunes(0)
 

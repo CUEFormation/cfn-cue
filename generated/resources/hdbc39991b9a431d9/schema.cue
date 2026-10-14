@@ -21,16 +21,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 	GroupIdentifier?: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r  ]+)" |
 		fn.#StringExpression
-	GroupType?:        _#defs."/$defs/Properties/definitions/GroupType"
+	GroupType?:        #GroupType
 	RolePrincipalArn?: string | fn.#StringExpression
-	Status?:           _#defs."/$defs/Properties/definitions/GroupProfileStatus"
+	Status?:           #GroupProfileStatus
 })
 
-_#defs: "/$defs/Properties/definitions/GroupProfileStatus": "ASSIGNED" | "NOT_ASSIGNED" | fn.#StringExpression
+#GroupProfileStatus: "ASSIGNED" | "NOT_ASSIGNED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GroupType": "DATAZONE_SSO_GROUP" |
-	"IAM_ROLE_SESSION_GROUP" |
-	fn.#StringExpression
+#GroupType: "DATAZONE_SSO_GROUP" | "IAM_ROLE_SESSION_GROUP" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DataZone::GroupProfile"
 	Properties!: #Properties

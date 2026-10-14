@@ -3,51 +3,47 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Image
 #Properties: close({
-	ImageArn?:         _#defs."/$defs/Properties/definitions/ImageArn"
-	ImageDescription?: _#defs."/$defs/Properties/definitions/ImageDescription"
-	ImageDisplayName?: _#defs."/$defs/Properties/definitions/ImageDisplayName"
-	ImageName!:        _#defs."/$defs/Properties/definitions/ImageName"
-	ImageRoleArn!:     _#defs."/$defs/Properties/definitions/ImageRoleArn"
+	ImageArn?:         #ImageArn
+	ImageDescription?: #ImageDescription
+	ImageDisplayName?: #ImageDisplayName
+	ImageName!:        #ImageName
+	ImageRoleArn!:     #ImageRoleArn
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // The Amazon Resource Name (ARN) of the image.
-_#defs: "/$defs/Properties/definitions/ImageArn": strings.MaxRunes(256) &
+#ImageArn: strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[\\w]+)*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:image\\/[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$"
 
 // A description of the image.
-_#defs: "/$defs/Properties/definitions/ImageDescription": strings.MaxRunes(512) & strings.MinRunes(1) & =~".+"
+#ImageDescription: strings.MaxRunes(512) & strings.MinRunes(1) & =~".+"
 
 // The display name of the image.
-_#defs: "/$defs/Properties/definitions/ImageDisplayName": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[A-Za-z0-9 -_]+$"
+#ImageDisplayName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9 -_]+$"
 
 // The name of the image.
-_#defs: "/$defs/Properties/definitions/ImageName": strings.MaxRunes(63) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$"
+#ImageName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$"
 
 // The Amazon Resource Name (ARN) of an IAM role that enables Amazon SageMaker
 // to perform tasks on behalf of the customer.
-_#defs: "/$defs/Properties/definitions/ImageRoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#ImageRoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

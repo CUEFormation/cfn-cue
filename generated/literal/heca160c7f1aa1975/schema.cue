@@ -61,18 +61,18 @@ import "strings"
 	// Describes a runtime used by an AWS AppSync pipeline resolver or AWS AppSync
 	// function. Specifies the name and version of the runtime to use. Note that if
 	// a runtime is specified, code must also be specified.
-	Runtime?: _#defs."/$defs/Properties/definitions/AppSyncRuntime"
+	Runtime?: #AppSyncRuntime
 
 	// Describes a Sync configuration for a resolver. Specifies which Conflict
 	// Detection strategy and Resolution strategy to use when the resolver is
 	// invoked.
-	SyncConfig?: _#defs."/$defs/Properties/definitions/SyncConfig"
+	SyncConfig?: #SyncConfig
 })
 
 // Describes a runtime used by an AWS AppSync pipeline resolver or AWS AppSync
 // function. Specifies the name and version of the runtime to use. Note that if
 // a runtime is specified, code must also be specified.
-_#defs: "/$defs/Properties/definitions/AppSyncRuntime": close({
+#AppSyncRuntime: close({
 	// The name of the runtime to use. Currently, the only allowed value is APPSYNC_JS.
 	Name!: "APPSYNC_JS"
 
@@ -81,7 +81,7 @@ _#defs: "/$defs/Properties/definitions/AppSyncRuntime": close({
 })
 
 // The LambdaConflictHandlerConfig when configuring LAMBDA as the Conflict Handler.
-_#defs: "/$defs/Properties/definitions/LambdaConflictHandlerConfig": close({
+#LambdaConflictHandlerConfig: close({
 	// The Amazon Resource Name (ARN) for the Lambda function to use as the Conflict Handler.
 	LambdaConflictHandlerArn?: string
 })
@@ -89,11 +89,11 @@ _#defs: "/$defs/Properties/definitions/LambdaConflictHandlerConfig": close({
 // Describes a Sync configuration for a resolver. Specifies which Conflict
 // Detection strategy and Resolution strategy to use when the resolver is
 // invoked.
-_#defs: "/$defs/Properties/definitions/SyncConfig": close({
+#SyncConfig: close({
 	// The Conflict Detection strategy to use.
 	ConflictDetection!: "NONE" | "VERSION"
 
 	// The Conflict Resolution strategy to perform in the event of a conflict.
 	ConflictHandler?:             "AUTOMERGE" | "LAMBDA" | "NONE" | "OPTIMISTIC_CONCURRENCY"
-	LambdaConflictHandlerConfig?: _#defs."/$defs/Properties/definitions/LambdaConflictHandlerConfig"
+	LambdaConflictHandlerConfig?: #LambdaConflictHandlerConfig
 })

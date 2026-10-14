@@ -25,10 +25,10 @@ import "time"
 	State?: string
 
 	// The status of the transit gateway peering attachment.
-	Status?: _#defs."/$defs/Properties/definitions/PeeringAttachmentStatus"
+	Status?: #PeeringAttachmentStatus
 
 	// The tags for the transit gateway peering attachment.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The ID of the transit gateway peering attachment.
 	TransitGatewayAttachmentId?: string
@@ -37,7 +37,7 @@ import "time"
 	TransitGatewayId!: string
 })
 
-_#defs: "/$defs/Properties/definitions/PeeringAttachmentStatus": close({
+#PeeringAttachmentStatus: close({
 	// The status code.
 	Code?: string
 
@@ -45,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/PeeringAttachmentStatus": close({
 	Message?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag. Constraints: Tag keys are case-sensitive and accept a
 	// maximum of 127 Unicode characters. May not begin with aws:.
 	Key?: string

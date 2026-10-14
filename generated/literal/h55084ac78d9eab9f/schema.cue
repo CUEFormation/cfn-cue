@@ -14,62 +14,62 @@ import (
 #Properties: close({
 	Arn?:              string
 	RuleName?:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$"
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"]
-	TopicRulePayload!: _#defs."/$defs/Properties/definitions/TopicRulePayload"
+	Tags?:             [...#Tag]
+	TopicRulePayload!: #TopicRulePayload
 })
 
-_#defs: "/$defs/Properties/definitions/Action": close({
-	CloudwatchAlarm?:  _#defs."/$defs/Properties/definitions/CloudwatchAlarmAction"
-	CloudwatchLogs?:   _#defs."/$defs/Properties/definitions/CloudwatchLogsAction"
-	CloudwatchMetric?: _#defs."/$defs/Properties/definitions/CloudwatchMetricAction"
-	DynamoDB?:         _#defs."/$defs/Properties/definitions/DynamoDBAction"
-	DynamoDBv2?:       _#defs."/$defs/Properties/definitions/DynamoDBv2Action"
-	Elasticsearch?:    _#defs."/$defs/Properties/definitions/ElasticsearchAction"
-	Firehose?:         _#defs."/$defs/Properties/definitions/FirehoseAction"
-	Http?:             _#defs."/$defs/Properties/definitions/HttpAction"
-	InfluxDB?:         _#defs."/$defs/Properties/definitions/InfluxDBAction"
-	IotAnalytics?:     _#defs."/$defs/Properties/definitions/IotAnalyticsAction"
-	IotEvents?:        _#defs."/$defs/Properties/definitions/IotEventsAction"
-	IotSiteWise?:      _#defs."/$defs/Properties/definitions/IotSiteWiseAction"
-	Kafka?:            _#defs."/$defs/Properties/definitions/KafkaAction"
-	Kinesis?:          _#defs."/$defs/Properties/definitions/KinesisAction"
-	Lambda?:           _#defs."/$defs/Properties/definitions/LambdaAction"
-	Location?:         _#defs."/$defs/Properties/definitions/LocationAction"
-	OpenSearch?:       _#defs."/$defs/Properties/definitions/OpenSearchAction"
-	Republish?:        _#defs."/$defs/Properties/definitions/RepublishAction"
-	S3?:               _#defs."/$defs/Properties/definitions/S3Action"
-	Sns?:              _#defs."/$defs/Properties/definitions/SnsAction"
-	Sqs?:              _#defs."/$defs/Properties/definitions/SqsAction"
-	StepFunctions?:    _#defs."/$defs/Properties/definitions/StepFunctionsAction"
-	Timestream?:       _#defs."/$defs/Properties/definitions/TimestreamAction"
+#Action: close({
+	CloudwatchAlarm?:  #CloudwatchAlarmAction
+	CloudwatchLogs?:   #CloudwatchLogsAction
+	CloudwatchMetric?: #CloudwatchMetricAction
+	DynamoDB?:         #DynamoDBAction
+	DynamoDBv2?:       #DynamoDBv2Action
+	Elasticsearch?:    #ElasticsearchAction
+	Firehose?:         #FirehoseAction
+	Http?:             #HttpAction
+	InfluxDB?:         #InfluxDBAction
+	IotAnalytics?:     #IotAnalyticsAction
+	IotEvents?:        #IotEventsAction
+	IotSiteWise?:      #IotSiteWiseAction
+	Kafka?:            #KafkaAction
+	Kinesis?:          #KinesisAction
+	Lambda?:           #LambdaAction
+	Location?:         #LocationAction
+	OpenSearch?:       #OpenSearchAction
+	Republish?:        #RepublishAction
+	S3?:               #S3Action
+	Sns?:              #SnsAction
+	Sqs?:              #SqsAction
+	StepFunctions?:    #StepFunctionsAction
+	Timestream?:       #TimestreamAction
 })
 
-_#defs: "/$defs/Properties/definitions/AssetPropertyTimestamp": close({
+#AssetPropertyTimestamp: close({
 	OffsetInNanos?: string
 	TimeInSeconds!: string
 })
 
-_#defs: "/$defs/Properties/definitions/AssetPropertyValue": close({
+#AssetPropertyValue: close({
 	Quality?:   string
-	Timestamp!: _#defs."/$defs/Properties/definitions/AssetPropertyTimestamp"
-	Value!:     _#defs."/$defs/Properties/definitions/AssetPropertyVariant"
+	Timestamp!: #AssetPropertyTimestamp
+	Value!:     #AssetPropertyVariant
 })
 
-_#defs: "/$defs/Properties/definitions/AssetPropertyVariant": close({
+#AssetPropertyVariant: close({
 	BooleanValue?: string
 	DoubleValue?:  string
 	IntegerValue?: string
 	StringValue?:  string
 })
 
-_#defs: "/$defs/Properties/definitions/BatchConfig": close({
+#BatchConfig: close({
 	BatchAcrossTopics?: bool
 	MaxBatchOpenMs?:    int & <=200 & >=5
 	MaxBatchSize?:      int & <=10 & >=2
 	MaxBatchSizeBytes?: int & <=131072 & >=100
 })
 
-_#defs: "/$defs/Properties/definitions/CannedAccessControlList": "private" |
+#CannedAccessControlList: "private" |
 	"public-read" |
 	"public-read-write" |
 	"aws-exec-read" |
@@ -78,20 +78,20 @@ _#defs: "/$defs/Properties/definitions/CannedAccessControlList": "private" |
 	"bucket-owner-full-control" |
 	"log-delivery-write"
 
-_#defs: "/$defs/Properties/definitions/CloudwatchAlarmAction": close({
+#CloudwatchAlarmAction: close({
 	AlarmName!:   string
 	RoleArn!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	StateReason!: string
 	StateValue!:  string
 })
 
-_#defs: "/$defs/Properties/definitions/CloudwatchLogsAction": close({
+#CloudwatchLogsAction: close({
 	BatchMode?:    bool
 	LogGroupName!: string
 	RoleArn!:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/CloudwatchMetricAction": close({
+#CloudwatchMetricAction: close({
 	MetricName!:      string
 	MetricNamespace!: string
 	MetricTimestamp?: string
@@ -100,7 +100,7 @@ _#defs: "/$defs/Properties/definitions/CloudwatchMetricAction": close({
 	RoleArn!:         =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/DynamoDBAction": close({
+#DynamoDBAction: close({
 	HashKeyField!:  string
 	HashKeyType?:   "NUMBER" | "STRING"
 	HashKeyValue!:  string
@@ -112,12 +112,12 @@ _#defs: "/$defs/Properties/definitions/DynamoDBAction": close({
 	TableName!:     string
 })
 
-_#defs: "/$defs/Properties/definitions/DynamoDBv2Action": close({
-	PutItem?: _#defs."/$defs/Properties/definitions/PutItemInput"
+#DynamoDBv2Action: close({
+	PutItem?: #PutItemInput
 	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/ElasticsearchAction": close({
+#ElasticsearchAction: close({
 	Endpoint!: =~"^https?://"
 	Id!:       string
 	Index!:    string
@@ -125,35 +125,31 @@ _#defs: "/$defs/Properties/definitions/ElasticsearchAction": close({
 	Type!:     string
 })
 
-_#defs: "/$defs/Properties/definitions/FirehoseAction": close({
+#FirehoseAction: close({
 	BatchMode?:          bool
 	DeliveryStreamName!: string
 	RoleArn!:            =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Separator?:          =~"^([\\n\\t])|(\\r\\n)|(,)$"
 })
 
-_#defs: "/$defs/Properties/definitions/HttpAction": close({
-	Auth?:            _#defs."/$defs/Properties/definitions/HttpAuthorization"
-	BatchConfig?:     _#defs."/$defs/Properties/definitions/BatchConfig"
+#HttpAction: close({
+	Auth?:            #HttpAuthorization
+	BatchConfig?:     #BatchConfig
 	ConfirmationUrl?: strings.MaxRunes(2000) & strings.MinRunes(0)
 	EnableBatching?:  bool
-	Headers?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/HttpActionHeader"
-	]
-	Url!: strings.MaxRunes(2000) & strings.MinRunes(0)
+	Headers?:         list.MaxItems(100) & list.UniqueItems() & [...] & [...#HttpActionHeader]
+	Url!:             strings.MaxRunes(2000) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/HttpActionHeader": close({
+#HttpActionHeader: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1)
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/HttpAuthorization": close(
-	{Sigv4?: _#defs."/$defs/Properties/definitions/SigV4Authorization"},
-)
+#HttpAuthorization: close({Sigv4?: #SigV4Authorization})
 
-_#defs: "/$defs/Properties/definitions/InfluxDBAction": close({
-	BatchConfig?:    _#defs."/$defs/Properties/definitions/InfluxDBBatchConfig"
+#InfluxDBAction: close({
+	BatchConfig?:    #InfluxDBBatchConfig
 	DatabaseName!:   strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[^_\\\"][^\\\"]+$"
 	DestinationArn!: string
 	Organization?:   strings.MaxRunes(64) & strings.MinRunes(1)
@@ -165,71 +161,65 @@ _#defs: "/$defs/Properties/definitions/InfluxDBAction": close({
 	TimestampUnit?: "ms" | "ns" | "s" | "us"
 })
 
-_#defs: "/$defs/Properties/definitions/InfluxDBBatchConfig": close({
+#InfluxDBBatchConfig: close({
 	BatchAcrossTopics?: bool
 	MaxBatchOpenMs?:    int & <=1000 & >=5
 	MaxBatchSize?:      int & <=500 & >=1
 	MaxBatchSizeBytes?: int & <=131072 & >=100
 })
 
-_#defs: "/$defs/Properties/definitions/IotAnalyticsAction": close({
+#IotAnalyticsAction: close({
 	BatchMode?:   bool
 	ChannelName!: string
 	RoleArn!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/IotEventsAction": close({
+#IotEventsAction: close({
 	BatchMode?: bool
 	InputName!: strings.MaxRunes(128) & strings.MinRunes(1)
 	MessageId?: strings.MaxRunes(128) & strings.MinRunes(0)
 	RoleArn!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/IotSiteWiseAction": close({
-	PutAssetPropertyValueEntries!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PutAssetPropertyValueEntry"
-	]
-	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
+#IotSiteWiseAction: close({
+	PutAssetPropertyValueEntries!: list.MinItems(1) & list.UniqueItems() & [...#PutAssetPropertyValueEntry]
+	RoleArn!:                      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/KafkaAction": close({
+#KafkaAction: close({
 	ClientProperties!: struct.MinFields(1) & close({
 
 		{[=~".*"]: string}})
 	DestinationArn!: string
-	Headers?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/KafkaActionHeader"
-	]
-	Key?:       string
-	Partition?: string
-	Topic!:     string
+	Headers?:        list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...#KafkaActionHeader]
+	Key?:            string
+	Partition?:      string
+	Topic!:          string
 })
 
-_#defs: "/$defs/Properties/definitions/KafkaActionHeader": close({
+#KafkaActionHeader: close({
 	Key!:   strings.MaxRunes(16384) & strings.MinRunes(0)
 	Value!: strings.MaxRunes(16384) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/KinesisAction": close({
+#KinesisAction: close({
 	PartitionKey?: string
 	RoleArn!:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	StreamName!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaAction": close(
-	{FunctionArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"},
-)
+#LambdaAction: close({FunctionArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"})
 
-_#defs: "/$defs/Properties/definitions/LocationAction": close({
+#LocationAction: close({
 	DeviceId!:    string
 	Latitude!:    string
 	Longitude!:   string
 	RoleArn!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	Timestamp?:   _#defs."/$defs/Properties/definitions/Timestamp"
+	Timestamp?:   #Timestamp
 	TrackerName!: string
 })
 
-_#defs: "/$defs/Properties/definitions/OpenSearchAction": close({
+#OpenSearchAction: close({
 	Endpoint!: =~"^https?://"
 	Id!:       string
 	Index!:    string
@@ -237,113 +227,107 @@ _#defs: "/$defs/Properties/definitions/OpenSearchAction": close({
 	Type!:     string
 })
 
-_#defs: "/$defs/Properties/definitions/PutAssetPropertyValueEntry": close({
-	AssetId?:       string
-	EntryId?:       string
-	PropertyAlias?: strings.MinRunes(1)
-	PropertyId?:    string
-	PropertyValues!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AssetPropertyValue"
-	]
+#PutAssetPropertyValueEntry: close({
+	AssetId?:        string
+	EntryId?:        string
+	PropertyAlias?:  strings.MinRunes(1)
+	PropertyId?:     string
+	PropertyValues!: list.MinItems(1) & list.UniqueItems() & [...#AssetPropertyValue]
 })
 
-_#defs: "/$defs/Properties/definitions/PutItemInput": close({TableName!: string})
+#PutItemInput: close({TableName!: string})
 
-_#defs: "/$defs/Properties/definitions/RepublishAction": close({
-	Headers?: _#defs."/$defs/Properties/definitions/RepublishActionHeaders"
+#RepublishAction: close({
+	Headers?: #RepublishActionHeaders
 	Qos?:     int & <=1 & >=0
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Topic!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/RepublishActionHeaders": close({
+#RepublishActionHeaders: close({
 	ContentType?:            strings.MaxRunes(1024) & strings.MinRunes(0)
 	CorrelationData?:        strings.MaxRunes(1024) & strings.MinRunes(0)
 	MessageExpiry?:          strings.MaxRunes(1024) & strings.MinRunes(0)
 	PayloadFormatIndicator?: strings.MaxRunes(1024) & strings.MinRunes(0)
 	ResponseTopic?:          strings.MaxRunes(1024) & strings.MinRunes(0)
-	UserProperties?:         _#defs."/$defs/Properties/definitions/UserProperties"
+	UserProperties?:         #UserProperties
 })
 
-_#defs: "/$defs/Properties/definitions/RoleArn": string
+#RoleArn: string
 
-_#defs: "/$defs/Properties/definitions/S3Action": close({
+#S3Action: close({
 	BucketName!: string
-	CannedAcl?:  _#defs."/$defs/Properties/definitions/CannedAccessControlList"
+	CannedAcl?:  #CannedAccessControlList
 	Key!:        string
 	RoleArn!:    =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/SigV4Authorization": close({
+#SigV4Authorization: close({
 	RoleArn!:       =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	ServiceName!:   string
 	SigningRegion!: string
 })
 
-_#defs: "/$defs/Properties/definitions/SnsAction": close({
+#SnsAction: close({
 	MessageFormat?: "JSON" | "RAW"
 	RoleArn!:       =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	TargetArn!:     string
 })
 
-_#defs: "/$defs/Properties/definitions/SqsAction": close({
+#SqsAction: close({
 	QueueUrl!:  string
 	RoleArn!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	UseBase64?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/StepFunctionsAction": close({
+#StepFunctionsAction: close({
 	ExecutionNamePrefix?: string
 	RoleArn!:             =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	StateMachineName!:    string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Timestamp": close({
+#Timestamp: close({
 	Unit?:  string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TimestreamAction": close({
+#TimestreamAction: close({
 	DatabaseName!: string
-	Dimensions!:   _#defs."/$defs/Properties/definitions/TimestreamDimensionsList"
+	Dimensions!:   #TimestreamDimensionsList
 	RoleArn!:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	TableName!:    string
-	Timestamp?:    _#defs."/$defs/Properties/definitions/TimestreamTimestamp"
+	Timestamp?:    #TimestreamTimestamp
 })
 
-_#defs: "/$defs/Properties/definitions/TimestreamDimension": close({
+#TimestreamDimension: close({
 	Name!:  string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TimestreamDimensionsList": list.MaxItems(128) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/TimestreamDimension"
-]
+#TimestreamDimensionsList: list.MaxItems(128) & list.MinItems(1) & [...#TimestreamDimension]
 
-_#defs: "/$defs/Properties/definitions/TimestreamTimestamp": close({
+#TimestreamTimestamp: close({
 	Unit!:  string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TopicRulePayload": close({
-	Actions!:          list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Action"]
+#TopicRulePayload: close({
+	Actions!:          list.MaxItems(10) & [...] & [...#Action]
 	AwsIotSqlVersion?: string
 	Description?:      string
-	ErrorAction?:      _#defs."/$defs/Properties/definitions/Action"
+	ErrorAction?:      #Action
 	RuleDisabled?:     bool
 	Sql!:              string
 })
 
-_#defs: "/$defs/Properties/definitions/UserProperties": list.MaxItems(100) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/UserProperty"
-]
+#UserProperties: list.MaxItems(100) & list.MinItems(1) & [...#UserProperty]
 
-_#defs: "/$defs/Properties/definitions/UserProperty": close({
+#UserProperty: close({
 	Key!:   strings.MaxRunes(1024) & strings.MinRunes(0)
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(0)
 })

@@ -15,17 +15,17 @@ package schema
 	IdentityDNSRecordValue1?:   string
 	IdentityDNSRecordValue2?:   string
 	IdentityDNSRecordValue3?:   string
-	MailFromAttributes?:        _#defs."/$defs/Properties/definitions/MailFromAttributes"
+	MailFromAttributes?:        #MailFromAttributes
 	Name!:                      string
-	Tags?:                      [..._#defs."/$defs/Properties/definitions/Tags"]
+	Tags?:                      [...#Tags]
 })
 
-_#defs: "/$defs/Properties/definitions/MailFromAttributes": close({
+#MailFromAttributes: close({
 	BehaviorOnMxFailure?: string
 	MailFromDomain?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string
 	Value?: string
 })

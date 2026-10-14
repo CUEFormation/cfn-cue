@@ -23,12 +23,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Engine!:             "redis" | "valkey" | fn.#StringExpression
 	NoPasswordRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Passwords?:          list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UserId!:   strings.MinRunes(1) & =~"[a-z][a-z0-9\\\\-]*" | fn.#StringExpression
-	UserName!: strings.MinRunes(1) | fn.#StringExpression
+	Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	UserId!:             strings.MinRunes(1) & =~"[a-z][a-z0-9\\\\-]*" | fn.#StringExpression
+	UserName!:           strings.MinRunes(1) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]*$" | fn.#StringExpression
 }) |

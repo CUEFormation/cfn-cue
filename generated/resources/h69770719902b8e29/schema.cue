@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,11 +17,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Glue::SecurityConfiguration
 #Properties: close({
-	EncryptionConfiguration!: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	EncryptionConfiguration!: #EncryptionConfiguration
 	Name!:                    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchEncryption": close({
+#CloudWatchEncryption: close({
 	CloudWatchEncryptionMode?: "DISABLED" | "SSE-KMS" | fn.#StringExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^$|arn:aws[a-z0-9-]*:kms:" |
@@ -29,14 +29,14 @@ _#defs: "/$defs/Properties/definitions/CloudWatchEncryption": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	CloudWatchEncryption?:   _#defs."/$defs/Properties/definitions/CloudWatchEncryption"
-	JobBookmarksEncryption?: _#defs."/$defs/Properties/definitions/JobBookmarksEncryption"
-	S3Encryptions?:          [..._#defs."/$defs/Properties/definitions/S3Encryption"] | fn.#ListExpression
+#EncryptionConfiguration: close({
+	CloudWatchEncryption?:   #CloudWatchEncryption
+	JobBookmarksEncryption?: #JobBookmarksEncryption
+	S3Encryptions?:          [...#S3Encryption] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobBookmarksEncryption": close({
+#JobBookmarksEncryption: close({
 	JobBookmarksEncryptionMode?: "CSE-KMS" | "DISABLED" | fn.#StringExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^$|arn:aws[a-z0-9-]*:kms:" |
@@ -44,14 +44,14 @@ _#defs: "/$defs/Properties/definitions/JobBookmarksEncryption": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Encryption": close({
+#S3Encryption: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	S3EncryptionMode?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Encryptions": null |
+#S3Encryptions: null |
 bool |
 number |
 string |

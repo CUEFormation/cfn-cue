@@ -16,8 +16,8 @@ import (
 
 	// Details regarding the Kinesis stream.
 	DestinationDetails?: close({
-		Status!: _#defs."/$defs/Properties/definitions/Status"
-		Uri!:    _#defs."/$defs/Properties/definitions/Uri"
+		Status!: #Status
+		Uri!:    #Uri
 	})
 
 	// The unique name of the domain.
@@ -33,15 +33,15 @@ import (
 	State?: "RUNNING" | "STOPPED"
 
 	// The tags used to organize, track, or control access for this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Uri!:  _#defs."/$defs/Properties/definitions/Uri"
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
+	Uri!:  #Uri
 })
 
 // The status of enabling the Kinesis stream as a destination for export.
-_#defs: "/$defs/Properties/definitions/Status": "HEALTHY" | "UNHEALTHY"
+#Status: "HEALTHY" | "UNHEALTHY"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -57,4 +57,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 
 // The StreamARN of the destination to deliver profile events to. For example,
 // arn:aws:kinesis:region:account-id:stream/stream-name
-_#defs: "/$defs/Properties/definitions/Uri": strings.MaxRunes(255) & strings.MinRunes(1)
+#Uri: strings.MaxRunes(255) & strings.MinRunes(1)

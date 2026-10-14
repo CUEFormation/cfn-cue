@@ -43,7 +43,7 @@ import (
 	StorageEncrypted?: bool
 
 	// The tags to be assigned to the Amazon DocumentDB resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 	if Engine != _|_ {
 		SourceDBClusterIdentifier?: error(
 			"SourceDBClusterIdentifier cannot be used with Engine; set exactly one of Engine, SourceDBClusterIdentifier",
@@ -52,7 +52,7 @@ import (
 }) & matchN(>=1, [{Engine!: _}, {SourceDBClusterIdentifier!: _}])
 
 // A key-value pair to associate with an Amazon DocumentDB resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

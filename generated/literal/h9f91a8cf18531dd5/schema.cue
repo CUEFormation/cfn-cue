@@ -12,7 +12,7 @@ import (
 // The resource schema for AWSLogs QueryDefinition
 #Properties: close({
 	// Optionally define specific log groups as part of your query definition
-	LogGroupNames?: [..._#defs."/$defs/Properties/definitions/LogGroup"]
+	LogGroupNames?: [...#LogGroup]
 
 	// A name for the saved query definition
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -22,7 +22,7 @@ import (
 	// queries. Query parameters allow you to use placeholder variables in your
 	// query string that are substituted with values at execution time. Use the
 	// {{parameterName}} syntax in your query string to reference a parameter.
-	Parameters?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/QueryParameter"]
+	Parameters?: list.MaxItems(20) & [...] & [...#QueryParameter]
 
 	// Unique identifier of a query definition
 	QueryDefinitionId?: strings.MaxRunes(256) & strings.MinRunes(0)
@@ -35,16 +35,14 @@ import (
 	QueryString!: strings.MaxRunes(10000) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/LogGroup": strings.MaxRunes(512) &
-strings.MinRunes(1) &
-=~"[\\.\\-_/#A-Za-z0-9]+"
+#LogGroup: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+"
 
 // This structure defines a query parameter for a saved CloudWatch Logs Insights
 // query definition. Query parameters are supported only for Logs Insights QL
 // queries. They are placeholder variables that you can reference in a query
 // string using the {{parameterName}} syntax. Each parameter can include a
 // default value and a description.
-_#defs: "/$defs/Properties/definitions/QueryParameter": close({
+#QueryParameter: close({
 	// The default value to use for this query parameter if no value is supplied at execution time.
 	DefaultValue?: strings.MaxRunes(1024) & strings.MinRunes(0)
 

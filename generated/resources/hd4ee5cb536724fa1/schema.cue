@@ -14,24 +14,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SecretsManager::RotationSchedule
 #Properties: close({
-	ExternalSecretRotationMetadata?: [..._#defs."/$defs/Properties/definitions/ExternalSecretRotationMetadataItem"] |
-		fn.#ListExpression
+	ExternalSecretRotationMetadata?: [...#ExternalSecretRotationMetadataItem] | fn.#ListExpression
 	ExternalSecretRotationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	HostedRotationLambda?:      _#defs."/$defs/Properties/definitions/HostedRotationLambda" | fn.#ObjectExpression
+	HostedRotationLambda?:      #HostedRotationLambda | fn.#ObjectExpression
 	RotateImmediatelyOnUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RotationLambdaARN?:         string | fn.#StringExpression
-	RotationRules?:             _#defs."/$defs/Properties/definitions/RotationRules" | fn.#ObjectExpression
+	RotationRules?:             #RotationRules | fn.#ObjectExpression
 	SecretId!:                  string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ExternalSecretRotationMetadataItem": close({
+#ExternalSecretRotationMetadataItem: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HostedRotationLambda": close({
+#HostedRotationLambda: close({
 	ExcludeCharacters?: string | fn.#StringExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
@@ -47,7 +46,7 @@ _#defs: "/$defs/Properties/definitions/HostedRotationLambda": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RotationRules": close({
+#RotationRules: close({
 	AutomaticallyAfterDays?: int |
 		{
 			string &

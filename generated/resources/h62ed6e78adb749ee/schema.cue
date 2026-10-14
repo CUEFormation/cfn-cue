@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Schema of AWS::EMRContainers::Endpoint Type
 #Properties: close({
-	ConfigurationOverrides?: _#defs."/$defs/Properties/definitions/ConfigurationOverrides" | fn.#ObjectExpression
+	ConfigurationOverrides?: #ConfigurationOverrides | fn.#ObjectExpression
 	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -42,33 +42,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+	Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	Type!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 	VirtualClusterId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z]+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Certificate": close({
+#Certificate: close({
 	CertificateArn?:  string | fn.#StringExpression
 	CertificateData?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchMonitoringConfiguration": close({
+#CloudWatchMonitoringConfiguration: close({
 	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
 	LogStreamNamePrefix?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationOverrides": close({
-	ApplicationConfiguration?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/EMREKSConfiguration"
-	] |
-		fn.#ListExpression
-	MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/MonitoringConfiguration"
+#ConfigurationOverrides: close({
+	ApplicationConfiguration?: list.MaxItems(100) & [...] & [...#EMREKSConfiguration] | fn.#ListExpression
+	MonitoringConfiguration?:  #MonitoringConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContainerLogRotationConfiguration": close({
+#ContainerLogRotationConfiguration: close({
 	MaxFilesToKeep!: int & <=50 & >=1 |
 		{
 			string &
@@ -89,10 +86,9 @@ _#defs: "/$defs/Properties/definitions/ContainerLogRotationConfiguration": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EMREKSConfiguration": close({
+#EMREKSConfiguration: close({
 	Classification!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Configurations?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/EMREKSConfiguration"] |
-		fn.#ListExpression
+	Configurations?: list.MaxItems(100) & [...] & [...#EMREKSConfiguration] | fn.#ListExpression
 	Properties?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
@@ -100,15 +96,15 @@ _#defs: "/$defs/Properties/definitions/EMREKSConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
-	CloudWatchMonitoringConfiguration?: _#defs."/$defs/Properties/definitions/CloudWatchMonitoringConfiguration"
-	ContainerLogRotationConfiguration?: _#defs."/$defs/Properties/definitions/ContainerLogRotationConfiguration"
+#MonitoringConfiguration: close({
+	CloudWatchMonitoringConfiguration?: #CloudWatchMonitoringConfiguration
+	ContainerLogRotationConfiguration?: #ContainerLogRotationConfiguration
 	PersistentAppUI?:                   "ENABLED" | "DISABLED" | fn.#StringExpression
-	S3MonitoringConfiguration?:         _#defs."/$defs/Properties/definitions/S3MonitoringConfiguration"
+	S3MonitoringConfiguration?:         #S3MonitoringConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3MonitoringConfiguration": close({
+#S3MonitoringConfiguration: close({
 	LogUri!: strings.MaxRunes(10280) &
 	strings.MinRunes(1) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\r\\n\\t]*$" |
@@ -116,7 +112,7 @@ _#defs: "/$defs/Properties/definitions/S3MonitoringConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

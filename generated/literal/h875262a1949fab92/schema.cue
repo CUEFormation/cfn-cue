@@ -16,15 +16,15 @@ import (
 
 	// Name of the group.
 	Name!:         =~"^[0-9a-z_\\-]{1,64}$"
-	ResourceArns?: list.MaxItems(10) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ResourceArn"]
-	Tags?:         [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	ResourceArns?: list.MaxItems(10) & list.UniqueItems() & [...#ResourceArn]
+	Tags?:         [...] & [...#Tag]
 })
 
 // Provide Canary Arn associated with the group.
-_#defs: "/$defs/Properties/definitions/ResourceArn": =~"arn:(aws[a-zA-Z-]*)?:synthetics:[a-z]{2}((-gov)|(-iso(b|e|f?)))?-[a-z]+-\\d{1}:\\d{12}:canary:[0-9a-z_\\-]"
+#ResourceArn: =~"arn:(aws[a-zA-Z-]*)?:synthetics:[a-z]{2}((-gov)|(-iso(b|e|f?)))?-[a-z]+-\\d{1}:\\d{12}:canary:[0-9a-z_\\-]"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

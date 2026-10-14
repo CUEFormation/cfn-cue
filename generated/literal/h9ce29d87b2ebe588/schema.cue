@@ -13,35 +13,35 @@ import (
 // provided. This enables customers to configure custom connectors for any data
 // source with REST-based APIs.
 #Properties: close({
-	ConnectionProperties?: _#defs."/$defs/Properties/definitions/ConnectionPropertiesConfiguration"
+	ConnectionProperties?: #ConnectionPropertiesConfiguration
 
 	// The name of the connection type. Must be prefixed with REST-.
 	ConnectionType!: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// The Amazon Resource Name (ARN) of the registered connection type.
 	ConnectionTypeArn?: strings.MaxRunes(10240) & strings.MinRunes(1) & =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:"
-	ConnectorAuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/ConnectorAuthenticationConfiguration"
+	ConnectorAuthenticationConfiguration?: #ConnectorAuthenticationConfiguration
 
 	// A description of the connection type.
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0)
 
 	// The integration type for the connection. Currently only REST is supported.
 	IntegrationType?:   "REST"
-	RestConfiguration!: _#defs."/$defs/Properties/definitions/RestConfiguration"
+	RestConfiguration!: #RestConfiguration
 
 	// Tags to assign to the connection type.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 })
 
 // Basic authentication configuration.
-_#defs: "/$defs/Properties/definitions/BasicAuthenticationProperties": close({
-	Password?: _#defs."/$defs/Properties/definitions/SecretConnectorProperty"
-	Username?: _#defs."/$defs/Properties/definitions/SecretConnectorProperty"
+#BasicAuthenticationProperties: close({
+	Password?: #SecretConnectorProperty
+	Username?: #SecretConnectorProperty
 })
 
 // Configuration that defines how BETWEEN range filter operations are translated
 // into REST API request parameters.
-_#defs: "/$defs/Properties/definitions/BetweenConfiguration": close({
+#BetweenConfiguration: close({
 	// The parameter name used for the upper bound value in a BETWEEN filter operation.
 	HighBoundKey?: string
 
@@ -53,60 +53,60 @@ _#defs: "/$defs/Properties/definitions/BetweenConfiguration": close({
 })
 
 // OAuth2 client credentials configuration.
-_#defs: "/$defs/Properties/definitions/ClientCredentialsProperties": close({
-	ClientId?:           _#defs."/$defs/Properties/definitions/SecretConnectorProperty"
-	ClientSecret?:       _#defs."/$defs/Properties/definitions/SecretConnectorProperty"
+#ClientCredentialsProperties: close({
+	ClientId?:           #SecretConnectorProperty
+	ClientSecret?:       #SecretConnectorProperty
 	ContentType?:        "APPLICATION_JSON" | "URL_ENCODED"
 	RequestMethod?:      "GET" | "POST"
-	Scope?:              _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	TokenUrl?:           _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	TokenUrlParameters?: [..._#defs."/$defs/Properties/definitions/ConnectorProperty"]
+	Scope?:              #ConnectorProperty
+	TokenUrl?:           #ConnectorProperty
+	TokenUrlParameters?: [...#ConnectorProperty]
 })
 
 // Configuration that defines the base URL and additional request parameters
 // needed during connection creation.
-_#defs: "/$defs/Properties/definitions/ConnectionPropertiesConfiguration": close({
+#ConnectionPropertiesConfiguration: close({
 	// Key-value pairs of additional request parameters.
-	AdditionalRequestParameters?: [..._#defs."/$defs/Properties/definitions/ConnectorProperty"]
-	Url?:                         _#defs."/$defs/Properties/definitions/ConnectorProperty"
+	AdditionalRequestParameters?: [...#ConnectorProperty]
+	Url?:                         #ConnectorProperty
 })
 
 // Configuration that defines supported authentication types and required properties.
-_#defs: "/$defs/Properties/definitions/ConnectorAuthenticationConfiguration": close({
+#ConnectorAuthenticationConfiguration: close({
 	// A list of authentication types supported.
 	AuthenticationTypes!:            [..."BASIC" | "OAUTH2" | "CUSTOM" | "IAM"]
-	BasicAuthenticationProperties?:  _#defs."/$defs/Properties/definitions/BasicAuthenticationProperties"
-	CustomAuthenticationProperties?: _#defs."/$defs/Properties/definitions/CustomAuthenticationProperties"
-	OAuth2Properties?:               _#defs."/$defs/Properties/definitions/ConnectorOAuth2Properties"
+	BasicAuthenticationProperties?:  #BasicAuthenticationProperties
+	CustomAuthenticationProperties?: #CustomAuthenticationProperties
+	OAuth2Properties?:               #ConnectorOAuth2Properties
 })
 
 // OAuth2 authorization code configuration.
-_#defs: "/$defs/Properties/definitions/ConnectorAuthorizationCodeProperties": close({
-	AuthorizationCode?:    _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	AuthorizationCodeUrl?: _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	ClientId?:             _#defs."/$defs/Properties/definitions/SecretConnectorProperty"
-	ClientSecret?:         _#defs."/$defs/Properties/definitions/SecretConnectorProperty"
+#ConnectorAuthorizationCodeProperties: close({
+	AuthorizationCode?:    #ConnectorProperty
+	AuthorizationCodeUrl?: #ConnectorProperty
+	ClientId?:             #SecretConnectorProperty
+	ClientSecret?:         #SecretConnectorProperty
 	ContentType?:          "APPLICATION_JSON" | "URL_ENCODED"
-	Prompt?:               _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	RedirectUri?:          _#defs."/$defs/Properties/definitions/ConnectorProperty"
+	Prompt?:               #ConnectorProperty
+	RedirectUri?:          #ConnectorProperty
 	RequestMethod?:        "GET" | "POST"
-	Scope?:                _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	TokenUrl?:             _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	TokenUrlParameters?:   [..._#defs."/$defs/Properties/definitions/ConnectorProperty"]
+	Scope?:                #ConnectorProperty
+	TokenUrl?:             #ConnectorProperty
+	TokenUrlParameters?:   [...#ConnectorProperty]
 })
 
 // OAuth2 configuration container.
-_#defs: "/$defs/Properties/definitions/ConnectorOAuth2Properties": close({
-	AuthorizationCodeProperties?: _#defs."/$defs/Properties/definitions/ConnectorAuthorizationCodeProperties"
-	ClientCredentialsProperties?: _#defs."/$defs/Properties/definitions/ClientCredentialsProperties"
-	JWTBearerProperties?:         _#defs."/$defs/Properties/definitions/JWTBearerProperties"
+#ConnectorOAuth2Properties: close({
+	AuthorizationCodeProperties?: #ConnectorAuthorizationCodeProperties
+	ClientCredentialsProperties?: #ClientCredentialsProperties
+	JWTBearerProperties?:         #JWTBearerProperties
 
 	// The OAuth2 grant type to use.
 	OAuth2GrantType!: "CLIENT_CREDENTIALS" | "JWT_BEARER" | "AUTHORIZATION_CODE"
 })
 
 // Defines a property configuration for connection types.
-_#defs: "/$defs/Properties/definitions/ConnectorProperty": close({
+#ConnectorProperty: close({
 	// A list of allowed values for the property.
 	AllowedValues?: [...string]
 
@@ -130,27 +130,25 @@ _#defs: "/$defs/Properties/definitions/ConnectorProperty": close({
 })
 
 // Cursor-based pagination configuration.
-_#defs: "/$defs/Properties/definitions/CursorConfiguration": close({
-	LimitParameter?: _#defs."/$defs/Properties/definitions/ExtractedParameter"
-	NextPage!:       _#defs."/$defs/Properties/definitions/ExtractedParameter"
+#CursorConfiguration: close({
+	LimitParameter?: #ExtractedParameter
+	NextPage!:       #ExtractedParameter
 })
 
 // Custom authentication configuration.
-_#defs: "/$defs/Properties/definitions/CustomAuthenticationProperties": close(
-	{AuthenticationParameters!: [..._#defs."/$defs/Properties/definitions/SecretConnectorProperty"]},
-)
+#CustomAuthenticationProperties: close({AuthenticationParameters!: [...#SecretConnectorProperty]})
 
 // Configuration for interacting with a specific data entity.
-_#defs: "/$defs/Properties/definitions/EntityConfiguration": close({
+#EntityConfiguration: close({
 	// The schema definition for this entity.
 	Schema?: close({
 
-		{[=~"^[a-zA-Z0-9_ -]+$"]: _#defs."/$defs/Properties/definitions/FieldDefinition"}})
-	SourceConfiguration?: _#defs."/$defs/Properties/definitions/SourceConfiguration"
+		{[=~"^[a-zA-Z0-9_ -]+$"]: #FieldDefinition}})
+	SourceConfiguration?: #SourceConfiguration
 })
 
 // Parameter extraction configuration.
-_#defs: "/$defs/Properties/definitions/ExtractedParameter": close({
+#ExtractedParameter: close({
 	// The default value.
 	DefaultValue?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"[^<>&'\"]"
 
@@ -159,11 +157,11 @@ _#defs: "/$defs/Properties/definitions/ExtractedParameter": close({
 
 	// Specifies where to place the parameter in requests.
 	PropertyLocation?: "HEADER" | "BODY" | "QUERY_PARAM" | "PATH"
-	Value?:            _#defs."/$defs/Properties/definitions/ResponseExtractionMapping"
+	Value?:            #ResponseExtractionMapping
 })
 
 // Defines a field in an entity schema.
-_#defs: "/$defs/Properties/definitions/FieldDefinition": close({
+#FieldDefinition: close({
 	// The data type of the field.
 	FieldDataType!: "INT" |
 		"SMALLINT" |
@@ -183,7 +181,7 @@ _#defs: "/$defs/Properties/definitions/FieldDefinition": close({
 		"STRUCT" |
 		"BINARY" |
 		"UNION"
-	FilterOverrides?: _#defs."/$defs/Properties/definitions/FilterOverrides"
+	FilterOverrides?: #FilterOverrides
 
 	// Indicates whether this field can contain null values.
 	IsNullable?: bool
@@ -207,15 +205,15 @@ _#defs: "/$defs/Properties/definitions/FieldDefinition": close({
 
 // Configuration that defines how filter predicates are applied to REST API
 // requests, supporting both query parameter and filter string strategies.
-_#defs: "/$defs/Properties/definitions/FilterConfiguration": close({
-	BetweenConfiguration?: _#defs."/$defs/Properties/definitions/BetweenConfiguration"
+#FilterConfiguration: close({
+	BetweenConfiguration?: #BetweenConfiguration
 
 	// The global date and time format for filter expressions.
 	DateTimeFormat?: string
 
 	// The strategy for applying filters to requests.
 	FilterMode!:                "QUERY_PARAMS" | "FILTER_STRING"
-	FilterStringConfiguration?: _#defs."/$defs/Properties/definitions/FilterStringConfiguration"
+	FilterStringConfiguration?: #FilterStringConfiguration
 
 	// A map of logical filter operators to their API-specific string representations.
 	OperatorMappings?: close({
@@ -229,8 +227,8 @@ _#defs: "/$defs/Properties/definitions/FilterConfiguration": close({
 
 // Configuration that defines per-field overrides for filter behavior, allowing
 // individual fields to customize how filter operations are applied.
-_#defs: "/$defs/Properties/definitions/FilterOverrides": close({
-	BetweenConfiguration?: _#defs."/$defs/Properties/definitions/BetweenConfiguration"
+#FilterOverrides: close({
+	BetweenConfiguration?: #BetweenConfiguration
 
 	// The date and time format for filter expressions on this field, overriding the
 	// global DateTimeFormat.
@@ -249,7 +247,7 @@ _#defs: "/$defs/Properties/definitions/FilterOverrides": close({
 
 // Configuration for constructing filter expression strings when using the
 // FILTER_STRING filter mode.
-_#defs: "/$defs/Properties/definitions/FilterStringConfiguration": close({
+#FilterStringConfiguration: close({
 	// The query parameter name used to send the constructed filter expression string in API requests.
 	QueryParameterName!: string
 
@@ -263,28 +261,28 @@ _#defs: "/$defs/Properties/definitions/FilterStringConfiguration": close({
 })
 
 // JWT bearer token configuration.
-_#defs: "/$defs/Properties/definitions/JWTBearerProperties": close({
+#JWTBearerProperties: close({
 	ContentType?:        "APPLICATION_JSON" | "URL_ENCODED"
-	JwtToken?:           _#defs."/$defs/Properties/definitions/SecretConnectorProperty"
+	JwtToken?:           #SecretConnectorProperty
 	RequestMethod?:      "GET" | "POST"
-	TokenUrl?:           _#defs."/$defs/Properties/definitions/ConnectorProperty"
-	TokenUrlParameters?: [..._#defs."/$defs/Properties/definitions/ConnectorProperty"]
+	TokenUrl?:           #ConnectorProperty
+	TokenUrlParameters?: [...#ConnectorProperty]
 })
 
 // Offset-based pagination configuration.
-_#defs: "/$defs/Properties/definitions/OffsetConfiguration": close({
-	LimitParameter!:  _#defs."/$defs/Properties/definitions/ExtractedParameter"
-	OffsetParameter!: _#defs."/$defs/Properties/definitions/ExtractedParameter"
+#OffsetConfiguration: close({
+	LimitParameter!:  #ExtractedParameter
+	OffsetParameter!: #ExtractedParameter
 })
 
 // Configuration for handling paginated responses.
-_#defs: "/$defs/Properties/definitions/PaginationConfiguration": close({
-	CursorConfiguration?: _#defs."/$defs/Properties/definitions/CursorConfiguration"
-	OffsetConfiguration?: _#defs."/$defs/Properties/definitions/OffsetConfiguration"
+#PaginationConfiguration: close({
+	CursorConfiguration?: #CursorConfiguration
+	OffsetConfiguration?: #OffsetConfiguration
 })
 
 // Configuration for parsing JSON responses from REST API calls.
-_#defs: "/$defs/Properties/definitions/ResponseConfiguration": close({
+#ResponseConfiguration: close({
 	// JSON path expression for error information location.
 	ErrorPath?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^\\$(\\.[a-zA-Z0-9_.@\\[\\]\\(\\)-]+)*$"
 
@@ -293,7 +291,7 @@ _#defs: "/$defs/Properties/definitions/ResponseConfiguration": close({
 })
 
 // Defines how to extract values from HTTP responses.
-_#defs: "/$defs/Properties/definitions/ResponseExtractionMapping": close({
+#ResponseExtractionMapping: close({
 	// A JSON path expression to extract a value from response body.
 	ContentPath?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^\\$(\\.[a-zA-Z0-9_.@\\[\\]\\(\\)-]+)*$"
 
@@ -302,12 +300,12 @@ _#defs: "/$defs/Properties/definitions/ResponseExtractionMapping": close({
 })
 
 // Configuration for HTTP request and response handling.
-_#defs: "/$defs/Properties/definitions/RestConfiguration": close({
+#RestConfiguration: close({
 	// A map of entity configurations.
 	EntityConfigurations?: close({
 
-		{[=~"^[a-zA-Z0-9_ -]+$"]: _#defs."/$defs/Properties/definitions/EntityConfiguration"}})
-	GlobalSourceConfiguration?: _#defs."/$defs/Properties/definitions/SourceConfiguration"
+		{[=~"^[a-zA-Z0-9_ -]+$"]: #EntityConfiguration}})
+	GlobalSourceConfiguration?: #SourceConfiguration
 
 	// Configuration for the validation endpoint. Only supports RequestMethod and RequestPath.
 	ValidationEndpointConfiguration?: close({
@@ -321,7 +319,7 @@ _#defs: "/$defs/Properties/definitions/RestConfiguration": close({
 
 // Defines a secret property configuration. SECRET-type properties cannot have
 // DefaultValue or AllowedValues.
-_#defs: "/$defs/Properties/definitions/SecretConnectorProperty": close({
+#SecretConnectorProperty: close({
 	// A key name to use when sending this property in API requests.
 	KeyOverride?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 
@@ -339,22 +337,22 @@ _#defs: "/$defs/Properties/definitions/SecretConnectorProperty": close({
 })
 
 // Configuration that defines how to make requests to endpoints.
-_#defs: "/$defs/Properties/definitions/SourceConfiguration": close({
-	FilterConfiguration?:     _#defs."/$defs/Properties/definitions/FilterConfiguration"
-	PaginationConfiguration?: _#defs."/$defs/Properties/definitions/PaginationConfiguration"
+#SourceConfiguration: close({
+	FilterConfiguration?:     #FilterConfiguration
+	PaginationConfiguration?: #PaginationConfiguration
 
 	// The HTTP method to use.
 	RequestMethod?: "GET" | "POST"
 
 	// Request parameters configuration.
-	RequestParameters?: [..._#defs."/$defs/Properties/definitions/ConnectorProperty"]
+	RequestParameters?: [...#ConnectorProperty]
 
 	// The URL path for the REST endpoint.
 	RequestPath?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;={}-]*$"
-	ResponseConfiguration?: _#defs."/$defs/Properties/definitions/ResponseConfiguration"
+	ResponseConfiguration?: #ResponseConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

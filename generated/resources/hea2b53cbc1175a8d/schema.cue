@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -56,10 +56,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CustomEventData?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	FlexMatchMode?:   "STANDALONE" | "WITH_QUEUE" | fn.#StringExpression
-	GameProperties?: list.MaxItems(16) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/GameProperty"
-	] |
-		fn.#ListExpression
+	GameProperties?:  list.MaxItems(16) & list.UniqueItems() & [...] & [...#GameProperty] | fn.#ListExpression
 	GameSessionData?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 	GameSessionQueueArns?: [...strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/-]+" | fn.#StringExpression] |
 	fn.#ListExpression
@@ -84,17 +81,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	RuleSetArn?:  =~"^arn:.*:matchmakingruleset\\/[a-zA-Z0-9-\\.]*" | fn.#StringExpression
 	RuleSetName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]*" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/GameProperty": close({
+#GameProperty: close({
 	Key!:   strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
 	Value!: strings.MaxRunes(96) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

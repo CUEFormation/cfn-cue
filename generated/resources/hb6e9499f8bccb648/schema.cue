@@ -14,51 +14,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Connect::Notification
 #Properties: close({
-	Content!:     _#defs."/$defs/Properties/definitions/NotificationContent" | fn.#ObjectExpression
+	Content!:     #NotificationContent | fn.#ObjectExpression
 	ExpiresAt?:   =~"^[0-9]+$" | fn.#StringExpression
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-	Priority?:    _#defs."/$defs/Properties/definitions/Priority" | fn.#StringExpression
-	Recipients?:  _#defs."/$defs/Properties/definitions/RecipientList" | fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Priority?:    #Priority | fn.#StringExpression
+	Recipients?:  #RecipientList | fn.#ListExpression
+	Tags?:        list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
+#Arn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression
+#InstanceArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LocalizedString": =~"^.{0,500}$" | fn.#StringExpression
+#LocalizedString: =~"^.{0,500}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationContent": close({
-	DeDE?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	EnUS?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	EsES?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	FrFR?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	IdID?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	ItIT?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	JaJP?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	KoKR?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	PtBR?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	ZhCN?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	ZhTW?: _#defs."/$defs/Properties/definitions/LocalizedString"
+#NotificationContent: close({
+	DeDE?: #LocalizedString
+	EnUS?: #LocalizedString
+	EsES?: #LocalizedString
+	FrFR?: #LocalizedString
+	IdID?: #LocalizedString
+	ItIT?: #LocalizedString
+	JaJP?: #LocalizedString
+	KoKR?: #LocalizedString
+	PtBR?: #LocalizedString
+	ZhCN?: #LocalizedString
+	ZhTW?: #LocalizedString
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Priority": "HIGH" | "LOW" | fn.#StringExpression
+#Priority: "HIGH" | "LOW" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RecipientList": list.MaxItems(200) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Arn"
-] |
-	fn.#ListExpression
+#RecipientList: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Arn] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$" |
+#UserArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$" |
 	fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Connect::Notification"

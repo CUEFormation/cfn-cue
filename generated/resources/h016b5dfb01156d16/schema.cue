@@ -34,10 +34,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	SnapshotName!: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression
-	Tags?:         list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:         list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Snapshot": close({
+#Snapshot: close({
 	AdminUsername?: string | fn.#StringExpression
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
@@ -62,19 +62,13 @@ _#defs: "/$defs/Properties/definitions/Snapshot": close({
 	SnapshotArn?:        string | fn.#StringExpression
 	SnapshotCreateTime?: string | fn.#StringExpression
 	SnapshotName?:       strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	Status?:             _#defs."/$defs/Properties/definitions/SnapshotStatus"
+	Status?:             #SnapshotStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnapshotStatus": "AVAILABLE" |
-	"CREATING" |
-	"DELETED" |
-	"CANCELLED" |
-	"FAILED" |
-	"COPYING" |
-	fn.#StringExpression
+#SnapshotStatus: "AVAILABLE" | "CREATING" | "DELETED" | "CANCELLED" | "FAILED" | "COPYING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

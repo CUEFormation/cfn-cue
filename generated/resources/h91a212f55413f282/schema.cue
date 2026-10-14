@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,14 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // contacts about escalations to the SRT and to initiate proactive customer
 // support.
 #Properties: close({
-	EmergencyContactList!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/EmergencyContact"
-	] |
-		fn.#ListExpression
+	EmergencyContactList!:      list.MaxItems(10) & list.MinItems(1) & [...#EmergencyContact] | fn.#ListExpression
 	ProactiveEngagementStatus!: "ENABLED" | "DISABLED" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EmergencyContact": close({
+#EmergencyContact: close({
 	ContactNotes?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-,:/()+@]*$" | fn.#StringExpression
 	EmailAddress!: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^\\S+@\\S+\\.\\S+$" | fn.#StringExpression
 	PhoneNumber?:  strings.MaxRunes(16) & strings.MinRunes(1) & =~"^\\+[1-9]\\d{1,14}$" | fn.#StringExpression

@@ -16,18 +16,18 @@ import (
 	AssistantId?:                       =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
 	Description?:                       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+"
 	Name!:                              strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+"
-	ServerSideEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionConfiguration"
-	Tags?:                              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Type!:                              _#defs."/$defs/Properties/definitions/AssistantType"
+	ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
+	Tags?:                              list.UniqueItems() & [...#Tag]
+	Type!:                              #AssistantType
 })
 
-_#defs: "/$defs/Properties/definitions/AssistantType": "AGENT"
+#AssistantType: "AGENT"
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close({
+#ServerSideEncryptionConfiguration: close({
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(4096) & strings.MinRunes(1))
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

@@ -16,18 +16,18 @@ import (
 	CACertificatePem!:       strings.MaxRunes(65536) & strings.MinRunes(1) & =~"[\\s\\S]*"
 	CertificateMode?:        "DEFAULT" | "SNI_ONLY"
 	Id?:                     string
-	RegistrationConfig?:     _#defs."/$defs/Properties/definitions/RegistrationConfig"
+	RegistrationConfig?:     #RegistrationConfig
 	RemoveAutoRegistration?: bool
 	Status!:                 "ACTIVE" | "INACTIVE"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The private key verification certificate.
 	VerificationCertificatePem?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"[\\s\\S]*"
 })
 
-_#defs: "/$defs/Properties/definitions/RegistrationConfig": close({
+#RegistrationConfig: close({
 	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -37,7 +37,7 @@ _#defs: "/$defs/Properties/definitions/RegistrationConfig": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

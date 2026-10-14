@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -36,12 +36,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
-	LogDeliveryConfigurations?: [..._#defs."/$defs/Properties/definitions/LogDeliveryConfigurationRequest"] |
-		fn.#ListExpression
-	MultiAZEnabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NetworkType?:            =~"(?i)^(?:dual_stack|ipv4|ipv6)$" | fn.#StringExpression
-	NodeGroupConfiguration?: [..._#defs."/$defs/Properties/definitions/NodeGroupConfiguration"] | fn.#ListExpression
-	NotificationTopicArn?:   string | fn.#StringExpression
+	LogDeliveryConfigurations?: [...#LogDeliveryConfigurationRequest] | fn.#ListExpression
+	MultiAZEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NetworkType?:               =~"(?i)^(?:dual_stack|ipv4|ipv6)$" | fn.#StringExpression
+	NodeGroupConfiguration?:    [...#NodeGroupConfiguration] | fn.#ListExpression
+	NotificationTopicArn?:      string | fn.#StringExpression
 	NumCacheClusters?: int & <=6 & >=1 |
 		{
 			string &
@@ -130,7 +129,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	SnapshotWindow?:           string | fn.#StringExpression
 	SnapshottingClusterId?:    string | fn.#StringExpression
-	Tags?:                     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                     [...#Tag] | fn.#ListExpression
 	TransitEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TransitEncryptionMode?:    =~"(?i)^(?:preferred|required)$" | fn.#StringExpression
 	UserGroupIds?: list.UniqueItems() & [...] & [
@@ -139,37 +138,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsDestinationDetails": close(
-	{LogGroup!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#CloudWatchLogsDestinationDetails: close({LogGroup!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationDetails": close({
-	CloudWatchLogsDetails?:  _#defs."/$defs/Properties/definitions/CloudWatchLogsDestinationDetails"
-	KinesisFirehoseDetails?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestinationDetails"
+#DestinationDetails: close({
+	CloudWatchLogsDetails?:  #CloudWatchLogsDestinationDetails
+	KinesisFirehoseDetails?: #KinesisFirehoseDestinationDetails
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	Address?: string | fn.#StringExpression
 	Port?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseDestinationDetails": close(
-	{DeliveryStream!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#KinesisFirehoseDestinationDetails: close({DeliveryStream!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogDeliveryConfigurationRequest": close({
-	DestinationDetails!: _#defs."/$defs/Properties/definitions/DestinationDetails"
+#LogDeliveryConfigurationRequest: close({
+	DestinationDetails!: #DestinationDetails
 	DestinationType!:    =~"(?i)^(?:cloudwatch-logs|kinesis-firehose)$" | fn.#StringExpression
 	LogFormat!:          =~"(?i)^(?:json|text)$" | fn.#StringExpression
 	LogType!:            =~"(?i)^(?:engine-log|slow-log)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeGroupConfiguration": close({
+#NodeGroupConfiguration: close({
 	NodeGroupId?:              strings.MaxRunes(4) & strings.MinRunes(1) & =~"^\\d+$" | fn.#StringExpression
 	PrimaryAvailabilityZone?:  string | fn.#StringExpression
 	ReplicaAvailabilityZones?: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -191,7 +184,7 @@ _#defs: "/$defs/Properties/definitions/NodeGroupConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

@@ -28,7 +28,7 @@ import (
 	FleetId!: =~"^fleet-[0-9a-f]{32}$"
 
 	// The IP address and host name of the worker.
-	HostProperties?: _#defs."/$defs/Properties/definitions/HostPropertiesRequest"
+	HostProperties?: #HostPropertiesRequest
 
 	// The status of the worker.
 	Status?: "CREATED" | "STARTED" | "STOPPING" | "STOPPED" | "NOT_RESPONDING" | "NOT_COMPATIBLE" | "RUNNING" | "IDLE"
@@ -44,14 +44,14 @@ import (
 })
 
 // The host property details.
-_#defs: "/$defs/Properties/definitions/HostPropertiesRequest": close({
+#HostPropertiesRequest: close({
 	// The host name.
 	HostName?:    =~"^[a-zA-Z0-9_\\.\\-]{0,255}$"
-	IpAddresses?: _#defs."/$defs/Properties/definitions/IpAddresses"
+	IpAddresses?: #IpAddresses
 })
 
 // The IP addresses for a host.
-_#defs: "/$defs/Properties/definitions/IpAddresses": close({
+#IpAddresses: close({
 	// The IpV4 address of the network.
 	IpV4Addresses?: [...=~"^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$"]
 

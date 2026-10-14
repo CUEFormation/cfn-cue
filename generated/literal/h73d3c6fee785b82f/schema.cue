@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"strings"
-	"time"
-	"list"
 	"struct"
+	"strings"
+	"list"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,7 +17,7 @@ import (
 	CallbackUrl?: string
 
 	// The ARN of the client secret in AWS Secrets Manager
-	ClientSecretArn?: _#defs."/$defs/Properties/definitions/ClientSecretArn"
+	ClientSecretArn?: #ClientSecretArn
 
 	// The JSON key within the secret that contains the client secret value
 	ClientSecretJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1)
@@ -66,39 +66,39 @@ import (
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$"
 
 	// The configuration settings for the OAuth2 provider
-	Oauth2ProviderConfigInput?: _#defs."/$defs/Properties/definitions/Oauth2ProviderConfigInput"
+	Oauth2ProviderConfigInput?: #Oauth2ProviderConfigInput
 
 	// The output configuration for the OAuth2 provider
-	Oauth2ProviderConfigOutput?: _#defs."/$defs/Properties/definitions/Oauth2ProviderConfigOutput"
+	Oauth2ProviderConfigOutput?: #Oauth2ProviderConfigOutput
 
 	// The current status of the OAuth2 credential provider
 	Status?: "CREATING" | "CREATE_FAILED" | "UPDATING" | "UPDATE_FAILED" | "READY" | "DELETING" | "DELETE_FAILED"
 
 	// Tags to assign to the OAuth2 credential provider
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 })
 
 // A map of additional claims to include in the JWT client assertion
-_#defs: "/$defs/Properties/definitions/AdditionalClaims": struct.MaxFields(10) & close({
+#AdditionalClaims: struct.MaxFields(10) & close({
 
 	{[=~"^[A-Za-z0-9_.:#-]+$"]: strings.MaxRunes(2048) & strings.MinRunes(1)}})
 
 // Input configuration for an Atlassian OAuth2 provider
-_#defs: "/$defs/Properties/definitions/AtlassianOauth2ProviderConfigInput": close({
+#AtlassianOauth2ProviderConfigInput: close({
 	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1)
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1)
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
+	ClientSecretConfig?: #SecretReference
 	ClientSecretSource?: "MANAGED" | "EXTERNAL"
 })
 
 // Contains information about a secret in AWS Secrets Manager
-_#defs: "/$defs/Properties/definitions/ClientSecretArn": close({
+#ClientSecretArn: close({
 	// The ARN of the secret in AWS Secrets Manager
 	SecretArn!: =~"^arn:(aws|aws-us-gov):secretsmanager:[A-Za-z0-9-]{1,64}:[0-9]{12}:secret:[a-zA-Z0-9-_/+=.@!]+$"
 })
 
 // Input configuration for a custom OAuth2 provider
-_#defs: "/$defs/Properties/definitions/CustomOauth2ProviderConfigInput": close({
+#CustomOauth2ProviderConfigInput: close({
 	// The client authentication method to use when authenticating with the token endpoint
 	ClientAuthenticationMethod?: "CLIENT_SECRET_BASIC" |
 		"CLIENT_SECRET_POST" |
@@ -110,44 +110,44 @@ _#defs: "/$defs/Properties/definitions/CustomOauth2ProviderConfigInput": close({
 
 	// The client secret for the custom OAuth2 provider
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1)
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
+	ClientSecretConfig?: #SecretReference
 
 	// The source of the client secret
 	ClientSecretSource?:            "MANAGED" | "EXTERNAL"
-	OauthDiscovery!:                _#defs."/$defs/Properties/definitions/Oauth2Discovery"
-	OnBehalfOfTokenExchangeConfig?: _#defs."/$defs/Properties/definitions/OnBehalfOfTokenExchangeConfig"
-	PrivateEndpoint?:               _#defs."/$defs/Properties/definitions/PrivateEndpoint"
+	OauthDiscovery!:                #Oauth2Discovery
+	OnBehalfOfTokenExchangeConfig?: #OnBehalfOfTokenExchangeConfig
+	PrivateEndpoint?:               #PrivateEndpoint
 
 	// A list of private endpoint overrides. Each override maps a specific domain to
 	// a private endpoint, enabling secure connectivity through VPC Lattice
 	// resource configurations.
-	PrivateEndpointOverrides?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/PrivateEndpointOverride"]
-	PrivateKeyJwtConfig?:      _#defs."/$defs/Properties/definitions/PrivateKeyJwtConfig"
+	PrivateEndpointOverrides?: list.MaxItems(5) & [...#PrivateEndpointOverride]
+	PrivateKeyJwtConfig?:      #PrivateKeyJwtConfig
 })
 
 // Input configuration for a GitHub OAuth2 provider
-_#defs: "/$defs/Properties/definitions/GithubOauth2ProviderConfigInput": close({
+#GithubOauth2ProviderConfigInput: close({
 	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1)
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1)
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
+	ClientSecretConfig?: #SecretReference
 	ClientSecretSource?: "MANAGED" | "EXTERNAL"
 })
 
 // Input configuration for a Google OAuth2 provider
-_#defs: "/$defs/Properties/definitions/GoogleOauth2ProviderConfigInput": close({
+#GoogleOauth2ProviderConfigInput: close({
 	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1)
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1)
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
+	ClientSecretConfig?: #SecretReference
 	ClientSecretSource?: "MANAGED" | "EXTERNAL"
 })
 
 // Input configuration for a supported non-custom OAuth2 provider
-_#defs: "/$defs/Properties/definitions/IncludedOauth2ProviderConfigInput": close({
+#IncludedOauth2ProviderConfigInput: close({
 	// OAuth2 authorization endpoint for your isolated OAuth2 application tenant
 	AuthorizationEndpoint?: string
 	ClientId!:              strings.MaxRunes(256) & strings.MinRunes(1)
 	ClientSecret?:          strings.MaxRunes(2048) & strings.MinRunes(1)
-	ClientSecretConfig?:    _#defs."/$defs/Properties/definitions/SecretReference"
+	ClientSecretConfig?:    #SecretReference
 	ClientSecretSource?:    "MANAGED" | "EXTERNAL"
 
 	// Token issuer of your isolated OAuth2 application tenant
@@ -158,7 +158,7 @@ _#defs: "/$defs/Properties/definitions/IncludedOauth2ProviderConfigInput": close
 })
 
 // Contains the KMS key configuration for a JWT client assertion
-_#defs: "/$defs/Properties/definitions/KmsKeySourceType": close({
+#KmsKeySourceType: close({
 	// The Amazon Resource Name (ARN) of the KMS key used to sign the JWT client assertion
 	KmsKeyArn!: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
@@ -167,17 +167,17 @@ _#defs: "/$defs/Properties/definitions/KmsKeySourceType": close({
 })
 
 // Input configuration for a LinkedIn OAuth2 provider
-_#defs: "/$defs/Properties/definitions/LinkedinOauth2ProviderConfigInput": close({
+#LinkedinOauth2ProviderConfigInput: close({
 	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1)
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1)
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
+	ClientSecretConfig?: #SecretReference
 	ClientSecretSource?: "MANAGED" | "EXTERNAL"
 })
 
 // Configuration for a managed VPC Lattice resource. AgentCore creates and
 // manages the VPC Lattice resource gateway and resource configuration on your
 // behalf.
-_#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
+#ManagedVpcResource: close({
 	// The IP address type for the resource configuration endpoint
 	EndpointIpAddressType!: "IPV4" | "IPV6"
 
@@ -194,17 +194,17 @@ _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
 	SubnetIds!: [...=~"^subnet-[0-9a-zA-Z]{8,17}$"]
 
 	// Tags to apply to the managed VPC Lattice resource gateway
-	Tags?: _#defs."/$defs/Properties/definitions/TagsMap"
+	Tags?: #TagsMap
 
 	// The ID of the VPC that contains your private resource
 	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 })
 
 // Input configuration for a Microsoft OAuth2 provider
-_#defs: "/$defs/Properties/definitions/MicrosoftOauth2ProviderConfigInput": close({
+#MicrosoftOauth2ProviderConfigInput: close({
 	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1)
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1)
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
+	ClientSecretConfig?: #SecretReference
 	ClientSecretSource?: "MANAGED" | "EXTERNAL"
 
 	// The Microsoft Entra ID tenant ID
@@ -212,7 +212,7 @@ _#defs: "/$defs/Properties/definitions/MicrosoftOauth2ProviderConfigInput": clos
 })
 
 // Authorization server metadata for the OAuth2 provider
-_#defs: "/$defs/Properties/definitions/Oauth2AuthorizationServerMetadata": close({
+#Oauth2AuthorizationServerMetadata: close({
 	// The authorization endpoint URL
 	AuthorizationEndpoint!: string
 
@@ -227,91 +227,89 @@ _#defs: "/$defs/Properties/definitions/Oauth2AuthorizationServerMetadata": close
 })
 
 // Discovery information for an OAuth2 provider
-_#defs: "/$defs/Properties/definitions/Oauth2Discovery": close({
-	AuthorizationServerMetadata?: _#defs."/$defs/Properties/definitions/Oauth2AuthorizationServerMetadata"
+#Oauth2Discovery: close({
+	AuthorizationServerMetadata?: #Oauth2AuthorizationServerMetadata
 
 	// The discovery URL for the OAuth2 provider
 	DiscoveryUrl?: =~"^.+/\\.well-known/openid-configuration$"
 })
 
 // Input configuration for an OAuth2 provider
-_#defs: "/$defs/Properties/definitions/Oauth2ProviderConfigInput": close({
-	AtlassianOauth2ProviderConfig?:  _#defs."/$defs/Properties/definitions/AtlassianOauth2ProviderConfigInput"
-	CustomOauth2ProviderConfig?:     _#defs."/$defs/Properties/definitions/CustomOauth2ProviderConfigInput"
-	GithubOauth2ProviderConfig?:     _#defs."/$defs/Properties/definitions/GithubOauth2ProviderConfigInput"
-	GoogleOauth2ProviderConfig?:     _#defs."/$defs/Properties/definitions/GoogleOauth2ProviderConfigInput"
-	IncludedOauth2ProviderConfig?:   _#defs."/$defs/Properties/definitions/IncludedOauth2ProviderConfigInput"
-	LinkedinOauth2ProviderConfig?:   _#defs."/$defs/Properties/definitions/LinkedinOauth2ProviderConfigInput"
-	MicrosoftOauth2ProviderConfig?:  _#defs."/$defs/Properties/definitions/MicrosoftOauth2ProviderConfigInput"
-	SalesforceOauth2ProviderConfig?: _#defs."/$defs/Properties/definitions/SalesforceOauth2ProviderConfigInput"
-	SlackOauth2ProviderConfig?:      _#defs."/$defs/Properties/definitions/SlackOauth2ProviderConfigInput"
+#Oauth2ProviderConfigInput: close({
+	AtlassianOauth2ProviderConfig?:  #AtlassianOauth2ProviderConfigInput
+	CustomOauth2ProviderConfig?:     #CustomOauth2ProviderConfigInput
+	GithubOauth2ProviderConfig?:     #GithubOauth2ProviderConfigInput
+	GoogleOauth2ProviderConfig?:     #GoogleOauth2ProviderConfigInput
+	IncludedOauth2ProviderConfig?:   #IncludedOauth2ProviderConfigInput
+	LinkedinOauth2ProviderConfig?:   #LinkedinOauth2ProviderConfigInput
+	MicrosoftOauth2ProviderConfig?:  #MicrosoftOauth2ProviderConfigInput
+	SalesforceOauth2ProviderConfig?: #SalesforceOauth2ProviderConfigInput
+	SlackOauth2ProviderConfig?:      #SlackOauth2ProviderConfigInput
 })
 
 // Output configuration for an OAuth2 provider
-_#defs: "/$defs/Properties/definitions/Oauth2ProviderConfigOutput": close({
+#Oauth2ProviderConfigOutput: close({
 	// The client authentication method used when authenticating with the token endpoint
 	ClientAuthenticationMethod?: "CLIENT_SECRET_BASIC" |
 		"CLIENT_SECRET_POST" |
 		"AWS_IAM_ID_TOKEN_JWT" |
 		"PRIVATE_KEY_JWT"
 	ClientId?:                      strings.MaxRunes(256) & strings.MinRunes(1)
-	OauthDiscovery?:                _#defs."/$defs/Properties/definitions/Oauth2Discovery"
-	OnBehalfOfTokenExchangeConfig?: _#defs."/$defs/Properties/definitions/OnBehalfOfTokenExchangeConfig"
-	PrivateEndpoint?:               _#defs."/$defs/Properties/definitions/PrivateEndpoint"
+	OauthDiscovery?:                #Oauth2Discovery
+	OnBehalfOfTokenExchangeConfig?: #OnBehalfOfTokenExchangeConfig
+	PrivateEndpoint?:               #PrivateEndpoint
 
 	// The list of private endpoint overrides for the OAuth2 provider. Each override
 	// maps a specific domain to a private endpoint, enabling secure connectivity
 	// through VPC Lattice resource configurations.
-	PrivateEndpointOverrides?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/PrivateEndpointOverride"]
-	PrivateKeyJwtConfig?:      _#defs."/$defs/Properties/definitions/PrivateKeyJwtConfig"
+	PrivateEndpointOverrides?: list.MaxItems(5) & [...#PrivateEndpointOverride]
+	PrivateKeyJwtConfig?:      #PrivateKeyJwtConfig
 })
 
 // Configuration for on-behalf-of token exchange
-_#defs: "/$defs/Properties/definitions/OnBehalfOfTokenExchangeConfig": close({
+#OnBehalfOfTokenExchangeConfig: close({
 	// The grant type for on-behalf-of token exchange
 	GrantType!:                    "TOKEN_EXCHANGE" | "JWT_AUTHORIZATION_GRANT"
-	TokenExchangeGrantTypeConfig?: _#defs."/$defs/Properties/definitions/TokenExchangeGrantTypeConfig"
+	TokenExchangeGrantTypeConfig?: #TokenExchangeGrantTypeConfig
 })
 
 // The private endpoint configuration for connecting to private resources in your VPC
-_#defs: "/$defs/Properties/definitions/PrivateEndpoint": close({
-	ManagedVpcResource?:         _#defs."/$defs/Properties/definitions/ManagedVpcResource"
-	SelfManagedLatticeResource?: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource"
+#PrivateEndpoint: close({
+	ManagedVpcResource?:         #ManagedVpcResource
+	SelfManagedLatticeResource?: #SelfManagedLatticeResource
 })
 
 // A mapping of a specific domain to a private endpoint for secure connectivity
 // through a VPC Lattice resource configuration
-_#defs: "/$defs/Properties/definitions/PrivateEndpointOverride": close({
+#PrivateEndpointOverride: close({
 	// The domain to override with a private endpoint
 	Domain!:          strings.MaxRunes(253) & strings.MinRunes(1)
-	PrivateEndpoint!: _#defs."/$defs/Properties/definitions/PrivateEndpoint"
+	PrivateEndpoint!: #PrivateEndpoint
 })
 
 // Configuration for private_key_jwt client authentication (RFC 7523)
-_#defs: "/$defs/Properties/definitions/PrivateKeyJwtConfig": close({
-	AdditionalHeaderClaims?:  _#defs."/$defs/Properties/definitions/AdditionalClaims"
-	AdditionalPayloadClaims?: _#defs."/$defs/Properties/definitions/AdditionalClaims"
-	PrivateKeySource?:        _#defs."/$defs/Properties/definitions/PrivateKeySource"
+#PrivateKeyJwtConfig: close({
+	AdditionalHeaderClaims?:  #AdditionalClaims
+	AdditionalPayloadClaims?: #AdditionalClaims
+	PrivateKeySource?:        #PrivateKeySource
 
 	// The algorithm used to sign the JWT client assertion
 	SigningAlgorithm?: "RS256" | "PS256" | "ES256"
 })
 
 // Contains the private key source configuration for a JWT client assertion
-_#defs: "/$defs/Properties/definitions/PrivateKeySource": close(
-	{KmsKeySource?: _#defs."/$defs/Properties/definitions/KmsKeySourceType"},
-)
+#PrivateKeySource: close({KmsKeySource?: #KmsKeySourceType})
 
 // Input configuration for a Salesforce OAuth2 provider
-_#defs: "/$defs/Properties/definitions/SalesforceOauth2ProviderConfigInput": close({
+#SalesforceOauth2ProviderConfigInput: close({
 	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1)
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1)
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
+	ClientSecretConfig?: #SecretReference
 	ClientSecretSource?: "MANAGED" | "EXTERNAL"
 })
 
 // A reference to a customer-provided secret stored in AWS Secrets Manager
-_#defs: "/$defs/Properties/definitions/SecretReference": close({
+#SecretReference: close({
 	// The JSON key within the secret that contains the credential value
 	JsonKey!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -322,7 +320,7 @@ _#defs: "/$defs/Properties/definitions/SecretReference": close({
 // Configuration for a self-managed VPC Lattice resource. You create and manage
 // the VPC Lattice resource gateway and resource configuration, then provide
 // the resource configuration identifier.
-_#defs: "/$defs/Properties/definitions/SelfManagedLatticeResource": close({
+#SelfManagedLatticeResource: close({
 	// The ARN or ID of the VPC Lattice resource configuration
 	ResourceConfigurationIdentifier!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -330,25 +328,25 @@ _#defs: "/$defs/Properties/definitions/SelfManagedLatticeResource": close({
 })
 
 // Input configuration for a Slack OAuth2 provider
-_#defs: "/$defs/Properties/definitions/SlackOauth2ProviderConfigInput": close({
+#SlackOauth2ProviderConfigInput: close({
 	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1)
 	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1)
-	ClientSecretConfig?: _#defs."/$defs/Properties/definitions/SecretReference"
+	ClientSecretConfig?: #SecretReference
 	ClientSecretSource?: "MANAGED" | "EXTERNAL"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 })
 
 // A map of tags (key-value pairs) to apply to a resource
-_#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & close({
+#TagsMap: struct.MaxFields(50) & close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})
 
 // Configuration for RFC 8693 Token Exchange
-_#defs: "/$defs/Properties/definitions/TokenExchangeGrantTypeConfig": close({
+#TokenExchangeGrantTypeConfig: close({
 	// The actor token content type
 	ActorTokenContent!: "NONE" | "M2M" | "AWS_IAM_ID_TOKEN_JWT"
 

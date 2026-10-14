@@ -13,40 +13,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource schema represents the NotificationChannel resource in the Amazon DevOps Guru.
-#Properties: close({Config!: _#defs."/$defs/Properties/definitions/NotificationChannelConfig"})
+#Properties: close({Config!: #NotificationChannelConfig})
 
-_#defs: "/$defs/Properties/definitions/InsightSeveritiesFilterList": list.MaxItems(3) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/InsightSeverity"
-] |
-	fn.#ListExpression
+#InsightSeveritiesFilterList: list.MaxItems(3) & list.MinItems(1) & [...#InsightSeverity] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/InsightSeverity": "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
+#InsightSeverity: "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationChannelConfig": close({
-	Filters?: _#defs."/$defs/Properties/definitions/NotificationFilterConfig"
-	Sns?:     _#defs."/$defs/Properties/definitions/SnsChannelConfig"
+#NotificationChannelConfig: close({
+	Filters?: #NotificationFilterConfig
+	Sns?:     #SnsChannelConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationFilterConfig": close({
-	MessageTypes?: _#defs."/$defs/Properties/definitions/NotificationMessageTypesFilterList"
-	Severities?:   _#defs."/$defs/Properties/definitions/InsightSeveritiesFilterList"
+#NotificationFilterConfig: close({
+	MessageTypes?: #NotificationMessageTypesFilterList
+	Severities?:   #InsightSeveritiesFilterList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationMessageType": "NEW_INSIGHT" |
+#NotificationMessageType: "NEW_INSIGHT" |
 	"CLOSED_INSIGHT" |
 	"NEW_ASSOCIATION" |
 	"SEVERITY_UPGRADED" |
 	"NEW_RECOMMENDATION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationMessageTypesFilterList": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/NotificationMessageType"
-] |
+#NotificationMessageTypesFilterList: list.MaxItems(5) & list.MinItems(1) & [...#NotificationMessageType] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SnsChannelConfig": close({
+#SnsChannelConfig: close({
 	TopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(1024) &
 	strings.MinRunes(36) &

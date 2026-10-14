@@ -26,10 +26,10 @@ import (
 	Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$"
 
 	// The policy details of the lifecycle policy.
-	PolicyDetails!: list.MaxItems(3) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/PolicyDetail"]
+	PolicyDetails!: list.MaxItems(3) & list.MinItems(1) & [...#PolicyDetail]
 
 	// The resource selection of the lifecycle policy.
-	ResourceSelection!: _#defs."/$defs/Properties/definitions/ResourceSelection"
+	ResourceSelection!: #ResourceSelection
 
 	// The resource type of the lifecycle policy.
 	ResourceType!: "AMI_IMAGE" | "CONTAINER_IMAGE"
@@ -44,20 +44,20 @@ import (
 })
 
 // The action of the policy detail.
-_#defs: "/$defs/Properties/definitions/Action": close({
-	IncludeResources?: _#defs."/$defs/Properties/definitions/IncludeResources"
+#Action: close({
+	IncludeResources?: #IncludeResources
 
 	// The action type of the policy detail.
 	Type!: "DELETE" | "DEPRECATE" | "DISABLE"
 })
 
 // The AMI exclusion rules for the policy detail.
-_#defs: "/$defs/Properties/definitions/AmiExclusionRules": close({
+#AmiExclusionRules: close({
 	// Use to apply lifecycle policy actions on whether the AMI is public.
 	IsPublic?: bool
 
 	// Use to apply lifecycle policy actions on AMIs launched before a certain time.
-	LastLaunched?: _#defs."/$defs/Properties/definitions/LastLaunched"
+	LastLaunched?: #LastLaunched
 
 	// Use to apply lifecycle policy actions on AMIs distributed to a set of regions.
 	Regions?: [...strings.MaxRunes(1024) & strings.MinRunes(1)]
@@ -72,8 +72,8 @@ _#defs: "/$defs/Properties/definitions/AmiExclusionRules": close({
 })
 
 // The exclusion rules to apply of the policy detail.
-_#defs: "/$defs/Properties/definitions/ExclusionRules": close({
-	Amis?: _#defs."/$defs/Properties/definitions/AmiExclusionRules"
+#ExclusionRules: close({
+	Amis?: #AmiExclusionRules
 
 	// The Image Builder tags to filter on.
 	TagMap?: close({
@@ -82,7 +82,7 @@ _#defs: "/$defs/Properties/definitions/ExclusionRules": close({
 })
 
 // The filters to apply of the policy detail.
-_#defs: "/$defs/Properties/definitions/Filter": close({
+#Filter: close({
 	// The minimum number of Image Builder resources to retain.
 	RetainAtLeast?: int & <=10 & >=1
 
@@ -90,14 +90,14 @@ _#defs: "/$defs/Properties/definitions/Filter": close({
 	Type!: "AGE" | "COUNT"
 
 	// The value's time unit.
-	Unit?: _#defs."/$defs/Properties/definitions/TimeUnit"
+	Unit?: #TimeUnit
 
 	// The filter value.
 	Value!: int & <=1000 & >=1
 })
 
 // The included resources of the policy detail.
-_#defs: "/$defs/Properties/definitions/IncludeResources": close({
+#IncludeResources: close({
 	// Use to configure lifecycle actions on AMIs.
 	Amis?: bool
 
@@ -109,23 +109,23 @@ _#defs: "/$defs/Properties/definitions/IncludeResources": close({
 })
 
 // The last launched time of a resource.
-_#defs: "/$defs/Properties/definitions/LastLaunched": close({
+#LastLaunched: close({
 	// The value's time unit.
-	Unit!: _#defs."/$defs/Properties/definitions/TimeUnit"
+	Unit!: #TimeUnit
 
 	// The last launched value.
 	Value!: int & <=365 & >=1
 })
 
 // The policy detail of the lifecycle policy.
-_#defs: "/$defs/Properties/definitions/PolicyDetail": close({
-	Action!:         _#defs."/$defs/Properties/definitions/Action"
-	ExclusionRules?: _#defs."/$defs/Properties/definitions/ExclusionRules"
-	Filter!:         _#defs."/$defs/Properties/definitions/Filter"
+#PolicyDetail: close({
+	Action!:         #Action
+	ExclusionRules?: #ExclusionRules
+	Filter!:         #Filter
 })
 
 // The recipe to apply the lifecycle policy for.
-_#defs: "/$defs/Properties/definitions/RecipeSelection": close({
+#RecipeSelection: close({
 	// The recipe name.
 	Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$"
 
@@ -134,9 +134,9 @@ _#defs: "/$defs/Properties/definitions/RecipeSelection": close({
 })
 
 // The resource selection for the lifecycle policy.
-_#defs: "/$defs/Properties/definitions/ResourceSelection": close({
+#ResourceSelection: close({
 	// The recipes to select.
-	Recipes?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RecipeSelection"]
+	Recipes?: list.MaxItems(50) & list.MinItems(1) & [...#RecipeSelection]
 
 	// The Image Builder resources to select by tag.
 	TagMap?: close({
@@ -145,4 +145,4 @@ _#defs: "/$defs/Properties/definitions/ResourceSelection": close({
 })
 
 // A time unit.
-_#defs: "/$defs/Properties/definitions/TimeUnit": "DAYS" | "WEEKS" | "MONTHS" | "YEARS"
+#TimeUnit: "DAYS" | "WEEKS" | "MONTHS" | "YEARS"

@@ -3,19 +3,17 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::AppBlockBuilder.
 #Properties: close({
-	AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AccessEndpoint"
-	]
-	AppBlockArns?:                list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Arn"]
-	Arn?:                         _#defs."/$defs/Properties/definitions/Arn"
+	AccessEndpoints?:             list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [...#AccessEndpoint]
+	AppBlockArns?:                list.UniqueItems() & [...#Arn]
+	Arn?:                         #Arn
 	CreatedTime?:                 string
 	Description?:                 strings.MaxRunes(256) & strings.MinRunes(0)
 	DisableIMDSV1?:               bool
@@ -24,26 +22,26 @@ import (
 	IamRoleArn?:                  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	InstanceType!:                strings.MinRunes(1)
 	Name!:                        =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$"
-	Platform!:                    _#defs."/$defs/Properties/definitions/PlatformType"
-	Tags?:                        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcConfig!:                   _#defs."/$defs/Properties/definitions/VpcConfig"
+	Platform!:                    #PlatformType
+	Tags?:                        list.UniqueItems() & [...#Tag]
+	VpcConfig!:                   #VpcConfig
 })
 
-_#defs: "/$defs/Properties/definitions/AccessEndpoint": close({
+#AccessEndpoint: close({
 	EndpointType!: "STREAMING"
 	VpceId!:       strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": string
+#Arn: string
 
-_#defs: "/$defs/Properties/definitions/PlatformType": "WINDOWS_SERVER_2019"
+#PlatformType: "WINDOWS_SERVER_2019"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & strings.MinRunes(1)
 	]

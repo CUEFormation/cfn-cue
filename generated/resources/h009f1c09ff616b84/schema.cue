@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,19 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::AppFlow::Connector
 #Properties: close({
 	ConnectorLabel?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[a-zA-Z0-9][\\w!@#.-]+" | fn.#StringExpression
-	ConnectorProvisioningConfig!: _#defs."/$defs/Properties/definitions/ConnectorProvisioningConfig" |
-		fn.#ObjectExpression
+	ConnectorProvisioningConfig!: #ConnectorProvisioningConfig | fn.#ObjectExpression
 	ConnectorProvisioningType!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9][\\w!@#.-]+" |
 	fn.#StringExpression
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectorProvisioningConfig": close(
-	{Lambda?: _#defs."/$defs/Properties/definitions/LambdaConnectorProvisioningConfig" | fn.#ObjectExpression},
-) |
+#ConnectorProvisioningConfig: close({Lambda?: #LambdaConnectorProvisioningConfig | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaConnectorProvisioningConfig": close({
+#LambdaConnectorProvisioningConfig: close({
 	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(0) &

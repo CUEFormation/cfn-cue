@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,40 +14,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The scanning configuration for a private registry.
 #Properties: close({
-	Rules!:    _#defs."/$defs/Properties/definitions/ScanningRules" | fn.#ListExpression
-	ScanType!: _#defs."/$defs/Properties/definitions/ScanType" | fn.#StringExpression
+	Rules!:    #ScanningRules | fn.#ListExpression
+	ScanType!: #ScanType | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Filter": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-z0-9*](?:[._\\-/a-z0-9*]?[a-z0-9*]+)*$" |
+#Filter: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9*](?:[._\\-/a-z0-9*]?[a-z0-9*]+)*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FilterType": "WILDCARD" | fn.#StringExpression
+#FilterType: "WILDCARD" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RegistryId": =~"^[0-9]{12}$" | fn.#StringExpression
+#RegistryId: =~"^[0-9]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RepositoryFilter": close({
-	Filter!:     _#defs."/$defs/Properties/definitions/Filter" | fn.#StringExpression
-	FilterType!: _#defs."/$defs/Properties/definitions/FilterType" | fn.#StringExpression
+#RepositoryFilter: close({
+	Filter!:     #Filter | fn.#StringExpression
+	FilterType!: #FilterType | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScanFrequency": "SCAN_ON_PUSH" | "CONTINUOUS_SCAN" | fn.#StringExpression
+#ScanFrequency: "SCAN_ON_PUSH" | "CONTINUOUS_SCAN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScanType": "BASIC" | "ENHANCED" | fn.#StringExpression
+#ScanType: "BASIC" | "ENHANCED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScanningRule": close({
-	RepositoryFilters!: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/RepositoryFilter"] |
-		fn.#ListExpression
-	ScanFrequency!: _#defs."/$defs/Properties/definitions/ScanFrequency" | fn.#StringExpression
+#ScanningRule: close({
+	RepositoryFilters!: list.MaxItems(100) & [...] & [...#RepositoryFilter] | fn.#ListExpression
+	ScanFrequency!:     #ScanFrequency | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScanningRules": list.MaxItems(2) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ScanningRule"
-] |
-	fn.#ListExpression
+#ScanningRules: list.MaxItems(2) & [...] & [...#ScanningRule] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ECR::RegistryScanningConfiguration"
 	Properties!: #Properties

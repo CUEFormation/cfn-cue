@@ -16,27 +16,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CertificateArn?:            string | fn.#StringExpression
 	DatabaseName?:              string | fn.#StringExpression
-	DocDbSettings?:             _#defs."/$defs/Properties/definitions/DocDbSettings" | fn.#ObjectExpression
-	DynamoDbSettings?:          _#defs."/$defs/Properties/definitions/DynamoDbSettings" | fn.#ObjectExpression
-	ElasticsearchSettings?:     _#defs."/$defs/Properties/definitions/ElasticsearchSettings" | fn.#ObjectExpression
+	DocDbSettings?:             #DocDbSettings | fn.#ObjectExpression
+	DynamoDbSettings?:          #DynamoDbSettings | fn.#ObjectExpression
+	ElasticsearchSettings?:     #ElasticsearchSettings | fn.#ObjectExpression
 	EndpointIdentifier?:        string | fn.#StringExpression
 	EndpointType!:              string | fn.#StringExpression
 	EngineName!:                string | fn.#StringExpression
 	ExtraConnectionAttributes?: string | fn.#StringExpression
-	GcpMySQLSettings?:          _#defs."/$defs/Properties/definitions/GcpMySQLSettings" | fn.#ObjectExpression
-	IbmDb2Settings?:            _#defs."/$defs/Properties/definitions/IbmDb2Settings" | fn.#ObjectExpression
-	KafkaSettings?:             _#defs."/$defs/Properties/definitions/KafkaSettings" | fn.#ObjectExpression
-	KinesisSettings?:           _#defs."/$defs/Properties/definitions/KinesisSettings" | fn.#ObjectExpression
+	GcpMySQLSettings?:          #GcpMySQLSettings | fn.#ObjectExpression
+	IbmDb2Settings?:            #IbmDb2Settings | fn.#ObjectExpression
+	KafkaSettings?:             #KafkaSettings | fn.#ObjectExpression
+	KinesisSettings?:           #KinesisSettings | fn.#ObjectExpression
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
-	MicrosoftSqlServerSettings?: _#defs."/$defs/Properties/definitions/MicrosoftSqlServerSettings" |
-		fn.#ObjectExpression
-	MongoDbSettings?: _#defs."/$defs/Properties/definitions/MongoDbSettings" | fn.#ObjectExpression
-	MySqlSettings?:   _#defs."/$defs/Properties/definitions/MySqlSettings" | fn.#ObjectExpression
-	NeptuneSettings?: _#defs."/$defs/Properties/definitions/NeptuneSettings" | fn.#ObjectExpression
-	OracleSettings?:  _#defs."/$defs/Properties/definitions/OracleSettings" | fn.#ObjectExpression
-	Password?:        string | fn.#StringExpression
+	MicrosoftSqlServerSettings?: #MicrosoftSqlServerSettings | fn.#ObjectExpression
+	MongoDbSettings?:            #MongoDbSettings | fn.#ObjectExpression
+	MySqlSettings?:              #MySqlSettings | fn.#ObjectExpression
+	NeptuneSettings?:            #NeptuneSettings | fn.#ObjectExpression
+	OracleSettings?:             #OracleSettings | fn.#ObjectExpression
+	Password?:                   string | fn.#StringExpression
 	Port?: int |
 		{
 			string &
@@ -51,19 +50,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	PostgreSqlSettings?: _#defs."/$defs/Properties/definitions/PostgreSqlSettings" | fn.#ObjectExpression
-	RedisSettings?:      _#defs."/$defs/Properties/definitions/RedisSettings" | fn.#ObjectExpression
-	RedshiftSettings?:   _#defs."/$defs/Properties/definitions/RedshiftSettings" | fn.#ObjectExpression
+	PostgreSqlSettings?: #PostgreSqlSettings | fn.#ObjectExpression
+	RedisSettings?:      #RedisSettings | fn.#ObjectExpression
+	RedshiftSettings?:   #RedshiftSettings | fn.#ObjectExpression
 	ResourceIdentifier?: string | fn.#StringExpression
-	S3Settings?:         _#defs."/$defs/Properties/definitions/S3Settings" | fn.#ObjectExpression
+	S3Settings?:         #S3Settings | fn.#ObjectExpression
 	ServerName?:         string | fn.#StringExpression
 	SslMode?:            string | fn.#StringExpression
-	SybaseSettings?:     _#defs."/$defs/Properties/definitions/SybaseSettings" | fn.#ObjectExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	SybaseSettings?:     #SybaseSettings | fn.#ObjectExpression
+	Tags?:               [...#Tag] | fn.#ListExpression
 	Username?:           string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DocDbSettings": close({
+#DocDbSettings: close({
 	DocsToInvestigate?: int |
 		{
 			string &
@@ -86,13 +85,13 @@ _#defs: "/$defs/Properties/definitions/DocDbSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DynamoDbSettings": close({
+#DynamoDbSettings: close({
 	ServiceAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ElasticsearchSettings": close({
+#ElasticsearchSettings: close({
 	EndpointUri?: string | fn.#StringExpression
 	ErrorRetryDuration?: int |
 		{
@@ -127,7 +126,7 @@ _#defs: "/$defs/Properties/definitions/ElasticsearchSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GcpMySQLSettings": close({
+#GcpMySQLSettings: close({
 	AfterConnectScript?: string | fn.#StringExpression
 	CleanSourceMetadataOnMismatch?: bool |
 		"true" |
@@ -204,7 +203,7 @@ _#defs: "/$defs/Properties/definitions/GcpMySQLSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IbmDb2Settings": close({
+#IbmDb2Settings: close({
 	CurrentLsn?:   string | fn.#StringExpression
 	KeepCsvFiles?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LoadTimeout?: int |
@@ -270,7 +269,7 @@ _#defs: "/$defs/Properties/definitions/IbmDb2Settings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KafkaSettings": close({
+#KafkaSettings: close({
 	Broker?:                      string | fn.#StringExpression
 	IncludeControlDetails?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeNullAndEmpty?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -305,7 +304,7 @@ _#defs: "/$defs/Properties/definitions/KafkaSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisSettings": close({
+#KinesisSettings: close({
 	IncludeControlDetails?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeNullAndEmpty?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludePartitionValue?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -320,7 +319,7 @@ _#defs: "/$defs/Properties/definitions/KinesisSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MicrosoftSqlServerSettings": close({
+#MicrosoftSqlServerSettings: close({
 	BcpPacketSize?: int |
 		{
 			string &
@@ -368,7 +367,7 @@ _#defs: "/$defs/Properties/definitions/MicrosoftSqlServerSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MongoDbSettings": close({
+#MongoDbSettings: close({
 	AuthMechanism?:     string | fn.#StringExpression
 	AuthSource?:        string | fn.#StringExpression
 	AuthType?:          string | fn.#StringExpression
@@ -399,7 +398,7 @@ _#defs: "/$defs/Properties/definitions/MongoDbSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MySqlSettings": close({
+#MySqlSettings: close({
 	AfterConnectScript?: string | fn.#StringExpression
 	CleanSourceMetadataOnMismatch?: bool |
 		"true" |
@@ -459,7 +458,7 @@ _#defs: "/$defs/Properties/definitions/MySqlSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NeptuneSettings": close({
+#NeptuneSettings: close({
 	ErrorRetryDuration?: int |
 		{
 			string &
@@ -510,7 +509,7 @@ _#defs: "/$defs/Properties/definitions/NeptuneSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OracleSettings": close({
+#OracleSettings: close({
 	AccessAlternateDirectly?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AddSupplementalLogging?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AdditionalArchivedLogDestId?: int |
@@ -660,7 +659,7 @@ _#defs: "/$defs/Properties/definitions/OracleSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PostgreSqlSettings": close({
+#PostgreSqlSettings: close({
 	AfterConnectScript?:    string | fn.#StringExpression
 	BabelfishDatabaseName?: string | fn.#StringExpression
 	CaptureDdls?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -720,7 +719,7 @@ _#defs: "/$defs/Properties/definitions/PostgreSqlSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedisSettings": close({
+#RedisSettings: close({
 	AuthPassword?: string | fn.#StringExpression
 	AuthType?:     string | fn.#StringExpression
 	AuthUserName?: string | fn.#StringExpression
@@ -749,7 +748,7 @@ _#defs: "/$defs/Properties/definitions/RedisSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftSettings": close({
+#RedshiftSettings: close({
 	AcceptAnyDate?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AfterConnectScript?: string | fn.#StringExpression
 	BucketFolder?:       string | fn.#StringExpression
@@ -846,7 +845,7 @@ _#defs: "/$defs/Properties/definitions/RedshiftSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Settings": close({
+#S3Settings: close({
 	AddColumnName?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AddTrailingPaddingCharacter?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	BucketFolder?:                string | fn.#StringExpression
@@ -997,14 +996,14 @@ _#defs: "/$defs/Properties/definitions/S3Settings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SybaseSettings": close({
+#SybaseSettings: close({
 	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	SecretsManagerSecretId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,36 +18,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::ConnectCampaignsV2::Campaign Resource Type
 #Properties: close({
-	ChannelSubtypeConfig?:        _#defs."/$defs/Properties/definitions/ChannelSubtypeConfig"
-	CommunicationLimitsOverride?: _#defs."/$defs/Properties/definitions/CommunicationLimitsConfig"
-	CommunicationTimeConfig?:     _#defs."/$defs/Properties/definitions/CommunicationTimeConfig"
-	ConnectCampaignFlowArn?:      _#defs."/$defs/Properties/definitions/Arn"
-	ConnectInstanceId!:           _#defs."/$defs/Properties/definitions/InstanceId"
-	EntryLimitsConfig?:           _#defs."/$defs/Properties/definitions/EntryLimitsConfig"
-	Name!:                        _#defs."/$defs/Properties/definitions/CampaignName"
-	Schedule?:                    _#defs."/$defs/Properties/definitions/Schedule"
-	Source?:                      _#defs."/$defs/Properties/definitions/Source"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type?: _#defs."/$defs/Properties/definitions/CampaignType"
+	ChannelSubtypeConfig?:        #ChannelSubtypeConfig
+	CommunicationLimitsOverride?: #CommunicationLimitsConfig
+	CommunicationTimeConfig?:     #CommunicationTimeConfig
+	ConnectCampaignFlowArn?:      #Arn
+	ConnectInstanceId!:           #InstanceId
+	EntryLimitsConfig?:           #EntryLimitsConfig
+	Name!:                        #CampaignName
+	Schedule?:                    #Schedule
+	Source?:                      #Source
+	Tags?:                        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	Type?:                        #CampaignType
 })
 
-_#defs: "/$defs/Properties/definitions/AgentAction": "DISCARD" | fn.#StringExpression
+#AgentAction: "DISCARD" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AgentActions": [..._#defs."/$defs/Properties/definitions/AgentAction"] |
-	fn.#ListExpression
+#AgentActions: [...#AgentAction] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AgentlessConfig": close({}) | fn.#ObjectExpression
+#AgentlessConfig: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnswerMachineDetectionConfig": close({
+#AnswerMachineDetectionConfig: close({
 	AwaitAnswerMachinePrompt?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableAnswerMachineDetection!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(500) & strings.MinRunes(20) & =~"^arn:.*$" |
-fn.#StringExpression
+#Arn: strings.MaxRunes(500) & strings.MinRunes(20) & =~"^arn:.*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BandwidthAllocation": <=1 & >=0 |
+#BandwidthAllocation: <=1 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -68,11 +66,11 @@ _#defs: "/$defs/Properties/definitions/BandwidthAllocation": <=1 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/CampaignName": strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+#CampaignName: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CampaignType": "MANAGED" | "JOURNEY" | fn.#StringExpression
+#CampaignType: "MANAGED" | "JOURNEY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Capacity": <=1 & >=0.01 |
+#Capacity: <=1 & >=0.01 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -93,15 +91,15 @@ _#defs: "/$defs/Properties/definitions/Capacity": <=1 & >=0.01 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ChannelSubtypeConfig": close({
-	Email?:     _#defs."/$defs/Properties/definitions/EmailChannelSubtypeConfig"
-	Sms?:       _#defs."/$defs/Properties/definitions/SmsChannelSubtypeConfig"
-	Telephony?: _#defs."/$defs/Properties/definitions/TelephonyChannelSubtypeConfig"
-	WhatsApp?:  _#defs."/$defs/Properties/definitions/WhatsAppChannelSubtypeConfig"
+#ChannelSubtypeConfig: close({
+	Email?:     #EmailChannelSubtypeConfig
+	Sms?:       #SmsChannelSubtypeConfig
+	Telephony?: #TelephonyChannelSubtypeConfig
+	WhatsApp?:  #WhatsAppChannelSubtypeConfig
 }) & matchN(>=1, [{Telephony!: _}, {Sms!: _}, {Email!: _}, {WhatsApp!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CommunicationLimit": close({
+#CommunicationLimit: close({
 	Frequency!: int & >=1 |
 		{
 			string &
@@ -132,84 +130,63 @@ _#defs: "/$defs/Properties/definitions/CommunicationLimit": close({
 				)
 		} |
 		fn.#NumberExpression
-	Unit!: _#defs."/$defs/Properties/definitions/CommunicationLimitTimeUnit"
+	Unit!: #CommunicationLimitTimeUnit
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CommunicationLimitList": [
-	..._#defs."/$defs/Properties/definitions/CommunicationLimit"
-] |
-	fn.#ListExpression
+#CommunicationLimitList: [...#CommunicationLimit] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CommunicationLimitTimeUnit": "DAY" | fn.#StringExpression
+#CommunicationLimitTimeUnit: "DAY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CommunicationLimits": close(
-	{CommunicationLimitList?: _#defs."/$defs/Properties/definitions/CommunicationLimitList"},
-) |
-	fn.#ObjectExpression
+#CommunicationLimits: close({CommunicationLimitList?: #CommunicationLimitList}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CommunicationLimitsConfig": close({
-	AllChannelsSubtypes?:    _#defs."/$defs/Properties/definitions/CommunicationLimits"
-	InstanceLimitsHandling?: _#defs."/$defs/Properties/definitions/InstanceLimitsHandling"
+#CommunicationLimitsConfig: close({
+	AllChannelsSubtypes?:    #CommunicationLimits
+	InstanceLimitsHandling?: #InstanceLimitsHandling
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CommunicationTimeConfig": close({
-	Email?:               _#defs."/$defs/Properties/definitions/TimeWindow"
-	LocalTimeZoneConfig!: _#defs."/$defs/Properties/definitions/LocalTimeZoneConfig"
-	Sms?:                 _#defs."/$defs/Properties/definitions/TimeWindow"
-	Telephony?:           _#defs."/$defs/Properties/definitions/TimeWindow"
-	WhatsApp?:            _#defs."/$defs/Properties/definitions/TimeWindow"
+#CommunicationTimeConfig: close({
+	Email?:               #TimeWindow
+	LocalTimeZoneConfig!: #LocalTimeZoneConfig
+	Sms?:                 #TimeWindow
+	Telephony?:           #TimeWindow
+	WhatsApp?:            #TimeWindow
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContactFlowId": strings.MaxRunes(500) | fn.#StringExpression
+#ContactFlowId: strings.MaxRunes(500) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DailyHour": close({
-	Key?:   _#defs."/$defs/Properties/definitions/DayOfWeek"
-	Value?: _#defs."/$defs/Properties/definitions/TimeRangeList"
+#DailyHour: close({
+	Key?:   #DayOfWeek
+	Value?: #TimeRangeList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DailyHours": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/DailyHour"
-] |
-	fn.#ListExpression
+#DailyHours: list.UniqueItems() & [...#DailyHour] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/DayOfWeek": "MONDAY" |
-	"TUESDAY" |
-	"WEDNESDAY" |
-	"THURSDAY" |
-	"FRIDAY" |
-	"SATURDAY" |
-	"SUNDAY" |
-	fn.#StringExpression
+#DayOfWeek: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EmailAddress": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[\\w-\\.\\+]+@([\\w-]+\\.)+[\\w-]{2,4}$" |
+#EmailAddress: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\w-\\.\\+]+@([\\w-]+\\.)+[\\w-]{2,4}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EmailChannelSubtypeConfig": close({
-	Capacity?:              _#defs."/$defs/Properties/definitions/Capacity"
-	DefaultOutboundConfig!: _#defs."/$defs/Properties/definitions/EmailOutboundConfig"
-	OutboundMode!:          _#defs."/$defs/Properties/definitions/EmailOutboundMode"
+#EmailChannelSubtypeConfig: close({
+	Capacity?:              #Capacity
+	DefaultOutboundConfig!: #EmailOutboundConfig
+	OutboundMode!:          #EmailOutboundMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EmailOutboundConfig": close({
-	ConnectSourceEmailAddress!:     _#defs."/$defs/Properties/definitions/EmailAddress"
-	SourceEmailAddressDisplayName?: _#defs."/$defs/Properties/definitions/SourceEmailAddressDisplayName"
-	WisdomTemplateArn!:             _#defs."/$defs/Properties/definitions/Arn"
+#EmailOutboundConfig: close({
+	ConnectSourceEmailAddress!:     #EmailAddress
+	SourceEmailAddressDisplayName?: #SourceEmailAddressDisplayName
+	WisdomTemplateArn!:             #Arn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EmailOutboundMode": close(
-	{AgentlessConfig?: _#defs."/$defs/Properties/definitions/AgentlessConfig"},
-) |
-	fn.#ObjectExpression
+#EmailOutboundMode: close({AgentlessConfig?: #AgentlessConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntryLimitsConfig": close({
+#EntryLimitsConfig: close({
 	MaxEntryCount!: int & >=0 |
 		{
 			string &
@@ -225,91 +202,66 @@ _#defs: "/$defs/Properties/definitions/EntryLimitsConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	MinEntryInterval!: _#defs."/$defs/Properties/definitions/Iso8601Duration" | fn.#StringExpression
+	MinEntryInterval!: #Iso8601Duration | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventTrigger": close(
-	{CustomerProfilesDomainArn?: _#defs."/$defs/Properties/definitions/Arn"},
-) |
-	fn.#ObjectExpression
+#EventTrigger: close({CustomerProfilesDomainArn?: #Arn}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceId": strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z0-9_\\-.]*$" |
-fn.#StringExpression
+#InstanceId: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-.]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceLimitsHandling": "OPT_IN" | "OPT_OUT" | fn.#StringExpression
+#InstanceLimitsHandling: "OPT_IN" | "OPT_OUT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Iso8601Date": =~"^\\d{4}-\\d{2}-\\d{2}$" | fn.#StringExpression
+#Iso8601Date: =~"^\\d{4}-\\d{2}-\\d{2}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Iso8601Duration": strings.MaxRunes(50) &
+#Iso8601Duration: strings.MaxRunes(50) &
 strings.MinRunes(0) &
 =~"^P(?:([-+]?[0-9]+)D)?(T(?:([-+]?[0-9]+)H)?(?:([-+]?[0-9]+)M)?(?:([-+]?[0-9]+)(?:[.,]([0-9]{0,9}))?S)?)?$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Iso8601Time": =~"^T\\d{2}:\\d{2}$" | fn.#StringExpression
+#Iso8601Time: =~"^T\\d{2}:\\d{2}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LocalTimeZoneConfig": close({
-	DefaultTimeZone?:             _#defs."/$defs/Properties/definitions/TimeZone"
-	LocalTimeZoneDetection?:      _#defs."/$defs/Properties/definitions/LocalTimeZoneDetection"
-	LocalTimeZoneDetectionScope?: _#defs."/$defs/Properties/definitions/LocalTimeZoneDetectionScope"
+#LocalTimeZoneConfig: close({
+	DefaultTimeZone?:             #TimeZone
+	LocalTimeZoneDetection?:      #LocalTimeZoneDetection
+	LocalTimeZoneDetectionScope?: #LocalTimeZoneDetectionScope
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LocalTimeZoneDetection": [
-	..._#defs."/$defs/Properties/definitions/LocalTimeZoneDetectionType"
-] |
-	fn.#ListExpression
+#LocalTimeZoneDetection: [...#LocalTimeZoneDetectionType] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/LocalTimeZoneDetectionScope": "PRIMARY_ONLY" |
-	"ALL_AVAILABLE" |
-	fn.#StringExpression
+#LocalTimeZoneDetectionScope: "PRIMARY_ONLY" | "ALL_AVAILABLE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LocalTimeZoneDetectionType": "ZIP_CODE" | "AREA_CODE" | fn.#StringExpression
+#LocalTimeZoneDetectionType: "ZIP_CODE" | "AREA_CODE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OpenHours": close(
-	{DailyHours!: _#defs."/$defs/Properties/definitions/DailyHours"},
-) |
-	fn.#ObjectExpression
+#OpenHours: close({DailyHours!: #DailyHours}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredictiveConfig": close(
-	{BandwidthAllocation!: _#defs."/$defs/Properties/definitions/BandwidthAllocation"},
-) |
-	fn.#ObjectExpression
+#PredictiveConfig: close({BandwidthAllocation!: #BandwidthAllocation}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PreviewConfig": close({
-	AgentActions?:        _#defs."/$defs/Properties/definitions/AgentActions"
-	BandwidthAllocation!: _#defs."/$defs/Properties/definitions/BandwidthAllocation"
-	TimeoutConfig!:       _#defs."/$defs/Properties/definitions/TimeoutConfig"
+#PreviewConfig: close({
+	AgentActions?:        #AgentActions
+	BandwidthAllocation!: #BandwidthAllocation
+	TimeoutConfig!:       #TimeoutConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProgressiveConfig": close(
-	{BandwidthAllocation!: _#defs."/$defs/Properties/definitions/BandwidthAllocation"},
-) |
-	fn.#ObjectExpression
+#ProgressiveConfig: close({BandwidthAllocation!: #BandwidthAllocation}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueueId": strings.MaxRunes(500) | fn.#StringExpression
+#QueueId: strings.MaxRunes(500) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RestrictedPeriod": close({
-	EndDate!:   _#defs."/$defs/Properties/definitions/Iso8601Date"
+#RestrictedPeriod: close({
+	EndDate!:   #Iso8601Date
 	Name?:      strings.MaxRunes(127) | fn.#StringExpression
-	StartDate!: _#defs."/$defs/Properties/definitions/Iso8601Date"
+	StartDate!: #Iso8601Date
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RestrictedPeriodList": [
-	..._#defs."/$defs/Properties/definitions/RestrictedPeriod"
-] |
-	fn.#ListExpression
+#RestrictedPeriodList: [...#RestrictedPeriod] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/RestrictedPeriods": close(
-	{RestrictedPeriodList?: _#defs."/$defs/Properties/definitions/RestrictedPeriodList"},
-) & matchN(>=1, [{RestrictedPeriodList!: _}]) |
+#RestrictedPeriods: close({RestrictedPeriodList?: #RestrictedPeriodList}) & matchN(>=1, [{RestrictedPeriodList!: _}]) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RingTimeout": int & <=60 & >=15 |
+#RingTimeout: int & <=60 & >=15 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -326,34 +278,31 @@ _#defs: "/$defs/Properties/definitions/RingTimeout": int & <=60 & >=15 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Schedule": close({
-	EndTime!:          _#defs."/$defs/Properties/definitions/TimeStamp"
-	RefreshFrequency?: _#defs."/$defs/Properties/definitions/Iso8601Duration"
-	StartTime!:        _#defs."/$defs/Properties/definitions/TimeStamp"
+#Schedule: close({
+	EndTime!:          #TimeStamp
+	RefreshFrequency?: #Iso8601Duration
+	StartTime!:        #TimeStamp
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SmsChannelSubtypeConfig": close({
-	Capacity?:              _#defs."/$defs/Properties/definitions/Capacity"
-	DefaultOutboundConfig!: _#defs."/$defs/Properties/definitions/SmsOutboundConfig"
-	OutboundMode!:          _#defs."/$defs/Properties/definitions/SmsOutboundMode"
+#SmsChannelSubtypeConfig: close({
+	Capacity?:              #Capacity
+	DefaultOutboundConfig!: #SmsOutboundConfig
+	OutboundMode!:          #SmsOutboundMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SmsOutboundConfig": close({
-	ConnectSourcePhoneNumberArn!: _#defs."/$defs/Properties/definitions/Arn"
-	WisdomTemplateArn!:           _#defs."/$defs/Properties/definitions/Arn"
+#SmsOutboundConfig: close({
+	ConnectSourcePhoneNumberArn!: #Arn
+	WisdomTemplateArn!:           #Arn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SmsOutboundMode": close(
-	{AgentlessConfig?: _#defs."/$defs/Properties/definitions/AgentlessConfig"},
-) |
-	fn.#ObjectExpression
+#SmsOutboundMode: close({AgentlessConfig?: #AgentlessConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Source": close({
-	CustomerProfilesSegmentArn?: _#defs."/$defs/Properties/definitions/Arn"
-	EventTrigger?:               _#defs."/$defs/Properties/definitions/EventTrigger"
+#Source: close({
+	CustomerProfilesSegmentArn?: #Arn
+	EventTrigger?:               #EventTrigger
 	if CustomerProfilesSegmentArn != _|_ {
 		EventTrigger?: error(
 			"EventTrigger cannot be used with CustomerProfilesSegmentArn; set exactly one of CustomerProfilesSegmentArn, EventTrigger",
@@ -362,38 +311,37 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 }) & matchN(>=1, [{CustomerProfilesSegmentArn!: _}, {EventTrigger!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceEmailAddressDisplayName": strings.MaxRunes(256) & strings.MinRunes(0) |
-fn.#StringExpression
+#SourceEmailAddressDisplayName: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SourcePhoneNumber": strings.MaxRunes(100) | fn.#StringExpression
+#SourcePhoneNumber: strings.MaxRunes(100) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TelephonyChannelSubtypeConfig": close({
-	Capacity?:              _#defs."/$defs/Properties/definitions/Capacity"
-	ConnectQueueId?:        _#defs."/$defs/Properties/definitions/QueueId"
-	DefaultOutboundConfig!: _#defs."/$defs/Properties/definitions/TelephonyOutboundConfig"
-	OutboundMode!:          _#defs."/$defs/Properties/definitions/TelephonyOutboundMode"
+#TelephonyChannelSubtypeConfig: close({
+	Capacity?:              #Capacity
+	ConnectQueueId?:        #QueueId
+	DefaultOutboundConfig!: #TelephonyOutboundConfig
+	OutboundMode!:          #TelephonyOutboundMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TelephonyOutboundConfig": close({
-	AnswerMachineDetectionConfig?: _#defs."/$defs/Properties/definitions/AnswerMachineDetectionConfig"
-	ConnectContactFlowId!:         _#defs."/$defs/Properties/definitions/ContactFlowId"
-	ConnectSourcePhoneNumber?:     _#defs."/$defs/Properties/definitions/SourcePhoneNumber"
-	RingTimeout?:                  _#defs."/$defs/Properties/definitions/RingTimeout"
+#TelephonyOutboundConfig: close({
+	AnswerMachineDetectionConfig?: #AnswerMachineDetectionConfig
+	ConnectContactFlowId!:         #ContactFlowId
+	ConnectSourcePhoneNumber?:     #SourcePhoneNumber
+	RingTimeout?:                  #RingTimeout
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TelephonyOutboundMode": close({
-	AgentlessConfig?:   _#defs."/$defs/Properties/definitions/AgentlessConfig"
-	PredictiveConfig?:  _#defs."/$defs/Properties/definitions/PredictiveConfig"
-	PreviewConfig?:     _#defs."/$defs/Properties/definitions/PreviewConfig"
-	ProgressiveConfig?: _#defs."/$defs/Properties/definitions/ProgressiveConfig"
+#TelephonyOutboundMode: close({
+	AgentlessConfig?:   #AgentlessConfig
+	PredictiveConfig?:  #PredictiveConfig
+	PreviewConfig?:     #PreviewConfig
+	ProgressiveConfig?: #ProgressiveConfig
 	if ProgressiveConfig != _|_ {
 		PredictiveConfig?: error(
 			"PredictiveConfig cannot be used with ProgressiveConfig; set exactly one of ProgressiveConfig, PredictiveConfig, AgentlessConfig, PreviewConfig",
@@ -421,32 +369,30 @@ _#defs: "/$defs/Properties/definitions/TelephonyOutboundMode": close({
 }) & matchN(>=1, [{ProgressiveConfig!: _}, {PredictiveConfig!: _}, {AgentlessConfig!: _}, {PreviewConfig!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeRange": close({
-	EndTime!:   _#defs."/$defs/Properties/definitions/Iso8601Time"
-	StartTime!: _#defs."/$defs/Properties/definitions/Iso8601Time"
+#TimeRange: close({
+	EndTime!:   #Iso8601Time
+	StartTime!: #Iso8601Time
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeRangeList": [..._#defs."/$defs/Properties/definitions/TimeRange"] |
-	fn.#ListExpression
+#TimeRangeList: [...#TimeRange] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TimeStamp": strings.MaxRunes(100) | fn.#StringExpression
+#TimeStamp: strings.MaxRunes(100) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TimeWindow": close({
-	OpenHours!:         _#defs."/$defs/Properties/definitions/OpenHours"
-	RestrictedPeriods?: _#defs."/$defs/Properties/definitions/RestrictedPeriods"
+#TimeWindow: close({
+	OpenHours!:         #OpenHours
+	RestrictedPeriods?: #RestrictedPeriods
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeZone": strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-/]*$" |
-fn.#StringExpression
+#TimeZone: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-/]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TimeoutConfig": {
-	DurationInSeconds?: _#defs."/$defs/Properties/definitions/TimeoutDuration"
+#TimeoutConfig: {
+	DurationInSeconds?: #TimeoutDuration
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeoutDuration": int & <=300 & >=1 |
+#TimeoutDuration: int & <=300 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -463,23 +409,20 @@ _#defs: "/$defs/Properties/definitions/TimeoutDuration": int & <=300 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/WhatsAppChannelSubtypeConfig": close({
-	Capacity?:              _#defs."/$defs/Properties/definitions/Capacity"
-	DefaultOutboundConfig!: _#defs."/$defs/Properties/definitions/WhatsAppOutboundConfig"
-	OutboundMode!:          _#defs."/$defs/Properties/definitions/WhatsAppOutboundMode"
+#WhatsAppChannelSubtypeConfig: close({
+	Capacity?:              #Capacity
+	DefaultOutboundConfig!: #WhatsAppOutboundConfig
+	OutboundMode!:          #WhatsAppOutboundMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WhatsAppOutboundConfig": close({
-	ConnectSourcePhoneNumberArn!: _#defs."/$defs/Properties/definitions/Arn"
-	WisdomTemplateArn!:           _#defs."/$defs/Properties/definitions/Arn"
+#WhatsAppOutboundConfig: close({
+	ConnectSourcePhoneNumberArn!: #Arn
+	WisdomTemplateArn!:           #Arn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WhatsAppOutboundMode": close(
-	{AgentlessConfig?: _#defs."/$defs/Properties/definitions/AgentlessConfig"},
-) |
-	fn.#ObjectExpression
+#WhatsAppOutboundMode: close({AgentlessConfig?: #AgentlessConfig}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ConnectCampaignsV2::Campaign"
 	Properties!: #Properties

@@ -18,7 +18,7 @@ import "strings"
 
 	// A description of the C2C connector.
 	Description?:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\- ]+$"
-	EndpointConfig!: _#defs."/$defs/Properties/definitions/EndpointConfig"
+	EndpointConfig!: #EndpointConfig
 
 	// The type of endpoint used for the cloud connector, which defines how the
 	// connector communicates with external services.
@@ -36,12 +36,10 @@ import "strings"
 
 // The configuration details for the cloud connector endpoint, including
 // connection parameters and authentication requirements.
-_#defs: "/$defs/Properties/definitions/EndpointConfig": close(
-	{Lambda?: _#defs."/$defs/Properties/definitions/LambdaConfig"},
-)
+#EndpointConfig: close({Lambda?: #LambdaConfig})
 
 // Configuration details for an AWS Lambda function used as an endpoint for a cloud connector.
-_#defs: "/$defs/Properties/definitions/LambdaConfig": close({
+#LambdaConfig: close({
 	// The Amazon Resource Name (ARN) of the Lambda function used as an endpoint.
 	Arn!: =~"^(arn:aws:lambda:[0-9a-zA-Z-]+:[0-9]+:function:)?([a-zA-Z0-9-_]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?)$"
 })

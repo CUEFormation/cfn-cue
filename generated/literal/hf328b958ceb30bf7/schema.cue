@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,7 +20,7 @@ import (
 
 	// The status of the connector
 	ConnectorStatus?: string
-	CreatedAt?:       _#defs."/$defs/Properties/definitions/ISO8601DateString"
+	CreatedAt?:       #ISO8601DateString
 
 	// A description of the connector
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*\\S.*"
@@ -32,41 +32,41 @@ import (
 	EnablementStatusReason?: string
 
 	// The list of health issues associated with the connector
-	Issues?: [..._#defs."/$defs/Properties/definitions/HealthIssue"]
+	Issues?: [...#HealthIssue]
 
 	// The ARN of KMS key used for the connector
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~".*\\S.*"
-	LastCheckedAt?: _#defs."/$defs/Properties/definitions/ISO8601DateString"
-	LastUpdatedAt?: _#defs."/$defs/Properties/definitions/ISO8601DateString"
+	LastCheckedAt?: #ISO8601DateString
+	LastUpdatedAt?: #ISO8601DateString
 
 	// The message of the connector status change
 	Message?: string
 
 	// The name of the connector
 	Name!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*"
-	Provider!: _#defs."/$defs/Properties/definitions/Provider"
-	Tags?:     _#defs."/$defs/Properties/definitions/Tags"
+	Provider!: #Provider
+	Tags?:     #Tags
 })
 
 // The authorization status of the connector
-_#defs: "/$defs/Properties/definitions/AuthStatus": "ACTIVE" | "FAILED"
+#AuthStatus: "ACTIVE" | "FAILED"
 
 // The configuration settings required to establish an integration between AWS
 // Security Hub and Azure
-_#defs: "/$defs/Properties/definitions/AzureProviderConfiguration": close({
+#AzureProviderConfiguration: close({
 	// The ARN of the AWS Config connector used for the Azure integration
 	AWSConfigConnectorArn!: string
 
 	// The list of Azure regions to include in the connector scope
 	AzureRegions!:       list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...string]
-	ScopeConfiguration!: _#defs."/$defs/Properties/definitions/AzureScopeConfiguration"
+	ScopeConfiguration!: #AzureScopeConfiguration
 })
 
 // The scope configuration for an Azure connector
-_#defs: "/$defs/Properties/definitions/AzureScopeConfiguration": close({
+#AzureScopeConfiguration: close({
 	// The scope type for the Azure connector
 	ScopeType!: "TENANT" | "SUBSCRIPTION"
 
@@ -75,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/AzureScopeConfiguration": close({
 })
 
 // A health issue associated with the connector
-_#defs: "/$defs/Properties/definitions/HealthIssue": close({
+#HealthIssue: close({
 	// The code identifying the type of health issue
 	Code!: string
 
@@ -84,27 +84,27 @@ _#defs: "/$defs/Properties/definitions/HealthIssue": close({
 })
 
 // The timestamp formatted in ISO8601
-_#defs: "/$defs/Properties/definitions/ISO8601DateString": =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$"
+#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$"
 
 // The initial configuration settings required to establish an integration
 // between Security Hub and Jira Cloud
-_#defs: "/$defs/Properties/definitions/JiraCloudProviderConfiguration": close({
+#JiraCloudProviderConfiguration: close({
 	// The project key for a Jira Cloud instance
 	ProjectKey!: strings.MaxRunes(10) & strings.MinRunes(2)
 })
 
 // The third-party provider configuration for the connector
-_#defs: "/$defs/Properties/definitions/Provider": matchN(1, [close(
-	{JiraCloud!: _#defs."/$defs/Properties/definitions/JiraCloudProviderConfiguration"},
+#Provider: matchN(1, [close(
+	{JiraCloud!: #JiraCloudProviderConfiguration},
 ), close(
-	{ServiceNow!: _#defs."/$defs/Properties/definitions/ServiceNowProviderConfiguration"},
+	{ServiceNow!: #ServiceNowProviderConfiguration},
 ), close(
-	{Azure!: _#defs."/$defs/Properties/definitions/AzureProviderConfiguration"},
+	{Azure!: #AzureProviderConfiguration},
 )])
 
 // The initial configuration settings required to establish an integration
 // between Security Hub and ServiceNow ITSM
-_#defs: "/$defs/Properties/definitions/ServiceNowProviderConfiguration": close({
+#ServiceNowProviderConfiguration: close({
 	// The instance name of ServiceNow ITSM
 	InstanceName!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -114,4 +114,4 @@ _#defs: "/$defs/Properties/definitions/ServiceNowProviderConfiguration": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": {...}
+#Tags: {...}

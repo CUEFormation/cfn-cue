@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -48,7 +48,7 @@ import (
 
 	// The email addresses of contacts to receive notification from Oracle about
 	// maintenance updates for the Exadata infrastructure.
-	CustomerContactsToSendToOCI?: [..._#defs."/$defs/Properties/definitions/CustomerContact"]
+	CustomerContactsToSendToOCI?: [...#CustomerContact]
 
 	// The size of the Exadata infrastructure's data disk group, in terabytes (TB).
 	DataStorageSizeInTBs?: number
@@ -71,7 +71,7 @@ import (
 
 	// The scheduling details for the maintenance window. Patching and system
 	// updates take place during the maintenance window.
-	MaintenanceWindow?: _#defs."/$defs/Properties/definitions/MaintenanceWindow"
+	MaintenanceWindow?: #MaintenanceWindow
 
 	// The total number of CPU cores available on the Exadata infrastructure.
 	MaxCpuCount?: int
@@ -113,7 +113,7 @@ import (
 	StorageServerVersion?: string
 
 	// Tags to assign to the Exadata Infrastructure.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The total amount of storage, in gigabytes (GB), on the the Exadata infrastructure.
 	TotalStorageSizeInGBs?: int
@@ -121,14 +121,14 @@ import (
 
 // A contact to receive notification from Oracle about maintenance updates for a
 // specific Exadata infrastructure.
-_#defs: "/$defs/Properties/definitions/CustomerContact": close({
+#CustomerContact: close({
 	// The email address of the contact.
 	Email?: string
 })
 
 // The scheduling details for the maintenance window. Patching and system
 // updates take place during the maintenance window.
-_#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
+#MaintenanceWindow: close({
 	// The timeout duration for custom actions in minutes.
 	CustomActionTimeoutInMins?: int & <=120 & >=15
 
@@ -173,7 +173,7 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that's 1 to 128 Unicode
 	// characters in length and can't be prefixed with aws:. You can use any of the
 	// following characters: the set of Unicode letters, digits, whitespace, _, .,

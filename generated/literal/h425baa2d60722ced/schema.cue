@@ -14,28 +14,28 @@ package schema
 
 	// The list of inputs currently using this SDI source.
 	Inputs?: [...string]
-	Mode?:   _#defs."/$defs/Properties/definitions/SdiSourceMode"
+	Mode?:   #SdiSourceMode
 
 	// The name of the SdiSource.
 	Name!:  string
-	State?: _#defs."/$defs/Properties/definitions/SdiSourceState"
+	State?: #SdiSourceState
 
 	// A collection of key-value pairs.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tags"]
-	Type!: _#defs."/$defs/Properties/definitions/SdiSourceType"
+	Tags?: [...#Tags]
+	Type!: #SdiSourceType
 })
 
 // The current state of the SdiSource.
-_#defs: "/$defs/Properties/definitions/SdiSourceMode": "QUADRANT" | "INTERLEAVE"
+#SdiSourceMode: "QUADRANT" | "INTERLEAVE"
 
 // The current state of the SdiSource.
-_#defs: "/$defs/Properties/definitions/SdiSourceState": "IDLE" | "IN_USE" | "DELETED"
+#SdiSourceState: "IDLE" | "IN_USE" | "DELETED"
 
 // The interface mode of the SdiSource.
-_#defs: "/$defs/Properties/definitions/SdiSourceType": "SINGLE" | "QUAD"
+#SdiSourceType: "SINGLE" | "QUAD"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string
 	Value?: string
 })

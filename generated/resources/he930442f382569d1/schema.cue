@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,14 +14,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // <p>Represents a resource policy that allows or denies access to an origin endpoint.</p>
 #Properties: close({
-	CdnAuthConfiguration?: _#defs."/$defs/Properties/definitions/CdnAuthConfiguration"
+	CdnAuthConfiguration?: #CdnAuthConfiguration
 	ChannelGroupName!:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	ChannelName!:          strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	OriginEndpointName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	Policy!:               fn.#Object & {...} | strings.MaxRunes(6144) | fn.#StringObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CdnAuthConfiguration": close({
+#CdnAuthConfiguration: close({
 	CdnIdentifierSecretArns!: list.MaxItems(100) & list.MinItems(1) & [
 		...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 	] |

@@ -14,40 +14,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Wisdom::MessageTemplate Resource Type
 #Properties: close({
-	ChannelSubtype!:    _#defs."/$defs/Properties/definitions/ChannelSubtype"
-	Content!:           _#defs."/$defs/Properties/definitions/Content"
-	DefaultAttributes?: _#defs."/$defs/Properties/definitions/MessageTemplateAttributes"
+	ChannelSubtype!:    #ChannelSubtype
+	Content!:           #Content
+	DefaultAttributes?: #MessageTemplateAttributes
 	Description?:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\\\s_.,-]+" | fn.#StringExpression
-	GroupingConfiguration?: _#defs."/$defs/Properties/definitions/GroupingConfiguration"
+	GroupingConfiguration?: #GroupingConfiguration
 	KnowledgeBaseArn!: =~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})?$" |
 		fn.#StringExpression
 	Language?: strings.MaxRunes(5) & strings.MinRunes(2) | fn.#StringExpression
 	MessageTemplateAttachments?: [...close({
-		AttachmentName!: _#defs."/$defs/Properties/definitions/AttachmentName"
-		S3PresignedUrl!: _#defs."/$defs/Properties/definitions/AttachmentUrl"
+		AttachmentName!: #AttachmentName
+		S3PresignedUrl!: #AttachmentUrl
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\\\s_.,-]+" | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AgentAttributes": close({
+#AgentAttributes: close({
 	FirstName?: strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
 	LastName?:  strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AttachmentName": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
+#AttachmentName: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AttachmentUrl": strings.MinRunes(1) | fn.#StringExpression
+#AttachmentUrl: strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ChannelSubtype": "EMAIL" | "SMS" | fn.#StringExpression
+#ChannelSubtype: "EMAIL" | "SMS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Content": close({
-	EmailMessageTemplateContent?: _#defs."/$defs/Properties/definitions/EmailMessageTemplateContent"
-	SmsMessageTemplateContent?:   _#defs."/$defs/Properties/definitions/SmsMessageTemplateContent"
+#Content: close({
+	EmailMessageTemplateContent?: #EmailMessageTemplateContent
+	SmsMessageTemplateContent?:   #SmsMessageTemplateContent
 	if EmailMessageTemplateContent != _|_ {
 		SmsMessageTemplateContent?: error(
 			"SmsMessageTemplateContent cannot be used with EmailMessageTemplateContent; set exactly one of EmailMessageTemplateContent, SmsMessageTemplateContent",
@@ -56,12 +55,12 @@ _#defs: "/$defs/Properties/definitions/Content": close({
 }) & matchN(>=1, [{EmailMessageTemplateContent!: _}, {SmsMessageTemplateContent!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomAttributes": close({
+#CustomAttributes: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomerProfileAttributes": close({
+#CustomerProfileAttributes: close({
 	AccountNumber?:         strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
 	AdditionalInformation?: strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
 	Address1?:              strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
@@ -85,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/CustomerProfileAttributes": close({
 	City?:                  strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
 	Country?:               strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
 	County?:                strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	Custom?:                _#defs."/$defs/Properties/definitions/CustomAttributes"
+	Custom?:                #CustomAttributes
 	EmailAddress?:          strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
 	FirstName?:             strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
 	Gender?:                strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
@@ -123,80 +122,66 @@ _#defs: "/$defs/Properties/definitions/CustomerProfileAttributes": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EmailMessageTemplateContent": close({
-	Body!: _#defs."/$defs/Properties/definitions/EmailMessageTemplateContentBody"
-	Headers!: list.MaxItems(15) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/EmailMessageTemplateHeader"
-	] |
-		fn.#ListExpression
+#EmailMessageTemplateContent: close({
+	Body!:    #EmailMessageTemplateContentBody
+	Headers!: list.MaxItems(15) & list.UniqueItems() & [...] & [...#EmailMessageTemplateHeader] | fn.#ListExpression
 	Subject!: strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EmailMessageTemplateContentBody": close({
-	Html?:      _#defs."/$defs/Properties/definitions/MessageTemplateBodyContentProvider" | fn.#ObjectExpression
-	PlainText?: _#defs."/$defs/Properties/definitions/MessageTemplateBodyContentProvider" | fn.#ObjectExpression
+#EmailMessageTemplateContentBody: close({
+	Html?:      #MessageTemplateBodyContentProvider | fn.#ObjectExpression
+	PlainText?: #MessageTemplateBodyContentProvider | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EmailMessageTemplateHeader": close({
+#EmailMessageTemplateHeader: close({
 	Name?:  strings.MaxRunes(126) & strings.MinRunes(1) & =~"^[!-9;-@A-~]+$" | fn.#StringExpression
 	Value?: strings.MaxRunes(870) & strings.MinRunes(1) & =~"[ -~]*" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GroupingConfiguration": close({
+#GroupingConfiguration: close({
 	Criteria!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Values!:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupingValue"] | fn.#ListExpression
+	Values!:   list.UniqueItems() & [...#GroupingValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GroupingValue": strings.MaxRunes(2048) & strings.MinRunes(1) |
-fn.#StringExpression
+#GroupingValue: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MessageTemplateAttachment": close({
+#MessageTemplateAttachment: close({
 	AttachmentId?:   strings.MinRunes(1) | fn.#StringExpression
-	AttachmentName!: _#defs."/$defs/Properties/definitions/AttachmentName"
-	S3PresignedUrl!: _#defs."/$defs/Properties/definitions/AttachmentUrl"
+	AttachmentName!: #AttachmentName
+	S3PresignedUrl!: #AttachmentUrl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MessageTemplateAttributes": close({
-	AgentAttributes?:           _#defs."/$defs/Properties/definitions/AgentAttributes"
-	CustomAttributes?:          _#defs."/$defs/Properties/definitions/CustomAttributes"
-	CustomerProfileAttributes?: _#defs."/$defs/Properties/definitions/CustomerProfileAttributes"
-	SystemAttributes?:          _#defs."/$defs/Properties/definitions/SystemAttributes"
+#MessageTemplateAttributes: close({
+	AgentAttributes?:           #AgentAttributes
+	CustomAttributes?:          #CustomAttributes
+	CustomerProfileAttributes?: #CustomerProfileAttributes
+	SystemAttributes?:          #SystemAttributes
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MessageTemplateBodyContentProvider": close(
-	{Content?: strings.MinRunes(1) | fn.#StringExpression},
-) |
+#MessageTemplateBodyContentProvider: close({Content?: strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SmsMessageTemplateContent": close(
-	{Body!: _#defs."/$defs/Properties/definitions/SmsMessageTemplateContentBody"},
-) |
-	fn.#ObjectExpression
+#SmsMessageTemplateContent: close({Body!: #SmsMessageTemplateContentBody}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SmsMessageTemplateContentBody": close(
-	{PlainText?: _#defs."/$defs/Properties/definitions/MessageTemplateBodyContentProvider"},
-) |
-	fn.#ObjectExpression
+#SmsMessageTemplateContentBody: close({PlainText?: #MessageTemplateBodyContentProvider}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SystemAttributes": close({
-	CustomerEndpoint?: _#defs."/$defs/Properties/definitions/SystemEndpointAttributes" | fn.#ObjectExpression
+#SystemAttributes: close({
+	CustomerEndpoint?: #SystemEndpointAttributes | fn.#ObjectExpression
 	Name?:             strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	SystemEndpoint?:   _#defs."/$defs/Properties/definitions/SystemEndpointAttributes" | fn.#ObjectExpression
+	SystemEndpoint?:   #SystemEndpointAttributes | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SystemEndpointAttributes": close(
-	{Address?: strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#SystemEndpointAttributes: close({Address?: strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,31 +15,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::Route53GlobalResolver::FirewallDomainList
 #Properties: close({
 	ClientToken?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:      _#defs."/$defs/Properties/definitions/ResourceDescription"
+	Description?:      #ResourceDescription
 	DomainFileUrl?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Domains?:          _#defs."/$defs/Properties/definitions/Domains"
+	Domains?:          #Domains
 	GlobalResolverId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-	Name!:             _#defs."/$defs/Properties/definitions/ResourceName"
-	Tags?:             list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Name!:             #ResourceName
+	Tags?:             list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CRResourceStatus": "CREATING" |
-	"OPERATIONAL" |
-	"UPDATING" |
-	"DELETING" |
-	fn.#StringExpression
+#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Domains": list.UniqueItems() & [
-	...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-] |
+#Domains: list.UniqueItems() & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceDescription": strings.MaxRunes(256) & strings.MinRunes(1) |
-fn.#StringExpression
+#ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

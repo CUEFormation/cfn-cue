@@ -20,14 +20,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PayerResponsibility?:         string | fn.#StringExpression
 	PrivateDnsName?:              string | fn.#StringExpression
 	PrivateDnsNameConfiguration?: close({}) | fn.#ObjectExpression
-	SupportedIpAddressTypes?:     [..._#defs."/$defs/Properties/definitions/IpAddressType"] | fn.#ListExpression
+	SupportedIpAddressTypes?:     [...#IpAddressType] | fn.#ListExpression
 	SupportedRegions?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                        [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IpAddressType": "ipv4" | "ipv6" | fn.#StringExpression
+#IpAddressType: "ipv4" | "ipv6" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateDnsNameConfiguration": close({
+#PrivateDnsNameConfiguration: close({
 	Name?:  string | fn.#StringExpression
 	State?: string | fn.#StringExpression
 	Type?:  string | fn.#StringExpression
@@ -35,7 +35,7 @@ _#defs: "/$defs/Properties/definitions/PrivateDnsNameConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

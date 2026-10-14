@@ -8,7 +8,7 @@ import "strings"
 
 // Resource Type definition for AWS::GuardDuty::PublishingDestination.
 #Properties: close({
-	DestinationProperties!: _#defs."/$defs/Properties/definitions/CFNDestinationProperties"
+	DestinationProperties!: #CFNDestinationProperties
 
 	// The type of resource for the publishing destination. Currently only Amazon S3
 	// buckets are supported.
@@ -26,10 +26,10 @@ import "strings"
 
 	// The status of the publishing destination.
 	Status?: string
-	Tags?:   [..._#defs."/$defs/Properties/definitions/TagItem"]
+	Tags?:   [...#TagItem]
 })
 
-_#defs: "/$defs/Properties/definitions/CFNDestinationProperties": close({
+#CFNDestinationProperties: close({
 	// The ARN of the resource to publish to.
 	DestinationArn?: string
 
@@ -37,7 +37,7 @@ _#defs: "/$defs/Properties/definitions/CFNDestinationProperties": close({
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/TagItem": close({
+#TagItem: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

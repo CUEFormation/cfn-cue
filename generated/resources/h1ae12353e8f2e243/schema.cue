@@ -15,18 +15,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::ApiGatewayV2::ApiGatewayManagedOverrides
 #Properties: close({
 	ApiId!:       string | fn.#StringExpression
-	Integration?: _#defs."/$defs/Properties/definitions/IntegrationOverrides" | fn.#ObjectExpression
-	Route?:       _#defs."/$defs/Properties/definitions/RouteOverrides" | fn.#ObjectExpression
-	Stage?:       _#defs."/$defs/Properties/definitions/StageOverrides" | fn.#ObjectExpression
+	Integration?: #IntegrationOverrides | fn.#ObjectExpression
+	Route?:       #RouteOverrides | fn.#ObjectExpression
+	Stage?:       #StageOverrides | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessLogSettings": close({
+#AccessLogSettings: close({
 	DestinationArn?: string | fn.#StringExpression
 	Format?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntegrationOverrides": close({
+#IntegrationOverrides: close({
 	Description?:          string | fn.#StringExpression
 	IntegrationMethod?:    string | fn.#StringExpression
 	PayloadFormatVersion?: string | fn.#StringExpression
@@ -47,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/IntegrationOverrides": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RouteOverrides": close({
+#RouteOverrides: close({
 	AuthorizationScopes?: [...string | fn.#StringExpression] | fn.#ListExpression
 	AuthorizationType?:   string | fn.#StringExpression
 	AuthorizerId?:        string | fn.#StringExpression
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/RouteOverrides": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RouteSettings": close({
+#RouteSettings: close({
 	DetailedMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ThrottlingBurstLimit?: int |
 		{
@@ -94,10 +94,10 @@ _#defs: "/$defs/Properties/definitions/RouteSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StageOverrides": close({
-	AccessLogSettings?:    _#defs."/$defs/Properties/definitions/AccessLogSettings" | fn.#ObjectExpression
+#StageOverrides: close({
+	AccessLogSettings?:    #AccessLogSettings | fn.#ObjectExpression
 	AutoDeploy?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DefaultRouteSettings?: _#defs."/$defs/Properties/definitions/RouteSettings" | fn.#ObjectExpression
+	DefaultRouteSettings?: #RouteSettings | fn.#ObjectExpression
 	Description?:          string | fn.#StringExpression
 	RouteSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
 	StageVariables?:       fn.#Object & {...} | string | fn.#StringObjectExpression

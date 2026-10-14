@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -22,22 +22,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	FunctionName!: string | fn.#StringExpression
 	FunctionVersion!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(\\$LATEST(\\.PUBLISHED)?|[0-9]*)$" |
 	fn.#StringExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ProvisionedConcurrencyConfig?: _#defs."/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration" |
-		fn.#ObjectExpression
-	RoutingConfig?: _#defs."/$defs/Properties/definitions/AliasRoutingConfiguration" | fn.#ObjectExpression
+	Name!:                         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration | fn.#ObjectExpression
+	RoutingConfig?:                #AliasRoutingConfiguration | fn.#ObjectExpression
 	if ProvisionedConcurrencyConfig != _|_ {
 		RoutingConfig?: error("RoutingConfig cannot be used with ProvisionedConcurrencyConfig")
 	}
 })
 
-_#defs: "/$defs/Properties/definitions/AliasRoutingConfiguration": close({
-	AdditionalVersionWeights?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VersionWeight"] |
-		fn.#ListExpression
-}) |
+#AliasRoutingConfiguration: close(
+	{AdditionalVersionWeights?: list.UniqueItems() & [...#VersionWeight] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration": close({
+#ProvisionedConcurrencyConfiguration: close({
 	ProvisionedConcurrentExecutions!: int |
 		{
 			string &
@@ -55,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration": clo
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VersionWeight": close({
+#VersionWeight: close({
 	FunctionVersion!: string | fn.#StringExpression
 	FunctionWeight!: number |
 		{

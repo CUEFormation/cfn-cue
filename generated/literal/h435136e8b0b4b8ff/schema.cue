@@ -12,28 +12,28 @@ import "time"
 	AgentSpaceId!: string
 
 	// Collection of assets to be tested or used during the penetration test
-	Assets!: _#defs."/$defs/Properties/definitions/Assets"
+	Assets!: #Assets
 
 	// Strategy for cleaning up resources after pentest job completion
-	CleanUpStrategy?: _#defs."/$defs/Properties/definitions/CleanUpStrategy"
+	CleanUpStrategy?: #CleanUpStrategy
 
 	// Strategy for code remediation on findings
-	CodeRemediationStrategy?: _#defs."/$defs/Properties/definitions/CodeRemediationStrategy"
+	CodeRemediationStrategy?: #CodeRemediationStrategy
 
 	// Timestamp when the pentest was created
 	CreatedAt?: time.Time
 
 	// A list of managed skills to disable for this pentest
-	DisableManagedSkills?: [..._#defs."/$defs/Properties/definitions/SkillType"]
+	DisableManagedSkills?: [...#SkillType]
 
 	// A list of risk types excluded from the pentest execution
-	ExcludeRiskTypes?: [..._#defs."/$defs/Properties/definitions/RiskType"]
+	ExcludeRiskTypes?: [...#RiskType]
 
 	// CloudWatch logs config
-	LogConfig?: _#defs."/$defs/Properties/definitions/CloudWatchLog"
+	LogConfig?: #CloudWatchLog
 
 	// Configuration for network traffic filtering
-	NetworkTrafficConfig?: _#defs."/$defs/Properties/definitions/NetworkTrafficConfig"
+	NetworkTrafficConfig?: #NetworkTrafficConfig
 
 	// Unique identifier of the pentest
 	PentestId?: string
@@ -48,13 +48,13 @@ import "time"
 	UpdatedAt?: time.Time
 
 	// VPC configuration that the security testing environment accesses
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
+	VpcConfig?: #VpcConfig
 })
 
 // An authenticated actor to be used during pentest execution
-_#defs: "/$defs/Properties/definitions/Actor": close({
+#Actor: close({
 	// Authentication credentials for this actor
-	Authentication?: _#defs."/$defs/Properties/definitions/Authentication"
+	Authentication?: #Authentication
 
 	// Description of the actor
 	Description?: string
@@ -73,30 +73,30 @@ _#defs: "/$defs/Properties/definitions/Actor": close({
 })
 
 // Collection of assets to be tested during the pentest
-_#defs: "/$defs/Properties/definitions/Assets": close({
+#Assets: close({
 	// List of actors used during testing
-	Actors?: [..._#defs."/$defs/Properties/definitions/Actor"]
+	Actors?: [...#Actor]
 
 	// List of documents providing additional context for the pentest
-	Documents?: [..._#defs."/$defs/Properties/definitions/DocumentInfo"]
+	Documents?: [...#DocumentInfo]
 
 	// List of endpoints to test
-	Endpoints?: [..._#defs."/$defs/Properties/definitions/Endpoint"]
+	Endpoints?: [...#Endpoint]
 
 	// List of repositories connected via provider integrations
-	IntegratedRepositories?: [..._#defs."/$defs/Properties/definitions/IntegratedRepository"]
+	IntegratedRepositories?: [...#IntegratedRepository]
 
 	// List of source code repositories to analyze
-	SourceCode?: [..._#defs."/$defs/Properties/definitions/SourceCodeRepository"]
+	SourceCode?: [...#SourceCodeRepository]
 
 	// Trust anchors for validating target endpoint TLS certificates, for endpoints
 	// served by a private or internal CA, an intermediate CA, or a self-signed
 	// certificate
-	TrustedCaCertificates?: [..._#defs."/$defs/Properties/definitions/TrustedCaCertificate"]
+	TrustedCaCertificates?: [...#TrustedCaCertificate]
 })
 
 // Authentication configuration for a pentest actor
-_#defs: "/$defs/Properties/definitions/Authentication": close({
+#Authentication: close({
 	// Type of authentication provider
 	ProviderType?: "SECRETS_MANAGER" | "AWS_LAMBDA" | "AWS_IAM_ROLE" | "AWS_INTERNAL"
 
@@ -105,7 +105,7 @@ _#defs: "/$defs/Properties/definitions/Authentication": close({
 })
 
 // Source of a trusted CA certificate. Exactly one member must be set.
-_#defs: "/$defs/Properties/definitions/CaCertificateSource": close({
+#CaCertificateSource: close({
 	// Artifact ID of an uploaded certificate file
 	ArtifactId?: string
 
@@ -130,10 +130,10 @@ _#defs: "/$defs/Properties/definitions/CaCertificateSource": close({
 }) & matchN(>=1, [{InlinePem!: _}, {ArtifactId!: _}, {S3Location!: _}])
 
 // Strategy for cleaning up resources after pentest job completion
-_#defs: "/$defs/Properties/definitions/CleanUpStrategy": "BEST_EFFORT_DELETE" | "RETAIN_ALL"
+#CleanUpStrategy: "BEST_EFFORT_DELETE" | "RETAIN_ALL"
 
 // CloudWatch Logs configuration for pentest output
-_#defs: "/$defs/Properties/definitions/CloudWatchLog": close({
+#CloudWatchLog: close({
 	// CloudWatch log group
 	LogGroup?: string
 
@@ -142,10 +142,10 @@ _#defs: "/$defs/Properties/definitions/CloudWatchLog": close({
 })
 
 // Strategy for remediating code vulnerabilities discovered during the pentest
-_#defs: "/$defs/Properties/definitions/CodeRemediationStrategy": "AUTOMATIC" | "DISABLED"
+#CodeRemediationStrategy: "AUTOMATIC" | "DISABLED"
 
 // A custom header to include in outbound requests
-_#defs: "/$defs/Properties/definitions/CustomHeader": close({
+#CustomHeader: close({
 	// Name of the header
 	Name?: string
 
@@ -154,7 +154,7 @@ _#defs: "/$defs/Properties/definitions/CustomHeader": close({
 })
 
 // A document attached to the pentest, uploaded to S3
-_#defs: "/$defs/Properties/definitions/DocumentInfo": close({
+#DocumentInfo: close({
 	// Artifact identifier
 	ArtifactId?: string
 
@@ -163,13 +163,13 @@ _#defs: "/$defs/Properties/definitions/DocumentInfo": close({
 })
 
 // An endpoint to be tested during the pentest
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	// URI of the endpoint to test
 	Uri?: string
 })
 
 // A repository connected via a provider integration
-_#defs: "/$defs/Properties/definitions/IntegratedRepository": close({
+#IntegratedRepository: close({
 	// An optional override for the repository branch
 	Branch?: string
 
@@ -181,16 +181,16 @@ _#defs: "/$defs/Properties/definitions/IntegratedRepository": close({
 })
 
 // Network traffic configuration for the pentest
-_#defs: "/$defs/Properties/definitions/NetworkTrafficConfig": close({
+#NetworkTrafficConfig: close({
 	// Custom headers to include in outbound requests
-	CustomHeaders?: [..._#defs."/$defs/Properties/definitions/CustomHeader"]
+	CustomHeaders?: [...#CustomHeader]
 
 	// Ordered list of network traffic rules
-	Rules?: [..._#defs."/$defs/Properties/definitions/NetworkTrafficRule"]
+	Rules?: [...#NetworkTrafficRule]
 })
 
 // Network traffic rule
-_#defs: "/$defs/Properties/definitions/NetworkTrafficRule": close({
+#NetworkTrafficRule: close({
 	// Whether to allow or deny traffic matching this rule
 	Effect?: "ALLOW" | "DENY"
 
@@ -202,7 +202,7 @@ _#defs: "/$defs/Properties/definitions/NetworkTrafficRule": close({
 })
 
 // Type of security risk to test for
-_#defs: "/$defs/Properties/definitions/RiskType": "CROSS_SITE_SCRIPTING" |
+#RiskType: "CROSS_SITE_SCRIPTING" |
 	"DEFAULT_CREDENTIALS" |
 	"INSECURE_DIRECT_OBJECT_REFERENCE" |
 	"PRIVILEGE_ESCALATION" |
@@ -232,22 +232,22 @@ _#defs: "/$defs/Properties/definitions/RiskType": "CROSS_SITE_SCRIPTING" |
 	"UNKNOWN"
 
 // Type of managed skill that can be disabled for a pentest
-_#defs: "/$defs/Properties/definitions/SkillType": "FINDING_PERSONALIZATION" | "LOGIN_OPTIMIZATION"
+#SkillType: "FINDING_PERSONALIZATION" | "LOGIN_OPTIMIZATION"
 
 // A source code archive stored in S3 for analysis during the pentest
-_#defs: "/$defs/Properties/definitions/SourceCodeRepository": close({
+#SourceCodeRepository: close({
 	// S3 source code location
 	S3Location?: string
 })
 
 // Trust anchor used when validating a target endpoint's TLS certificate
-_#defs: "/$defs/Properties/definitions/TrustedCaCertificate": close({
+#TrustedCaCertificate: close({
 	// Where to read the certificate from
-	Source!: _#defs."/$defs/Properties/definitions/CaCertificateSource"
+	Source!: #CaCertificateSource
 })
 
 // VPC configuration that the pentest agent accesses
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	// List of security groups in the VPC
 	SecurityGroupArns?: [...string]
 

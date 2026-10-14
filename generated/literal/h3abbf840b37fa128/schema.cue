@@ -7,7 +7,7 @@ package schema
 // Macie FindingsFilter resource schema.
 #Properties: close({
 	// Findings filter action.
-	Action?: _#defs."/$defs/Properties/definitions/FindingFilterAction"
+	Action?: #FindingFilterAction
 
 	// Findings filter ARN.
 	Arn?: string
@@ -16,7 +16,7 @@ package schema
 	Description?: string
 
 	// Findings filter criteria.
-	FindingCriteria!: _#defs."/$defs/Properties/definitions/FindingCriteria"
+	FindingCriteria!: #FindingCriteria
 
 	// Findings filter ID.
 	Id?: string
@@ -28,15 +28,15 @@ package schema
 	Position?: int
 
 	// A collection of tags associated with a resource
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // Map of filter criteria.
-_#defs: "/$defs/Properties/definitions/Criterion": close({
+#Criterion: close({
 
-	{[=~"\\w"]: _#defs."/$defs/Properties/definitions/CriterionAdditionalProperties"}})
+	{[=~"\\w"]: #CriterionAdditionalProperties}})
 
-_#defs: "/$defs/Properties/definitions/CriterionAdditionalProperties": close({
+#CriterionAdditionalProperties: close({
 	eq?:  [...string]
 	gt?:  int
 	gte?: int
@@ -45,21 +45,19 @@ _#defs: "/$defs/Properties/definitions/CriterionAdditionalProperties": close({
 	neq?: [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/FindingCriteria": close(
-	{Criterion?: _#defs."/$defs/Properties/definitions/Criterion"},
-)
+#FindingCriteria: close({Criterion?: #Criterion})
 
-_#defs: "/$defs/Properties/definitions/FindingFilterAction": "ARCHIVE" | "NOOP"
+#FindingFilterAction: "ARCHIVE" | "NOOP"
 
 // Returned by ListHandler representing filter name and ID.
-_#defs: "/$defs/Properties/definitions/FindingsFilterListItem": {
+#FindingsFilterListItem: {
 	Id?:   string
 	Name?: string
 	...
 }
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: string
 

@@ -39,7 +39,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 	ResponseParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: _#defs."/$defs/Properties/definitions/ResponseParameterMap"}}) |
+		{[=~"[a-zA-Z0-9]+"]: #ResponseParameterMap}}) |
 	fn.#ObjectExpression
 	TemplateSelectionExpression?: string | fn.#StringExpression
 	TimeoutInMillis?: int |
@@ -56,33 +56,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	TlsConfig?: _#defs."/$defs/Properties/definitions/TlsConfig" | fn.#ObjectExpression
+	TlsConfig?: #TlsConfig | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ResponseParameter": close({
+#ResponseParameter: close({
 	Destination?: string | fn.#StringExpression
 	Source?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseParameterList": [
-	..._#defs."/$defs/Properties/definitions/ResponseParameter"
-] |
-	fn.#ListExpression
+#ResponseParameterList: [...#ResponseParameter] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseParameterMap": close(
-	{ResponseParameters?: _#defs."/$defs/Properties/definitions/ResponseParameterList"},
-) |
-	fn.#ObjectExpression
+#ResponseParameterMap: close({ResponseParameters?: #ResponseParameterList}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TlsConfig": close({ServerNameToVerify?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#TlsConfig: close({ServerNameToVerify?: string | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ApiGatewayV2::Integration"
 	Properties!: #Properties

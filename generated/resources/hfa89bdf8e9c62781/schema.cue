@@ -25,18 +25,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	InputArtifacts?: struct.MaxFields(60) & close({
 
-		{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TrialComponentArtifact"}}) |
+		{[=~".{1,128}"]: #TrialComponentArtifact}}) |
 	fn.#ObjectExpression
-	MetadataProperties?: _#defs."/$defs/Properties/definitions/MetadataProperties"
+	MetadataProperties?: #MetadataProperties
 	OutputArtifacts?: struct.MaxFields(60) & close({
 
-		{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TrialComponentArtifact"}}) |
+		{[=~".{1,128}"]: #TrialComponentArtifact}}) |
 	fn.#ObjectExpression
 	Parameters?: struct.MaxFields(300) & close({
 
-		{[=~".{1,320}"]: _#defs."/$defs/Properties/definitions/TrialComponentParameterValue"}}) |
+		{[=~".{1,320}"]: #TrialComponentParameterValue}}) |
 	fn.#ObjectExpression
-	Status?: _#defs."/$defs/Properties/definitions/TrialComponentStatus"
+	Status?: #TrialComponentStatus
 	Tags?: list.MaxItems(50) & [...] & [...close({
 		Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
 		fn.#StringExpression
@@ -49,7 +49,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/MetadataProperties": close({
+#MetadataProperties: close({
 	CommitId?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	GeneratedBy?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	ProjectId?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
@@ -57,13 +57,13 @@ _#defs: "/$defs/Properties/definitions/MetadataProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrialComponentArtifact": close({
+#TrialComponentArtifact: close({
 	MediaType?: strings.MaxRunes(64) & =~"^[-\\w]+\\/[-\\w+]+$" | fn.#StringExpression
 	Value!:     strings.MaxRunes(2048) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrialComponentParameterValue": close({
+#TrialComponentParameterValue: close({
 	NumberValue?: number |
 		{
 			string &
@@ -87,7 +87,7 @@ _#defs: "/$defs/Properties/definitions/TrialComponentParameterValue": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrialComponentStatus": close({
+#TrialComponentStatus: close({
 	Message?:       strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	PrimaryStatus?: "InProgress" | "Completed" | "Failed" | "Stopping" | "Stopped" | fn.#StringExpression
 }) |

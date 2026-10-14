@@ -83,9 +83,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	ScheduledQueryConfiguration!: _#defs."/$defs/Properties/definitions/ScheduledQueryConfiguration" |
-		fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ScheduledQueryConfiguration!: #ScheduledQueryConfiguration | fn.#ObjectExpression
+	Tags?:                        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	Threshold!: number |
 		{
 			string &
@@ -106,10 +105,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	TreatMissingData?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	WarmUpConfiguration?: _#defs."/$defs/Properties/definitions/WarmUpConfiguration" | fn.#ObjectExpression
+	WarmUpConfiguration?: #WarmUpConfiguration | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close({
+#ScheduleConfiguration: close({
 	EndTimeOffset?: int & <=2592000 & >=0 |
 		{
 			string &
@@ -146,27 +145,27 @@ _#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduledQueryConfiguration": close({
+#ScheduledQueryConfiguration: close({
 	AggregationExpression!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	LogGroupIdentifiers?: list.MaxItems(50) & list.MinItems(1) & [
 		...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	] |
 	fn.#ListExpression
 	QueryString!:           strings.MaxRunes(10000) & strings.MinRunes(0) | fn.#StringExpression
-	ScheduleConfiguration!: _#defs."/$defs/Properties/definitions/ScheduleConfiguration" | fn.#ObjectExpression
+	ScheduleConfiguration!: #ScheduleConfiguration | fn.#ObjectExpression
 	ScheduledQueryRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WarmUpConfiguration": close({
+#WarmUpConfiguration: close({
 	OnlyStartEvaluatingAfterWarmUpPeriodEnds?: bool |
 		"true" |
 		"True" |

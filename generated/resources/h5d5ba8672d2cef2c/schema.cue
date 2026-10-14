@@ -14,13 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Schema for AWS::ServiceCatalog::ServiceAction
 #Properties: close({
 	AcceptLanguage?: ("en" | "jp" | "zh") & (strings.MaxRunes(100) & strings.MinRunes(0)) | fn.#StringExpression
-	Definition!:     [..._#defs."/$defs/Properties/definitions/DefinitionParameter"] | fn.#ListExpression
+	Definition!:     [...#DefinitionParameter] | fn.#ListExpression
 	DefinitionType!: "SSM_AUTOMATION" | fn.#StringExpression
 	Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-.]*$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DefinitionParameter": close({
+#DefinitionParameter: close({
 	Key!:   strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(4096) | fn.#StringExpression
 }) |

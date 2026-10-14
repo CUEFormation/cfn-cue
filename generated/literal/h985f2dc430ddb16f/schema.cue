@@ -10,18 +10,18 @@ import "strings"
 #Properties: close({
 	CreatedAt?:               string
 	HostedZoneAssociationId?: strings.MaxRunes(64) & strings.MinRunes(1)
-	HostedZoneId!:            _#defs."/$defs/Properties/definitions/HostedZoneId"
+	HostedZoneId!:            #HostedZoneId
 	HostedZoneName?:          strings.MaxRunes(1024) & strings.MinRunes(1)
-	Name!:                    _#defs."/$defs/Properties/definitions/ResourceName"
-	ResourceArn!:             _#defs."/$defs/Properties/definitions/ResourceArn"
-	Status?:                  _#defs."/$defs/Properties/definitions/HostedZoneAssociationStatus"
+	Name!:                    #ResourceName
+	ResourceArn!:             #ResourceArn
+	Status?:                  #HostedZoneAssociationStatus
 	UpdatedAt?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/HostedZoneAssociationStatus": "CREATING" | "OPERATIONAL" | "DELETING"
+#HostedZoneAssociationStatus: "CREATING" | "OPERATIONAL" | "DELETING"
 
-_#defs: "/$defs/Properties/definitions/HostedZoneId": strings.MaxRunes(32) & strings.MinRunes(1)
+#HostedZoneId: strings.MaxRunes(32) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(2048) & strings.MinRunes(1)
+#ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(64) & strings.MinRunes(1)
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1)

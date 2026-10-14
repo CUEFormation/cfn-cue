@@ -114,6 +114,35 @@ func TestRegionalGenerationAndValidation(t *testing.T) {
 	literal := build(t, out, "./literal/htest").LookupPath(cue.MakePath(cue.Def("Properties")))
 	validate(t, literal, `{Name:"one",Status:"available",Node:{State:"readable"}}`, true)
 	validate(t, literal, `{Name:{Ref:"P"}}`, false)
+	// Provider definitions are package-level definitions other packages can
+	// use. Read-only removal applies to property paths, so #Node keeps State.
+	node := build(t, out, "./resources/htest").LookupPath(cue.MakePath(cue.Def("Node")))
+	validate(t, node, `{Label:"a",Children:[{Label:{Ref:"P"}}]}`, true)
+	validate(t, node, `{Label:"a",Other:"x"}`, false)
+}
+
+// TestDefinitionNames checks that provider definitions named like the
+// generated #Properties and #Resource stay nested instead of replacing them.
+func TestDefinitionNames(t *testing.T) {
+	root := `{"typeName":"AWS::Test::Named","type":"object","additionalProperties":false,
+		"properties":{"Tag":{"$ref":"#/definitions/Tag"},"Target":{"$ref":"#/definitions/Resource"},"Settings":{"$ref":"#/definitions/Properties"}},
+		"definitions":{
+			"Tag":{"type":"object","additionalProperties":false,"properties":{"Key":{"type":"string"}},"required":["Key"]},
+			"Resource":{"type":"object","additionalProperties":false,"properties":{"Arn":{"type":"string"}},"required":["Arn"]},
+			"Properties":{"type":"object","additionalProperties":false,"properties":{"Mode":{"enum":["a","b"]}}}}}`
+	out := filepath.Join(t.TempDir(), "generated")
+	if _, e := Generate(&Source{Label: "names", SHA256: "names", files: map[string][]byte{
+		"providers/us-east-1.json": []byte(`{"AWS::Test::Named":"named"}`),
+		"resources/named.json":     []byte(root),
+	}}, Options{Out: out, Regions: []string{"us-east-1"}}); e != nil {
+		t.Fatal(e)
+	}
+	pkg := build(t, out, "./resources/hnamed")
+	validate(t, pkg.LookupPath(cue.MakePath(cue.Def("Tag"))), `{Key:"k"}`, true)
+	resource := pkg.LookupPath(cue.MakePath(cue.Def("Resource")))
+	validate(t, resource, `{Type:"AWS::Test::Named",Properties:{Tag:{Key:"k"},Target:{Arn:"a"},Settings:{Mode:"a"}}}`, true)
+	validate(t, resource, `{Type:"AWS::Test::Named",Properties:{Target:{}}}`, false)
+	validate(t, resource, `{Type:"AWS::Test::Named",Properties:{Settings:{Mode:"c"}}}`, false)
 }
 func TestExtensions(t *testing.T) {
 	out := filepath.Join(t.TempDir(), "generated")

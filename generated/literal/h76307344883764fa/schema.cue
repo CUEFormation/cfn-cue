@@ -25,10 +25,10 @@ package schema
 	State?: string
 
 	// Tags associated with the resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/TagsEntry"]
+	Tags?: [...#TagsEntry]
 })
 
-_#defs: "/$defs/Properties/definitions/TagsEntry": close({
+#TagsEntry: close({
 	Key!:   string
 	Value!: string
 })

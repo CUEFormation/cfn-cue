@@ -14,36 +14,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::WorkSpacesWeb::IpAccessSettings Resource Type
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
+	AdditionalEncryptionContext?: #EncryptionContextMap
 	CustomerManagedKey?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
 	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	DisplayName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	IpRules!: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/IpRule"] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	IpRules!:     list.MaxItems(100) & list.MinItems(1) & [...#IpRule] | fn.#ListExpression
+	Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
+#EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpRule": close({
+#IpRule: close({
 	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	IpRange!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
+#Unit: close({}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::WorkSpacesWeb::IpAccessSettings"
 	Properties!: #Properties

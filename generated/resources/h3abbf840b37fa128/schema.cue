@@ -14,9 +14,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Macie FindingsFilter resource schema.
 #Properties: close({
-	Action?:          _#defs."/$defs/Properties/definitions/FindingFilterAction" | fn.#StringExpression
+	Action?:          #FindingFilterAction | fn.#StringExpression
 	Description?:     string | fn.#StringExpression
-	FindingCriteria!: _#defs."/$defs/Properties/definitions/FindingCriteria" | fn.#ObjectExpression
+	FindingCriteria!: #FindingCriteria | fn.#ObjectExpression
 	Name!:            string | fn.#StringExpression
 	Position?: int |
 		{
@@ -32,15 +32,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Criterion": close({
+#Criterion: close({
 
-	{[=~"\\w"]: _#defs."/$defs/Properties/definitions/CriterionAdditionalProperties"}}) |
+	{[=~"\\w"]: #CriterionAdditionalProperties}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CriterionAdditionalProperties": close({
+#CriterionAdditionalProperties: close({
 	eq?: [...string | fn.#StringExpression] | fn.#ListExpression
 	gt?: int |
 		{
@@ -102,20 +102,17 @@ _#defs: "/$defs/Properties/definitions/CriterionAdditionalProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FindingCriteria": close(
-	{Criterion?: _#defs."/$defs/Properties/definitions/Criterion"},
-) |
-	fn.#ObjectExpression
+#FindingCriteria: close({Criterion?: #Criterion}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FindingFilterAction": "ARCHIVE" | "NOOP" | fn.#StringExpression
+#FindingFilterAction: "ARCHIVE" | "NOOP" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FindingsFilterListItem": {
+#FindingsFilterListItem: {
 	Id?:   string | fn.#StringExpression
 	Name?: string | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

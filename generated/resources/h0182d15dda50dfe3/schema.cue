@@ -38,12 +38,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	MulticastSupport?:                string | fn.#StringExpression
 	PropagationDefaultRouteTableId?:  string | fn.#StringExpression
 	SecurityGroupReferencingSupport?: string | fn.#StringExpression
-	Tags?:                            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                            [...#Tag] | fn.#ListExpression
 	TransitGatewayCidrBlocks?:        [...string | fn.#StringExpression] | fn.#ListExpression
 	VpnEcmpSupport?:                  string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

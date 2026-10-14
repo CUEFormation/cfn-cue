@@ -39,7 +39,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	SSESpecification?: _#defs."/$defs/Properties/definitions/SSESpecification"
+	SSESpecification?: #SSESpecification
 	SecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -49,7 +49,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Tags?:            fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/SSESpecification": close(
+#SSESpecification: close(
 	{SSEEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression

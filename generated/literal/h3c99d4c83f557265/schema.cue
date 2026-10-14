@@ -12,31 +12,31 @@ import (
 // Resource Type definition for AWS::IoTAnalytics::Channel
 #Properties: close({
 	ChannelName?:     strings.MaxRunes(128) & strings.MinRunes(1)
-	ChannelStorage?:  _#defs."/$defs/Properties/definitions/ChannelStorage"
+	ChannelStorage?:  #ChannelStorage
 	Id?:              string
-	RetentionPeriod?: _#defs."/$defs/Properties/definitions/RetentionPeriod"
-	Tags?:            list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	RetentionPeriod?: #RetentionPeriod
+	Tags?:            list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ChannelStorage": close({
-	CustomerManagedS3?: _#defs."/$defs/Properties/definitions/CustomerManagedS3"
-	ServiceManagedS3?:  _#defs."/$defs/Properties/definitions/ServiceManagedS3"
+#ChannelStorage: close({
+	CustomerManagedS3?: #CustomerManagedS3
+	ServiceManagedS3?:  #ServiceManagedS3
 })
 
-_#defs: "/$defs/Properties/definitions/CustomerManagedS3": close({
+#CustomerManagedS3: close({
 	Bucket!:    strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.\\-_]*$"
 	KeyPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/{}:-]*/$"
 	RoleArn!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
-_#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
+#RetentionPeriod: close({
 	NumberOfDays?: int & <=2147483647 & >=1
 	Unlimited?:    bool
 })
 
-_#defs: "/$defs/Properties/definitions/ServiceManagedS3": string | {...}
+#ServiceManagedS3: string | {...}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -16,33 +16,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // which evaluate and report on your backup events and resources. Frameworks
 // generate daily compliance results.
 #Properties: close({
-	FrameworkControls!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/FrameworkControl"] |
-		fn.#ListExpression
+	FrameworkControls!:    list.UniqueItems() & [...#FrameworkControl] | fn.#ListExpression
 	FrameworkDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"\\S" | fn.#StringExpression
 	FrameworkName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][_a-zA-Z0-9]*" | fn.#StringExpression
-	FrameworkTags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	FrameworkTags?: [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ControlInputParameter": close({
+#ControlInputParameter: close({
 	ParameterName!:  string | fn.#StringExpression
 	ParameterValue!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FrameworkControl": close({
-	ControlInputParameters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ControlInputParameter"] |
-		fn.#ListExpression
-	ControlName!: string | fn.#StringExpression
+#FrameworkControl: close({
+	ControlInputParameters?: list.UniqueItems() & [...#ControlInputParameter] | fn.#ListExpression
+	ControlName!:            string | fn.#StringExpression
 	ControlScope?: close({
 		ComplianceResourceIds?:   list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
 		ComplianceResourceTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
-		Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+		Tags?:                    [...#Tag] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

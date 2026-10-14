@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,7 +17,7 @@ import (
 	AllowedOAuthScopes?: list.MaxItems(50) & [...] & [
 		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
 	]
-	AnalyticsConfiguration?: _#defs."/$defs/Properties/definitions/AnalyticsConfiguration"
+	AnalyticsConfiguration?: #AnalyticsConfiguration
 	AuthSessionValidity?:    int & <=15 & >=3
 	CallbackURLs?: list.MaxItems(100) & [...] & [
 		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$"
@@ -47,17 +47,17 @@ import (
 	Name?:                       string
 	PreventUserExistenceErrors?: "ENABLED" | "LEGACY"
 	ReadAttributes?:             [...strings.MaxRunes(2048) & strings.MinRunes(1)]
-	RefreshTokenRotation?:       _#defs."/$defs/Properties/definitions/RefreshTokenRotation"
+	RefreshTokenRotation?:       #RefreshTokenRotation
 	RefreshTokenValidity?:       int & <=315360000 & >=1
 	SupportedIdentityProviders?: [
 		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\p{Z}]+$"
 	]
-	TokenValidityUnits?: _#defs."/$defs/Properties/definitions/TokenValidityUnits"
+	TokenValidityUnits?: #TokenValidityUnits
 	UserPoolId!:         strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$"
 	WriteAttributes?:    [...strings.MaxRunes(2048) & strings.MinRunes(1)]
 })
 
-_#defs: "/$defs/Properties/definitions/AnalyticsConfiguration": close({
+#AnalyticsConfiguration: close({
 	ApplicationArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$"
@@ -70,13 +70,13 @@ _#defs: "/$defs/Properties/definitions/AnalyticsConfiguration": close({
 	UserDataShared?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/RefreshTokenRotation": {
+#RefreshTokenRotation: {
 	Feature?:                 "ENABLED" | "DISABLED"
 	RetryGracePeriodSeconds?: int & <=60 & >=0
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/TokenValidityUnits": close({
+#TokenValidityUnits: close({
 	AccessToken?:  "days" | "hours" | "minutes" | "seconds"
 	IdToken?:      "days" | "hours" | "minutes" | "seconds"
 	RefreshToken?: "days" | "hours" | "minutes" | "seconds"

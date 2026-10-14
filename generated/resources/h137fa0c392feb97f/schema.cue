@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -70,25 +70,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		..."x86_64" | "arm64" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	CapacityProviderConfig?: _#defs."/$defs/Properties/definitions/CapacityProviderConfig" | fn.#ObjectExpression
-	Code!:                   _#defs."/$defs/Properties/definitions/Code" | fn.#ObjectExpression
+	CapacityProviderConfig?: #CapacityProviderConfig | fn.#ObjectExpression
+	Code!:                   #Code | fn.#ObjectExpression
 	CodeSigningConfigArn?: strings.MaxRunes(200) &
 	strings.MinRunes(0) &
 	=~"arn:(aws[a-zA-Z-]*)?:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:code-signing-config:csc-[a-z0-9]{17}" |
 	fn.#StringExpression
-	DeadLetterConfig?: _#defs."/$defs/Properties/definitions/DeadLetterConfig" | fn.#ObjectExpression
-	Description?:      strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DurableConfig?:    _#defs."/$defs/Properties/definitions/DurableConfig" | fn.#ObjectExpression
-	Environment?:      _#defs."/$defs/Properties/definitions/Environment" | fn.#ObjectExpression
-	EphemeralStorage?: _#defs."/$defs/Properties/definitions/EphemeralStorage" | fn.#ObjectExpression
-	FileSystemConfigs?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/FileSystemConfig"] |
-		fn.#ListExpression
+	DeadLetterConfig?:  #DeadLetterConfig | fn.#ObjectExpression
+	Description?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	DurableConfig?:     #DurableConfig | fn.#ObjectExpression
+	Environment?:       #Environment | fn.#ObjectExpression
+	EphemeralStorage?:  #EphemeralStorage | fn.#ObjectExpression
+	FileSystemConfigs?: list.MaxItems(1) & [...] & [...#FileSystemConfig] | fn.#ListExpression
 	FunctionName?: strings.MinRunes(1) &
 	=~"^([a-zA-Z0-9_-]{1,64}|arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:function:[a-zA-Z0-9_-]{1,64})$" |
 	fn.#StringExpression
-	FunctionScalingConfig?: _#defs."/$defs/Properties/definitions/FunctionScalingConfig" | fn.#ObjectExpression
+	FunctionScalingConfig?: #FunctionScalingConfig | fn.#ObjectExpression
 	Handler?:               strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[^\\s]+$" | fn.#StringExpression
-	ImageConfig?:           _#defs."/$defs/Properties/definitions/ImageConfig" | fn.#ObjectExpression
+	ImageConfig?:           #ImageConfig | fn.#ObjectExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(10000) &
 	strings.MinRunes(0) &
@@ -100,7 +99,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig" | fn.#ObjectExpression
+	LoggingConfig?: #LoggingConfig | fn.#ObjectExpression
 	MemorySize?: int & <=32768 & >=128 |
 		{
 			string &
@@ -119,7 +118,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	PackageType?:              "Image" | "Zip" | fn.#StringExpression
 	PublishToLatestPublished?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RecursiveLoop?:            _#defs."/$defs/Properties/definitions/RecursiveLoop" | fn.#StringExpression
+	RecursiveLoop?:            #RecursiveLoop | fn.#StringExpression
 	ReservedConcurrentExecutions?: int & >=0 |
 		{
 			string &
@@ -191,10 +190,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"ruby3.4" |
 		"ruby4.0" |
 		fn.#StringExpression
-	RuntimeManagementConfig?: _#defs."/$defs/Properties/definitions/RuntimeManagementConfig" | fn.#ObjectExpression
-	SnapStart?:               _#defs."/$defs/Properties/definitions/SnapStart" | fn.#ObjectExpression
-	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TenancyConfig?:           _#defs."/$defs/Properties/definitions/TenancyConfig" | fn.#ObjectExpression
+	RuntimeManagementConfig?: #RuntimeManagementConfig | fn.#ObjectExpression
+	SnapStart?:               #SnapStart | fn.#ObjectExpression
+	Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	TenancyConfig?:           #TenancyConfig | fn.#ObjectExpression
 	Timeout?: int & <=5400 & >=1 |
 		{
 			string &
@@ -211,17 +210,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	TracingConfig?: _#defs."/$defs/Properties/definitions/TracingConfig" | fn.#ObjectExpression
-	VpcConfig?:     _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
+	TracingConfig?: #TracingConfig | fn.#ObjectExpression
+	VpcConfig?:     #VpcConfig | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderConfig": close({
-	LambdaManagedInstancesCapacityProviderConfig!: _#defs."/$defs/Properties/definitions/LambdaManagedInstancesCapacityProviderConfig" |
-		fn.#ObjectExpression
+#CapacityProviderConfig: close({
+	LambdaManagedInstancesCapacityProviderConfig!: #LambdaManagedInstancesCapacityProviderConfig | fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Code": close({
+#Code: close({
 	ImageUri?:            string | fn.#StringExpression
 	S3Bucket?:            strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	S3Key?:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
@@ -233,13 +231,13 @@ _#defs: "/$defs/Properties/definitions/Code": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeadLetterConfig": close({
+#DeadLetterConfig: close({
 	TargetArn?: strings.MaxRunes(10000) & strings.MinRunes(0) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DurableConfig": close({
+#DurableConfig: close({
 	ExecutionTimeout!: int & <=31622400 & >=1 |
 		{
 			string &
@@ -280,7 +278,7 @@ _#defs: "/$defs/Properties/definitions/DurableConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Environment": close({
+#Environment: close({
 	Variables?: close({
 
 		{[=~"[a-zA-Z][a-zA-Z0-9_]+"]: fn.#Object & {...} |
@@ -293,7 +291,7 @@ _#defs: "/$defs/Properties/definitions/Environment": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EphemeralStorage": close({
+#EphemeralStorage: close({
 	Size!: int & <=32768 & >=512 |
 		{
 			string &
@@ -313,16 +311,16 @@ _#defs: "/$defs/Properties/definitions/EphemeralStorage": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FileSystemConfig": close({
+#FileSystemConfig: close({
 	Arn!: strings.MaxRunes(200) &
 	=~"^arn:aws[a-zA-Z-]*:elasticfilesystem:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:access-point/fsap-[a-f0-9]{17}$|^arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}/access-point/fsap-[0-9a-f]{17,40}$" |
 	fn.#StringExpression
 	LocalMountPath!: strings.MaxRunes(160) & strings.MinRunes(0) & =~"^/mnt/[a-zA-Z0-9-_.]+$" | fn.#StringExpression
-	S3FilesConfig?:  _#defs."/$defs/Properties/definitions/S3FilesConfig" | fn.#ObjectExpression
+	S3FilesConfig?:  #S3FilesConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FunctionScalingConfig": close({
+#FunctionScalingConfig: close({
 	MaxExecutionEnvironments?: int & <=15000 & >=0 |
 		{
 			string &
@@ -358,7 +356,7 @@ _#defs: "/$defs/Properties/definitions/FunctionScalingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageConfig": close({
+#ImageConfig: close({
 	Command?: list.MaxItems(1500) & list.UniqueItems() & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 	EntryPoint?: list.MaxItems(1500) & list.UniqueItems() & [...] & [...string | fn.#StringExpression] |
 		fn.#ListExpression
@@ -366,7 +364,7 @@ _#defs: "/$defs/Properties/definitions/ImageConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaManagedInstancesCapacityProviderConfig": close({
+#LambdaManagedInstancesCapacityProviderConfig: close({
 	CapacityProviderArn!: strings.MaxRunes(140) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:capacity-provider:[a-zA-Z0-9-_]+$" |
@@ -410,7 +408,7 @@ _#defs: "/$defs/Properties/definitions/LambdaManagedInstancesCapacityProviderCon
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+#LoggingConfig: close({
 	ApplicationLogLevel?: "TRACE" | "DEBUG" | "INFO" | "WARN" | "ERROR" | "FATAL" | fn.#StringExpression
 	LogFormat?:           "Text" | "JSON" | fn.#StringExpression
 	LogGroup?:            strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
@@ -418,45 +416,35 @@ _#defs: "/$defs/Properties/definitions/LoggingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecursiveLoop": "Allow" | "Terminate" | fn.#StringExpression
+#RecursiveLoop: "Allow" | "Terminate" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RuntimeManagementConfig": close({
+#RuntimeManagementConfig: close({
 	RuntimeVersionArn?: string | fn.#StringExpression
 	UpdateRuntimeOn!:   "Auto" | "FunctionUpdate" | "Manual" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3FilesConfig": close(
-	{DirectS3Read?: "ENABLED" | "DISABLED" | "AUTO" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#S3FilesConfig: close({DirectS3Read?: "ENABLED" | "DISABLED" | "AUTO" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnapStart": close(
-	{ApplyOn!: "PublishedVersions" | "None" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#SnapStart: close({ApplyOn!: "PublishedVersions" | "None" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnapStartResponse": close({
+#SnapStartResponse: close({
 	ApplyOn?:            "PublishedVersions" | "None" | fn.#StringExpression
 	OptimizationStatus?: "On" | "Off" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TenancyConfig": close(
-	{TenantIsolationMode!: "PER_TENANT" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#TenancyConfig: close({TenantIsolationMode!: "PER_TENANT" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TracingConfig": close({Mode?: "Active" | "PassThrough" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#TracingConfig: close({Mode?: "Active" | "PassThrough" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	Ipv6AllowedForDualStack?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &

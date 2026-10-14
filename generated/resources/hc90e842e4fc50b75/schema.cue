@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,47 +18,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Connect::User
 #Properties: close({
-	AfterContactWorkConfigs?: [..._#defs."/$defs/Properties/definitions/AfterContactWorkConfigPerChannel"] |
-		fn.#ListExpression
-	AutoAcceptConfigs?: [..._#defs."/$defs/Properties/definitions/AutoAcceptConfig"] | fn.#ListExpression
-	DirectoryUserId?:   string | fn.#StringExpression
+	AfterContactWorkConfigs?: [...#AfterContactWorkConfigPerChannel] | fn.#ListExpression
+	AutoAcceptConfigs?:       [...#AutoAcceptConfig] | fn.#ListExpression
+	DirectoryUserId?:         string | fn.#StringExpression
 	HierarchyGroupArn?: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group/[-a-zA-Z0-9]*$" |
 		fn.#StringExpression
-	IdentityInfo?: _#defs."/$defs/Properties/definitions/UserIdentityInfo" | fn.#ObjectExpression
+	IdentityInfo?: #UserIdentityInfo | fn.#ObjectExpression
 	InstanceArn!:  =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	Password?:     string | fn.#StringExpression
-	PersistentConnectionConfigs?: [..._#defs."/$defs/Properties/definitions/PersistentConnectionConfig"] |
-		fn.#ListExpression
-	PhoneConfig?:        _#defs."/$defs/Properties/definitions/UserPhoneConfig" | fn.#ObjectExpression
-	PhoneNumberConfigs?: [..._#defs."/$defs/Properties/definitions/PhoneNumberConfig"] | fn.#ListExpression
+	PersistentConnectionConfigs?: [...#PersistentConnectionConfig] | fn.#ListExpression
+	PhoneConfig?:                 #UserPhoneConfig | fn.#ObjectExpression
+	PhoneNumberConfigs?:          [...#PhoneNumberConfig] | fn.#ListExpression
 	RoutingProfileArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/routing-profile/[-a-zA-Z0-9]*$" |
 		fn.#StringExpression
-	SecurityProfileArns!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SecurityProfileArn"
-	] |
+	SecurityProfileArns!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#SecurityProfileArn] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UserProficiencies?: [..._#defs."/$defs/Properties/definitions/UserProficiency"] | fn.#ListExpression
+	Tags?:              list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	UserProficiencies?: [...#UserProficiency] | fn.#ListExpression
 	Username!:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\_\\-\\.\\@]+" | fn.#StringExpression
-	VoiceEnhancementConfigs?: [..._#defs."/$defs/Properties/definitions/VoiceEnhancementConfig"] | fn.#ListExpression
+	VoiceEnhancementConfigs?: [...#VoiceEnhancementConfig] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AfterContactWorkConfig": close({
-	AfterContactWorkMode?:      _#defs."/$defs/Properties/definitions/AfterContactWorkMode"
-	AfterContactWorkTimeLimit?: _#defs."/$defs/Properties/definitions/AfterContactWorkTimeLimit"
+#AfterContactWorkConfig: close({
+	AfterContactWorkMode?:      #AfterContactWorkMode
+	AfterContactWorkTimeLimit?: #AfterContactWorkTimeLimit
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AfterContactWorkConfigPerChannel": close({
-	AfterContactWorkConfig!:                   _#defs."/$defs/Properties/definitions/AfterContactWorkConfig"
-	AgentFirstCallbackAfterContactWorkConfig?: _#defs."/$defs/Properties/definitions/AfterContactWorkConfig"
-	Channel!:                                  _#defs."/$defs/Properties/definitions/Channel"
+#AfterContactWorkConfigPerChannel: close({
+	AfterContactWorkConfig!:                   #AfterContactWorkConfig
+	AgentFirstCallbackAfterContactWorkConfig?: #AfterContactWorkConfig
+	Channel!:                                  #Channel
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AfterContactWorkMode": "ON" | "OFF" | "ON_DEMAND" | fn.#StringExpression
+#AfterContactWorkMode: "ON" | "OFF" | "ON_DEMAND" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AfterContactWorkTimeLimit": int & >=0 |
+#AfterContactWorkTimeLimit: int & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -74,47 +70,32 @@ _#defs: "/$defs/Properties/definitions/AfterContactWorkTimeLimit": int & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/AgentFirstCallbackAutoAccept": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#AgentFirstCallbackAutoAccept: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/AttributeName": strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#AttributeName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AttributeValue": strings.MaxRunes(64) & strings.MinRunes(1) |
-fn.#StringExpression
+#AttributeValue: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutoAccept": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#AutoAccept: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/AutoAcceptConfig": close({
-	AgentFirstCallbackAutoAccept?: _#defs."/$defs/Properties/definitions/AgentFirstCallbackAutoAccept"
-	AutoAccept!:                   _#defs."/$defs/Properties/definitions/AutoAccept"
-	Channel!:                      _#defs."/$defs/Properties/definitions/Channel"
+#AutoAcceptConfig: close({
+	AgentFirstCallbackAutoAccept?: #AgentFirstCallbackAutoAccept
+	AutoAccept!:                   #AutoAccept
+	Channel!:                      #Channel
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Channel": "VOICE" | "CHAT" | "TASK" | "EMAIL" | fn.#StringExpression
+#Channel: "VOICE" | "CHAT" | "TASK" | "EMAIL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DeskPhoneNumber": string | fn.#StringExpression
+#DeskPhoneNumber: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Email": string | fn.#StringExpression
+#Email: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FirstName": strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+#FirstName: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LastName": strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
+#LastName: strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Level": <=10 & >=0 |
+#Level: <=10 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -135,78 +116,68 @@ _#defs: "/$defs/Properties/definitions/Level": <=10 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Mobile": =~"^\\+[1-9]\\d{1,14}$" | fn.#StringExpression
+#Mobile: =~"^\\+[1-9]\\d{1,14}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PersistentConnection": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#PersistentConnection: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/PersistentConnectionConfig": close({
-	Channel!:              _#defs."/$defs/Properties/definitions/Channel"
-	PersistentConnection!: _#defs."/$defs/Properties/definitions/PersistentConnection"
+#PersistentConnectionConfig: close({
+	Channel!:              #Channel
+	PersistentConnection!: #PersistentConnection
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PhoneNumberConfig": close({
-	Channel!:     _#defs."/$defs/Properties/definitions/Channel"
-	PhoneNumber?: _#defs."/$defs/Properties/definitions/DeskPhoneNumber"
-	PhoneType!:   _#defs."/$defs/Properties/definitions/PhoneType"
+#PhoneNumberConfig: close({
+	Channel!:     #Channel
+	PhoneNumber?: #DeskPhoneNumber
+	PhoneType!:   #PhoneType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PhoneType": "SOFT_PHONE" | "DESK_PHONE" | fn.#StringExpression
+#PhoneType: "SOFT_PHONE" | "DESK_PHONE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecondaryEmail": string | fn.#StringExpression
+#SecondaryEmail: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityProfileArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/security-profile/[-a-zA-Z0-9]*$" |
+#SecurityProfileArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/security-profile/[-a-zA-Z0-9]*$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserIdentityInfo": close({
-	Email?:          _#defs."/$defs/Properties/definitions/Email"
-	FirstName?:      _#defs."/$defs/Properties/definitions/FirstName"
-	LastName?:       _#defs."/$defs/Properties/definitions/LastName"
-	Mobile?:         _#defs."/$defs/Properties/definitions/Mobile"
-	SecondaryEmail?: _#defs."/$defs/Properties/definitions/SecondaryEmail"
+#UserIdentityInfo: close({
+	Email?:          #Email
+	FirstName?:      #FirstName
+	LastName?:       #LastName
+	Mobile?:         #Mobile
+	SecondaryEmail?: #SecondaryEmail
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserPhoneConfig": close({
-	AfterContactWorkTimeLimit?: _#defs."/$defs/Properties/definitions/AfterContactWorkTimeLimit"
-	AutoAccept?:                _#defs."/$defs/Properties/definitions/AutoAccept"
-	DeskPhoneNumber?:           _#defs."/$defs/Properties/definitions/DeskPhoneNumber"
-	PersistentConnection?:      _#defs."/$defs/Properties/definitions/PersistentConnection"
-	PhoneType?:                 _#defs."/$defs/Properties/definitions/PhoneType"
+#UserPhoneConfig: close({
+	AfterContactWorkTimeLimit?: #AfterContactWorkTimeLimit
+	AutoAccept?:                #AutoAccept
+	DeskPhoneNumber?:           #DeskPhoneNumber
+	PersistentConnection?:      #PersistentConnection
+	PhoneType?:                 #PhoneType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserProficiency": close({
-	AttributeName!:  _#defs."/$defs/Properties/definitions/AttributeName"
-	AttributeValue!: _#defs."/$defs/Properties/definitions/AttributeValue"
-	Level!:          _#defs."/$defs/Properties/definitions/Level"
+#UserProficiency: close({
+	AttributeName!:  #AttributeName
+	AttributeValue!: #AttributeValue
+	Level!:          #Level
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VoiceEnhancementConfig": close({
-	Channel!:              _#defs."/$defs/Properties/definitions/Channel"
-	VoiceEnhancementMode!: _#defs."/$defs/Properties/definitions/VoiceEnhancementMode"
+#VoiceEnhancementConfig: close({
+	Channel!:              #Channel
+	VoiceEnhancementMode!: #VoiceEnhancementMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VoiceEnhancementMode": "NONE" |
-	"VOICE_ISOLATION" |
-	"NOISE_SUPPRESSION" |
-	fn.#StringExpression
+#VoiceEnhancementMode: "NONE" | "VOICE_ISOLATION" | "NOISE_SUPPRESSION" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Connect::User"
 	Properties!: #Properties

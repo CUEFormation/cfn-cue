@@ -19,26 +19,26 @@ import "strings"
 	Name!: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// The parameter objects used with the pipeline.
-	ParameterObjects?: [..._#defs."/$defs/Properties/definitions/ParameterObject"]
+	ParameterObjects?: [...#ParameterObject]
 
 	// The parameter values used with the pipeline.
-	ParameterValues?: [..._#defs."/$defs/Properties/definitions/ParameterValue"]
+	ParameterValues?: [...#ParameterValue]
 	PipelineId?:      strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// The objects that define the pipeline. These objects overwrite the existing
 	// pipeline definition. Not all objects, fields, and values can be updated. For
 	// information about restrictions, see Editing Your Pipeline in the AWS Data
 	// Pipeline Developer Guide.
-	PipelineObjects?: [..._#defs."/$defs/Properties/definitions/PipelineObject"]
+	PipelineObjects?: [...#PipelineObject]
 
 	// A list of arbitrary tags (key-value pairs) to associate with the pipeline,
 	// which you can use to control permissions. For more information, see
 	// Controlling Access to Pipelines and Resources in the AWS Data Pipeline
 	// Developer Guide.
-	PipelineTags?: [..._#defs."/$defs/Properties/definitions/PipelineTag"]
+	PipelineTags?: [...#PipelineTag]
 })
 
-_#defs: "/$defs/Properties/definitions/Field": close({
+#Field: close({
 	// Specifies the name of a field for a particular object. To view valid values
 	// for a particular field, see Pipeline Object Reference in the AWS Data
 	// Pipeline Developer Guide.
@@ -54,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/Field": close({
 	StringValue?: strings.MaxRunes(10240) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/ParameterAttribute": close({
+#ParameterAttribute: close({
 	// The field identifier.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(1)
 
@@ -62,15 +62,15 @@ _#defs: "/$defs/Properties/definitions/ParameterAttribute": close({
 	StringValue!: strings.MaxRunes(10240) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/ParameterObject": close({
+#ParameterObject: close({
 	// The attributes of the parameter object.
-	Attributes!: [..._#defs."/$defs/Properties/definitions/ParameterAttribute"]
+	Attributes!: [...#ParameterAttribute]
 
 	// The ID of the parameter object.
 	Id!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ParameterValue": close({
+#ParameterValue: close({
 	// The ID of the parameter value.
 	Id!: strings.MaxRunes(256) & strings.MinRunes(1)
 
@@ -78,9 +78,9 @@ _#defs: "/$defs/Properties/definitions/ParameterValue": close({
 	StringValue!: strings.MaxRunes(10240) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/PipelineObject": close({
+#PipelineObject: close({
 	// Key-value pairs that define the properties of the object.
-	Fields!: [..._#defs."/$defs/Properties/definitions/Field"]
+	Fields!: [...#Field]
 
 	// The ID of the object.
 	Id!: strings.MaxRunes(1024) & strings.MinRunes(1)
@@ -89,7 +89,7 @@ _#defs: "/$defs/Properties/definitions/PipelineObject": close({
 	Name!: strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/PipelineTag": close({
+#PipelineTag: close({
 	// The key name of a tag.
 	Key!: string
 

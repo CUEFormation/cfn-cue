@@ -23,14 +23,14 @@ import (
 	// A name for the store.
 	Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"
 	ReferenceStoreId?: strings.MaxRunes(36) & strings.MinRunes(10) & =~"^[0-9]+$"
-	SseConfig?:        _#defs."/$defs/Properties/definitions/SseConfig"
-	Tags?:             _#defs."/$defs/Properties/definitions/TagMap"
+	SseConfig?:        #SseConfig
+	Tags?:             #TagMap
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionType": "KMS"
+#EncryptionType: "KMS"
 
 // Server-side encryption (SSE) settings for a store.
-_#defs: "/$defs/Properties/definitions/SseConfig": close({
+#SseConfig: close({
 	// An encryption key ARN.
 	KeyArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -41,9 +41,9 @@ _#defs: "/$defs/Properties/definitions/SseConfig": close({
 		]*):([0-9]{12}):([^:
 		]*)
 		"""
-	Type!: _#defs."/$defs/Properties/definitions/EncryptionType"
+	Type!: #EncryptionType
 })
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})

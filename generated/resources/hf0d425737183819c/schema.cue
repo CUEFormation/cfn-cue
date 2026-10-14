@@ -24,7 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Target?:                           string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ParameterConstraints": close(
+#ParameterConstraints: close(
 	{Required!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression

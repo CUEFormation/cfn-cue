@@ -13,49 +13,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::IoTSiteWise::AccessPolicy
 #Properties: close({
-	AccessPolicyIdentity!:   _#defs."/$defs/Properties/definitions/AccessPolicyIdentity" | fn.#ObjectExpression
+	AccessPolicyIdentity!:   #AccessPolicyIdentity | fn.#ObjectExpression
 	AccessPolicyPermission!: "ADMINISTRATOR" | "VIEWER" | fn.#StringExpression
-	AccessPolicyResource!:   _#defs."/$defs/Properties/definitions/AccessPolicyResource" | fn.#ObjectExpression
+	AccessPolicyResource!:   #AccessPolicyResource | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessPolicyIdentity": close({
-	IamRole?: _#defs."/$defs/Properties/definitions/IamRole"
-	IamUser?: _#defs."/$defs/Properties/definitions/IamUser"
-	User?:    _#defs."/$defs/Properties/definitions/User"
+#AccessPolicyIdentity: close({
+	IamRole?: #IamRole
+	IamUser?: #IamUser
+	User?:    #User
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessPolicyResource": close({
-	Portal?:  _#defs."/$defs/Properties/definitions/Portal"
-	Project?: _#defs."/$defs/Properties/definitions/Project"
+#AccessPolicyResource: close({
+	Portal?:  #Portal
+	Project?: #Project
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IamRole": close({
+#IamRole: close({
 	arn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IamUser": close({
+#IamUser: close({
 	arn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Portal": close(
-	{id?: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#Portal: close({id?: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Project": close(
-	{id?: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#Project: close({id?: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/User": close(
-	{id?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression},
-) |
+#User: close({id?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression}) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::IoTSiteWise::AccessPolicy"

@@ -44,7 +44,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ReplicationInstanceIdentifier?:    string | fn.#StringExpression
 	ReplicationSubnetGroupIdentifier?: string | fn.#StringExpression
 	ResourceIdentifier?:               string | fn.#StringExpression
-	Tags?:                             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                             [...#Tag] | fn.#ListExpression
 	VpcSecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -52,7 +52,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

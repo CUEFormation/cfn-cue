@@ -11,11 +11,11 @@ package schema
 
 	// Information about the hierarchy structure.
 	UserHierarchyStructure?: close({
-		LevelFive?:  _#defs."/$defs/Properties/definitions/LevelFive"
-		LevelFour?:  _#defs."/$defs/Properties/definitions/LevelFour"
-		LevelOne?:   _#defs."/$defs/Properties/definitions/LevelOne"
-		LevelThree?: _#defs."/$defs/Properties/definitions/LevelThree"
-		LevelTwo?:   _#defs."/$defs/Properties/definitions/LevelTwo"
+		LevelFive?:  #LevelFive
+		LevelFour?:  #LevelFour
+		LevelOne?:   #LevelOne
+		LevelThree?: #LevelThree
+		LevelTwo?:   #LevelTwo
 	})
 
 	// The identifier of the User Hierarchy Structure.
@@ -24,45 +24,45 @@ package schema
 })
 
 // The Amazon Resource Name (ARN) of the hierarchy level.
-_#defs: "/$defs/Properties/definitions/HierarchyLevelArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group-level/[-0-9]*$"
+#HierarchyLevelArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group-level/[-0-9]*$"
 
 // The identifier of the hierarchy level.
-_#defs: "/$defs/Properties/definitions/HierarchyLevelId": string
+#HierarchyLevelId: string
 
 // Information about level five.
-_#defs: "/$defs/Properties/definitions/LevelFive": close({
-	HierarchyLevelArn?: _#defs."/$defs/Properties/definitions/HierarchyLevelArn"
-	HierarchyLevelId?:  _#defs."/$defs/Properties/definitions/HierarchyLevelId"
-	Name!:              _#defs."/$defs/Properties/definitions/Name"
+#LevelFive: close({
+	HierarchyLevelArn?: #HierarchyLevelArn
+	HierarchyLevelId?:  #HierarchyLevelId
+	Name!:              #Name
 })
 
 // Information about level four.
-_#defs: "/$defs/Properties/definitions/LevelFour": close({
-	HierarchyLevelArn?: _#defs."/$defs/Properties/definitions/HierarchyLevelArn"
-	HierarchyLevelId?:  _#defs."/$defs/Properties/definitions/HierarchyLevelId"
-	Name!:              _#defs."/$defs/Properties/definitions/Name"
+#LevelFour: close({
+	HierarchyLevelArn?: #HierarchyLevelArn
+	HierarchyLevelId?:  #HierarchyLevelId
+	Name!:              #Name
 })
 
 // Information about level one.
-_#defs: "/$defs/Properties/definitions/LevelOne": close({
-	HierarchyLevelArn?: _#defs."/$defs/Properties/definitions/HierarchyLevelArn"
-	HierarchyLevelId?:  _#defs."/$defs/Properties/definitions/HierarchyLevelId"
-	Name!:              _#defs."/$defs/Properties/definitions/Name"
+#LevelOne: close({
+	HierarchyLevelArn?: #HierarchyLevelArn
+	HierarchyLevelId?:  #HierarchyLevelId
+	Name!:              #Name
 })
 
 // Information about level three.
-_#defs: "/$defs/Properties/definitions/LevelThree": close({
-	HierarchyLevelArn?: _#defs."/$defs/Properties/definitions/HierarchyLevelArn"
-	HierarchyLevelId?:  _#defs."/$defs/Properties/definitions/HierarchyLevelId"
-	Name!:              _#defs."/$defs/Properties/definitions/Name"
+#LevelThree: close({
+	HierarchyLevelArn?: #HierarchyLevelArn
+	HierarchyLevelId?:  #HierarchyLevelId
+	Name!:              #Name
 })
 
 // Information about level two.
-_#defs: "/$defs/Properties/definitions/LevelTwo": close({
-	HierarchyLevelArn?: _#defs."/$defs/Properties/definitions/HierarchyLevelArn"
-	HierarchyLevelId?:  _#defs."/$defs/Properties/definitions/HierarchyLevelId"
-	Name!:              _#defs."/$defs/Properties/definitions/Name"
+#LevelTwo: close({
+	HierarchyLevelArn?: #HierarchyLevelArn
+	HierarchyLevelId?:  #HierarchyLevelId
+	Name!:              #Name
 })
 
 // The name of the hierarchy level.
-_#defs: "/$defs/Properties/definitions/Name": string
+#Name: string

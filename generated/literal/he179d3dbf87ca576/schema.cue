@@ -18,25 +18,21 @@ import (
 
 	// Removes metrics from the include set. Absent or empty means nothing is
 	// removed. Evaluated after IncludeFilters, so ExcludeFilters always wins.
-	ExcludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/OTelEnrichmentMetricSelector"
-	]
+	ExcludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#OTelEnrichmentMetricSelector]
 
 	// Scopes enrichment to a subset of the account's telemetry. Absent or empty
 	// means all namespaces are in scope. Present means only these are. The service
 	// enforces a combined cap of 100 selectors across IncludeFilters and
 	// ExcludeFilters, and rejects more than one selector for the same namespace
 	// within a direction.
-	IncludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/OTelEnrichmentMetricSelector"
-	]
-	Status?: _#defs."/$defs/Properties/definitions/Status"
+	IncludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#OTelEnrichmentMetricSelector]
+	Status?:         #Status
 })
 
 // Selects metrics within one namespace. The same shape serves both the include
 // and the exclude direction. Namespaces are compared byte-for-byte and
 // case-sensitively; no wildcards, prefixes or normalization.
-_#defs: "/$defs/Properties/definitions/OTelEnrichmentMetricSelector": close({
+#OTelEnrichmentMetricSelector: close({
 	// Absent or empty means every metric in this namespace, in whichever direction
 	// this selector appears. Present means only these metric names.
 	MetricNames?: list.MaxItems(100) & list.UniqueItems() & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1)]
@@ -46,4 +42,4 @@ _#defs: "/$defs/Properties/definitions/OTelEnrichmentMetricSelector": close({
 })
 
 // Current status of OTel enrichment (RUNNING or STOPPED).
-_#defs: "/$defs/Properties/definitions/Status": "RUNNING" | "STOPPED"
+#Status: "RUNNING" | "STOPPED"

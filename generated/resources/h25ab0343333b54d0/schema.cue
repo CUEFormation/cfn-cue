@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,41 +15,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // through cache rule. A pull through cache rule provides a way to cache images
 // from an upstream registry in your Amazon ECR private registry.
 #Properties: close({
-	CredentialArn?:            _#defs."/$defs/Properties/definitions/CredentialArn" | fn.#StringExpression
-	CustomRoleArn?:            _#defs."/$defs/Properties/definitions/CustomRoleArn" | fn.#StringExpression
-	EcrRepositoryPrefix?:      _#defs."/$defs/Properties/definitions/EcrRepositoryPrefix" | fn.#StringExpression
-	UpstreamRegistry?:         _#defs."/$defs/Properties/definitions/UpstreamRegistry" | fn.#StringExpression
-	UpstreamRegistryUrl?:      _#defs."/$defs/Properties/definitions/UpstreamRegistryUrl" | fn.#StringExpression
-	UpstreamRepositoryPrefix?: _#defs."/$defs/Properties/definitions/UpstreamRepositoryPrefix" | fn.#StringExpression
+	CredentialArn?:            #CredentialArn | fn.#StringExpression
+	CustomRoleArn?:            #CustomRoleArn | fn.#StringExpression
+	EcrRepositoryPrefix?:      #EcrRepositoryPrefix | fn.#StringExpression
+	UpstreamRegistry?:         #UpstreamRegistry | fn.#StringExpression
+	UpstreamRegistryUrl?:      #UpstreamRegistryUrl | fn.#StringExpression
+	UpstreamRepositoryPrefix?: #UpstreamRepositoryPrefix | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CredentialArn": strings.MaxRunes(612) &
+#CredentialArn: strings.MaxRunes(612) &
 strings.MinRunes(50) &
 =~"^arn:[a-zA-Z-]+:secretsmanager:[a-zA-Z0-9-:]+:secret:ecr\\-pullthroughcache\\/[a-zA-Z0-9\\/_+=.@-]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomRoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(0)) |
+#CustomRoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(0)) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EcrRepositoryPrefix": strings.MaxRunes(30) &
+#EcrRepositoryPrefix: strings.MaxRunes(30) &
 strings.MinRunes(2) &
 =~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PullThroughCacheRule": close({
-	CredentialArn?:            _#defs."/$defs/Properties/definitions/CredentialArn"
-	CustomRoleArn?:            _#defs."/$defs/Properties/definitions/CustomRoleArn"
-	EcrRepositoryPrefix!:      _#defs."/$defs/Properties/definitions/EcrRepositoryPrefix"
-	RegistryId?:               _#defs."/$defs/Properties/definitions/RegistryId"
-	UpstreamRegistry?:         _#defs."/$defs/Properties/definitions/UpstreamRegistry"
-	UpstreamRegistryUrl!:      _#defs."/$defs/Properties/definitions/UpstreamRegistryUrl"
-	UpstreamRepositoryPrefix?: _#defs."/$defs/Properties/definitions/UpstreamRepositoryPrefix"
+#PullThroughCacheRule: close({
+	CredentialArn?:            #CredentialArn
+	CustomRoleArn?:            #CustomRoleArn
+	EcrRepositoryPrefix!:      #EcrRepositoryPrefix
+	RegistryId?:               #RegistryId
+	UpstreamRegistry?:         #UpstreamRegistry
+	UpstreamRegistryUrl!:      #UpstreamRegistryUrl
+	UpstreamRepositoryPrefix?: #UpstreamRepositoryPrefix
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RegistryId": =~"^[0-9]{12}$" | fn.#StringExpression
+#RegistryId: =~"^[0-9]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UpstreamRegistry": "azure-container-registry" |
+#UpstreamRegistry: "azure-container-registry" |
 	"chainguard" |
 	"docker-hub" |
 	"ecr" |
@@ -60,9 +60,9 @@ _#defs: "/$defs/Properties/definitions/UpstreamRegistry": "azure-container-regis
 	"quay" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UpstreamRegistryUrl": string | fn.#StringExpression
+#UpstreamRegistryUrl: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UpstreamRepositoryPrefix": strings.MaxRunes(30) &
+#UpstreamRepositoryPrefix: strings.MaxRunes(30) &
 strings.MinRunes(2) &
 =~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$" |
 fn.#StringExpression

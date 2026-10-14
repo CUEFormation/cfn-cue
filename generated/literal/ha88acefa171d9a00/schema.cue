@@ -22,7 +22,7 @@ import (
 
 	// The name of the key pair.
 	KeyPairName!: =~"^\\w[\\w\\-]*\\w$"
-	Location?:    _#defs."/$defs/Properties/definitions/ResourceLocation"
+	Location?:    #ResourceLocation
 
 	// The Lightsail resource type (KeyPair).
 	ResourceType?: string
@@ -32,10 +32,10 @@ import (
 	SupportCode?: string
 
 	// The tag keys and optional values to add to the resource during create.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceLocation": close({
+#ResourceLocation: close({
 	// The Availability Zone. Follows the format us-east-2a (case-sensitive).
 	AvailabilityZone?: string
 
@@ -44,7 +44,7 @@ _#defs: "/$defs/Properties/definitions/ResourceLocation": close({
 })
 
 // A tag key-value pair.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

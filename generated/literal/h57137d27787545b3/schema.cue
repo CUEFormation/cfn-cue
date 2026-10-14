@@ -3,35 +3,35 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Properties: close({
-	AIMLOptions?:    _#defs."/$defs/Properties/definitions/AIMLOptions"
+	AIMLOptions?:    #AIMLOptions
 	AccessPolicies?: string | {...}
 	AdvancedOptions?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string}})
-	AdvancedSecurityOptions?:       _#defs."/$defs/Properties/definitions/AdvancedSecurityOptionsInput"
+	AdvancedSecurityOptions?:       #AdvancedSecurityOptionsInput
 	Arn?:                           string
-	AutomatedSnapshotPauseOptions?: _#defs."/$defs/Properties/definitions/AutomatedSnapshotPauseOptions"
-	ClusterConfig?:                 _#defs."/$defs/Properties/definitions/ClusterConfig"
-	CognitoOptions?:                _#defs."/$defs/Properties/definitions/CognitoOptions"
-	DeploymentStrategyOptions?:     _#defs."/$defs/Properties/definitions/DeploymentStrategyOptions"
+	AutomatedSnapshotPauseOptions?: #AutomatedSnapshotPauseOptions
+	ClusterConfig?:                 #ClusterConfig
+	CognitoOptions?:                #CognitoOptions
+	DeploymentStrategyOptions?:     #DeploymentStrategyOptions
 	DomainArn?:                     string
 	DomainEndpoint?:                string
-	DomainEndpointOptions?:         _#defs."/$defs/Properties/definitions/DomainEndpointOptions"
+	DomainEndpointOptions?:         #DomainEndpointOptions
 	DomainEndpointV2?:              string
 	DomainEndpoints?: close({
 
 		{[=~"^.*$"]: string}})
 	DomainName?:              string
-	EBSOptions?:              _#defs."/$defs/Properties/definitions/EBSOptions"
-	EncryptionAtRestOptions?: _#defs."/$defs/Properties/definitions/EncryptionAtRestOptions"
+	EBSOptions?:              #EBSOptions
+	EncryptionAtRestOptions?: #EncryptionAtRestOptions
 
 	// The engine mode of the domain. Determines whether the domain runs the
 	// standard (GENERAL) engine or the optimized multi-engine (OPTIMIZED) engine.
@@ -40,80 +40,78 @@ import (
 	EngineVersion?:         string
 	IPAddressType?:         string
 	Id?:                    string
-	IdentityCenterOptions?: _#defs."/$defs/Properties/definitions/IdentityCenterOptions"
+	IdentityCenterOptions?: #IdentityCenterOptions
 	LogPublishingOptions?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: _#defs."/$defs/Properties/definitions/LogPublishingOption"}})
-	NodeToNodeEncryptionOptions?: _#defs."/$defs/Properties/definitions/NodeToNodeEncryptionOptions"
-	OffPeakWindowOptions?:        _#defs."/$defs/Properties/definitions/OffPeakWindowOptions"
-	ServiceSoftwareOptions?:      _#defs."/$defs/Properties/definitions/ServiceSoftwareOptions"
+		{[=~"[a-zA-Z0-9]+"]: #LogPublishingOption}})
+	NodeToNodeEncryptionOptions?: #NodeToNodeEncryptionOptions
+	OffPeakWindowOptions?:        #OffPeakWindowOptions
+	ServiceSoftwareOptions?:      #ServiceSoftwareOptions
 	SkipShardMigrationWait?:      bool
-	SnapshotOptions?:             _#defs."/$defs/Properties/definitions/SnapshotOptions"
-	SoftwareUpdateOptions?:       _#defs."/$defs/Properties/definitions/SoftwareUpdateOptions"
+	SnapshotOptions?:             #SnapshotOptions
+	SoftwareUpdateOptions?:       #SoftwareUpdateOptions
 
 	// An arbitrary set of tags (key-value pairs) for this Domain.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The primary use case of the domain. Determines the default configuration
 	// tuned for the workload. For GENERAL engine-mode domains, this value can be
 	// changed after creation. For OPTIMIZED engine-mode domains, this value cannot
 	// be changed after creation.
 	UseCase?:    "SEARCH" | "VECTOR" | "OBSERVABILITY" | "MIXED"
-	VPCOptions?: _#defs."/$defs/Properties/definitions/VPCOptions"
+	VPCOptions?: #VPCOptions
 })
 
-_#defs: "/$defs/Properties/definitions/AIMLOptions": close({
-	S3VectorsEngine?:              _#defs."/$defs/Properties/definitions/S3VectorsEngine"
-	ServerlessVectorAcceleration?: _#defs."/$defs/Properties/definitions/ServerlessVectorAcceleration"
+#AIMLOptions: close({
+	S3VectorsEngine?:              #S3VectorsEngine
+	ServerlessVectorAcceleration?: #ServerlessVectorAcceleration
 })
 
-_#defs: "/$defs/Properties/definitions/AdvancedSecurityOptionsInput": close({
+#AdvancedSecurityOptionsInput: close({
 	AnonymousAuthDisableDate?:    string
 	AnonymousAuthEnabled?:        bool
 	Enabled?:                     bool
-	IAMFederationOptions?:        _#defs."/$defs/Properties/definitions/IAMFederationOptions"
+	IAMFederationOptions?:        #IAMFederationOptions
 	InternalUserDatabaseEnabled?: bool
-	JWTOptions?:                  _#defs."/$defs/Properties/definitions/JWTOptions"
-	MasterUserOptions?:           _#defs."/$defs/Properties/definitions/MasterUserOptions"
-	SAMLOptions?:                 _#defs."/$defs/Properties/definitions/SAMLOptions"
+	JWTOptions?:                  #JWTOptions
+	MasterUserOptions?:           #MasterUserOptions
+	SAMLOptions?:                 #SAMLOptions
 })
 
-_#defs: "/$defs/Properties/definitions/AutomatedSnapshotPauseOptions": close({
+#AutomatedSnapshotPauseOptions: close({
 	Enabled!:   bool
 	EndTime?:   string
 	StartTime?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ClusterConfig": close({
-	ColdStorageOptions?:        _#defs."/$defs/Properties/definitions/ColdStorageOptions"
+#ClusterConfig: close({
+	ColdStorageOptions?:        #ColdStorageOptions
 	DedicatedMasterCount?:      int
 	DedicatedMasterEnabled?:    bool
 	DedicatedMasterType?:       string
 	InstanceCount?:             int
 	InstanceType?:              string
 	MultiAZWithStandbyEnabled?: bool
-	NodeOptions?:               [..._#defs."/$defs/Properties/definitions/NodeOption"]
+	NodeOptions?:               [...#NodeOption]
 	WarmCount?:                 int
 	WarmEnabled?:               bool
 	WarmType?:                  string
-	ZoneAwarenessConfig?:       _#defs."/$defs/Properties/definitions/ZoneAwarenessConfig"
+	ZoneAwarenessConfig?:       #ZoneAwarenessConfig
 	ZoneAwarenessEnabled?:      bool
 })
 
-_#defs: "/$defs/Properties/definitions/CognitoOptions": close({
+#CognitoOptions: close({
 	Enabled?:        bool
 	IdentityPoolId?: string
 	RoleArn?:        =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	UserPoolId?:     string
 })
 
-_#defs: "/$defs/Properties/definitions/ColdStorageOptions": close({Enabled?: bool})
+#ColdStorageOptions: close({Enabled?: bool})
 
-_#defs: "/$defs/Properties/definitions/DeploymentStrategyOptions": close(
-	{DeploymentStrategy?: "Default" | "CapacityOptimized"},
-)
+#DeploymentStrategyOptions: close({DeploymentStrategy?: "Default" | "CapacityOptimized"})
 
-_#defs: "/$defs/Properties/definitions/DomainEndpointOptions": close({
+#DomainEndpointOptions: close({
 	CustomEndpoint?:               string
 	CustomEndpointCertificateArn?: string
 	CustomEndpointEnabled?:        bool
@@ -121,7 +119,7 @@ _#defs: "/$defs/Properties/definitions/DomainEndpointOptions": close({
 	TLSSecurityPolicy?:            string
 })
 
-_#defs: "/$defs/Properties/definitions/EBSOptions": close({
+#EBSOptions: close({
 	EBSEnabled?: bool
 	Iops?:       int
 	Throughput?: int
@@ -129,19 +127,19 @@ _#defs: "/$defs/Properties/definitions/EBSOptions": close({
 	VolumeType?: string
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionAtRestOptions": close({
+#EncryptionAtRestOptions: close({
 	Enabled?:  bool
 	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 })
 
-_#defs: "/$defs/Properties/definitions/IAMFederationOptions": close({
+#IAMFederationOptions: close({
 	Enabled?:    bool
 	RolesKey?:   string
 	SubjectKey?: string
 })
 
 // Options for configuring Identity Center
-_#defs: "/$defs/Properties/definitions/IdentityCenterOptions": close({
+#IdentityCenterOptions: close({
 	// Whether Identity Center is enabled.
 	EnabledAPIAccess?: bool
 
@@ -155,68 +153,66 @@ _#defs: "/$defs/Properties/definitions/IdentityCenterOptions": close({
 	IdentityStoreId?: string
 
 	// The roles key for Identity Center options.
-	RolesKey?: _#defs."/$defs/Properties/definitions/RolesKeyIdcType"
+	RolesKey?: #RolesKeyIdcType
 
 	// The subject key for Identity Center options.
-	SubjectKey?: _#defs."/$defs/Properties/definitions/SubjectKeyIdcType"
+	SubjectKey?: #SubjectKeyIdcType
 })
 
-_#defs: "/$defs/Properties/definitions/Idp": close({
+#Idp: close({
 	EntityId!:        string
 	MetadataContent!: strings.MaxRunes(1048576) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/JWTOptions": close({
+#JWTOptions: close({
 	Enabled?:    bool
 	PublicKey?:  string
 	RolesKey?:   string
 	SubjectKey?: string
 })
 
-_#defs: "/$defs/Properties/definitions/LogPublishingOption": close({
+#LogPublishingOption: close({
 	CloudWatchLogsLogGroupArn?: string
 	Enabled?:                   bool
 })
 
-_#defs: "/$defs/Properties/definitions/MasterUserOptions": close({
+#MasterUserOptions: close({
 	MasterUserARN?:      string
 	MasterUserName?:     string
 	MasterUserPassword?: string
 })
 
-_#defs: "/$defs/Properties/definitions/NodeConfig": close({
+#NodeConfig: close({
 	Count?:   int
 	Enabled?: bool
 	Type?:    string
 })
 
-_#defs: "/$defs/Properties/definitions/NodeOption": close({
-	NodeConfig?: _#defs."/$defs/Properties/definitions/NodeConfig"
+#NodeOption: close({
+	NodeConfig?: #NodeConfig
 	NodeType?:   "coordinator"
 })
 
-_#defs: "/$defs/Properties/definitions/NodeToNodeEncryptionOptions": close({Enabled?: bool})
+#NodeToNodeEncryptionOptions: close({Enabled?: bool})
 
-_#defs: "/$defs/Properties/definitions/OffPeakWindow": close(
-	{WindowStartTime?: _#defs."/$defs/Properties/definitions/WindowStartTime"},
-)
+#OffPeakWindow: close({WindowStartTime?: #WindowStartTime})
 
-_#defs: "/$defs/Properties/definitions/OffPeakWindowOptions": close({
+#OffPeakWindowOptions: close({
 	Enabled?:       bool
-	OffPeakWindow?: _#defs."/$defs/Properties/definitions/OffPeakWindow"
+	OffPeakWindow?: #OffPeakWindow
 })
 
 // Roles Key Idc type values.
-_#defs: "/$defs/Properties/definitions/RolesKeyIdcType": "GroupName" | "GroupId"
+#RolesKeyIdcType: "GroupName" | "GroupId"
 
-_#defs: "/$defs/Properties/definitions/S3VectorsEngine": close({
+#S3VectorsEngine: close({
 	// Whether to enable S3 vectors engine.
 	Enabled!: bool
 })
 
-_#defs: "/$defs/Properties/definitions/SAMLOptions": close({
+#SAMLOptions: close({
 	Enabled?:               bool
-	Idp?:                   _#defs."/$defs/Properties/definitions/Idp"
+	Idp?:                   #Idp
 	MasterBackendRole?:     string
 	MasterUserName?:        string
 	RolesKey?:              string
@@ -224,12 +220,12 @@ _#defs: "/$defs/Properties/definitions/SAMLOptions": close({
 	SubjectKey?:            string
 })
 
-_#defs: "/$defs/Properties/definitions/ServerlessVectorAcceleration": close({
+#ServerlessVectorAcceleration: close({
 	// Whether to enable serverless vector acceleration.
 	Enabled?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/ServiceSoftwareOptions": close({
+#ServiceSoftwareOptions: close({
 	AutomatedUpdateDate?: string
 	Cancellable?:         bool
 	CurrentVersion?:      string
@@ -240,17 +236,17 @@ _#defs: "/$defs/Properties/definitions/ServiceSoftwareOptions": close({
 	UpdateStatus?:        string
 })
 
-_#defs: "/$defs/Properties/definitions/SnapshotOptions": close({AutomatedSnapshotStartHour?: int})
+#SnapshotOptions: close({AutomatedSnapshotStartHour?: int})
 
-_#defs: "/$defs/Properties/definitions/SoftwareUpdateOptions": close({
+#SoftwareUpdateOptions: close({
 	AutoSoftwareUpdateEnabled?:            bool
 	UseLatestServiceSoftwareForBlueGreen?: bool
 })
 
 // Subject Key Idc type values.
-_#defs: "/$defs/Properties/definitions/SubjectKeyIdcType": "UserName" | "UserId" | "Email"
+#SubjectKeyIdcType: "UserName" | "UserId" | "Email"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The value of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(0)
 
@@ -258,16 +254,16 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/VPCOptions": close({
+#VPCOptions: close({
 	// Controls whether egress traffic from the domain is routed through the customer VPC.
 	EgressEnabled?:    bool
 	SecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetIds?:        list.UniqueItems() & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/WindowStartTime": close({
+#WindowStartTime: close({
 	Hours!:   int & <=23 & >=0
 	Minutes!: int & <=59 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/ZoneAwarenessConfig": close({AvailabilityZoneCount?: int})
+#ZoneAwarenessConfig: close({AvailabilityZoneCount?: int})

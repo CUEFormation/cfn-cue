@@ -14,13 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::MediaConnect::FlowSource
 #Properties: close({
-	Decryption?:  _#defs."/$defs/Properties/definitions/Encryption" | fn.#ObjectExpression
+	Decryption?:  #Encryption | fn.#ObjectExpression
 	Description!: string | fn.#StringExpression
 	EntitlementArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:entitlement:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
 	FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
-	GatewayBridgeSource?: _#defs."/$defs/Properties/definitions/GatewayBridgeSource" | fn.#ObjectExpression
+	GatewayBridgeSource?: #GatewayBridgeSource | fn.#ObjectExpression
 	IngestPort?: int |
 		{
 			string &
@@ -110,12 +110,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	StreamId?:         string | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:             [...#Tag] | fn.#ListExpression
 	VpcInterfaceName?: string | fn.#StringExpression
 	WhitelistCidr?:    string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Encryption": close({
+#Encryption: close({
 	Algorithm?:                    "aes128" | "aes192" | "aes256" | fn.#StringExpression
 	ConstantInitializationVector?: string | fn.#StringExpression
 	DeviceId?:                     string | fn.#StringExpression
@@ -131,23 +131,20 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayBridgeSource": close({
+#GatewayBridgeSource: close({
 	BridgeArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:bridge:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
-	VpcInterfaceAttachment?: _#defs."/$defs/Properties/definitions/VpcInterfaceAttachment" | fn.#ObjectExpression
+	VpcInterfaceAttachment?: #VpcInterfaceAttachment | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcInterfaceAttachment": close(
-	{VpcInterfaceName?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#VpcInterfaceAttachment: close({VpcInterfaceName?: string | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MediaConnect::FlowSource"
 	Properties!: #Properties

@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::MediaLive::CloudWatchAlarmTemplate Resource Type
 #Properties: close({
-	ComparisonOperator!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateComparisonOperator"
+	ComparisonOperator!: #CloudWatchAlarmTemplateComparisonOperator
 	DatapointsToAlarm?: >=1 |
 		{
 			string &
@@ -80,9 +80,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Statistic!:          _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateStatistic"
-	Tags?:               _#defs."/$defs/Properties/definitions/TagMap"
-	TargetResourceType!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateTargetResourceType"
+	Statistic!:          #CloudWatchAlarmTemplateStatistic
+	Tags?:               #TagMap
+	TargetResourceType!: #CloudWatchAlarmTemplateTargetResourceType
 	Threshold!: number |
 		{
 			string &
@@ -102,23 +102,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	TreatMissingData!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmTemplateTreatMissingData"
+	TreatMissingData!: #CloudWatchAlarmTemplateTreatMissingData
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchAlarmTemplateComparisonOperator": "GreaterThanOrEqualToThreshold" |
+#CloudWatchAlarmTemplateComparisonOperator: "GreaterThanOrEqualToThreshold" |
 	"GreaterThanThreshold" |
 	"LessThanThreshold" |
 	"LessThanOrEqualToThreshold" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchAlarmTemplateStatistic": "SampleCount" |
-	"Average" |
-	"Sum" |
-	"Minimum" |
-	"Maximum" |
-	fn.#StringExpression
+#CloudWatchAlarmTemplateStatistic: "SampleCount" | "Average" | "Sum" | "Minimum" | "Maximum" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchAlarmTemplateTargetResourceType": "CLOUDFRONT_DISTRIBUTION" |
+#CloudWatchAlarmTemplateTargetResourceType: "CLOUDFRONT_DISTRIBUTION" |
 	"MEDIALIVE_MULTIPLEX" |
 	"MEDIALIVE_CHANNEL" |
 	"MEDIALIVE_INPUT_DEVICE" |
@@ -129,13 +124,9 @@ _#defs: "/$defs/Properties/definitions/CloudWatchAlarmTemplateTargetResourceType
 	"S3_BUCKET" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchAlarmTemplateTreatMissingData": "notBreaching" |
-	"breaching" |
-	"ignore" |
-	"missing" |
-	fn.#StringExpression
+#CloudWatchAlarmTemplateTreatMissingData: "notBreaching" | "breaching" | "ignore" | "missing" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression

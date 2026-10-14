@@ -7,22 +7,22 @@ package schema
 // Resource Type definition for AWS::Cognito::LogDeliveryConfiguration
 #Properties: close({
 	Id?:                string
-	LogConfigurations?: _#defs."/$defs/Properties/definitions/LogConfigurations"
+	LogConfigurations?: #LogConfigurations
 	UserPoolId!:        string
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsConfiguration": close({LogGroupArn?: string})
+#CloudWatchLogsConfiguration: close({LogGroupArn?: string})
 
-_#defs: "/$defs/Properties/definitions/FirehoseConfiguration": close({StreamArn?: string})
+#FirehoseConfiguration: close({StreamArn?: string})
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
-	CloudWatchLogsConfiguration?: _#defs."/$defs/Properties/definitions/CloudWatchLogsConfiguration"
+#LogConfiguration: close({
+	CloudWatchLogsConfiguration?: #CloudWatchLogsConfiguration
 	EventSource?:                 string
-	FirehoseConfiguration?:       _#defs."/$defs/Properties/definitions/FirehoseConfiguration"
+	FirehoseConfiguration?:       #FirehoseConfiguration
 	LogLevel?:                    string
-	S3Configuration?:             _#defs."/$defs/Properties/definitions/S3Configuration"
+	S3Configuration?:             #S3Configuration
 })
 
-_#defs: "/$defs/Properties/definitions/LogConfigurations": [..._#defs."/$defs/Properties/definitions/LogConfiguration"]
+#LogConfigurations: [...#LogConfiguration]
 
-_#defs: "/$defs/Properties/definitions/S3Configuration": close({BucketArn?: string})
+#S3Configuration: close({BucketArn?: string})

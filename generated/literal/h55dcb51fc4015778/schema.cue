@@ -18,7 +18,7 @@ import (
 	EventBridgeBus!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$"
 
 	// The EventFilter (source) associated with the event integration.
-	EventFilter!: _#defs."/$defs/Properties/definitions/EventFilter"
+	EventFilter!: #EventFilter
 
 	// The Amazon Resource Name (ARN) of the event integration.
 	EventIntegrationArn?: strings.MaxRunes(2048) & strings.MinRunes(1)
@@ -27,15 +27,15 @@ import (
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$"
 
 	// The tags (keys and values) associated with the event integration.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/EventFilter": close({
+#EventFilter: close({
 	// The source of the events.
 	Source!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^aws\\.(partner\\/.*|cases)$"
 })
 
-_#defs: "/$defs/Properties/definitions/Metadata": close({
+#Metadata: close({
 	// A key to identify the metadata.
 	Key!: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*"
 
@@ -43,7 +43,7 @@ _#defs: "/$defs/Properties/definitions/Metadata": close({
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A key to identify the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

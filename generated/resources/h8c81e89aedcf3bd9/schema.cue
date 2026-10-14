@@ -13,57 +13,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Inspector CodeSecurityIntegration resource schema
 #Properties: close({
-	CreateIntegrationDetails?: _#defs."/$defs/Properties/definitions/CreateDetails" | fn.#ObjectExpression
+	CreateIntegrationDetails?: #CreateDetails | fn.#ObjectExpression
 	Name?: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" | fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
-	Type?: _#defs."/$defs/Properties/definitions/IntegrationType" | fn.#StringExpression
-	UpdateIntegrationDetails?: _#defs."/$defs/Properties/definitions/UpdateDetails" | fn.#ObjectExpression
+	Tags?: #TagMap
+	Type?: #IntegrationType | fn.#StringExpression
+	UpdateIntegrationDetails?: #UpdateDetails | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CreateDetails": close(
-	{gitlabSelfManaged!: _#defs."/$defs/Properties/definitions/CreateGitLabSelfManagedIntegrationDetail"},
-) |
-	fn.#ObjectExpression
+#CreateDetails: close({gitlabSelfManaged!: #CreateGitLabSelfManagedIntegrationDetail}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CreateGitLabSelfManagedIntegrationDetail": close({
+#CreateGitLabSelfManagedIntegrationDetail: close({
 	accessToken!: string | fn.#StringExpression
 	instanceUrl!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntegrationStatus": "PENDING" |
-	"IN_PROGRESS" |
-	"ACTIVE" |
-	"INACTIVE" |
-	"DISABLING" |
-	fn.#StringExpression
+#IntegrationStatus: "PENDING" | "IN_PROGRESS" | "ACTIVE" | "INACTIVE" | "DISABLING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IntegrationType": "GITLAB_SELF_MANAGED" | "GITHUB" | fn.#StringExpression
+#IntegrationType: "GITLAB_SELF_MANAGED" | "GITHUB" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~"^.{2,127}$"]: =~"^.{1,255}$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateDetails": matchN(1, [{
+#UpdateDetails: matchN(1, [{
 	gitlabSelfManaged!: _
 	...
 }, {
 	github!: _
 	...
 }]) & close({
-	github?:            _#defs."/$defs/Properties/definitions/UpdateGitHubIntegrationDetail"
-	gitlabSelfManaged?: _#defs."/$defs/Properties/definitions/UpdateGitLabSelfManagedIntegrationDetail"
+	github?:            #UpdateGitHubIntegrationDetail
+	gitlabSelfManaged?: #UpdateGitLabSelfManagedIntegrationDetail
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateGitHubIntegrationDetail": close({
+#UpdateGitHubIntegrationDetail: close({
 	code!:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	installationId!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateGitLabSelfManagedIntegrationDetail": close(
+#UpdateGitLabSelfManagedIntegrationDetail: close(
 	{authCode!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression

@@ -20,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CidrAllowList?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Description?:   string | fn.#StringExpression
 	Destination?:   string | fn.#StringExpression
-	Encryption?:    _#defs."/$defs/Properties/definitions/Encryption" | fn.#ObjectExpression
+	Encryption?:    #Encryption | fn.#ObjectExpression
 	FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 		fn.#StringExpression
 	MaxLatency?: int |
@@ -37,8 +37,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	MediaStreamOutputConfigurations?: [..._#defs."/$defs/Properties/definitions/MediaStreamOutputConfiguration"] |
-		fn.#ListExpression
+	MediaStreamOutputConfigurations?: [...#MediaStreamOutputConfiguration] | fn.#ListExpression
 	MinLatency?: int |
 		{
 			string &
@@ -98,7 +97,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	RemoteId?:                           string | fn.#StringExpression
 	RouterIntegrationState?:             "ENABLED" | "DISABLED" | fn.#StringExpression
-	RouterIntegrationTransitEncryption?: _#defs."/$defs/Properties/definitions/FlowTransitEncryption"
+	RouterIntegrationTransitEncryption?: #FlowTransitEncryption
 	SmoothingLatency?: int |
 		{
 			string &
@@ -114,13 +113,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	StreamId?:               string | fn.#StringExpression
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcInterfaceAttachment?: _#defs."/$defs/Properties/definitions/VpcInterfaceAttachment" | fn.#ObjectExpression
+	Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	VpcInterfaceAttachment?: #VpcInterfaceAttachment | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration": close({}) | fn.#ObjectExpression
+#AutomaticEncryptionKeyConfiguration: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationConfiguration": close({
+#DestinationConfiguration: close({
 	DestinationIp!: string | fn.#StringExpression
 	DestinationPort!: int |
 		{
@@ -136,11 +135,11 @@ _#defs: "/$defs/Properties/definitions/DestinationConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	Interface!: _#defs."/$defs/Properties/definitions/Interface" | fn.#ObjectExpression
+	Interface!: #Interface | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncodingParameters": close({
+#EncodingParameters: close({
 	CompressionFactor!: number |
 		{
 			string &
@@ -164,7 +163,7 @@ _#defs: "/$defs/Properties/definitions/EncodingParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Encryption": close({
+#Encryption: close({
 	Algorithm?: "aes128" | "aes192" | "aes256" | fn.#StringExpression
 	KeyType?:   "static-key" | "srt-password" | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -175,35 +174,32 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration"
-	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyType"
+#FlowTransitEncryption: close({
+	EncryptionKeyConfiguration!: #FlowTransitEncryptionKeyConfiguration
+	EncryptionKeyType?:          #FlowTransitEncryptionKeyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration": matchN(1, [close(
-	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+#FlowTransitEncryptionKeyConfiguration: matchN(1, [close(
+	{SecretsManager!: #SecretsManagerEncryptionKeyConfiguration},
 ), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
+	{Automatic!: #AutomaticEncryptionKeyConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyType": "SECRETS_MANAGER" |
-	"AUTOMATIC" |
-	fn.#StringExpression
+#FlowTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Interface": close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Interface: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaStreamOutputConfiguration": close({
-	DestinationConfigurations?: [..._#defs."/$defs/Properties/definitions/DestinationConfiguration"] |
-		fn.#ListExpression
-	EncodingName!:       "jxsv" | "raw" | "smpte291" | "pcm" | fn.#StringExpression
-	EncodingParameters?: _#defs."/$defs/Properties/definitions/EncodingParameters" | fn.#ObjectExpression
-	MediaStreamName!:    string | fn.#StringExpression
+#MediaStreamOutputConfiguration: close({
+	DestinationConfigurations?: [...#DestinationConfiguration] | fn.#ListExpression
+	EncodingName!:              "jxsv" | "raw" | "smpte291" | "pcm" | fn.#StringExpression
+	EncodingParameters?:        #EncodingParameters | fn.#ObjectExpression
+	MediaStreamName!:           string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration": close({
+#SecretsManagerEncryptionKeyConfiguration: close({
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
 		fn.#StringExpression
@@ -212,16 +208,13 @@ _#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcInterfaceAttachment": close(
-	{VpcInterfaceName?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#VpcInterfaceAttachment: close({VpcInterfaceName?: string | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MediaConnect::FlowOutput"
 	Properties!: #Properties

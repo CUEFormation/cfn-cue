@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,28 +13,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Notifications::NotificationConfiguration
 #Properties: close({
-	AggregationDuration?: _#defs."/$defs/Properties/definitions/AggregationDuration"
+	AggregationDuration?: #AggregationDuration
 	Description!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[^\\x{0001}-\\x{001F}\\x{007F}-\\x{009F}]*$" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_\\-]+$" | fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?: #TagMap
 })
 
-_#defs: "/$defs/Properties/definitions/AggregationDuration": "LONG" | "SHORT" | "NONE" | fn.#StringExpression
+#AggregationDuration: "LONG" | "SHORT" | "NONE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationConfigurationStatus": "ACTIVE" |
-	"PARTIALLY_ACTIVE" |
-	"INACTIVE" |
-	"DELETING" |
-	fn.#StringExpression
+#NotificationConfigurationStatus: "ACTIVE" | "PARTIALLY_ACTIVE" | "INACTIVE" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+#TagMap: [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Notifications::NotificationConfiguration"
 	Properties!: #Properties

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -18,23 +18,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Route53::RecordSet.
 #Properties: close({
-	AliasTarget?:          _#defs."/$defs/Properties/definitions/AliasTarget" | fn.#ObjectExpression
-	CidrRoutingConfig?:    _#defs."/$defs/Properties/definitions/CidrRoutingConfig" | fn.#ObjectExpression
-	Comment?:              _#defs."/$defs/Properties/definitions/Comment" | fn.#StringExpression
-	Failover?:             _#defs."/$defs/Properties/definitions/Failover" | fn.#StringExpression
-	GeoLocation?:          _#defs."/$defs/Properties/definitions/GeoLocation" | fn.#ObjectExpression
-	GeoProximityLocation?: _#defs."/$defs/Properties/definitions/GeoProximityLocation" | fn.#ObjectExpression
-	HealthCheckId?:        _#defs."/$defs/Properties/definitions/HealthCheckId" | fn.#StringExpression
-	HostedZoneId?:         _#defs."/$defs/Properties/definitions/HostedZoneId" | fn.#StringExpression
-	HostedZoneName?:       _#defs."/$defs/Properties/definitions/HostedZoneName" | fn.#StringExpression
-	MultiValueAnswer?:     _#defs."/$defs/Properties/definitions/MultiValueAnswer" | fn.#BooleanExpression
-	Name!:                 _#defs."/$defs/Properties/definitions/Name" | fn.#StringExpression
-	Region?:               _#defs."/$defs/Properties/definitions/Region" | fn.#StringExpression
-	ResourceRecords?:      _#defs."/$defs/Properties/definitions/ResourceRecords" | fn.#ListExpression
-	SetIdentifier?:        _#defs."/$defs/Properties/definitions/SetIdentifier" | fn.#StringExpression
-	TTL?:                  _#defs."/$defs/Properties/definitions/TTL" | fn.#StringExpression
-	Type!:                 _#defs."/$defs/Properties/definitions/Type" | fn.#StringExpression
-	Weight?:               _#defs."/$defs/Properties/definitions/Weight" | fn.#NumberExpression
+	AliasTarget?:          #AliasTarget | fn.#ObjectExpression
+	CidrRoutingConfig?:    #CidrRoutingConfig | fn.#ObjectExpression
+	Comment?:              #Comment | fn.#StringExpression
+	Failover?:             #Failover | fn.#StringExpression
+	GeoLocation?:          #GeoLocation | fn.#ObjectExpression
+	GeoProximityLocation?: #GeoProximityLocation | fn.#ObjectExpression
+	HealthCheckId?:        #HealthCheckId | fn.#StringExpression
+	HostedZoneId?:         #HostedZoneId | fn.#StringExpression
+	HostedZoneName?:       #HostedZoneName | fn.#StringExpression
+	MultiValueAnswer?:     #MultiValueAnswer | fn.#BooleanExpression
+	Name!:                 #Name | fn.#StringExpression
+	Region?:               #Region | fn.#StringExpression
+	ResourceRecords?:      #ResourceRecords | fn.#ListExpression
+	SetIdentifier?:        #SetIdentifier | fn.#StringExpression
+	TTL?:                  #TTL | fn.#StringExpression
+	Type!:                 #Type | fn.#StringExpression
+	Weight?:               #Weight | fn.#NumberExpression
 	if HostedZoneId != _|_ {
 		HostedZoneName?: error(
 			"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
@@ -45,30 +45,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}
 }) & (matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]) & matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]))
 
-_#defs: "/$defs/Properties/definitions/AliasTarget": close({
+#AliasTarget: close({
 	DNSName!:              strings.MaxRunes(1024) | fn.#StringExpression
 	EvaluateTargetHealth?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HostedZoneId!:         _#defs."/$defs/Properties/definitions/HostedZoneId" | fn.#StringExpression
+	HostedZoneId!:         #HostedZoneId | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CidrRoutingConfig": close({
+#CidrRoutingConfig: close({
 	CollectionId!: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" | fn.#StringExpression
 	LocationName!: strings.MaxRunes(16) & strings.MinRunes(1) & =~"[0-9A-Za-z_\\-\\*]+" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Comment": strings.MaxRunes(256) | fn.#StringExpression
+#Comment: strings.MaxRunes(256) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Coordinates": close({
+#Coordinates: close({
 	Latitude!:  =~"[-+]?[0-9]{1,2}(\\.[0-9]{0,2})?" | fn.#StringExpression
 	Longitude!: =~"[-+]?[0-9]{1,3}(\\.[0-9]{0,2})?" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Failover": "PRIMARY" | "SECONDARY" | fn.#StringExpression
+#Failover: "PRIMARY" | "SECONDARY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GeoLocation": close({
+#GeoLocation: close({
 	ContinentCode?:   strings.MaxRunes(2) & strings.MinRunes(2) | fn.#StringExpression
 	CountryCode?:     strings.MaxRunes(2) & strings.MinRunes(1) | fn.#StringExpression
 	SubdivisionCode?: strings.MaxRunes(3) & strings.MinRunes(1) | fn.#StringExpression
@@ -80,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/GeoLocation": close({
 }) & matchN(>=1, [{ContinentCode!: _}, {CountryCode!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeoProximityLocation": close({
+#GeoProximityLocation: close({
 	AWSRegion?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	Bias?: int & <=99 & >=-99 |
 		{
@@ -98,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/GeoProximityLocation": close({
 				)
 		} |
 		fn.#NumberExpression
-	Coordinates?:    _#defs."/$defs/Properties/definitions/Coordinates" | fn.#ObjectExpression
+	Coordinates?:    #Coordinates | fn.#ObjectExpression
 	LocalZoneGroup?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	if AWSRegion != _|_ {
 		LocalZoneGroup?: error(
@@ -116,38 +116,27 @@ _#defs: "/$defs/Properties/definitions/GeoProximityLocation": close({
 }) & matchN(>=1, [{AWSRegion!: _}, {LocalZoneGroup!: _}, {Coordinates!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckId": strings.MaxRunes(64) | fn.#StringExpression
+#HealthCheckId: strings.MaxRunes(64) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HostedZoneId": strings.MaxRunes(44) | fn.#StringExpression
+#HostedZoneId: strings.MaxRunes(44) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HostedZoneName": strings.MaxRunes(256) | fn.#StringExpression
+#HostedZoneName: strings.MaxRunes(256) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MultiValueAnswer": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#MultiValueAnswer: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(1024) | fn.#StringExpression
+#Name: strings.MaxRunes(1024) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Region": string | fn.#StringExpression
+#Region: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceRecords": list.UniqueItems() & [
-	...strings.MaxRunes(4000) | fn.#StringExpression
-] |
-fn.#ListExpression
+#ResourceRecords: list.UniqueItems() & [...strings.MaxRunes(4000) | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SetIdentifier": strings.MaxRunes(128) & strings.MinRunes(0) |
-fn.#StringExpression
+#SetIdentifier: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TTL": string | fn.#StringExpression
+#TTL: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Type": string | fn.#StringExpression
+#Type: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Weight": int |
+#Weight: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &

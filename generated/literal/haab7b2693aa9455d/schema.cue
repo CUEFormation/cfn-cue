@@ -15,10 +15,10 @@ import (
 	Arn?: string
 
 	// The list of endpoints available for interaction with the scheduler.
-	Endpoints?: [..._#defs."/$defs/Properties/definitions/Endpoint"]
+	Endpoints?: [...#Endpoint]
 
 	// The list of errors that occurred during cluster provisioning.
-	ErrorInfo?: [..._#defs."/$defs/Properties/definitions/ErrorInfo"]
+	ErrorInfo?: [...#ErrorInfo]
 
 	// The generated unique ID of the cluster.
 	Id?: =~"^(pcs_[a-zA-Z0-9]+|[A-Za-z][A-Za-z0-9-]{1,40})$"
@@ -33,14 +33,14 @@ import (
 
 		// The list of security group IDs associated with the Elastic Network Interface
 		// (ENI) created in subnets.
-		SecurityGroupIds?: [..._#defs."/$defs/Properties/definitions/SecurityGroupId"]
+		SecurityGroupIds?: [...#SecurityGroupId]
 
 		// The list of subnet IDs where AWS PCS creates an Elastic Network Interface
 		// (ENI) to enable communication between managed controllers and AWS PCS
 		// resources. The subnet must have an available IP address, cannot reside in
 		// AWS Outposts, AWS Wavelength, or an AWS Local Zone. AWS PCS currently
 		// supports only 1 subnet in this list.
-		SubnetIds?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SubnetId"]
+		SubnetIds?: list.MinItems(1) & [...#SubnetId]
 	})
 
 	// The cluster management and job scheduling software associated with the cluster.
@@ -58,22 +58,22 @@ import (
 
 	// Additional options related to the Slurm scheduler.
 	SlurmConfiguration?: close({
-		Accounting?: _#defs."/$defs/Properties/definitions/Accounting"
-		AuthKey?:    _#defs."/$defs/Properties/definitions/AuthKey"
+		Accounting?: #Accounting
+		AuthKey?:    #AuthKey
 
 		// Additional cgroup-specific configuration that directly maps to cgroup.conf settings.
-		CgroupCustomSettings?: [..._#defs."/$defs/Properties/definitions/CgroupCustomSetting"]
-		JwtAuth?:              _#defs."/$defs/Properties/definitions/JwtAuth"
+		CgroupCustomSettings?: [...#CgroupCustomSetting]
+		JwtAuth?:              #JwtAuth
 
 		// The time before an idle node is scaled down.
 		ScaleDownIdleTimeInSeconds?: int & >=1
 
 		// Additional Slurm-specific configuration that directly maps to Slurm settings.
-		SlurmCustomSettings?: [..._#defs."/$defs/Properties/definitions/SlurmCustomSetting"]
-		SlurmRest?:           _#defs."/$defs/Properties/definitions/SlurmRest"
+		SlurmCustomSettings?: [...#SlurmCustomSetting]
+		SlurmRest?:           #SlurmRest
 
 		// Additional slurmdbd-specific configuration that directly maps to slurmdbd.conf settings.
-		SlurmdbdCustomSettings?: [..._#defs."/$defs/Properties/definitions/SlurmdbdCustomSetting"]
+		SlurmdbdCustomSettings?: [...#SlurmdbdCustomSetting]
 	})
 
 	// The provisioning status of the cluster. The provisioning status doesn't
@@ -93,7 +93,7 @@ import (
 })
 
 // The accounting configuration includes configurable settings for Slurm accounting.
-_#defs: "/$defs/Properties/definitions/Accounting": {
+#Accounting: {
 	// The default value for all purge settings for `slurmdbd.conf`. For more
 	// information, see the [slurmdbd.conf documentation at
 	// SchedMD](https://slurm.schedmd.com/slurmdbd.conf.html). The default value is
@@ -107,7 +107,7 @@ _#defs: "/$defs/Properties/definitions/Accounting": {
 }
 
 // The shared Slurm key for authentication, also known as the cluster secret.
-_#defs: "/$defs/Properties/definitions/AuthKey": close({
+#AuthKey: close({
 	// The Amazon Resource Name (ARN) of the the shared Slurm key.
 	SecretArn!: string
 
@@ -116,7 +116,7 @@ _#defs: "/$defs/Properties/definitions/AuthKey": close({
 })
 
 // Additional cgroup configuration settings.
-_#defs: "/$defs/Properties/definitions/CgroupCustomSetting": close({
+#CgroupCustomSetting: close({
 	// The cgroup.conf parameter name.
 	ParameterName!: string
 
@@ -125,7 +125,7 @@ _#defs: "/$defs/Properties/definitions/CgroupCustomSetting": close({
 })
 
 // An endpoint available for interaction with the scheduler.
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	// The endpoint's IPv6 address.
 	Ipv6Address?: string
 
@@ -143,7 +143,7 @@ _#defs: "/$defs/Properties/definitions/Endpoint": close({
 })
 
 // An error that occurred during resource provisioning.
-_#defs: "/$defs/Properties/definitions/ErrorInfo": close({
+#ErrorInfo: close({
 	// The short-form error code.
 	Code?: string
 
@@ -152,10 +152,10 @@ _#defs: "/$defs/Properties/definitions/ErrorInfo": close({
 })
 
 // JWT authentication configuration for Slurm.
-_#defs: "/$defs/Properties/definitions/JwtAuth": close({JwtKey?: _#defs."/$defs/Properties/definitions/JwtKey"})
+#JwtAuth: close({JwtKey?: #JwtKey})
 
 // JWT key configuration.
-_#defs: "/$defs/Properties/definitions/JwtKey": close({
+#JwtKey: close({
 	// The Amazon Resource Name (ARN) of the JWT key secret.
 	SecretArn!: string
 
@@ -164,11 +164,10 @@ _#defs: "/$defs/Properties/definitions/JwtKey": close({
 })
 
 // A VPC security group ID.
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
-	=~"^sg-\\w{8,17}$"
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-\\w{8,17}$"
 
 // Additional settings that directly map to Slurm settings.
-_#defs: "/$defs/Properties/definitions/SlurmCustomSetting": close({
+#SlurmCustomSetting: close({
 	// AWS PCS supports configuration of the following Slurm parameters for
 	// clusters: Prolog, Epilog, and SelectTypeParameters.
 	ParameterName!: string
@@ -178,13 +177,13 @@ _#defs: "/$defs/Properties/definitions/SlurmCustomSetting": close({
 })
 
 // The SlurmRest configuration includes configurable settings for Slurm Rest.
-_#defs: "/$defs/Properties/definitions/SlurmRest": close({
+#SlurmRest: close({
 	// The default value is `NONE`. A value of `STANDARD` means that Slurm Rest is enabled.
 	Mode!: "STANDARD" | "NONE"
 })
 
 // Additional slurmdbd configuration settings.
-_#defs: "/$defs/Properties/definitions/SlurmdbdCustomSetting": close({
+#SlurmdbdCustomSetting: close({
 	// The slurmdbd.conf parameter name.
 	ParameterName!: string
 
@@ -193,10 +192,10 @@ _#defs: "/$defs/Properties/definitions/SlurmdbdCustomSetting": close({
 })
 
 // A VPC subnet ID.
-_#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-\\w{8,17}$"
+#SubnetId: =~"^subnet-\\w{8,17}$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -16,30 +16,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // network connection between AWS and a partner cloud service provider.
 #Properties: close({
 	ActivationKey?: string | fn.#StringExpression
-	AttachPoint!:   _#defs."/$defs/Properties/definitions/AttachPoint" | fn.#ObjectExpression
+	AttachPoint!:   #AttachPoint | fn.#ObjectExpression
 	Bandwidth?:     strings.MaxRunes(8) & strings.MinRunes(1) & =~"^\\d+[MG]bps$" | fn.#StringExpression
 	Description?:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9_ ]+$" | fn.#StringExpression
 	EnvironmentId?: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 	RemoteAccount?: close({Identifier!: strings.MaxRunes(255) & =~"^[-a-zA-Z0-9_@\\.]+$" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 	RemoteOwnerAccount?: strings.MaxRunes(255) & =~"^[-a-zA-Z0-9_@\\.]+$" | fn.#StringExpression
-	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AttachPoint": close({
+#AttachPoint: close({
 	Arn?: string | fn.#StringExpression
 	DirectConnectGateway?: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Provider": close({
+#Provider: close({
 	CloudServiceProvider?: strings.MaxRunes(32) | fn.#StringExpression
 	LastMileProvider?:     strings.MaxRunes(32) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

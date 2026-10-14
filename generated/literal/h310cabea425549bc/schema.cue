@@ -9,7 +9,7 @@ import "strings"
 // Definition of AWS::Wisdom::ContentAssociation Resource Type
 #Properties: close({
 	// The identifier of the associated resource.
-	Association!: _#defs."/$defs/Properties/definitions/ContentAssociationContents"
+	Association!: #ContentAssociationContents
 
 	// The type of association.
 	AssociationType!: "AMAZON_CONNECT_GUIDE"
@@ -36,20 +36,18 @@ import "strings"
 	KnowledgeBaseId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
 
 	// The tags used to organize, track, or control access for this resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AmazonConnectGuideAssociationData": close({
+#AmazonConnectGuideAssociationData: close({
 	FlowId?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-z-]+?:[a-z-]+?:[a-z0-9-]*?:([0-9]{12})?:[a-zA-Z0-9-:/]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/ContentAssociationContents": close(
-	{AmazonConnectGuideAssociation!: _#defs."/$defs/Properties/definitions/AmazonConnectGuideAssociationData"},
-)
+#ContentAssociationContents: close({AmazonConnectGuideAssociation!: #AmazonConnectGuideAssociationData})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

@@ -12,11 +12,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:                string | fn.#StringExpression
 	MergedApiIdentifier?:        string | fn.#StringExpression
-	SourceApiAssociationConfig?: _#defs."/$defs/Properties/definitions/SourceApiAssociationConfig" | fn.#ValueExpression
+	SourceApiAssociationConfig?: #SourceApiAssociationConfig | fn.#ValueExpression
 	SourceApiIdentifier?:        string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/SourceApiAssociationConfig": null |
+#SourceApiAssociationConfig: null |
 	bool |
 	number |
 	string |

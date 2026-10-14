@@ -24,29 +24,29 @@ import (
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
 
 	// The edges within a core network.
-	Edges?: [..._#defs."/$defs/Properties/definitions/CoreNetworkEdge"]
+	Edges?: [...#CoreNetworkEdge]
 
 	// The ID of the global network that your core network is a part of.
 	GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
 
 	// The network function groups within a core network.
-	NetworkFunctionGroups?: [..._#defs."/$defs/Properties/definitions/CoreNetworkNetworkFunctionGroup"]
+	NetworkFunctionGroups?: [...#CoreNetworkNetworkFunctionGroup]
 
 	// Owner of the core network
 	OwnerAccount?:   string
 	PolicyDocument?: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | {...}
 
 	// The segments within a core network.
-	Segments?: [..._#defs."/$defs/Properties/definitions/CoreNetworkSegment"]
+	Segments?: [...#CoreNetworkSegment]
 
 	// The state of core network
 	State?: string
 
 	// The tags for the global network.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/CoreNetworkEdge": close({
+#CoreNetworkEdge: close({
 	// The ASN of a core network edge.
 	Asn?: number
 
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/CoreNetworkEdge": close({
 	InsideCidrBlocks?: [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/CoreNetworkNetworkFunctionGroup": close({
+#CoreNetworkNetworkFunctionGroup: close({
 	EdgeLocations?: [...string]
 
 	// Name of network function group
@@ -66,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/CoreNetworkNetworkFunctionGroup": close({
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/CoreNetworkSegment": close({
+#CoreNetworkSegment: close({
 	EdgeLocations?: [...string]
 
 	// Name of segment
@@ -75,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/CoreNetworkSegment": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

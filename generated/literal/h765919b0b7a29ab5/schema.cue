@@ -10,15 +10,15 @@ import "list"
 #Properties: close({
 	Id?:                      string
 	Name!:                    string
-	SqlInjectionMatchTuples?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SqlInjectionMatchTuple"]
+	SqlInjectionMatchTuples?: list.UniqueItems() & [...#SqlInjectionMatchTuple]
 })
 
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	Data?: string
 	Type!: string
 })
 
-_#defs: "/$defs/Properties/definitions/SqlInjectionMatchTuple": close({
-	FieldToMatch!:       _#defs."/$defs/Properties/definitions/FieldToMatch"
+#SqlInjectionMatchTuple: close({
+	FieldToMatch!:       #FieldToMatch
 	TextTransformation!: string
 })

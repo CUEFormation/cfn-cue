@@ -14,7 +14,7 @@ import (
 #Properties: close({
 	// The time the workspace was created.
 	CreatedAt?:               time.Time
-	EncryptionConfiguration!: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	EncryptionConfiguration!: #EncryptionConfiguration
 
 	// The ARN of the AWS KMS key used for KMS_BASED_ENCRYPTION. Required when
 	// EncryptionConfiguration.EncryptionType is KMS_BASED_ENCRYPTION.
@@ -27,7 +27,7 @@ import (
 	Status?: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | "FAILED"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The time the workspace was last updated.
 	UpdatedAt?: time.Time
@@ -43,13 +43,13 @@ import (
 })
 
 // The encryption configuration for the workspace.
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	// The type of encryption.
 	EncryptionType!: "SITEWISE_DEFAULT_ENCRYPTION" | "KMS_BASED_ENCRYPTION"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

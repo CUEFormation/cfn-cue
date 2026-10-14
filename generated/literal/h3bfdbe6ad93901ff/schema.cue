@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,8 +21,8 @@ import (
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0)
 
 	// Placeholder documentation for __listOfEventBridgeRuleTemplateTarget
-	EventTargets?: [..._#defs."/$defs/Properties/definitions/EventBridgeRuleTemplateTarget"]
-	EventType!:    _#defs."/$defs/Properties/definitions/EventBridgeRuleTemplateEventType"
+	EventTargets?: [...#EventBridgeRuleTemplateTarget]
+	EventType!:    #EventBridgeRuleTemplateEventType
 
 	// An eventbridge rule template group's id. AWS provided template groups have
 	// ids that start with `aws-`
@@ -42,11 +42,11 @@ import (
 
 	// A resource's name. Names must be unique within the scope of a resource type in a specific region.
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$"
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?: #TagMap
 })
 
 // The type of event to match with the rule.
-_#defs: "/$defs/Properties/definitions/EventBridgeRuleTemplateEventType": "MEDIALIVE_MULTIPLEX_ALERT" |
+#EventBridgeRuleTemplateEventType: "MEDIALIVE_MULTIPLEX_ALERT" |
 	"MEDIALIVE_MULTIPLEX_STATE_CHANGE" |
 	"MEDIALIVE_CHANNEL_ALERT" |
 	"MEDIALIVE_CHANNEL_INPUT_CHANGE" |
@@ -61,12 +61,12 @@ _#defs: "/$defs/Properties/definitions/EventBridgeRuleTemplateEventType": "MEDIA
 	"MEDIACONNECT_FLOW_STATUS_CHANGE"
 
 // The target to which to send matching events.
-_#defs: "/$defs/Properties/definitions/EventBridgeRuleTemplateTarget": close({
+#EventBridgeRuleTemplateTarget: close({
 	// Target ARNs must be either an SNS topic or CloudWatch log group.
 	Arn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn.+$"
 })
 
 // Represents the tags associated with a resource.
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: string}})

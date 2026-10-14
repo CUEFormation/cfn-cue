@@ -17,7 +17,7 @@ import (
 
 	// The timestamp where the metric was created
 	CreatedTime?: number
-	CreatedUser?: _#defs."/$defs/Properties/definitions/CreatedByInfo"
+	CreatedUser?: #CreatedByInfo
 
 	// Whether the metric was built with the guided Service Level (SL) experience,
 	// or with the free-form metric builder
@@ -30,7 +30,7 @@ import (
 	EffectiveTime?: number
 
 	// List of filter types that may be used with this metric
-	Filters?: [..._#defs."/$defs/Properties/definitions/AvailableFilter"]
+	Filters?: [...#AvailableFilter]
 
 	// List of groupings that may be used with this metric
 	Groupings?: [...string]
@@ -43,7 +43,7 @@ import (
 
 	// The timestamp where the metric was last modified
 	LastModifiedTime?: number
-	LastModifiedUser?: _#defs."/$defs/Properties/definitions/CreatedByInfo"
+	LastModifiedUser?: #CreatedByInfo
 
 	// The Amazon Resource Name (ARN) for the custom metric.
 	MetricArn?: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/metric/[-a-zA-Z0-9]*$"
@@ -54,9 +54,7 @@ import (
 		Calculation!: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 		// The calculation components for the metric
-		CalculationComponents!: list.MaxItems(5) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/CalculationComponent"
-		]
+		CalculationComponents!: list.MaxItems(5) & list.MinItems(1) & [...#CalculationComponent]
 	})
 
 	// The name of the custom metric
@@ -89,7 +87,7 @@ import (
 	SupportsPreaggregateCalculation?: bool
 
 	// One or more tags.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// Whether the metric is provided out-of-the-box or created by each customer
 	Type?: "AWS_MANAGED" | "CUSTOMER_MANAGED"
@@ -98,20 +96,20 @@ import (
 	Unit!: "INTEGER" | "DOUBLE" | "PERCENT" | "SECONDS"
 })
 
-_#defs: "/$defs/Properties/definitions/AvailableFilter": close({
+#AvailableFilter: close({
 	Id!:   string
 	Type!: "METRIC_LEVEL" | "RESOURCE_LEVEL"
 })
 
-_#defs: "/$defs/Properties/definitions/CalculationComponent": close({
+#CalculationComponent: close({
 	// Metric calculation component alias for use within a calculation
 	Alias!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_][a-zA-Z0-9_]*"
-	MetricFilters?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/MetricFilter"]
+	MetricFilters?: list.MaxItems(5) & [...] & [...#MetricFilter]
 	MetricId?:      strings.MaxRunes(150) & strings.MinRunes(1)
 	MetricName?:    strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/CreatedByInfo": matchN(1, [close({
+#CreatedByInfo: matchN(1, [close({
 	// STS or IAM ARN representing the identity of API Caller. SDK users cannot
 	// populate this and this value is calculated automatically if ConnectUserArn
 	// is not provided.
@@ -121,28 +119,28 @@ _#defs: "/$defs/Properties/definitions/CreatedByInfo": matchN(1, [close({
 	ConnectUserArn!: string
 })])
 
-_#defs: "/$defs/Properties/definitions/MetricFilter": close({
-	BooleanCondition?: _#defs."/$defs/Properties/definitions/MetricFilterBooleanCondition"
+#MetricFilter: close({
+	BooleanCondition?: #MetricFilterBooleanCondition
 	MetricFilterKey!:  strings.MaxRunes(100) & strings.MinRunes(1)
 	Negate?:           bool
-	NumberCondition?:  _#defs."/$defs/Properties/definitions/MetricFilterNumberCondition"
-	StringCondition?:  _#defs."/$defs/Properties/definitions/MetricFilterStringCondition"
+	NumberCondition?:  #MetricFilterNumberCondition
+	StringCondition?:  #MetricFilterStringCondition
 })
 
-_#defs: "/$defs/Properties/definitions/MetricFilterBooleanCondition": close({Comparison!: "IS_TRUE" | "IS_FALSE"})
+#MetricFilterBooleanCondition: close({Comparison!: "IS_TRUE" | "IS_FALSE"})
 
-_#defs: "/$defs/Properties/definitions/MetricFilterNumberCondition": close({
+#MetricFilterNumberCondition: close({
 	Comparison!: "LESSER" | "LESSER_OR_EQUAL" | "GREATER" | "GREATER_OR_EQUAL"
 	Values!:     list.MaxItems(10) & list.MinItems(1) & [...number]
 })
 
-_#defs: "/$defs/Properties/definitions/MetricFilterStringCondition": close({
+#MetricFilterStringCondition: close({
 	Comparison!: "MATCHES_ANY" | "MATCHES_NONE"
 	Values!:     list.MaxItems(15) & list.MinItems(1) & [...string]
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

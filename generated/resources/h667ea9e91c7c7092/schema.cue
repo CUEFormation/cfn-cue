@@ -22,17 +22,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	DomainName!: strings.MaxRunes(253) & strings.MinRunes(1) & =~"^(\\*[a-z\\d-]*\\.)?([a-z\\d-]+\\.)+[a-z\\d-]+$" |
 	fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Tags?: #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\w+-=\\.:/@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
+#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::AppSync::DomainName"
 	Properties!: #Properties

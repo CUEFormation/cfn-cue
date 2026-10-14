@@ -11,7 +11,7 @@ import "strings"
 // borrow limits.
 #Properties: close({
 	// A list that specifies the quantity and type of compute capacity allocated to the quota share.
-	CapacityLimits!: [..._#defs."/$defs/Properties/definitions/QuotaShareCapacityLimit"]
+	CapacityLimits!: [...#QuotaShareCapacityLimit]
 
 	// The AWS Batch job queue associated with the quota share. This can be the job
 	// queue name or ARN. A job queue must be in the `VALID` state before you can
@@ -19,10 +19,10 @@ import "strings"
 	JobQueue!: string
 
 	// Specifies the preemption behavior for jobs in a quota share.
-	PreemptionConfiguration!: _#defs."/$defs/Properties/definitions/QuotaSharePreemptionConfiguration"
+	PreemptionConfiguration!: #QuotaSharePreemptionConfiguration
 
 	// The Amazon Resource Name (ARN) of the quota share.
-	QuotaShareArn?: _#defs."/$defs/Properties/definitions/ResourceArn"
+	QuotaShareArn?: #ResourceArn
 
 	// The name of the quota share. It can be up to 128 characters long. It can
 	// contain uppercase and lowercase letters, numbers, hyphens (-), and
@@ -30,7 +30,7 @@ import "strings"
 	QuotaShareName!: strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// Specifies whether a quota share reserves, lends, or both lends and borrows idle compute capacity.
-	ResourceSharingConfiguration!: _#defs."/$defs/Properties/definitions/QuotaShareResourceSharingConfiguration"
+	ResourceSharingConfiguration!: #QuotaShareResourceSharingConfiguration
 
 	// The state of the quota share. If the quota share is `ENABLED`, it is able to
 	// accept jobs. If the quota share is `DISABLED`, new jobs won't be accepted
@@ -44,7 +44,7 @@ import "strings"
 		{[=~".*"]: string}})
 })
 
-_#defs: "/$defs/Properties/definitions/QuotaShareCapacityLimit": close({
+#QuotaShareCapacityLimit: close({
 	// The unit of compute capacity for the capacityLimit. For example, `ml.m5.large`.
 	CapacityUnit!: string
 
@@ -54,13 +54,13 @@ _#defs: "/$defs/Properties/definitions/QuotaShareCapacityLimit": close({
 	MaxCapacity!: int & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/QuotaSharePreemptionConfiguration": close({
+#QuotaSharePreemptionConfiguration: close({
 	// Specifies whether jobs within a quota share can be preempted by another,
 	// higher priority job in the same quota share.
 	InSharePreemption!: =~"(?i)^(?:disabled|enabled)$"
 })
 
-_#defs: "/$defs/Properties/definitions/QuotaShareResourceSharingConfiguration": close({
+#QuotaShareResourceSharingConfiguration: close({
 	// The maximum percentage of additional capacity that the quota share can borrow
 	// from other shares. `BorrowLimit` can only be applied to quota shares with a
 	// strategy of `LEND_AND_BORROW`. This value is expressed as a percentage of
@@ -79,4 +79,4 @@ _#defs: "/$defs/Properties/definitions/QuotaShareResourceSharingConfiguration": 
 	Strategy!: =~"(?i)^(?:lend|lend_and_borrow|reserve)$"
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": =~"^arn:aws[a-z\\-]*:batch:[a-z0-9\\-]+:[0-9]{12}:job-queue/[a-zA-Z0-9_\\-]{1,128}/quota-share/[a-zA-Z0-9_\\-]{1,128}$"
+#ResourceArn: =~"^arn:aws[a-z\\-]*:batch:[a-z0-9\\-]+:[0-9]{12}:job-queue/[a-zA-Z0-9_\\-]{1,128}/quota-share/[a-zA-Z0-9_\\-]{1,128}$"

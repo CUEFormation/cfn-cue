@@ -15,10 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for Identity Center (SSO) Instance
 #Properties: close({
 	Name?: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(75) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(75) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w+=,.@-]+" | fn.#StringExpression
 }) |

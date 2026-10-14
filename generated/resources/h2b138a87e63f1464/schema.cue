@@ -32,12 +32,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	EnaSrdSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdSpecification" | fn.#ObjectExpression
+	EnaSrdSpecification?: #EnaSrdSpecification | fn.#ObjectExpression
 	InstanceId!:          string | fn.#StringExpression
 	NetworkInterfaceId!:  string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EnaSrdSpecification": close({
+#EnaSrdSpecification: close({
 	EnaSrdEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnaSrdUdpSpecification?: close(
 		{EnaSrdUdpEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},

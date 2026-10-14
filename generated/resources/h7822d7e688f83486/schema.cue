@@ -50,8 +50,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	DataflowEdges!: list.MaxItems(500) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DataflowEdge"] |
-		fn.#ListExpression
+	DataflowEdges!: list.MaxItems(500) & list.MinItems(1) & [...#DataflowEdge] | fn.#ListExpression
 	MinimumViableContactDurationSeconds!: int & <=21600 & >=1 |
 		{
 			string &
@@ -69,12 +68,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	Name!:          =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
-	StreamsKmsKey?: _#defs."/$defs/Properties/definitions/StreamsKmsKey" | fn.#ObjectExpression
+	StreamsKmsKey?: #StreamsKmsKey | fn.#ObjectExpression
 	StreamsKmsRole?: strings.MaxRunes(165) &
 	strings.MinRunes(30) &
 	=~"^arn:[a-z0-9-.]{1,63}:iam::[0-9]{12}:role/[\\w+=,.@-]{1,64}$" |
 	fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 	TelemetrySinkConfigArn?: strings.MaxRunes(424) &
 	strings.MinRunes(82) &
 	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
@@ -83,13 +82,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DataflowEdge": close({
+#DataflowEdge: close({
 	Destination?: string | fn.#StringExpression
 	Source?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamsKmsKey": close({
+#StreamsKmsKey: close({
 	KmsAliasArn?:  =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" | fn.#StringExpression
 	KmsAliasName?: =~"^alias/[a-zA-Z0-9:/_-]+$" | fn.#StringExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -111,7 +110,7 @@ _#defs: "/$defs/Properties/definitions/StreamsKmsKey": close({
 }) & matchN(>=1, [{KmsKeyArn!: _}, {KmsAliasArn!: _}, {KmsAliasName!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" | fn.#StringExpression
 	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" | fn.#StringExpression
 }) |

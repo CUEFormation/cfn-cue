@@ -26,7 +26,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // You can only delete empty buckets. Deletion fails for buckets that have contents.
 #Properties: close({
 	AbacStatus?:              "Enabled" | "Disabled" | fn.#StringExpression
-	AccelerateConfiguration?: _#defs."/$defs/Properties/definitions/AccelerateConfiguration" | fn.#ObjectExpression
+	AccelerateConfiguration?: #AccelerateConfiguration | fn.#ObjectExpression
 	AccessControl?: "AuthenticatedRead" |
 		"AwsExecRead" |
 		"BucketOwnerFullControl" |
@@ -36,39 +36,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"PublicRead" |
 		"PublicReadWrite" |
 		fn.#StringExpression
-	AnalyticsConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AnalyticsConfiguration"] |
-		fn.#ListExpression
-	BucketEncryption?:  _#defs."/$defs/Properties/definitions/BucketEncryption" | fn.#ObjectExpression
-	BucketName?:        strings.MaxRunes(63) & =~"^([a-z0-9][a-z0-9.-]*[a-z0-9])?$" | fn.#StringExpression
-	BucketNamePrefix?:  string | fn.#StringExpression
-	BucketNamespace?:   "global" | "account-regional" | fn.#StringExpression
-	CorsConfiguration?: _#defs."/$defs/Properties/definitions/CorsConfiguration" | fn.#ObjectExpression
-	IntelligentTieringConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IntelligentTieringConfiguration"
-	] |
-		fn.#ListExpression
-	InventoryConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InventoryConfiguration"] |
-		fn.#ListExpression
-	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration" | fn.#ObjectExpression
-	LoggingConfiguration?:   _#defs."/$defs/Properties/definitions/LoggingConfiguration" | fn.#ObjectExpression
+	AnalyticsConfigurations?: list.UniqueItems() & [...#AnalyticsConfiguration] | fn.#ListExpression
+	BucketEncryption?:        #BucketEncryption | fn.#ObjectExpression
+	BucketName?:              strings.MaxRunes(63) & =~"^([a-z0-9][a-z0-9.-]*[a-z0-9])?$" | fn.#StringExpression
+	BucketNamePrefix?:        string | fn.#StringExpression
+	BucketNamespace?:         "global" | "account-regional" | fn.#StringExpression
+	CorsConfiguration?:       #CorsConfiguration | fn.#ObjectExpression
+	IntelligentTieringConfigurations?: list.UniqueItems() & [...#IntelligentTieringConfiguration] | fn.#ListExpression
+	InventoryConfigurations?:          list.UniqueItems() & [...#InventoryConfiguration] | fn.#ListExpression
+	LifecycleConfiguration?:           #LifecycleConfiguration | fn.#ObjectExpression
+	LoggingConfiguration?:             #LoggingConfiguration | fn.#ObjectExpression
 	MetadataConfiguration?: close({
 		AnnotationTableConfiguration?: close({
-			ConfigurationState!: "ENABLED" | "DISABLED" | fn.#StringExpression
-			EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration" |
-				fn.#ObjectExpression
-			Role?: string | fn.#StringExpression
+			ConfigurationState!:      "ENABLED" | "DISABLED" | fn.#StringExpression
+			EncryptionConfiguration?: #MetadataTableEncryptionConfiguration | fn.#ObjectExpression
+			Role?:                    string | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		InventoryTableConfiguration?: close({
-			ConfigurationState!: "ENABLED" | "DISABLED" | fn.#StringExpression
-			EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration" |
-				fn.#ObjectExpression
+			ConfigurationState!:      "ENABLED" | "DISABLED" | fn.#StringExpression
+			EncryptionConfiguration?: #MetadataTableEncryptionConfiguration | fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
 		JournalTableConfiguration!: close({
-			EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration" |
-				fn.#ObjectExpression
-			RecordExpiration!: _#defs."/$defs/Properties/definitions/RecordExpiration" | fn.#ObjectExpression
+			EncryptionConfiguration?: #MetadataTableEncryptionConfiguration | fn.#ObjectExpression
+			RecordExpiration!:        #RecordExpiration | fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
 	}) |
@@ -81,21 +73,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	MetricsConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricsConfiguration"] |
-		fn.#ListExpression
-	NotificationConfiguration?: _#defs."/$defs/Properties/definitions/NotificationConfiguration" | fn.#ObjectExpression
-	ObjectLockConfiguration?:   _#defs."/$defs/Properties/definitions/ObjectLockConfiguration" | fn.#ObjectExpression
+	MetricsConfigurations?:     list.UniqueItems() & [...#MetricsConfiguration] | fn.#ListExpression
+	NotificationConfiguration?: #NotificationConfiguration | fn.#ObjectExpression
+	ObjectLockConfiguration?:   #ObjectLockConfiguration | fn.#ObjectExpression
 	ObjectLockEnabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OwnershipControls?:         _#defs."/$defs/Properties/definitions/OwnershipControls" | fn.#ObjectExpression
-	PublicAccessBlockConfiguration?: _#defs."/$defs/Properties/definitions/PublicAccessBlockConfiguration" |
-		fn.#ObjectExpression
-	ReplicationConfiguration?: _#defs."/$defs/Properties/definitions/ReplicationConfiguration" | fn.#ObjectExpression
-	Tags?:                     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VersioningConfiguration?:  _#defs."/$defs/Properties/definitions/VersioningConfiguration" | fn.#ObjectExpression
-	WebsiteConfiguration?:     _#defs."/$defs/Properties/definitions/WebsiteConfiguration" | fn.#ObjectExpression
+	OwnershipControls?:         #OwnershipControls | fn.#ObjectExpression
+	PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration | fn.#ObjectExpression
+	ReplicationConfiguration?:       #ReplicationConfiguration | fn.#ObjectExpression
+	Tags?:                           [...#Tag] | fn.#ListExpression
+	VersioningConfiguration?:        #VersioningConfiguration | fn.#ObjectExpression
+	WebsiteConfiguration?:           #WebsiteConfiguration | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
+#AbortIncompleteMultipartUpload: close({
 	DaysAfterInitiation!: int & >=0 |
 		{
 			string &
@@ -114,65 +104,49 @@ _#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccelerateConfiguration": close(
-	{AccelerationStatus!: "Enabled" | "Suspended" | fn.#StringExpression},
-) |
+#AccelerateConfiguration: close({AccelerationStatus!: "Enabled" | "Suspended" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessControlTranslation": close(
-	{Owner!: "Destination" & "Destination" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#AccessControlTranslation: close({Owner!: "Destination" & "Destination" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnalyticsConfiguration": close({
+#AnalyticsConfiguration: close({
 	Id!:                   string | fn.#StringExpression
 	Prefix?:               string | fn.#StringExpression
-	StorageClassAnalysis!: _#defs."/$defs/Properties/definitions/StorageClassAnalysis" | fn.#ObjectExpression
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
+	StorageClassAnalysis!: #StorageClassAnalysis | fn.#ObjectExpression
+	TagFilters?:           list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnnotationTableConfiguration": close({
-	ConfigurationState!: "ENABLED" | "DISABLED" | fn.#StringExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration" |
-		fn.#ObjectExpression
-	Role?:      string | fn.#StringExpression
-	TableArn?:  string | fn.#StringExpression
-	TableName?: string | fn.#StringExpression
+#AnnotationTableConfiguration: close({
+	ConfigurationState!:      "ENABLED" | "DISABLED" | fn.#StringExpression
+	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration | fn.#ObjectExpression
+	Role?:                    string | fn.#StringExpression
+	TableArn?:                string | fn.#StringExpression
+	TableName?:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
+#Arn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BlockedEncryptionTypeList": list.UniqueItems() & [
-	..."NONE" | "SSE-C" | fn.#StringExpression
-] |
-	fn.#ListExpression
+#BlockedEncryptionTypeList: list.UniqueItems() & [..."NONE" | "SSE-C" | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/BlockedEncryptionTypes": close(
-	{EncryptionType?: _#defs."/$defs/Properties/definitions/BlockedEncryptionTypeList" | fn.#ListExpression},
+#BlockedEncryptionTypes: close({EncryptionType?: #BlockedEncryptionTypeList | fn.#ListExpression}) |
+	fn.#ObjectExpression
+
+#BucketEncryption: close(
+	{ServerSideEncryptionConfiguration!: list.UniqueItems() & [...#ServerSideEncryptionRule] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BucketEncryption": close({
-	ServerSideEncryptionConfiguration!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ServerSideEncryptionRule"
-	] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/CorsConfiguration": close({
+#CorsConfiguration: close({
 	CorsRules!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/CorsRule" &
-		(null | bool | number | strings.MaxRunes(100) | [...] | {...}) |
-		fn.#ObjectExpression
+		...#CorsRule & (null | bool | number | strings.MaxRunes(100) | [...] | {...}) | fn.#ObjectExpression
 	] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CorsRule": close({
+#CorsRule: close({
 	AllowedHeaders?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowedMethods!: list.UniqueItems() & [..."GET" | "PUT" | "HEAD" | "POST" | "DELETE" | fn.#StringExpression] |
 		fn.#ListExpression
@@ -197,13 +171,13 @@ _#defs: "/$defs/Properties/definitions/CorsRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataExport": close({
-	Destination!:         _#defs."/$defs/Properties/definitions/Destination" | fn.#ObjectExpression
+#DataExport: close({
+	Destination!:         #Destination | fn.#ObjectExpression
 	OutputSchemaVersion!: "V_1" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultEventHold": close({
+#DefaultEventHold: close({
 	Days?: int |
 		{
 			string &
@@ -235,7 +209,7 @@ _#defs: "/$defs/Properties/definitions/DefaultEventHold": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultRetention": close({
+#DefaultRetention: close({
 	Days?: int |
 		{
 			string &
@@ -250,7 +224,7 @@ _#defs: "/$defs/Properties/definitions/DefaultRetention": close({
 				)
 		} |
 		fn.#NumberExpression
-	DefaultEventHold?: _#defs."/$defs/Properties/definitions/DefaultEventHold" | fn.#ObjectExpression
+	DefaultEventHold?: #DefaultEventHold | fn.#ObjectExpression
 	Mode?:             "COMPLIANCE" | "GOVERNANCE" | fn.#StringExpression
 	Years?: int |
 		{
@@ -269,12 +243,9 @@ _#defs: "/$defs/Properties/definitions/DefaultRetention": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeleteMarkerReplication": close(
-	{Status?: "Disabled" | "Enabled" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#DeleteMarkerReplication: close({Status?: "Disabled" | "Enabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Destination": close({
+#Destination: close({
 	BucketAccountId?: string | fn.#StringExpression
 	BucketArn!:       string | fn.#StringExpression
 	Format!:          "CSV" | "ORC" | "Parquet" | fn.#StringExpression
@@ -282,33 +253,30 @@ _#defs: "/$defs/Properties/definitions/Destination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close(
-	{ReplicaKmsKeyID!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#EncryptionConfiguration: close({ReplicaKmsKeyID!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventBridgeConfiguration": close(
+#EventBridgeConfiguration: close(
 	{EventBridgeEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterRule": close({
+#FilterRule: close({
 	Name!:  strings.MaxRunes(1024) | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntelligentTieringConfiguration": close({
+#IntelligentTieringConfiguration: close({
 	Id!:         string | fn.#StringExpression
 	Prefix?:     string | fn.#StringExpression
 	Status!:     "Disabled" | "Enabled" | fn.#StringExpression
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
-	Tierings!:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tiering"] | fn.#ListExpression
+	TagFilters?: list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
+	Tierings!:   list.UniqueItems() & [...#Tiering] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InventoryConfiguration": close({
-	Destination!:            _#defs."/$defs/Properties/definitions/Destination" | fn.#ObjectExpression
+#InventoryConfiguration: close({
+	Destination!:            #Destination | fn.#ObjectExpression
 	Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Id!:                     string | fn.#StringExpression
 	IncludedObjectVersions!: "All" | "Current" | fn.#StringExpression
@@ -340,88 +308,82 @@ _#defs: "/$defs/Properties/definitions/InventoryConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InventoryTableConfiguration": close({
-	ConfigurationState!: "ENABLED" | "DISABLED" | fn.#StringExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration" |
-		fn.#ObjectExpression
-	TableArn?:  string | fn.#StringExpression
-	TableName?: string | fn.#StringExpression
+#InventoryTableConfiguration: close({
+	ConfigurationState!:      "ENABLED" | "DISABLED" | fn.#StringExpression
+	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration | fn.#ObjectExpression
+	TableArn?:                string | fn.#StringExpression
+	TableName?:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JournalTableConfiguration": close({
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration" |
-		fn.#ObjectExpression
-	RecordExpiration!: _#defs."/$defs/Properties/definitions/RecordExpiration" | fn.#ObjectExpression
-	TableArn?:         string | fn.#StringExpression
-	TableName?:        string | fn.#StringExpression
+#JournalTableConfiguration: close({
+	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration | fn.#ObjectExpression
+	RecordExpiration!:        #RecordExpiration | fn.#ObjectExpression
+	TableArn?:                string | fn.#StringExpression
+	TableName?:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaConfiguration": close({
+#LambdaConfiguration: close({
 	Event!:    string | fn.#StringExpression
-	Filter?:   _#defs."/$defs/Properties/definitions/NotificationFilter" | fn.#ObjectExpression
+	Filter?:   #NotificationFilter | fn.#ObjectExpression
 	Function!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
-	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
+#LifecycleConfiguration: close({
+	Rules!:                              list.UniqueItems() & [...#Rule] | fn.#ListExpression
 	TransitionDefaultMinimumObjectSize?: "varies_by_storage_class" | "all_storage_classes_128K" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close({
+#LoggingConfiguration: close({
 	DestinationBucketName?: string | fn.#StringExpression
 	LogFilePrefix?:         string | fn.#StringExpression
-	TargetObjectKeyFormat?: _#defs."/$defs/Properties/definitions/TargetObjectKeyFormat" | fn.#ObjectExpression
+	TargetObjectKeyFormat?: #TargetObjectKeyFormat | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataConfiguration": close({
-	AnnotationTableConfiguration?: _#defs."/$defs/Properties/definitions/AnnotationTableConfiguration" |
-		fn.#ObjectExpression
-	Destination?: _#defs."/$defs/Properties/definitions/MetadataDestination" | fn.#ObjectExpression
-	InventoryTableConfiguration?: _#defs."/$defs/Properties/definitions/InventoryTableConfiguration" |
-		fn.#ObjectExpression
-	JournalTableConfiguration!: _#defs."/$defs/Properties/definitions/JournalTableConfiguration" | fn.#ObjectExpression
+#MetadataConfiguration: close({
+	AnnotationTableConfiguration?: #AnnotationTableConfiguration | fn.#ObjectExpression
+	Destination?:                  #MetadataDestination | fn.#ObjectExpression
+	InventoryTableConfiguration?:  #InventoryTableConfiguration | fn.#ObjectExpression
+	JournalTableConfiguration!:    #JournalTableConfiguration | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataDestination": close({
+#MetadataDestination: close({
 	TableBucketArn?:  string | fn.#StringExpression
 	TableBucketType!: "aws" | "customer" | fn.#StringExpression
 	TableNamespace?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataTableConfiguration": close(
-	{S3TablesDestination!: _#defs."/$defs/Properties/definitions/S3TablesDestination" | fn.#ObjectExpression},
-) |
+#MetadataTableConfiguration: close({S3TablesDestination!: #S3TablesDestination | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataTableEncryptionConfiguration": close({
+#MetadataTableEncryptionConfiguration: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	SseAlgorithm!: "aws:kms" | "AES256" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Metrics": close({
-	EventThreshold?: _#defs."/$defs/Properties/definitions/ReplicationTimeValue" | fn.#ObjectExpression
+#Metrics: close({
+	EventThreshold?: #ReplicationTimeValue | fn.#ObjectExpression
 	Status!:         "Disabled" | "Enabled" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricsConfiguration": close({
+#MetricsConfiguration: close({
 	AccessPointArn?: string | fn.#StringExpression
 	Id!:             string | fn.#StringExpression
 	Prefix?:         string | fn.#StringExpression
-	TagFilters?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
+	TagFilters?:     list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NoncurrentVersionExpiration": close({
+#NoncurrentVersionExpiration: close({
 	NewerNoncurrentVersions?: int |
 		{
 			string &
@@ -453,7 +415,7 @@ _#defs: "/$defs/Properties/definitions/NoncurrentVersionExpiration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NoncurrentVersionTransition": close({
+#NoncurrentVersionTransition: close({
 	NewerNoncurrentVersions?: int |
 		{
 			string &
@@ -493,49 +455,36 @@ _#defs: "/$defs/Properties/definitions/NoncurrentVersionTransition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
-	EventBridgeConfiguration?: _#defs."/$defs/Properties/definitions/EventBridgeConfiguration" | fn.#ObjectExpression
-	LambdaConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LambdaConfiguration"] |
-		fn.#ListExpression
-	QueueConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/QueueConfiguration"] |
-		fn.#ListExpression
-	TopicConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TopicConfiguration"] |
-		fn.#ListExpression
+#NotificationConfiguration: close({
+	EventBridgeConfiguration?: #EventBridgeConfiguration | fn.#ObjectExpression
+	LambdaConfigurations?:     list.UniqueItems() & [...#LambdaConfiguration] | fn.#ListExpression
+	QueueConfigurations?:      list.UniqueItems() & [...#QueueConfiguration] | fn.#ListExpression
+	TopicConfigurations?:      list.UniqueItems() & [...#TopicConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationFilter": close(
-	{S3Key!: _#defs."/$defs/Properties/definitions/S3KeyFilter" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#NotificationFilter: close({S3Key!: #S3KeyFilter | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectLockConfiguration": close({
+#ObjectLockConfiguration: close({
 	ObjectLockEnabled?: "Enabled" & "Enabled" | fn.#StringExpression
-	Rule?:              _#defs."/$defs/Properties/definitions/ObjectLockRule" | fn.#ObjectExpression
+	Rule?:              #ObjectLockRule | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectLockRule": close(
-	{DefaultRetention?: _#defs."/$defs/Properties/definitions/DefaultRetention" | fn.#ObjectExpression},
-) |
+#ObjectLockRule: close({DefaultRetention?: #DefaultRetention | fn.#ObjectExpression}) | fn.#ObjectExpression
+
+#OwnershipControls: close({Rules!: list.UniqueItems() & [...#OwnershipControlsRule] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OwnershipControls": close({
-	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/OwnershipControlsRule"] | fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/OwnershipControlsRule": close(
+#OwnershipControlsRule: close(
 	{ObjectOwnership?: "ObjectWriter" | "BucketOwnerPreferred" | "BucketOwnerEnforced" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionedPrefix": close(
-	{PartitionDateSource?: "EventTime" | "DeliveryTime" | fn.#StringExpression},
-) |
+#PartitionedPrefix: close({PartitionDateSource?: "EventTime" | "DeliveryTime" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
+#PublicAccessBlockConfiguration: close({
 	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -543,14 +492,14 @@ _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueueConfiguration": close({
+#QueueConfiguration: close({
 	Event!:  string | fn.#StringExpression
-	Filter?: _#defs."/$defs/Properties/definitions/NotificationFilter" | fn.#ObjectExpression
+	Filter?: #NotificationFilter | fn.#ObjectExpression
 	Queue!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecordExpiration": close({
+#RecordExpiration: close({
 	Days?: int |
 		{
 			string &
@@ -569,7 +518,7 @@ _#defs: "/$defs/Properties/definitions/RecordExpiration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedirectAllRequestsTo": matchN(3, [
+#RedirectAllRequestsTo: matchN(3, [
 	matchN(0, [null | bool | number | string | [...] | {
 		RedirectAllRequestsTo!: _
 		ErrorDocument!:         _
@@ -591,7 +540,7 @@ _#defs: "/$defs/Properties/definitions/RedirectAllRequestsTo": matchN(3, [
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedirectRule": close({
+#RedirectRule: close({
 	HostName?:             string | fn.#StringExpression
 	HttpRedirectCode?:     string | fn.#StringExpression
 	Protocol?:             "http" | "https" | fn.#StringExpression
@@ -600,29 +549,25 @@ _#defs: "/$defs/Properties/definitions/RedirectRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicaModifications": close(
-	{Status!: "Enabled" | "Disabled" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#ReplicaModifications: close({Status!: "Enabled" | "Disabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
+#ReplicationConfiguration: close({
 	Role!: string | fn.#StringExpression
 	Rules!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ReplicationRule" &
-		(null | bool | number | strings.MaxRunes(1000) & strings.MinRunes(1) | [...] | {...}) |
+		...#ReplicationRule & (null | bool | number | strings.MaxRunes(1000) & strings.MinRunes(1) | [...] | {...}) |
 		fn.#ObjectExpression
 	] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
-	AccessControlTranslation?: _#defs."/$defs/Properties/definitions/AccessControlTranslation" | fn.#ObjectExpression
+#ReplicationDestination: close({
+	AccessControlTranslation?: #AccessControlTranslation | fn.#ObjectExpression
 	Account?:                  string | fn.#StringExpression
 	Bucket!:                   string | fn.#StringExpression
-	EncryptionConfiguration?:  _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	Metrics?:                  _#defs."/$defs/Properties/definitions/Metrics" | fn.#ObjectExpression
-	ReplicationTime?:          _#defs."/$defs/Properties/definitions/ReplicationTime" | fn.#ObjectExpression
+	EncryptionConfiguration?:  #EncryptionConfiguration | fn.#ObjectExpression
+	Metrics?:                  #Metrics | fn.#ObjectExpression
+	ReplicationTime?:          #ReplicationTime | fn.#ObjectExpression
 	StorageClass?: "DEEP_ARCHIVE" |
 		"GLACIER" |
 		"GLACIER_IR" |
@@ -635,10 +580,10 @@ _#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationRule": close({
-	DeleteMarkerReplication?: _#defs."/$defs/Properties/definitions/DeleteMarkerReplication" | fn.#ObjectExpression
-	Destination!:             _#defs."/$defs/Properties/definitions/ReplicationDestination" | fn.#ObjectExpression
-	Filter?:                  _#defs."/$defs/Properties/definitions/ReplicationRuleFilter" | fn.#ObjectExpression
+#ReplicationRule: close({
+	DeleteMarkerReplication?: #DeleteMarkerReplication | fn.#ObjectExpression
+	Destination!:             #ReplicationDestination | fn.#ObjectExpression
+	Filter?:                  #ReplicationRuleFilter | fn.#ObjectExpression
 	Id?:                      strings.MaxRunes(255) | fn.#StringExpression
 	Prefix?:                  strings.MaxRunes(1024) | fn.#StringExpression
 	Priority?: int |
@@ -655,31 +600,31 @@ _#defs: "/$defs/Properties/definitions/ReplicationRule": close({
 				)
 		} |
 		fn.#NumberExpression
-	SourceSelectionCriteria?: _#defs."/$defs/Properties/definitions/SourceSelectionCriteria" | fn.#ObjectExpression
+	SourceSelectionCriteria?: #SourceSelectionCriteria | fn.#ObjectExpression
 	Status!:                  "Disabled" | "Enabled" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationRuleAndOperator": close({
+#ReplicationRuleAndOperator: close({
 	Prefix?:     string | fn.#StringExpression
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
+	TagFilters?: list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationRuleFilter": close({
-	And?:       _#defs."/$defs/Properties/definitions/ReplicationRuleAndOperator" | fn.#ObjectExpression
+#ReplicationRuleFilter: close({
+	And?:       #ReplicationRuleAndOperator | fn.#ObjectExpression
 	Prefix?:    string | fn.#StringExpression
-	TagFilter?: _#defs."/$defs/Properties/definitions/TagFilter" | fn.#ObjectExpression
+	TagFilter?: #TagFilter | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationTime": close({
+#ReplicationTime: close({
 	Status!: "Disabled" | "Enabled" | fn.#StringExpression
-	Time!:   _#defs."/$defs/Properties/definitions/ReplicationTimeValue" | fn.#ObjectExpression
+	Time!:   #ReplicationTimeValue | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationTimeValue": close({
+#ReplicationTimeValue: close({
 	Minutes!: int |
 		{
 			string &
@@ -697,22 +642,21 @@ _#defs: "/$defs/Properties/definitions/ReplicationTimeValue": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingRule": close({
-	RedirectRule!:         _#defs."/$defs/Properties/definitions/RedirectRule" | fn.#ObjectExpression
-	RoutingRuleCondition?: _#defs."/$defs/Properties/definitions/RoutingRuleCondition" | fn.#ObjectExpression
+#RoutingRule: close({
+	RedirectRule!:         #RedirectRule | fn.#ObjectExpression
+	RoutingRuleCondition?: #RoutingRuleCondition | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingRuleCondition": close({
+#RoutingRuleCondition: close({
 	HttpErrorCodeReturnedEquals?: string | fn.#StringExpression
 	KeyPrefixEquals?:             string | fn.#StringExpression
 }) & matchN(>=1, [{HttpErrorCodeReturnedEquals!: _}, {KeyPrefixEquals!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	AbortIncompleteMultipartUpload?: _#defs."/$defs/Properties/definitions/AbortIncompleteMultipartUpload" |
-		fn.#ObjectExpression
-	ExpirationDate?: _#defs."/$defs/Properties/definitions/iso8601UTC" | fn.#StringExpression
+#Rule: close({
+	AbortIncompleteMultipartUpload?: #AbortIncompleteMultipartUpload | fn.#ObjectExpression
+	ExpirationDate?:                 #iso8601UTC | fn.#StringExpression
 	ExpirationInDays?: int |
 		{
 			string &
@@ -727,10 +671,9 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 				)
 		} |
 		fn.#NumberExpression
-	ExpiredObjectDeleteMarker?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Id?:                        strings.MaxRunes(255) | fn.#StringExpression
-	NoncurrentVersionExpiration?: _#defs."/$defs/Properties/definitions/NoncurrentVersionExpiration" |
-		fn.#ObjectExpression
+	ExpiredObjectDeleteMarker?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Id?:                          strings.MaxRunes(255) | fn.#StringExpression
+	NoncurrentVersionExpiration?: #NoncurrentVersionExpiration | fn.#ObjectExpression
 	NoncurrentVersionExpirationInDays?: int |
 		{
 			string &
@@ -745,19 +688,15 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 				)
 		} |
 		fn.#NumberExpression
-	NoncurrentVersionTransition?: _#defs."/$defs/Properties/definitions/NoncurrentVersionTransition" |
-		fn.#ObjectExpression
-	NoncurrentVersionTransitions?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NoncurrentVersionTransition"
-	] |
-		fn.#ListExpression
-	ObjectSizeGreaterThan?: strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
-	ObjectSizeLessThan?:    strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
-	Prefix?:                string | fn.#StringExpression
-	Status!:                "Enabled" | "Disabled" | fn.#StringExpression
-	TagFilters?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
-	Transition?:  _#defs."/$defs/Properties/definitions/Transition" | fn.#ObjectExpression
-	Transitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Transition"] | fn.#ListExpression
+	NoncurrentVersionTransition?:  #NoncurrentVersionTransition | fn.#ObjectExpression
+	NoncurrentVersionTransitions?: list.UniqueItems() & [...#NoncurrentVersionTransition] | fn.#ListExpression
+	ObjectSizeGreaterThan?:        strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
+	ObjectSizeLessThan?:           strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
+	Prefix?:                       string | fn.#StringExpression
+	Status!:                       "Enabled" | "Disabled" | fn.#StringExpression
+	TagFilters?:                   list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
+	Transition?:                   #Transition | fn.#ObjectExpression
+	Transitions?:                  list.UniqueItems() & [...#Transition] | fn.#ListExpression
 	if ObjectSizeGreaterThan != _|_ {
 		AbortIncompleteMultipartUpload?: error(
 			"AbortIncompleteMultipartUpload cannot be used with ObjectSizeGreaterThan",
@@ -769,12 +708,9 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3KeyFilter": close(
-	{Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/FilterRule"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#S3KeyFilter: close({Rules!: list.UniqueItems() & [...#FilterRule] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3TablesDestination": close({
+#S3TablesDestination: close({
 	TableArn?:       string | fn.#StringExpression
 	TableBucketArn!: string | fn.#StringExpression
 	TableName!:      string | fn.#StringExpression
@@ -782,7 +718,7 @@ _#defs: "/$defs/Properties/definitions/S3TablesDestination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionByDefault": close({
+#ServerSideEncryptionByDefault: close({
 	KMSMasterKeyID?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
@@ -790,50 +726,41 @@ _#defs: "/$defs/Properties/definitions/ServerSideEncryptionByDefault": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionRule": close({
-	BlockedEncryptionTypes?: _#defs."/$defs/Properties/definitions/BlockedEncryptionTypes" | fn.#ObjectExpression
+#ServerSideEncryptionRule: close({
+	BlockedEncryptionTypes?: #BlockedEncryptionTypes | fn.#ObjectExpression
 	BucketKeyEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ServerSideEncryptionByDefault?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionByDefault" |
-		fn.#ObjectExpression
+	ServerSideEncryptionByDefault?: #ServerSideEncryptionByDefault | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceSelectionCriteria": close({
-	ReplicaModifications?:   _#defs."/$defs/Properties/definitions/ReplicaModifications" | fn.#ObjectExpression
-	SseKmsEncryptedObjects?: _#defs."/$defs/Properties/definitions/SseKmsEncryptedObjects" | fn.#ObjectExpression
+#SourceSelectionCriteria: close({
+	ReplicaModifications?:   #ReplicaModifications | fn.#ObjectExpression
+	SseKmsEncryptedObjects?: #SseKmsEncryptedObjects | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SseKmsEncryptedObjects": close(
-	{Status!: "Disabled" | "Enabled" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#SseKmsEncryptedObjects: close({Status!: "Disabled" | "Enabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageClassAnalysis": close(
-	{DataExport?: _#defs."/$defs/Properties/definitions/DataExport" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#StorageClassAnalysis: close({DataExport?: #DataExport | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagFilter": close({
+#TagFilter: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetObjectKeyFormat": fn.#Object & {...} & matchN(1, [close(
-	{SimplePrefix!: close({}) | fn.#ObjectExpression},
-), close(
-	{PartitionedPrefix!: _#defs."/$defs/Properties/definitions/PartitionedPrefix"},
-)]) |
+#TargetObjectKeyFormat: fn.#Object & {...} & matchN(1, [
+	close({SimplePrefix!: close({}) | fn.#ObjectExpression}), close({PartitionedPrefix!: #PartitionedPrefix}),
+]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tiering": close({
+#Tiering: close({
 	AccessTier!: "ARCHIVE_ACCESS" | "DEEP_ARCHIVE_ACCESS" | fn.#StringExpression
 	Days!: int |
 		{
@@ -852,14 +779,14 @@ _#defs: "/$defs/Properties/definitions/Tiering": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TopicConfiguration": close({
+#TopicConfiguration: close({
 	Event!:  string | fn.#StringExpression
-	Filter?: _#defs."/$defs/Properties/definitions/NotificationFilter" | fn.#ObjectExpression
+	Filter?: #NotificationFilter | fn.#ObjectExpression
 	Topic!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Transition": close({
+#Transition: close({
 	StorageClass!: "DEEP_ARCHIVE" |
 		"GLACIER" |
 		"Glacier" |
@@ -868,7 +795,7 @@ _#defs: "/$defs/Properties/definitions/Transition": close({
 		"ONEZONE_IA" |
 		"STANDARD_IA" |
 		fn.#StringExpression
-	TransitionDate?: _#defs."/$defs/Properties/definitions/iso8601UTC" | fn.#StringExpression
+	TransitionDate?: #iso8601UTC | fn.#StringExpression
 	TransitionInDays?: int |
 		{
 			string &
@@ -886,20 +813,17 @@ _#defs: "/$defs/Properties/definitions/Transition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VersioningConfiguration": close(
-	{Status!: "Enabled" | "Suspended" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#VersioningConfiguration: close({Status!: "Enabled" | "Suspended" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebsiteConfiguration": close({
+#WebsiteConfiguration: close({
 	ErrorDocument?:         string | fn.#StringExpression
 	IndexDocument?:         string | fn.#StringExpression
-	RedirectAllRequestsTo?: _#defs."/$defs/Properties/definitions/RedirectAllRequestsTo" | fn.#ObjectExpression
-	RoutingRules?:          [..._#defs."/$defs/Properties/definitions/RoutingRule"] | fn.#ListExpression
+	RedirectAllRequestsTo?: #RedirectAllRequestsTo | fn.#ObjectExpression
+	RoutingRules?:          [...#RoutingRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/iso8601UTC": =~"^(\\d{4})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
+#iso8601UTC: =~"^(\\d{4})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
 	fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::S3::Bucket"

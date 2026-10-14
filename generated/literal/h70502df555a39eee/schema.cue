@@ -17,14 +17,14 @@ import "strings"
 	// A hashed string equivalent to the partition values list for use as a
 	// component of the resource's identifier in CFN
 	IdentifierPartitionInputValues?: string
-	PartitionInput!:                 _#defs."/$defs/Properties/definitions/PartitionInput"
+	PartitionInput!:                 #PartitionInput
 
 	// The name of the metadata table in which the partition is to be created.
 	TableName!: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
 // A column in a Table.
-_#defs: "/$defs/Properties/definitions/Column": close({
+#Column: close({
 	// A free-form text comment.
 	Comment?: strings.MaxRunes(255) & strings.MinRunes(0)
 
@@ -36,7 +36,7 @@ _#defs: "/$defs/Properties/definitions/Column": close({
 })
 
 // Specifies the sort order of a sorted column.
-_#defs: "/$defs/Properties/definitions/Order": close({
+#Order: close({
 	// The name of the column.
 	Column!: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -45,9 +45,9 @@ _#defs: "/$defs/Properties/definitions/Order": close({
 })
 
 // The structure used to create and update a partition.
-_#defs: "/$defs/Properties/definitions/PartitionInput": close({
+#PartitionInput: close({
 	Parameters?:        string | {...}
-	StorageDescriptor?: _#defs."/$defs/Properties/definitions/StorageDescriptor"
+	StorageDescriptor?: #StorageDescriptor
 
 	// The values of the partition. Although this parameter is not required by the
 	// SDK, you must specify this parameter for a valid input. The values for the
@@ -59,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/PartitionInput": close({
 
 // A structure that contains schema identity fields. Either this or the
 // SchemaVersionId has to be provided.
-_#defs: "/$defs/Properties/definitions/SchemaId": close({
+#SchemaId: close({
 	// The name of the schema registry that contains the schema.
 	RegistryName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$"
 
@@ -71,8 +71,8 @@ _#defs: "/$defs/Properties/definitions/SchemaId": close({
 })
 
 // An object that references a schema stored in the AWS Glue Schema Registry.
-_#defs: "/$defs/Properties/definitions/SchemaReference": close({
-	SchemaId?: _#defs."/$defs/Properties/definitions/SchemaId"
+#SchemaReference: close({
+	SchemaId?: #SchemaId
 
 	// The unique ID assigned to a version of the schema. Either this or the
 	// SchemaId has to be provided.
@@ -85,7 +85,7 @@ _#defs: "/$defs/Properties/definitions/SchemaReference": close({
 })
 
 // The serialization/deserialization (SerDe) information.
-_#defs: "/$defs/Properties/definitions/SerdeInfo": close({
+#SerdeInfo: close({
 	// Name of the SerDe.
 	Name?:       strings.MaxRunes(255) & strings.MinRunes(1)
 	Parameters?: string | {...}
@@ -96,7 +96,7 @@ _#defs: "/$defs/Properties/definitions/SerdeInfo": close({
 })
 
 // The information about values that appear frequently in a column (skewed values).
-_#defs: "/$defs/Properties/definitions/SkewedInfo": close({
+#SkewedInfo: close({
 	// A list of values that appear so frequently as to be considered skewed.
 	SkewedColumnNames?:             [...strings.MaxRunes(255) & strings.MinRunes(1)]
 	SkewedColumnValueLocationMaps?: string | {...}
@@ -106,12 +106,12 @@ _#defs: "/$defs/Properties/definitions/SkewedInfo": close({
 })
 
 // Provides information about the physical location where the partition is stored.
-_#defs: "/$defs/Properties/definitions/StorageDescriptor": close({
+#StorageDescriptor: close({
 	// A list of reducer grouping columns, clustering columns, and bucketing columns in the table.
 	BucketColumns?: [...strings.MaxRunes(255) & strings.MinRunes(1)]
 
 	// A list of the Columns in the table.
-	Columns?: [..._#defs."/$defs/Properties/definitions/Column"]
+	Columns?: [...#Column]
 
 	// True if the data in the table is compressed, or False if not.
 	Compressed?: bool
@@ -132,12 +132,12 @@ _#defs: "/$defs/Properties/definitions/StorageDescriptor": close({
 	// IgnoreKeyTextOutputFormat, or a custom format.
 	OutputFormat?:    strings.MaxRunes(128) & strings.MinRunes(0)
 	Parameters?:      string | {...}
-	SchemaReference?: _#defs."/$defs/Properties/definitions/SchemaReference"
-	SerdeInfo?:       _#defs."/$defs/Properties/definitions/SerdeInfo"
-	SkewedInfo?:      _#defs."/$defs/Properties/definitions/SkewedInfo"
+	SchemaReference?: #SchemaReference
+	SerdeInfo?:       #SerdeInfo
+	SkewedInfo?:      #SkewedInfo
 
 	// A list specifying the sort order of each bucket in the table.
-	SortColumns?: [..._#defs."/$defs/Properties/definitions/Order"]
+	SortColumns?: [...#Order]
 
 	// True if the table data is stored in subdirectories, or False if not.
 	StoredAsSubDirectories?: bool

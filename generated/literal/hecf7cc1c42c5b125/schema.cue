@@ -13,26 +13,26 @@ package schema
 	Id?:                 string
 	LastModifiedTime?:   string
 	LineageGroupArn?:    string
-	MetadataProperties?: _#defs."/$defs/Properties/definitions/MetadataProperties"
+	MetadataProperties?: #MetadataProperties
 	StartTime?:          string
-	Status?:             _#defs."/$defs/Properties/definitions/Status"
-	Tags?:               [..._#defs."/$defs/Properties/definitions/TagsItems"]
+	Status?:             #Status
+	Tags?:               [...#TagsItems]
 	TrialComponentName!: string
 })
 
-_#defs: "/$defs/Properties/definitions/MetadataProperties": close({
+#MetadataProperties: close({
 	CommitId?:    string
 	GeneratedBy?: string
 	ProjectId?:   string
 	Repository?:  string
 })
 
-_#defs: "/$defs/Properties/definitions/Status": close({
+#Status: close({
 	Message?:       string
 	PrimaryStatus?: string
 })
 
-_#defs: "/$defs/Properties/definitions/TagsItems": close({
+#TagsItems: close({
 	Key!:   string
 	Value!: string
 })

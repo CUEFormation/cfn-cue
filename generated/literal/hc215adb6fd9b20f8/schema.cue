@@ -11,32 +11,26 @@ import (
 
 // Associate a set of ECS Capacity Providers with a specified ECS Cluster
 #Properties: close({
-	CapacityProviders?:               _#defs."/$defs/Properties/definitions/CapacityProviders"
-	Cluster!:                         _#defs."/$defs/Properties/definitions/Cluster"
-	DefaultCapacityProviderStrategy!: _#defs."/$defs/Properties/definitions/DefaultCapacityProviderStrategy"
+	CapacityProviders?:               #CapacityProviders
+	Cluster!:                         #Cluster
+	DefaultCapacityProviderStrategy!: #DefaultCapacityProviderStrategy
 })
 
 // If using ec2 auto-scaling, the name of the associated capacity provider.
 // Otherwise FARGATE, FARGATE_SPOT.
-_#defs: "/$defs/Properties/definitions/CapacityProvider": "FARGATE" |
-"FARGATE_SPOT" |
-strings.MaxRunes(2048) & strings.MinRunes(1)
+#CapacityProvider: "FARGATE" | "FARGATE_SPOT" | strings.MaxRunes(2048) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategy": close({
+#CapacityProviderStrategy: close({
 	Base?:             int & <=100000 & >=0
-	CapacityProvider!: _#defs."/$defs/Properties/definitions/CapacityProvider"
+	CapacityProvider!: #CapacityProvider
 	Weight?:           int & <=1000 & >=0
 })
 
 // List of capacity providers to associate with the cluster
-_#defs: "/$defs/Properties/definitions/CapacityProviders": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/CapacityProvider"
-]
+#CapacityProviders: list.UniqueItems() & [...#CapacityProvider]
 
 // The name of the cluster
-_#defs: "/$defs/Properties/definitions/Cluster": strings.MaxRunes(2048) & strings.MinRunes(1)
+#Cluster: strings.MaxRunes(2048) & strings.MinRunes(1)
 
 // List of capacity providers to associate with the cluster
-_#defs: "/$defs/Properties/definitions/DefaultCapacityProviderStrategy": [
-	..._#defs."/$defs/Properties/definitions/CapacityProviderStrategy"
-]
+#DefaultCapacityProviderStrategy: [...#CapacityProviderStrategy]

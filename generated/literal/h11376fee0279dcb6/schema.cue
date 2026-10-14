@@ -8,15 +8,15 @@ import "strings"
 
 // Definition of AWS::ARCZonalShift::AutoshiftObserverNotificationStatus Resource Type
 #Properties: close({
-	AccountId?: _#defs."/$defs/Properties/definitions/AccountId"
-	Region?:    _#defs."/$defs/Properties/definitions/Region"
-	Status!:    _#defs."/$defs/Properties/definitions/AutoshiftObserverNotificationStatus"
+	AccountId?: #AccountId
+	Region?:    #Region
+	Status!:    #AutoshiftObserverNotificationStatus
 })
 
 // User account id, used as part of the primary identifier for the resource
-_#defs: "/$defs/Properties/definitions/AccountId": =~"^\\d{12}$"
+#AccountId: =~"^\\d{12}$"
 
-_#defs: "/$defs/Properties/definitions/AutoshiftObserverNotificationStatus": "ENABLED"
+#AutoshiftObserverNotificationStatus: "ENABLED"
 
 // Region, used as part of the primary identifier for the resource
-_#defs: "/$defs/Properties/definitions/Region": strings.MaxRunes(30) & strings.MinRunes(5) & =~"^[a-z0-9-]*$"
+#Region: strings.MaxRunes(30) & strings.MinRunes(5) & =~"^[a-z0-9-]*$"

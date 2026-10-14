@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,51 +18,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::WorkSpaces::Directory
 #Properties: close({
-	ActiveDirectoryConfig?:          _#defs."/$defs/Properties/definitions/ActiveDirectoryConfig"
-	CertificateBasedAuthProperties?: _#defs."/$defs/Properties/definitions/CertificateBasedAuthProperties"
+	ActiveDirectoryConfig?:          #ActiveDirectoryConfig
+	CertificateBasedAuthProperties?: #CertificateBasedAuthProperties
 	EnableSelfService?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EndpointEncryptionMode?: "STANDARD_TLS" | "FIPS_VALIDATED" | fn.#StringExpression
 	IdcInstanceArn?:         string | fn.#StringExpression
 	IpGroupIds?:             [...=~"^wsipg-[0-9a-z]{8,63}$" | fn.#StringExpression] | fn.#ListExpression
-	MicrosoftEntraConfig?:   _#defs."/$defs/Properties/definitions/MicrosoftEntraConfig"
-	SamlProperties?:         _#defs."/$defs/Properties/definitions/SamlProperties"
-	SelfservicePermissions?: _#defs."/$defs/Properties/definitions/SelfservicePermissions"
-	StreamingProperties?:    _#defs."/$defs/Properties/definitions/StreamingProperties"
+	MicrosoftEntraConfig?:   #MicrosoftEntraConfig
+	SamlProperties?:         #SamlProperties
+	SelfservicePermissions?: #SelfservicePermissions
+	StreamingProperties?:    #StreamingProperties
 	SubnetIds?: list.MaxItems(2) & [...] & [
 		...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^(subnet-([0-9a-f]{8}|[0-9a-f]{17}))$" |
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	Tenancy?:          "DEDICATED" | "SHARED" | fn.#StringExpression
 	UserIdentityType?: "CUSTOMER_MANAGED" | "AWS_DIRECTORY_SERVICE" | "AWS_IAM_IDENTITY_CENTER" | fn.#StringExpression
-	WorkspaceAccessProperties?:     _#defs."/$defs/Properties/definitions/WorkspaceAccessProperties"
-	WorkspaceCreationProperties?:   _#defs."/$defs/Properties/definitions/DefaultWorkspaceCreationProperties"
+	WorkspaceAccessProperties?:     #WorkspaceAccessProperties
+	WorkspaceCreationProperties?:   #DefaultWorkspaceCreationProperties
 	WorkspaceDirectoryDescription?: =~"^([a-zA-Z0-9_])[\\\\a-zA-Z0-9_@#%*+=:?./!\\s-]{1,255}$" | fn.#StringExpression
 	WorkspaceDirectoryName?:        =~"^[a-zA-Z0-9][a-zA-Z0-9_.\\s-]{1,64}$" | fn.#StringExpression
 	WorkspaceType?:                 "PERSONAL" | "POOLS" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessEndpoint": close({
+#AccessEndpoint: close({
 	AccessEndpointType?: "STREAMING_WSP" | fn.#StringExpression
 	VpcEndpointId?:      =~"^[a-zA-Z0-9\\_\\-]{1,1000}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessEndpointConfig": close({
-	AccessEndpoints!:           [..._#defs."/$defs/Properties/definitions/AccessEndpoint"] | fn.#ListExpression
+#AccessEndpointConfig: close({
+	AccessEndpoints!:           [...#AccessEndpoint] | fn.#ListExpression
 	InternetFallbackProtocols?: [..."PCOIP" | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ActiveDirectoryConfig": close({
+#ActiveDirectoryConfig: close({
 	DomainName!: =~"^([a-zA-Z0-9]+[.-])+([a-zA-Z0-9])+$" | fn.#StringExpression
 	ServiceAccountSecretArn!: =~"^arn:aws[a-z-]{0,7}:secretsmanager:[A-za-z0-9_/.-]{0,63}:[A-za-z0-9_/.-]{0,63}:secret:[A-Za-z0-9][A-za-z0-9_/.-]{8,519}$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CertificateBasedAuthProperties": close({
+#CertificateBasedAuthProperties: close({
 	CertificateAuthorityArn?: strings.MaxRunes(200) &
 	strings.MinRunes(5) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*$" |
@@ -71,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/CertificateBasedAuthProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultWorkspaceCreationProperties": close({
+#DefaultWorkspaceCreationProperties: close({
 	CustomSecurityGroupId?: strings.MaxRunes(20) & strings.MinRunes(11) & =~"^(sg-([0-9a-f]{8}|[0-9a-f]{17}))$" |
 	fn.#StringExpression
 	DefaultOu?:             string | fn.#StringExpression
@@ -90,33 +90,33 @@ _#defs: "/$defs/Properties/definitions/DefaultWorkspaceCreationProperties": clos
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GlobalAcceleratorForDirectory": close({
+#GlobalAcceleratorForDirectory: close({
 	Mode!:              "ENABLED_AUTO" | "DISABLED" | fn.#StringExpression
 	PreferredProtocol?: "TCP" | "NONE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IDCConfig": close({
+#IDCConfig: close({
 	ApplicationArn?: string | fn.#StringExpression
 	InstanceArn?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MicrosoftEntraConfig": close({
+#MicrosoftEntraConfig: close({
 	ApplicationConfigSecretArn?: =~"^arn:aws[a-z-]{0,7}:secretsmanager:[A-za-z0-9_/.-]{0,63}:[A-za-z0-9_/.-]{0,63}:secret:[A-Za-z0-9][A-za-z0-9_/.-]{8,519}$" |
 		fn.#StringExpression
 	TenantId?: =~"^[a-zA-Z0-9-]{1,100}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SamlProperties": close({
+#SamlProperties: close({
 	RelayStateParameterName?: strings.MinRunes(1) | fn.#StringExpression
 	Status?:                  "DISABLED" | "ENABLED" | "ENABLED_WITH_DIRECTORY_LOGIN_FALLBACK" | fn.#StringExpression
 	UserAccessUrl?: strings.MaxRunes(200) & strings.MinRunes(8) & =~"^(http|https)\\://\\S+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelfservicePermissions": close({
+#SelfservicePermissions: close({
 	ChangeComputeType?:  "ENABLED" | "DISABLED" | fn.#StringExpression
 	IncreaseVolumeSize?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	RebuildWorkspace?:   "ENABLED" | "DISABLED" | fn.#StringExpression
@@ -125,28 +125,27 @@ _#defs: "/$defs/Properties/definitions/SelfservicePermissions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageConnector": close({
+#StorageConnector: close({
 	ConnectorType!: "HOME_FOLDER" | fn.#StringExpression
 	Status!:        "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamingProperties": close({
-	GlobalAccelerator?: _#defs."/$defs/Properties/definitions/GlobalAcceleratorForDirectory"
-	StorageConnectors?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/StorageConnector"] |
-		fn.#ListExpression
+#StreamingProperties: close({
+	GlobalAccelerator?:                    #GlobalAcceleratorForDirectory
+	StorageConnectors?:                    list.MinItems(1) & [...#StorageConnector] | fn.#ListExpression
 	StreamingExperiencePreferredProtocol?: "TCP" | "UDP" | fn.#StringExpression
-	UserSettings?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/UserSetting"] | fn.#ListExpression
+	UserSettings?:                         list.MinItems(1) & [...#UserSetting] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserSetting": close({
+#UserSetting: close({
 	Action!: "CLIPBOARD_COPY_FROM_LOCAL_DEVICE" |
 		"CLIPBOARD_COPY_TO_LOCAL_DEVICE" |
 		"PRINTING_TO_LOCAL_DEVICE" |
@@ -171,8 +170,8 @@ _#defs: "/$defs/Properties/definitions/UserSetting": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkspaceAccessProperties": close({
-	AccessEndpointConfig?:           _#defs."/$defs/Properties/definitions/AccessEndpointConfig"
+#WorkspaceAccessProperties: close({
+	AccessEndpointConfig?:           #AccessEndpointConfig
 	DeviceTypeAndroid?:              "ALLOW" | "DENY" | fn.#StringExpression
 	DeviceTypeChromeOs?:             "ALLOW" | "DENY" | fn.#StringExpression
 	DeviceTypeIos?:                  "ALLOW" | "DENY" | fn.#StringExpression

@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
-	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -22,65 +22,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	BlockedInputMessaging!:           strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 	BlockedOutputsMessaging!:         strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	ContentPolicyConfig?:             _#defs."/$defs/Properties/definitions/AIGuardrailContentPolicyConfig"
-	ContextualGroundingPolicyConfig?: _#defs."/$defs/Properties/definitions/AIGuardrailContextualGroundingPolicyConfig"
+	ContentPolicyConfig?:             #AIGuardrailContentPolicyConfig
+	ContextualGroundingPolicyConfig?: #AIGuardrailContextualGroundingPolicyConfig
 	Description?:                     strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	SensitiveInformationPolicyConfig?:
-		_#defs."/$defs/Properties/definitions/AIGuardrailSensitiveInformationPolicyConfig"
-	Tags?:              _#defs."/$defs/Properties/definitions/Tags"
-	TopicPolicyConfig?: _#defs."/$defs/Properties/definitions/AIGuardrailTopicPolicyConfig"
-	WordPolicyConfig?:  _#defs."/$defs/Properties/definitions/AIGuardrailWordPolicyConfig"
+	SensitiveInformationPolicyConfig?: #AIGuardrailSensitiveInformationPolicyConfig
+	Tags?:                             #Tags
+	TopicPolicyConfig?:                #AIGuardrailTopicPolicyConfig
+	WordPolicyConfig?:                 #AIGuardrailWordPolicyConfig
 })
 
-_#defs: "/$defs/Properties/definitions/AIGuardrailContentPolicyConfig": close({
-	FiltersConfig!: list.MaxItems(6) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/GuardrailContentFilterConfig"
-	] |
-		fn.#ListExpression
-}) |
+#AIGuardrailContentPolicyConfig: close(
+	{FiltersConfig!: list.MaxItems(6) & list.MinItems(1) & [...#GuardrailContentFilterConfig] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AIGuardrailContextualGroundingPolicyConfig": close({
-	FiltersConfig!: list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/GuardrailContextualGroundingFilterConfig"
-	] |
-		fn.#ListExpression
-}) |
+#AIGuardrailContextualGroundingPolicyConfig: close(
+	{FiltersConfig!: list.MinItems(1) & [...#GuardrailContextualGroundingFilterConfig] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AIGuardrailSensitiveInformationPolicyConfig": close({
-	PiiEntitiesConfig?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/GuardrailPiiEntityConfig"
-	] |
-		fn.#ListExpression
-	RegexesConfig?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/GuardrailRegexConfig"] |
-		fn.#ListExpression
+#AIGuardrailSensitiveInformationPolicyConfig: close({
+	PiiEntitiesConfig?: list.MinItems(1) & list.UniqueItems() & [...#GuardrailPiiEntityConfig] | fn.#ListExpression
+	RegexesConfig?:     list.MinItems(1) & [...#GuardrailRegexConfig] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AIGuardrailTopicPolicyConfig": close({
-	TopicsConfig!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/GuardrailTopicConfig"] |
-		fn.#ListExpression
-}) |
+#AIGuardrailTopicPolicyConfig: close(
+	{TopicsConfig!: list.MinItems(1) & [...#GuardrailTopicConfig] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AIGuardrailWordPolicyConfig": close({
-	ManagedWordListsConfig?: [..._#defs."/$defs/Properties/definitions/GuardrailManagedWordsConfig"] |
-		fn.#ListExpression
-	WordsConfig?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/GuardrailWordConfig"] |
-		fn.#ListExpression
+#AIGuardrailWordPolicyConfig: close({
+	ManagedWordListsConfig?: [...#GuardrailManagedWordsConfig] | fn.#ListExpression
+	WordsConfig?:            list.MinItems(1) & [...#GuardrailWordConfig] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GuardrailContentFilterConfig": close({
-	InputStrength!:  _#defs."/$defs/Properties/definitions/GuardrailFilterStrength"
-	OutputStrength!: _#defs."/$defs/Properties/definitions/GuardrailFilterStrength"
-	Type!:           _#defs."/$defs/Properties/definitions/GuardrailContentFilterType"
+#GuardrailContentFilterConfig: close({
+	InputStrength!:  #GuardrailFilterStrength
+	OutputStrength!: #GuardrailFilterStrength
+	Type!:           #GuardrailContentFilterType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GuardrailContentFilterType": "SEXUAL" |
+#GuardrailContentFilterType: "SEXUAL" |
 	"VIOLENCE" |
 	"HATE" |
 	"INSULTS" |
@@ -88,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/GuardrailContentFilterType": "SEXUAL" |
 	"PROMPT_ATTACK" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GuardrailContextualGroundingFilterConfig": close({
+#GuardrailContextualGroundingFilterConfig: close({
 	Threshold!: >=0 |
 		{
 			string &
@@ -108,34 +94,25 @@ _#defs: "/$defs/Properties/definitions/GuardrailContextualGroundingFilterConfig"
 				)
 		} |
 		fn.#NumberExpression
-	Type!: _#defs."/$defs/Properties/definitions/GuardrailContextualGroundingFilterType"
+	Type!: #GuardrailContextualGroundingFilterType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GuardrailContextualGroundingFilterType": "GROUNDING" |
-	"RELEVANCE" |
-	fn.#StringExpression
+#GuardrailContextualGroundingFilterType: "GROUNDING" | "RELEVANCE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GuardrailFilterStrength": "NONE" |
-	"LOW" |
-	"MEDIUM" |
-	"HIGH" |
-	fn.#StringExpression
+#GuardrailFilterStrength: "NONE" | "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GuardrailManagedWordsConfig": close(
-	{Type!: _#defs."/$defs/Properties/definitions/GuardrailManagedWordsType"},
-) |
-	fn.#ObjectExpression
+#GuardrailManagedWordsConfig: close({Type!: #GuardrailManagedWordsType}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GuardrailManagedWordsType": "PROFANITY" | fn.#StringExpression
+#GuardrailManagedWordsType: "PROFANITY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GuardrailPiiEntityConfig": close({
-	Action!: _#defs."/$defs/Properties/definitions/GuardrailSensitiveInformationAction"
-	Type!:   _#defs."/$defs/Properties/definitions/GuardrailPiiEntityType"
+#GuardrailPiiEntityConfig: close({
+	Action!: #GuardrailSensitiveInformationAction
+	Type!:   #GuardrailPiiEntityType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GuardrailPiiEntityType": "ADDRESS" |
+#GuardrailPiiEntityType: "ADDRESS" |
 	"AGE" |
 	"AWS_ACCESS_KEY" |
 	"AWS_SECRET_KEY" |
@@ -168,32 +145,29 @@ _#defs: "/$defs/Properties/definitions/GuardrailPiiEntityType": "ADDRESS" |
 	"VEHICLE_IDENTIFICATION_NUMBER" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GuardrailRegexConfig": close({
-	Action!:      _#defs."/$defs/Properties/definitions/GuardrailSensitiveInformationAction"
+#GuardrailRegexConfig: close({
+	Action!:      #GuardrailSensitiveInformationAction
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	Pattern!:     strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GuardrailSensitiveInformationAction": "BLOCK" |
-	"ANONYMIZE" |
-	fn.#StringExpression
+#GuardrailSensitiveInformationAction: "BLOCK" | "ANONYMIZE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GuardrailTopicConfig": close({
+#GuardrailTopicConfig: close({
 	Definition!: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 	Examples?:   [...] & [...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	Name!:       strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ !?.]+$" | fn.#StringExpression
-	Type!:       _#defs."/$defs/Properties/definitions/GuardrailTopicType"
+	Type!:       #GuardrailTopicType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GuardrailTopicType": "DENY" | fn.#StringExpression
+#GuardrailTopicType: "DENY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GuardrailWordConfig": close({Text!: strings.MinRunes(1) | fn.#StringExpression}) |
-fn.#ObjectExpression
+#GuardrailWordConfig: close({Text!: strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": {...} | fn.#ObjectExpression
+#Tags: {...} | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Wisdom::AIGuardrail"
 	Properties!: #Properties

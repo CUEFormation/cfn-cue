@@ -60,7 +60,7 @@ import "list"
 	// For more information, see [Regional NAT gateways for automatic multi-AZ
 	// expansion](https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateways-regional.html)
 	// in the *Amazon VPC User Guide*.
-	AvailabilityZoneAddresses?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AvailabilityZoneAddress"]
+	AvailabilityZoneAddresses?: list.UniqueItems() & [...#AvailabilityZoneAddress]
 
 	// Indicates whether the NAT gateway supports public or private connectivity.
 	// The default is public connectivity.
@@ -104,7 +104,7 @@ import "list"
 	SubnetId?: string
 
 	// The tags for the NAT gateway.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The ID of the VPC in which the NAT gateway is located.
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
@@ -119,7 +119,7 @@ import "list"
 // For more information, see [Regional NAT gateways for automatic multi-AZ
 // expansion](https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateways-regional.html)
 // in the *Amazon VPC User Guide*.
-_#defs: "/$defs/Properties/definitions/AvailabilityZoneAddress": close({
+#AvailabilityZoneAddress: close({
 	// The allocation IDs of the Elastic IP addresses (EIPs) to be used for handling
 	// outbound NAT traffic in this specific Availability Zone.
 	AllocationIds!: list.UniqueItems() & [...string]
@@ -145,7 +145,7 @@ _#defs: "/$defs/Properties/definitions/AvailabilityZoneAddress": close({
 
 // Specifies a tag. For more information, see [Resource
 // tags](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: string
 

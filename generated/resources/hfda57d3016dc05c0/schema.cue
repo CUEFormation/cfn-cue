@@ -37,8 +37,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // + [Configuring Amazon DocumentDB as an event
 // source](https://docs.aws.amazon.com/lambda/latest/dg/with-documentdb.html)
 #Properties: close({
-	AmazonManagedKafkaEventSourceConfig?: _#defs."/$defs/Properties/definitions/AmazonManagedKafkaEventSourceConfig" |
-		fn.#ObjectExpression
+	AmazonManagedKafkaEventSourceConfig?: #AmazonManagedKafkaEventSourceConfig | fn.#ObjectExpression
 	BatchSize?: int & <=10000 & >=1 |
 		{
 			string &
@@ -55,16 +54,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	BisectBatchOnFunctionError?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DestinationConfig?:          _#defs."/$defs/Properties/definitions/DestinationConfig" | fn.#ObjectExpression
-	DocumentDBEventSourceConfig?: _#defs."/$defs/Properties/definitions/DocumentDBEventSourceConfig" |
-		fn.#ObjectExpression
-	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	BisectBatchOnFunctionError?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DestinationConfig?:           #DestinationConfig | fn.#ObjectExpression
+	DocumentDBEventSourceConfig?: #DocumentDBEventSourceConfig | fn.#ObjectExpression
+	Enabled?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EventSourceArn?: strings.MaxRunes(1024) &
 	strings.MinRunes(12) &
 	=~"arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" |
 	fn.#StringExpression
-	FilterCriteria?: _#defs."/$defs/Properties/definitions/FilterCriteria" | fn.#ObjectExpression
+	FilterCriteria?: #FilterCriteria | fn.#ObjectExpression
 	FunctionName!: strings.MaxRunes(140) &
 	strings.MinRunes(1) &
 	=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?" |
@@ -78,7 +76,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(12) &
 	=~"(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()" |
 	fn.#StringExpression
-	LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig" | fn.#ObjectExpression
+	LoggingConfig?: #LoggingConfig | fn.#ObjectExpression
 	MaximumBatchingWindowInSeconds?: int & <=300 & >=0 |
 		{
 			string &
@@ -127,7 +125,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	MetricsConfig?: _#defs."/$defs/Properties/definitions/MetricsConfig" | fn.#ObjectExpression
+	MetricsConfig?: #MetricsConfig | fn.#ObjectExpression
 	ParallelizationFactor?: int & <=10 & >=1 |
 		{
 			string &
@@ -144,17 +142,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	ProvisionedPollerConfig?: _#defs."/$defs/Properties/definitions/ProvisionedPollerConfig" | fn.#ObjectExpression
+	ProvisionedPollerConfig?: #ProvisionedPollerConfig | fn.#ObjectExpression
 	Queues?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	ScalingConfig?:          _#defs."/$defs/Properties/definitions/ScalingConfig" | fn.#ObjectExpression
-	SelfManagedEventSource?: _#defs."/$defs/Properties/definitions/SelfManagedEventSource" | fn.#ObjectExpression
-	SelfManagedKafkaEventSourceConfig?: _#defs."/$defs/Properties/definitions/SelfManagedKafkaEventSourceConfig" |
-		fn.#ObjectExpression
+	ScalingConfig?:                     #ScalingConfig | fn.#ObjectExpression
+	SelfManagedEventSource?:            #SelfManagedEventSource | fn.#ObjectExpression
+	SelfManagedKafkaEventSourceConfig?: #SelfManagedKafkaEventSourceConfig | fn.#ObjectExpression
 	SourceAccessConfigurations?: list.MaxItems(29) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SourceAccessConfiguration"
+		...#SourceAccessConfiguration
 	] |
 		fn.#ListExpression
 	StartingPosition?: strings.MaxRunes(12) & strings.MinRunes(6) & =~"(LATEST|TRIM_HORIZON|AT_TIMESTAMP)+" |
@@ -178,7 +175,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	Topics?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(249) & strings.MinRunes(1) & =~"^[^.]([a-zA-Z0-9\\-_.]+)" | fn.#StringExpression
 	] |
@@ -201,32 +198,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AmazonManagedKafkaEventSourceConfig": close({
-	ConsumerGroupId?:      _#defs."/$defs/Properties/definitions/ConsumerGroupId" | fn.#StringExpression
-	SchemaRegistryConfig?: _#defs."/$defs/Properties/definitions/SchemaRegistryConfig" | fn.#ObjectExpression
+#AmazonManagedKafkaEventSourceConfig: close({
+	ConsumerGroupId?:      #ConsumerGroupId | fn.#StringExpression
+	SchemaRegistryConfig?: #SchemaRegistryConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConsumerGroupId": strings.MaxRunes(200) &
-strings.MinRunes(1) &
-=~"[a-zA-Z0-9-\\/*:_+=.@-]*" |
-fn.#StringExpression
+#ConsumerGroupId: strings.MaxRunes(200) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\/*:_+=.@-]*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConsumptionMode": "Stream" | "Queue" | fn.#StringExpression
+#ConsumptionMode: "Stream" | "Queue" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationConfig": close(
-	{OnFailure?: _#defs."/$defs/Properties/definitions/OnFailure" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#DestinationConfig: close({OnFailure?: #OnFailure | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentDBEventSourceConfig": close({
+#DocumentDBEventSourceConfig: close({
 	CollectionName?: strings.MaxRunes(57) & strings.MinRunes(1) | fn.#StringExpression
 	DatabaseName?:   strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[^ /\\.$\\x22]*$" | fn.#StringExpression
 	FullDocument?:   "UpdateLookup" | "Default" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Endpoints": close({
+#Endpoints: close({
 	KafkaBootstrapServers?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(300) &
 		strings.MinRunes(1) &
@@ -237,25 +228,17 @@ _#defs: "/$defs/Properties/definitions/Endpoints": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Filter": close(
-	{Pattern?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~".*" | fn.#StringExpression},
-) |
+#Filter: close({Pattern?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~".*" | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterCriteria": close({
-	Filters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Filter"
-	] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close(
-	{SystemLogLevel?: "DEBUG" | "INFO" | "WARN" | fn.#StringExpression},
+#FilterCriteria: close(
+	{Filters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#Filter] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaximumConcurrency": int & <=1000 & >=2 |
+#LoggingConfig: close({SystemLogLevel?: "DEBUG" | "INFO" | "WARN" | fn.#StringExpression}) | fn.#ObjectExpression
+
+#MaximumConcurrency: int & <=1000 & >=2 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -272,7 +255,7 @@ _#defs: "/$defs/Properties/definitions/MaximumConcurrency": int & <=1000 & >=2 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MetricsConfig": close({
+#MetricsConfig: close({
 	Metrics?: list.MaxItems(3) & list.UniqueItems() & [...] & [
 		..."EventCount" | "ErrorCount" | "KafkaMetrics" | fn.#StringExpression
 	] |
@@ -280,7 +263,7 @@ _#defs: "/$defs/Properties/definitions/MetricsConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnFailure": close({
+#OnFailure: close({
 	Destination?: strings.MaxRunes(1024) &
 	strings.MinRunes(12) &
 	=~"^$|kafka://([^.]([a-zA-Z0-9\\-_.]{0,248}))|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" |
@@ -288,7 +271,7 @@ _#defs: "/$defs/Properties/definitions/OnFailure": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisionedPollerConfig": close({
+#ProvisionedPollerConfig: close({
 	MaximumPollers?: int & <=10000 & >=1 |
 		{
 			string &
@@ -325,12 +308,9 @@ _#defs: "/$defs/Properties/definitions/ProvisionedPollerConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingConfig": close(
-	{MaximumConcurrency?: _#defs."/$defs/Properties/definitions/MaximumConcurrency" | fn.#NumberExpression},
-) |
-	fn.#ObjectExpression
+#ScalingConfig: close({MaximumConcurrency?: #MaximumConcurrency | fn.#NumberExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaRegistryAccessConfig": close({
+#SchemaRegistryAccessConfig: close({
 	Type?: "BASIC_AUTH" |
 		"CLIENT_CERTIFICATE_TLS_AUTH" |
 		"SERVER_ROOT_CA_CERTIFICATE" |
@@ -343,39 +323,28 @@ _#defs: "/$defs/Properties/definitions/SchemaRegistryAccessConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaRegistryConfig": close({
-	AccessConfigs?: list.MaxItems(2) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SchemaRegistryAccessConfig"
-	] |
-		fn.#ListExpression
+#SchemaRegistryConfig: close({
+	AccessConfigs?:     list.MaxItems(2) & list.UniqueItems() & [...#SchemaRegistryAccessConfig] | fn.#ListExpression
 	EventRecordFormat?: "JSON" | "SOURCE" | fn.#StringExpression
 	SchemaRegistryURI?: strings.MaxRunes(10000) & strings.MinRunes(1) & =~"[a-zA-Z0-9-/*:_+=.@-]*" |
 	fn.#StringExpression
-	SchemaValidationConfigs?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SchemaValidationConfig"
-	] |
+	SchemaValidationConfigs?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#SchemaValidationConfig] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaValidationConfig": close(
-	{Attribute?: "KEY" | "VALUE" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#SchemaValidationConfig: close({Attribute?: "KEY" | "VALUE" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelfManagedEventSource": close(
-	{Endpoints?: _#defs."/$defs/Properties/definitions/Endpoints" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#SelfManagedEventSource: close({Endpoints?: #Endpoints | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelfManagedKafkaEventSourceConfig": close({
-	ConsumerGroupId?:      _#defs."/$defs/Properties/definitions/ConsumerGroupId" | fn.#StringExpression
-	ConsumptionMode?:      _#defs."/$defs/Properties/definitions/ConsumptionMode" | fn.#StringExpression
-	SchemaRegistryConfig?: _#defs."/$defs/Properties/definitions/SchemaRegistryConfig" | fn.#ObjectExpression
+#SelfManagedKafkaEventSourceConfig: close({
+	ConsumerGroupId?:      #ConsumerGroupId | fn.#StringExpression
+	ConsumptionMode?:      #ConsumptionMode | fn.#StringExpression
+	SchemaRegistryConfig?: #SchemaRegistryConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceAccessConfiguration": close({
+#SourceAccessConfiguration: close({
 	Type?: "BASIC_AUTH" |
 		"VPC_SUBNET" |
 		"VPC_SECURITY_GROUP" |
@@ -396,7 +365,7 @@ _#defs: "/$defs/Properties/definitions/SourceAccessConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,71 +18,66 @@ import (
 	KeySchema?:            null | bool | number | string | list.MinItems(2) | {...}
 	...
 }, _) & {...} & close({
-	Arn?: string
-	AttributeDefinitions?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AttributeDefinition"
-	]
-	BillingMode?:            "PAY_PER_REQUEST" | "PROVISIONED"
-	GlobalSecondaryIndexes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GlobalSecondaryIndex"]
-	GlobalTableSourceArn?:   strings.MaxRunes(1024) & strings.MinRunes(1)
-	GlobalTableWitnesses?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/GlobalTableWitness"
-	]
-	KeySchema?:              _#defs."/$defs/Properties/definitions/KeySchema" & (list.MaxItems(2) & list.MinItems(1))
-	LocalSecondaryIndexes?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LocalSecondaryIndex"]
-	MultiRegionConsistency?: "EVENTUAL" | "STRONG"
-	ReadOnDemandThroughputSettings?:    _#defs."/$defs/Properties/definitions/ReadOnDemandThroughputSettings"
-	ReadProvisionedThroughputSettings?: _#defs."/$defs/Properties/definitions/GlobalReadProvisionedThroughputSettings"
-	Replicas!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ReplicaSpecification"]
-	SSESpecification?:        _#defs."/$defs/Properties/definitions/SSESpecification"
-	StreamArn?:               string
-	StreamSpecification?:     _#defs."/$defs/Properties/definitions/StreamSpecification"
-	TableId?:                 string
-	TableName?:               strings.MaxRunes(1024) & strings.MinRunes(1)
-	TimeToLiveSpecification?: _#defs."/$defs/Properties/definitions/TimeToLiveSpecification"
-	VectorIndexes?:  list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VectorIndex"]
-	WarmThroughput?: _#defs."/$defs/Properties/definitions/WarmThroughput"
-	WriteOnDemandThroughputSettings?:    _#defs."/$defs/Properties/definitions/WriteOnDemandThroughputSettings"
-	WriteProvisionedThroughputSettings?: _#defs."/$defs/Properties/definitions/WriteProvisionedThroughputSettings"
+	Arn?:                            string
+	AttributeDefinitions?:           list.MinItems(1) & list.UniqueItems() & [...#AttributeDefinition]
+	BillingMode?:                    "PAY_PER_REQUEST" | "PROVISIONED"
+	GlobalSecondaryIndexes?:         list.UniqueItems() & [...#GlobalSecondaryIndex]
+	GlobalTableSourceArn?:           strings.MaxRunes(1024) & strings.MinRunes(1)
+	GlobalTableWitnesses?:           list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#GlobalTableWitness]
+	KeySchema?:                      #KeySchema & (list.MaxItems(2) & list.MinItems(1))
+	LocalSecondaryIndexes?:          list.UniqueItems() & [...#LocalSecondaryIndex]
+	MultiRegionConsistency?:         "EVENTUAL" | "STRONG"
+	ReadOnDemandThroughputSettings?: #ReadOnDemandThroughputSettings
+	ReadProvisionedThroughputSettings?:  #GlobalReadProvisionedThroughputSettings
+	Replicas!:                           list.MinItems(1) & list.UniqueItems() & [...#ReplicaSpecification]
+	SSESpecification?:                   #SSESpecification
+	StreamArn?:                          string
+	StreamSpecification?:                #StreamSpecification
+	TableId?:                            string
+	TableName?:                          strings.MaxRunes(1024) & strings.MinRunes(1)
+	TimeToLiveSpecification?:            #TimeToLiveSpecification
+	VectorIndexes?:                      list.MinItems(1) & list.UniqueItems() & [...#VectorIndex]
+	WarmThroughput?:                     #WarmThroughput
+	WriteOnDemandThroughputSettings?:    #WriteOnDemandThroughputSettings
+	WriteProvisionedThroughputSettings?: #WriteProvisionedThroughputSettings
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeDefinition": close({
+#AttributeDefinition: close({
 	AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1)
 	AttributeType!: "B" | "N" | "S"
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityAutoScalingSettings": close({
-	MaxCapacity!:  int & >=1
-	MinCapacity!:  int & >=1
-	SeedCapacity?: int & >=1
-	TargetTrackingScalingPolicyConfiguration!:
-		_#defs."/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration"
+#CapacityAutoScalingSettings: close({
+	MaxCapacity!:                              int & >=1
+	MinCapacity!:                              int & >=1
+	SeedCapacity?:                             int & >=1
+	TargetTrackingScalingPolicyConfiguration!: #TargetTrackingScalingPolicyConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/ContributorInsightsSpecification": close({
+#ContributorInsightsSpecification: close({
 	Enabled!: bool
 	Mode?:    "ACCESSED_AND_THROTTLED_KEYS" | "THROTTLED_KEYS"
 })
 
-_#defs: "/$defs/Properties/definitions/GlobalReadProvisionedThroughputSettings": close({ReadCapacityUnits?: int & >=1})
+#GlobalReadProvisionedThroughputSettings: close({ReadCapacityUnits?: int & >=1})
 
-_#defs: "/$defs/Properties/definitions/GlobalSecondaryIndex": close({
+#GlobalSecondaryIndex: close({
 	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$"
 	KeySchema!: list.MinItems(1) & list.UniqueItems() & [...close({
 		AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1)
 		KeyType!:       "HASH" | "RANGE"
 	})]
-	Projection!:                         _#defs."/$defs/Properties/definitions/Projection"
-	ReadOnDemandThroughputSettings?:     _#defs."/$defs/Properties/definitions/ReadOnDemandThroughputSettings"
-	ReadProvisionedThroughputSettings?:  _#defs."/$defs/Properties/definitions/GlobalReadProvisionedThroughputSettings"
-	WarmThroughput?:                     _#defs."/$defs/Properties/definitions/WarmThroughput"
-	WriteOnDemandThroughputSettings?:    _#defs."/$defs/Properties/definitions/WriteOnDemandThroughputSettings"
-	WriteProvisionedThroughputSettings?: _#defs."/$defs/Properties/definitions/WriteProvisionedThroughputSettings"
+	Projection!:                         #Projection
+	ReadOnDemandThroughputSettings?:     #ReadOnDemandThroughputSettings
+	ReadProvisionedThroughputSettings?:  #GlobalReadProvisionedThroughputSettings
+	WarmThroughput?:                     #WarmThroughput
+	WriteOnDemandThroughputSettings?:    #WriteOnDemandThroughputSettings
+	WriteProvisionedThroughputSettings?: #WriteProvisionedThroughputSettings
 })
 
-_#defs: "/$defs/Properties/definitions/GlobalTableWitness": close({Region?: string})
+#GlobalTableWitness: close({Region?: string})
 
-_#defs: "/$defs/Properties/definitions/KeySchema": list.UniqueItems() & {
+#KeySchema: list.UniqueItems() & {
 	[...]
 	[0]: {
 		KeyType!: "HASH"
@@ -98,18 +93,18 @@ _#defs: "/$defs/Properties/definitions/KeySchema": list.UniqueItems() & {
 	})
 }
 
-_#defs: "/$defs/Properties/definitions/KinesisStreamSpecification": close({
+#KinesisStreamSpecification: close({
 	ApproximateCreationDateTimePrecision?: "MICROSECOND" | "MILLISECOND"
 	StreamArn!:                            string
 })
 
-_#defs: "/$defs/Properties/definitions/LocalSecondaryIndex": close({
+#LocalSecondaryIndex: close({
 	IndexName!:  strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$"
-	KeySchema!:  _#defs."/$defs/Properties/definitions/KeySchema" & (list.MaxItems(2) & list.MinItems(2))
-	Projection!: _#defs."/$defs/Properties/definitions/Projection"
+	KeySchema!:  #KeySchema & (list.MaxItems(2) & list.MinItems(2))
+	Projection!: #Projection
 })
 
-_#defs: "/$defs/Properties/definitions/PointInTimeRecoverySpecification": close({
+#PointInTimeRecoverySpecification: close({
 	RecoveryPeriodInDays?: _
 	if RecoveryPeriodInDays != _|_ {
 		PointInTimeRecoveryEnabled!: _
@@ -119,106 +114,96 @@ _#defs: "/$defs/Properties/definitions/PointInTimeRecoverySpecification": close(
 	"RecoveryPeriodInDays"?:     int & <=35 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/Projection": close({
+#Projection: close({
 	NonKeyAttributes?: list.MaxItems(20) & list.UniqueItems() & [...strings.MaxRunes(255) & strings.MinRunes(1)]
 	ProjectionType?:   "ALL" | "INCLUDE" | "KEYS_ONLY"
 })
 
-_#defs: "/$defs/Properties/definitions/ReadOnDemandThroughputSettings": close({MaxReadRequestUnits?: int & >=1})
+#ReadOnDemandThroughputSettings: close({MaxReadRequestUnits?: int & >=1})
 
-_#defs: "/$defs/Properties/definitions/ReadProvisionedThroughputSettings": close({
-	ReadCapacityAutoScalingSettings?: _#defs."/$defs/Properties/definitions/CapacityAutoScalingSettings"
+#ReadProvisionedThroughputSettings: close({
+	ReadCapacityAutoScalingSettings?: #CapacityAutoScalingSettings
 	ReadCapacityUnits?:               int & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/ReplicaGlobalSecondaryIndexSpecification": close({
-	ContributorInsightsSpecification?:  _#defs."/$defs/Properties/definitions/ContributorInsightsSpecification"
+#ReplicaGlobalSecondaryIndexSpecification: close({
+	ContributorInsightsSpecification?:  #ContributorInsightsSpecification
 	IndexName!:                         strings.MaxRunes(255) & strings.MinRunes(3)
-	ReadOnDemandThroughputSettings?:    _#defs."/$defs/Properties/definitions/ReadOnDemandThroughputSettings"
-	ReadProvisionedThroughputSettings?: _#defs."/$defs/Properties/definitions/ReadProvisionedThroughputSettings"
+	ReadOnDemandThroughputSettings?:    #ReadOnDemandThroughputSettings
+	ReadProvisionedThroughputSettings?: #ReadProvisionedThroughputSettings
 })
 
-_#defs: "/$defs/Properties/definitions/ReplicaSSESpecification": close({KMSMasterKeyId!: string & string})
+#ReplicaSSESpecification: close({KMSMasterKeyId!: string & string})
 
-_#defs: "/$defs/Properties/definitions/ReplicaSpecification": close({
-	ContributorInsightsSpecification?: _#defs."/$defs/Properties/definitions/ContributorInsightsSpecification"
-	DeletionProtectionEnabled?:        bool
-	GlobalSecondaryIndexes?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ReplicaGlobalSecondaryIndexSpecification"
-	]
+#ReplicaSpecification: close({
+	ContributorInsightsSpecification?:   #ContributorInsightsSpecification
+	DeletionProtectionEnabled?:          bool
+	GlobalSecondaryIndexes?:             list.UniqueItems() & [...#ReplicaGlobalSecondaryIndexSpecification]
 	GlobalTableSettingsReplicationMode?: "ENABLED" | "DISABLED"
-	KinesisStreamSpecification?:         _#defs."/$defs/Properties/definitions/KinesisStreamSpecification"
-	PointInTimeRecoverySpecification?:   _#defs."/$defs/Properties/definitions/PointInTimeRecoverySpecification"
-	ReadOnDemandThroughputSettings?:     _#defs."/$defs/Properties/definitions/ReadOnDemandThroughputSettings"
-	ReadProvisionedThroughputSettings?:  _#defs."/$defs/Properties/definitions/ReadProvisionedThroughputSettings"
+	KinesisStreamSpecification?:         #KinesisStreamSpecification
+	PointInTimeRecoverySpecification?:   #PointInTimeRecoverySpecification
+	ReadOnDemandThroughputSettings?:     #ReadOnDemandThroughputSettings
+	ReadProvisionedThroughputSettings?:  #ReadProvisionedThroughputSettings
 	Region!:                             string
-	ReplicaStreamSpecification?:         _#defs."/$defs/Properties/definitions/ReplicaStreamSpecification"
-	ResourcePolicy?:                     _#defs."/$defs/Properties/definitions/ResourcePolicy"
-	SSESpecification?:                   _#defs."/$defs/Properties/definitions/ReplicaSSESpecification"
+	ReplicaStreamSpecification?:         #ReplicaStreamSpecification
+	ResourcePolicy?:                     #ResourcePolicy
+	SSESpecification?:                   #ReplicaSSESpecification
 	TableClass?:                         string
-	Tags?:                               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                               list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ReplicaStreamSpecification": close({
-	ResourcePolicy?: _#defs."/$defs/Properties/definitions/ResourcePolicy"
-	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+#ReplicaStreamSpecification: close({
+	ResourcePolicy?: #ResourcePolicy
+	Tags?:           list.UniqueItems() & [...#Tag]
 }) & matchN(>=1, [{ResourcePolicy!: _}, {Tags!: _}])
 
-_#defs: "/$defs/Properties/definitions/ResourcePolicy": close({PolicyDocument!: string | {...}})
+#ResourcePolicy: close({PolicyDocument!: string | {...}})
 
-_#defs: "/$defs/Properties/definitions/SSESpecification": close({
+#SSESpecification: close({
 	SSEEnabled!: bool
 	SSEType?:    "KMS"
 })
 
-_#defs: "/$defs/Properties/definitions/SearchSchemaElement": close({
+#SearchSchemaElement: close({
 	AttributeName!:           strings.MaxRunes(65535) & strings.MinRunes(0)
 	SearchSchemaElementType!: "HASH" | "INLINE_FILTER"
 })
 
-_#defs: "/$defs/Properties/definitions/StreamSpecification": close(
-	{StreamViewType!: "KEYS_ONLY" | "NEW_AND_OLD_IMAGES" | "NEW_IMAGE" | "OLD_IMAGE"},
-)
+#StreamSpecification: close({StreamViewType!: "KEYS_ONLY" | "NEW_AND_OLD_IMAGES" | "NEW_IMAGE" | "OLD_IMAGE"})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration": close({
+#TargetTrackingScalingPolicyConfiguration: close({
 	DisableScaleIn?:   bool
 	ScaleInCooldown?:  int & >=0
 	ScaleOutCooldown?: int & >=0
 	TargetValue!:      number
 })
 
-_#defs: "/$defs/Properties/definitions/TimeToLiveSpecification": close({
+#TimeToLiveSpecification: close({
 	AttributeName?: string
 	Enabled!:       bool
 })
 
-_#defs: "/$defs/Properties/definitions/VectorAttribute": close(
-	{AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1)},
-)
+#VectorAttribute: close({AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/VectorIndex": close({
+#VectorIndex: close({
 	Dimensions!:       int & <=4096 & >=1
 	DistanceFunction!: "COSINE" | "DOT_PRODUCT" | "EUCLIDEAN"
 	IndexName!:        strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$"
-	Projection!:       _#defs."/$defs/Properties/definitions/Projection"
-	SearchSchema?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SearchSchemaElement"
-	]
-	VectorAttribute!: _#defs."/$defs/Properties/definitions/VectorAttribute"
+	Projection!:       #Projection
+	SearchSchema?:     list.MinItems(1) & list.UniqueItems() & [...#SearchSchemaElement]
+	VectorAttribute!:  #VectorAttribute
 })
 
-_#defs: "/$defs/Properties/definitions/WarmThroughput": close({
+#WarmThroughput: close({
 	ReadUnitsPerSecond?:  int & >=1
 	WriteUnitsPerSecond?: int & >=1
 }) & matchN(>=1, [{ReadUnitsPerSecond!: _}, {WriteUnitsPerSecond!: _}])
 
-_#defs: "/$defs/Properties/definitions/WriteOnDemandThroughputSettings": close({MaxWriteRequestUnits?: int & >=1})
+#WriteOnDemandThroughputSettings: close({MaxWriteRequestUnits?: int & >=1})
 
-_#defs: "/$defs/Properties/definitions/WriteProvisionedThroughputSettings": close(
-	{WriteCapacityAutoScalingSettings?: _#defs."/$defs/Properties/definitions/CapacityAutoScalingSettings"},
-)
+#WriteProvisionedThroughputSettings: close({WriteCapacityAutoScalingSettings?: #CapacityAutoScalingSettings})

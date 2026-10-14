@@ -23,22 +23,17 @@ package schema
 
 	// List of nodes added to the channel placement group
 	Nodes?: [...string]
-	State?: _#defs."/$defs/Properties/definitions/ChannelPlacementGroupState"
+	State?: #ChannelPlacementGroupState
 
 	// A collection of key-value pairs.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tags"]
+	Tags?: [...#Tags]
 })
 
 // The current state of the ChannelPlacementGroupState
-_#defs: "/$defs/Properties/definitions/ChannelPlacementGroupState": "UNASSIGNED" |
-	"ASSIGNING" |
-	"ASSIGNED" |
-	"DELETING" |
-	"DELETED" |
-	"UNASSIGNING"
+#ChannelPlacementGroupState: "UNASSIGNED" | "ASSIGNING" | "ASSIGNED" | "DELETING" | "DELETED" | "UNASSIGNING"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string
 	Value?: string
 })

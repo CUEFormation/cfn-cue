@@ -24,66 +24,64 @@ import (
 	RegistryId?: string
 
 	// The replication configuration for a registry.
-	ReplicationConfiguration!: _#defs."/$defs/Properties/definitions/ReplicationConfiguration"
+	ReplicationConfiguration!: #ReplicationConfiguration
 })
 
 // The repository filter to be applied for replication.
-_#defs: "/$defs/Properties/definitions/Filter": strings.MaxRunes(256) &
+#Filter: strings.MaxRunes(256) &
 strings.MinRunes(2) &
 =~"^(?:[a-z0-9]+(?:[._-][a-z0-9]*)*/)*[a-z0-9]*(?:[._-][a-z0-9]*)*$"
 
 // Type of repository filter
-_#defs: "/$defs/Properties/definitions/FilterType": "PREFIX_MATCH"
+#FilterType: "PREFIX_MATCH"
 
 // A Region to replicate to.
-_#defs: "/$defs/Properties/definitions/Region": =~"[0-9a-z-]{2,25}"
+#Region: =~"[0-9a-z-]{2,25}"
 
 // The account ID of the destination registry to replicate to.
-_#defs: "/$defs/Properties/definitions/RegistryId": =~"^[0-9]{12}$"
+#RegistryId: =~"^[0-9]{12}$"
 
 // The replication configuration for a registry.
-_#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
+#ReplicationConfiguration: close({
 	// An array of objects representing the replication destinations and repository
 	// filters for a replication configuration.
-	Rules!: list.MaxItems(25) & [...] & [..._#defs."/$defs/Properties/definitions/ReplicationRule"]
+	Rules!: list.MaxItems(25) & [...] & [...#ReplicationRule]
 })
 
 // An array of objects representing the destination for a replication rule.
-_#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
+#ReplicationDestination: close({
 	// The Region to replicate to.
-	Region!: _#defs."/$defs/Properties/definitions/Region"
+	Region!: #Region
 
 	// The AWS account ID of the Amazon ECR private registry to replicate to. When
 	// configuring cross-Region replication within your own registry, specify your
 	// own account ID.
-	RegistryId!: _#defs."/$defs/Properties/definitions/RegistryId"
+	RegistryId!: #RegistryId
 })
 
 // An array of objects representing the replication destinations and repository
 // filters for a replication configuration.
-_#defs: "/$defs/Properties/definitions/ReplicationRule": close({
+#ReplicationRule: close({
 	// An array of objects representing the destination for a replication rule.
-	Destinations!: list.MaxItems(100) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ReplicationDestination"
-	]
+	Destinations!: list.MaxItems(100) & list.MinItems(1) & [...#ReplicationDestination]
 
 	// An array of objects representing the filters for a replication rule.
 	// Specifying a repository filter for a replication rule provides a method for
 	// controlling which repositories in a private registry are replicated.
-	RepositoryFilters?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/RepositoryFilter"]
+	RepositoryFilters?: list.MaxItems(100) & [...] & [...#RepositoryFilter]
 })
 
 // The filter settings used with image replication. Specifying a repository
 // filter to a replication rule provides a method for controlling which
 // repositories in a private registry are replicated. If no filters are added,
 // the contents of all repositories are replicated.
-_#defs: "/$defs/Properties/definitions/RepositoryFilter": close({
+#RepositoryFilter: close({
 	// The repository filter details. When the ``PREFIX_MATCH`` filter type is
 	// specified, this value is required and should be the repository name prefix
 	// to configure replication for.
-	Filter!: _#defs."/$defs/Properties/definitions/Filter"
+	Filter!: #Filter
 
 	// The repository filter type. The only supported value is ``PREFIX_MATCH``,
 	// which is a repository name prefix specified with the ``filter`` parameter.
-	FilterType!: _#defs."/$defs/Properties/definitions/FilterType"
+	FilterType!: #FilterType
 })

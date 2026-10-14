@@ -25,11 +25,11 @@ import (
 	Id?: strings.MaxRunes(131) & =~"^rp-[0-9a-zA-Z_]{4,128}$"
 
 	// A list of tags that you want to attach to the resource policy
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // A custom key-value pair associated with a resource within your organization.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key identifier, or name, of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

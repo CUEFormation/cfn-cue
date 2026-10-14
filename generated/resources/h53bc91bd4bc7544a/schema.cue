@@ -18,12 +18,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"arn:.+:iam::[0-9]{12}:role/.+" |
 	fn.#StringExpression
-	LoggingConfig?:        _#defs."/$defs/Properties/definitions/LoggingConfig" | fn.#ObjectExpression
+	LoggingConfig?:        #LoggingConfig | fn.#ObjectExpression
 	SchemaHandlerPackage!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 	TypeName!:             =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+#LoggingConfig: close({
 	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
 	LogRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(256) &

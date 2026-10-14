@@ -18,63 +18,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A calculated attribute definition for Customer Profiles
 #Properties: close({
-	AttributeDetails!:        _#defs."/$defs/Properties/definitions/AttributeDetails"
-	CalculatedAttributeName!: _#defs."/$defs/Properties/definitions/CalculatedAttributeName"
-	Conditions?:              _#defs."/$defs/Properties/definitions/Conditions"
-	Description?:             _#defs."/$defs/Properties/definitions/Description"
-	DisplayName?:             _#defs."/$defs/Properties/definitions/DisplayName"
-	DomainName!:              _#defs."/$defs/Properties/definitions/DomainName"
-	Statistic!:               _#defs."/$defs/Properties/definitions/Statistic"
-	Tags?:                    _#defs."/$defs/Properties/definitions/Tags"
+	AttributeDetails!:        #AttributeDetails
+	CalculatedAttributeName!: #CalculatedAttributeName
+	Conditions?:              #Conditions
+	Description?:             #Description
+	DisplayName?:             #DisplayName
+	DomainName!:              #DomainName
+	Statistic!:               #Statistic
+	Tags?:                    #Tags
 	UseHistoricalData?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeDetails": close({
-	Attributes!: _#defs."/$defs/Properties/definitions/AttributeList"
-	Expression!: _#defs."/$defs/Properties/definitions/Expression"
+#AttributeDetails: close({
+	Attributes!: #AttributeList
+	Expression!: #Expression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AttributeItem": close(
-	{Name!: _#defs."/$defs/Properties/definitions/AttributeName"},
-) |
-	fn.#ObjectExpression
+#AttributeItem: close({Name!: #AttributeName}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AttributeList": list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AttributeItem"
-] |
-	fn.#ListExpression
+#AttributeList: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#AttributeItem] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AttributeName": strings.MaxRunes(64) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9_.-]+$" |
+#AttributeName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+
+#CalculatedAttributeName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CalculatedAttributeName": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z_][a-zA-Z_0-9-]*$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/Conditions": close({
-	ObjectCount?: _#defs."/$defs/Properties/definitions/ObjectCount"
-	Range?:       _#defs."/$defs/Properties/definitions/Range"
-	Threshold?:   _#defs."/$defs/Properties/definitions/Threshold"
+#Conditions: close({
+	ObjectCount?: #ObjectCount
+	Range?:       #Range
+	Threshold?:   #Threshold
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+#Description: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DisplayName": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z_][a-zA-Z_0-9-\\s]*$" |
-fn.#StringExpression
+#DisplayName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-\\s]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DomainName": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
-fn.#StringExpression
+#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Expression": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#Expression: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectCount": int & <=300 & >=1 |
+#ObjectCount: int & <=300 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -91,18 +76,18 @@ _#defs: "/$defs/Properties/definitions/ObjectCount": int & <=300 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Range": close({
+#Range: close({
 	TimestampFormat?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	TimestampSource?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Unit!:            _#defs."/$defs/Properties/definitions/RangeUnit"
-	Value?:           _#defs."/$defs/Properties/definitions/RangeValue"
-	ValueRange?:      _#defs."/$defs/Properties/definitions/ValueRange"
+	Unit!:            #RangeUnit
+	Value?:           #RangeValue
+	ValueRange?:      #ValueRange
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RangeUnit": "DAYS" | fn.#StringExpression
+#RangeUnit: "DAYS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RangeValue": int & <=2147483647 & >=1 |
+#RangeValue: int & <=2147483647 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -119,7 +104,7 @@ _#defs: "/$defs/Properties/definitions/RangeValue": int & <=2147483647 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Readiness": close({
+#Readiness: close({
 	Message?: string | fn.#StringExpression
 	ProgressPercentage?: int & <=100 & >=0 |
 		{
@@ -140,7 +125,7 @@ _#defs: "/$defs/Properties/definitions/Readiness": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Statistic": "FIRST_OCCURRENCE" |
+#Statistic: "FIRST_OCCURRENCE" |
 	"LAST_OCCURRENCE" |
 	"COUNT" |
 	"SUM" |
@@ -150,33 +135,25 @@ _#defs: "/$defs/Properties/definitions/Statistic": "FIRST_OCCURRENCE" |
 	"MAX_OCCURRENCE" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Threshold": close({
-	Operator!: _#defs."/$defs/Properties/definitions/ThresholdOperator"
-	Value!:    _#defs."/$defs/Properties/definitions/ThresholdValue"
+#Threshold: close({
+	Operator!: #ThresholdOperator
+	Value!:    #ThresholdValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThresholdOperator": "EQUAL_TO" |
-	"GREATER_THAN" |
-	"LESS_THAN" |
-	"NOT_EQUAL_TO" |
-	fn.#StringExpression
+#ThresholdOperator: "EQUAL_TO" | "GREATER_THAN" | "LESS_THAN" | "NOT_EQUAL_TO" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ThresholdValue": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
+#ThresholdValue: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ValueRange": close({
+#ValueRange: close({
 	End!: int & <=2147483647 & >=-2147483648 |
 		{
 			string &

@@ -12,24 +12,24 @@ import (
 // Creates an AWS Firewall Manager resource set.
 #Properties: close({
 	Description?:      strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]*)$"
-	Id?:               _#defs."/$defs/Properties/definitions/Base62Id"
+	Id?:               #Base62Id
 	Name!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$"
-	ResourceTypeList!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ResourceType"]
+	ResourceTypeList!: list.UniqueItems() & [...#ResourceType]
 	Resources?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Resource"]
-	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:             list.UniqueItems() & [...#Tag]
 })
 
 // A Base62 ID
-_#defs: "/$defs/Properties/definitions/Base62Id": strings.MaxRunes(22) & strings.MinRunes(22) & =~"^([a-z0-9A-Z]*)$"
-
-// A resource ARN or URI.
-_#defs: "/$defs/Properties/definitions/Resource": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]*)$"
+#Base62Id: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^([a-z0-9A-Z]*)$"
 
 // An AWS resource type
-_#defs: "/$defs/Properties/definitions/ResourceType": strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$"
+#ResourceType: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$"
 
 // A tag.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$"
 	Value!: strings.MaxRunes(256) & =~"^([^\\s]*)$"
 })
+
+// A resource ARN or URI.
+_#defs: "/$defs/Properties/definitions/Resource": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]*)$"

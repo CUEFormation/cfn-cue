@@ -15,20 +15,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::MediaConnect::BridgeSource
 #Properties: close({
 	BridgeArn!:     string | fn.#StringExpression
-	FlowSource?:    _#defs."/$defs/Properties/definitions/BridgeFlowSource"
+	FlowSource?:    #BridgeFlowSource
 	Name!:          string | fn.#StringExpression
-	NetworkSource?: _#defs."/$defs/Properties/definitions/BridgeNetworkSource"
+	NetworkSource?: #BridgeNetworkSource
 })
 
-_#defs: "/$defs/Properties/definitions/BridgeFlowSource": close({
+#BridgeFlowSource: close({
 	FlowArn!:                    string | fn.#StringExpression
-	FlowVpcInterfaceAttachment?: _#defs."/$defs/Properties/definitions/VpcInterfaceAttachment" | fn.#ObjectExpression
+	FlowVpcInterfaceAttachment?: #VpcInterfaceAttachment | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BridgeNetworkSource": close({
+#BridgeNetworkSource: close({
 	MulticastIp!:             string | fn.#StringExpression
-	MulticastSourceSettings?: _#defs."/$defs/Properties/definitions/MulticastSourceSettings" | fn.#ObjectExpression
+	MulticastSourceSettings?: #MulticastSourceSettings | fn.#ObjectExpression
 	NetworkName!:             string | fn.#StringExpression
 	Port!: int |
 		{
@@ -44,21 +44,15 @@ _#defs: "/$defs/Properties/definitions/BridgeNetworkSource": close({
 				)
 		} |
 		fn.#NumberExpression
-	Protocol!: _#defs."/$defs/Properties/definitions/ProtocolEnum" | fn.#StringExpression
+	Protocol!: #ProtocolEnum | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MulticastSourceSettings": close(
-	{MulticastSourceIp?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#MulticastSourceSettings: close({MulticastSourceIp?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProtocolEnum": "rtp-fec" | "rtp" | "udp" | fn.#StringExpression
+#ProtocolEnum: "rtp-fec" | "rtp" | "udp" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VpcInterfaceAttachment": close(
-	{VpcInterfaceName?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#VpcInterfaceAttachment: close({VpcInterfaceName?: string | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MediaConnect::BridgeSource"
 	Properties!: #Properties

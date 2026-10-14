@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,66 +12,64 @@ import (
 // Resource Type definition for AWS::CloudWatch::AnomalyDetector
 #Properties: close({
 	AnomalyDetectorId?:           string
-	Configuration?:               _#defs."/$defs/Properties/definitions/MetricConfiguration"
-	Dimensions?:                  list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Dimension"]
-	MetricCharacteristics?:       _#defs."/$defs/Properties/definitions/MetricCharacteristics"
-	MetricMathAnomalyDetector?:   _#defs."/$defs/Properties/definitions/MetricMathAnomalyDetector"
+	Configuration?:               #MetricConfiguration
+	Dimensions?:                  list.MaxItems(30) & [...] & [...#Dimension]
+	MetricCharacteristics?:       #MetricCharacteristics
+	MetricMathAnomalyDetector?:   #MetricMathAnomalyDetector
 	MetricName?:                  strings.MaxRunes(255) & strings.MinRunes(1)
 	Namespace?:                   strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*"
-	SingleMetricAnomalyDetector?: _#defs."/$defs/Properties/definitions/SingleMetricAnomalyDetector"
+	SingleMetricAnomalyDetector?: #SingleMetricAnomalyDetector
 	Stat?: strings.MaxRunes(50) &
 	strings.MinRunes(0) &
 	=~"^(Minimum|Maximum|Sum|Average|SampleCount|(p|tm)[0-9]{1,2}|(p|tm)[0-9]{1,2}\\.[0-9]{1,2}|(p|tm)100)$"
 })
 
-_#defs: "/$defs/Properties/definitions/Dimension": close({
+#Dimension: close({
 	Name!:  strings.MaxRunes(255) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Metric": close({
-	Dimensions?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Dimension"]
+#Metric: close({
+	Dimensions?: list.MaxItems(30) & [...] & [...#Dimension]
 	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1)
 	Namespace!:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*"
 })
 
-_#defs: "/$defs/Properties/definitions/MetricCharacteristics": close({PeriodicSpikes?: bool})
+#MetricCharacteristics: close({PeriodicSpikes?: bool})
 
-_#defs: "/$defs/Properties/definitions/MetricConfiguration": close({
-	ExcludedTimeRanges?: [..._#defs."/$defs/Properties/definitions/Range"]
+#MetricConfiguration: close({
+	ExcludedTimeRanges?: [...#Range]
 	MetricTimeZone?:     strings.MaxRunes(50) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
+#MetricDataQuery: close({
 	AccountId?:  strings.MaxRunes(255) & strings.MinRunes(1)
 	Expression?: strings.MaxRunes(1024) & strings.MinRunes(1)
 	Id!:         strings.MaxRunes(255) & strings.MinRunes(1)
 	Label?:      string
-	MetricStat?: _#defs."/$defs/Properties/definitions/MetricStat"
+	MetricStat?: #MetricStat
 	Period?:     int & >=1
 	ReturnData?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/MetricMathAnomalyDetector": close(
-	{MetricDataQueries?: [..._#defs."/$defs/Properties/definitions/MetricDataQuery"]},
-)
+#MetricMathAnomalyDetector: close({MetricDataQueries?: [...#MetricDataQuery]})
 
-_#defs: "/$defs/Properties/definitions/MetricStat": close({
-	Metric!: _#defs."/$defs/Properties/definitions/Metric"
+#MetricStat: close({
+	Metric!: #Metric
 	Period!: int & >=1
 	Stat!:   =~"^(Minimum|Maximum|Sum|Average|SampleCount|(p|tm)[0-9]{1,2}|(p|tm)[0-9]{1,2}\\.[0-9]{1,2}|(p|tm)100)$"
 	Unit?:
 		=~"^(Seconds|Microseconds|Milliseconds|Bytes|Kilobytes|Megabytes|Gigabytes|Terabytes|Bits|Kilobits|Megabits|Gigabits|Terabits|Percent|Count|Bytes/Second|Kilobytes/Second|Megabytes/Second|Gigabytes/Second|Terabytes/Second|Bits/Second|Kilobits/Second|Megabits/Second|Gigabits/Second|Terabits/Second|Count/Second|None)$"
 })
 
-_#defs: "/$defs/Properties/definitions/Range": close({
+#Range: close({
 	EndTime!:   =~"^([0-9]{4})-([0-1][0-9])-([0-3][0-9])T([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])$"
 	StartTime!: =~"^([0-9]{4})-([0-1][0-9])-([0-3][0-9])T([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])$"
 })
 
-_#defs: "/$defs/Properties/definitions/SingleMetricAnomalyDetector": close({
+#SingleMetricAnomalyDetector: close({
 	AccountId?:  strings.MaxRunes(255) & strings.MinRunes(1)
-	Dimensions?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Dimension"]
+	Dimensions?: list.MaxItems(30) & [...] & [...#Dimension]
 	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1)
 	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*"
 	Stat?: strings.MaxRunes(50) &

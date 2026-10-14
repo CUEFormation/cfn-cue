@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"time"
 	"strings"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -22,7 +22,7 @@ import (
 	ConnectionFunctionCode!: string
 
 	// Contains configuration information about a CloudFront function.
-	ConnectionFunctionConfig!: _#defs."/$defs/Properties/definitions/ConnectionFunctionConfig"
+	ConnectionFunctionConfig!: #ConnectionFunctionConfig
 	CreatedTime?:              time.Time
 	ETag?:                     string
 	Id?:                       strings.MaxRunes(64) & strings.MinRunes(1)
@@ -34,31 +34,29 @@ import (
 	Status?: "UNPUBLISHED" | "DEPLOYED" | "UNASSOCIATED" | "PUBLISHING" | "IN_PROGRESS"
 
 	// A complex type that contains zero or more ``Tag`` elements.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // Contains configuration information about a CloudFront function.
-_#defs: "/$defs/Properties/definitions/ConnectionFunctionConfig": close({
+#ConnectionFunctionConfig: close({
 	// A comment to describe the function. The comment cannot be longer than 128 characters.
 	Comment!: string
 
 	// The configuration for the key value store associations.
-	KeyValueStoreAssociations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/KeyValueStoreAssociation"
-	]
+	KeyValueStoreAssociations?: list.UniqueItems() & [...#KeyValueStoreAssociation]
 
 	// The function's runtime environment version.
 	Runtime!: "cloudfront-js-2.0"
 })
 
 // The key value store association.
-_#defs: "/$defs/Properties/definitions/KeyValueStoreAssociation": close({
+#KeyValueStoreAssociation: close({
 	// The Amazon Resource Name (ARN) of the key value store association.
 	KeyValueStoreARN!: string
 })
 
 // A complex type that contains ``Tag`` key and ``Tag`` value.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string that contains ``Tag`` key.
 	// The string length should be between 1 and 128 characters. Valid characters
 	// include ``a-z``, ``A-Z``, ``0-9``, space, and the special characters ``_ - .

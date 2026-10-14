@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,33 +14,27 @@ import (
 // delivers the events to one or more event data stores. You use channels to
 // ingest events into CloudTrail from sources outside AWS.
 #Properties: close({
-	ChannelArn?: _#defs."/$defs/Properties/definitions/ChannelArn"
+	ChannelArn?: #ChannelArn
 
 	// One or more resources to which events arriving through a channel are logged and stored.
-	Destinations?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Destination"
-	]
-	Name?: _#defs."/$defs/Properties/definitions/ChannelName"
+	Destinations?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#Destination]
+	Name?:         #ChannelName
 
 	// The ARN of an on-premises storage solution or application, or a partner event source.
 	Source?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"(.*)"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
 // The Amazon Resource Name (ARN) of a channel.
-_#defs: "/$defs/Properties/definitions/ChannelArn": strings.MaxRunes(256) &
-strings.MinRunes(3) &
-=~"(^[a-zA-Z0-9._/\\-:]+$)"
+#ChannelArn: strings.MaxRunes(256) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._/\\-:]+$)"
 
 // The name of the channel.
-_#defs: "/$defs/Properties/definitions/ChannelName": strings.MaxRunes(128) &
-strings.MinRunes(3) &
-=~"(^[a-zA-Z0-9._\\-]+$)"
+#ChannelName: strings.MaxRunes(128) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._\\-]+$)"
 
 // The resource that receives events arriving from a channel.
-_#defs: "/$defs/Properties/definitions/Destination": close({
+#Destination: close({
 	// The ARN of a resource that receives events from a channel.
 	Location!: strings.MaxRunes(1024) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._/\\-:]+$)"
 
@@ -49,7 +43,7 @@ _#defs: "/$defs/Properties/definitions/Destination": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -63,6 +57,6 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Timestamp": string
+#Timestamp: string
 
-_#defs: "/$defs/Properties/definitions/UUID": strings.MaxRunes(36) & strings.MinRunes(36) & =~"(^[a-f0-9\\-]+$)"
+#UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"(^[a-f0-9\\-]+$)"

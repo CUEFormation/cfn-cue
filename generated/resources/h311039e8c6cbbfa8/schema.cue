@@ -15,23 +15,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // field-level encryption profile maps CloudFront public keys and provider
 // identities to the request-body field patterns that CloudFront encrypts with
 // them.
-#Properties: close(
-	{FieldLevelEncryptionProfileConfig!: _#defs."/$defs/Properties/definitions/FieldLevelEncryptionProfileConfig"},
-)
+#Properties: close({FieldLevelEncryptionProfileConfig!: #FieldLevelEncryptionProfileConfig})
 
-_#defs: "/$defs/Properties/definitions/EncryptionEntity": close({
+#EncryptionEntity: close({
 	FieldPatterns!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	ProviderId!:    string | fn.#StringExpression
 	PublicKeyId!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldLevelEncryptionProfileConfig": close({
-	CallerReference!: string | fn.#StringExpression
-	Comment?:         string | fn.#StringExpression
-	EncryptionEntities!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EncryptionEntity"] |
-		fn.#ListExpression
-	Name!: string | fn.#StringExpression
+#FieldLevelEncryptionProfileConfig: close({
+	CallerReference!:    string | fn.#StringExpression
+	Comment?:            string | fn.#StringExpression
+	EncryptionEntities!: list.MinItems(1) & [...#EncryptionEntity] | fn.#ListExpression
+	Name!:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

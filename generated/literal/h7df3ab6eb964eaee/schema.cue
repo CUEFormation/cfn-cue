@@ -12,16 +12,16 @@ import "list"
 	Arn?: string
 
 	// <p>A list of HTTP package configuration parameters for this live source.</p>
-	HttpPackageConfigurations!: [..._#defs."/$defs/Properties/definitions/HttpPackageConfiguration"]
+	HttpPackageConfigurations!: [...#HttpPackageConfiguration]
 	LiveSourceName!:            string
 	SourceLocationName!:        string
 
 	// The tags to assign to the live source.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // <p>The HTTP package configuration properties for the requested VOD source.</p>
-_#defs: "/$defs/Properties/definitions/HttpPackageConfiguration": close({
+#HttpPackageConfiguration: close({
 	// <p>The relative path to the URL for this VOD source. This is combined with
 	// <code>SourceLocation::HttpConfiguration::BaseUrl</code> to form a valid
 	// URL.</p>
@@ -30,12 +30,12 @@ _#defs: "/$defs/Properties/definitions/HttpPackageConfiguration": close({
 	// <p>The name of the source group. This has to match one of the
 	// <code>Channel::Outputs::SourceGroup</code>.</p>
 	SourceGroup!: string
-	Type!:        _#defs."/$defs/Properties/definitions/Type"
+	Type!:        #Type
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Type": "DASH" | "HLS"
+#Type: "DASH" | "HLS"

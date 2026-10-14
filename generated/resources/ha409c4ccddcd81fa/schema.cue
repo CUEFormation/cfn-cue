@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -16,20 +16,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MandatoryKeywords!: close({
-		HELP!: _#defs."/$defs/Properties/definitions/MandatoryKeyword"
-		STOP!: _#defs."/$defs/Properties/definitions/MandatoryKeyword"
+		HELP!: #MandatoryKeyword
+		STOP!: #MandatoryKeyword
 	}) |
 	fn.#ObjectExpression
-	OptOutListName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
-	OptionalKeywords?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/OptionalKeyword"] |
-		fn.#ListExpression
+	OptOutListName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
+	OptionalKeywords?: list.UniqueItems() & [...#OptionalKeyword] | fn.#ListExpression
 	OriginationIdentities!: list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(256) & strings.MinRunes(20) & =~"^arn:\\S+" | fn.#StringExpression
 	] |
 	fn.#ListExpression
 	SelfManagedOptOutsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SharedRoutesEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	TwoWay?: close({
 		ChannelArn?:  =~"^[ \\S]+" | fn.#StringExpression
 		ChannelRole?: =~"^arn:\\S+$" | fn.#StringExpression
@@ -38,19 +37,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/MandatoryKeyword": close(
-	{Message!: strings.MaxRunes(1600) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#MandatoryKeyword: close({Message!: strings.MaxRunes(1600) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OptionalKeyword": close({
+#OptionalKeyword: close({
 	Action!:  "AUTOMATIC_RESPONSE" | "OPT_OUT" | "OPT_IN" | fn.#StringExpression
 	Keyword!: strings.MaxRunes(30) | fn.#StringExpression
 	Message!: strings.MaxRunes(1600) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -34,11 +34,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	S3Bucket!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\.\\-]+" | fn.#StringExpression
 	S3Prefix!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[0-9A-Za-z!\\-_.*\\'()/]*" | fn.#StringExpression
 	S3Region!: string | fn.#StringExpression
-	Tags?:     list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:     list.MaxItems(100) & [...] & [...#Tag] | fn.#ListExpression
 	TimeUnit!: "HOURLY" | "DAILY" | "MONTHLY" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

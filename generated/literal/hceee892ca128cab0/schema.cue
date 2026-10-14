@@ -23,8 +23,8 @@ import (
 	DisplayName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-\\s]*$"
 
 	// The stages that an escalation plan or engagement plan engages contacts and contact methods in.
-	Plan?: [..._#defs."/$defs/Properties/definitions/Stage"]
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Plan?: [...#Stage]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// Contact type, which specify type of contact. Currently supported values:
 	// “PERSONAL”, “SHARED”, “OTHER“.
@@ -32,7 +32,7 @@ import (
 })
 
 // Information about the contact channel that SSM Incident Manager uses to engage the contact.
-_#defs: "/$defs/Properties/definitions/ChannelTargetInfo": close({
+#ChannelTargetInfo: close({
 	// The Amazon Resource Name (ARN) of the contact channel.
 	ChannelId!: string
 
@@ -42,7 +42,7 @@ _#defs: "/$defs/Properties/definitions/ChannelTargetInfo": close({
 })
 
 // The contact that SSM Incident Manager is engaging during an incident.
-_#defs: "/$defs/Properties/definitions/ContactTargetInfo": close({
+#ContactTargetInfo: close({
 	// The Amazon Resource Name (ARN) of the contact.
 	ContactId!: string
 
@@ -53,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/ContactTargetInfo": close({
 
 // A set amount of time that an escalation plan or engagement plan engages the
 // specified contacts or contact methods.
-_#defs: "/$defs/Properties/definitions/Stage": close({
+#Stage: close({
 	// The time to wait until beginning the next stage.
 	DurationInMinutes?: int
 
@@ -61,7 +61,7 @@ _#defs: "/$defs/Properties/definitions/Stage": close({
 	RotationIds?: [...string]
 
 	// The contacts or contact methods that the escalation plan or engagement plan is engaging.
-	Targets?: [..._#defs."/$defs/Properties/definitions/Targets"]
+	Targets?: [...#Targets]
 	if DurationInMinutes != _|_ {
 		RotationIds?: error(
 			"RotationIds cannot be used with DurationInMinutes; set exactly one of DurationInMinutes, RotationIds",
@@ -70,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/Stage": close({
 }) & matchN(>=1, [{DurationInMinutes!: _}, {RotationIds!: _}])
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\\\\\/a-zA-Z0-9_+=\\-]*$"
 
@@ -79,9 +79,9 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The contacts or contact methods that the escalation plan or engagement plan is engaging.
-_#defs: "/$defs/Properties/definitions/Targets": close({
-	ChannelTargetInfo?: _#defs."/$defs/Properties/definitions/ChannelTargetInfo"
-	ContactTargetInfo?: _#defs."/$defs/Properties/definitions/ContactTargetInfo"
+#Targets: close({
+	ChannelTargetInfo?: #ChannelTargetInfo
+	ContactTargetInfo?: #ContactTargetInfo
 	if ChannelTargetInfo != _|_ {
 		ContactTargetInfo?: error(
 			"ContactTargetInfo cannot be used with ChannelTargetInfo; set exactly one of ChannelTargetInfo, ContactTargetInfo",

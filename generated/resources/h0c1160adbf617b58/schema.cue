@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -19,8 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates a budget to set spending thresholds for your rendering activity.
 #Properties: close({
-	Actions!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/BudgetActionToAdd"] |
-		fn.#ListExpression
+	Actions!: list.MaxItems(10) & [...] & [...#BudgetActionToAdd] | fn.#ListExpression
 	ApproximateDollarLimit!: >=0.01 |
 		{
 			string &
@@ -43,12 +42,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 	DisplayName!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	FarmId!:                =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-	Schedule!:              _#defs."/$defs/Properties/definitions/BudgetSchedule"
-	Tags?:                  list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UsageTrackingResource!: _#defs."/$defs/Properties/definitions/UsageTrackingResource"
+	Schedule!:              #BudgetSchedule
+	Tags?:                  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	UsageTrackingResource!: #UsageTrackingResource
 })
 
-_#defs: "/$defs/Properties/definitions/BudgetActionToAdd": close({
+#BudgetActionToAdd: close({
 	Description?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 	ThresholdPercentage!: <=100 & >=0 |
 		{
@@ -74,27 +73,21 @@ _#defs: "/$defs/Properties/definitions/BudgetActionToAdd": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BudgetSchedule": close(
-	{Fixed!: _#defs."/$defs/Properties/definitions/FixedBudgetSchedule"},
-) |
-	fn.#ObjectExpression
+#BudgetSchedule: close({Fixed!: #FixedBudgetSchedule}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FixedBudgetSchedule": close({
+#FixedBudgetSchedule: close({
 	EndTime!:   time.Time | fn.#StringExpression
 	StartTime!: time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UsageTrackingResource": close(
-	{QueueId!: =~"^queue-[0-9a-f]{32}$" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#UsageTrackingResource: close({QueueId!: =~"^queue-[0-9a-f]{32}$" | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Deadline::Budget"
 	Properties!: #Properties

@@ -13,7 +13,7 @@ import "list"
 	Architecture?:         string
 	AutoScalingType?:      string
 	AvailabilityZone?:     string
-	BlockDeviceMappings?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"]
+	BlockDeviceMappings?:  list.UniqueItems() & [...#BlockDeviceMapping]
 	EbsOptimized?:         bool
 	ElasticIps?:           list.UniqueItems() & [...string]
 	Hostname?:             string
@@ -31,14 +31,14 @@ import "list"
 	StackId!:              string
 	SubnetId?:             string
 	Tenancy?:              string
-	TimeBasedAutoScaling?: _#defs."/$defs/Properties/definitions/TimeBasedAutoScaling"
+	TimeBasedAutoScaling?: #TimeBasedAutoScaling
 	VirtualizationType?:   string
 	Volumes?:              list.UniqueItems() & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
+#BlockDeviceMapping: close({
 	DeviceName?:  string
-	Ebs?:         _#defs."/$defs/Properties/definitions/EbsBlockDevice"
+	Ebs?:         #EbsBlockDevice
 	NoDevice?:    string
 	VirtualName?: string
 	if VirtualName != _|_ {
@@ -50,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 	}
 }) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
 
-_#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
+#EbsBlockDevice: close({
 	DeleteOnTermination?: bool
 	Iops?:                int
 	SnapshotId?:          string
@@ -58,7 +58,7 @@ _#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
 	VolumeType?:          string
 })
 
-_#defs: "/$defs/Properties/definitions/TimeBasedAutoScaling": close({
+#TimeBasedAutoScaling: close({
 	Friday?: {
 		{[=~"[a-zA-Z0-9]+"]: string}
 		...

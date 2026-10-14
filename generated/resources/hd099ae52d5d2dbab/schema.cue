@@ -18,11 +18,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name?:        strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
 	OwnerInformation?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	ResourceType!:     "INSTANCE" | "RESOURCE_GROUP" | fn.#StringExpression
-	Targets!:  list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Targets"] | fn.#ListExpression
-	WindowId!: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^mw-[0-9a-f]{17}$" | fn.#StringExpression
+	Targets!:          list.MaxItems(5) & [...] & [...#Targets] | fn.#ListExpression
+	WindowId!:         strings.MaxRunes(20) & strings.MinRunes(20) & =~"^mw-[0-9a-f]{17}$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Targets": close({
+#Targets: close({
 	Key!: strings.MaxRunes(163) &
 	strings.MinRunes(1) &
 	=~"^[\\p{L}\\p{Z}\\p{N}_.:/=\\-@]*$|resource-groups:ResourceTypeFilters|resource-groups:Name$" |

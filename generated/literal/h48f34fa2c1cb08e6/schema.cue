@@ -13,17 +13,17 @@ import (
 #Properties: close({
 	// The time at which the job definition was created.
 	CreationTime?: string
-	EndpointName?: _#defs."/$defs/Properties/definitions/EndpointName"
+	EndpointName?: #EndpointName
 
 	// The Amazon Resource Name (ARN) of job definition.
 	JobDefinitionArn?:             strings.MaxRunes(256) & strings.MinRunes(1)
-	JobDefinitionName?:            _#defs."/$defs/Properties/definitions/JobDefinitionName"
-	JobResources!:                 _#defs."/$defs/Properties/definitions/MonitoringResources"
-	ModelQualityAppSpecification!: _#defs."/$defs/Properties/definitions/ModelQualityAppSpecification"
-	ModelQualityBaselineConfig?:   _#defs."/$defs/Properties/definitions/ModelQualityBaselineConfig"
-	ModelQualityJobInput!:         _#defs."/$defs/Properties/definitions/ModelQualityJobInput"
-	ModelQualityJobOutputConfig!:  _#defs."/$defs/Properties/definitions/MonitoringOutputConfig"
-	NetworkConfig?:                _#defs."/$defs/Properties/definitions/NetworkConfig"
+	JobDefinitionName?:            #JobDefinitionName
+	JobResources!:                 #MonitoringResources
+	ModelQualityAppSpecification!: #ModelQualityAppSpecification
+	ModelQualityBaselineConfig?:   #ModelQualityBaselineConfig
+	ModelQualityJobInput!:         #ModelQualityJobInput
+	ModelQualityJobOutputConfig!:  #MonitoringOutputConfig
+	NetworkConfig?:                #NetworkConfig
 
 	// The Amazon Resource Name (ARN) of an IAM role that Amazon SageMaker can
 	// assume to perform tasks on your behalf.
@@ -31,20 +31,20 @@ import (
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
-	StoppingCondition?: _#defs."/$defs/Properties/definitions/StoppingCondition"
+	StoppingCondition?: #StoppingCondition
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // The batch transform input for a monitoring job.
-_#defs: "/$defs/Properties/definitions/BatchTransformInput": close({
+#BatchTransformInput: close({
 	// A URI that identifies the Amazon S3 storage location where Batch Transform Job captures data.
 	DataCapturedDestinationS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$"
-	DatasetFormat!:                _#defs."/$defs/Properties/definitions/DatasetFormat"
+	DatasetFormat!:                #DatasetFormat
 
 	// Monitoring end time offset, e.g. PT0H
-	EndTimeOffset?: _#defs."/$defs/Properties/definitions/MonitoringTimeOffsetString"
+	EndTimeOffset?: #MonitoringTimeOffsetString
 
 	// Index or JSONpath to locate predicted label(s)
 	InferenceAttribute?: strings.MaxRunes(256)
@@ -66,11 +66,11 @@ _#defs: "/$defs/Properties/definitions/BatchTransformInput": close({
 	S3InputMode?: "Pipe" | "File"
 
 	// Monitoring start time offset, e.g. -PT1H
-	StartTimeOffset?: _#defs."/$defs/Properties/definitions/MonitoringTimeOffsetString"
+	StartTimeOffset?: #MonitoringTimeOffsetString
 })
 
 // Configuration for the cluster used to run model monitoring jobs.
-_#defs: "/$defs/Properties/definitions/ClusterConfig": close({
+#ClusterConfig: close({
 	// The number of ML compute instances to use in the model monitoring job. For
 	// distributed processing jobs, specify a value greater than 1. The default
 	// value is 1.
@@ -90,32 +90,32 @@ _#defs: "/$defs/Properties/definitions/ClusterConfig": close({
 })
 
 // The baseline constraints resource for a monitoring job.
-_#defs: "/$defs/Properties/definitions/ConstraintsResource": close({
+#ConstraintsResource: close({
 	// The Amazon S3 URI for baseline constraint file in Amazon S3 that the current
 	// monitoring job should validated against.
-	S3Uri?: _#defs."/$defs/Properties/definitions/S3Uri"
+	S3Uri?: #S3Uri
 })
 
 // The CSV format
-_#defs: "/$defs/Properties/definitions/Csv": {
+#Csv: {
 	// A boolean flag indicating if given CSV has header
 	Header?: bool
 	...
 }
 
 // The dataset format of the data to monitor
-_#defs: "/$defs/Properties/definitions/DatasetFormat": {
-	Csv?:     _#defs."/$defs/Properties/definitions/Csv"
-	Json?:    _#defs."/$defs/Properties/definitions/Json"
-	Parquet?: _#defs."/$defs/Properties/definitions/Parquet"
+#DatasetFormat: {
+	Csv?:     #Csv
+	Json?:    #Json
+	Parquet?: #Parquet
 	...
 }
 
 // The endpoint for a monitoring job.
-_#defs: "/$defs/Properties/definitions/EndpointInput": close({
+#EndpointInput: close({
 	// Monitoring end time offset, e.g. PT0H
-	EndTimeOffset?: _#defs."/$defs/Properties/definitions/MonitoringTimeOffsetString"
-	EndpointName!:  _#defs."/$defs/Properties/definitions/EndpointName"
+	EndTimeOffset?: #MonitoringTimeOffsetString
+	EndpointName!:  #EndpointName
 
 	// Index or JSONpath to locate predicted label(s)
 	InferenceAttribute?: strings.MaxRunes(256)
@@ -137,28 +137,24 @@ _#defs: "/$defs/Properties/definitions/EndpointInput": close({
 	S3InputMode?: "Pipe" | "File"
 
 	// Monitoring start time offset, e.g. -PT1H
-	StartTimeOffset?: _#defs."/$defs/Properties/definitions/MonitoringTimeOffsetString"
+	StartTimeOffset?: #MonitoringTimeOffsetString
 })
 
 // The name of the endpoint used to run the monitoring job.
-_#defs: "/$defs/Properties/definitions/EndpointName": strings.MaxRunes(63) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*"
+#EndpointName: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*"
 
 // The name of the job definition.
-_#defs: "/$defs/Properties/definitions/JobDefinitionName": strings.MaxRunes(63) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
+#JobDefinitionName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
 
 // The Json format
-_#defs: "/$defs/Properties/definitions/Json": {
+#Json: {
 	// A boolean flag indicating if it is JSON line format
 	Line?: bool
 	...
 }
 
 // Container image configuration object for the monitoring job.
-_#defs: "/$defs/Properties/definitions/ModelQualityAppSpecification": close({
+#ModelQualityAppSpecification: close({
 	// An array of arguments for the container used to run the monitoring job.
 	ContainerArguments?: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(256) & strings.MinRunes(1)]
 
@@ -178,44 +174,42 @@ _#defs: "/$defs/Properties/definitions/ModelQualityAppSpecification": close({
 
 	// An Amazon S3 URI to a script that is called after analysis has been
 	// performed. Applicable only for the built-in (first party) containers.
-	PostAnalyticsProcessorSourceUri?: _#defs."/$defs/Properties/definitions/S3Uri"
-	ProblemType!:                     _#defs."/$defs/Properties/definitions/ProblemType"
+	PostAnalyticsProcessorSourceUri?: #S3Uri
+	ProblemType!:                     #ProblemType
 
 	// An Amazon S3 URI to a script that is called per row prior to running
 	// analysis. It can base64 decode the payload and convert it into a flatted
 	// json so that the built-in container can use the converted data. Applicable
 	// only for the built-in (first party) containers
-	RecordPreprocessorSourceUri?: _#defs."/$defs/Properties/definitions/S3Uri"
+	RecordPreprocessorSourceUri?: #S3Uri
 })
 
 // Baseline configuration used to validate that the data conforms to the
 // specified constraints and statistics.
-_#defs: "/$defs/Properties/definitions/ModelQualityBaselineConfig": close({
-	BaseliningJobName?:   _#defs."/$defs/Properties/definitions/ProcessingJobName"
-	ConstraintsResource?: _#defs."/$defs/Properties/definitions/ConstraintsResource"
+#ModelQualityBaselineConfig: close({
+	BaseliningJobName?:   #ProcessingJobName
+	ConstraintsResource?: #ConstraintsResource
 })
 
 // The inputs for a monitoring job.
-_#defs: "/$defs/Properties/definitions/ModelQualityJobInput": close({
-	BatchTransformInput?: _#defs."/$defs/Properties/definitions/BatchTransformInput"
-	EndpointInput?:       _#defs."/$defs/Properties/definitions/EndpointInput"
-	GroundTruthS3Input!:  _#defs."/$defs/Properties/definitions/MonitoringGroundTruthS3Input"
+#ModelQualityJobInput: close({
+	BatchTransformInput?: #BatchTransformInput
+	EndpointInput?:       #EndpointInput
+	GroundTruthS3Input!:  #MonitoringGroundTruthS3Input
 })
 
 // Ground truth input provided in S3
-_#defs: "/$defs/Properties/definitions/MonitoringGroundTruthS3Input": close({
+#MonitoringGroundTruthS3Input: close({
 	// A URI that identifies the Amazon S3 storage location where Amazon SageMaker
 	// saves the results of a monitoring job.
 	S3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$"
 })
 
 // The output object for a monitoring job.
-_#defs: "/$defs/Properties/definitions/MonitoringOutput": close(
-	{S3Output!: _#defs."/$defs/Properties/definitions/S3Output"},
-)
+#MonitoringOutput: close({S3Output!: #S3Output})
 
 // The output configuration for monitoring jobs.
-_#defs: "/$defs/Properties/definitions/MonitoringOutputConfig": close({
+#MonitoringOutputConfig: close({
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt the model artifacts at rest using Amazon S3 server-side encryption.
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
@@ -225,26 +219,20 @@ _#defs: "/$defs/Properties/definitions/MonitoringOutputConfig": close({
 
 	// Monitoring outputs for monitoring jobs. This is where the output of the
 	// periodic monitoring jobs is uploaded.
-	MonitoringOutputs!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MonitoringOutput"
-	]
+	MonitoringOutputs!: list.MaxItems(1) & list.MinItems(1) & [...#MonitoringOutput]
 })
 
 // Identifies the resources to deploy for a monitoring job.
-_#defs: "/$defs/Properties/definitions/MonitoringResources": close(
-	{ClusterConfig!: _#defs."/$defs/Properties/definitions/ClusterConfig"},
-)
+#MonitoringResources: close({ClusterConfig!: #ClusterConfig})
 
 // The time offsets in ISO duration format
-_#defs: "/$defs/Properties/definitions/MonitoringTimeOffsetString": strings.MaxRunes(15) &
-strings.MinRunes(1) &
-=~"^.?P.*"
+#MonitoringTimeOffsetString: strings.MaxRunes(15) & strings.MinRunes(1) & =~"^.?P.*"
 
 // Networking options for a job, such as network traffic encryption between
 // containers, whether to allow inbound and outbound network calls to and from
 // containers, and the VPC subnets and security groups to use for VPC-enabled
 // jobs.
-_#defs: "/$defs/Properties/definitions/NetworkConfig": close({
+#NetworkConfig: close({
 	// Whether to encrypt all communications between distributed processing jobs.
 	// Choose True to encrypt communications. Encryption provides greater security
 	// for distributed processing jobs, but the processing might take longer.
@@ -253,22 +241,20 @@ _#defs: "/$defs/Properties/definitions/NetworkConfig": close({
 	// Whether to allow inbound and outbound network calls to and from the
 	// containers used for the processing job.
 	EnableNetworkIsolation?: bool
-	VpcConfig?:              _#defs."/$defs/Properties/definitions/VpcConfig"
+	VpcConfig?:              #VpcConfig
 })
 
 // A flag indicating if the dataset format is Parquet
-_#defs: "/$defs/Properties/definitions/Parquet": bool
+#Parquet: bool
 
 // The status of the monitoring job.
-_#defs: "/$defs/Properties/definitions/ProblemType": "BinaryClassification" | "MulticlassClassification" | "Regression"
+#ProblemType: "BinaryClassification" | "MulticlassClassification" | "Regression"
 
 // The name of a processing job
-_#defs: "/$defs/Properties/definitions/ProcessingJobName": strings.MaxRunes(63) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
+#ProcessingJobName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
 
 // Information about where and how to store the results of a monitoring job.
-_#defs: "/$defs/Properties/definitions/S3Output": close({
+#S3Output: close({
 	// The local path to the Amazon S3 storage location where Amazon SageMaker saves
 	// the results of a monitoring job. LocalPath is an absolute path for the
 	// output data.
@@ -283,18 +269,16 @@ _#defs: "/$defs/Properties/definitions/S3Output": close({
 })
 
 // The Amazon S3 URI.
-_#defs: "/$defs/Properties/definitions/S3Uri": strings.MaxRunes(1024) &
-strings.MinRunes(0) &
-=~"^(https|s3)://([^/]+)/?(.*)$"
+#S3Uri: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$"
 
 // Specifies a time limit for how long the monitoring job is allowed to run.
-_#defs: "/$defs/Properties/definitions/StoppingCondition": close({
+#StoppingCondition: close({
 	// The maximum runtime allowed in seconds.
 	MaxRuntimeInSeconds!: int & <=86400 & >=1
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -311,7 +295,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // Specifies a VPC that your training jobs and hosted models have access to.
 // Control access to and from your training and model containers by configuring
 // the VPC.
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	// The VPC security group IDs, in the form sg-xxxxxxxx. Specify the security
 	// groups for the VPC that is specified in the Subnets field.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [

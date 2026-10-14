@@ -375,7 +375,7 @@ import (
 	// keys](https://docs.aws.amazon.com/kms/latest/developerguide/tagging-keys.html)
 	// in the *Developer Guide*. For information about tags in CloudFormation, see
 	// [Tag](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // A key-value pair. A tag consists of a tag key and a tag value. Tag keys and
@@ -386,7 +386,7 @@ import (
 // [User-Defined Tag
 // Restrictions](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/allocation-tag-restrictions.html)
 // in the *Billing and Cost Management User Guide*.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that's 1 to 128 Unicode
 	// characters in length and can't be prefixed with ``aws:``. digits,
 	// whitespace, ``_``, ``.``, ``:``, ``/``, ``=``, ``+``, ``@``, ``-``, and

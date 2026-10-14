@@ -25,18 +25,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(20) &
 	=~"^((arn):(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov|aws-eusc):(iam)::\\d{12}:role[/].*)$" |
 	fn.#StringExpression
-	Tags?:       [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
+	Tags?:       [...#Tags] | fn.#ListExpression
 	Type?:       =~"^[a-zA-Z\\.]+" | fn.#StringExpression
-	Validators?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/Validators"] | fn.#ListExpression
+	Validators?: list.MaxItems(2) & [...] & [...#Validators] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Validators": close({
+#Validators: close({
 	Content?: strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
 	Type?:    "JSON_SCHEMA" | "LAMBDA" | fn.#StringExpression
 }) |

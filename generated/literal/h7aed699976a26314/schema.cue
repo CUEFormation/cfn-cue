@@ -18,17 +18,15 @@ import "strings"
 	CreatedAt?: string
 
 	// The entitlement details
-	Entitlement!: _#defs."/$defs/Properties/definitions/Entitlement"
+	Entitlement!: #Entitlement
 
 	// The ID of the entitlement
 	EntitlementId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Entitlement": close(
-	{PrincipalRole!: _#defs."/$defs/Properties/definitions/PrincipalRoleEntitlement"},
-)
+#Entitlement: close({PrincipalRole!: #PrincipalRoleEntitlement})
 
-_#defs: "/$defs/Properties/definitions/IdentityCenterPrincipal": close({
+#IdentityCenterPrincipal: close({
 	// The ID of the group
 	GroupId?: strings.MaxRunes(47) &
 	strings.MinRunes(1) &
@@ -43,14 +41,12 @@ _#defs: "/$defs/Properties/definitions/IdentityCenterPrincipal": close({
 	}
 }) & matchN(>=1, [{UserId!: _}, {GroupId!: _}])
 
-_#defs: "/$defs/Properties/definitions/Principal": close(
-	{IdentityCenter!: _#defs."/$defs/Properties/definitions/IdentityCenterPrincipal"},
-)
+#Principal: close({IdentityCenter!: #IdentityCenterPrincipal})
 
-_#defs: "/$defs/Properties/definitions/PrincipalRoleEntitlement": close({
+#PrincipalRoleEntitlement: close({
 	// The AWS account ID
 	Account?:   strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
-	Principal!: _#defs."/$defs/Properties/definitions/Principal"
+	Principal!: #Principal
 
 	// The ARN of the IAM role
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &

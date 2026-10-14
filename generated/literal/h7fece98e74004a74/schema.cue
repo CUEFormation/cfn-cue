@@ -16,7 +16,7 @@ import (
 	Arn?: strings.MaxRunes(128) &
 	strings.MinRunes(1) &
 	=~"^arn:aws:ivschat:[a-z0-9-]+:[0-9]+:logging-configuration/[a-zA-Z0-9-]+$"
-	DestinationConfiguration!: _#defs."/$defs/Properties/definitions/DestinationConfiguration"
+	DestinationConfiguration!: #DestinationConfiguration
 
 	// The system-generated ID of the logging configuration.
 	Id?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[a-zA-Z0-9]+$"
@@ -29,36 +29,36 @@ import (
 	State?: "CREATING" | "CREATE_FAILED" | "DELETING" | "DELETE_FAILED" | "UPDATING" | "UPDATING_FAILED" | "ACTIVE"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // CloudWatch destination configuration for IVS Chat logging.
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsDestinationConfiguration": close({
+#CloudWatchLogsDestinationConfiguration: close({
 	// Name of the Amazon CloudWatch Logs log group where chat activity will be logged.
 	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$"
 })
 
 // Destination configuration for IVS Chat logging.
-_#defs: "/$defs/Properties/definitions/DestinationConfiguration": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogsDestinationConfiguration"
-	Firehose?:       _#defs."/$defs/Properties/definitions/FirehoseDestinationConfiguration"
-	S3?:             _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"
+#DestinationConfiguration: close({
+	CloudWatchLogs?: #CloudWatchLogsDestinationConfiguration
+	Firehose?:       #FirehoseDestinationConfiguration
+	S3?:             #S3DestinationConfiguration
 })
 
 // Kinesis Firehose destination configuration for IVS Chat logging.
-_#defs: "/$defs/Properties/definitions/FirehoseDestinationConfiguration": close({
+#FirehoseDestinationConfiguration: close({
 	// Name of the Amazon Kinesis Firehose delivery stream where chat activity will be logged.
 	DeliveryStreamName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$"
 })
 
 // S3 destination configuration for IVS Chat logging.
-_#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
+#S3DestinationConfiguration: close({
 	// Name of the Amazon S3 bucket where chat activity will be logged.
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9-.]+$"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -39,7 +39,7 @@ import "math"
 	IpAddress!: string
 
 	// One or more tags for the customer gateway.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The type of VPN connection that this customer gateway supports (``ipsec.1``).
 	Type!: string
@@ -47,7 +47,7 @@ import "math"
 
 // Specifies a tag. For more information, see [Resource
 // tags](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: string
 

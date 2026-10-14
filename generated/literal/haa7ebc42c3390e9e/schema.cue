@@ -9,7 +9,7 @@ import "strings"
 // This resource represents an individual schema version of a schema defined in
 // Glue Schema Registry.
 #Properties: close({
-	Schema!: _#defs."/$defs/Properties/definitions/Schema"
+	Schema!: #Schema
 
 	// Complete definition of the schema in plain-text.
 	SchemaDefinition!: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S"
@@ -19,7 +19,7 @@ import "strings"
 })
 
 // Identifier for the schema where the schema version will be created.
-_#defs: "/$defs/Properties/definitions/Schema": close({
+#Schema: close({
 	// Name of the registry to identify where the Schema is located.
 	RegistryName?: strings.MaxRunes(255) & strings.MinRunes(1)
 

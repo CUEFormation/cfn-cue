@@ -14,11 +14,11 @@ import "strings"
 	ConnectorArn!: strings.MaxRunes(200) &
 	strings.MinRunes(5) &
 	=~"^arn:aws(-[a-z]+)*:pca-connector-scep:[a-z]+(-[a-z]+)+-[1-9]\\d*:\\d{12}:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Tags?: #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~".+"]: string}})
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})

@@ -16,7 +16,7 @@ import "strings"
 
 	// The External ID of the asset
 	AssetExternalId?:  strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+"
-	AssetHierarchies?: [..._#defs."/$defs/Properties/definitions/AssetHierarchy"]
+	AssetHierarchies?: [...#AssetHierarchy]
 
 	// The ID of the asset
 	AssetId?: strings.MaxRunes(36) &
@@ -28,14 +28,14 @@ import "strings"
 
 	// A unique, friendly name for the asset.
 	AssetName!:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
-	AssetProperties?: [..._#defs."/$defs/Properties/definitions/AssetProperty"]
+	AssetProperties?: [...#AssetProperty]
 
 	// A list of key-value pairs that contain metadata for the asset.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // A hierarchy specifies allowed parent/child asset relationships.
-_#defs: "/$defs/Properties/definitions/AssetHierarchy": close({
+#AssetHierarchy: close({
 	// The ID of the child asset to be associated.
 	ChildAssetId!: string
 
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/AssetHierarchy": close({
 })
 
 // The asset property's definition, alias, unit, and notification state.
-_#defs: "/$defs/Properties/definitions/AssetProperty": close({
+#AssetProperty: close({
 	// The property alias that identifies the property.
 	Alias?: string
 
@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/AssetProperty": close({
 	Unit?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

@@ -57,7 +57,7 @@ import (
 	=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/([\\w+=,.@-]{1,512}[/:])*([\\w+=,.@-]{1,64})$"
 
 	// The status of the environment account connection.
-	Status?: _#defs."/$defs/Properties/definitions/Status"
+	Status?: #Status
 
 	// <p>An optional list of metadata items that you can associate with the Proton
 	// environment account connection. A tag is a key-value pair.</p>
@@ -65,13 +65,13 @@ import (
 	// href="https://docs.aws.amazon.com/proton/latest/userguide/resources.html">Proton
 	// resources and tagging</a> in the
 	// <i>Proton User Guide</i>.</p>
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Status": "PENDING" | "CONNECTED" | "REJECTED"
+#Status: "PENDING" | "CONNECTED" | "REJECTED"
 
 // <p>A description of a resource tag.</p>
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// <p>The key of the resource tag.</p>
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

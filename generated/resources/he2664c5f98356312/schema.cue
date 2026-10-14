@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,14 +15,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::S3Vectors::VectorBucket
 #Properties: close({
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VectorBucketName?:        _#defs."/$defs/Properties/definitions/VectorBucketName"
+	EncryptionConfiguration?: #EncryptionConfiguration
+	Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	VectorBucketName?:        #VectorBucketName
 })
 
-_#defs: "/$defs/Properties/definitions/CreationTime": time.Time | fn.#StringExpression
+#CreationTime: time.Time | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -32,16 +32,15 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VectorBucketArn": string | fn.#StringExpression
+#VectorBucketArn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VectorBucketName": strings.MaxRunes(63) & strings.MinRunes(3) |
-fn.#StringExpression
+#VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::S3Vectors::VectorBucket"
 	Properties?: #Properties

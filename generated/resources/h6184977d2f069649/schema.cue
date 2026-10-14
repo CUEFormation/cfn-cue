@@ -21,9 +21,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Create subscription to be notified
 #Properties: close({
 	Frequency!:      "DAILY" | "IMMEDIATE" | "WEEKLY" | fn.#StringExpression
-	MonitorArnList!: [..._#defs."/$defs/Properties/definitions/Arn"] | fn.#ListExpression
-	ResourceTags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceTag"] |
-		fn.#ListExpression
+	MonitorArnList!: [...#Arn] | fn.#ListExpression
+	ResourceTags?:   list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
 	Subscribers!: [...close({
 		Address!: =~"(^[a-zA-Z0-9.!#$%&'*+=?^_‘{|}~-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$)|(^arn:(aws[a-zA-Z-]*):sns:[a-zA-Z0-9-]+:[0-9]{12}:[a-zA-Z0-9_-]+(\\.fifo)?$)" |
 			fn.#StringExpression
@@ -54,16 +53,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ThresholdExpression?: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" |
-	fn.#StringExpression
+#Arn: =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Subscriber": close({
+#Subscriber: close({
 	Address!: =~"(^[a-zA-Z0-9.!#$%&'*+=?^_‘{|}~-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$)|(^arn:(aws[a-zA-Z-]*):sns:[a-zA-Z0-9-]+:[0-9]{12}:[a-zA-Z0-9_-]+(\\.fifo)?$)" |
 		fn.#StringExpression
 	Status?: "CONFIRMED" | "DECLINED" | fn.#StringExpression

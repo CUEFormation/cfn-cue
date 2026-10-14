@@ -14,26 +14,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Deadline::StorageProfile
 #Properties: close({
-	DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	FarmId!:      =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-	FileSystemLocations?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/FileSystemLocation"] |
-		fn.#ListExpression
-	OsFamily!: _#defs."/$defs/Properties/definitions/StorageProfileOperatingSystemFamily"
+	DisplayName!:         strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	FarmId!:              =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+	FileSystemLocations?: list.MaxItems(20) & [...] & [...#FileSystemLocation] | fn.#ListExpression
+	OsFamily!:            #StorageProfileOperatingSystemFamily
 })
 
-_#defs: "/$defs/Properties/definitions/FileSystemLocation": close({
+#FileSystemLocation: close({
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$" | fn.#StringExpression
 	Path!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Type!: _#defs."/$defs/Properties/definitions/FileSystemLocationType"
+	Type!: #FileSystemLocationType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FileSystemLocationType": "SHARED" | "LOCAL" | fn.#StringExpression
+#FileSystemLocationType: "SHARED" | "LOCAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageProfileOperatingSystemFamily": "WINDOWS" |
-	"LINUX" |
-	"MACOS" |
-	fn.#StringExpression
+#StorageProfileOperatingSystemFamily: "WINDOWS" | "LINUX" | "MACOS" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Deadline::StorageProfile"
 	Properties!: #Properties

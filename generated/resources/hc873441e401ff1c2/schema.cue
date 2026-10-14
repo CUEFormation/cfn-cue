@@ -13,19 +13,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Connect::SecurityKey
 #Properties: close({
-	InstanceId!: _#defs."/$defs/Properties/definitions/InstanceId"
-	Key!:        _#defs."/$defs/Properties/definitions/Key"
+	InstanceId!: #InstanceId
+	Key!:        #Key
 })
 
-_#defs: "/$defs/Properties/definitions/AssociationId": strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-z0-9]*$" |
-fn.#StringExpression
+#AssociationId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-z0-9]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceId": strings.MaxRunes(100) &
+#InstanceId: strings.MaxRunes(100) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Key": strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+#Key: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Connect::SecurityKey"
 	Properties!: #Properties

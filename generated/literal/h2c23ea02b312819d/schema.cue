@@ -14,7 +14,7 @@ import (
 #Properties: close({
 	// <p>The Amazon Resource Name (ARN) of the VPC connection.</p>
 	Arn?:                string
-	AvailabilityStatus?: _#defs."/$defs/Properties/definitions/VPCConnectionAvailabilityStatus"
+	AvailabilityStatus?: #VPCConnectionAvailabilityStatus
 	AwsAccountId?:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
 
 	// <p>The time that the VPC connection was created.</p>
@@ -26,7 +26,7 @@ import (
 	Name?:            strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// <p>A list of network interfaces.</p>
-	NetworkInterfaces?: list.MaxItems(15) & [...] & [..._#defs."/$defs/Properties/definitions/NetworkInterface"]
+	NetworkInterfaces?: list.MaxItems(15) & [...] & [...#NetworkInterface]
 	RoleArn?:           =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 	SecurityGroupIds?: list.MaxItems(16) & list.MinItems(1) & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
@@ -34,11 +34,11 @@ import (
 		strings.MinRunes(1) &
 		=~"^sg-[0-9a-z]*$"
 	]
-	Status?: _#defs."/$defs/Properties/definitions/VPCConnectionResourceStatus"
+	Status?: #VPCConnectionResourceStatus
 	SubnetIds?: list.MaxItems(15) & list.MinItems(2) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[0-9a-z]*$"
 	]
-	Tags?:            list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:            list.MaxItems(200) & list.MinItems(1) & [...#Tag]
 	VPCConnectionId?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\w\\-]+"
 
 	// <p>The Amazon EC2 VPC ID associated with the VPC connection.</p>
@@ -46,7 +46,7 @@ import (
 })
 
 // <p>The structure that contains information about a network interface.</p>
-_#defs: "/$defs/Properties/definitions/NetworkInterface": close({
+#NetworkInterface: close({
 	// <p>The availability zone that the network interface resides in.</p>
 	AvailabilityZone?: string
 
@@ -55,13 +55,13 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 
 	// <p>The network interface ID.</p>
 	NetworkInterfaceId?: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^eni-[0-9a-z]*$"
-	Status?:             _#defs."/$defs/Properties/definitions/NetworkInterfaceStatus"
+	Status?:             #NetworkInterfaceStatus
 
 	// <p>The subnet ID associated with the network interface.</p>
 	SubnetId?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[0-9a-z]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkInterfaceStatus": "CREATING" |
+#NetworkInterfaceStatus: "CREATING" |
 	"AVAILABLE" |
 	"CREATION_FAILED" |
 	"UPDATING" |
@@ -74,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterfaceStatus": "CREATING" |
 
 // <p>The key or keys of the key-value pairs for the resource tag or tags assigned to the
 // resource.</p>
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// <p>Tag key.</p>
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -82,11 +82,9 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/VPCConnectionAvailabilityStatus": "AVAILABLE" |
-	"UNAVAILABLE" |
-	"PARTIALLY_AVAILABLE"
+#VPCConnectionAvailabilityStatus: "AVAILABLE" | "UNAVAILABLE" | "PARTIALLY_AVAILABLE"
 
-_#defs: "/$defs/Properties/definitions/VPCConnectionResourceStatus": "CREATION_IN_PROGRESS" |
+#VPCConnectionResourceStatus: "CREATION_IN_PROGRESS" |
 	"CREATION_SUCCESSFUL" |
 	"CREATION_FAILED" |
 	"UPDATE_IN_PROGRESS" |

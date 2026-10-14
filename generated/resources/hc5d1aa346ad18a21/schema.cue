@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,11 +18,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::GlobalAccelerator::EndpointGroup
 #Properties: close({
-	EndpointConfigurations?: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/EndpointConfiguration"
-	] |
-		fn.#ListExpression
-	EndpointGroupRegion!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	EndpointConfigurations?: list.MaxItems(10) & [...] & [...#EndpointConfiguration] | fn.#ListExpression
+	EndpointGroupRegion!:    strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	HealthCheckIntervalSeconds?: int & <=30 & >=10 |
 		{
 			string &
@@ -59,8 +56,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	HealthCheckProtocol?: "TCP" | "HTTP" | "HTTPS" | fn.#StringExpression
 	ListenerArn!:         strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	PortOverrides?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/PortOverride"] |
-		fn.#ListExpression
+	PortOverrides?:       list.MaxItems(10) & [...] & [...#PortOverride] | fn.#ListExpression
 	ThresholdCount?: int & <=10 & >=1 |
 		{
 			string &
@@ -99,7 +95,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({
+#EndpointConfiguration: close({
 	AttachmentArn?:               strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	ClientIPPreservationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EndpointId!:                  strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
@@ -122,7 +118,7 @@ _#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0 |
+#Port: int & <=65535 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -139,9 +135,9 @@ _#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/PortOverride": close({
-	EndpointPort!: _#defs."/$defs/Properties/definitions/Port"
-	ListenerPort!: _#defs."/$defs/Properties/definitions/Port"
+#PortOverride: close({
+	EndpointPort!: #Port
+	ListenerPort!: #Port
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

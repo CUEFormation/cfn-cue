@@ -20,13 +20,13 @@ import (
 	// Configuration details for the Git repository, including the URL where it is
 	// located and the ARN of the AWS Secrets Manager secret that contains the
 	// credentials used to access the repository.
-	GitConfig!: _#defs."/$defs/Properties/definitions/GitConfig"
+	GitConfig!: #GitConfig
 
 	// An array of key-value pairs.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/GitConfig": close({
+#GitConfig: close({
 	// The default branch for the Git repository.
 	Branch?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[^ ~^:?*\\[]+$"
 
@@ -40,7 +40,7 @@ _#defs: "/$defs/Properties/definitions/GitConfig": close({
 	=~"^arn:aws[a-z\\-]*:secretsmanager:[a-z0-9\\-]*:[0-9]{12}:secret:"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

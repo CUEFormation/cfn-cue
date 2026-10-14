@@ -18,15 +18,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::MediaLive::Multiplexprogram
 #Properties: close({
 	MultiplexId?:              string | fn.#StringExpression
-	MultiplexProgramSettings?: _#defs."/$defs/Properties/definitions/MultiplexProgramSettings" | fn.#ObjectExpression
-	PacketIdentifiersMap?: _#defs."/$defs/Properties/definitions/MultiplexProgramPacketIdentifiersMap" |
-		fn.#ObjectExpression
-	PipelineDetails?: [..._#defs."/$defs/Properties/definitions/MultiplexProgramPipelineDetail"] | fn.#ListExpression
-	PreferredChannelPipeline?: _#defs."/$defs/Properties/definitions/PreferredChannelPipeline" | fn.#StringExpression
+	MultiplexProgramSettings?: #MultiplexProgramSettings | fn.#ObjectExpression
+	PacketIdentifiersMap?:     #MultiplexProgramPacketIdentifiersMap | fn.#ObjectExpression
+	PipelineDetails?:          [...#MultiplexProgramPipelineDetail] | fn.#ListExpression
+	PreferredChannelPipeline?: #PreferredChannelPipeline | fn.#StringExpression
 	ProgramName?:              string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/MultiplexProgramPacketIdentifiersMap": close({
+#MultiplexProgramPacketIdentifiersMap: close({
 	AudioPids?: [
 		...int |
 			{
@@ -232,21 +231,20 @@ _#defs: "/$defs/Properties/definitions/MultiplexProgramPacketIdentifiersMap": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexProgramPipelineDetail": close({
+#MultiplexProgramPipelineDetail: close({
 	ActiveChannelPipeline?: string | fn.#StringExpression
 	PipelineId?:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexProgramServiceDescriptor": close({
+#MultiplexProgramServiceDescriptor: close({
 	ProviderName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ServiceName!:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexProgramSettings": close({
-	PreferredChannelPipeline?: _#defs."/$defs/Properties/definitions/PreferredChannelPipeline" & string |
-		fn.#StringExpression
+#MultiplexProgramSettings: close({
+	PreferredChannelPipeline?: #PreferredChannelPipeline & string | fn.#StringExpression
 	ProgramNumber!: int & <=65535 & >=0 |
 		{
 			string &
@@ -263,12 +261,12 @@ _#defs: "/$defs/Properties/definitions/MultiplexProgramSettings": close({
 				)
 		} |
 		fn.#NumberExpression
-	ServiceDescriptor?: _#defs."/$defs/Properties/definitions/MultiplexProgramServiceDescriptor" | fn.#ObjectExpression
-	VideoSettings?:     _#defs."/$defs/Properties/definitions/MultiplexVideoSettings" | fn.#ObjectExpression
+	ServiceDescriptor?: #MultiplexProgramServiceDescriptor | fn.#ObjectExpression
+	VideoSettings?:     #MultiplexVideoSettings | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexStatmuxVideoSettings": close({
+#MultiplexStatmuxVideoSettings: close({
 	MaximumBitrate?: int & <=100000000 & >=100000 |
 		{
 			string &
@@ -320,17 +318,14 @@ _#defs: "/$defs/Properties/definitions/MultiplexStatmuxVideoSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiplexVideoSettings": fn.#Object & {...} & matchN(1, [close(
+#MultiplexVideoSettings: fn.#Object & {...} & matchN(1, [close(
 	{ConstantBitrate!: int & <=100000000 & >=100000 | fn.#NumberExpression},
 ), close(
-	{StatmuxSettings!: _#defs."/$defs/Properties/definitions/MultiplexStatmuxVideoSettings" | fn.#ObjectExpression},
+	{StatmuxSettings!: #MultiplexStatmuxVideoSettings | fn.#ObjectExpression},
 )]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PreferredChannelPipeline": "CURRENTLY_ACTIVE" |
-	"PIPELINE_0" |
-	"PIPELINE_1" |
-	fn.#StringExpression
+#PreferredChannelPipeline: "CURRENTLY_ACTIVE" | "PIPELINE_0" | "PIPELINE_1" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MediaLive::Multiplexprogram"
 	Properties?: #Properties

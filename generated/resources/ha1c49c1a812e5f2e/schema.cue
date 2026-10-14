@@ -21,16 +21,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	RuleVersion!:      "CostCategoryExpression.v1" | fn.#StringExpression
 	Rules!:            string | fn.#StringExpression
 	SplitChargeRules?: string | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceTag"] | fn.#ListExpression
+	Tags?:             list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ZonedDateTime": strings.MaxRunes(25) &
+#ZonedDateTime: strings.MaxRunes(25) &
 strings.MinRunes(20) &
 =~"^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(([+-]\\d\\d:\\d\\d)|Z)$" |
 fn.#StringExpression

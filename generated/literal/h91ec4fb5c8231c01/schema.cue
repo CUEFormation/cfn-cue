@@ -6,22 +6,22 @@ package schema
 
 // Resource Type definition for Alexa::ASK::Skill
 #Properties: close({
-	AuthenticationConfiguration!: _#defs."/$defs/Properties/definitions/AuthenticationConfiguration"
+	AuthenticationConfiguration!: #AuthenticationConfiguration
 	Id?:                          string
-	SkillPackage!:                _#defs."/$defs/Properties/definitions/SkillPackage"
+	SkillPackage!:                #SkillPackage
 	VendorId!:                    string
 })
 
-_#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
+#AuthenticationConfiguration: close({
 	ClientId!:     string
 	ClientSecret!: string
 	RefreshToken!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Overrides": close({Manifest?: string | {...}})
+#Overrides: close({Manifest?: string | {...}})
 
-_#defs: "/$defs/Properties/definitions/SkillPackage": close({
-	Overrides?:       _#defs."/$defs/Properties/definitions/Overrides"
+#SkillPackage: close({
+	Overrides?:       #Overrides
 	S3Bucket!:        string
 	S3BucketRole?:    string
 	S3Key!:           string

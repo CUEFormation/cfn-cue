@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,10 +15,10 @@ import (
 	AllocatedCapacity?: number
 
 	// The code that executes a job.
-	Command!: _#defs."/$defs/Properties/definitions/JobCommand"
+	Command!: #JobCommand
 
 	// Specifies the connections used by a job
-	Connections?:      _#defs."/$defs/Properties/definitions/ConnectionsList"
+	Connections?:      #ConnectionsList
 	DefaultArguments?: string | {...}
 
 	// A description of the job.
@@ -28,7 +28,7 @@ import (
 	ExecutionClass?: "FLEX" | "STANDARD"
 
 	// The maximum number of concurrent runs that are allowed for this job.
-	ExecutionProperty?: _#defs."/$defs/Properties/definitions/ExecutionProperty"
+	ExecutionProperty?: #ExecutionProperty
 
 	// Glue version determines the versions of Apache Spark and Python that AWS Glue supports.
 	GlueVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$"
@@ -56,7 +56,7 @@ import (
 	NonOverridableArguments?: string | {...}
 
 	// Specifies configuration properties of a notification.
-	NotificationProperty?: _#defs."/$defs/Properties/definitions/NotificationProperty"
+	NotificationProperty?: #NotificationProperty
 
 	// The number of workers of a defined workerType that are allocated when a job runs.
 	NumberOfWorkers?: int & >=0
@@ -88,22 +88,22 @@ import (
 		"R.8X"
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionsList": close({
+#ConnectionsList: close({
 	// A list of connections used by the job.
 	Connections?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(0)]
 })
 
-_#defs: "/$defs/Properties/definitions/DefaultArguments": close({
+#DefaultArguments: close({
 	Key?:   string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ExecutionProperty": close({
+#ExecutionProperty: close({
 	// The maximum number of concurrent runs allowed for the job.
 	MaxConcurrentRuns?: number
 })
 
-_#defs: "/$defs/Properties/definitions/JobCommand": close({
+#JobCommand: close({
 	// The name of the job command
 	Name?: string
 
@@ -118,12 +118,12 @@ _#defs: "/$defs/Properties/definitions/JobCommand": close({
 	ScriptLocation?: strings.MaxRunes(400000) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/NonOverridableArguments": close({
+#NonOverridableArguments: close({
 	Key?:   string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/NotificationProperty": close({
+#NotificationProperty: close({
 	// It is the number of minutes to wait before sending a job run delay
 	// notification after a job run starts
 	NotifyDelayAfter?: int & >=1

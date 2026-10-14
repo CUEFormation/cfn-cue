@@ -17,10 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CreatedAt?:   string | fn.#StringExpression
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	State?:       string | fn.#StringExpression
-	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |

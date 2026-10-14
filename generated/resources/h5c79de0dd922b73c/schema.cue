@@ -66,12 +66,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	RestoreToTime?:              string | fn.#StringExpression
 	RestoreType?:                string | fn.#StringExpression
 	RotateMasterUserPassword?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ServerlessV2ScalingConfiguration?: _#defs."/$defs/Properties/definitions/ServerlessV2ScalingConfiguration"
+	ServerlessV2ScalingConfiguration?: #ServerlessV2ScalingConfiguration
 	SnapshotIdentifier?:               string | fn.#StringExpression
 	SourceDBClusterIdentifier?:        string | fn.#StringExpression
 	StorageEncrypted?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	StorageType?:             string | fn.#StringExpression
-	Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                    [...#Tag] | fn.#ListExpression
 	UseLatestRestorableTime?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VpcSecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -80,7 +80,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ServerlessV2ScalingConfiguration": close({
+#ServerlessV2ScalingConfiguration: close({
 	MaxCapacity!: number |
 		{
 			string &
@@ -122,7 +122,7 @@ _#defs: "/$defs/Properties/definitions/ServerlessV2ScalingConfiguration": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

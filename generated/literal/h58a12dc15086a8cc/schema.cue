@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 	"struct"
 )
 
@@ -20,7 +20,7 @@ import (
 	}]
 
 	// Additional details specific to the service type
-	AdditionalServiceDetails?: _#defs."/$defs/Properties/definitions/AdditionalServiceDetails"
+	AdditionalServiceDetails?: #AdditionalServiceDetails
 
 	// The Amazon Resource Name (ARN) of the Service.
 	Arn?: string
@@ -42,16 +42,16 @@ import (
 	PrivateConnectionName?: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$"
 
 	// Service-specific configuration details for create operation
-	ServiceDetails?: _#defs."/$defs/Properties/definitions/ServiceDetails"
+	ServiceDetails?: #ServiceDetails
 
 	// The unique identifier of the service
-	ServiceId?: _#defs."/$defs/Properties/definitions/ServiceId"
+	ServiceId?: #ServiceId
 
 	// The type of service being registered
-	ServiceType!: _#defs."/$defs/Properties/definitions/ServiceType"
+	ServiceType!: #ServiceType
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The name of the private connection to use for API calls (target URL) only.
 	// Cannot be specified when PrivateConnectionName is provided.
@@ -59,32 +59,32 @@ import (
 })
 
 // Additional details specific to the service type returned after registration
-_#defs: "/$defs/Properties/definitions/AdditionalServiceDetails": matchN(1, [close(
-	{MCPServer!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerDetails"},
+#AdditionalServiceDetails: matchN(1, [close(
+	{MCPServer!: #RegisteredMCPServerDetails},
 ), close(
-	{GitLab!: _#defs."/$defs/Properties/definitions/RegisteredGitLabServiceDetails"},
+	{GitLab!: #RegisteredGitLabServiceDetails},
 ), close(
-	{GitHub!: _#defs."/$defs/Properties/definitions/RegisteredGitHubServiceDetails"},
+	{GitHub!: #RegisteredGitHubServiceDetails},
 ), close(
-	{MCPServerSplunk!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerDetails"},
+	{MCPServerSplunk!: #RegisteredMCPServerDetails},
 ), close(
-	{MCPServerNewRelic!: _#defs."/$defs/Properties/definitions/RegisteredNewRelicDetails"},
+	{MCPServerNewRelic!: #RegisteredNewRelicDetails},
 ), close(
-	{Dynatrace!: _#defs."/$defs/Properties/definitions/RegisteredDynatraceDetails"},
+	{Dynatrace!: #RegisteredDynatraceDetails},
 ), close(
-	{ServiceNow!: _#defs."/$defs/Properties/definitions/RegisteredServiceNowDetails"},
+	{ServiceNow!: #RegisteredServiceNowDetails},
 ), close(
-	{PagerDuty!: _#defs."/$defs/Properties/definitions/RegisteredPagerDutyDetails"},
+	{PagerDuty!: #RegisteredPagerDutyDetails},
 ), close(
-	{AzureIdentity!: _#defs."/$defs/Properties/definitions/RegisteredAzureIdentityDetails"},
+	{AzureIdentity!: #RegisteredAzureIdentityDetails},
 ), close(
-	{MCPServerSigV4!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerSigV4Details"},
+	{MCPServerSigV4!: #RegisteredMCPServerSigV4Details},
 ), close(
-	{MCPServerGrafana!: _#defs."/$defs/Properties/definitions/RegisteredMCPServerGrafanaDetails"},
+	{MCPServerGrafana!: #RegisteredMCPServerGrafanaDetails},
 )])
 
 // API key authentication details
-_#defs: "/$defs/Properties/definitions/ApiKeyDetails": close({
+#ApiKeyDetails: close({
 	// HTTP header name to send the API key
 	ApiKeyHeader!: =~"^[a-zA-Z0-9-]+$"
 
@@ -96,7 +96,7 @@ _#defs: "/$defs/Properties/definitions/ApiKeyDetails": close({
 })
 
 // Azure Identity service configuration for federated identity
-_#defs: "/$defs/Properties/definitions/AzureIdentityServiceDetails": close({
+#AzureIdentityServiceDetails: close({
 	// Azure AD application client ID
 	ClientId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
 
@@ -112,7 +112,7 @@ _#defs: "/$defs/Properties/definitions/AzureIdentityServiceDetails": close({
 })
 
 // Bearer token authentication details
-_#defs: "/$defs/Properties/definitions/BearerTokenDetails": close({
+#BearerTokenDetails: close({
 	// HTTP header name to send the bearer token
 	AuthorizationHeader?: =~"^[a-zA-Z0-9-]+$"
 
@@ -124,20 +124,18 @@ _#defs: "/$defs/Properties/definitions/BearerTokenDetails": close({
 })
 
 // Dynatrace OAuth authorization configuration
-_#defs: "/$defs/Properties/definitions/DynatraceAuthorizationConfig": close(
-	{OAuthClientCredentials?: _#defs."/$defs/Properties/definitions/OAuthClientDetails"},
-)
+#DynatraceAuthorizationConfig: close({OAuthClientCredentials?: #OAuthClientDetails})
 
 // Dynatrace service configuration
-_#defs: "/$defs/Properties/definitions/DynatraceServiceDetails": close({
+#DynatraceServiceDetails: close({
 	// Dynatrace resource account URN
 	AccountUrn!:          string
-	AuthorizationConfig?: _#defs."/$defs/Properties/definitions/DynatraceAuthorizationConfig"
+	AuthorizationConfig?: #DynatraceAuthorizationConfig
 })
 
 // The token verifies an existing DevOps Agent GitHub App installation on
 // github.com and is then discarded. Not supported for GitHub Enterprise Server
-_#defs: "/$defs/Properties/definitions/GitHubAppVerificationDetails": close({
+#GitHubAppVerificationDetails: close({
 	// Permission variant of the DevOps Agent GitHub App that must already be
 	// installed on the organization or account
 	AppVariant!: "READ_ONLY" | "READ_WRITE" | "CUSTOM_APP"
@@ -162,14 +160,12 @@ _#defs: "/$defs/Properties/definitions/GitHubAppVerificationDetails": close({
 
 // GitHub personal access token (PAT) service configuration. Exactly one of
 // AppVerification or DirectAccess selects how the token is used
-_#defs: "/$defs/Properties/definitions/GitHubDetails": matchN(1, [close(
-	{AppVerification!: _#defs."/$defs/Properties/definitions/GitHubAppVerificationDetails"},
-), close(
-	{DirectAccess!: _#defs."/$defs/Properties/definitions/GitHubPatDetails"},
-)])
+#GitHubDetails: matchN(1, [
+	close({AppVerification!: #GitHubAppVerificationDetails}), close({DirectAccess!: #GitHubPatDetails}),
+])
 
 // The token is stored and used as the long-lived credential for GitHub API access
-_#defs: "/$defs/Properties/definitions/GitHubPatDetails": close({
+#GitHubPatDetails: close({
 	// GitHub organization to scope the service to. The token must be an active
 	// member of the organization and only that organization's repositories are
 	// accessible. Omit to register the token's own user account
@@ -189,7 +185,7 @@ _#defs: "/$defs/Properties/definitions/GitHubPatDetails": close({
 })
 
 // GitLab service configuration
-_#defs: "/$defs/Properties/definitions/GitLabDetails": close({
+#GitLabDetails: close({
 	// Optional GitLab group ID for group-level access tokens
 	GroupId?: string
 
@@ -204,17 +200,17 @@ _#defs: "/$defs/Properties/definitions/GitLabDetails": close({
 })
 
 // MCP server authorization configuration
-_#defs: "/$defs/Properties/definitions/MCPServerAuthorizationConfig": matchN(1, [close(
-	{OAuthClientCredentials!: _#defs."/$defs/Properties/definitions/MCPServerOAuthClientCredentialsConfig"},
+#MCPServerAuthorizationConfig: matchN(1, [close(
+	{OAuthClientCredentials!: #MCPServerOAuthClientCredentialsConfig},
 ), close(
-	{ApiKey!: _#defs."/$defs/Properties/definitions/ApiKeyDetails"},
+	{ApiKey!: #ApiKeyDetails},
 ), close(
-	{BearerToken!: _#defs."/$defs/Properties/definitions/BearerTokenDetails"},
+	{BearerToken!: #BearerTokenDetails},
 )])
 
 // MCP server configuration
-_#defs: "/$defs/Properties/definitions/MCPServerDetails": close({
-	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/MCPServerAuthorizationConfig"
+#MCPServerDetails: close({
+	AuthorizationConfig!: #MCPServerAuthorizationConfig
 
 	// Optional description for the MCP server
 	Description?: strings.MaxRunes(500)
@@ -227,13 +223,11 @@ _#defs: "/$defs/Properties/definitions/MCPServerDetails": close({
 })
 
 // Grafana MCP server authorization configuration
-_#defs: "/$defs/Properties/definitions/MCPServerGrafanaAuthorizationConfig": close(
-	{BearerToken!: _#defs."/$defs/Properties/definitions/BearerTokenDetails"},
-)
+#MCPServerGrafanaAuthorizationConfig: close({BearerToken!: #BearerTokenDetails})
 
 // Grafana MCP server configuration
-_#defs: "/$defs/Properties/definitions/MCPServerGrafanaDetails": close({
-	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/MCPServerGrafanaAuthorizationConfig"
+#MCPServerGrafanaDetails: close({
+	AuthorizationConfig!: #MCPServerGrafanaAuthorizationConfig
 
 	// Optional description for the MCP server
 	Description?: strings.MaxRunes(500)
@@ -246,7 +240,7 @@ _#defs: "/$defs/Properties/definitions/MCPServerGrafanaDetails": close({
 })
 
 // MCP server OAuth client credentials configuration
-_#defs: "/$defs/Properties/definitions/MCPServerOAuthClientCredentialsConfig": close({
+#MCPServerOAuthClientCredentialsConfig: close({
 	// OAuth client ID
 	ClientId!: string
 
@@ -267,7 +261,7 @@ _#defs: "/$defs/Properties/definitions/MCPServerOAuthClientCredentialsConfig": c
 })
 
 // SigV4 authorization configuration for MCP server
-_#defs: "/$defs/Properties/definitions/MCPServerSigV4AuthorizationConfig": close({
+#MCPServerSigV4AuthorizationConfig: close({
 	// Custom headers for the SigV4 MCP server
 	CustomHeaders?: struct.MaxFields(10) & close({
 
@@ -292,8 +286,8 @@ _#defs: "/$defs/Properties/definitions/MCPServerSigV4AuthorizationConfig": close
 })
 
 // SigV4-authenticated MCP server configuration
-_#defs: "/$defs/Properties/definitions/MCPServerSigV4Details": close({
-	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/MCPServerSigV4AuthorizationConfig"
+#MCPServerSigV4Details: close({
+	AuthorizationConfig!: #MCPServerSigV4AuthorizationConfig
 
 	// Optional description for the MCP server
 	Description?: strings.MaxRunes(500)
@@ -306,13 +300,11 @@ _#defs: "/$defs/Properties/definitions/MCPServerSigV4Details": close({
 })
 
 // MCP server splunk authorization configuration
-_#defs: "/$defs/Properties/definitions/MCPServerSplunkAuthorizationConfig": close(
-	{BearerToken!: _#defs."/$defs/Properties/definitions/BearerTokenDetails"},
-)
+#MCPServerSplunkAuthorizationConfig: close({BearerToken!: #BearerTokenDetails})
 
 // Splunk MCP server configuration
-_#defs: "/$defs/Properties/definitions/MCPServerSplunkDetails": close({
-	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/MCPServerSplunkAuthorizationConfig"
+#MCPServerSplunkDetails: close({
+	AuthorizationConfig!: #MCPServerSplunkAuthorizationConfig
 
 	// Optional description for the MCP server
 	Description?: strings.MaxRunes(500)
@@ -325,7 +317,7 @@ _#defs: "/$defs/Properties/definitions/MCPServerSplunkDetails": close({
 })
 
 // New Relic API key configuration
-_#defs: "/$defs/Properties/definitions/NewRelicApiKeyConfig": close({
+#NewRelicApiKeyConfig: close({
 	// New Relic Account ID
 	AccountId!: =~"^[0-9]+$"
 
@@ -346,17 +338,13 @@ _#defs: "/$defs/Properties/definitions/NewRelicApiKeyConfig": close({
 })
 
 // New Relic authorization configuration
-_#defs: "/$defs/Properties/definitions/NewRelicAuthorizationConfig": close(
-	{ApiKey!: _#defs."/$defs/Properties/definitions/NewRelicApiKeyConfig"},
-)
+#NewRelicAuthorizationConfig: close({ApiKey!: #NewRelicApiKeyConfig})
 
 // New Relic service configuration
-_#defs: "/$defs/Properties/definitions/NewRelicServiceDetails": close(
-	{AuthorizationConfig!: _#defs."/$defs/Properties/definitions/NewRelicAuthorizationConfig"},
-)
+#NewRelicServiceDetails: close({AuthorizationConfig!: #NewRelicAuthorizationConfig})
 
 // OAuth client credentials
-_#defs: "/$defs/Properties/definitions/OAuthClientDetails": close({
+#OAuthClientDetails: close({
 	// OAuth client ID
 	ClientId!: string
 
@@ -371,20 +359,18 @@ _#defs: "/$defs/Properties/definitions/OAuthClientDetails": close({
 })
 
 // PagerDuty OAuth authorization configuration
-_#defs: "/$defs/Properties/definitions/PagerDutyAuthorizationConfig": close(
-	{OAuthClientCredentials?: _#defs."/$defs/Properties/definitions/OAuthClientDetails"},
-)
+#PagerDutyAuthorizationConfig: close({OAuthClientCredentials?: #OAuthClientDetails})
 
 // PagerDuty service configuration
-_#defs: "/$defs/Properties/definitions/PagerDutyDetails": close({
-	AuthorizationConfig!: _#defs."/$defs/Properties/definitions/PagerDutyAuthorizationConfig"
+#PagerDutyDetails: close({
+	AuthorizationConfig!: #PagerDutyAuthorizationConfig
 
 	// PagerDuty scopes
 	Scopes!: [...string]
 })
 
 // Azure Identity service details returned after registration
-_#defs: "/$defs/Properties/definitions/RegisteredAzureIdentityDetails": close({
+#RegisteredAzureIdentityDetails: close({
 	// Azure AD application client ID
 	ClientId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
 
@@ -400,13 +386,13 @@ _#defs: "/$defs/Properties/definitions/RegisteredAzureIdentityDetails": close({
 })
 
 // Dynatrace service details returned after registration
-_#defs: "/$defs/Properties/definitions/RegisteredDynatraceDetails": close({
+#RegisteredDynatraceDetails: close({
 	// Dynatrace resource account URN
 	AccountUrn!: string
 })
 
 // GitHub service details returned after registration
-_#defs: "/$defs/Properties/definitions/RegisteredGitHubServiceDetails": close({
+#RegisteredGitHubServiceDetails: close({
 	// The GitHub App variant the service was registered with
 	AppVariant?: "READ_ONLY" | "READ_WRITE" | "CUSTOM_APP"
 
@@ -428,7 +414,7 @@ _#defs: "/$defs/Properties/definitions/RegisteredGitHubServiceDetails": close({
 })
 
 // GitLab service details returned after registration
-_#defs: "/$defs/Properties/definitions/RegisteredGitLabServiceDetails": close({
+#RegisteredGitLabServiceDetails: close({
 	// Optional GitLab group ID for group-level access tokens
 	GroupId?: string
 
@@ -440,7 +426,7 @@ _#defs: "/$defs/Properties/definitions/RegisteredGitLabServiceDetails": close({
 })
 
 // MCP server details returned after registration
-_#defs: "/$defs/Properties/definitions/RegisteredMCPServerDetails": close({
+#RegisteredMCPServerDetails: close({
 	// API key header name if using API key authentication
 	ApiKeyHeader?: string
 
@@ -458,7 +444,7 @@ _#defs: "/$defs/Properties/definitions/RegisteredMCPServerDetails": close({
 })
 
 // Grafana MCP server details returned after registration
-_#defs: "/$defs/Properties/definitions/RegisteredMCPServerGrafanaDetails": close({
+#RegisteredMCPServerGrafanaDetails: close({
 	// MCP server authorization method
 	AuthorizationMethod!: "bearer-token"
 
@@ -473,7 +459,7 @@ _#defs: "/$defs/Properties/definitions/RegisteredMCPServerGrafanaDetails": close
 })
 
 // SigV4-authenticated MCP server details returned after registration
-_#defs: "/$defs/Properties/definitions/RegisteredMCPServerSigV4Details": close({
+#RegisteredMCPServerSigV4Details: close({
 	// Custom headers for the SigV4 MCP server
 	CustomHeaders?: close({
 
@@ -502,7 +488,7 @@ _#defs: "/$defs/Properties/definitions/RegisteredMCPServerSigV4Details": close({
 })
 
 // New Relic service details returned after registration
-_#defs: "/$defs/Properties/definitions/RegisteredNewRelicDetails": close({
+#RegisteredNewRelicDetails: close({
 	// New Relic account ID
 	AccountId!: string
 
@@ -514,13 +500,13 @@ _#defs: "/$defs/Properties/definitions/RegisteredNewRelicDetails": close({
 })
 
 // PagerDuty service details returned after registration
-_#defs: "/$defs/Properties/definitions/RegisteredPagerDutyDetails": close({
+#RegisteredPagerDutyDetails: close({
 	// The scopes assigned to the service
 	Scopes!: [...string]
 })
 
 // ServiceNow service details returned after registration
-_#defs: "/$defs/Properties/definitions/RegisteredServiceNowDetails": close({
+#RegisteredServiceNowDetails: close({
 	// ServiceNow instance URL
 	InstanceUrl!: string
 })
@@ -531,48 +517,46 @@ _#defs: "/$defs/Properties/definitions/RegisteredServiceNowDetails": close({
 // (BearerToken rotation) support in-place credential rotation; all other
 // service types and fields, including GitHub, require replacement when
 // modified
-_#defs: "/$defs/Properties/definitions/ServiceDetails": matchN(1, [close(
-	{Dynatrace!: _#defs."/$defs/Properties/definitions/DynatraceServiceDetails"},
+#ServiceDetails: matchN(1, [close(
+	{Dynatrace!: #DynatraceServiceDetails},
 ), close(
-	{MCPServer!: _#defs."/$defs/Properties/definitions/MCPServerDetails"},
+	{MCPServer!: #MCPServerDetails},
 ), close(
-	{MCPServerSplunk!: _#defs."/$defs/Properties/definitions/MCPServerSplunkDetails"},
+	{MCPServerSplunk!: #MCPServerSplunkDetails},
 ), close(
-	{MCPServerNewRelic!: _#defs."/$defs/Properties/definitions/NewRelicServiceDetails"},
+	{MCPServerNewRelic!: #NewRelicServiceDetails},
 ), close(
-	{GitLab!: _#defs."/$defs/Properties/definitions/GitLabDetails"},
+	{GitLab!: #GitLabDetails},
 ), close(
-	{GitHub!: _#defs."/$defs/Properties/definitions/GitHubDetails"},
+	{GitHub!: #GitHubDetails},
 ), close(
-	{ServiceNow!: _#defs."/$defs/Properties/definitions/ServiceNowServiceDetails"},
+	{ServiceNow!: #ServiceNowServiceDetails},
 ), close(
-	{PagerDuty!: _#defs."/$defs/Properties/definitions/PagerDutyDetails"},
+	{PagerDuty!: #PagerDutyDetails},
 ), close(
-	{AzureIdentity!: _#defs."/$defs/Properties/definitions/AzureIdentityServiceDetails"},
+	{AzureIdentity!: #AzureIdentityServiceDetails},
 ), close(
-	{MCPServerSigV4!: _#defs."/$defs/Properties/definitions/MCPServerSigV4Details"},
+	{MCPServerSigV4!: #MCPServerSigV4Details},
 ), close(
-	{MCPServerGrafana!: _#defs."/$defs/Properties/definitions/MCPServerGrafanaDetails"},
+	{MCPServerGrafana!: #MCPServerGrafanaDetails},
 )])
 
 // The unique identifier of the service
-_#defs: "/$defs/Properties/definitions/ServiceId": strings.MaxRunes(255) & strings.MinRunes(1)
+#ServiceId: strings.MaxRunes(255) & strings.MinRunes(1)
 
 // ServiceNow OAuth authorization configuration
-_#defs: "/$defs/Properties/definitions/ServiceNowAuthorizationConfig": close(
-	{OAuthClientCredentials?: _#defs."/$defs/Properties/definitions/OAuthClientDetails"},
-)
+#ServiceNowAuthorizationConfig: close({OAuthClientCredentials?: #OAuthClientDetails})
 
 // ServiceNow service configuration
-_#defs: "/$defs/Properties/definitions/ServiceNowServiceDetails": close({
-	AuthorizationConfig?: _#defs."/$defs/Properties/definitions/ServiceNowAuthorizationConfig"
+#ServiceNowServiceDetails: close({
+	AuthorizationConfig?: #ServiceNowAuthorizationConfig
 
 	// ServiceNow instance URL
 	InstanceUrl!: =~"^https://[a-zA-Z0-9-]+\\.service-now\\.com/?$"
 })
 
 // The type of service being registered
-_#defs: "/$defs/Properties/definitions/ServiceType": "dynatrace" |
+#ServiceType: "dynatrace" |
 	"mcpserver" |
 	"mcpserversplunk" |
 	"mcpservernewrelic" |
@@ -585,7 +569,7 @@ _#defs: "/$defs/Properties/definitions/ServiceType": "dynatrace" |
 	"mcpservergrafana"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

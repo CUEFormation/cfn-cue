@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -24,7 +24,7 @@ import (
 	KnowledgeBaseArn?: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^arn:aws(|-cn|-us-gov):bedrock:[a-zA-Z0-9-]*:[0-9]{12}:knowledge-base/[0-9a-zA-Z]+$"
-	KnowledgeBaseConfiguration!: _#defs."/$defs/Properties/definitions/KnowledgeBaseConfiguration"
+	KnowledgeBaseConfiguration!: #KnowledgeBaseConfiguration
 
 	// The unique identifier of the knowledge base.
 	KnowledgeBaseId?: =~"^[0-9a-zA-Z]{10}$"
@@ -38,42 +38,32 @@ import (
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$"
-	Status?:               _#defs."/$defs/Properties/definitions/KnowledgeBaseStatus"
-	StorageConfiguration?: _#defs."/$defs/Properties/definitions/StorageConfiguration"
-	Tags?:                 _#defs."/$defs/Properties/definitions/TagsMap"
+	Status?:               #KnowledgeBaseStatus
+	StorageConfiguration?: #StorageConfiguration
+	Tags?:                 #TagsMap
 
 	// The time at which the knowledge base was last updated.
 	UpdatedAt?: string
 })
 
 // Configure the audio configuration for multi modal ingestion.
-_#defs: "/$defs/Properties/definitions/AudioConfiguration": close(
-	{SegmentationConfiguration!: _#defs."/$defs/Properties/definitions/AudioSegmentationConfiguration"},
-)
+#AudioConfiguration: close({SegmentationConfiguration!: #AudioSegmentationConfiguration})
 
 // List of audio configurations for multi modal ingestion.
-_#defs: "/$defs/Properties/definitions/AudioConfigurations": list.MaxItems(1) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AudioConfiguration"
-]
+#AudioConfigurations: list.MaxItems(1) & list.MinItems(1) & [...#AudioConfiguration]
 
 // Configure the audio segmentation configuration for multi modal ingestion.
-_#defs: "/$defs/Properties/definitions/AudioSegmentationConfiguration": close(
-	{FixedLengthDuration!: _#defs."/$defs/Properties/definitions/FixedLengthDuration"},
-)
+#AudioSegmentationConfiguration: close({FixedLengthDuration!: #FixedLengthDuration})
 
 // AWS Data Catalog table name
-_#defs: "/$defs/Properties/definitions/AwsDataCatalogTableName": strings.MaxRunes(200) &
-strings.MinRunes(1) &
-=~"^.*\\.*$"
+#AwsDataCatalogTableName: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*\\.*$"
 
 // List of table names in AWS Data Catalog. Must follow two part notation
-_#defs: "/$defs/Properties/definitions/AwsDataCatalogTableNames": list.MaxItems(1000) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AwsDataCatalogTableName"
-]
+#AwsDataCatalogTableNames: list.MaxItems(1000) & list.MinItems(1) & [...#AwsDataCatalogTableName]
 
 // The vector configuration details for the Bedrock embeddings model.
-_#defs: "/$defs/Properties/definitions/BedrockEmbeddingModelConfiguration": close({
-	Audio?: _#defs."/$defs/Properties/definitions/AudioConfigurations"
+#BedrockEmbeddingModelConfiguration: close({
+	Audio?: #AudioConfigurations
 
 	// The dimensions details for the vector configuration used on the Bedrock embeddings model.
 	Dimensions?: int & <=4096 & >=0
@@ -83,56 +73,50 @@ _#defs: "/$defs/Properties/definitions/BedrockEmbeddingModelConfiguration": clos
 
 	// Model-specific configuration for the embedding model.
 	ModelConfiguration?: {...}
-	Video?:              _#defs."/$defs/Properties/definitions/VideoConfigurations"
+	Video?:              #VideoConfigurations
 })
 
 // List of example queries and results
-_#defs: "/$defs/Properties/definitions/CuratedQueries": list.MaxItems(10) & [
-	..._#defs."/$defs/Properties/definitions/CuratedQuery"
-]
+#CuratedQueries: list.MaxItems(10) & [...#CuratedQuery]
 
 // Curated query or question and answer pair
-_#defs: "/$defs/Properties/definitions/CuratedQuery": close({
-	NaturalLanguage!: _#defs."/$defs/Properties/definitions/NaturalLanguageString"
-	Sql!:             _#defs."/$defs/Properties/definitions/SqlString"
+#CuratedQuery: close({
+	NaturalLanguage!: #NaturalLanguageString
+	Sql!:             #SqlString
 })
 
 // Description for the attached entity
-_#defs: "/$defs/Properties/definitions/DescriptionString": strings.MaxRunes(200) & strings.MinRunes(1)
+#DescriptionString: strings.MaxRunes(200) & strings.MinRunes(1)
 
 // The embeddings model configuration details for the vector model used in Knowledge Base.
-_#defs: "/$defs/Properties/definitions/EmbeddingModelConfiguration": close(
-	{BedrockEmbeddingModelConfiguration?: _#defs."/$defs/Properties/definitions/BedrockEmbeddingModelConfiguration"},
-)
+#EmbeddingModelConfiguration: close({BedrockEmbeddingModelConfiguration?: #BedrockEmbeddingModelConfiguration})
 
 // The type of embedding model to use for the managed knowledge base.
-_#defs: "/$defs/Properties/definitions/EmbeddingModelType": "CUSTOM" | "MANAGED"
+#EmbeddingModelType: "CUSTOM" | "MANAGED"
 
 // Duration in seconds to segment the multi modal media
-_#defs: "/$defs/Properties/definitions/FixedLengthDuration": int & <=30 & >=1
+#FixedLengthDuration: int & <=30 & >=1
 
 // Include or Exclude status for an entity
-_#defs: "/$defs/Properties/definitions/InclusionType": "INCLUDE" | "EXCLUDE"
+#InclusionType: "INCLUDE" | "EXCLUDE"
 
 // Arn of a Kendra index
-_#defs: "/$defs/Properties/definitions/KendraIndexArn": =~"^arn:aws(|-cn|-us-gov):kendra:[a-z0-9-]{1,20}:([0-9]{12}|):index/([a-zA-Z0-9][a-zA-Z0-9-]{35}|[a-zA-Z0-9][a-zA-Z0-9-]{35}-[a-zA-Z0-9][a-zA-Z0-9-]{35})$"
+#KendraIndexArn: =~"^arn:aws(|-cn|-us-gov):kendra:[a-z0-9-]{1,20}:([0-9]{12}|):index/([a-zA-Z0-9][a-zA-Z0-9-]{35}|[a-zA-Z0-9][a-zA-Z0-9-]{35}-[a-zA-Z0-9][a-zA-Z0-9-]{35})$"
 
 // Configurations for a Kendra knowledge base
-_#defs: "/$defs/Properties/definitions/KendraKnowledgeBaseConfiguration": close(
-	{KendraIndexArn!: _#defs."/$defs/Properties/definitions/KendraIndexArn"},
-)
+#KendraKnowledgeBaseConfiguration: close({KendraIndexArn!: #KendraIndexArn})
 
 // Contains details about the embeddings model used for the knowledge base.
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseConfiguration": close({
-	KendraKnowledgeBaseConfiguration?:  _#defs."/$defs/Properties/definitions/KendraKnowledgeBaseConfiguration"
-	ManagedKnowledgeBaseConfiguration?: _#defs."/$defs/Properties/definitions/ManagedKnowledgeBaseConfiguration"
-	SqlKnowledgeBaseConfiguration?:     _#defs."/$defs/Properties/definitions/SqlKnowledgeBaseConfiguration"
-	Type!:                              _#defs."/$defs/Properties/definitions/KnowledgeBaseType"
-	VectorKnowledgeBaseConfiguration?:  _#defs."/$defs/Properties/definitions/VectorKnowledgeBaseConfiguration"
+#KnowledgeBaseConfiguration: close({
+	KendraKnowledgeBaseConfiguration?:  #KendraKnowledgeBaseConfiguration
+	ManagedKnowledgeBaseConfiguration?: #ManagedKnowledgeBaseConfiguration
+	SqlKnowledgeBaseConfiguration?:     #SqlKnowledgeBaseConfiguration
+	Type!:                              #KnowledgeBaseType
+	VectorKnowledgeBaseConfiguration?:  #VectorKnowledgeBaseConfiguration
 })
 
 // The status of a knowledge base.
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseStatus": "CREATING" |
+#KnowledgeBaseStatus: "CREATING" |
 	"ACTIVE" |
 	"DELETING" |
 	"UPDATING" |
@@ -141,7 +125,7 @@ _#defs: "/$defs/Properties/definitions/KnowledgeBaseStatus": "CREATING" |
 	"UPDATE_UNSUCCESSFUL"
 
 // The storage type of a knowledge base.
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseStorageType": "OPENSEARCH_SERVERLESS" |
+#KnowledgeBaseStorageType: "OPENSEARCH_SERVERLESS" |
 	"PINECONE" |
 	"RDS" |
 	"MONGO_DB_ATLAS" |
@@ -150,23 +134,22 @@ _#defs: "/$defs/Properties/definitions/KnowledgeBaseStorageType": "OPENSEARCH_SE
 	"OPENSEARCH_MANAGED_CLUSTER"
 
 // The type of a knowledge base.
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseType": "VECTOR" | "KENDRA" | "SQL" | "MANAGED"
+#KnowledgeBaseType: "VECTOR" | "KENDRA" | "SQL" | "MANAGED"
 
 // Contains details about the model used to create vector embeddings for a managed knowledge base.
-_#defs: "/$defs/Properties/definitions/ManagedKnowledgeBaseConfiguration": close({
+#ManagedKnowledgeBaseConfiguration: close({
 	// The ARN of the model used to create vector embeddings for the knowledge base.
 	EmbeddingModelArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^(arn:aws(-[^:]+)?:[a-z0-9-]+:[a-z0-9-]{1,20}:[0-9]{0,12}:[a-zA-Z0-9-:/._+]+)$"
-	EmbeddingModelConfiguration?: _#defs."/$defs/Properties/definitions/EmbeddingModelConfiguration"
-	EmbeddingModelType?:          _#defs."/$defs/Properties/definitions/EmbeddingModelType"
-	ServerSideEncryptionConfiguration?:
-		_#defs."/$defs/Properties/definitions/ManagedKnowledgeBaseServerSideEncryptionConfiguration"
-	SupplementalDataStorageConfiguration?: _#defs."/$defs/Properties/definitions/SupplementalDataStorageConfiguration"
+	EmbeddingModelConfiguration?:          #EmbeddingModelConfiguration
+	EmbeddingModelType?:                   #EmbeddingModelType
+	ServerSideEncryptionConfiguration?:    #ManagedKnowledgeBaseServerSideEncryptionConfiguration
+	SupplementalDataStorageConfiguration?: #SupplementalDataStorageConfiguration
 })
 
 // Contains details about the server-side encryption for the managed knowledge base.
-_#defs: "/$defs/Properties/definitions/ManagedKnowledgeBaseServerSideEncryptionConfiguration": close({
+#ManagedKnowledgeBaseServerSideEncryptionConfiguration: close({
 	// The ARN of the AWS KMS key used to encrypt the managed knowledge base.
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
@@ -175,7 +158,7 @@ _#defs: "/$defs/Properties/definitions/ManagedKnowledgeBaseServerSideEncryptionC
 })
 
 // Contains the storage configuration of the knowledge base in MongoDb Atlas Cloud.
-_#defs: "/$defs/Properties/definitions/MongoDbAtlasConfiguration": close({
+#MongoDbAtlasConfiguration: close({
 	// Name of the collection within MongoDB Atlas.
 	CollectionName!: strings.MaxRunes(63) & =~"^.*$"
 
@@ -193,7 +176,7 @@ _#defs: "/$defs/Properties/definitions/MongoDbAtlasConfiguration": close({
 	// MongoDB Atlas endpoint service name.
 	EndpointServiceName?: strings.MaxRunes(255) &
 	=~"^(?:arn:aws(?:-us-gov|-cn|-iso|-iso-[a-z])*:.+:.*:\\d+:.+/.+$|[a-zA-Z0-9*]+[a-zA-Z0-9._-]*)$"
-	FieldMapping!: _#defs."/$defs/Properties/definitions/MongoDbAtlasFieldMapping"
+	FieldMapping!: #MongoDbAtlasFieldMapping
 
 	// Name of a MongoDB Atlas text index.
 	TextIndexName?: strings.MaxRunes(2048) & =~"^.*$"
@@ -203,7 +186,7 @@ _#defs: "/$defs/Properties/definitions/MongoDbAtlasConfiguration": close({
 })
 
 // Contains the names of the fields to which to map information about the vector store.
-_#defs: "/$defs/Properties/definitions/MongoDbAtlasFieldMapping": close({
+#MongoDbAtlasFieldMapping: close({
 	// The name of the field in which Amazon Bedrock stores metadata about the vector store.
 	MetadataField!: strings.MaxRunes(2048) & =~"^.*$"
 
@@ -216,11 +199,11 @@ _#defs: "/$defs/Properties/definitions/MongoDbAtlasFieldMapping": close({
 })
 
 // Question for the curated query
-_#defs: "/$defs/Properties/definitions/NaturalLanguageString": strings.MaxRunes(1000) & strings.MinRunes(1)
+#NaturalLanguageString: strings.MaxRunes(1000) & strings.MinRunes(1)
 
 // Contains the configurations to use Neptune Analytics as Vector Store.
-_#defs: "/$defs/Properties/definitions/NeptuneAnalyticsConfiguration": close({
-	FieldMapping!: _#defs."/$defs/Properties/definitions/NeptuneAnalyticsFieldMapping"
+#NeptuneAnalyticsConfiguration: close({
+	FieldMapping!: #NeptuneAnalyticsFieldMapping
 
 	// ARN for Neptune Analytics graph database.
 	GraphArn!: strings.MaxRunes(255) &
@@ -229,7 +212,7 @@ _#defs: "/$defs/Properties/definitions/NeptuneAnalyticsConfiguration": close({
 })
 
 // A mapping of Bedrock Knowledge Base fields to Neptune Analytics fields.
-_#defs: "/$defs/Properties/definitions/NeptuneAnalyticsFieldMapping": close({
+#NeptuneAnalyticsFieldMapping: close({
 	// The name of the field in which Amazon Bedrock stores metadata about the vector store.
 	MetadataField!: strings.MaxRunes(2048) & =~"^.*$"
 
@@ -239,21 +222,21 @@ _#defs: "/$defs/Properties/definitions/NeptuneAnalyticsFieldMapping": close({
 })
 
 // Contains the storage configuration of the knowledge base in Amazon OpenSearch Service.
-_#defs: "/$defs/Properties/definitions/OpenSearchManagedClusterConfiguration": close({
+#OpenSearchManagedClusterConfiguration: close({
 	// The Amazon Resource Name (ARN) of the OpenSearch domain.
 	DomainArn!: strings.MaxRunes(2048) &
 	=~"^arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:es:([a-z]{2,}-){2,}\\d:\\d{12}:domain/[a-z][a-z0-9-]{3,28}$"
 
 	// The endpoint URL the OpenSearch domain.
 	DomainEndpoint!: strings.MaxRunes(2048) & =~"^https://.*$"
-	FieldMapping!:   _#defs."/$defs/Properties/definitions/OpenSearchManagedClusterFieldMapping"
+	FieldMapping!:   #OpenSearchManagedClusterFieldMapping
 
 	// The name of the vector store.
 	VectorIndexName!: strings.MaxRunes(2048) & strings.MinRunes(1)
 })
 
 // A mapping of Bedrock Knowledge Base fields to OpenSearch Managed Cluster field names
-_#defs: "/$defs/Properties/definitions/OpenSearchManagedClusterFieldMapping": close({
+#OpenSearchManagedClusterFieldMapping: close({
 	// The name of the field in which Amazon Bedrock stores metadata about the vector store.
 	MetadataField!: strings.MaxRunes(2048) & =~"^.*$"
 
@@ -266,18 +249,18 @@ _#defs: "/$defs/Properties/definitions/OpenSearchManagedClusterFieldMapping": cl
 })
 
 // Contains the storage configuration of the knowledge base in Amazon OpenSearch Service.
-_#defs: "/$defs/Properties/definitions/OpenSearchServerlessConfiguration": close({
+#OpenSearchServerlessConfiguration: close({
 	// The ARN of the OpenSearch Service vector store.
 	CollectionArn!: strings.MaxRunes(2048) &
 	=~"^arn:aws(|-cn|-us-gov|-iso):aoss:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:collection/[a-z0-9-]{3,32}$"
-	FieldMapping!: _#defs."/$defs/Properties/definitions/OpenSearchServerlessFieldMapping"
+	FieldMapping!: #OpenSearchServerlessFieldMapping
 
 	// The name of the vector store.
 	VectorIndexName!: strings.MaxRunes(2048) & =~"^.*$"
 })
 
 // A mapping of Bedrock Knowledge Base fields to OpenSearch Serverless field names
-_#defs: "/$defs/Properties/definitions/OpenSearchServerlessFieldMapping": close({
+#OpenSearchServerlessFieldMapping: close({
 	// The name of the field in which Amazon Bedrock stores metadata about the vector store.
 	MetadataField!: strings.MaxRunes(2048) & =~"^.*$"
 
@@ -290,7 +273,7 @@ _#defs: "/$defs/Properties/definitions/OpenSearchServerlessFieldMapping": close(
 })
 
 // Contains the storage configuration of the knowledge base in Pinecone.
-_#defs: "/$defs/Properties/definitions/PineconeConfiguration": close({
+#PineconeConfiguration: close({
 	// The endpoint URL for your index management page.
 	ConnectionString!: strings.MaxRunes(2048) & =~"^.*$"
 
@@ -298,14 +281,14 @@ _#defs: "/$defs/Properties/definitions/PineconeConfiguration": close({
 	// to your Pinecone API key.
 	CredentialsSecretArn!:
 		=~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$"
-	FieldMapping!: _#defs."/$defs/Properties/definitions/PineconeFieldMapping"
+	FieldMapping!: #PineconeFieldMapping
 
 	// The namespace to be used to write new data to your database.
 	Namespace?: strings.MaxRunes(2048) & =~"^.*$"
 })
 
 // Contains the names of the fields to which to map information about the vector store.
-_#defs: "/$defs/Properties/definitions/PineconeFieldMapping": close({
+#PineconeFieldMapping: close({
 	// The name of the field in which Amazon Bedrock stores metadata about the vector store.
 	MetadataField!: strings.MaxRunes(2048) & =~"^.*$"
 
@@ -315,57 +298,53 @@ _#defs: "/$defs/Properties/definitions/PineconeFieldMapping": close({
 })
 
 // SQL query engine type
-_#defs: "/$defs/Properties/definitions/QueryEngineType": "REDSHIFT"
+#QueryEngineType: "REDSHIFT"
 
 // Max query execution timeout
-_#defs: "/$defs/Properties/definitions/QueryExecutionTimeoutSeconds": int & <=200 & >=1
+#QueryExecutionTimeoutSeconds: int & <=200 & >=1
 
 // Redshift query generation column
-_#defs: "/$defs/Properties/definitions/QueryGenerationColumn": close({
-	Description?: _#defs."/$defs/Properties/definitions/DescriptionString"
-	Inclusion?:   _#defs."/$defs/Properties/definitions/InclusionType"
-	Name?:        _#defs."/$defs/Properties/definitions/QueryGenerationColumnName"
+#QueryGenerationColumn: close({
+	Description?: #DescriptionString
+	Inclusion?:   #InclusionType
+	Name?:        #QueryGenerationColumnName
 })
 
 // Query generation column name
-_#defs: "/$defs/Properties/definitions/QueryGenerationColumnName": strings.MaxRunes(127) & strings.MinRunes(1)
+#QueryGenerationColumnName: strings.MaxRunes(127) & strings.MinRunes(1)
 
 // List of Redshift query generation columns
-_#defs: "/$defs/Properties/definitions/QueryGenerationColumns": [
-	..._#defs."/$defs/Properties/definitions/QueryGenerationColumn"
-]
+#QueryGenerationColumns: [...#QueryGenerationColumn]
 
 // Configurations for generating Redshift engine queries
-_#defs: "/$defs/Properties/definitions/QueryGenerationConfiguration": close({
-	ExecutionTimeoutSeconds?: _#defs."/$defs/Properties/definitions/QueryExecutionTimeoutSeconds"
-	GenerationContext?:       _#defs."/$defs/Properties/definitions/QueryGenerationContext"
+#QueryGenerationConfiguration: close({
+	ExecutionTimeoutSeconds?: #QueryExecutionTimeoutSeconds
+	GenerationContext?:       #QueryGenerationContext
 })
 
 // Context used to improve query generation
-_#defs: "/$defs/Properties/definitions/QueryGenerationContext": close({
-	CuratedQueries?: _#defs."/$defs/Properties/definitions/CuratedQueries"
-	Tables?:         _#defs."/$defs/Properties/definitions/QueryGenerationTables"
+#QueryGenerationContext: close({
+	CuratedQueries?: #CuratedQueries
+	Tables?:         #QueryGenerationTables
 })
 
 // Tables used for Redshift query generation context
-_#defs: "/$defs/Properties/definitions/QueryGenerationTable": close({
-	Columns?:     _#defs."/$defs/Properties/definitions/QueryGenerationColumns"
-	Description?: _#defs."/$defs/Properties/definitions/DescriptionString"
-	Inclusion?:   _#defs."/$defs/Properties/definitions/InclusionType"
-	Name!:        _#defs."/$defs/Properties/definitions/QueryGenerationTableName"
+#QueryGenerationTable: close({
+	Columns?:     #QueryGenerationColumns
+	Description?: #DescriptionString
+	Inclusion?:   #InclusionType
+	Name!:        #QueryGenerationTableName
 })
 
 // Query generation table name. Must follow three-part notation
-_#defs: "/$defs/Properties/definitions/QueryGenerationTableName": =~"^.*\\..*\\..*$"
+#QueryGenerationTableName: =~"^.*\\..*\\..*$"
 
 // List of tables used for Redshift query generation context
-_#defs: "/$defs/Properties/definitions/QueryGenerationTables": list.MaxItems(50) & [
-	..._#defs."/$defs/Properties/definitions/QueryGenerationTable"
-]
+#QueryGenerationTables: list.MaxItems(50) & [...#QueryGenerationTable]
 
 // Contains details about the storage configuration of the knowledge base in
 // Amazon RDS. For more information, see Create a vector index in Amazon RDS.
-_#defs: "/$defs/Properties/definitions/RdsConfiguration": close({
+#RdsConfiguration: close({
 	// The ARN of the secret that you created in AWS Secrets Manager that is linked
 	// to your Amazon RDS database.
 	CredentialsSecretArn!:
@@ -373,7 +352,7 @@ _#defs: "/$defs/Properties/definitions/RdsConfiguration": close({
 
 	// The name of your Amazon RDS database.
 	DatabaseName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$"
-	FieldMapping!: _#defs."/$defs/Properties/definitions/RdsFieldMapping"
+	FieldMapping!: #RdsFieldMapping
 
 	// The ARN of the vector store.
 	ResourceArn!: =~"^arn:aws(|-cn|-us-gov):rds:[a-zA-Z0-9-]*:[0-9]{12}:cluster:[a-zA-Z0-9-]{1,63}$"
@@ -383,7 +362,7 @@ _#defs: "/$defs/Properties/definitions/RdsConfiguration": close({
 })
 
 // Contains the names of the fields to which to map information about the vector store.
-_#defs: "/$defs/Properties/definitions/RdsFieldMapping": close({
+#RdsFieldMapping: close({
 	// The name of the field in which Amazon Bedrock stores custom metadata about the vector store.
 	CustomMetadataField?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$"
 
@@ -402,7 +381,7 @@ _#defs: "/$defs/Properties/definitions/RdsFieldMapping": close({
 })
 
 // Contains the storage configuration of the knowledge base in Redis Enterprise Cloud.
-_#defs: "/$defs/Properties/definitions/RedisEnterpriseCloudConfiguration": close({
+#RedisEnterpriseCloudConfiguration: close({
 	// The ARN of the secret that you created in AWS Secrets Manager that is linked
 	// to your Redis Enterprise Cloud database.
 	CredentialsSecretArn!:
@@ -410,14 +389,14 @@ _#defs: "/$defs/Properties/definitions/RedisEnterpriseCloudConfiguration": close
 
 	// The endpoint URL of the Redis Enterprise Cloud database.
 	Endpoint!:     strings.MaxRunes(2048) & =~"^.*$"
-	FieldMapping!: _#defs."/$defs/Properties/definitions/RedisEnterpriseCloudFieldMapping"
+	FieldMapping!: #RedisEnterpriseCloudFieldMapping
 
 	// The name of the vector index.
 	VectorIndexName!: strings.MaxRunes(2048) & =~"^.*$"
 })
 
 // Contains the names of the fields to which to map information about the vector store.
-_#defs: "/$defs/Properties/definitions/RedisEnterpriseCloudFieldMapping": close({
+#RedisEnterpriseCloudFieldMapping: close({
 	// The name of the field in which Amazon Bedrock stores metadata about the vector store.
 	MetadataField!: strings.MaxRunes(2048) & =~"^.*$"
 
@@ -430,94 +409,89 @@ _#defs: "/$defs/Properties/definitions/RedisEnterpriseCloudFieldMapping": close(
 })
 
 // Redshift cluster identifier
-_#defs: "/$defs/Properties/definitions/RedshiftClusterIdentifier": strings.MaxRunes(63) & strings.MinRunes(1)
+#RedshiftClusterIdentifier: strings.MaxRunes(63) & strings.MinRunes(1)
 
 // Configurations for a Redshift knowledge base
-_#defs: "/$defs/Properties/definitions/RedshiftConfiguration": close({
-	QueryEngineConfiguration!:     _#defs."/$defs/Properties/definitions/RedshiftQueryEngineConfiguration"
-	QueryGenerationConfiguration?: _#defs."/$defs/Properties/definitions/QueryGenerationConfiguration"
-	StorageConfigurations!:        _#defs."/$defs/Properties/definitions/RedshiftQueryEngineStorageConfigurations"
+#RedshiftConfiguration: close({
+	QueryEngineConfiguration!:     #RedshiftQueryEngineConfiguration
+	QueryGenerationConfiguration?: #QueryGenerationConfiguration
+	StorageConfigurations!:        #RedshiftQueryEngineStorageConfigurations
 })
 
 // Redshift database name
-_#defs: "/$defs/Properties/definitions/RedshiftDatabase": strings.MaxRunes(200) & strings.MinRunes(1)
+#RedshiftDatabase: strings.MaxRunes(200) & strings.MinRunes(1)
 
 // Configurations for Redshift query engine provisioned auth setup
-_#defs: "/$defs/Properties/definitions/RedshiftProvisionedAuthConfiguration": close({
+#RedshiftProvisionedAuthConfiguration: close({
 	// Redshift database user
 	DatabaseUser?:              string
-	Type!:                      _#defs."/$defs/Properties/definitions/RedshiftProvisionedAuthType"
-	UsernamePasswordSecretArn?: _#defs."/$defs/Properties/definitions/SecretArn"
+	Type!:                      #RedshiftProvisionedAuthType
+	UsernamePasswordSecretArn?: #SecretArn
 })
 
 // Provisioned Redshift auth type
-_#defs: "/$defs/Properties/definitions/RedshiftProvisionedAuthType": "IAM" | "USERNAME_PASSWORD" | "USERNAME"
+#RedshiftProvisionedAuthType: "IAM" | "USERNAME_PASSWORD" | "USERNAME"
 
 // Configurations for provisioned Redshift query engine
-_#defs: "/$defs/Properties/definitions/RedshiftProvisionedConfiguration": close({
-	AuthConfiguration!: _#defs."/$defs/Properties/definitions/RedshiftProvisionedAuthConfiguration"
-	ClusterIdentifier!: _#defs."/$defs/Properties/definitions/RedshiftClusterIdentifier"
+#RedshiftProvisionedConfiguration: close({
+	AuthConfiguration!: #RedshiftProvisionedAuthConfiguration
+	ClusterIdentifier!: #RedshiftClusterIdentifier
 })
 
 // Configurations for Redshift query engine AWS Data Catalog backed storage
-_#defs: "/$defs/Properties/definitions/RedshiftQueryEngineAwsDataCatalogStorageConfiguration": close(
-	{TableNames!: _#defs."/$defs/Properties/definitions/AwsDataCatalogTableNames"},
-)
+#RedshiftQueryEngineAwsDataCatalogStorageConfiguration: close({TableNames!: #AwsDataCatalogTableNames})
 
 // Configurations for Redshift query engine
-_#defs: "/$defs/Properties/definitions/RedshiftQueryEngineConfiguration": close({
-	ProvisionedConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftProvisionedConfiguration"
-	ServerlessConfiguration?:  _#defs."/$defs/Properties/definitions/RedshiftServerlessConfiguration"
-	Type!:                     _#defs."/$defs/Properties/definitions/RedshiftQueryEngineType"
+#RedshiftQueryEngineConfiguration: close({
+	ProvisionedConfiguration?: #RedshiftProvisionedConfiguration
+	ServerlessConfiguration?:  #RedshiftServerlessConfiguration
+	Type!:                     #RedshiftQueryEngineType
 })
 
 // Configurations for Redshift query engine Redshift backed storage
-_#defs: "/$defs/Properties/definitions/RedshiftQueryEngineRedshiftStorageConfiguration": close(
-	{DatabaseName!: _#defs."/$defs/Properties/definitions/RedshiftDatabase"},
-)
+#RedshiftQueryEngineRedshiftStorageConfiguration: close({DatabaseName!: #RedshiftDatabase})
 
 // Configurations for available Redshift query engine storage types
-_#defs: "/$defs/Properties/definitions/RedshiftQueryEngineStorageConfiguration": close({
-	AwsDataCatalogConfiguration?:
-		_#defs."/$defs/Properties/definitions/RedshiftQueryEngineAwsDataCatalogStorageConfiguration"
-	RedshiftConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftQueryEngineRedshiftStorageConfiguration"
-	Type!:                  _#defs."/$defs/Properties/definitions/RedshiftQueryEngineStorageType"
+#RedshiftQueryEngineStorageConfiguration: close({
+	AwsDataCatalogConfiguration?: #RedshiftQueryEngineAwsDataCatalogStorageConfiguration
+	RedshiftConfiguration?:       #RedshiftQueryEngineRedshiftStorageConfiguration
+	Type!:                        #RedshiftQueryEngineStorageType
 })
 
 // List of configurations for available Redshift query engine storage types
-_#defs: "/$defs/Properties/definitions/RedshiftQueryEngineStorageConfigurations": list.MaxItems(1) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/RedshiftQueryEngineStorageConfiguration"
+#RedshiftQueryEngineStorageConfigurations: list.MaxItems(1) & list.MinItems(1) & [
+	...#RedshiftQueryEngineStorageConfiguration
 ]
 
 // Redshift query engine storage type
-_#defs: "/$defs/Properties/definitions/RedshiftQueryEngineStorageType": "REDSHIFT" | "AWS_DATA_CATALOG"
+#RedshiftQueryEngineStorageType: "REDSHIFT" | "AWS_DATA_CATALOG"
 
 // Redshift query engine type
-_#defs: "/$defs/Properties/definitions/RedshiftQueryEngineType": "SERVERLESS" | "PROVISIONED"
+#RedshiftQueryEngineType: "SERVERLESS" | "PROVISIONED"
 
 // Configurations for Redshift query engine serverless auth setup
-_#defs: "/$defs/Properties/definitions/RedshiftServerlessAuthConfiguration": close({
-	Type!:                      _#defs."/$defs/Properties/definitions/RedshiftServerlessAuthType"
-	UsernamePasswordSecretArn?: _#defs."/$defs/Properties/definitions/SecretArn"
+#RedshiftServerlessAuthConfiguration: close({
+	Type!:                      #RedshiftServerlessAuthType
+	UsernamePasswordSecretArn?: #SecretArn
 })
 
 // Serverless Redshift auth type
-_#defs: "/$defs/Properties/definitions/RedshiftServerlessAuthType": "IAM" | "USERNAME_PASSWORD"
+#RedshiftServerlessAuthType: "IAM" | "USERNAME_PASSWORD"
 
 // Configurations for serverless Redshift query engine
-_#defs: "/$defs/Properties/definitions/RedshiftServerlessConfiguration": close({
-	AuthConfiguration!: _#defs."/$defs/Properties/definitions/RedshiftServerlessAuthConfiguration"
-	WorkgroupArn!:      _#defs."/$defs/Properties/definitions/WorkgroupArn"
+#RedshiftServerlessConfiguration: close({
+	AuthConfiguration!: #RedshiftServerlessAuthConfiguration
+	WorkgroupArn!:      #WorkgroupArn
 })
 
 // An Amazon S3 location.
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// The location's URI
 	URI!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^s3://.{1,128}$"
 })
 
 // Contains the storage configuration of the knowledge base for S3 vectors.
-_#defs: "/$defs/Properties/definitions/S3VectorsConfiguration": matchN(1, [{
+#S3VectorsConfiguration: matchN(1, [{
 	IndexArn!: _
 	...
 }, {
@@ -540,27 +514,27 @@ _#defs: "/$defs/Properties/definitions/S3VectorsConfiguration": matchN(1, [{
 })
 
 // Arn of a SecretsManager Secret
-_#defs: "/$defs/Properties/definitions/SecretArn": =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$"
+#SecretArn: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$"
 
 // Configurations for a SQL knowledge base
-_#defs: "/$defs/Properties/definitions/SqlKnowledgeBaseConfiguration": close({
-	RedshiftConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftConfiguration"
-	Type!:                  _#defs."/$defs/Properties/definitions/QueryEngineType"
+#SqlKnowledgeBaseConfiguration: close({
+	RedshiftConfiguration?: #RedshiftConfiguration
+	Type!:                  #QueryEngineType
 })
 
 // Answer for the curated query
-_#defs: "/$defs/Properties/definitions/SqlString": strings.MaxRunes(1000) & strings.MinRunes(1)
+#SqlString: strings.MaxRunes(1000) & strings.MinRunes(1)
 
 // The vector store service in which the knowledge base is stored.
-_#defs: "/$defs/Properties/definitions/StorageConfiguration": close({
-	MongoDbAtlasConfiguration?:             _#defs."/$defs/Properties/definitions/MongoDbAtlasConfiguration"
-	NeptuneAnalyticsConfiguration?:         _#defs."/$defs/Properties/definitions/NeptuneAnalyticsConfiguration"
-	OpensearchManagedClusterConfiguration?: _#defs."/$defs/Properties/definitions/OpenSearchManagedClusterConfiguration"
-	OpensearchServerlessConfiguration?:     _#defs."/$defs/Properties/definitions/OpenSearchServerlessConfiguration"
-	PineconeConfiguration?:                 _#defs."/$defs/Properties/definitions/PineconeConfiguration"
-	RdsConfiguration?:                      _#defs."/$defs/Properties/definitions/RdsConfiguration"
-	S3VectorsConfiguration?:                _#defs."/$defs/Properties/definitions/S3VectorsConfiguration"
-	Type!:                                  _#defs."/$defs/Properties/definitions/KnowledgeBaseStorageType"
+#StorageConfiguration: close({
+	MongoDbAtlasConfiguration?:             #MongoDbAtlasConfiguration
+	NeptuneAnalyticsConfiguration?:         #NeptuneAnalyticsConfiguration
+	OpensearchManagedClusterConfiguration?: #OpenSearchManagedClusterConfiguration
+	OpensearchServerlessConfiguration?:     #OpenSearchServerlessConfiguration
+	PineconeConfiguration?:                 #PineconeConfiguration
+	RdsConfiguration?:                      #RdsConfiguration
+	S3VectorsConfiguration?:                #S3VectorsConfiguration
+	Type!:                                  #KnowledgeBaseStorageType
 	if OpensearchServerlessConfiguration != _|_ {
 		PineconeConfiguration?: error(
 			"PineconeConfiguration cannot be used with OpensearchServerlessConfiguration; set exactly one of OpensearchServerlessConfiguration, PineconeConfiguration, RdsConfiguration, NeptuneAnalyticsConfiguration, S3VectorsConfiguration, MongoDbAtlasConfiguration, OpensearchManagedClusterConfiguration",
@@ -656,53 +630,43 @@ _#defs: "/$defs/Properties/definitions/StorageConfiguration": close({
 )
 
 // Configurations for supplemental data storage.
-_#defs: "/$defs/Properties/definitions/SupplementalDataStorageConfiguration": close(
-	{SupplementalDataStorageLocations!: _#defs."/$defs/Properties/definitions/SupplementalDataStorageLocations"},
-)
+#SupplementalDataStorageConfiguration: close({SupplementalDataStorageLocations!: #SupplementalDataStorageLocations})
 
 // Supplemental data storage location.
-_#defs: "/$defs/Properties/definitions/SupplementalDataStorageLocation": close({
-	S3Location?:                          _#defs."/$defs/Properties/definitions/S3Location"
-	SupplementalDataStorageLocationType!: _#defs."/$defs/Properties/definitions/SupplementalDataStorageLocationType"
+#SupplementalDataStorageLocation: close({
+	S3Location?:                          #S3Location
+	SupplementalDataStorageLocationType!: #SupplementalDataStorageLocationType
 })
 
 // Supplemental data storage location type.
-_#defs: "/$defs/Properties/definitions/SupplementalDataStorageLocationType": "S3"
+#SupplementalDataStorageLocationType: "S3"
 
 // List of supplemental data storage locations.
-_#defs: "/$defs/Properties/definitions/SupplementalDataStorageLocations": list.MaxItems(1) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SupplementalDataStorageLocation"
-]
+#SupplementalDataStorageLocations: list.MaxItems(1) & list.MinItems(1) & [...#SupplementalDataStorageLocation]
 
 // A map of tag keys and values
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})
 
 // Contains details about the model used to create vector embeddings for the knowledge base.
-_#defs: "/$defs/Properties/definitions/VectorKnowledgeBaseConfiguration": close({
+#VectorKnowledgeBaseConfiguration: close({
 	// The ARN of the model used to create vector embeddings for the knowledge base.
 	EmbeddingModelArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^(arn:aws(-[^:]+)?:[a-z0-9-]+:[a-z0-9-]{1,20}:[0-9]{0,12}:[a-zA-Z0-9-:/._+]+)$"
-	EmbeddingModelConfiguration?:          _#defs."/$defs/Properties/definitions/EmbeddingModelConfiguration"
-	SupplementalDataStorageConfiguration?: _#defs."/$defs/Properties/definitions/SupplementalDataStorageConfiguration"
+	EmbeddingModelConfiguration?:          #EmbeddingModelConfiguration
+	SupplementalDataStorageConfiguration?: #SupplementalDataStorageConfiguration
 })
 
 // Configure the video configuration for multi modal ingestion.
-_#defs: "/$defs/Properties/definitions/VideoConfiguration": close(
-	{SegmentationConfiguration!: _#defs."/$defs/Properties/definitions/VideoSegmentationConfiguration"},
-)
+#VideoConfiguration: close({SegmentationConfiguration!: #VideoSegmentationConfiguration})
 
 // List of video configurations for multi modal ingestion.
-_#defs: "/$defs/Properties/definitions/VideoConfigurations": list.MaxItems(1) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/VideoConfiguration"
-]
+#VideoConfigurations: list.MaxItems(1) & list.MinItems(1) & [...#VideoConfiguration]
 
 // Configure the video segmentation configuration for multi modal ingestion.
-_#defs: "/$defs/Properties/definitions/VideoSegmentationConfiguration": close(
-	{FixedLengthDuration!: _#defs."/$defs/Properties/definitions/FixedLengthDuration"},
-)
+#VideoSegmentationConfiguration: close({FixedLengthDuration!: #FixedLengthDuration})
 
 // Workgroup arn
-_#defs: "/$defs/Properties/definitions/WorkgroupArn": =~"^(arn:(aws(-[a-z]+)*):redshift-serverless:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:workgroup/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$"
+#WorkgroupArn: =~"^(arn:(aws(-[a-z]+)*):redshift-serverless:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:workgroup/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$"

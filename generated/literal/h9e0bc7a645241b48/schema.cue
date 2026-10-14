@@ -14,9 +14,7 @@ import (
 // manages a Network Security Manager policy.
 #Properties: close({
 	// List of templates and rules associated with this policy.
-	AssociatedTemplateAndRuleList?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/AssociatedTemplateAndRule"
-	]
+	AssociatedTemplateAndRuleList?: list.MaxItems(100) & [...] & [...#AssociatedTemplateAndRule]
 
 	// The type of firewall.
 	FirewallType!: "WAF" | "SHIELD_ADVANCED"
@@ -27,7 +25,7 @@ import (
 	=~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:(.+)$"
 
 	// Configuration settings for policy behavior.
-	PolicyConfiguration!: _#defs."/$defs/Properties/definitions/PolicyConfiguration"
+	PolicyConfiguration!: #PolicyConfiguration
 
 	// A description of the policy.
 	PolicyDescription?: strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$"
@@ -45,7 +43,7 @@ import (
 	Status?: "DRAFT" | "ACTIVE" | "DISABLED"
 
 	// The tags associated with the policy.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// An ISO 8601 timestamp indicating when the policy was last modified.
 	UpdatedAt?: time.Time
@@ -55,7 +53,7 @@ import (
 })
 
 // Associates either a template or a rule with a policy.
-_#defs: "/$defs/Properties/definitions/AssociatedTemplateAndRule": close({
+#AssociatedTemplateAndRule: close({
 	// ARN of the associated rule.
 	RuleArn?: string
 
@@ -64,23 +62,23 @@ _#defs: "/$defs/Properties/definitions/AssociatedTemplateAndRule": close({
 })
 
 // Configuration settings for policy behavior.
-_#defs: "/$defs/Properties/definitions/PolicyConfiguration": close({
+#PolicyConfiguration: close({
 	// Controls automatic remediation of non-compliant resources.
 	RemediationEnabled?: bool
 
 	// Controls automatic cleanup of unused resources.
 	ResourcesCleanUp?: bool
-	WafConfig?:        _#defs."/$defs/Properties/definitions/WafConfig"
+	WafConfig?:        #WafConfig
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
 // WAF-specific policy settings. Populated only for WAF firewall type policies.
-_#defs: "/$defs/Properties/definitions/WafConfig": close({
+#WafConfig: close({
 	// Conflict-resolution strategy applied to AWS WAF policies.
 	ConflictResolution!: "MERGE_WHERE_APPLICABLE"
 

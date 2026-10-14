@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -19,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AnomalyDetector schema for cloudformation.
 #Properties: close({
 	Alias!:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Configuration!: _#defs."/$defs/Properties/definitions/AnomalyDetectorConfiguration" | fn.#ObjectExpression
+	Configuration!: #AnomalyDetectorConfiguration | fn.#ObjectExpression
 	EvaluationIntervalInSeconds?: int |
 		{
 			string &
@@ -34,18 +34,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Labels?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Label"] | fn.#ListExpression
-	MissingDataAction?: _#defs."/$defs/Properties/definitions/MissingDataAction" | fn.#ValueExpression
-	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Labels?:            list.UniqueItems() & [...#Label] | fn.#ListExpression
+	MissingDataAction?: #MissingDataAction | fn.#ValueExpression
+	Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	Workspace!: =~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AnomalyDetectorConfiguration": close(
-	{RandomCutForest!: _#defs."/$defs/Properties/definitions/RandomCutForestConfiguration"},
-) |
-	fn.#ObjectExpression
+#AnomalyDetectorConfiguration: close({RandomCutForest!: #RandomCutForestConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IgnoreNearExpected": null |
+#IgnoreNearExpected: null |
 bool |
 number |
 string |
@@ -59,13 +56,13 @@ close({
 }) & matchN(>=1, [{Amount!: _}, {Ratio!: _}]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Label": close({
+#Label: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MissingDataAction": null |
+#MissingDataAction: null |
 bool |
 number |
 string |
@@ -79,9 +76,9 @@ close({
 }) & matchN(>=1, [{MarkAsAnomaly!: _}, {Skip!: _}]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RandomCutForestConfiguration": close({
-	IgnoreNearExpectedFromAbove?: _#defs."/$defs/Properties/definitions/IgnoreNearExpected"
-	IgnoreNearExpectedFromBelow?: _#defs."/$defs/Properties/definitions/IgnoreNearExpected"
+#RandomCutForestConfiguration: close({
+	IgnoreNearExpectedFromAbove?: #IgnoreNearExpected
+	IgnoreNearExpectedFromBelow?: #IgnoreNearExpected
 	Query!:                       strings.MinRunes(1) | fn.#StringExpression
 	SampleSize?: int & <=1024 & >=256 |
 		{
@@ -118,7 +115,7 @@ _#defs: "/$defs/Properties/definitions/RandomCutForestConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

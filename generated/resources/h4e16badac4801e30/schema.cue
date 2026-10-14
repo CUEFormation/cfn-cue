@@ -25,11 +25,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	Name!:                     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Provider?:                 string | fn.#StringExpression
-	SubscriptionTargetConfig!: [..._#defs."/$defs/Properties/definitions/SubscriptionTargetForm"] | fn.#ListExpression
+	SubscriptionTargetConfig!: [...#SubscriptionTargetForm] | fn.#ListExpression
 	Type!:                     string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/SubscriptionTargetForm": close({
+#SubscriptionTargetForm: close({
 	Content!:  string | fn.#StringExpression
 	FormName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |

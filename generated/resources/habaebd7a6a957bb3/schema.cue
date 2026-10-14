@@ -15,23 +15,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::Wisdom::AssistantAssociation Resource Type
 #Properties: close({
 	AssistantId!:     =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
-	Association!:     _#defs."/$defs/Properties/definitions/AssociationData"
-	AssociationType!: _#defs."/$defs/Properties/definitions/AssociationType"
-	Tags?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Association!:     #AssociationData
+	AssociationType!: #AssociationType
+	Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AssociationData": matchN(1, [close(
+#AssociationData: matchN(1, [close(
 	{KnowledgeBaseId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression},
 ), close(
-	{ExternalBedrockKnowledgeBaseConfig!: _#defs."/$defs/Properties/definitions/ExternalBedrockKnowledgeBaseConfig"},
+	{ExternalBedrockKnowledgeBaseConfig!: #ExternalBedrockKnowledgeBaseConfig},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/AssociationType": "KNOWLEDGE_BASE" |
-	"EXTERNAL_BEDROCK_KNOWLEDGE_BASE" |
-	fn.#StringExpression
+#AssociationType: "KNOWLEDGE_BASE" | "EXTERNAL_BEDROCK_KNOWLEDGE_BASE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ExternalBedrockKnowledgeBaseConfig": close({
+#ExternalBedrockKnowledgeBaseConfig: close({
 	AccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:aws:iam::[0-9]{12}:role/(?:service-role/)?[a-zA-Z0-9_+=,.@-]{1,64}$" |
 		fn.#StringExpression
@@ -40,7 +38,7 @@ _#defs: "/$defs/Properties/definitions/ExternalBedrockKnowledgeBaseConfig": clos
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

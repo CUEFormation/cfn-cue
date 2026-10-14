@@ -21,19 +21,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // account from the last 7 to 2557 or 3653 days (about seven or ten years)
 // depending on the selected BillingMode.
 #Properties: close({
-	AdvancedEventSelectors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AdvancedEventSelector"] |
-		fn.#ListExpression
-	BillingMode?: "EXTENDABLE_RETENTION_PRICING" | "FIXED_RETENTION_PRICING" | fn.#StringExpression
-	ContextKeySelectors?: list.MaxItems(2) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/ContextKeySelector"
-	] |
-		fn.#ListExpression
-	FederationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AdvancedEventSelectors?: list.UniqueItems() & [...#AdvancedEventSelector] | fn.#ListExpression
+	BillingMode?:            "EXTENDABLE_RETENTION_PRICING" | "FIXED_RETENTION_PRICING" | fn.#StringExpression
+	ContextKeySelectors?: list.MaxItems(2) & list.UniqueItems() & [...] & [...#ContextKeySelector] | fn.#ListExpression
+	FederationEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FederationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	IngestionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InsightSelectors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InsightSelector"] |
-		fn.#ListExpression
+	IngestionEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InsightSelectors?:    list.UniqueItems() & [...#InsightSelector] | fn.#ListExpression
 	InsightsDestination?: strings.MaxRunes(256) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._/\\-:]+$" | fn.#StringExpression
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) &
@@ -61,20 +56,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?:                         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                         [...#Tag] | fn.#ListExpression
 	TerminationProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AdvancedEventSelector": close({
-	FieldSelectors!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AdvancedFieldSelector"
-	] |
-		fn.#ListExpression
-	Name?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+#AdvancedEventSelector: close({
+	FieldSelectors!: list.MinItems(1) & list.UniqueItems() & [...#AdvancedFieldSelector] | fn.#ListExpression
+	Name?:           strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AdvancedFieldSelector": close({
+#AdvancedFieldSelector: close({
 	EndsWith?: list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
 	] |
@@ -103,7 +95,7 @@ _#defs: "/$defs/Properties/definitions/AdvancedFieldSelector": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContextKeySelector": close({
+#ContextKeySelector: close({
 	Equals!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
 	] |
@@ -112,18 +104,16 @@ _#defs: "/$defs/Properties/definitions/ContextKeySelector": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InsightSelector": close(
-	{InsightType?: "ApiCallRateInsight" | "ApiErrorRateInsight" | fn.#StringExpression},
-) |
+#InsightSelector: close({InsightType?: "ApiCallRateInsight" | "ApiErrorRateInsight" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": string | fn.#StringExpression
+#Timestamp: string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::CloudTrail::EventDataStore"
 	Properties?: #Properties

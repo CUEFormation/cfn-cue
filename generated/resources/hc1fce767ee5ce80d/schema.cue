@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -44,7 +44,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...
 	}, _) & {...}
 ]) & close({
-	CustomDomainConfig?: _#defs."/$defs/Properties/definitions/CustomDomainConfigType"
+	CustomDomainConfig?: #CustomDomainConfigType
 	Domain!:             strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
 	ManagedLoginVersion?: int |
 		{
@@ -60,11 +60,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Routing?:    _#defs."/$defs/Properties/definitions/RoutingType"
+	Routing?:    #RoutingType
 	UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CustomDomainConfigType": close({
+#CustomDomainConfigType: close({
 	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -74,16 +74,13 @@ _#defs: "/$defs/Properties/definitions/CustomDomainConfigType": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FailoverType": close({
+#FailoverType: close({
 	PrimaryRoute53HealthCheckId!: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	SecondaryRegion!:             strings.MaxRunes(32) & strings.MinRunes(5) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingType": close(
-	{Failover?: _#defs."/$defs/Properties/definitions/FailoverType"},
-) |
-	fn.#ObjectExpression
+#RoutingType: close({Failover?: #FailoverType}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Cognito::UserPoolDomain"
 	Properties!: #Properties

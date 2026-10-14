@@ -16,8 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // the conditions for a rule, API Gateway invokes a stage of a target API.
 // Supported only for REST APIs.
 #Properties: close({
-	Actions!:       [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
-	Conditions!:    [..._#defs."/$defs/Properties/definitions/Condition"] | fn.#ListExpression
+	Actions!:       [...#Action] | fn.#ListExpression
+	Conditions!:    [...#Condition] | fn.#ListExpression
 	DomainNameArn!: string | fn.#StringExpression
 	Priority!: int & <=1000000 & >=1 |
 		{
@@ -37,37 +37,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Action": {
-	InvokeApi!: _#defs."/$defs/Properties/definitions/ActionInvokeApi" | fn.#ObjectExpression
+#Action: {
+	InvokeApi!: #ActionInvokeApi | fn.#ObjectExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ActionInvokeApi": {
+#ActionInvokeApi: {
 	ApiId!:         string | fn.#StringExpression
 	Stage!:         string | fn.#StringExpression
 	StripBasePath?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Condition": {
-	MatchBasePaths?: _#defs."/$defs/Properties/definitions/MatchBasePaths" | fn.#ObjectExpression
-	MatchHeaders?:   _#defs."/$defs/Properties/definitions/MatchHeaders" | fn.#ObjectExpression
+#Condition: {
+	MatchBasePaths?: #MatchBasePaths | fn.#ObjectExpression
+	MatchHeaders?:   #MatchHeaders | fn.#ObjectExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchBasePaths": {
+#MatchBasePaths: {
 	AnyOf!: [...string | fn.#StringExpression] | fn.#ListExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchHeaderValue": {
+#MatchHeaderValue: {
 	Header!:    string | fn.#StringExpression
 	ValueGlob!: string | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchHeaders": {
-	AnyOf!: [..._#defs."/$defs/Properties/definitions/MatchHeaderValue"] | fn.#ListExpression
+#MatchHeaders: {
+	AnyOf!: [...#MatchHeaderValue] | fn.#ListExpression
 	...
 } | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

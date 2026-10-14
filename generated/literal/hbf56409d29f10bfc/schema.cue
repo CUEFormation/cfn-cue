@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"struct"
 	"list"
 )
@@ -17,9 +17,9 @@ import (
 	Description?:   strings.MaxRunes(500) & strings.MinRunes(0)
 	Id?:            =~"^[a-f0-9]{12}$"
 	Name!:          =~"^([a-z]){1}([a-z0-9_]){2,254}"
-	Reference?:     _#defs."/$defs/Properties/definitions/ReferenceItem"
-	SseConfig?:     _#defs."/$defs/Properties/definitions/SseConfig"
-	Status?:        _#defs."/$defs/Properties/definitions/StoreStatus"
+	Reference?:     #ReferenceItem
+	SseConfig?:     #SseConfig
+	Status?:        #StoreStatus
 	StatusMessage?: strings.MaxRunes(1000) & strings.MinRunes(0)
 	StoreArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -30,14 +30,14 @@ import (
 		]*):([0-9]{12}):([^:
 		]*)$
 		"""
-	StoreFormat!:    _#defs."/$defs/Properties/definitions/StoreFormat"
-	StoreOptions?:   _#defs."/$defs/Properties/definitions/StoreOptions"
+	StoreFormat!:    #StoreFormat
+	StoreOptions?:   #StoreOptions
 	StoreSizeBytes?: number
-	Tags?:           _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?:           #TagMap
 	UpdateTime?:     time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/AnnotationType": "GENERIC" |
+#AnnotationType: "GENERIC" |
 	"CHR_POS" |
 	"CHR_POS_REF_ALT" |
 	"CHR_START_END_ONE_BASE" |
@@ -45,25 +45,23 @@ _#defs: "/$defs/Properties/definitions/AnnotationType": "GENERIC" |
 	"CHR_START_END_ZERO_BASE" |
 	"CHR_START_END_REF_ALT_ZERO_BASE"
 
-_#defs: "/$defs/Properties/definitions/EncryptionType": "KMS"
+#EncryptionType: "KMS"
 
-_#defs: "/$defs/Properties/definitions/FormatToHeader": close({
+#FormatToHeader: close({
 
 	{[=~".+"]: strings.MaxRunes(1000) & strings.MinRunes(0)}})
 
-_#defs: "/$defs/Properties/definitions/FormatToHeaderKey": "CHR" | "START" | "END" | "REF" | "ALT" | "POS"
+#FormatToHeaderKey: "CHR" | "START" | "END" | "REF" | "ALT" | "POS"
 
-_#defs: "/$defs/Properties/definitions/ReferenceItem": close(
-	{ReferenceArn!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^arn:.+$"},
-)
+#ReferenceItem: close({ReferenceArn!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^arn:.+$"})
 
-_#defs: "/$defs/Properties/definitions/SchemaItem": struct.MaxFields(1) & struct.MinFields(1) & close({
+#SchemaItem: struct.MaxFields(1) & struct.MinFields(1) & close({
 
-	{[=~"^[a-z0-9_]{1,255}$"]: _#defs."/$defs/Properties/definitions/SchemaValueType"}})
+	{[=~"^[a-z0-9_]{1,255}$"]: #SchemaValueType}})
 
-_#defs: "/$defs/Properties/definitions/SchemaValueType": "LONG" | "INT" | "STRING" | "FLOAT" | "DOUBLE" | "BOOLEAN"
+#SchemaValueType: "LONG" | "INT" | "STRING" | "FLOAT" | "DOUBLE" | "BOOLEAN"
 
-_#defs: "/$defs/Properties/definitions/SseConfig": close({
+#SseConfig: close({
 	KeyArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"""
@@ -73,23 +71,21 @@ _#defs: "/$defs/Properties/definitions/SseConfig": close({
 		]*):([0-9]{12}):([^:
 		]*)
 		"""
-	Type!: _#defs."/$defs/Properties/definitions/EncryptionType"
+	Type!: #EncryptionType
 })
 
-_#defs: "/$defs/Properties/definitions/StoreFormat": "GFF" | "TSV" | "VCF"
+#StoreFormat: "GFF" | "TSV" | "VCF"
 
-_#defs: "/$defs/Properties/definitions/StoreOptions": close(
-	{TsvStoreOptions!: _#defs."/$defs/Properties/definitions/TsvStoreOptions"},
-)
+#StoreOptions: close({TsvStoreOptions!: #TsvStoreOptions})
 
-_#defs: "/$defs/Properties/definitions/StoreStatus": "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "FAILED"
+#StoreStatus: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "FAILED"
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})
 
-_#defs: "/$defs/Properties/definitions/TsvStoreOptions": close({
-	AnnotationType?: _#defs."/$defs/Properties/definitions/AnnotationType"
-	FormatToHeader?: _#defs."/$defs/Properties/definitions/FormatToHeader"
-	Schema?:         list.MaxItems(5000) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SchemaItem"]
+#TsvStoreOptions: close({
+	AnnotationType?: #AnnotationType
+	FormatToHeader?: #FormatToHeader
+	Schema?:         list.MaxItems(5000) & list.MinItems(1) & [...#SchemaItem]
 })

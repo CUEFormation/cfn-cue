@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 	"struct"
 )
 
@@ -19,21 +19,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:aws(-[a-z-]+)?:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@\\-_/]+$" |
 		fn.#StringExpression
-	IdpConfig!: _#defs."/$defs/Properties/definitions/IdpConfig"
+	IdpConfig!: #IdpConfig
 	Name!:      strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,50}$" | fn.#StringExpression
-	Sources!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ConsentPortalSource"] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Sources!:   list.MaxItems(1) & list.MinItems(1) & [...#ConsentPortalSource] | fn.#ListExpression
+	Tags?:      list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ConsentPortalSource": close({
+#ConsentPortalSource: close({
 	Identifier!: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$|^arn:aws(-[a-z-]+)?:bedrock-agentcore:[a-z0-9-]{1,20}:[0-9]{12}:gateway/([0-9a-z][-]?){1,48}-[a-z0-9]{10}$" |
 		fn.#StringExpression
 	Type!: "agentcore-gateway" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdpConfig": close({
+#IdpConfig: close({
 	Audience?: string | fn.#StringExpression
 	CredentialProviderArn!: =~"^arn:(aws|aws-cn|aws-us-gov|aws-iso|aws-iso-b|aws-iso-e|aws-iso-f|aws-eusc):bedrock-agentcore:[a-z0-9-]{1,32}:[0-9]{12}:token-vault/[a-zA-Z0-9_-]{1,64}/oauth2credentialprovider/[a-zA-Z0-9_-]{1,128}$" |
 		fn.#StringExpression
@@ -41,13 +40,13 @@ _#defs: "/$defs/Properties/definitions/IdpConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & close({
+#TagsMap: struct.MaxFields(50) & close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |

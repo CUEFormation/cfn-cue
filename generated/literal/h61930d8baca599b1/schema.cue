@@ -18,17 +18,17 @@ import (
 	strings.MinRunes(5) &
 	=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
 	DirectoryId!:    =~"^d-[0-9a-f]{10}$"
-	Tags?:           _#defs."/$defs/Properties/definitions/Tags"
-	VpcInformation!: _#defs."/$defs/Properties/definitions/VpcInformation"
+	Tags?:           #Tags
+	VpcInformation!: #VpcInformation
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~".+"]: string}})
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})
 
-_#defs: "/$defs/Properties/definitions/VpcInformation": close({
+#VpcInformation: close({
 	IpAddressType?: "IPV4" | "DUALSTACK"
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &

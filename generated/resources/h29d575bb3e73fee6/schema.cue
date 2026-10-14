@@ -15,20 +15,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Pinpoint::ApplicationSettings
 #Properties: close({
 	ApplicationId!:            string | fn.#StringExpression
-	CampaignHook?:             _#defs."/$defs/Properties/definitions/CampaignHook"
+	CampaignHook?:             #CampaignHook
 	CloudWatchMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Limits?:                   _#defs."/$defs/Properties/definitions/Limits"
-	QuietTime?:                _#defs."/$defs/Properties/definitions/QuietTime"
+	Limits?:                   #Limits
+	QuietTime?:                #QuietTime
 })
 
-_#defs: "/$defs/Properties/definitions/CampaignHook": close({
+#CampaignHook: close({
 	LambdaFunctionName?: string | fn.#StringExpression
 	Mode?:               string | fn.#StringExpression
 	WebUrl?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Limits": close({
+#Limits: close({
 	Daily?: int |
 		{
 			string &
@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/Limits": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QuietTime": close({
+#QuietTime: close({
 	End!:   string | fn.#StringExpression
 	Start!: string | fn.#StringExpression
 }) |

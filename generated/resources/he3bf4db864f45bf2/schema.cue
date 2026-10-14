@@ -17,31 +17,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AccountLinked?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PartnerAccountId?: strings.MaxRunes(256) | fn.#StringExpression
 	PartnerType?:      "Sidewalk" | fn.#StringExpression
-	Sidewalk?:         _#defs."/$defs/Properties/definitions/SidewalkAccountInfo" | fn.#ObjectExpression
-	SidewalkResponse?: _#defs."/$defs/Properties/definitions/SidewalkAccountInfoWithFingerprint" | fn.#ObjectExpression
-	SidewalkUpdate?:   _#defs."/$defs/Properties/definitions/SidewalkUpdateAccount" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Sidewalk?:         #SidewalkAccountInfo | fn.#ObjectExpression
+	SidewalkResponse?: #SidewalkAccountInfoWithFingerprint | fn.#ObjectExpression
+	SidewalkUpdate?:   #SidewalkUpdateAccount | fn.#ObjectExpression
+	Tags?:             list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/SidewalkAccountInfo": close(
+#SidewalkAccountInfo: close(
 	{AppServerPrivateKey!: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[a-fA-F0-9]{64}" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SidewalkAccountInfoWithFingerprint": close({
+#SidewalkAccountInfoWithFingerprint: close({
 	AmazonId?:    strings.MaxRunes(2048) | fn.#StringExpression
 	Arn?:         string | fn.#StringExpression
 	Fingerprint?: strings.MaxRunes(64) & strings.MinRunes(64) & =~"[a-fA-F0-9]{64}" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SidewalkUpdateAccount": close(
+#SidewalkUpdateAccount: close(
 	{AppServerPrivateKey?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[a-fA-F0-9]{64}" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |

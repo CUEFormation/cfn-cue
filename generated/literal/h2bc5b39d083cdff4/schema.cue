@@ -46,14 +46,14 @@ import (
 	Schema!: {...}
 
 	// List of Tags
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 
 	// Modality Type
 	Type!: "DOCUMENT" | "IMAGE" | "AUDIO" | "VIDEO"
 })
 
 // Definition of the key/value pair for a tag
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Key for the tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 

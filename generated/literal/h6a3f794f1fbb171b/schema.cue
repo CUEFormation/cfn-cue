@@ -11,40 +11,36 @@ import (
 
 // A KendraRanking Rescore execution plan
 #Properties: close({
-	Arn?: _#defs."/$defs/Properties/definitions/Arn"
+	Arn?: #Arn
 
 	// Capacity units
-	CapacityUnits?: _#defs."/$defs/Properties/definitions/CapacityUnitsConfiguration"
+	CapacityUnits?: #CapacityUnitsConfiguration
 
 	// A description for the execution plan
-	Description?: _#defs."/$defs/Properties/definitions/Description"
-	Id?:          _#defs."/$defs/Properties/definitions/Id"
-	Name!:        _#defs."/$defs/Properties/definitions/Name"
+	Description?: #Description
+	Id?:          #Id
+	Name!:        #Name
 
 	// Tags for labeling the execution plan
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Tags?: #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(1000)
+#Arn: strings.MaxRunes(1000)
 
-_#defs: "/$defs/Properties/definitions/CapacityUnitsConfiguration": close(
-	{RescoreCapacityUnits!: _#defs."/$defs/Properties/definitions/RescoreCapacityUnits"},
-)
+#CapacityUnitsConfiguration: close({RescoreCapacityUnits!: #RescoreCapacityUnits})
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$"
+#Description: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$"
 
 // Unique ID of rescore execution plan
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(36) & strings.MinRunes(36)
+#Id: strings.MaxRunes(36) & strings.MinRunes(36)
 
 // Name of kendra ranking rescore execution plan
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(1000) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
+#Name: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
 
-_#defs: "/$defs/Properties/definitions/RescoreCapacityUnits": int & >=0
+#RescoreCapacityUnits: int & >=0
 
 // A label for tagging KendraRanking resources
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string used to identify this tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -53,6 +49,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // List of tags
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(200) & [...] & [...#Tag]

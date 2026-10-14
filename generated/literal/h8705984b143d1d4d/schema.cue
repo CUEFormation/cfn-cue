@@ -10,13 +10,11 @@ import "strings"
 // project. A project is a grouping of the resources needed to create and
 // manage a Lookout for Vision model.
 #Properties: close({
-	Arn?:         _#defs."/$defs/Properties/definitions/Arn"
-	ProjectName!: _#defs."/$defs/Properties/definitions/ProjectName"
+	Arn?:         #Arn
+	ProjectName!: #ProjectName
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(1000)
+#Arn: strings.MaxRunes(1000)
 
 // The name of the Amazon Lookout for Vision project
-_#defs: "/$defs/Properties/definitions/ProjectName": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*"
+#ProjectName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*"

@@ -16,10 +16,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CidrBlock?:     string | fn.#StringExpression
 	Egress?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Icmp?:          _#defs."/$defs/Properties/definitions/Icmp" | fn.#ObjectExpression
+	Icmp?:          #Icmp | fn.#ObjectExpression
 	Ipv6CidrBlock?: string | fn.#StringExpression
 	NetworkAclId!:  string | fn.#StringExpression
-	PortRange?:     _#defs."/$defs/Properties/definitions/PortRange" | fn.#ObjectExpression
+	PortRange?:     #PortRange | fn.#ObjectExpression
 	Protocol!: int |
 		{
 			string &
@@ -54,7 +54,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}
 }) & matchN(>=1, [{Ipv6CidrBlock!: _}, {CidrBlock!: _}])
 
-_#defs: "/$defs/Properties/definitions/Icmp": close({
+#Icmp: close({
 	Code?: int |
 		{
 			string &
@@ -86,7 +86,7 @@ _#defs: "/$defs/Properties/definitions/Icmp": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PortRange": close({
+#PortRange: close({
 	From?: int |
 		{
 			string &

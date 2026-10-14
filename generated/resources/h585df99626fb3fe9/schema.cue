@@ -11,11 +11,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::KinesisAnalyticsV2::ApplicationCloudWatchLoggingOption
 #Properties: close({
 	ApplicationName!:         string | fn.#StringExpression
-	CloudWatchLoggingOption!: _#defs."/$defs/Properties/definitions/CloudWatchLoggingOption"
+	CloudWatchLoggingOption!: #CloudWatchLoggingOption
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLoggingOption": close({LogStreamARN!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#CloudWatchLoggingOption: close({LogStreamARN!: string | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::KinesisAnalyticsV2::ApplicationCloudWatchLoggingOption"
 	Properties!: #Properties

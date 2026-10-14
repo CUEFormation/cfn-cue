@@ -28,22 +28,22 @@ import (
 	DriftStatus?: "NotChecked" | "NotDetected" | "Detected"
 
 	// The list of events you would like to subscribe and get notification for.
-	EventSubscriptions?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/EventSubscription"]
+	EventSubscriptions?: list.MaxItems(10) & [...] & [...#EventSubscription]
 
 	// Name of the app.
 	Name!:            =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$"
-	PermissionModel?: _#defs."/$defs/Properties/definitions/PermissionModel"
+	PermissionModel?: #PermissionModel
 
 	// Amazon Resource Name (ARN) of the Resiliency Policy.
 	ResiliencyPolicyArn?: string
 
 	// An array of ResourceMapping objects.
-	ResourceMappings!: [..._#defs."/$defs/Properties/definitions/ResourceMapping"]
-	Tags?:             _#defs."/$defs/Properties/definitions/TagMap"
+	ResourceMappings!: [...#ResourceMapping]
+	Tags?:             #TagMap
 })
 
 // Indicates an event you would like to subscribe and get notification for.
-_#defs: "/$defs/Properties/definitions/EventSubscription": close({
+#EventSubscription: close({
 	// The type of event you would like to subscribe and get notification for.
 	EventType!: "ScheduledAssessmentFailure" | "DriftDetected"
 
@@ -54,16 +54,16 @@ _#defs: "/$defs/Properties/definitions/EventSubscription": close({
 	SnsTopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/IamRoleArn": =~"arn:(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov):iam::[0-9]{12}:role\\/(([\\x{0021}-\\x{007E}]+\\x{002F}){1,511})?[A-Za-z0-9+=,.@_/-]{1,64}$"
+#IamRoleArn: =~"arn:(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov):iam::[0-9]{12}:role\\/(([\\x{0021}-\\x{007E}]+\\x{002F}){1,511})?[A-Za-z0-9+=,.@_/-]{1,64}$"
 
 // Defines the roles and credentials that AWS Resilience Hub would use while
 // creating the application, importing its resources, and running an
 // assessment.
-_#defs: "/$defs/Properties/definitions/PermissionModel": close({
+#PermissionModel: close({
 	// Defines a list of role Amazon Resource Names (ARNs) to be used in other
 	// accounts. These ARNs are used for querying purposes while importing
 	// resources and assessing your application.
-	CrossAccountRoleArns?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/IamRoleArn"]
+	CrossAccountRoleArns?: list.MaxItems(10) & [...] & [...#IamRoleArn]
 
 	// Existing AWS IAM role name in the primary AWS account that will be assumed by
 	// AWS Resilience Hub Service Principle to obtain a read-only access to your
@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/PermissionModel": close({
 	Type!: "LegacyIAMUser" | "RoleBased"
 })
 
-_#defs: "/$defs/Properties/definitions/PhysicalResourceId": close({
+#PhysicalResourceId: close({
 	AwsAccountId?: =~"^[0-9]{12}$"
 	AwsRegion?:    =~"^[a-z]{2}-((iso[a-z]{0,1}-)|(gov-)){0,1}[a-z]+-[0-9]$"
 	Identifier!:   strings.MaxRunes(255) & strings.MinRunes(1)
@@ -84,17 +84,17 @@ _#defs: "/$defs/Properties/definitions/PhysicalResourceId": close({
 })
 
 // Resource mapping is used to map logical resources from template to physical resource
-_#defs: "/$defs/Properties/definitions/ResourceMapping": close({
+#ResourceMapping: close({
 	EksSourceName?:       strings.MaxRunes(255) & strings.MinRunes(1)
 	LogicalStackName?:    strings.MaxRunes(255) & strings.MinRunes(1)
 	MappingType!:         =~"CfnStack|Resource|Terraform|EKS"
-	PhysicalResourceId!:  _#defs."/$defs/Properties/definitions/PhysicalResourceId"
+	PhysicalResourceId!:  #PhysicalResourceId
 	ResourceName?:        =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$"
 	TerraformSourceName?: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
-	{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TagValue"}})
+	{[=~".{1,128}"]: #TagValue}})
 
-_#defs: "/$defs/Properties/definitions/TagValue": strings.MaxRunes(256)
+#TagValue: strings.MaxRunes(256)

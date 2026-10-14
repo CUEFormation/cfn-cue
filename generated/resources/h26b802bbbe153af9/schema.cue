@@ -31,17 +31,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"DELETE_COMPLETE" |
 		"DELETE_FAILED" |
 		fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	Tags?: #Tags | fn.#ListExpression
 	Type!: "LAMBDA" | "GLUE" | "HIVE" | "FEDERATED" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+#Tags: [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Athena::DataCatalog"
 	Properties!: #Properties

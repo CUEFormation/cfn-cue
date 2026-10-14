@@ -14,27 +14,27 @@ import (
 #Properties: close({
 	ActionConnectorId!:    strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$"
 	Arn?:                  string
-	AuthenticationConfig!: _#defs."/$defs/Properties/definitions/AuthConfig"
+	AuthenticationConfig!: #AuthConfig
 	AwsAccountId!:         strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
 	CreatedTime?:          time.Time
 	Description?:          strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[A-Za-z0-9 _.,!?-]*$"
 	EnabledActions?:       list.MaxItems(100) & [...=~"^[\\w@:_.,!?+-/]+$"]
 	LastUpdatedTime?:      time.Time
 	Name!:                 strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9](?:[\\w- ]*[A-Za-z0-9])?$"
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"]
-	Status?:      _#defs."/$defs/Properties/definitions/ResourceStatus"
-	Tags?:        list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Type!:        _#defs."/$defs/Properties/definitions/ActionConnectorType"
-	VpcConnectionArn?: string
+	Permissions?:          list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission]
+	Status?:               #ResourceStatus
+	Tags?:                 list.MaxItems(200) & list.MinItems(1) & [...#Tag]
+	Type!:                 #ActionConnectorType
+	VpcConnectionArn?:     string
 })
 
-_#defs: "/$defs/Properties/definitions/APIKeyConnectionMetadata": close({
+#APIKeyConnectionMetadata: close({
 	ApiKey!:       string
 	BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*"
 	Email?:        =~"^[\\w.%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
 })
 
-_#defs: "/$defs/Properties/definitions/ActionConnectorType": "GENERIC_HTTP" |
+#ActionConnectorType: "GENERIC_HTTP" |
 	"SERVICENOW_NOW_PLATFORM" |
 	"SALESFORCE_CRM" |
 	"MICROSOFT_OUTLOOK" |
@@ -62,88 +62,75 @@ _#defs: "/$defs/Properties/definitions/ActionConnectorType": "GENERIC_HTTP" |
 	"ASANA" |
 	"BAMBOO_HR"
 
-_#defs: "/$defs/Properties/definitions/AuthConfig": close({
-	AuthenticationMetadata!: _#defs."/$defs/Properties/definitions/AuthenticationMetadata"
-	AuthenticationType!:     _#defs."/$defs/Properties/definitions/ConnectionAuthType"
+#AuthConfig: close({
+	AuthenticationMetadata!: #AuthenticationMetadata
+	AuthenticationType!:     #ConnectionAuthType
 })
 
-_#defs: "/$defs/Properties/definitions/AuthenticationMetadata": matchN(1, [close(
-	{AuthorizationCodeGrantMetadata!: _#defs."/$defs/Properties/definitions/AuthorizationCodeGrantMetadata"},
+#AuthenticationMetadata: matchN(1, [close(
+	{AuthorizationCodeGrantMetadata!: #AuthorizationCodeGrantMetadata},
 ), close(
-	{ClientCredentialsGrantMetadata!: _#defs."/$defs/Properties/definitions/ClientCredentialsGrantMetadata"},
+	{ClientCredentialsGrantMetadata!: #ClientCredentialsGrantMetadata},
 ), close(
-	{BasicAuthConnectionMetadata!: _#defs."/$defs/Properties/definitions/BasicAuthConnectionMetadata"},
+	{BasicAuthConnectionMetadata!: #BasicAuthConnectionMetadata},
 ), close(
-	{ApiKeyConnectionMetadata!: _#defs."/$defs/Properties/definitions/APIKeyConnectionMetadata"},
+	{ApiKeyConnectionMetadata!: #APIKeyConnectionMetadata},
 ), close(
-	{NoneConnectionMetadata!: _#defs."/$defs/Properties/definitions/NoneConnectionMetadata"},
+	{NoneConnectionMetadata!: #NoneConnectionMetadata},
 ), close(
-	{IamConnectionMetadata!: _#defs."/$defs/Properties/definitions/IAMConnectionMetadata"},
+	{IamConnectionMetadata!: #IAMConnectionMetadata},
 )])
 
-_#defs: "/$defs/Properties/definitions/AuthorizationCodeGrantCredentialsDetails": close(
-	{AuthorizationCodeGrantDetails!: _#defs."/$defs/Properties/definitions/AuthorizationCodeGrantDetails"},
-)
+#AuthorizationCodeGrantCredentialsDetails: close({AuthorizationCodeGrantDetails!: #AuthorizationCodeGrantDetails})
 
-_#defs: "/$defs/Properties/definitions/AuthorizationCodeGrantCredentialsSource": "PLAIN_CREDENTIALS"
+#AuthorizationCodeGrantCredentialsSource: "PLAIN_CREDENTIALS"
 
-_#defs: "/$defs/Properties/definitions/AuthorizationCodeGrantDetails": close({
+#AuthorizationCodeGrantDetails: close({
 	AuthorizationEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*"
 	ClientId!:              strings.MaxRunes(1024)
 	ClientSecret!:          strings.MaxRunes(2048)
 	TokenEndpoint!:         strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*"
 })
 
-_#defs: "/$defs/Properties/definitions/AuthorizationCodeGrantMetadata": close({
-	AuthorizationCodeGrantCredentialsDetails?:
-		_#defs."/$defs/Properties/definitions/AuthorizationCodeGrantCredentialsDetails"
-	AuthorizationCodeGrantCredentialsSource?:
-		_#defs."/$defs/Properties/definitions/AuthorizationCodeGrantCredentialsSource"
-	BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*"
-	RedirectUrl!:  strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*"
+#AuthorizationCodeGrantMetadata: close({
+	AuthorizationCodeGrantCredentialsDetails?: #AuthorizationCodeGrantCredentialsDetails
+	AuthorizationCodeGrantCredentialsSource?:  #AuthorizationCodeGrantCredentialsSource
+	BaseEndpoint!:                             strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*"
+	RedirectUrl!:                              strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*"
 })
 
-_#defs: "/$defs/Properties/definitions/BasicAuthConnectionMetadata": close({
+#BasicAuthConnectionMetadata: close({
 	BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*"
 	Password!:     string
 	Username!:     string
 })
 
-_#defs: "/$defs/Properties/definitions/ClientCredentialsDetails": close(
-	{ClientCredentialsGrantDetails!: _#defs."/$defs/Properties/definitions/ClientCredentialsGrantDetails"},
-)
+#ClientCredentialsDetails: close({ClientCredentialsGrantDetails!: #ClientCredentialsGrantDetails})
 
-_#defs: "/$defs/Properties/definitions/ClientCredentialsGrantDetails": close({
+#ClientCredentialsGrantDetails: close({
 	ClientId!:      strings.MaxRunes(1024)
 	ClientSecret!:  strings.MaxRunes(2048)
 	TokenEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*"
 })
 
-_#defs: "/$defs/Properties/definitions/ClientCredentialsGrantMetadata": close({
+#ClientCredentialsGrantMetadata: close({
 	BaseEndpoint!:             strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*"
-	ClientCredentialsDetails?: _#defs."/$defs/Properties/definitions/ClientCredentialsDetails"
-	ClientCredentialsSource?:  _#defs."/$defs/Properties/definitions/ClientCredentialsSource"
+	ClientCredentialsDetails?: #ClientCredentialsDetails
+	ClientCredentialsSource?:  #ClientCredentialsSource
 })
 
-_#defs: "/$defs/Properties/definitions/ClientCredentialsSource": "PLAIN_CREDENTIALS"
+#ClientCredentialsSource: "PLAIN_CREDENTIALS"
 
-_#defs: "/$defs/Properties/definitions/ConnectionAuthType": "BASIC" |
-	"API_KEY" |
-	"OAUTH2_CLIENT_CREDENTIALS" |
-	"NONE" |
-	"IAM" |
-	"OAUTH2_AUTHORIZATION_CODE"
+#ConnectionAuthType: "BASIC" | "API_KEY" | "OAUTH2_CLIENT_CREDENTIALS" | "NONE" | "IAM" | "OAUTH2_AUTHORIZATION_CODE"
 
-_#defs: "/$defs/Properties/definitions/IAMConnectionMetadata": close(
+#IAMConnectionMetadata: close(
 	{RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))},
 )
 
-_#defs: "/$defs/Properties/definitions/NoneConnectionMetadata": close(
-	{BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*"},
-)
+#NoneConnectionMetadata: close({BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*"})
 
 // <p>Permission for the resource.</p>
-_#defs: "/$defs/Properties/definitions/ResourcePermission": close({
+#ResourcePermission: close({
 	// <p>The IAM action to grant or revoke permissions on.</p>
 	Actions!: list.MaxItems(30) & list.MinItems(1) & [...string]
 
@@ -167,7 +154,7 @@ _#defs: "/$defs/Properties/definitions/ResourcePermission": close({
 	Principal!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceStatus": "CREATION_IN_PROGRESS" |
+#ResourceStatus: "CREATION_IN_PROGRESS" |
 	"CREATION_SUCCESSFUL" |
 	"CREATION_FAILED" |
 	"UPDATE_IN_PROGRESS" |
@@ -178,7 +165,7 @@ _#defs: "/$defs/Properties/definitions/ResourceStatus": "CREATION_IN_PROGRESS" |
 
 // <p>The key or keys of the key-value pairs for the resource tag or tags assigned to the
 // resource.</p>
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// <p>Tag key.</p>
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

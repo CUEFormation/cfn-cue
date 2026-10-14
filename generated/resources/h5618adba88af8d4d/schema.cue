@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -20,14 +20,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // to host game servers. A fleet is a set of EC2 or Anywhere instances, each of
 // which can host multiple game sessions.
 #Properties: close({
-	AnywhereConfiguration?: _#defs."/$defs/Properties/definitions/AnywhereConfiguration" | fn.#ValueExpression
+	AnywhereConfiguration?: #AnywhereConfiguration | fn.#ValueExpression
 	ApplyCapacity?: "ON_UPDATE" |
 		"ON_CREATE_AND_UPDATE" |
 		"ON_CREATE_AND_UPDATE_WITH_AUTOSCALING" |
 		fn.#StringExpression
 	BuildId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^build-\\S+|^arn:.*:build/build-\\S+" |
 	fn.#StringExpression
-	CertificateConfiguration?: _#defs."/$defs/Properties/definitions/CertificateConfiguration" | fn.#ObjectExpression
+	CertificateConfiguration?: #CertificateConfiguration | fn.#ObjectExpression
 	ComputeType?:              "EC2" | "ANYWHERE" | fn.#StringExpression
 	Description?:              strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	DesiredEC2Instances?: int & >=0 |
@@ -45,18 +45,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	EC2InboundPermissions?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/IpPermission"] |
-		fn.#ListExpression
-	EC2InstanceType?: =~"^.*..*$" | fn.#StringExpression
-	FleetType?:       "ON_DEMAND" | "SPOT" | fn.#StringExpression
+	EC2InboundPermissions?: list.MaxItems(50) & [...] & [...#IpPermission] | fn.#ListExpression
+	EC2InstanceType?:       =~"^.*..*$" | fn.#StringExpression
+	FleetType?:             "ON_DEMAND" | "SPOT" | fn.#StringExpression
 	InstanceRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-.*)?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
 	fn.#StringExpression
 	InstanceRoleCredentialsProvider?: "SHARED_CREDENTIAL_FILE" | fn.#StringExpression
 	Locations?: list.MaxItems(100) & list.MinItems(1) & [...close({
-		Location!:         _#defs."/$defs/Properties/definitions/Location"
-		LocationCapacity?: _#defs."/$defs/Properties/definitions/LocationCapacity"
+		Location!:         #Location
+		LocationCapacity?: #LocationCapacity
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
@@ -95,15 +94,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	Name!:                           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	NewGameSessionProtectionPolicy?: "FullProtection" | "NoProtection" | fn.#StringExpression
-	PeerVpcAwsAccountId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]{12}$" | fn.#StringExpression
-	PeerVpcId?:           strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^vpc-\\S+" | fn.#StringExpression
-	PlayerGatewayConfiguration?: _#defs."/$defs/Properties/definitions/PlayerGatewayConfiguration" |
-		fn.#ObjectExpression
-	PlayerGatewayMode?: "DISABLED" | "ENABLED" | "REQUIRED" | fn.#StringExpression
-	ResourceCreationLimitPolicy?: _#defs."/$defs/Properties/definitions/ResourceCreationLimitPolicy" |
-		fn.#ObjectExpression
-	RuntimeConfiguration?: _#defs."/$defs/Properties/definitions/RuntimeConfiguration" | fn.#ObjectExpression
-	ScalingPolicies?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/ScalingPolicy"] | fn.#ListExpression
+	PeerVpcAwsAccountId?:         strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]{12}$" | fn.#StringExpression
+	PeerVpcId?:                   strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^vpc-\\S+" | fn.#StringExpression
+	PlayerGatewayConfiguration?:  #PlayerGatewayConfiguration | fn.#ObjectExpression
+	PlayerGatewayMode?:           "DISABLED" | "ENABLED" | "REQUIRED" | fn.#StringExpression
+	ResourceCreationLimitPolicy?: #ResourceCreationLimitPolicy | fn.#ObjectExpression
+	RuntimeConfiguration?:        #RuntimeConfiguration | fn.#ObjectExpression
+	ScalingPolicies?:             list.MaxItems(50) & [...#ScalingPolicy] | fn.#ListExpression
 	ScriptId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^script-\\S+|^arn:.*:script/script-\\S+" |
 	fn.#StringExpression
 	ServerLaunchParameters?: strings.MaxRunes(1024) &
@@ -112,11 +109,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	ServerLaunchPath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:.+\\/\\\\\\- ]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AnywhereConfiguration": null |
+#AnywhereConfiguration: null |
 bool |
 number |
 string |
@@ -124,12 +120,10 @@ string |
 close({Cost!: strings.MaxRunes(11) & strings.MinRunes(1) & =~"^\\d{1,5}(?:\\.\\d{1,5})?$" | fn.#StringExpression}) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/CertificateConfiguration": close(
-	{CertificateType!: "DISABLED" | "GENERATED" | fn.#StringExpression},
-) |
+#CertificateConfiguration: close({CertificateType!: "DISABLED" | "GENERATED" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpPermission": close({
+#IpPermission: close({
 	FromPort!: int & <=60000 & >=1 |
 		{
 			string &
@@ -168,10 +162,9 @@ _#defs: "/$defs/Properties/definitions/IpPermission": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Location": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" |
-fn.#StringExpression
+#Location: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LocationCapacity": close({
+#LocationCapacity: close({
 	DesiredEC2Instances?: int & >=0 |
 		{
 			string &
@@ -187,8 +180,7 @@ _#defs: "/$defs/Properties/definitions/LocationCapacity": close({
 				)
 		} |
 		fn.#NumberExpression
-	ManagedCapacityConfiguration?: _#defs."/$defs/Properties/definitions/ManagedCapacityConfiguration" |
-		fn.#ObjectExpression
+	ManagedCapacityConfiguration?: #ManagedCapacityConfiguration | fn.#ObjectExpression
 	MaxSize!: int & >=0 |
 		{
 			string &
@@ -222,14 +214,14 @@ _#defs: "/$defs/Properties/definitions/LocationCapacity": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LocationConfiguration": close({
-	Location!:            _#defs."/$defs/Properties/definitions/Location"
-	LocationCapacity?:    _#defs."/$defs/Properties/definitions/LocationCapacity"
+#LocationConfiguration: close({
+	Location!:            #Location
+	LocationCapacity?:    #LocationCapacity
 	PlayerGatewayStatus?: "DISABLED" | "ENABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedCapacityConfiguration": close({
+#ManagedCapacityConfiguration: close({
 	ScaleInAfterInactivityMinutes?: int & <=1440 & >=5 |
 		{
 			string &
@@ -250,12 +242,10 @@ _#defs: "/$defs/Properties/definitions/ManagedCapacityConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlayerGatewayConfiguration": close(
-	{GameServerIpProtocolSupported?: "IPv4" | "DUAL_STACK" | fn.#StringExpression},
-) |
+#PlayerGatewayConfiguration: close({GameServerIpProtocolSupported?: "IPv4" | "DUAL_STACK" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceCreationLimitPolicy": close({
+#ResourceCreationLimitPolicy: close({
 	NewGameSessionsPerCreator?: int & >=0 |
 		{
 			string &
@@ -289,7 +279,7 @@ _#defs: "/$defs/Properties/definitions/ResourceCreationLimitPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuntimeConfiguration": close({
+#RuntimeConfiguration: close({
 	GameSessionActivationTimeoutSeconds?: int & <=600 & >=1 |
 		{
 			string &
@@ -322,12 +312,11 @@ _#defs: "/$defs/Properties/definitions/RuntimeConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	ServerProcesses?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ServerProcess"] |
-		fn.#ListExpression
+	ServerProcesses?: list.MaxItems(50) & list.MinItems(1) & [...#ServerProcess] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
+#ScalingPolicy: close({
 	ComparisonOperator?: "GreaterThanOrEqualToThreshold" |
 		"GreaterThanThreshold" |
 		"LessThanThreshold" |
@@ -348,7 +337,7 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 				)
 		} |
 		fn.#NumberExpression
-	Location?: _#defs."/$defs/Properties/definitions/Location"
+	Location?: #Location
 	MetricName?: "ActivatingGameSessions" |
 		"ActiveGameSessions" |
 		"ActiveInstances" |
@@ -387,7 +376,7 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 		"DELETED" |
 		"ERROR" |
 		fn.#StringExpression
-	TargetConfiguration?: _#defs."/$defs/Properties/definitions/TargetConfiguration" | fn.#ObjectExpression
+	TargetConfiguration?: #TargetConfiguration | fn.#ObjectExpression
 	Threshold?: number |
 		{
 			string &
@@ -411,7 +400,7 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerProcess": close({
+#ServerProcess: close({
 	ConcurrentExecutions!: int & >=1 |
 		{
 			string &
@@ -434,13 +423,13 @@ _#defs: "/$defs/Properties/definitions/ServerProcess": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetConfiguration": close({
+#TargetConfiguration: close({
 	TargetValue!: number |
 		{
 			string &

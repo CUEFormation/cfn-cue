@@ -15,34 +15,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::SSMGuiConnect::Preferences Resource Type
 #Properties: close({
 	ConnectionRecordingPreferences?: close({
-		KMSKeyArn!:             _#defs."/$defs/Properties/definitions/KMSKeyArn"
-		RecordingDestinations!: _#defs."/$defs/Properties/definitions/RecordingDestinations"
+		KMSKeyArn!:             #KMSKeyArn
+		RecordingDestinations!: #RecordingDestinations
 	}) |
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/BucketName": string | fn.#StringExpression
+#BucketName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BucketOwner": =~"^[0-9]{12}$" | fn.#StringExpression
+#BucketOwner: =~"^[0-9]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KMSKeyArn": =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+#KMSKeyArn: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RecordingDestinations": close(
-	{S3Buckets!: _#defs."/$defs/Properties/definitions/S3Buckets"},
-) |
-	fn.#ObjectExpression
+#RecordingDestinations: close({S3Buckets!: #S3Buckets}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Bucket": close({
-	BucketName!:  _#defs."/$defs/Properties/definitions/BucketName"
-	BucketOwner!: _#defs."/$defs/Properties/definitions/BucketOwner"
+#S3Bucket: close({
+	BucketName!:  #BucketName
+	BucketOwner!: #BucketOwner
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Buckets": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/S3Bucket"
-] |
-	fn.#ListExpression
+#S3Buckets: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#S3Bucket] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SSMGuiConnect::Preferences"
 	Properties?: #Properties

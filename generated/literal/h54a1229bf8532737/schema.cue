@@ -13,13 +13,13 @@ import "strings"
 
 	// The end time in UTC of the scheduled action. After this time, the scheduled
 	// action does not trigger.
-	EndTime?: _#defs."/$defs/Properties/definitions/timestamp"
+	EndTime?: #timestamp
 
 	// The IAM role to assume to run the target action.
 	IamRole?: strings.MaxRunes(2147483647) & strings.MinRunes(0)
 
 	// List of times when the scheduled action will run.
-	NextInvocations?: [..._#defs."/$defs/Properties/definitions/timestamp"]
+	NextInvocations?: [...#timestamp]
 
 	// The schedule in `at( )` or `cron( )` format.
 	Schedule?: strings.MaxRunes(2147483647) & strings.MinRunes(0)
@@ -32,22 +32,22 @@ import "strings"
 
 	// The start time in UTC of the scheduled action. Before this time, the
 	// scheduled action does not trigger.
-	StartTime?: _#defs."/$defs/Properties/definitions/timestamp"
+	StartTime?: #timestamp
 
 	// The state of the scheduled action.
 	State?: "ACTIVE" | "DISABLED"
 
 	// A JSON format string of the Amazon Redshift API operation with input parameters.
-	TargetAction?: _#defs."/$defs/Properties/definitions/ScheduledActionType"
+	TargetAction?: #ScheduledActionType
 })
 
 // Describes a pause cluster operation. For example, a scheduled action to run
 // the `PauseCluster` API operation.
-_#defs: "/$defs/Properties/definitions/PauseClusterMessage": close({ClusterIdentifier!: string})
+#PauseClusterMessage: close({ClusterIdentifier!: string})
 
 // Describes a resize cluster operation. For example, a scheduled action to run
 // the `ResizeCluster` API operation.
-_#defs: "/$defs/Properties/definitions/ResizeClusterMessage": close({
+#ResizeClusterMessage: close({
 	Classic?:           bool
 	ClusterIdentifier!: string
 	ClusterType?:       string
@@ -57,14 +57,14 @@ _#defs: "/$defs/Properties/definitions/ResizeClusterMessage": close({
 
 // Describes a resume cluster operation. For example, a scheduled action to run
 // the `ResumeCluster` API operation.
-_#defs: "/$defs/Properties/definitions/ResumeClusterMessage": close({ClusterIdentifier!: string})
+#ResumeClusterMessage: close({ClusterIdentifier!: string})
 
-_#defs: "/$defs/Properties/definitions/ScheduledActionType": matchN(1, [close(
-	{ResizeCluster?: _#defs."/$defs/Properties/definitions/ResizeClusterMessage"},
+#ScheduledActionType: matchN(1, [close(
+	{ResizeCluster?: #ResizeClusterMessage},
 ), close(
-	{PauseCluster?: _#defs."/$defs/Properties/definitions/PauseClusterMessage"},
+	{PauseCluster?: #PauseClusterMessage},
 ), close(
-	{ResumeCluster?: _#defs."/$defs/Properties/definitions/ResumeClusterMessage"},
+	{ResumeCluster?: #ResumeClusterMessage},
 )])
 
-_#defs: "/$defs/Properties/definitions/timestamp": string
+#timestamp: string

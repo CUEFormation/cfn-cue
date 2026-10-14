@@ -18,78 +18,67 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AppSync Api
 #Properties: close({
-	EventConfig?:  _#defs."/$defs/Properties/definitions/EventConfig"
-	Name!:         _#defs."/$defs/Properties/definitions/ApiName"
-	OwnerContact?: _#defs."/$defs/Properties/definitions/OwnerContact"
-	Tags?:         _#defs."/$defs/Properties/definitions/Tags"
+	EventConfig?:  #EventConfig
+	Name!:         #ApiName
+	OwnerContact?: #OwnerContact
+	Tags?:         #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/ApiName": strings.MaxRunes(50) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\-\\ ]+" |
-fn.#StringExpression
+#ApiName: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\-\\ ]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AuthMode": close(
-	{AuthType?: _#defs."/$defs/Properties/definitions/AuthenticationType"},
-) |
-	fn.#ObjectExpression
+#AuthMode: close({AuthType?: #AuthenticationType}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthModes": [..._#defs."/$defs/Properties/definitions/AuthMode"] |
-	fn.#ListExpression
+#AuthModes: [...#AuthMode] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AuthProvider": close({
-	AuthType!:               _#defs."/$defs/Properties/definitions/AuthenticationType"
-	CognitoConfig?:          _#defs."/$defs/Properties/definitions/CognitoConfig"
-	LambdaAuthorizerConfig?: _#defs."/$defs/Properties/definitions/LambdaAuthorizerConfig"
-	OpenIDConnectConfig?:    _#defs."/$defs/Properties/definitions/OpenIDConnectConfig"
+#AuthProvider: close({
+	AuthType!:               #AuthenticationType
+	CognitoConfig?:          #CognitoConfig
+	LambdaAuthorizerConfig?: #LambdaAuthorizerConfig
+	OpenIDConnectConfig?:    #OpenIDConnectConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthProviders": [..._#defs."/$defs/Properties/definitions/AuthProvider"] |
-	fn.#ListExpression
+#AuthProviders: [...#AuthProvider] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticationType": "AMAZON_COGNITO_USER_POOLS" |
+#AuthenticationType: "AMAZON_COGNITO_USER_POOLS" |
 	"AWS_IAM" |
 	"API_KEY" |
 	"OPENID_CONNECT" |
 	"AWS_LAMBDA" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CognitoConfig": close({
+#CognitoConfig: close({
 	AppIdClientRegex?: string | fn.#StringExpression
 	AwsRegion!:        string | fn.#StringExpression
 	UserPoolId!:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DnsMap": close({
+#DnsMap: close({
 	Http?:     string | fn.#StringExpression
 	Realtime?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventConfig": close({
-	AuthProviders!:             _#defs."/$defs/Properties/definitions/AuthProviders"
-	ConnectionAuthModes!:       _#defs."/$defs/Properties/definitions/AuthModes"
-	DefaultPublishAuthModes!:   _#defs."/$defs/Properties/definitions/AuthModes"
-	DefaultSubscribeAuthModes!: _#defs."/$defs/Properties/definitions/AuthModes"
-	LogConfig?:                 _#defs."/$defs/Properties/definitions/EventLogConfig"
+#EventConfig: close({
+	AuthProviders!:             #AuthProviders
+	ConnectionAuthModes!:       #AuthModes
+	DefaultPublishAuthModes!:   #AuthModes
+	DefaultSubscribeAuthModes!: #AuthModes
+	LogConfig?:                 #EventLogConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventLogConfig": close({
+#EventLogConfig: close({
 	CloudWatchLogsRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	LogLevel!: _#defs."/$defs/Properties/definitions/EventLogLevel"
+	LogLevel!: #EventLogLevel
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventLogLevel": "NONE" |
-	"ERROR" |
-	"ALL" |
-	"INFO" |
-	"DEBUG" |
-	fn.#StringExpression
+#EventLogLevel: "NONE" | "ERROR" | "ALL" | "INFO" | "DEBUG" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaAuthorizerConfig": close({
+#LambdaAuthorizerConfig: close({
 	AuthorizerResultTtlInSeconds?: int & <=3600 & >=0 |
 		{
 			string &
@@ -111,7 +100,7 @@ _#defs: "/$defs/Properties/definitions/LambdaAuthorizerConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenIDConnectConfig": close({
+#OpenIDConnectConfig: close({
 	AuthTTL?: number |
 		{
 			string &
@@ -155,19 +144,15 @@ _#defs: "/$defs/Properties/definitions/OpenIDConnectConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OwnerContact": strings.MaxRunes(250) &
-strings.MinRunes(1) &
-=~"[A-Za-z0-9_\\-\\ \\.]+" |
-fn.#StringExpression
+#OwnerContact: strings.MaxRunes(250) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\-\\ \\.]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\w+-=\\.:/@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
+#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::AppSync::Api"
 	Properties!: #Properties

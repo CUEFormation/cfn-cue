@@ -17,9 +17,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	ProtectedResourceArns?:       [...string | fn.#StringExpression] | fn.#ListExpression
-	ProtectedResourceConditions?: _#defs."/$defs/Properties/definitions/ProtectedResourceConditions"
+	ProtectedResourceConditions?: #ProtectedResourceConditions
 	ProtectedResourceType!:       string | fn.#StringExpression
-	RestoreMetadataOverrides?:    _#defs."/$defs/Properties/definitions/SensitiveStringMap"
+	RestoreMetadataOverrides?:    #SensitiveStringMap
 	RestoreTestingPlanName!:      string | fn.#StringExpression
 	RestoreTestingSelectionName!: string | fn.#StringExpression
 	ValidationWindowHours?: int |
@@ -38,19 +38,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/KeyValue": close({
+#KeyValue: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProtectedResourceConditions": close({
-	StringEquals?:    [..._#defs."/$defs/Properties/definitions/KeyValue"] | fn.#ListExpression
-	StringNotEquals?: [..._#defs."/$defs/Properties/definitions/KeyValue"] | fn.#ListExpression
+#ProtectedResourceConditions: close({
+	StringEquals?:    [...#KeyValue] | fn.#ListExpression
+	StringNotEquals?: [...#KeyValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SensitiveStringMap": close({
+#SensitiveStringMap: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression

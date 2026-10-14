@@ -9,22 +9,22 @@ import "strings"
 // Resource Type definition for AWS::Glue::Classifier
 #Properties: close({
 	// A classifier for comma-separated values (CSV).
-	CsvClassifier?: _#defs."/$defs/Properties/definitions/CsvClassifier"
+	CsvClassifier?: #CsvClassifier
 
 	// A classifier that uses grok.
-	GrokClassifier?: _#defs."/$defs/Properties/definitions/GrokClassifier"
+	GrokClassifier?: #GrokClassifier
 
 	// A classifier for JSON content.
-	JsonClassifier?: _#defs."/$defs/Properties/definitions/JsonClassifier"
+	JsonClassifier?: #JsonClassifier
 
 	// One of XMLClassifier/Name, GrokClassifier/Name, JsonClassifier/Name or CsvClassifier/Name
 	Name?: string
 
 	// A classifier for XML content.
-	XMLClassifier?: _#defs."/$defs/Properties/definitions/XMLClassifier"
+	XMLClassifier?: #XMLClassifier
 }) & matchN(>=1, [{XMLClassifier!: _}, {CsvClassifier!: _}, {GrokClassifier!: _}, {JsonClassifier!: _}])
 
-_#defs: "/$defs/Properties/definitions/CsvClassifier": close({
+#CsvClassifier: close({
 	// Enables the processing of files that contain only one column.
 	AllowSingleColumn?: bool
 
@@ -58,7 +58,7 @@ _#defs: "/$defs/Properties/definitions/CsvClassifier": close({
 	QuoteSymbol?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[^\\r\\n]$"
 })
 
-_#defs: "/$defs/Properties/definitions/GrokClassifier": close({
+#GrokClassifier: close({
 	// An identifier of the data format that the classifier matches, such as
 	// Twitter, JSON, Omniture logs, and so on.
 	Classification!: string
@@ -73,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/GrokClassifier": close({
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/JsonClassifier": close({
+#JsonClassifier: close({
 	// A JsonPath string defining the JSON data for the classifier to classify. AWS
 	// Glue supports a subset of JsonPath, as described in Writing JsonPath Custom
 	// Classifiers.
@@ -83,7 +83,7 @@ _#defs: "/$defs/Properties/definitions/JsonClassifier": close({
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/XMLClassifier": close({
+#XMLClassifier: close({
 	// An identifier of the data format that the classifier matches.
 	Classification!: string
 

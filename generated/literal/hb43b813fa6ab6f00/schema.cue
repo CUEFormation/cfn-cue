@@ -80,13 +80,13 @@ package schema
 	Ipv6CidrBlocks?:      [...string]
 
 	// The tags for the VPC.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// Describes the configuration and state of VPC encryption controls.
 	// For more information, see [Enforce VPC encryption in
 	// transit](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-encryption-controls.html)
 	// in the *Amazon VPC User Guide*.
-	VpcEncryptionControl?: _#defs."/$defs/Properties/definitions/VpcEncryptionControl"
+	VpcEncryptionControl?: #VpcEncryptionControl
 	VpcId?:                =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 	if CidrBlock != _|_ {
 		Ipv4IpamPoolId?: error(
@@ -97,7 +97,7 @@ package schema
 
 // Specifies a tag. For more information, see [Resource
 // tags](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: string
 
@@ -109,7 +109,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // For more information, see [Enforce VPC encryption in
 // transit](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-encryption-controls.html)
 // in the *Amazon VPC User Guide*.
-_#defs: "/$defs/Properties/definitions/VpcEncryptionControl": close({
+#VpcEncryptionControl: close({
 	EgressOnlyInternetGatewayExclusion?: "enable" | "disable"
 	ElasticFileSystemExclusion?:         "enable" | "disable"
 	InternetGatewayExclusion?:           "enable" | "disable"
@@ -120,7 +120,7 @@ _#defs: "/$defs/Properties/definitions/VpcEncryptionControl": close({
 	NatGatewayExclusion?: "enable" | "disable"
 
 	// Information about resource exclusions for the VPC Encryption Control configuration.
-	ResourceExclusions?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusions"
+	ResourceExclusions?: #VpcEncryptionControlExclusions
 
 	// The current state of the VPC Encryption Control configuration.
 	State?: string
@@ -142,7 +142,7 @@ _#defs: "/$defs/Properties/definitions/VpcEncryptionControl": close({
 // For more information, see [Enforce VPC encryption in
 // transit](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-encryption-controls.html)
 // in the *Amazon VPC User Guide*.
-_#defs: "/$defs/Properties/definitions/VpcEncryptionControlExclusion": close({
+#VpcEncryptionControlExclusion: close({
 	// The current state of the exclusion configuration.
 	State?: string
 
@@ -154,28 +154,28 @@ _#defs: "/$defs/Properties/definitions/VpcEncryptionControlExclusion": close({
 // For more information, see [Enforce VPC encryption in
 // transit](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-encryption-controls.html)
 // in the *Amazon VPC User Guide*.
-_#defs: "/$defs/Properties/definitions/VpcEncryptionControlExclusions": close({
+#VpcEncryptionControlExclusions: close({
 	// The exclusion configuration for egress-only internet gateway traffic.
-	EgressOnlyInternetGateway?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	EgressOnlyInternetGateway?: #VpcEncryptionControlExclusion
 
 	// The exclusion configuration for Elastic File System traffic.
-	ElasticFileSystem?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	ElasticFileSystem?: #VpcEncryptionControlExclusion
 
 	// The exclusion configuration for internet gateway traffic.
-	InternetGateway?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	InternetGateway?: #VpcEncryptionControlExclusion
 
 	// The exclusion configuration for Lambda function traffic.
-	Lambda?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	Lambda?: #VpcEncryptionControlExclusion
 
 	// The exclusion configuration for NAT gateway traffic.
-	NatGateway?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	NatGateway?: #VpcEncryptionControlExclusion
 
 	// The exclusion configuration for virtual private gateway traffic.
-	VirtualPrivateGateway?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	VirtualPrivateGateway?: #VpcEncryptionControlExclusion
 
 	// The exclusion configuration for VPC Lattice traffic.
-	VpcLattice?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	VpcLattice?: #VpcEncryptionControlExclusion
 
 	// The exclusion configuration for VPC peering connection traffic.
-	VpcPeering?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion"
+	VpcPeering?: #VpcEncryptionControlExclusion
 })

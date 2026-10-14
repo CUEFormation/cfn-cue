@@ -14,17 +14,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // An Amazon CloudFront VPC origin.
 #Properties: close({
-	Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcOriginEndpointConfig!: _#defs."/$defs/Properties/definitions/VpcOriginEndpointConfig" | fn.#ObjectExpression
+	Tags?:                    [...#Tag] | fn.#ListExpression
+	VpcOriginEndpointConfig!: #VpcOriginEndpointConfig | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcOriginEndpointConfig": close({
+#VpcOriginEndpointConfig: close({
 	Arn!: string | fn.#StringExpression
 	HTTPPort?: int |
 		{

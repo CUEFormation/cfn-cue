@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -75,7 +75,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
 	fn.#StringExpression
-	LoggingProperties?:    _#defs."/$defs/Properties/definitions/LoggingProperties"
+	LoggingProperties?:    #LoggingProperties
 	MaintenanceTrackName?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 	ManageMasterPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ManualSnapshotRetentionPeriod?: int |
@@ -152,7 +152,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	SnapshotIdentifier?: string | fn.#StringExpression
-	Tags?:               list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:               list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	VpcSecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
 		fn.#StringExpression
@@ -160,13 +160,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	Address?: string | fn.#StringExpression
 	Port?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingProperties": close({
+#LoggingProperties: close({
 	BucketName?:         string | fn.#StringExpression
 	LogDestinationType?: string | fn.#StringExpression
 	LogExports?:         list.MaxItems(3) & [...string | fn.#StringExpression] | fn.#ListExpression
@@ -174,7 +174,7 @@ _#defs: "/$defs/Properties/definitions/LoggingProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |

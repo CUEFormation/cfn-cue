@@ -15,18 +15,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::WAFRegional::SizeConstraintSet
 #Properties: close({
 	Name!:            string | fn.#StringExpression
-	SizeConstraints?: [..._#defs."/$defs/Properties/definitions/SizeConstraint"] | fn.#ListExpression
+	SizeConstraints?: [...#SizeConstraint] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	Data?: string | fn.#StringExpression
 	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SizeConstraint": close({
+#SizeConstraint: close({
 	ComparisonOperator!: string | fn.#StringExpression
-	FieldToMatch!:       _#defs."/$defs/Properties/definitions/FieldToMatch"
+	FieldToMatch!:       #FieldToMatch
 	Size!: int |
 		{
 			string &

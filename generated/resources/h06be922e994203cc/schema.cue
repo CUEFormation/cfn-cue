@@ -32,7 +32,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(50) &
 	=~"^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):storagegateway:[a-z\\-0-9]+:[0-9]+:gateway\\/(.+)\\/volume\\/vol-(\\S+)$" |
 	fn.#StringExpression
-	Tags?:       list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:       list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	TargetName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[-\\.;a-z0-9]+$" | fn.#StringExpression
 	VolumeSizeInBytes!: number |
 		{
@@ -55,7 +55,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

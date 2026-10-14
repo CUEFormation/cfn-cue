@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -18,8 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::Neptune::DBCluster resource creates an Amazon Neptune DB cluster.
 #Properties: close({
-	AssociatedRoles?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DBClusterRole"] |
-		fn.#ListExpression
+	AssociatedRoles?:   list.UniqueItems() & [...#DBClusterRole] | fn.#ListExpression
 	AvailabilityZones?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	BackupRetentionPeriod?: int & >=1 |
 		{
@@ -65,17 +64,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
-	NetworkType?:                "IPV4" | "DUAL" | fn.#StringExpression
-	PreferredBackupWindow?:      string | fn.#StringExpression
-	PreferredMaintenanceWindow?: string | fn.#StringExpression
-	RestoreToTime?:              string | fn.#StringExpression
-	RestoreType?:                string | fn.#StringExpression
-	ServerlessScalingConfiguration?: _#defs."/$defs/Properties/definitions/ServerlessScalingConfiguration" |
-		fn.#ObjectExpression
-	SnapshotIdentifier?:        string | fn.#StringExpression
-	SourceDBClusterIdentifier?: string | fn.#StringExpression
-	StorageEncrypted?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	NetworkType?:                    "IPV4" | "DUAL" | fn.#StringExpression
+	PreferredBackupWindow?:          string | fn.#StringExpression
+	PreferredMaintenanceWindow?:     string | fn.#StringExpression
+	RestoreToTime?:                  string | fn.#StringExpression
+	RestoreType?:                    string | fn.#StringExpression
+	ServerlessScalingConfiguration?: #ServerlessScalingConfiguration | fn.#ObjectExpression
+	SnapshotIdentifier?:             string | fn.#StringExpression
+	SourceDBClusterIdentifier?:      string | fn.#StringExpression
+	StorageEncrypted?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:                    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	UseLatestRestorableTime?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VpcSecurityGroupIds?: list.UniqueItems() & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -84,14 +82,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DBClusterRole": close({
+#DBClusterRole: close({
 	FeatureName?: string | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerlessScalingConfiguration": close({
+#ServerlessScalingConfiguration: close({
 	MaxCapacity!: <=128 & >=2.5 |
 		{
 			string &
@@ -135,7 +133,7 @@ _#defs: "/$defs/Properties/definitions/ServerlessScalingConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

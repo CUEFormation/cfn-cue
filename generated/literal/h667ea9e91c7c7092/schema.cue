@@ -22,11 +22,11 @@ import (
 	// The Amazon Resource Name (ARN) for the Domain Name.
 	DomainNameArn?: string
 	HostedZoneId?:  string
-	Tags?:          _#defs."/$defs/Properties/definitions/Tags"
+	Tags?:          #Tags
 })
 
 // An arbitrary set of tags (key-value pairs) for this Domain Name.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string used to identify this tag. You can specify a value that is 1 to 128
 	// Unicode characters in length and cannot be prefixed with aws:. You can use
 	// any of the following characters: the set of Unicode letters, digits,
@@ -39,4 +39,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // An arbitrary set of tags (key-value pairs) for this Domain Name.
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+#Tags: list.UniqueItems() & [...#Tag]

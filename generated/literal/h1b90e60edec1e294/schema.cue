@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -32,13 +32,13 @@ import (
 	// The URL of the Azure Blob container that was described.
 	AzureBlobContainerUrl?: strings.MaxRunes(325) &
 	=~"^https://[A-Za-z0-9]((.|-+)?[A-Za-z0-9]){0,252}/[a-z0-9](-?[a-z0-9]){2,62}$"
-	AzureBlobSasConfiguration?: _#defs."/$defs/Properties/definitions/AzureBlobSasConfiguration"
+	AzureBlobSasConfiguration?: #AzureBlobSasConfiguration
 
 	// Specifies a blob type for the objects you're transferring into your Azure Blob Storage container.
 	AzureBlobType?:      "BLOCK"
-	CmkSecretConfig?:    _#defs."/$defs/Properties/definitions/CmkSecretConfig"
-	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig"
-	FederatedIdentity?:  _#defs."/$defs/Properties/definitions/AzureFederatedIdentityConfig"
+	CmkSecretConfig?:    #CmkSecretConfig
+	CustomSecretConfig?: #CustomSecretConfig
+	FederatedIdentity?:  #AzureFederatedIdentityConfig
 
 	// The Amazon Resource Name (ARN) of the Azure Blob Location that is created.
 	LocationArn?: strings.MaxRunes(128) &
@@ -46,19 +46,19 @@ import (
 
 	// The URL of the Azure Blob Location that was described.
 	LocationUri?:         strings.MaxRunes(4356) & =~"^(azure-blob)://[a-zA-Z0-9./\\-]+$"
-	ManagedSecretConfig?: _#defs."/$defs/Properties/definitions/ManagedSecretConfig"
+	ManagedSecretConfig?: #ManagedSecretConfig
 
 	// The subdirectory in the Azure Blob Container that is used to read data from
 	// the Azure Blob Source Location.
 	Subdirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}\\p{C}]*$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // Specifies the shared access signature (SAS) that DataSync uses to access your
 // Azure Blob Storage container.
-_#defs: "/$defs/Properties/definitions/AzureBlobSasConfiguration": close({
+#AzureBlobSasConfiguration: close({
 	// Specifies the shared access signature (SAS) token, which indicates the
 	// permissions DataSync needs to access your Azure Blob Storage container.
 	AzureBlobSasToken!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"(^.+$)"
@@ -66,18 +66,18 @@ _#defs: "/$defs/Properties/definitions/AzureBlobSasConfiguration": close({
 
 // Specifies the identity federation configuration that DataSync uses to access
 // your Azure Blob Storage container using an OpenID Connect (OIDC) token.
-_#defs: "/$defs/Properties/definitions/AzureFederatedIdentityConfig": close({
+#AzureFederatedIdentityConfig: close({
 	// Specifies the ARN of the AWS Identity and Access Management (IAM) role that
 	// DataSync assumes to mint the OIDC token used to authenticate with the
 	// identity provider.
 	AwsIamRole?: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*|)$"
-	AzureOidc?: _#defs."/$defs/Properties/definitions/AzureOidcConfig"
+	AzureOidc?: #AzureOidcConfig
 })
 
 // Specifies the Microsoft Entra (Azure AD) identity that DataSync federates
 // with to obtain an access token for your Azure Blob Storage container.
-_#defs: "/$defs/Properties/definitions/AzureOidcConfig": close({
+#AzureOidcConfig: close({
 	// Specifies the client ID of the Microsoft Entra (Azure AD) identity that
 	// DataSync uses to obtain an access token.
 	ClientId!: strings.MaxRunes(36) &
@@ -93,7 +93,7 @@ _#defs: "/$defs/Properties/definitions/AzureOidcConfig": close({
 // Specifies configuration information for a DataSync-managed secret, such as an
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location, and a customer-managed AWS KMS key.
-_#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
+#CmkSecretConfig: close({
 	// Specifies the ARN for the customer-managed AWS KMS key used to encrypt the
 	// secret specified for SecretArn. DataSync provides this key to AWS Secrets
 	// Manager.
@@ -112,7 +112,7 @@ _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location, and an IAM role that DataSync can assume and
 // access the customer-managed secret.
-_#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
+#CustomSecretConfig: close({
 	// Specifies the ARN for the AWS Identity and Access Management role that
 	// DataSync uses to access the secret specified for SecretArn.
 	SecretAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -130,14 +130,14 @@ _#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
 // authentication token or set of credentials that DataSync uses to access a
 // specific transfer location. DataSync uses the default AWS-managed KMS key to
 // encrypt this secret in AWS Secrets Manager.
-_#defs: "/$defs/Properties/definitions/ManagedSecretConfig": close({
+#ManagedSecretConfig: close({
 	// Specifies the ARN for an AWS Secrets Manager secret.
 	SecretArn!: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for an AWS resource tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$"
 

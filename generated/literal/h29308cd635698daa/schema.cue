@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"struct"
 	"list"
 )
@@ -18,7 +18,7 @@ import (
 #Properties: close({
 	// The time at which the integration was created.
 	CreatedAt?:  time.Time
-	Credential?: _#defs."/$defs/Properties/definitions/IntegrationCredential"
+	Credential?: #IntegrationCredential
 
 	// The ARN of the integration. arn:aws:cloudwatch:{region}:{account}:integration/{integrationId}.
 	IntegrationArn?: strings.MaxRunes(2048) & strings.MinRunes(1)
@@ -59,7 +59,7 @@ import (
 
 // Write-only API-key credential material for the integration. Stored encrypted
 // and never returned on read.
-_#defs: "/$defs/Properties/definitions/IntegrationCredential": close({
+#IntegrationCredential: close({
 	// API-key credential material that can be rotated in place on update.
 	ApiKeyCredential!: close({ApiKeyValue!: strings.MaxRunes(4096) & strings.MinRunes(1)})
 })

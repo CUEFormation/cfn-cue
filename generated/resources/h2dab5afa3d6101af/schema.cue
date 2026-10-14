@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,13 +13,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::WAF::ByteMatchSet
 #Properties: close({
-	ByteMatchTuples?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ByteMatchTuple"] |
-		fn.#ListExpression
-	Name!: string | fn.#StringExpression
+	ByteMatchTuples?: list.UniqueItems() & [...#ByteMatchTuple] | fn.#ListExpression
+	Name!:            string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ByteMatchTuple": close({
-	FieldToMatch!:         _#defs."/$defs/Properties/definitions/FieldToMatch"
+#ByteMatchTuple: close({
+	FieldToMatch!:         #FieldToMatch
 	PositionalConstraint!: string | fn.#StringExpression
 	TargetString?:         string | fn.#StringExpression
 	TargetStringBase64?:   string | fn.#StringExpression
@@ -27,7 +26,7 @@ _#defs: "/$defs/Properties/definitions/ByteMatchTuple": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	Data?: string | fn.#StringExpression
 	Type!: string | fn.#StringExpression
 }) |

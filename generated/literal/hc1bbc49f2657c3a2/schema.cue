@@ -88,7 +88,7 @@ import "strings"
 	// A list of tags. For more information, see [Tagging Amazon RDS
 	// Resources](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.html)
 	// in the *Amazon RDS User Guide.*
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// Specifies whether to use the latest service-provided Amazon Machine Image
 	// (AMI) for the CEV. If you specify ``UseAwsProvidedLatestImage``, you can't
@@ -102,7 +102,7 @@ import "strings"
 // in the *Amazon RDS User Guide* or [Tagging Amazon Aurora and Amazon RDS
 // resources](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_Tagging.html)
 // in the *Amazon Aurora User Guide*.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A key is the required name of the tag. The string value can be from 1 to 128
 	// Unicode characters in length and can't be prefixed with ``aws:`` or
 	// ``rds:``. The string can only contain only the set of Unicode letters,

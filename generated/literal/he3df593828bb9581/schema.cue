@@ -14,24 +14,22 @@ import (
 	Arn?:               strings.MaxRunes(2048)
 	Label?:             string
 	LabelTemplate?:     strings.MaxRunes(64) & strings.MinRunes(1)
-	LinkConfiguration?: _#defs."/$defs/Properties/definitions/LinkConfiguration"
-	ResourceTypes!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ResourceType"
-	]
-	SinkIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1)
+	LinkConfiguration?: #LinkConfiguration
+	ResourceTypes!:     list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#ResourceType]
+	SinkIdentifier!:    strings.MaxRunes(2048) & strings.MinRunes(1)
 
 	// Tags to apply to the link
 	Tags?: {...}
 })
 
-_#defs: "/$defs/Properties/definitions/LinkConfiguration": close({
-	LogGroupConfiguration?: _#defs."/$defs/Properties/definitions/LinkFilter"
-	MetricConfiguration?:   _#defs."/$defs/Properties/definitions/LinkFilter"
+#LinkConfiguration: close({
+	LogGroupConfiguration?: #LinkFilter
+	MetricConfiguration?:   #LinkFilter
 })
 
-_#defs: "/$defs/Properties/definitions/LinkFilter": close({Filter!: strings.MaxRunes(2000) & strings.MinRunes(1)})
+#LinkFilter: close({Filter!: strings.MaxRunes(2000) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/ResourceType": "AWS::CloudWatch::Metric" |
+#ResourceType: "AWS::CloudWatch::Metric" |
 	"AWS::Logs::LogGroup" |
 	"AWS::XRay::Trace" |
 	"AWS::ApplicationInsights::Application" |

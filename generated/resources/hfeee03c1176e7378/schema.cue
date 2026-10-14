@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):fsx:[a-z\\-0-9]+:[0-9]{12}:file-system/fs-[0-9a-f]+$" |
 	fn.#StringExpression
-	Protocol!: _#defs."/$defs/Properties/definitions/Protocol"
+	Protocol!: #Protocol
 	SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [
 		...strings.MaxRunes(128) &
 		strings.MinRunes(0) &
@@ -28,22 +28,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/MountOptions": close(
-	{Version?: "AUTOMATIC" | "NFS3" | "NFS4_0" | "NFS4_1" | "NFS4_2" | fn.#StringExpression},
-) |
+#MountOptions: close({Version?: "AUTOMATIC" | "NFS3" | "NFS4_0" | "NFS4_1" | "NFS4_2" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NFS": close({MountOptions!: _#defs."/$defs/Properties/definitions/MountOptions"}) |
-	fn.#ObjectExpression
+#NFS: close({MountOptions!: #MountOptions}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Protocol": close({NFS?: _#defs."/$defs/Properties/definitions/NFS"}) |
-	fn.#ObjectExpression
+#Protocol: close({NFS?: #NFS}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
 }) |

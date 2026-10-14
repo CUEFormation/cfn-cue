@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"struct"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"struct"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -17,17 +17,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DeploymentPatternName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][a-zA-Z0-9-]*$" |
 	fn.#StringExpression
 	Name!:           strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[A-Za-z0-9_\\s\\.-]+$" | fn.#StringExpression
-	Specifications?: _#defs."/$defs/Properties/definitions/DeploymentSpecifications" | fn.#ObjectExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
+	Specifications?: #DeploymentSpecifications | fn.#ObjectExpression
+	Tags?:           [...#Tags] | fn.#ListExpression
 	WorkloadName!:   strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z][a-zA-Z0-9-_]*$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DeploymentSpecifications": struct.MaxFields(100) & struct.MinFields(1) & close({
+#DeploymentSpecifications: struct.MaxFields(100) & struct.MinFields(1) & close({
 
 	{[=~"^[a-zA-Z0-9-:]{3,256}$"]: strings.MaxRunes(1500) & strings.MinRunes(1) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentStatus": "COMPLETED" |
+#DeploymentStatus: "COMPLETED" |
 	"CREATING" |
 	"DELETE_IN_PROGRESS" |
 	"DELETE_INITIATING" |
@@ -38,7 +38,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentStatus": "COMPLETED" |
 	"VALIDATING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -16,9 +16,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ExclusiveEndTime?:     string | fn.#StringExpression
 	InclusiveStartTime!:   string | fn.#StringExpression
-	KinesisConfiguration!: _#defs."/$defs/Properties/definitions/KinesisConfiguration"
+	KinesisConfiguration!: #KinesisConfiguration
 	LedgerName!:           string | fn.#StringExpression
-	RoleArn!: _#defs."/$defs/Properties/definitions/Arn" &
+	RoleArn!: #Arn &
 	(null |
 	bool |
 	number |
@@ -27,19 +27,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	{...}) |
 	fn.#StringExpression
 	StreamName!: string | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:       list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" |
-	fn.#StringExpression
+#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisConfiguration": close({
+#KinesisConfiguration: close({
 	AggregationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	StreamArn?:          _#defs."/$defs/Properties/definitions/Arn" & fn.#Object & {...} | fn.#StringExpression
+	StreamArn?:          #Arn & fn.#Object & {...} | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |

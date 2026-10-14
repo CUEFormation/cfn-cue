@@ -19,7 +19,7 @@ import (
 	IntegrationAssociationId!: strings.MaxRunes(200) & strings.MinRunes(1)
 
 	// The tags used to organize, track, or control access for this resource.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The Amazon Resource Name (ARN) of the use case.
 	UseCaseArn?: string
@@ -31,7 +31,7 @@ import (
 	UseCaseType!: "RULES_EVALUATION" | "CONNECT_CAMPAIGNS"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

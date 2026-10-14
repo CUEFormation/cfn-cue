@@ -14,23 +14,23 @@ import "list"
 	// <p>The list of audiences defined in channel.</p>
 	Audiences?:        [...string]
 	ChannelName!:      string
-	FillerSlate?:      _#defs."/$defs/Properties/definitions/SlateSource"
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfigurationForChannel"
+	FillerSlate?:      #SlateSource
+	LogConfiguration?: #LogConfigurationForChannel
 
 	// <p>The channel's output properties.</p>
-	Outputs!:      [..._#defs."/$defs/Properties/definitions/RequestOutputItem"]
-	PlaybackMode!: _#defs."/$defs/Properties/definitions/PlaybackMode"
+	Outputs!:      [...#RequestOutputItem]
+	PlaybackMode!: #PlaybackMode
 
 	// The tags to assign to the channel.
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Tier?:                   _#defs."/$defs/Properties/definitions/Tier"
-	TimeShiftConfiguration?: _#defs."/$defs/Properties/definitions/TimeShiftConfiguration"
+	Tags?:                   list.UniqueItems() & [...#Tag]
+	Tier?:                   #Tier
+	TimeShiftConfiguration?: #TimeShiftConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/AdMarkupType": "DATERANGE" | "SCTE35_ENHANCED"
+#AdMarkupType: "DATERANGE" | "SCTE35_ENHANCED"
 
 // <p>Dash manifest configuration parameters.</p>
-_#defs: "/$defs/Properties/definitions/DashPlaylistSettings": close({
+#DashPlaylistSettings: close({
 	// <p>The total duration (in seconds) of each manifest. Minimum value:
 	// <code>30</code> seconds. Maximum value: <code>3600</code> seconds.</p>
 	ManifestWindowSeconds?: number
@@ -52,13 +52,13 @@ _#defs: "/$defs/Properties/definitions/DashPlaylistSettings": close({
 })
 
 // <p>HLS playlist configuration parameters.</p>
-_#defs: "/$defs/Properties/definitions/HlsPlaylistSettings": close({
+#HlsPlaylistSettings: close({
 	// <p>Determines the type of SCTE 35 tags to use in ad markup. Specify
 	// <code>DATERANGE</code> to use <code>DATERANGE</code> tags (for live or VOD
 	// content). Specify <code>SCTE35_ENHANCED</code> to use
 	// <code>EXT-X-CUE-OUT</code> and <code>EXT-X-CUE-IN</code> tags (for VOD
 	// content only).</p>
-	AdMarkupType?: [..._#defs."/$defs/Properties/definitions/AdMarkupType"]
+	AdMarkupType?: [...#AdMarkupType]
 
 	// <p>The total duration (in seconds) of each manifest. Minimum value:
 	// <code>30</code> seconds. Maximum value: <code>3600</code> seconds.</p>
@@ -66,19 +66,19 @@ _#defs: "/$defs/Properties/definitions/HlsPlaylistSettings": close({
 })
 
 // <p>The log configuration for the channel.</p>
-_#defs: "/$defs/Properties/definitions/LogConfigurationForChannel": close({
+#LogConfigurationForChannel: close({
 	// <p>The log types.</p>
-	LogTypes?: [..._#defs."/$defs/Properties/definitions/LogType"]
+	LogTypes?: [...#LogType]
 })
 
-_#defs: "/$defs/Properties/definitions/LogType": "AS_RUN"
+#LogType: "AS_RUN"
 
-_#defs: "/$defs/Properties/definitions/PlaybackMode": "LOOP" | "LINEAR"
+#PlaybackMode: "LOOP" | "LINEAR"
 
 // <p>The output configuration for this channel.</p>
-_#defs: "/$defs/Properties/definitions/RequestOutputItem": close({
-	DashPlaylistSettings?: _#defs."/$defs/Properties/definitions/DashPlaylistSettings"
-	HlsPlaylistSettings?:  _#defs."/$defs/Properties/definitions/HlsPlaylistSettings"
+#RequestOutputItem: close({
+	DashPlaylistSettings?: #DashPlaylistSettings
+	HlsPlaylistSettings?:  #HlsPlaylistSettings
 
 	// <p>The name of the manifest for the channel. The name appears in the
 	// <code>PlaybackUrl</code>.</p>
@@ -90,7 +90,7 @@ _#defs: "/$defs/Properties/definitions/RequestOutputItem": close({
 })
 
 // <p>Slate VOD source configuration.</p>
-_#defs: "/$defs/Properties/definitions/SlateSource": close({
+#SlateSource: close({
 	// <p>The name of the source location where the slate VOD source is stored.</p>
 	SourceLocationName?: string
 
@@ -99,15 +99,15 @@ _#defs: "/$defs/Properties/definitions/SlateSource": close({
 	VodSourceName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tier": "BASIC" | "STANDARD"
+#Tier: "BASIC" | "STANDARD"
 
 // <p>The configuration for time-shifted viewing.</p>
-_#defs: "/$defs/Properties/definitions/TimeShiftConfiguration": close({
+#TimeShiftConfiguration: close({
 	// <p>The maximum time delay for time-shifted viewing. The minimum allowed
 	// maximum time delay is 0 seconds, and the maximum allowed maximum time delay
 	// is 21600 seconds (6 hours).</p>

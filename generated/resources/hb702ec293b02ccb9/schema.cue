@@ -17,32 +17,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	GatewayRouteName?:   string | fn.#StringExpression
 	MeshName!:           string | fn.#StringExpression
 	MeshOwner?:          string | fn.#StringExpression
-	Spec!:               _#defs."/$defs/Properties/definitions/GatewayRouteSpec"
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Spec!:               #GatewayRouteSpec
+	Tags?:               [...#Tag] | fn.#ListExpression
 	VirtualGatewayName!: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/GatewayRouteHostnameMatch": close({
+#GatewayRouteHostnameMatch: close({
 	Exact?:  string | fn.#StringExpression
 	Suffix?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayRouteHostnameRewrite": close(
-	{DefaultTargetHostname?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#GatewayRouteHostnameRewrite: close({DefaultTargetHostname?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayRouteMetadataMatch": close({
+#GatewayRouteMetadataMatch: close({
 	Exact?:  string | fn.#StringExpression
 	Prefix?: string | fn.#StringExpression
-	Range?:  _#defs."/$defs/Properties/definitions/GatewayRouteRangeMatch"
+	Range?:  #GatewayRouteRangeMatch
 	Regex?:  string | fn.#StringExpression
 	Suffix?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayRouteRangeMatch": close({
+#GatewayRouteRangeMatch: close({
 	End!: int |
 		{
 			string &
@@ -74,10 +71,10 @@ _#defs: "/$defs/Properties/definitions/GatewayRouteRangeMatch": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayRouteSpec": close({
-	GrpcRoute?:  _#defs."/$defs/Properties/definitions/GrpcGatewayRoute"
-	Http2Route?: _#defs."/$defs/Properties/definitions/HttpGatewayRoute"
-	HttpRoute?:  _#defs."/$defs/Properties/definitions/HttpGatewayRoute"
+#GatewayRouteSpec: close({
+	GrpcRoute?:  #GrpcGatewayRoute
+	Http2Route?: #HttpGatewayRoute
+	HttpRoute?:  #HttpGatewayRoute
 	Priority?: int |
 		{
 			string &
@@ -95,7 +92,7 @@ _#defs: "/$defs/Properties/definitions/GatewayRouteSpec": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayRouteTarget": close({
+#GatewayRouteTarget: close({
 	Port?: int |
 		{
 			string &
@@ -110,30 +107,27 @@ _#defs: "/$defs/Properties/definitions/GatewayRouteTarget": close({
 				)
 		} |
 		fn.#NumberExpression
-	VirtualService!: _#defs."/$defs/Properties/definitions/GatewayRouteVirtualService"
+	VirtualService!: #GatewayRouteVirtualService
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayRouteVirtualService": close(
-	{VirtualServiceName!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#GatewayRouteVirtualService: close({VirtualServiceName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcGatewayRoute": close({
-	Action!: _#defs."/$defs/Properties/definitions/GrpcGatewayRouteAction"
-	Match!:  _#defs."/$defs/Properties/definitions/GrpcGatewayRouteMatch"
+#GrpcGatewayRoute: close({
+	Action!: #GrpcGatewayRouteAction
+	Match!:  #GrpcGatewayRouteMatch
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcGatewayRouteAction": close({
-	Rewrite?: _#defs."/$defs/Properties/definitions/GrpcGatewayRouteRewrite"
-	Target!:  _#defs."/$defs/Properties/definitions/GatewayRouteTarget"
+#GrpcGatewayRouteAction: close({
+	Rewrite?: #GrpcGatewayRouteRewrite
+	Target!:  #GatewayRouteTarget
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcGatewayRouteMatch": close({
-	Hostname?: _#defs."/$defs/Properties/definitions/GatewayRouteHostnameMatch"
-	Metadata?: [..._#defs."/$defs/Properties/definitions/GrpcGatewayRouteMetadata"] | fn.#ListExpression
+#GrpcGatewayRouteMatch: close({
+	Hostname?: #GatewayRouteHostnameMatch
+	Metadata?: [...#GrpcGatewayRouteMetadata] | fn.#ListExpression
 	Port?: int |
 		{
 			string &
@@ -152,51 +146,48 @@ _#defs: "/$defs/Properties/definitions/GrpcGatewayRouteMatch": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcGatewayRouteMetadata": close({
+#GrpcGatewayRouteMetadata: close({
 	Invert?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Match?:  _#defs."/$defs/Properties/definitions/GatewayRouteMetadataMatch"
+	Match?:  #GatewayRouteMetadataMatch
 	Name!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcGatewayRouteRewrite": close(
-	{Hostname?: _#defs."/$defs/Properties/definitions/GatewayRouteHostnameRewrite"},
-) |
-	fn.#ObjectExpression
+#GrpcGatewayRouteRewrite: close({Hostname?: #GatewayRouteHostnameRewrite}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRoute": close({
-	Action!: _#defs."/$defs/Properties/definitions/HttpGatewayRouteAction"
-	Match!:  _#defs."/$defs/Properties/definitions/HttpGatewayRouteMatch"
+#HttpGatewayRoute: close({
+	Action!: #HttpGatewayRouteAction
+	Match!:  #HttpGatewayRouteMatch
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRouteAction": close({
-	Rewrite?: _#defs."/$defs/Properties/definitions/HttpGatewayRouteRewrite"
-	Target!:  _#defs."/$defs/Properties/definitions/GatewayRouteTarget"
+#HttpGatewayRouteAction: close({
+	Rewrite?: #HttpGatewayRouteRewrite
+	Target!:  #GatewayRouteTarget
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRouteHeader": close({
+#HttpGatewayRouteHeader: close({
 	Invert?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Match?:  _#defs."/$defs/Properties/definitions/HttpGatewayRouteHeaderMatch"
+	Match?:  #HttpGatewayRouteHeaderMatch
 	Name!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRouteHeaderMatch": close({
+#HttpGatewayRouteHeaderMatch: close({
 	Exact?:  string | fn.#StringExpression
 	Prefix?: string | fn.#StringExpression
-	Range?:  _#defs."/$defs/Properties/definitions/GatewayRouteRangeMatch"
+	Range?:  #GatewayRouteRangeMatch
 	Regex?:  string | fn.#StringExpression
 	Suffix?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRouteMatch": close({
-	Headers?:  [..._#defs."/$defs/Properties/definitions/HttpGatewayRouteHeader"] | fn.#ListExpression
-	Hostname?: _#defs."/$defs/Properties/definitions/GatewayRouteHostnameMatch"
+#HttpGatewayRouteMatch: close({
+	Headers?:  [...#HttpGatewayRouteHeader] | fn.#ListExpression
+	Hostname?: #GatewayRouteHostnameMatch
 	Method?:   string | fn.#StringExpression
-	Path?:     _#defs."/$defs/Properties/definitions/HttpPathMatch"
+	Path?:     #HttpPathMatch
 	Port?: int |
 		{
 			string &
@@ -212,42 +203,40 @@ _#defs: "/$defs/Properties/definitions/HttpGatewayRouteMatch": close({
 		} |
 		fn.#NumberExpression
 	Prefix?:          string | fn.#StringExpression
-	QueryParameters?: [..._#defs."/$defs/Properties/definitions/QueryParameter"] | fn.#ListExpression
+	QueryParameters?: [...#QueryParameter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRoutePathRewrite": close({Exact?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#HttpGatewayRoutePathRewrite: close({Exact?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRoutePrefixRewrite": close({
+#HttpGatewayRoutePrefixRewrite: close({
 	DefaultPrefix?: string | fn.#StringExpression
 	Value?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRouteRewrite": close({
-	Hostname?: _#defs."/$defs/Properties/definitions/GatewayRouteHostnameRewrite"
-	Path?:     _#defs."/$defs/Properties/definitions/HttpGatewayRoutePathRewrite"
-	Prefix?:   _#defs."/$defs/Properties/definitions/HttpGatewayRoutePrefixRewrite"
+#HttpGatewayRouteRewrite: close({
+	Hostname?: #GatewayRouteHostnameRewrite
+	Path?:     #HttpGatewayRoutePathRewrite
+	Prefix?:   #HttpGatewayRoutePrefixRewrite
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpPathMatch": close({
+#HttpPathMatch: close({
 	Exact?: string | fn.#StringExpression
 	Regex?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpQueryParameterMatch": close({Exact?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#HttpQueryParameterMatch: close({Exact?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryParameter": close({
-	Match?: _#defs."/$defs/Properties/definitions/HttpQueryParameterMatch"
+#QueryParameter: close({
+	Match?: #HttpQueryParameterMatch
 	Name!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

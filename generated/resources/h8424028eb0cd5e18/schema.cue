@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ResourceShareArn!: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/PermissionTemplateParameter": close({
+#PermissionTemplateParameter: close({
 	Name!:   string | fn.#StringExpression
 	Values!: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |

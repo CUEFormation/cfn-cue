@@ -17,11 +17,11 @@ import (
 	// Specifies configuration information for the input data for the inference
 	// scheduler, including delimiter, format, and dataset location.
 	DataInputConfiguration!: close({
-		InferenceInputNameConfiguration?: _#defs."/$defs/Properties/definitions/InputNameConfiguration"
+		InferenceInputNameConfiguration?: #InputNameConfiguration
 
 		// Indicates the difference between your time zone and Greenwich Mean Time (GMT).
 		InputTimeZoneOffset?:  =~"^(\\+|\\-)[0-9]{2}\\:[0-9]{2}$"
-		S3InputConfiguration!: _#defs."/$defs/Properties/definitions/S3InputConfiguration"
+		S3InputConfiguration!: #S3InputConfiguration
 	})
 
 	// Specifies configuration information for the output results for the inference
@@ -29,7 +29,7 @@ import (
 	DataOutputConfiguration!: close({
 		// The ID number for the AWS KMS key used to encrypt the inference output.
 		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
-		S3OutputConfiguration!: _#defs."/$defs/Properties/definitions/S3OutputConfiguration"
+		S3OutputConfiguration!: #S3OutputConfiguration
 	})
 
 	// How often data is uploaded to the source S3 bucket for the input data.
@@ -58,16 +58,14 @@ import (
 	ServerSideKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(1)
 
 	// Any tags associated with the inference scheduler.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Bucket": strings.MaxRunes(63) &
-strings.MinRunes(3) &
-=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
+#Bucket: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 
 // Specifies configuration information for the input data for the inference,
 // including timestamp format and delimiter.
-_#defs: "/$defs/Properties/definitions/InputNameConfiguration": close({
+#InputNameConfiguration: close({
 	// Indicates the delimiter character used between items in the data.
 	ComponentTimestampDelimiter?: strings.MaxRunes(1) & strings.MinRunes(0) & =~"^(\\-|\\_|\\s)?$"
 
@@ -75,24 +73,24 @@ _#defs: "/$defs/Properties/definitions/InputNameConfiguration": close({
 	TimestampFormat?: =~"^EPOCH|yyyy-MM-dd-HH-mm-ss|yyyyMMddHHmmss$"
 })
 
-_#defs: "/$defs/Properties/definitions/Prefix": strings.MaxRunes(1024) & strings.MinRunes(0)
+#Prefix: strings.MaxRunes(1024) & strings.MinRunes(0)
 
 // Specifies configuration information for the input data for the inference,
 // including input data S3 location.
-_#defs: "/$defs/Properties/definitions/S3InputConfiguration": close({
-	Bucket!: _#defs."/$defs/Properties/definitions/Bucket"
-	Prefix?: _#defs."/$defs/Properties/definitions/Prefix"
+#S3InputConfiguration: close({
+	Bucket!: #Bucket
+	Prefix?: #Prefix
 })
 
 // Specifies configuration information for the output results from the
 // inference, including output S3 location.
-_#defs: "/$defs/Properties/definitions/S3OutputConfiguration": close({
-	Bucket!: _#defs."/$defs/Properties/definitions/Bucket"
-	Prefix?: _#defs."/$defs/Properties/definitions/Prefix"
+#S3OutputConfiguration: close({
+	Bucket!: #Bucket
+	Prefix?: #Prefix
 })
 
 // A tag is a key-value pair that can be added to a resource as metadata.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for the specified tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

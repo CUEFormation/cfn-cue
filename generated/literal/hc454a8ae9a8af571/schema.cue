@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -24,8 +24,8 @@ import (
 		=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
 	// Code artifact for the active MicroVM image.
-	CodeArtifact!:      _#defs."/$defs/Properties/definitions/CodeArtifact"
-	CpuConfigurations!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CpuConfiguration"]
+	CodeArtifact!:      #CodeArtifact
+	CpuConfigurations!: list.UniqueItems() & [...#CpuConfiguration]
 
 	// Timestamp when the MicroVM image was created.
 	CreatedAt?: string
@@ -35,10 +35,8 @@ import (
 	EgressNetworkConnectors!: list.MaxItems(10) & list.UniqueItems() & [...string]
 
 	// Environment variables to set in the container during the snapshot build.
-	EnvironmentVariables!: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/EnvironmentVariable"
-	]
-	Hooks!: _#defs."/$defs/Properties/definitions/Hooks"
+	EnvironmentVariables!: list.MaxItems(50) & list.UniqueItems() & [...#EnvironmentVariable]
+	Hooks!:                #Hooks
 
 	// ARN of the MicroVM image.
 	ImageArn?: string
@@ -50,70 +48,68 @@ import (
 	LatestFailedImageVersion?: string
 
 	// Configuration for MicroVM image logging.
-	Logging!: _#defs."/$defs/Properties/definitions/Logging"
+	Logging!: #Logging
 
 	// Unique name for the MicroVM image within the account.
 	Name!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$"
-	Resources!: list.MaxItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Resources"]
+	Resources!: list.MaxItems(1) & list.UniqueItems() & [...#Resources]
 
 	// Current state of the MicroVM image.
-	State?: _#defs."/$defs/Properties/definitions/MicrovmImageState"
+	State?: #MicrovmImageState
 
 	// Key-value pairs to associate with the MicroVM image for organization and management.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// Timestamp when the MicroVM image was updated.
 	UpdatedAt?: string
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogging": close({
+#CloudWatchLogging: close({
 	LogGroup?:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-/.#]+$"
 	LogStream?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/CodeArtifact": close(
-	{Uri!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$"},
-)
+#CodeArtifact: close({Uri!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$"})
 
-_#defs: "/$defs/Properties/definitions/CpuConfiguration": close({Architecture!: "ARM_64"})
+#CpuConfiguration: close({Architecture!: "ARM_64"})
 
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\s]+$"
 	Value!: strings.MaxRunes(4096) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/HookState": "DISABLED" | "ENABLED"
+#HookState: "DISABLED" | "ENABLED"
 
-_#defs: "/$defs/Properties/definitions/Hooks": close({
-	MicrovmHooks?:      _#defs."/$defs/Properties/definitions/MicrovmHooks"
-	MicrovmImageHooks?: _#defs."/$defs/Properties/definitions/MicrovmImageHooks"
+#Hooks: close({
+	MicrovmHooks?:      #MicrovmHooks
+	MicrovmImageHooks?: #MicrovmImageHooks
 	Port?:              int & <=65535 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/Logging": close({
-	CloudWatch?: _#defs."/$defs/Properties/definitions/CloudWatchLogging"
+#Logging: close({
+	CloudWatch?: #CloudWatchLogging
 	Disabled?:   bool
 })
 
-_#defs: "/$defs/Properties/definitions/MicrovmHooks": close({
-	Resume?:                    _#defs."/$defs/Properties/definitions/HookState"
+#MicrovmHooks: close({
+	Resume?:                    #HookState
 	ResumeTimeoutInSeconds?:    int & <=60 & >=1
-	Run?:                       _#defs."/$defs/Properties/definitions/HookState"
+	Run?:                       #HookState
 	RunTimeoutInSeconds?:       int & <=60 & >=1
-	Suspend?:                   _#defs."/$defs/Properties/definitions/HookState"
+	Suspend?:                   #HookState
 	SuspendTimeoutInSeconds?:   int & <=60 & >=1
-	Terminate?:                 _#defs."/$defs/Properties/definitions/HookState"
+	Terminate?:                 #HookState
 	TerminateTimeoutInSeconds?: int & <=60 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/MicrovmImageHooks": close({
-	Ready?:                    _#defs."/$defs/Properties/definitions/HookState"
+#MicrovmImageHooks: close({
+	Ready?:                    #HookState
 	ReadyTimeoutInSeconds?:    int & <=3600 & >=1
-	Validate?:                 _#defs."/$defs/Properties/definitions/HookState"
+	Validate?:                 #HookState
 	ValidateTimeoutInSeconds?: int & <=3600 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/MicrovmImageState": "CREATING" |
+#MicrovmImageState: "CREATING" |
 	"CREATED" |
 	"CREATE_FAILED" |
 	"UPDATING" |
@@ -123,9 +119,9 @@ _#defs: "/$defs/Properties/definitions/MicrovmImageState": "CREATING" |
 	"DELETE_FAILED" |
 	"DELETED"
 
-_#defs: "/$defs/Properties/definitions/Resources": close({MinimumMemoryInMiB!: int})
+#Resources: close({MinimumMemoryInMiB!: int})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

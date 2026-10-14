@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,12 +14,12 @@ import (
 // devices.
 #Properties: close({
 	// The criteria that determine when and how a job abort takes place.
-	AbortConfig?: close({CriteriaList!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AbortCriteria"]})
+	AbortConfig?: close({CriteriaList!: list.MinItems(1) & [...#AbortCriteria]})
 	Arn?:         string
 
 	// A description of the Job Template.
 	Description!:                strings.MaxRunes(2028) & strings.MinRunes(0) & =~"[^\\p{C}]+"
-	DestinationPackageVersions?: [..._#defs."/$defs/Properties/definitions/DestinationPackageVersion"]
+	DestinationPackageVersions?: [...#DestinationPackageVersion]
 
 	// The job document. Required if you don't specify a value for documentSource.
 	Document?: strings.MaxRunes(32768) & strings.MinRunes(0)
@@ -29,124 +29,116 @@ import (
 	DocumentSource?: strings.MaxRunes(1350) & strings.MinRunes(1)
 
 	// Optional for copying a JobTemplate from a pre-existing Job configuration.
-	JobArn?: string
-	JobExecutionsRetryConfig?: close({
-		RetryCriteriaList?: list.MaxItems(2) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/RetryCriteria"
-		]
-	})
+	JobArn?:                   string
+	JobExecutionsRetryConfig?: close({RetryCriteriaList?: list.MaxItems(2) & list.MinItems(1) & [...#RetryCriteria]})
 
 	// Allows you to create a staged rollout of a job.
 	JobExecutionsRolloutConfig?: close({
 		// The rate of increase for a job rollout. This parameter allows you to define
 		// an exponential rate for a job rollout.
-		ExponentialRolloutRate?: _#defs."/$defs/Properties/definitions/ExponentialRolloutRate"
+		ExponentialRolloutRate?: #ExponentialRolloutRate
 
 		// The maximum number of things that will be notified of a pending job, per
 		// minute. This parameter allows you to create a staged rollout.
-		MaximumPerMinute?: _#defs."/$defs/Properties/definitions/MaximumPerMinute"
+		MaximumPerMinute?: #MaximumPerMinute
 	})
 	JobTemplateId!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+"
-	MaintenanceWindows?: [..._#defs."/$defs/Properties/definitions/MaintenanceWindow"]
+	MaintenanceWindows?: [...#MaintenanceWindow]
 
 	// Configuration for pre-signed S3 URLs.
 	PresignedUrlConfig?: close({
-		ExpiresInSec?: _#defs."/$defs/Properties/definitions/ExpiresInSec"
-		RoleArn!:      _#defs."/$defs/Properties/definitions/RoleArn"
+		ExpiresInSec?: #ExpiresInSec
+		RoleArn!:      #RoleArn
 	})
 
 	// Metadata that can be used to manage the JobTemplate.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// Specifies the amount of time each device has to finish its execution of the job.
-	TimeoutConfig?: close(
-		{InProgressTimeoutInMinutes!: _#defs."/$defs/Properties/definitions/InProgressTimeoutInMinutes"},
-	)
+	TimeoutConfig?: close({InProgressTimeoutInMinutes!: #InProgressTimeoutInMinutes})
 })
 
 // The criteria that determine when and how a job abort takes place.
-_#defs: "/$defs/Properties/definitions/AbortCriteria": close({
+#AbortCriteria: close({
 	// The type of job action to take to initiate the job abort.
-	Action!: _#defs."/$defs/Properties/definitions/Action"
+	Action!: #Action
 
 	// The type of job execution failures that can initiate a job abort.
-	FailureType!: _#defs."/$defs/Properties/definitions/FailureType"
+	FailureType!: #FailureType
 
 	// The minimum number of things which must receive job execution notifications
 	// before the job can be aborted.
-	MinNumberOfExecutedThings!: _#defs."/$defs/Properties/definitions/MinNumberOfExecutedThings"
+	MinNumberOfExecutedThings!: #MinNumberOfExecutedThings
 
 	// The minimum percentage of job execution failures that must occur to initiate the job abort.
-	ThresholdPercentage!: _#defs."/$defs/Properties/definitions/ThresholdPercentage"
+	ThresholdPercentage!: #ThresholdPercentage
 })
 
-_#defs: "/$defs/Properties/definitions/Action": "CANCEL"
+#Action: "CANCEL"
 
-_#defs: "/$defs/Properties/definitions/BaseRatePerMinute": int & >=1
+#BaseRatePerMinute: int & >=1
 
 // Specifies target package version ARNs for a software update job.
-_#defs: "/$defs/Properties/definitions/DestinationPackageVersion": strings.MaxRunes(1600) &
-strings.MinRunes(1) &
-=~"^arn:[!-~]+$"
+#DestinationPackageVersion: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$"
 
 // How number (in seconds) pre-signed URLs are valid.
-_#defs: "/$defs/Properties/definitions/ExpiresInSec": int & <=3600 & >=60
+#ExpiresInSec: int & <=3600 & >=60
 
 // Allows you to create an exponential rate of rollout for a job.
-_#defs: "/$defs/Properties/definitions/ExponentialRolloutRate": close({
+#ExponentialRolloutRate: close({
 	// The minimum number of things that will be notified of a pending job, per
 	// minute at the start of job rollout. This parameter allows you to define the
 	// initial rate of rollout.
-	BaseRatePerMinute!: _#defs."/$defs/Properties/definitions/BaseRatePerMinute"
+	BaseRatePerMinute!: #BaseRatePerMinute
 
 	// The exponential factor to increase the rate of rollout for a job.
-	IncrementFactor!: _#defs."/$defs/Properties/definitions/IncrementFactor"
+	IncrementFactor!: #IncrementFactor
 
 	// The criteria to initiate the increase in rate of rollout for a job.
-	RateIncreaseCriteria!: _#defs."/$defs/Properties/definitions/RateIncreaseCriteria"
+	RateIncreaseCriteria!: #RateIncreaseCriteria
 })
 
-_#defs: "/$defs/Properties/definitions/FailureType": "FAILED" | "REJECTED" | "TIMED_OUT" | "ALL"
+#FailureType: "FAILED" | "REJECTED" | "TIMED_OUT" | "ALL"
 
 // Specifies the amount of time, in minutes, this device has to finish execution of this job.
-_#defs: "/$defs/Properties/definitions/InProgressTimeoutInMinutes": int & <=10080 & >=1
+#InProgressTimeoutInMinutes: int & <=10080 & >=1
 
-_#defs: "/$defs/Properties/definitions/IncrementFactor": <=5 & >=1
+#IncrementFactor: <=5 & >=1
 
-_#defs: "/$defs/Properties/definitions/JobRetryFailureType": "FAILED" | "TIMED_OUT" | "ALL"
+#JobRetryFailureType: "FAILED" | "TIMED_OUT" | "ALL"
 
 // Specifies a start time and duration for a scheduled Job.
-_#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
+#MaintenanceWindow: close({
 	DurationInMinutes?: int & <=1430 & >=1
 	StartTime?:         strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/MaximumPerMinute": int & >=1
+#MaximumPerMinute: int & >=1
 
-_#defs: "/$defs/Properties/definitions/MinNumberOfExecutedThings": int & >=1
+#MinNumberOfExecutedThings: int & >=1
 
-_#defs: "/$defs/Properties/definitions/NumberOfNotifiedThings": int & >=1
+#NumberOfNotifiedThings: int & >=1
 
-_#defs: "/$defs/Properties/definitions/NumberOfSucceededThings": int & >=1
+#NumberOfSucceededThings: int & >=1
 
-_#defs: "/$defs/Properties/definitions/RateIncreaseCriteria": close({
-	NumberOfNotifiedThings?:  _#defs."/$defs/Properties/definitions/NumberOfNotifiedThings"
-	NumberOfSucceededThings?: _#defs."/$defs/Properties/definitions/NumberOfSucceededThings"
+#RateIncreaseCriteria: close({
+	NumberOfNotifiedThings?:  #NumberOfNotifiedThings
+	NumberOfSucceededThings?: #NumberOfSucceededThings
 })
 
 // Specifies how many times a failure type should be retried.
-_#defs: "/$defs/Properties/definitions/RetryCriteria": close({
-	FailureType?:     _#defs."/$defs/Properties/definitions/JobRetryFailureType"
+#RetryCriteria: close({
+	FailureType?:     #JobRetryFailureType
 	NumberOfRetries?: int & <=10 & >=0
 })
 
 // The ARN of an IAM role that grants grants permission to download files from
 // the S3 bucket where the job data/updates are stored. The role must also
 // grant permission for IoT to download the files.
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -154,4 +146,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ThresholdPercentage": <=100
+#ThresholdPercentage: <=100

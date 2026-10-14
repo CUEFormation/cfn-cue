@@ -12,7 +12,7 @@ import "strings"
 	AwsAccountId?: =~"^[a-zA-Z0-9]{1,26}$"
 
 	// ARNs of FinSpace Data Bundles to install
-	DataBundles?: [..._#defs."/$defs/Properties/definitions/DataBundleArn"]
+	DataBundles?: [...#DataBundleArn]
 
 	// ID for FinSpace created account used to store Environment artifacts
 	DedicatedServiceAccountId?: =~"^[a-zA-Z0-9]{1,26}$"
@@ -31,7 +31,7 @@ import "strings"
 
 	// Federation mode used with the Environment
 	FederationMode?:       "LOCAL" | "FEDERATED"
-	FederationParameters?: _#defs."/$defs/Properties/definitions/FederationParameters"
+	FederationParameters?: #FederationParameters
 
 	// KMS key used to encrypt customer data within FinSpace Environment infrastructure
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
@@ -54,16 +54,16 @@ import "strings"
 		"FAILED_DELETION" |
 		"RETRY_DELETION" |
 		"SUSPENDED"
-	SuperuserParameters?: _#defs."/$defs/Properties/definitions/SuperuserParameters"
+	SuperuserParameters?: #SuperuserParameters
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/DataBundleArn": =~"^arn:aws:finspace:[A-Za-z0-9_/.-]{0,63}:\\d*:data-bundle/[0-9A-Za-z_-]{1,128}$"
+#DataBundleArn: =~"^arn:aws:finspace:[A-Za-z0-9_/.-]{0,63}:\\d*:data-bundle/[0-9A-Za-z_-]{1,128}$"
 
 // Additional parameters to identify Federation mode
-_#defs: "/$defs/Properties/definitions/FederationParameters": close({
+#FederationParameters: close({
 	// SAML metadata URL to link with the Environment
 	ApplicationCallBackURL?: =~"^https?://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]{1,1000}"
 
@@ -98,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/FederationParameters": close({
 })
 
 // Parameters of the first Superuser for the FinSpace Environment
-_#defs: "/$defs/Properties/definitions/SuperuserParameters": close({
+#SuperuserParameters: close({
 	// Email address
 	EmailAddress?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+[.]+[A-Za-z]+"
 
@@ -110,7 +110,7 @@ _#defs: "/$defs/Properties/definitions/SuperuserParameters": close({
 })
 
 // A list of all tags for a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

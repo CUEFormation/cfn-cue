@@ -12,10 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	MetricName!: string | fn.#StringExpression
 	Name!:       string | fn.#StringExpression
-	Predicates?: [..._#defs."/$defs/Properties/definitions/Predicate"] | fn.#ListExpression
+	Predicates?: [...#Predicate] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Predicate": close({
+#Predicate: close({
 	DataId!:  string | fn.#StringExpression
 	Negated!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Type!:    string | fn.#StringExpression

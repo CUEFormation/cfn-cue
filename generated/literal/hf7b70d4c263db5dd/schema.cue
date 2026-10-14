@@ -12,21 +12,21 @@ import "strings"
 	ConfigurationSetName!: string
 
 	// The event destination object.
-	EventDestination!: _#defs."/$defs/Properties/definitions/EventDestination"
+	EventDestination!: #EventDestination
 	Id?:               string
 })
 
 // An object that contains the names, default values, and sources of the
 // dimensions associated with an Amazon CloudWatch event destination.
-_#defs: "/$defs/Properties/definitions/CloudWatchDestination": close({
+#CloudWatchDestination: close({
 	// A list of dimensions upon which to categorize your emails when you publish
 	// email sending events to Amazon CloudWatch.
-	DimensionConfigurations?: [..._#defs."/$defs/Properties/definitions/DimensionConfiguration"]
+	DimensionConfigurations?: [...#DimensionConfiguration]
 })
 
 // A list of dimensions upon which to categorize your emails when you publish
 // email sending events to Amazon CloudWatch.
-_#defs: "/$defs/Properties/definitions/DimensionConfiguration": close({
+#DimensionConfiguration: close({
 	// The default value of the dimension that is published to Amazon CloudWatch if
 	// you do not provide the value of the dimension when you send an email.
 	DefaultDimensionValue!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,256}$"
@@ -43,16 +43,16 @@ _#defs: "/$defs/Properties/definitions/DimensionConfiguration": close({
 })
 
 // An object that contains Event bus ARN associated with the event bridge destination.
-_#defs: "/$defs/Properties/definitions/EventBridgeDestination": close({
+#EventBridgeDestination: close({
 	EventBusArn!: strings.MaxRunes(1024) &
 	strings.MinRunes(36) &
 	=~"^arn:aws[a-z0-9-]*:events:[a-z0-9-]+:\\d{12}:event-bus/[^:]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/EventDestination": close({
+#EventDestination: close({
 	// An object that contains the names, default values, and sources of the
 	// dimensions associated with an Amazon CloudWatch event destination.
-	CloudWatchDestination?: _#defs."/$defs/Properties/definitions/CloudWatchDestination"
+	CloudWatchDestination?: #CloudWatchDestination
 
 	// Sets whether Amazon SES publishes events to this destination when you send an
 	// email with the associated configuration set. Set to true to enable
@@ -61,11 +61,11 @@ _#defs: "/$defs/Properties/definitions/EventDestination": close({
 	Enabled?: bool
 
 	// An object that contains Event bus ARN associated with the event bridge destination.
-	EventBridgeDestination?: _#defs."/$defs/Properties/definitions/EventBridgeDestination"
+	EventBridgeDestination?: #EventBridgeDestination
 
 	// An object that contains the delivery stream ARN and the IAM role ARN
 	// associated with an Amazon Kinesis Firehose event destination.
-	KinesisFirehoseDestination?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestination"
+	KinesisFirehoseDestination?: #KinesisFirehoseDestination
 
 	// The type of email sending events, send, reject, bounce, complaint, delivery,
 	// open, click, renderingFailure, deliveryDelay, and subscription.
@@ -75,12 +75,12 @@ _#defs: "/$defs/Properties/definitions/EventDestination": close({
 	Name?: =~"^[a-zA-Z0-9_-]{0,64}$"
 
 	// An object that contains SNS topic ARN associated event destination.
-	SnsDestination?: _#defs."/$defs/Properties/definitions/SnsDestination"
+	SnsDestination?: #SnsDestination
 })
 
 // An object that contains the delivery stream ARN and the IAM role ARN
 // associated with an Amazon Kinesis Firehose event destination.
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
+#KinesisFirehoseDestination: close({
 	// The ARN of the Amazon Kinesis Firehose stream that email sending events should be published to.
 	DeliveryStreamARN!: string
 
@@ -90,7 +90,7 @@ _#defs: "/$defs/Properties/definitions/KinesisFirehoseDestination": close({
 })
 
 // An object that contains SNS topic ARN associated event destination.
-_#defs: "/$defs/Properties/definitions/SnsDestination": close({
+#SnsDestination: close({
 	TopicARN!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
 	strings.MaxRunes(1024) &
 	strings.MinRunes(36) &

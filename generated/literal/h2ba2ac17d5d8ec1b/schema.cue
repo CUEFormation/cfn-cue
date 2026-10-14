@@ -13,37 +13,37 @@ import (
 // Definition of AWS::QBusiness::Retriever Resource Type
 #Properties: close({
 	ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
-	Configuration!: _#defs."/$defs/Properties/definitions/RetrieverConfiguration"
+	Configuration!: #RetrieverConfiguration
 	CreatedAt?:     time.Time
 	DisplayName!:   strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
 	RetrieverArn?:  strings.MaxRunes(1284) & strings.MinRunes(0)
 	RetrieverId?:   strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
 	RoleArn?:       =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
-	Status?:        _#defs."/$defs/Properties/definitions/RetrieverStatus"
-	Tags?:          list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Type!:          _#defs."/$defs/Properties/definitions/RetrieverType"
+	Status?:        #RetrieverStatus
+	Tags?:          list.MaxItems(200) & [...] & [...#Tag]
+	Type!:          #RetrieverType
 	UpdatedAt?:     time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/KendraIndexConfiguration": close(
+#KendraIndexConfiguration: close(
 	{IndexId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"},
 )
 
-_#defs: "/$defs/Properties/definitions/NativeIndexConfiguration": close(
+#NativeIndexConfiguration: close(
 	{IndexId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"},
 )
 
-_#defs: "/$defs/Properties/definitions/RetrieverConfiguration": matchN(1, [close(
-	{NativeIndexConfiguration!: _#defs."/$defs/Properties/definitions/NativeIndexConfiguration"},
+#RetrieverConfiguration: matchN(1, [close(
+	{NativeIndexConfiguration!: #NativeIndexConfiguration},
 ), close(
-	{KendraIndexConfiguration!: _#defs."/$defs/Properties/definitions/KendraIndexConfiguration"},
+	{KendraIndexConfiguration!: #KendraIndexConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/RetrieverStatus": "CREATING" | "ACTIVE" | "FAILED"
+#RetrieverStatus: "CREATING" | "ACTIVE" | "FAILED"
 
-_#defs: "/$defs/Properties/definitions/RetrieverType": "NATIVE_INDEX" | "KENDRA_INDEX"
+#RetrieverType: "NATIVE_INDEX" | "KENDRA_INDEX"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

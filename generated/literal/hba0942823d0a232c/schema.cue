@@ -13,7 +13,7 @@ import (
 #Properties: close({
 	Actions!: close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Actions"}})
+		{[=~"^.+$"]: #Actions}})
 	Arn?: string
 
 	// Description of the extension.
@@ -25,15 +25,15 @@ import (
 	Name!: =~"^[^\\/#:\\n]{1,64}$"
 	Parameters?: close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Parameter"}})
+		{[=~"^.+$"]: #Parameter}})
 
 	// An array of key-value tags to apply to this resource.
-	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:          list.UniqueItems() & [...#Tag]
 	VersionNumber?: int
 })
 
 // An action for an extension to take at a specific action point.
-_#defs: "/$defs/Properties/definitions/Action": close({
+#Action: close({
 	// The description of the extension Action.
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0)
 
@@ -48,10 +48,10 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 })
 
 // A list of actions for an extension to take at a specific action point.
-_#defs: "/$defs/Properties/definitions/Actions": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action"]
+#Actions: list.UniqueItems() & [...#Action]
 
 // A parameter for the extension to send to a specific action.
-_#defs: "/$defs/Properties/definitions/Parameter": close({
+#Parameter: close({
 	// The description of the extension Parameter.
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0)
 	Dynamic?:     bool
@@ -59,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/Parameter": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

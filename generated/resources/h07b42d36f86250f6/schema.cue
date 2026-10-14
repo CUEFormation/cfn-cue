@@ -16,12 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F})" |
 	fn.#StringExpression
-	Tags?:  list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Users!: [...string | fn.#StringExpression] | fn.#ListExpression
+	Tags?:                 list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	Users!:                [...string | fn.#StringExpression] | fn.#ListExpression
 	VirtualMfaDeviceName?: strings.MaxRunes(226) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
 }) |

@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,21 +16,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ActionOnFailure!:  string | fn.#StringExpression
 	EncryptionKeyArn?: string | fn.#StringExpression
-	HadoopJarStep!:    _#defs."/$defs/Properties/definitions/HadoopJarStepConfig" | fn.#ObjectExpression
+	HadoopJarStep!:    #HadoopJarStepConfig | fn.#ObjectExpression
 	JobFlowId!:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	LogUri?:           string | fn.#StringExpression
 	Name!:             string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/HadoopJarStepConfig": close({
+#HadoopJarStepConfig: close({
 	Args?:           [...string | fn.#StringExpression] | fn.#ListExpression
 	Jar!:            string | fn.#StringExpression
 	MainClass?:      string | fn.#StringExpression
-	StepProperties?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/KeyValue"] | fn.#ListExpression
+	StepProperties?: list.UniqueItems() & [...#KeyValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyValue": close({
+#KeyValue: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |

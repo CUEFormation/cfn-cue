@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -19,16 +19,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // and Network Load Balancers by association with protected Amazon EC2 Elastic
 // IP addresses.
 #Properties: close({
-	ApplicationLayerAutomaticResponseConfiguration?:
-		_#defs."/$defs/Properties/definitions/ApplicationLayerAutomaticResponseConfiguration"
+	ApplicationLayerAutomaticResponseConfiguration?: #ApplicationLayerAutomaticResponseConfiguration
 	HealthCheckArns?: list.MaxItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[ a-zA-Z0-9_\\.\\-]*" | fn.#StringExpression
 	ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws" | fn.#StringExpression
-	Tags?:        list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationLayerAutomaticResponseConfiguration": close({
+#ApplicationLayerAutomaticResponseConfiguration: close({
 	Action!: fn.#Object & {...} & matchN(1, [
 		close({Count?: close({}) | fn.#ObjectExpression}), close({Block?: close({}) | fn.#ObjectExpression}),
 	]) |
@@ -37,7 +36,7 @@ _#defs: "/$defs/Properties/definitions/ApplicationLayerAutomaticResponseConfigur
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

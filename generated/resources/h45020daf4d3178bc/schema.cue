@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AccessType?:            "CustomerOwnedIp" | "Private" | fn.#StringExpression
 	CustomerOwnedIpv4Pool?: =~"^ipv4pool-coip-([0-9a-f]{17})$" | fn.#StringExpression
-	FailedReason?:          _#defs."/$defs/Properties/definitions/FailedReason" | fn.#ObjectExpression
+	FailedReason?:          #FailedReason | fn.#ObjectExpression
 	OutpostId!:             =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" | fn.#StringExpression
 	SecurityGroupId!: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(100) &
@@ -26,18 +26,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FailedReason": close({
+#FailedReason: close({
 	ErrorCode?: string | fn.#StringExpression
 	Message?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkInterface": close(
-	{NetworkInterfaceId!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#NetworkInterface: close({NetworkInterfaceId!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/iso8601UTC": =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
+#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
 	fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::S3Outposts::Endpoint"

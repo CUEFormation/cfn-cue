@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -15,84 +15,78 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::BCMDataExports::Export Resource Type
 #Properties: close({
 	Export!: close({
-		DataQuery!:   _#defs."/$defs/Properties/definitions/DataQuery"
+		DataQuery!:   #DataQuery
 		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
-		DestinationConfigurations!: _#defs."/$defs/Properties/definitions/DestinationConfigurations"
+		DestinationConfigurations!: #DestinationConfigurations
 		Name!:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z\\-_]+$" | fn.#StringExpression
-		RefreshCadence!: _#defs."/$defs/Properties/definitions/RefreshCadence"
+		RefreshCadence!: #RefreshCadence
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceTag"] | fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CompressionOption": "GZIP" | "PARQUET" | "ZIP" | fn.#StringExpression
+#CompressionOption: "GZIP" | "PARQUET" | "ZIP" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataQuery": close({
+#DataQuery: close({
 	QueryStatement!:      strings.MaxRunes(36000) & strings.MinRunes(1) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	TableConfigurations?: _#defs."/$defs/Properties/definitions/TableConfigurations"
+	TableConfigurations?: #TableConfigurations
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationConfigurations": close(
-	{S3Destination!: _#defs."/$defs/Properties/definitions/S3Destination"},
-) |
-	fn.#ObjectExpression
+#DestinationConfigurations: close({S3Destination!: #S3Destination}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Export": close({
-	DataQuery!:                 _#defs."/$defs/Properties/definitions/DataQuery"
+#Export: close({
+	DataQuery!:                 #DataQuery
 	Description?:               strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	DestinationConfigurations!: _#defs."/$defs/Properties/definitions/DestinationConfigurations"
+	DestinationConfigurations!: #DestinationConfigurations
 	ExportArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[-a-z0-9]*:(bcm-data-exports):[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" |
 	fn.#StringExpression
 	Name!:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z\\-_]+$" | fn.#StringExpression
-	RefreshCadence!: _#defs."/$defs/Properties/definitions/RefreshCadence"
+	RefreshCadence!: #RefreshCadence
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FormatOption": "TEXT_OR_CSV" | "PARQUET" | fn.#StringExpression
+#FormatOption: "TEXT_OR_CSV" | "PARQUET" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FrequencyOption": "SYNCHRONOUS" | fn.#StringExpression
+#FrequencyOption: "SYNCHRONOUS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OverwriteOption": "CREATE_NEW_REPORT" | "OVERWRITE_REPORT" | fn.#StringExpression
+#OverwriteOption: "CREATE_NEW_REPORT" | "OVERWRITE_REPORT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RefreshCadence": close(
-	{Frequency!: _#defs."/$defs/Properties/definitions/FrequencyOption"},
-) |
-	fn.#ObjectExpression
+#RefreshCadence: close({Frequency!: #FrequencyOption}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Destination": close({
+#S3Destination: close({
 	S3Bucket!:               strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
 	S3BucketOwner?:          strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	S3OutputConfigurations!: _#defs."/$defs/Properties/definitions/S3OutputConfigurations"
+	S3OutputConfigurations!: #S3OutputConfigurations
 	S3Prefix!:               strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
 	S3Region!:               strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3OutputConfigurations": close({
-	Compression!: _#defs."/$defs/Properties/definitions/CompressionOption"
-	Format!:      _#defs."/$defs/Properties/definitions/FormatOption"
-	OutputType!:  _#defs."/$defs/Properties/definitions/S3OutputType"
-	Overwrite!:   _#defs."/$defs/Properties/definitions/OverwriteOption"
+#S3OutputConfigurations: close({
+	Compression!: #CompressionOption
+	Format!:      #FormatOption
+	OutputType!:  #S3OutputType
+	Overwrite!:   #OverwriteOption
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3OutputType": "CUSTOM" | "ATHENA" | "REDSHIFT" | fn.#StringExpression
+#S3OutputType: "CUSTOM" | "ATHENA" | "REDSHIFT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TableConfigurations": close({
+#TableConfigurations: close({
 
-	{[=~"^[\\S\\s]*$"]: _#defs."/$defs/Properties/definitions/TableProperties"}}) |
+	{[=~"^[\\S\\s]*$"]: #TableProperties}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableProperties": close({
+#TableProperties: close({
 
 	{[=~"^[\\S\\s]*$"]: strings.MaxRunes(16384) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression}}) |
 fn.#ObjectExpression

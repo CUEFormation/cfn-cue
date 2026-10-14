@@ -32,21 +32,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
 	SynchronizationConfiguration?: close({
-		ExpirationDataRules!: list.MaxItems(1) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/ExpirationDataRule"
-		] |
-			fn.#ListExpression
-		ImportDataRules!: list.MaxItems(10) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/ImportDataRule"
-		] |
-			fn.#ListExpression
+		ExpirationDataRules!: list.MaxItems(1) & list.MinItems(1) & [...#ExpirationDataRule] | fn.#ListExpression
+		ImportDataRules!:     list.MaxItems(10) & list.MinItems(1) & [...#ImportDataRule] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ExpirationDataRule": close({
+#ExpirationDataRule: close({
 	DaysAfterLastAccess!: int & <=365 & >=1 |
 		{
 			string &
@@ -66,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/ExpirationDataRule": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImportDataRule": close({
+#ImportDataRule: close({
 	Prefix!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|.*/)$" | fn.#StringExpression
 	SizeLessThan!: int & <=52673613135872 & >=0 |
 		{
@@ -88,13 +81,9 @@ _#defs: "/$defs/Properties/definitions/ImportDataRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SynchronizationConfiguration": close({
-	ExpirationDataRules!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ExpirationDataRule"
-	] |
-		fn.#ListExpression
-	ImportDataRules!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ImportDataRule"] |
-		fn.#ListExpression
+#SynchronizationConfiguration: close({
+	ExpirationDataRules!: list.MaxItems(1) & list.MinItems(1) & [...#ExpirationDataRule] | fn.#ListExpression
+	ImportDataRules!:     list.MaxItems(10) & list.MinItems(1) & [...#ImportDataRule] | fn.#ListExpression
 	LatestVersionNumber?: int |
 		{
 			string &
@@ -112,7 +101,7 @@ _#defs: "/$defs/Properties/definitions/SynchronizationConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

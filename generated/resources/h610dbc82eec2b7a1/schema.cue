@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,12 +13,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::ElasticLoadBalancingV2::ListenerCertificate
 #Properties: close({
-	Certificates!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Certificate"] | fn.#ListExpression
+	Certificates!: list.UniqueItems() & [...#Certificate] | fn.#ListExpression
 	ListenerArn!:  string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Certificate": close({CertificateArn?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Certificate: close({CertificateArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ElasticLoadBalancingV2::ListenerCertificate"
 	Properties!: #Properties

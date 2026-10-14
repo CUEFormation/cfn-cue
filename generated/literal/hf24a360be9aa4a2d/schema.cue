@@ -19,7 +19,7 @@ import (
 	Description?: strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// Information about an Amazon S3 bucket to write Run Command task-level logs to.
-	LoggingInfo?: _#defs."/$defs/Properties/definitions/LoggingInfo"
+	LoggingInfo?: #LoggingInfo
 
 	// The maximum number of targets this task can be run for, in parallel.
 	MaxConcurrency?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]*|[1-9][0-9]%|[1-9]%|100%)$"
@@ -40,14 +40,14 @@ import (
 	ServiceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// The targets (either instances or window target ids).
-	Targets?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Target"]
+	Targets?: list.MaxItems(5) & [...] & [...#Target]
 
 	// The resource that the task uses during execution.
 	TaskArn!: strings.MaxRunes(1600) & strings.MinRunes(1)
 
 	// The parameters to pass to the task when it runs. Populate only the fields
 	// that match the task type. All other fields should be empty.
-	TaskInvocationParameters?: _#defs."/$defs/Properties/definitions/TaskInvocationParameters"
+	TaskInvocationParameters?: #TaskInvocationParameters
 	TaskParameters?:           string | {...}
 
 	// The type of task.
@@ -60,7 +60,7 @@ import (
 	WindowTaskId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchOutputConfig": close({
+#CloudWatchOutputConfig: close({
 	// The name of the CloudWatch log group where you want to send command output.
 	CloudWatchLogGroupName?: string
 
@@ -68,30 +68,30 @@ _#defs: "/$defs/Properties/definitions/CloudWatchOutputConfig": close({
 	CloudWatchOutputEnabled?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/LoggingInfo": close({
+#LoggingInfo: close({
 	Region!:   string
 	S3Bucket!: string
 	S3Prefix?: string
 })
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindowAutomationParameters": close({
+#MaintenanceWindowAutomationParameters: close({
 	DocumentVersion?: string
 	Parameters?:      string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindowLambdaParameters": close({
+#MaintenanceWindowLambdaParameters: close({
 	ClientContext?: string
 	Payload?:       string
 	Qualifier?:     string
 })
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindowRunCommandParameters": close({
-	CloudWatchOutputConfig?: _#defs."/$defs/Properties/definitions/CloudWatchOutputConfig"
+#MaintenanceWindowRunCommandParameters: close({
+	CloudWatchOutputConfig?: #CloudWatchOutputConfig
 	Comment?:                string
 	DocumentHash?:           string
 	DocumentHashType?:       string
 	DocumentVersion?:        string
-	NotificationConfig?:     _#defs."/$defs/Properties/definitions/NotificationConfig"
+	NotificationConfig?:     #NotificationConfig
 	OutputS3BucketName?:     string
 	OutputS3KeyPrefix?:      string
 	Parameters?:             string | {...}
@@ -99,30 +99,29 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindowRunCommandParameters": c
 	TimeoutSeconds?:         int
 })
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindowStepFunctionsParameters": close({
+#MaintenanceWindowStepFunctionsParameters: close({
 	Input?: string
 	Name?:  string
 })
 
-_#defs: "/$defs/Properties/definitions/NotificationConfig": close({
+#NotificationConfig: close({
 	NotificationArn!:    string
 	NotificationEvents?: [...string]
 	NotificationType?:   string
 })
 
-_#defs: "/$defs/Properties/definitions/ParameterValues": [...string]
+#ParameterValues: [...string]
 
-_#defs: "/$defs/Properties/definitions/Target": close({
+#Target: close({
 	Key!: strings.MaxRunes(163) &
 	strings.MinRunes(1) &
 	=~"^[\\p{L}\\p{Z}\\p{N}_.:/=\\-@]*$|resource-groups:ResourceTypeFilters|resource-groups:Name$"
 	Values!: list.MaxItems(50) & [...] & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/TaskInvocationParameters": close({
-	MaintenanceWindowAutomationParameters?: _#defs."/$defs/Properties/definitions/MaintenanceWindowAutomationParameters"
-	MaintenanceWindowLambdaParameters?:     _#defs."/$defs/Properties/definitions/MaintenanceWindowLambdaParameters"
-	MaintenanceWindowRunCommandParameters?: _#defs."/$defs/Properties/definitions/MaintenanceWindowRunCommandParameters"
-	MaintenanceWindowStepFunctionsParameters?:
-		_#defs."/$defs/Properties/definitions/MaintenanceWindowStepFunctionsParameters"
+#TaskInvocationParameters: close({
+	MaintenanceWindowAutomationParameters?:    #MaintenanceWindowAutomationParameters
+	MaintenanceWindowLambdaParameters?:        #MaintenanceWindowLambdaParameters
+	MaintenanceWindowRunCommandParameters?:    #MaintenanceWindowRunCommandParameters
+	MaintenanceWindowStepFunctionsParameters?: #MaintenanceWindowStepFunctionsParameters
 })

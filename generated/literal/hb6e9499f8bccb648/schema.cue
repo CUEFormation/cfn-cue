@@ -15,7 +15,7 @@ import (
 	Arn?: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/notification/[-a-zA-Z0-9]*$"
 
 	// The content of the notification.
-	Content!: _#defs."/$defs/Properties/definitions/NotificationContent"
+	Content!: #NotificationContent
 
 	// The time a notification was created
 	CreatedAt?: =~"^[0-9]+$"
@@ -30,51 +30,49 @@ import (
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$"
 
 	// The priority of the notification.
-	Priority?: _#defs."/$defs/Properties/definitions/Priority"
+	Priority?: #Priority
 
 	// The recipients of the notification.
-	Recipients?: _#defs."/$defs/Properties/definitions/RecipientList"
+	Recipients?: #RecipientList
 
 	// One or more tags.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag]
 })
 
 // The identifier of the instance.
-_#defs: "/$defs/Properties/definitions/Arn": string
+#Arn: string
 
 // The identifier of the instance.
-_#defs: "/$defs/Properties/definitions/InstanceArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$"
+#InstanceArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$"
 
 // Localized notification content
-_#defs: "/$defs/Properties/definitions/LocalizedString": =~"^.{0,500}$"
+#LocalizedString: =~"^.{0,500}$"
 
 // The content of a notification
-_#defs: "/$defs/Properties/definitions/NotificationContent": close({
-	DeDE?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	EnUS?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	EsES?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	FrFR?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	IdID?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	ItIT?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	JaJP?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	KoKR?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	PtBR?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	ZhCN?: _#defs."/$defs/Properties/definitions/LocalizedString"
-	ZhTW?: _#defs."/$defs/Properties/definitions/LocalizedString"
+#NotificationContent: close({
+	DeDE?: #LocalizedString
+	EnUS?: #LocalizedString
+	EsES?: #LocalizedString
+	FrFR?: #LocalizedString
+	IdID?: #LocalizedString
+	ItIT?: #LocalizedString
+	JaJP?: #LocalizedString
+	KoKR?: #LocalizedString
+	PtBR?: #LocalizedString
+	ZhCN?: #LocalizedString
+	ZhTW?: #LocalizedString
 })
 
 // The priority of notification. In the Amazon Connect console, when you create
 // a notification, you are prompted to assign one of the following priorities:
 // High (HIGH) or LOW (LOW)
-_#defs: "/$defs/Properties/definitions/Priority": "HIGH" | "LOW"
+#Priority: "HIGH" | "LOW"
 
 // The recipients of the notification.
-_#defs: "/$defs/Properties/definitions/RecipientList": list.MaxItems(200) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Arn"
-]
+#RecipientList: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Arn]
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -89,4 +87,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The identifier of the user.
-_#defs: "/$defs/Properties/definitions/UserArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$"
+#UserArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$"

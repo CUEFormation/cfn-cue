@@ -33,11 +33,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^([\\p{L}\\p{N}_.:\\/=+\\-@()']+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@()']*)$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:     list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	Template!: fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |

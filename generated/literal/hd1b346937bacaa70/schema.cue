@@ -24,13 +24,13 @@ import (
 	Revision?: int
 
 	// A collection of tags associated with a resource
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The Amazon Resource Name (ARN) of the custom configuration.
 	WorkerConfigurationArn?: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256)
 })

@@ -10,7 +10,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::LakeFormation::DataLakeSettings
 #Properties: close({
-	Admins?:                     [..._#defs."/$defs/Properties/definitions/DataLakePrincipal"] | fn.#ListExpression
+	Admins?:                     [...#DataLakePrincipal] | fn.#ListExpression
 	AllowExternalDataFiltering?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AllowFullTableExternalDataAccess?: bool |
 		"true" |
@@ -20,26 +20,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	AuthorizedSessionTagValueList?: [...string | fn.#StringExpression] | fn.#ListExpression
-	CreateDatabaseDefaultPermissions?: [..._#defs."/$defs/Properties/definitions/PrincipalPermissions"] |
-		fn.#ListExpression
-	CreateTableDefaultPermissions?: [..._#defs."/$defs/Properties/definitions/PrincipalPermissions"] |
-		fn.#ListExpression
-	ExternalDataFilteringAllowList?: [..._#defs."/$defs/Properties/definitions/DataLakePrincipal"] | fn.#ListExpression
-	MutationType?:                   string | fn.#StringExpression
-	Parameters?:                     fn.#Object & {...} | string | fn.#StringObjectExpression
-	ReadOnlyAdmins?:                 [..._#defs."/$defs/Properties/definitions/DataLakePrincipal"] | fn.#ListExpression
-	TrustedResourceOwners?:          [...string | fn.#StringExpression] | fn.#ListExpression
+	AuthorizedSessionTagValueList?:    [...string | fn.#StringExpression] | fn.#ListExpression
+	CreateDatabaseDefaultPermissions?: [...#PrincipalPermissions] | fn.#ListExpression
+	CreateTableDefaultPermissions?:    [...#PrincipalPermissions] | fn.#ListExpression
+	ExternalDataFilteringAllowList?:   [...#DataLakePrincipal] | fn.#ListExpression
+	MutationType?:                     string | fn.#StringExpression
+	Parameters?:                       fn.#Object & {...} | string | fn.#StringObjectExpression
+	ReadOnlyAdmins?:                   [...#DataLakePrincipal] | fn.#ListExpression
+	TrustedResourceOwners?:            [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close(
-	{DataLakePrincipalIdentifier!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#DataLakePrincipal: close({DataLakePrincipalIdentifier!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrincipalPermissions": close({
+#PrincipalPermissions: close({
 	Permissions!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Principal!:   _#defs."/$defs/Properties/definitions/DataLakePrincipal"
+	Principal!:   #DataLakePrincipal
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -20,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Comment?:        string | fn.#StringExpression
 	HostedZoneId?:   string | fn.#StringExpression
 	HostedZoneName?: string | fn.#StringExpression
-	RecordSets?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RecordSet"] | fn.#ListExpression
+	RecordSets?:     list.UniqueItems() & [...#RecordSet] | fn.#ListExpression
 	if HostedZoneId != _|_ {
 		HostedZoneName?: error(
 			"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
@@ -28,33 +28,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}
 }) & matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}])
 
-_#defs: "/$defs/Properties/definitions/AliasTarget": close({
+#AliasTarget: close({
 	DNSName!:              string | fn.#StringExpression
 	EvaluateTargetHealth?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	HostedZoneId!:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CidrRoutingConfig": close({
+#CidrRoutingConfig: close({
 	CollectionId!: string | fn.#StringExpression
 	LocationName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Coordinates": close({
+#Coordinates: close({
 	Latitude!:  string | fn.#StringExpression
 	Longitude!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeoLocation": close({
+#GeoLocation: close({
 	ContinentCode?:   string | fn.#StringExpression
 	CountryCode?:     string | fn.#StringExpression
 	SubdivisionCode?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeoProximityLocation": close({
+#GeoProximityLocation: close({
 	AWSRegion?: string | fn.#StringExpression
 	Bias?: int |
 		{
@@ -70,17 +70,17 @@ _#defs: "/$defs/Properties/definitions/GeoProximityLocation": close({
 				)
 		} |
 		fn.#NumberExpression
-	Coordinates?:    _#defs."/$defs/Properties/definitions/Coordinates"
+	Coordinates?:    #Coordinates
 	LocalZoneGroup?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecordSet": close({
-	AliasTarget?:          _#defs."/$defs/Properties/definitions/AliasTarget"
-	CidrRoutingConfig?:    _#defs."/$defs/Properties/definitions/CidrRoutingConfig"
+#RecordSet: close({
+	AliasTarget?:          #AliasTarget
+	CidrRoutingConfig?:    #CidrRoutingConfig
 	Failover?:             string | fn.#StringExpression
-	GeoLocation?:          _#defs."/$defs/Properties/definitions/GeoLocation"
-	GeoProximityLocation?: _#defs."/$defs/Properties/definitions/GeoProximityLocation"
+	GeoLocation?:          #GeoLocation
+	GeoProximityLocation?: #GeoProximityLocation
 	HealthCheckId?:        string | fn.#StringExpression
 	HostedZoneId?:         string | fn.#StringExpression
 	HostedZoneName?:       string | fn.#StringExpression

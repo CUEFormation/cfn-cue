@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -31,31 +31,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AutoPublish?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FunctionCode!:     string | fn.#StringExpression
-	FunctionConfig!:   _#defs."/$defs/Properties/definitions/FunctionConfig" | fn.#ObjectExpression
+	FunctionConfig!:   #FunctionConfig | fn.#ObjectExpression
 	FunctionMetadata?: close({}) | fn.#ObjectExpression
 	Name!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:             [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FunctionConfig": close({
-	Comment!: string | fn.#StringExpression
-	KeyValueStoreAssociations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/KeyValueStoreAssociation"
-	] |
-		fn.#ListExpression
-	Runtime!: "cloudfront-js-1.0" | "cloudfront-js-2.0" | fn.#StringExpression
+#FunctionConfig: close({
+	Comment!:                   string | fn.#StringExpression
+	KeyValueStoreAssociations?: list.UniqueItems() & [...#KeyValueStoreAssociation] | fn.#ListExpression
+	Runtime!:                   "cloudfront-js-1.0" | "cloudfront-js-2.0" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FunctionMetadata": close({FunctionARN?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#FunctionMetadata: close({FunctionARN?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyValueStoreAssociation": close(
-	{KeyValueStoreARN!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#KeyValueStoreAssociation: close({KeyValueStoreARN!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

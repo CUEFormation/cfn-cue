@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Automatic?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ConfigRuleName!:    string | fn.#StringExpression
-	ExecutionControls?: _#defs."/$defs/Properties/definitions/ExecutionControls"
+	ExecutionControls?: #ExecutionControls
 	MaximumAutomaticAttempts?: int |
 		{
 			string &
@@ -52,12 +52,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	TargetVersion?: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ExecutionControls": close(
-	{SsmControls?: _#defs."/$defs/Properties/definitions/SsmControls"},
-) |
-	fn.#ObjectExpression
+#ExecutionControls: close({SsmControls?: #SsmControls}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SsmControls": close({
+#SsmControls: close({
 	ConcurrentExecutionRatePercentage?: int |
 		{
 			string &

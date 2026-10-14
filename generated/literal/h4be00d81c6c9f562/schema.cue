@@ -12,70 +12,70 @@ import (
 // Resource schema for AWS::EC2::NetworkInsightsAnalysis
 #Properties: close({
 	AdditionalAccounts?:         list.UniqueItems() & [...string]
-	AlternatePathHints?:         [..._#defs."/$defs/Properties/definitions/AlternatePathHint"]
-	Explanations?:               [..._#defs."/$defs/Properties/definitions/Explanation"]
-	FilterInArns?:               [..._#defs."/$defs/Properties/definitions/ResourceArn"]
-	FilterOutArns?:              [..._#defs."/$defs/Properties/definitions/ResourceArn"]
-	ForwardPathComponents?:      [..._#defs."/$defs/Properties/definitions/PathComponent"]
+	AlternatePathHints?:         [...#AlternatePathHint]
+	Explanations?:               [...#Explanation]
+	FilterInArns?:               [...#ResourceArn]
+	FilterOutArns?:              [...#ResourceArn]
+	ForwardPathComponents?:      [...#PathComponent]
 	NetworkInsightsAnalysisArn?: string
 	NetworkInsightsAnalysisId?:  string
 	NetworkInsightsPathId!:      string
 	NetworkPathFound?:           bool
-	ReturnPathComponents?:       [..._#defs."/$defs/Properties/definitions/PathComponent"]
+	ReturnPathComponents?:       [...#PathComponent]
 	StartDate?:                  string
 	Status?:                     "running" | "failed" | "succeeded"
 	StatusMessage?:              string
 	SuggestedAccounts?:          list.UniqueItems() & [...string]
-	Tags?:                       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                       list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalDetail": close({
+#AdditionalDetail: close({
 	AdditionalDetailType?: string
-	Component?:            _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	LoadBalancers?:        [..._#defs."/$defs/Properties/definitions/AnalysisComponent"]
+	Component?:            #AnalysisComponent
+	LoadBalancers?:        [...#AnalysisComponent]
 	ServiceName?:          string
 })
 
-_#defs: "/$defs/Properties/definitions/AlternatePathHint": close({
+#AlternatePathHint: close({
 	ComponentArn?: string
 	ComponentId?:  string
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisAclRule": close({
+#AnalysisAclRule: close({
 	Cidr?:       string
 	Egress?:     bool
-	PortRange?:  _#defs."/$defs/Properties/definitions/PortRange"
-	Protocol?:   _#defs."/$defs/Properties/definitions/Protocol"
+	PortRange?:  #PortRange
+	Protocol?:   #Protocol
 	RuleAction?: string
 	RuleNumber?: int
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisComponent": close({
+#AnalysisComponent: close({
 	Arn?: string
 	Id?:  string
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisLoadBalancerListener": close({
-	InstancePort?:     _#defs."/$defs/Properties/definitions/Port"
-	LoadBalancerPort?: _#defs."/$defs/Properties/definitions/Port"
+#AnalysisLoadBalancerListener: close({
+	InstancePort?:     #Port
+	LoadBalancerPort?: #Port
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisLoadBalancerTarget": close({
-	Address?:          _#defs."/$defs/Properties/definitions/IpAddress"
+#AnalysisLoadBalancerTarget: close({
+	Address?:          #IpAddress
 	AvailabilityZone?: string
-	Instance?:         _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	Port?:             _#defs."/$defs/Properties/definitions/Port"
+	Instance?:         #AnalysisComponent
+	Port?:             #Port
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisPacketHeader": close({
-	DestinationAddresses?:  [..._#defs."/$defs/Properties/definitions/IpAddress"]
-	DestinationPortRanges?: [..._#defs."/$defs/Properties/definitions/PortRange"]
-	Protocol?:              _#defs."/$defs/Properties/definitions/Protocol"
-	SourceAddresses?:       [..._#defs."/$defs/Properties/definitions/IpAddress"]
-	SourcePortRanges?:      [..._#defs."/$defs/Properties/definitions/PortRange"]
+#AnalysisPacketHeader: close({
+	DestinationAddresses?:  [...#IpAddress]
+	DestinationPortRanges?: [...#PortRange]
+	Protocol?:              #Protocol
+	SourceAddresses?:       [...#IpAddress]
+	SourcePortRanges?:      [...#PortRange]
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisRouteTableRoute": close({
+#AnalysisRouteTableRoute: close({
 	NatGatewayId?:                string
 	NetworkInterfaceId?:          string
 	Origin?:                      string
@@ -89,115 +89,115 @@ _#defs: "/$defs/Properties/definitions/AnalysisRouteTableRoute": close({
 	instanceId?:                  string
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisSecurityGroupRule": close({
+#AnalysisSecurityGroupRule: close({
 	Cidr?:            string
 	Direction?:       string
-	PortRange?:       _#defs."/$defs/Properties/definitions/PortRange"
+	PortRange?:       #PortRange
 	PrefixListId?:    string
-	Protocol?:        _#defs."/$defs/Properties/definitions/Protocol"
+	Protocol?:        #Protocol
 	SecurityGroupId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisTransitGatewayPolicyTableEntry": null | bool | number | string | [...] | {
+#AnalysisTransitGatewayPolicyTableEntry: null | bool | number | string | [...] | {
 	DestinationCidr?: _
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/Explanation": close({
-	Acl?:                           _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	AclRule?:                       _#defs."/$defs/Properties/definitions/AnalysisAclRule"
-	Address?:                       _#defs."/$defs/Properties/definitions/IpAddress"
-	Addresses?:                     [..._#defs."/$defs/Properties/definitions/IpAddress"]
-	AttachedTo?:                    _#defs."/$defs/Properties/definitions/AnalysisComponent"
+#Explanation: close({
+	Acl?:                           #AnalysisComponent
+	AclRule?:                       #AnalysisAclRule
+	Address?:                       #IpAddress
+	Addresses?:                     [...#IpAddress]
+	AttachedTo?:                    #AnalysisComponent
 	AvailabilityZones?:             [...string]
 	Cidrs?:                         [...string]
-	ClassicLoadBalancerListener?:   _#defs."/$defs/Properties/definitions/AnalysisLoadBalancerListener"
-	Component?:                     _#defs."/$defs/Properties/definitions/AnalysisComponent"
+	ClassicLoadBalancerListener?:   #AnalysisLoadBalancerListener
+	Component?:                     #AnalysisComponent
 	ComponentAccount?:              string
 	ComponentRegion?:               string
-	CustomerGateway?:               _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	Destination?:                   _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	DestinationVpc?:                _#defs."/$defs/Properties/definitions/AnalysisComponent"
+	CustomerGateway?:               #AnalysisComponent
+	Destination?:                   #AnalysisComponent
+	DestinationVpc?:                #AnalysisComponent
 	Direction?:                     string
-	ElasticLoadBalancerListener?:   _#defs."/$defs/Properties/definitions/AnalysisComponent"
+	ElasticLoadBalancerListener?:   #AnalysisComponent
 	ExplanationCode?:               string
-	IngressRouteTable?:             _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	InternetGateway?:               _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	LoadBalancerArn?:               _#defs."/$defs/Properties/definitions/ResourceArn"
-	LoadBalancerListenerPort?:      _#defs."/$defs/Properties/definitions/Port"
-	LoadBalancerTarget?:            _#defs."/$defs/Properties/definitions/AnalysisLoadBalancerTarget"
-	LoadBalancerTargetGroup?:       _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	LoadBalancerTargetGroups?:      [..._#defs."/$defs/Properties/definitions/AnalysisComponent"]
-	LoadBalancerTargetPort?:        _#defs."/$defs/Properties/definitions/Port"
+	IngressRouteTable?:             #AnalysisComponent
+	InternetGateway?:               #AnalysisComponent
+	LoadBalancerArn?:               #ResourceArn
+	LoadBalancerListenerPort?:      #Port
+	LoadBalancerTarget?:            #AnalysisLoadBalancerTarget
+	LoadBalancerTargetGroup?:       #AnalysisComponent
+	LoadBalancerTargetGroups?:      [...#AnalysisComponent]
+	LoadBalancerTargetPort?:        #Port
 	MissingComponent?:              string
-	NatGateway?:                    _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	NetworkInterface?:              _#defs."/$defs/Properties/definitions/AnalysisComponent"
+	NatGateway?:                    #AnalysisComponent
+	NetworkInterface?:              #AnalysisComponent
 	PacketField?:                   string
-	Port?:                          _#defs."/$defs/Properties/definitions/Port"
-	PortRanges?:                    [..._#defs."/$defs/Properties/definitions/PortRange"]
-	PrefixList?:                    _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	Protocols?:                     [..._#defs."/$defs/Properties/definitions/Protocol"]
-	RouteTable?:                    _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	RouteTableRoute?:               _#defs."/$defs/Properties/definitions/AnalysisRouteTableRoute"
-	SecurityGroup?:                 _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	SecurityGroupRule?:             _#defs."/$defs/Properties/definitions/AnalysisSecurityGroupRule"
-	SecurityGroups?:                [..._#defs."/$defs/Properties/definitions/AnalysisComponent"]
-	SourceVpc?:                     _#defs."/$defs/Properties/definitions/AnalysisComponent"
+	Port?:                          #Port
+	PortRanges?:                    [...#PortRange]
+	PrefixList?:                    #AnalysisComponent
+	Protocols?:                     [...#Protocol]
+	RouteTable?:                    #AnalysisComponent
+	RouteTableRoute?:               #AnalysisRouteTableRoute
+	SecurityGroup?:                 #AnalysisComponent
+	SecurityGroupRule?:             #AnalysisSecurityGroupRule
+	SecurityGroups?:                [...#AnalysisComponent]
+	SourceVpc?:                     #AnalysisComponent
 	State?:                         string
-	Subnet?:                        _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	SubnetRouteTable?:              _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	TransitGateway?:                _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	TransitGatewayAttachment?:      _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	TransitGatewayRouteTable?:      _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	TransitGatewayRouteTableRoute?: _#defs."/$defs/Properties/definitions/TransitGatewayRouteTableRoute"
-	Vpc?:                           _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	VpcPeeringConnection?:          _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	VpnConnection?:                 _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	VpnGateway?:                    _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	vpcEndpoint?:                   _#defs."/$defs/Properties/definitions/AnalysisComponent"
+	Subnet?:                        #AnalysisComponent
+	SubnetRouteTable?:              #AnalysisComponent
+	TransitGateway?:                #AnalysisComponent
+	TransitGatewayAttachment?:      #AnalysisComponent
+	TransitGatewayRouteTable?:      #AnalysisComponent
+	TransitGatewayRouteTableRoute?: #TransitGatewayRouteTableRoute
+	Vpc?:                           #AnalysisComponent
+	VpcPeeringConnection?:          #AnalysisComponent
+	VpnConnection?:                 #AnalysisComponent
+	VpnGateway?:                    #AnalysisComponent
+	vpcEndpoint?:                   #AnalysisComponent
 })
 
-_#defs: "/$defs/Properties/definitions/IpAddress": string
+#IpAddress: string
 
-_#defs: "/$defs/Properties/definitions/PathComponent": close({
-	AclRule?:                       _#defs."/$defs/Properties/definitions/AnalysisAclRule"
-	AdditionalDetails?:             [..._#defs."/$defs/Properties/definitions/AdditionalDetail"]
-	Component?:                     _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	DestinationVpc?:                _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	ElasticLoadBalancerListener?:   _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	Explanations?:                  [..._#defs."/$defs/Properties/definitions/Explanation"]
-	InboundHeader?:                 _#defs."/$defs/Properties/definitions/AnalysisPacketHeader"
-	OutboundHeader?:                _#defs."/$defs/Properties/definitions/AnalysisPacketHeader"
-	RouteTableRoute?:               _#defs."/$defs/Properties/definitions/AnalysisRouteTableRoute"
-	SecurityGroupRule?:             _#defs."/$defs/Properties/definitions/AnalysisSecurityGroupRule"
+#PathComponent: close({
+	AclRule?:                       #AnalysisAclRule
+	AdditionalDetails?:             [...#AdditionalDetail]
+	Component?:                     #AnalysisComponent
+	DestinationVpc?:                #AnalysisComponent
+	ElasticLoadBalancerListener?:   #AnalysisComponent
+	Explanations?:                  [...#Explanation]
+	InboundHeader?:                 #AnalysisPacketHeader
+	OutboundHeader?:                #AnalysisPacketHeader
+	RouteTableRoute?:               #AnalysisRouteTableRoute
+	SecurityGroupRule?:             #AnalysisSecurityGroupRule
 	SequenceNumber?:                int
 	ServiceName?:                   string
-	SourceVpc?:                     _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	Subnet?:                        _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	TransitGateway?:                _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	TransitGatewayRouteTableRoute?: _#defs."/$defs/Properties/definitions/TransitGatewayRouteTableRoute"
-	Vpc?:                           _#defs."/$defs/Properties/definitions/AnalysisComponent"
+	SourceVpc?:                     #AnalysisComponent
+	Subnet?:                        #AnalysisComponent
+	TransitGateway?:                #AnalysisComponent
+	TransitGatewayRouteTableRoute?: #TransitGatewayRouteTableRoute
+	Vpc?:                           #AnalysisComponent
 })
 
-_#defs: "/$defs/Properties/definitions/Port": int
+#Port: int
 
-_#defs: "/$defs/Properties/definitions/PortRange": close({
+#PortRange: close({
 	From?: int
 	To?:   int
 })
 
-_#defs: "/$defs/Properties/definitions/Protocol": string
+#Protocol: string
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(1283) & strings.MinRunes(1)
+#ResourceArn: strings.MaxRunes(1283) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+#Tags: list.UniqueItems() & [...#Tag]
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayRouteTableRoute": close({
+#TransitGatewayRouteTableRoute: close({
 	AttachmentId?:    string
 	DestinationCidr?: string
 	PrefixListId?:    string

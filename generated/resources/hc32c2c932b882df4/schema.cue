@@ -14,189 +14,154 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::Timestream::ScheduledQuery resource creates a Timestream Scheduled Query.
 #Properties: close({
-	ClientToken?:                    _#defs."/$defs/Properties/definitions/ClientToken"
-	ErrorReportConfiguration!:       _#defs."/$defs/Properties/definitions/ErrorReportConfiguration"
-	KmsKeyId?:                       _#defs."/$defs/Properties/definitions/KmsKeyId"
-	NotificationConfiguration!:      _#defs."/$defs/Properties/definitions/NotificationConfiguration"
-	QueryString!:                    _#defs."/$defs/Properties/definitions/QueryString"
-	ScheduleConfiguration!:          _#defs."/$defs/Properties/definitions/ScheduleConfiguration"
-	ScheduledQueryExecutionRoleArn!: _#defs."/$defs/Properties/definitions/ScheduledQueryExecutionRoleArn"
-	ScheduledQueryName?:             _#defs."/$defs/Properties/definitions/ScheduledQueryName"
-	Tags?:                           _#defs."/$defs/Properties/definitions/Tags"
-	TargetConfiguration?:            _#defs."/$defs/Properties/definitions/TargetConfiguration"
+	ClientToken?:                    #ClientToken
+	ErrorReportConfiguration!:       #ErrorReportConfiguration
+	KmsKeyId?:                       #KmsKeyId
+	NotificationConfiguration!:      #NotificationConfiguration
+	QueryString!:                    #QueryString
+	ScheduleConfiguration!:          #ScheduleConfiguration
+	ScheduledQueryExecutionRoleArn!: #ScheduledQueryExecutionRoleArn
+	ScheduledQueryName?:             #ScheduledQueryName
+	Tags?:                           #Tags
+	TargetConfiguration?:            #TargetConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BucketName": strings.MaxRunes(63) &
-strings.MinRunes(3) &
-=~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]" |
+#BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ClientToken": strings.MaxRunes(128) & strings.MinRunes(32) | fn.#StringExpression
+#ClientToken: strings.MaxRunes(128) & strings.MinRunes(32) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseName": string | fn.#StringExpression
+#DatabaseName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DimensionMapping": close({
-	DimensionValueType!: _#defs."/$defs/Properties/definitions/DimensionValueType"
-	Name!:               _#defs."/$defs/Properties/definitions/DimensionMappingName"
+#DimensionMapping: close({
+	DimensionValueType!: #DimensionValueType
+	Name!:               #DimensionMappingName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DimensionMappingName": string | fn.#StringExpression
+#DimensionMappingName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DimensionMappings": [..._#defs."/$defs/Properties/definitions/DimensionMapping"] |
-	fn.#ListExpression
+#DimensionMappings: [...#DimensionMapping] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/DimensionValueType": "VARCHAR" | fn.#StringExpression
+#DimensionValueType: "VARCHAR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionOption": "SSE_S3" | "SSE_KMS" | fn.#StringExpression
+#EncryptionOption: "SSE_S3" | "SSE_KMS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ErrorReportConfiguration": close(
-	{S3Configuration!: _#defs."/$defs/Properties/definitions/S3Configuration"},
-) |
-	fn.#ObjectExpression
+#ErrorReportConfiguration: close({S3Configuration!: #S3Configuration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Key": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#Key: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#KmsKeyId: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 	string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MeasureNameColumn": string | fn.#StringExpression
+#MeasureNameColumn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MixedMeasureMapping": close({
-	MeasureName?:                   _#defs."/$defs/Properties/definitions/MixedMeasureMappingMeasureName"
-	MeasureValueType!:              _#defs."/$defs/Properties/definitions/MixedMeasureMappingMeasureValueType"
-	MultiMeasureAttributeMappings?: _#defs."/$defs/Properties/definitions/MultiMeasureAttributeMappingList"
-	SourceColumn?:                  _#defs."/$defs/Properties/definitions/MixedMeasureMappingSourceColumn"
-	TargetMeasureName?:             _#defs."/$defs/Properties/definitions/MixedMeasureMappingTargetMeasureName"
+#MixedMeasureMapping: close({
+	MeasureName?:                   #MixedMeasureMappingMeasureName
+	MeasureValueType!:              #MixedMeasureMappingMeasureValueType
+	MultiMeasureAttributeMappings?: #MultiMeasureAttributeMappingList
+	SourceColumn?:                  #MixedMeasureMappingSourceColumn
+	TargetMeasureName?:             #MixedMeasureMappingTargetMeasureName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MixedMeasureMappingMeasureName": string | fn.#StringExpression
+#MixedMeasureMappingMeasureName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MixedMeasureMappingMeasureValueType": "BIGINT" |
-	"BOOLEAN" |
-	"DOUBLE" |
-	"VARCHAR" |
-	"MULTI" |
-	fn.#StringExpression
+#MixedMeasureMappingMeasureValueType: "BIGINT" | "BOOLEAN" | "DOUBLE" | "VARCHAR" | "MULTI" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MixedMeasureMappingSourceColumn": string | fn.#StringExpression
+#MixedMeasureMappingSourceColumn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MixedMeasureMappingTargetMeasureName": string | fn.#StringExpression
+#MixedMeasureMappingTargetMeasureName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MixedMeasureMappings": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/MixedMeasureMapping"
-] |
-	fn.#ListExpression
+#MixedMeasureMappings: list.MinItems(1) & [...#MixedMeasureMapping] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MultiMeasureAttributeMapping": close({
-	MeasureValueType!:                _#defs."/$defs/Properties/definitions/MultiMeasureAttributeMappingMeasureValueType"
-	SourceColumn!:                    _#defs."/$defs/Properties/definitions/MultiMeasureAttributeMappingSourceColumn"
-	TargetMultiMeasureAttributeName?: _#defs."/$defs/Properties/definitions/TargetMultiMeasureAttributeName"
+#MultiMeasureAttributeMapping: close({
+	MeasureValueType!:                #MultiMeasureAttributeMappingMeasureValueType
+	SourceColumn!:                    #MultiMeasureAttributeMappingSourceColumn
+	TargetMultiMeasureAttributeName?: #TargetMultiMeasureAttributeName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiMeasureAttributeMappingList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/MultiMeasureAttributeMapping"
-] |
-	fn.#ListExpression
+#MultiMeasureAttributeMappingList: list.MinItems(1) & [...#MultiMeasureAttributeMapping] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MultiMeasureAttributeMappingMeasureValueType": "BIGINT" |
+#MultiMeasureAttributeMappingMeasureValueType: "BIGINT" |
 	"BOOLEAN" |
 	"DOUBLE" |
 	"VARCHAR" |
 	"TIMESTAMP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MultiMeasureAttributeMappingSourceColumn": string | fn.#StringExpression
+#MultiMeasureAttributeMappingSourceColumn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MultiMeasureMappings": close({
-	MultiMeasureAttributeMappings!: _#defs."/$defs/Properties/definitions/MultiMeasureAttributeMappingList"
-	TargetMultiMeasureName?:        _#defs."/$defs/Properties/definitions/TargetMultiMeasureName"
+#MultiMeasureMappings: close({
+	MultiMeasureAttributeMappings!: #MultiMeasureAttributeMappingList
+	TargetMultiMeasureName?:        #TargetMultiMeasureName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": close(
-	{SnsConfiguration!: _#defs."/$defs/Properties/definitions/SnsConfiguration"},
-) |
-	fn.#ObjectExpression
+#NotificationConfiguration: close({SnsConfiguration!: #SnsConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectKeyPrefix": strings.MaxRunes(896) &
+#ObjectKeyPrefix: strings.MaxRunes(896) &
 strings.MinRunes(1) &
 =~"[a-zA-Z0-9|!\\-_*'\\(\\)]([a-zA-Z0-9]|[!\\-_*'\\(\\)\\/.])+" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/QueryString": strings.MaxRunes(262144) & strings.MinRunes(1) |
-fn.#StringExpression
+#QueryString: strings.MaxRunes(262144) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3Configuration": close({
-	BucketName!:       _#defs."/$defs/Properties/definitions/BucketName"
-	EncryptionOption?: _#defs."/$defs/Properties/definitions/EncryptionOption"
-	ObjectKeyPrefix?:  _#defs."/$defs/Properties/definitions/ObjectKeyPrefix"
+#S3Configuration: close({
+	BucketName!:       #BucketName
+	EncryptionOption?: #EncryptionOption
+	ObjectKeyPrefix?:  #ObjectKeyPrefix
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close(
-	{ScheduleExpression!: _#defs."/$defs/Properties/definitions/ScheduleExpression"},
-) |
-	fn.#ObjectExpression
+#ScheduleConfiguration: close({ScheduleExpression!: #ScheduleExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduleExpression": strings.MaxRunes(256) & strings.MinRunes(1) |
+#ScheduleExpression: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+
+#ScheduledQueryExecutionRoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduledQueryExecutionRoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
-fn.#StringExpression
+#ScheduledQueryName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduledQueryName": strings.MaxRunes(64) &
-strings.MinRunes(1) &
-=~"[a-zA-Z0-9_.-]+" |
-fn.#StringExpression
+#SnsConfiguration: close({TopicArn!: #TopicArn}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnsConfiguration": close(
-	{TopicArn!: _#defs."/$defs/Properties/definitions/TopicArn"},
-) |
-	fn.#ObjectExpression
+#TableName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TableName": string | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/Tag": close({
-	Key!:   _#defs."/$defs/Properties/definitions/Key"
-	Value!: _#defs."/$defs/Properties/definitions/Value"
+#Tag: close({
+	Key!:   #Key
+	Value!: #Value
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
+#Tags: list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TargetConfiguration": close(
-	{TimestreamConfiguration!: _#defs."/$defs/Properties/definitions/TimestreamConfiguration"},
-) |
-	fn.#ObjectExpression
+#TargetConfiguration: close({TimestreamConfiguration!: #TimestreamConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetMultiMeasureAttributeName": string | fn.#StringExpression
+#TargetMultiMeasureAttributeName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TargetMultiMeasureName": string | fn.#StringExpression
+#TargetMultiMeasureName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TimeColumn": string | fn.#StringExpression
+#TimeColumn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TimestreamConfiguration": close({
-	DatabaseName!:         _#defs."/$defs/Properties/definitions/DatabaseName"
-	DimensionMappings!:    _#defs."/$defs/Properties/definitions/DimensionMappings"
-	MeasureNameColumn?:    _#defs."/$defs/Properties/definitions/MeasureNameColumn"
-	MixedMeasureMappings?: _#defs."/$defs/Properties/definitions/MixedMeasureMappings"
-	MultiMeasureMappings?: _#defs."/$defs/Properties/definitions/MultiMeasureMappings"
-	TableName!:            _#defs."/$defs/Properties/definitions/TableName"
-	TimeColumn!:           _#defs."/$defs/Properties/definitions/TimeColumn"
+#TimestreamConfiguration: close({
+	DatabaseName!:         #DatabaseName
+	DimensionMappings!:    #DimensionMappings
+	MeasureNameColumn?:    #MeasureNameColumn
+	MixedMeasureMappings?: #MixedMeasureMappings
+	MultiMeasureMappings?: #MultiMeasureMappings
+	TableName!:            #TableName
+	TimeColumn!:           #TimeColumn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TopicArn": =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+#TopicArn: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Value": strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+#Value: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Timestream::ScheduledQuery"
 	Properties!: #Properties

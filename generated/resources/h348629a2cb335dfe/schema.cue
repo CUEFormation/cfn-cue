@@ -19,21 +19,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // queue with a configured compute capacity, resource sharing strategy, and
 // borrow limits.
 #Properties: close({
-	CapacityLimits!: [..._#defs."/$defs/Properties/definitions/QuotaShareCapacityLimit"] | fn.#ListExpression
-	JobQueue!:       string | fn.#StringExpression
-	PreemptionConfiguration!: _#defs."/$defs/Properties/definitions/QuotaSharePreemptionConfiguration" |
-		fn.#ObjectExpression
-	QuotaShareName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ResourceSharingConfiguration!: _#defs."/$defs/Properties/definitions/QuotaShareResourceSharingConfiguration" |
-		fn.#ObjectExpression
-	State?: "ENABLED" | "DISABLED" | fn.#StringExpression
+	CapacityLimits!:               [...#QuotaShareCapacityLimit] | fn.#ListExpression
+	JobQueue!:                     string | fn.#StringExpression
+	PreemptionConfiguration!:      #QuotaSharePreemptionConfiguration | fn.#ObjectExpression
+	QuotaShareName!:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	ResourceSharingConfiguration!: #QuotaShareResourceSharingConfiguration | fn.#ObjectExpression
+	State?:                        "ENABLED" | "DISABLED" | fn.#StringExpression
 	Tags?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/QuotaShareCapacityLimit": close({
+#QuotaShareCapacityLimit: close({
 	CapacityUnit!: string | fn.#StringExpression
 	MaxCapacity!: int & >=1 |
 		{
@@ -53,12 +51,10 @@ _#defs: "/$defs/Properties/definitions/QuotaShareCapacityLimit": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QuotaSharePreemptionConfiguration": close(
-	{InSharePreemption!: =~"(?i)^(?:disabled|enabled)$" | fn.#StringExpression},
-) |
+#QuotaSharePreemptionConfiguration: close({InSharePreemption!: =~"(?i)^(?:disabled|enabled)$" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QuotaShareResourceSharingConfiguration": close({
+#QuotaShareResourceSharingConfiguration: close({
 	BorrowLimit?: int & >=-1 |
 		{
 			string &
@@ -78,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/QuotaShareResourceSharingConfiguration": 
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": =~"^arn:aws[a-z\\-]*:batch:[a-z0-9\\-]+:[0-9]{12}:job-queue/[a-zA-Z0-9_\\-]{1,128}/quota-share/[a-zA-Z0-9_\\-]{1,128}$" |
+#ResourceArn: =~"^arn:aws[a-z\\-]*:batch:[a-z0-9\\-]+:[0-9]{12}:job-queue/[a-zA-Z0-9_\\-]{1,128}/quota-share/[a-zA-Z0-9_\\-]{1,128}$" |
 	fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Batch::QuotaShare"

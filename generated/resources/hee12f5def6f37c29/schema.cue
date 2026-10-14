@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -20,12 +20,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AcceleratorArn!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	ClientAffinity?: "NONE" | "SOURCE_IP" | fn.#StringExpression
-	PortRanges!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/PortRange"] |
-		fn.#ListExpression
-	Protocol!: "TCP" | "UDP" | fn.#StringExpression
+	PortRanges!:     list.MaxItems(10) & list.MinItems(1) & [...#PortRange] | fn.#ListExpression
+	Protocol!:       "TCP" | "UDP" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0 |
+#Port: int & <=65535 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -42,9 +41,9 @@ _#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/PortRange": close({
-	FromPort!: _#defs."/$defs/Properties/definitions/Port"
-	ToPort!:   _#defs."/$defs/Properties/definitions/Port"
+#PortRange: close({
+	FromPort!: #Port
+	ToPort!:   #Port
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

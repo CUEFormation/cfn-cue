@@ -13,7 +13,7 @@ import (
 #Properties: close({
 	// The description of the environment.
 	Description?: strings.MaxRunes(500) & strings.MinRunes(0)
-	EngineType!:  _#defs."/$defs/Properties/definitions/EngineType"
+	EngineType!:  #EngineType
 
 	// The version of the runtime engine for the environment.
 	EngineVersion?: =~"^\\S{1,10}$"
@@ -23,7 +23,7 @@ import (
 
 	// The unique identifier of the environment.
 	EnvironmentId?:          =~"^\\S{1,80}$"
-	HighAvailabilityConfig?: _#defs."/$defs/Properties/definitions/HighAvailabilityConfig"
+	HighAvailabilityConfig?: #HighAvailabilityConfig
 
 	// The type of instance underlying the environment.
 	InstanceType!: =~"^\\S{1,20}$"
@@ -34,7 +34,7 @@ import (
 
 	// The name of the environment.
 	Name!:        =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$"
-	NetworkType?: _#defs."/$defs/Properties/definitions/NetworkType"
+	NetworkType?: #NetworkType
 
 	// Configures a desired maintenance window for the environment. If you do not
 	// provide a value, a random system-generated value will be assigned.
@@ -47,17 +47,17 @@ import (
 	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^\\S{1,50}$"]
 
 	// The storage configurations defined for the runtime environment.
-	StorageConfigurations?: [..._#defs."/$defs/Properties/definitions/StorageConfiguration"]
+	StorageConfigurations?: [...#StorageConfiguration]
 
 	// The unique identifiers of the subnets assigned to this runtime environment.
 	SubnetIds?: [...=~"^\\S{1,50}$"]
 
 	// Tags associated to this environment.
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?: #TagMap
 })
 
 // Defines the storage configuration for an Amazon EFS file system.
-_#defs: "/$defs/Properties/definitions/EfsStorageConfiguration": close({
+#EfsStorageConfiguration: close({
 	// The file system identifier.
 	FileSystemId!: =~"^\\S{1,200}$"
 
@@ -66,10 +66,10 @@ _#defs: "/$defs/Properties/definitions/EfsStorageConfiguration": close({
 })
 
 // The target platform for the environment.
-_#defs: "/$defs/Properties/definitions/EngineType": "microfocus" | "bluage"
+#EngineType: "microfocus" | "bluage"
 
 // Defines the storage configuration for an Amazon FSx file system.
-_#defs: "/$defs/Properties/definitions/FsxStorageConfiguration": close({
+#FsxStorageConfiguration: close({
 	// The file system identifier.
 	FileSystemId!: =~"^\\S{1,200}$"
 
@@ -78,16 +78,12 @@ _#defs: "/$defs/Properties/definitions/FsxStorageConfiguration": close({
 })
 
 // Defines the details of a high availability configuration.
-_#defs: "/$defs/Properties/definitions/HighAvailabilityConfig": close({DesiredCapacity!: int & <=100 & >=1})
+#HighAvailabilityConfig: close({DesiredCapacity!: int & <=100 & >=1})
 
-_#defs: "/$defs/Properties/definitions/NetworkType": "ipv4" | "dual"
+#NetworkType: "ipv4" | "dual"
 
 // Defines the storage configuration for an environment.
-_#defs: "/$defs/Properties/definitions/StorageConfiguration": matchN(1, [close(
-	{Efs!: _#defs."/$defs/Properties/definitions/EfsStorageConfiguration"},
-), close(
-	{Fsx!: _#defs."/$defs/Properties/definitions/FsxStorageConfiguration"},
-)])
+#StorageConfiguration: matchN(1, [close({Efs!: #EfsStorageConfiguration}), close({Fsx!: #FsxStorageConfiguration})])
 
 // Defines tags associated to an environment.
-_#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(200) & struct.MinFields(0) & {...}
+#TagMap: struct.MaxFields(200) & struct.MinFields(0) & {...}

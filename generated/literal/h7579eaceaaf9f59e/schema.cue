@@ -21,7 +21,7 @@ import (
 	EventTriggerNames?: list.MaxItems(1) & list.MinItems(1) & [
 		...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 	]
-	FlowDefinition?: _#defs."/$defs/Properties/definitions/FlowDefinition"
+	FlowDefinition?: #FlowDefinition
 
 	// The time of this integration got last updated at
 	LastUpdatedAt?: string
@@ -30,49 +30,47 @@ import (
 	ObjectTypeName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$"
 
 	// The mapping between 3rd party event types and ObjectType names
-	ObjectTypeNames?: [..._#defs."/$defs/Properties/definitions/ObjectTypeMapping"]
+	ObjectTypeNames?: [...#ObjectTypeMapping]
 
 	// Scope of the integration, such as 'PROFILE' or 'DOMAIN'
 	Scope?: ("PROFILE" | "DOMAIN") & strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$"
 
 	// The tags (keys and values) associated with the integration
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The URI of the S3 bucket or any other type of data source.
 	Uri?: strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectorOperator": close({
-	Marketo?:    _#defs."/$defs/Properties/definitions/MarketoConnectorOperator"
-	S3?:         _#defs."/$defs/Properties/definitions/S3ConnectorOperator"
-	Salesforce?: _#defs."/$defs/Properties/definitions/SalesforceConnectorOperator"
-	ServiceNow?: _#defs."/$defs/Properties/definitions/ServiceNowConnectorOperator"
-	Zendesk?:    _#defs."/$defs/Properties/definitions/ZendeskConnectorOperator"
+#ConnectorOperator: close({
+	Marketo?:    #MarketoConnectorOperator
+	S3?:         #S3ConnectorOperator
+	Salesforce?: #SalesforceConnectorOperator
+	ServiceNow?: #ServiceNowConnectorOperator
+	Zendesk?:    #ZendeskConnectorOperator
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectorType": "Salesforce" | "Marketo" | "ServiceNow" | "Zendesk" | "S3"
+#ConnectorType: "Salesforce" | "Marketo" | "ServiceNow" | "Zendesk" | "S3"
 
-_#defs: "/$defs/Properties/definitions/Date": number
+#Date: number
 
-_#defs: "/$defs/Properties/definitions/DestinationField": strings.MaxRunes(256) & strings.MinRunes(0) & =~".*"
+#DestinationField: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*"
 
-_#defs: "/$defs/Properties/definitions/FlowDefinition": close({
+#FlowDefinition: close({
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\w!@#\\-.?,\\s]*"
 	FlowName!:    strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z0-9][\\w!@#.-]+"
 	KmsArn!: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"arn:aws:kms:.*:[0-9]+:.*"
-	SourceFlowConfig!: _#defs."/$defs/Properties/definitions/SourceFlowConfig"
-	Tasks!:            [..._#defs."/$defs/Properties/definitions/Task"]
-	TriggerConfig!:    _#defs."/$defs/Properties/definitions/TriggerConfig"
+	SourceFlowConfig!: #SourceFlowConfig
+	Tasks!:            [...#Task]
+	TriggerConfig!:    #TriggerConfig
 })
 
-_#defs: "/$defs/Properties/definitions/IncrementalPullConfig": close(
-	{DatetimeTypeFieldName?: strings.MaxRunes(256) & strings.MinRunes(0)},
-)
+#IncrementalPullConfig: close({DatetimeTypeFieldName?: strings.MaxRunes(256) & strings.MinRunes(0)})
 
-_#defs: "/$defs/Properties/definitions/MarketoConnectorOperator": "PROJECTION" |
+#MarketoConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"BETWEEN" |
@@ -89,18 +87,16 @@ _#defs: "/$defs/Properties/definitions/MarketoConnectorOperator": "PROJECTION" |
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/MarketoSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#MarketoSourceProperties: close({Object!: #Object})
 
-_#defs: "/$defs/Properties/definitions/Object": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#Object: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/ObjectTypeMapping": close({
+#ObjectTypeMapping: close({
 	Key!:   strings.MaxRunes(255) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/Operator": "PROJECTION" |
+#Operator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"CONTAINS" |
@@ -122,7 +118,7 @@ _#defs: "/$defs/Properties/definitions/Operator": "PROJECTION" |
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/OperatorPropertiesKeys": "VALUE" |
+#OperatorPropertiesKeys: "VALUE" |
 	"VALUES" |
 	"DATA_TYPE" |
 	"UPPER_BOUND" |
@@ -137,7 +133,7 @@ _#defs: "/$defs/Properties/definitions/OperatorPropertiesKeys": "VALUE" |
 	"CONCAT_FORMAT" |
 	"SUBFIELD_CATEGORY_MAP"
 
-_#defs: "/$defs/Properties/definitions/S3ConnectorOperator": "PROJECTION" |
+#S3ConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"BETWEEN" |
@@ -158,12 +154,12 @@ _#defs: "/$defs/Properties/definitions/S3ConnectorOperator": "PROJECTION" |
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/S3SourceProperties": close({
+#S3SourceProperties: close({
 	BucketName!:   strings.MaxRunes(63) & strings.MinRunes(3) & =~"\\S+"
 	BucketPrefix?: strings.MaxRunes(512) & strings.MinRunes(0) & =~".*"
 })
 
-_#defs: "/$defs/Properties/definitions/SalesforceConnectorOperator": "PROJECTION" |
+#SalesforceConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"CONTAINS" |
@@ -185,26 +181,26 @@ _#defs: "/$defs/Properties/definitions/SalesforceConnectorOperator": "PROJECTION
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/SalesforceSourceProperties": close({
+#SalesforceSourceProperties: close({
 	EnableDynamicFieldUpdate?: bool
 	IncludeDeletedRecords?:    bool
-	Object!:                   _#defs."/$defs/Properties/definitions/Object"
+	Object!:                   #Object
 })
 
-_#defs: "/$defs/Properties/definitions/ScheduledTriggerProperties": close({
+#ScheduledTriggerProperties: close({
 	DataPullMode?:       "Incremental" | "Complete"
-	FirstExecutionFrom?: _#defs."/$defs/Properties/definitions/Date"
-	ScheduleEndTime?:    _#defs."/$defs/Properties/definitions/Date"
+	FirstExecutionFrom?: #Date
+	ScheduleEndTime?:    #Date
 	ScheduleExpression!: =~"(?i)^(?:rate\\(5minutes\\)|rate\\(15minutes\\)|rate\\(1hours\\)|rate\\(1days\\))$" &
 	strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~".*"
 	ScheduleOffset?:    int & <=36000 & >=0
-	ScheduleStartTime?: _#defs."/$defs/Properties/definitions/Date"
+	ScheduleStartTime?: #Date
 	Timezone?:          strings.MaxRunes(256) & strings.MinRunes(0) & =~".*"
 })
 
-_#defs: "/$defs/Properties/definitions/ServiceNowConnectorOperator": "PROJECTION" |
+#ServiceNowConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"CONTAINS" |
@@ -226,63 +222,53 @@ _#defs: "/$defs/Properties/definitions/ServiceNowConnectorOperator": "PROJECTION
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/ServiceNowSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#ServiceNowSourceProperties: close({Object!: #Object})
 
-_#defs: "/$defs/Properties/definitions/SourceConnectorProperties": close({
-	Marketo?:    _#defs."/$defs/Properties/definitions/MarketoSourceProperties"
-	S3?:         _#defs."/$defs/Properties/definitions/S3SourceProperties"
-	Salesforce?: _#defs."/$defs/Properties/definitions/SalesforceSourceProperties"
-	ServiceNow?: _#defs."/$defs/Properties/definitions/ServiceNowSourceProperties"
-	Zendesk?:    _#defs."/$defs/Properties/definitions/ZendeskSourceProperties"
+#SourceConnectorProperties: close({
+	Marketo?:    #MarketoSourceProperties
+	S3?:         #S3SourceProperties
+	Salesforce?: #SalesforceSourceProperties
+	ServiceNow?: #ServiceNowSourceProperties
+	Zendesk?:    #ZendeskSourceProperties
 })
 
-_#defs: "/$defs/Properties/definitions/SourceFlowConfig": close({
+#SourceFlowConfig: close({
 	ConnectorProfileName?:      strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+"
-	ConnectorType!:             _#defs."/$defs/Properties/definitions/ConnectorType"
-	IncrementalPullConfig?:     _#defs."/$defs/Properties/definitions/IncrementalPullConfig"
-	SourceConnectorProperties!: _#defs."/$defs/Properties/definitions/SourceConnectorProperties"
+	ConnectorType!:             #ConnectorType
+	IncrementalPullConfig?:     #IncrementalPullConfig
+	SourceConnectorProperties!: #SourceConnectorProperties
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Task": close({
-	ConnectorOperator?: _#defs."/$defs/Properties/definitions/ConnectorOperator"
-	DestinationField?:  _#defs."/$defs/Properties/definitions/DestinationField"
+#Task: close({
+	ConnectorOperator?: #ConnectorOperator
+	DestinationField?:  #DestinationField
 	SourceFields!:      [...strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*"]
-	TaskProperties?:    [..._#defs."/$defs/Properties/definitions/TaskPropertiesMap"]
-	TaskType!:          _#defs."/$defs/Properties/definitions/TaskType"
+	TaskProperties?:    [...#TaskPropertiesMap]
+	TaskType!:          #TaskType
 })
 
-_#defs: "/$defs/Properties/definitions/TaskPropertiesMap": close({
-	OperatorPropertyKey!: _#defs."/$defs/Properties/definitions/OperatorPropertiesKeys"
+#TaskPropertiesMap: close({
+	OperatorPropertyKey!: #OperatorPropertiesKeys
 	Property!:            strings.MaxRunes(2048) & =~".+"
 })
 
-_#defs: "/$defs/Properties/definitions/TaskType": "Arithmetic" |
-	"Filter" |
-	"Map" |
-	"Mask" |
-	"Merge" |
-	"Truncate" |
-	"Validate"
+#TaskType: "Arithmetic" | "Filter" | "Map" | "Mask" | "Merge" | "Truncate" | "Validate"
 
-_#defs: "/$defs/Properties/definitions/TriggerConfig": close({
-	TriggerProperties?: _#defs."/$defs/Properties/definitions/TriggerProperties"
-	TriggerType!:       _#defs."/$defs/Properties/definitions/TriggerType"
+#TriggerConfig: close({
+	TriggerProperties?: #TriggerProperties
+	TriggerType!:       #TriggerType
 })
 
-_#defs: "/$defs/Properties/definitions/TriggerProperties": close(
-	{Scheduled?: _#defs."/$defs/Properties/definitions/ScheduledTriggerProperties"},
-)
+#TriggerProperties: close({Scheduled?: #ScheduledTriggerProperties})
 
-_#defs: "/$defs/Properties/definitions/TriggerType": "Scheduled" | "Event" | "OnDemand"
+#TriggerType: "Scheduled" | "Event" | "OnDemand"
 
-_#defs: "/$defs/Properties/definitions/ZendeskConnectorOperator": "PROJECTION" |
+#ZendeskConnectorOperator: "PROJECTION" |
 	"GREATER_THAN" |
 	"ADDITION" |
 	"MULTIPLICATION" |
@@ -297,6 +283,4 @@ _#defs: "/$defs/Properties/definitions/ZendeskConnectorOperator": "PROJECTION" |
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/ZendeskSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#ZendeskSourceProperties: close({Object!: #Object})

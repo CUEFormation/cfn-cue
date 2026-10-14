@@ -14,17 +14,17 @@ import (
 	Arn?:         strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+"
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~".*\\S.*"
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*"
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcConfig?:   _#defs."/$defs/Properties/definitions/VpcConfig"
+	Tags?:        [...#Tag]
+	VpcConfig?:   #VpcConfig
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
 // The VPC security groups and subnets that are attached to a TestGrid project.
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	// A list of VPC security group IDs in your Amazon VPC.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*\\S.*"

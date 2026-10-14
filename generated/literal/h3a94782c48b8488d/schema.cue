@@ -25,13 +25,13 @@ import (
 
 	// The combination of Package, Station and Model which represents the version of
 	// the LoRaWAN Wireless Gateway.
-	LoRaWAN!: _#defs."/$defs/Properties/definitions/LoRaWANGateway"
+	LoRaWAN!: #LoRaWANGateway
 
 	// Name of Wireless Gateway.
 	Name?: strings.MaxRunes(256) & strings.MinRunes(0)
 
 	// A list of key-value pairs that contain metadata for the gateway.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 
 	// Thing Arn. Passed into Update to associate a Thing with the Wireless Gateway.
 	ThingArn?: string
@@ -40,13 +40,13 @@ import (
 	ThingName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/LoRaWANGateway": close({
+#LoRaWANGateway: close({
 	GatewayEui!:
 		=~"^(([0-9A-Fa-f]{2}-){7}|([0-9A-Fa-f]{2}:){7}|([0-9A-Fa-f]{2}\\s){7}|([0-9A-Fa-f]{2}){7})([0-9A-Fa-f]{2})$"
 	RfRegion!: strings.MaxRunes(64) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })

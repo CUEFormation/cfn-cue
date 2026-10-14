@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -38,7 +38,7 @@ import (
 	// The subnets and IP addresses in your VPC that DNS queries originate from (for
 	// outbound endpoints) or that you forward DNS queries to (for inbound
 	// endpoints). The subnet ID uniquely identifies a VPC.
-	IpAddresses!: list.MaxItems(20) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/IpAddressRequest"]
+	IpAddresses!: list.MaxItems(20) & list.MinItems(2) & [...#IpAddressRequest]
 
 	// Specifies whether IPv6 Internet Gateway access is enabled through the
 	// Outbound Resolver Endpoint. When set to true, this property allows your
@@ -82,7 +82,7 @@ import (
 	SecurityGroupIds!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(64) & strings.MinRunes(1))]
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 
 	// Specifies whether target name server metrics are enabled for the Outbound
 	// Resolver Endpoint. When set to true, one-minute granular metrics are
@@ -91,7 +91,7 @@ import (
 	TargetNameServerMetricsEnabled?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/IpAddressRequest": close({
+#IpAddressRequest: close({
 	// The IPv4 address that you want to use for DNS queries.
 	Ip?: strings.MaxRunes(36) & strings.MinRunes(7)
 
@@ -102,7 +102,7 @@ _#defs: "/$defs/Properties/definitions/IpAddressRequest": close({
 	SubnetId!: strings.MaxRunes(32) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The name for the tag. For example, if you want to associate Resolver
 	// resources with the account IDs of your customers for billing purposes, the
 	// value of Key might be account-id.

@@ -10,22 +10,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::DataZone::ProjectMembership Resource Type
 #Properties: close({
-	Designation!:       _#defs."/$defs/Properties/definitions/UserDesignation"
+	Designation!:       #UserDesignation
 	DomainIdentifier!:  =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	Member!:            _#defs."/$defs/Properties/definitions/Member"
+	Member!:            #Member
 	ProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Member": matchN(1, [
+#Member: matchN(1, [
 	close({UserIdentifier!: string | fn.#StringExpression}), close({GroupIdentifier!: string | fn.#StringExpression}),
 ]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/MemberIdentifierType": "USER_IDENTIFIER" |
-	"GROUP_IDENTIFIER" |
-	fn.#StringExpression
+#MemberIdentifierType: "USER_IDENTIFIER" | "GROUP_IDENTIFIER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UserDesignation": =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+#UserDesignation: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DataZone::ProjectMembership"
 	Properties!: #Properties

@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DBProxyEndpointName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-z]*" | fn.#StringExpression
 	DBProxyName!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-z]*" | fn.#StringExpression
 	EndpointNetworkType?: "IPV4" | "IPV6" | "DUAL" | fn.#StringExpression
-	Tags?:                [..._#defs."/$defs/Properties/definitions/TagFormat"] | fn.#ListExpression
+	Tags?:                [...#TagFormat] | fn.#ListExpression
 	TargetRole?:          "READ_WRITE" | "READ_ONLY" | fn.#StringExpression
 	VpcSecurityGroupIds?: list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -27,7 +27,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	VpcSubnetIds!: list.MinItems(2) & [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/TagFormat": close({
+#TagFormat: close({
 	Key?:   strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" | fn.#StringExpression
 	Value?: strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" | fn.#StringExpression
 }) |

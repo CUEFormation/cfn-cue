@@ -19,20 +19,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // ``RestApi`` resource to a stage so that clients can call the API over the
 // internet. The stage acts as an environment.
 #Properties: close({
-	DeploymentCanarySettings?: _#defs."/$defs/Properties/definitions/DeploymentCanarySettings" | fn.#ObjectExpression
+	DeploymentCanarySettings?: #DeploymentCanarySettings | fn.#ObjectExpression
 	Description?:              string | fn.#StringExpression
 	RestApiId!:                string | fn.#StringExpression
-	StageDescription?:         _#defs."/$defs/Properties/definitions/StageDescription" | fn.#ObjectExpression
+	StageDescription?:         #StageDescription | fn.#ObjectExpression
 	StageName?:                string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessLogSetting": close({
+#AccessLogSetting: close({
 	DestinationArn?: string | fn.#StringExpression
 	Format?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CanarySetting": close({
+#CanarySetting: close({
 	PercentTraffic?: number |
 		{
 			string &
@@ -60,7 +60,7 @@ _#defs: "/$defs/Properties/definitions/CanarySetting": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentCanarySettings": close({
+#DeploymentCanarySettings: close({
 	PercentTraffic?: number |
 		{
 			string &
@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentCanarySettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MethodSetting": close({
+#MethodSetting: close({
 	CacheDataEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CacheTtlInSeconds?: int |
 		{
@@ -146,8 +146,8 @@ _#defs: "/$defs/Properties/definitions/MethodSetting": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StageDescription": close({
-	AccessLogSetting?:    _#defs."/$defs/Properties/definitions/AccessLogSetting" | fn.#ObjectExpression
+#StageDescription: close({
+	AccessLogSetting?:    #AccessLogSetting | fn.#ObjectExpression
 	CacheClusterEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CacheClusterSize?:    string | fn.#StringExpression
 	CacheDataEncrypted?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -166,15 +166,15 @@ _#defs: "/$defs/Properties/definitions/StageDescription": close({
 		} |
 		fn.#NumberExpression
 	CachingEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CanarySetting?:        _#defs."/$defs/Properties/definitions/CanarySetting" | fn.#ObjectExpression
+	CanarySetting?:        #CanarySetting | fn.#ObjectExpression
 	ClientCertificateId?:  string | fn.#StringExpression
 	DataTraceEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Description?:          string | fn.#StringExpression
 	DocumentationVersion?: string | fn.#StringExpression
 	LoggingLevel?:         string | fn.#StringExpression
-	MethodSettings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MethodSetting"] | fn.#ListExpression
-	MetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	MethodSettings?:       list.UniqueItems() & [...#MethodSetting] | fn.#ListExpression
+	MetricsEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:                 [...#Tag] | fn.#ListExpression
 	ThrottlingBurstLimit?: int |
 		{
 			string &
@@ -216,7 +216,7 @@ _#defs: "/$defs/Properties/definitions/StageDescription": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

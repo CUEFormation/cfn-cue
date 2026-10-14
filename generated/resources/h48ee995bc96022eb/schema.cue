@@ -17,26 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A signing profile is a signing template that can be used to carry out a pre-defined signing job.
 #Properties: close({
-	PlatformId!:              _#defs."/$defs/Properties/definitions/PlatformId" | fn.#StringExpression
-	SignatureValidityPeriod?: _#defs."/$defs/Properties/definitions/SignatureValidityPeriod" | fn.#ObjectExpression
-	Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	PlatformId!:              #PlatformId | fn.#StringExpression
+	SignatureValidityPeriod?: #SignatureValidityPeriod | fn.#ObjectExpression
+	Tags?:                    [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"^arn:aws(-[a-z]{1,4}){0,2}:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
-	fn.#StringExpression
+#Arn: =~"^arn:aws(-[a-z]{1,4}){0,2}:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PlatformId": "AWSLambda-SHA384-ECDSA" |
-	"Notation-OCI-SHA384-ECDSA" |
-	fn.#StringExpression
+#PlatformId: "AWSLambda-SHA384-ECDSA" | "Notation-OCI-SHA384-ECDSA" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProfileName": strings.MaxRunes(64) &
-strings.MinRunes(2) &
-=~"^[0-9a-zA-Z_]{2,64}$" |
-fn.#StringExpression
+#ProfileName: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z_]{2,64}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProfileVersion": =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
+#ProfileVersion: =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SignatureValidityPeriod": close({
+#SignatureValidityPeriod: close({
 	Type?: "DAYS" | "MONTHS" | "YEARS" | fn.#StringExpression
 	Value?: int |
 		{
@@ -55,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/SignatureValidityPeriod": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |

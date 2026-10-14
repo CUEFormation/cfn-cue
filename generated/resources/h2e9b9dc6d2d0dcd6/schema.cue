@@ -9,15 +9,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::ReceiptFilter
-#Properties: close({Filter!: _#defs."/$defs/Properties/definitions/Filter"})
+#Properties: close({Filter!: #Filter})
 
-_#defs: "/$defs/Properties/definitions/Filter": close({
-	IpFilter!: _#defs."/$defs/Properties/definitions/IpFilter"
+#Filter: close({
+	IpFilter!: #IpFilter
 	Name?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpFilter": close({
+#IpFilter: close({
 	Cidr!:   string | fn.#StringExpression
 	Policy!: "Allow" | "Block" | fn.#StringExpression
 }) |

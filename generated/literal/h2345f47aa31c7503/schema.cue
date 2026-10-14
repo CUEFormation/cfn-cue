@@ -8,19 +8,19 @@ import "strings"
 
 // Resource Type definition for AWS::S3Vectors::VectorBucketPolicy
 #Properties: close({
-	Policy!:           _#defs."/$defs/Properties/definitions/Policy"
-	VectorBucketArn?:  _#defs."/$defs/Properties/definitions/VectorBucketArn"
-	VectorBucketName?: _#defs."/$defs/Properties/definitions/VectorBucketName"
+	Policy!:           #Policy
+	VectorBucketArn?:  #VectorBucketArn
+	VectorBucketName?: #VectorBucketName
 }) & matchN(>=1, [{VectorBucketName!: _}, {VectorBucketArn!: _}])
 
 // A policy document containing permissions to add to the specified vector
 // bucket. In IAM, you must provide policy documents in JSON format. However,
 // in CloudFormation you can provide the policy in JSON or YAML format because
 // CloudFormation converts YAML to JSON before submitting it to IAM.
-_#defs: "/$defs/Properties/definitions/Policy": string | {...}
+#Policy: string | {...}
 
 // The Amazon Resource Name (ARN) of the vector bucket.
-_#defs: "/$defs/Properties/definitions/VectorBucketArn": =~"^arn:aws[-a-z0-9]*:s3vectors:[a-z0-9-]+:[0-9]{12}:bucket/[a-z0-9][a-z0-9-.]{1,61}[a-z0-9]$"
+#VectorBucketArn: =~"^arn:aws[-a-z0-9]*:s3vectors:[a-z0-9-]+:[0-9]{12}:bucket/[a-z0-9][a-z0-9-.]{1,61}[a-z0-9]$"
 
 // The name of the vector bucket
-_#defs: "/$defs/Properties/definitions/VectorBucketName": strings.MaxRunes(63) & strings.MinRunes(3)
+#VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3)

@@ -18,8 +18,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SageMaker::EndpointConfig
 #Properties: close({
-	AsyncInferenceConfig?:   _#defs."/$defs/Properties/definitions/AsyncInferenceConfig" | fn.#ObjectExpression
-	DataCaptureConfig?:      _#defs."/$defs/Properties/definitions/DataCaptureConfig" | fn.#ObjectExpression
+	AsyncInferenceConfig?:   #AsyncInferenceConfig | fn.#ObjectExpression
+	DataCaptureConfig?:      #DataCaptureConfig | fn.#ObjectExpression
 	EnableNetworkIsolation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EndpointConfigName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 	fn.#StringExpression
@@ -28,27 +28,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	ExplainerConfig?: _#defs."/$defs/Properties/definitions/ExplainerConfig" | fn.#ObjectExpression
+	ExplainerConfig?: #ExplainerConfig | fn.#ObjectExpression
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^[a-zA-Z0-9:/_-]*$" |
 	fn.#StringExpression
-	MetricsConfig?: _#defs."/$defs/Properties/definitions/MetricsConfig" | fn.#ObjectExpression
-	ProductionVariants!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ProductionVariant"
-	] |
-		fn.#ListExpression
-	ShadowProductionVariants?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ProductionVariant"
-	] |
-		fn.#ListExpression
-	Tags?:      list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
+	MetricsConfig?:            #MetricsConfig | fn.#ObjectExpression
+	ProductionVariants!:       list.MaxItems(10) & list.MinItems(1) & [...#ProductionVariant] | fn.#ListExpression
+	ShadowProductionVariants?: list.MaxItems(10) & list.MinItems(1) & [...#ProductionVariant] | fn.#ListExpression
+	Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	VpcConfig?:                #VpcConfig | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AsyncInferenceClientConfig": close({
+#AsyncInferenceClientConfig: close({
 	MaxConcurrentInvocationsPerInstance?: int & <=1000 & >=1 |
 		{
 			string &
@@ -68,13 +62,13 @@ _#defs: "/$defs/Properties/definitions/AsyncInferenceClientConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AsyncInferenceConfig": close({
-	ClientConfig?: _#defs."/$defs/Properties/definitions/AsyncInferenceClientConfig" | fn.#ObjectExpression
-	OutputConfig!: _#defs."/$defs/Properties/definitions/AsyncInferenceOutputConfig" | fn.#ObjectExpression
+#AsyncInferenceConfig: close({
+	ClientConfig?: #AsyncInferenceClientConfig | fn.#ObjectExpression
+	OutputConfig!: #AsyncInferenceOutputConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AsyncInferenceNotificationConfig": close({
+#AsyncInferenceNotificationConfig: close({
 	ErrorTopic?: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:aws[a-z\\-]*:sns:[a-z0-9\\-]*:[0-9]{12}:[a-zA-Z0-9_.-]+$" |
@@ -90,20 +84,20 @@ _#defs: "/$defs/Properties/definitions/AsyncInferenceNotificationConfig": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AsyncInferenceOutputConfig": close({
+#AsyncInferenceOutputConfig: close({
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^[a-zA-Z0-9:/_-]*$" |
 	fn.#StringExpression
-	NotificationConfig?: _#defs."/$defs/Properties/definitions/AsyncInferenceNotificationConfig" | fn.#ObjectExpression
+	NotificationConfig?: #AsyncInferenceNotificationConfig | fn.#ObjectExpression
 	S3FailurePath?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" | fn.#StringExpression
 	S3OutputPath?:  strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationConfig": close({
+#CapacityReservationConfig: close({
 	CapacityReservationPreference?: =~"capacity-reservations-only" | fn.#StringExpression
 	MlReservationArn?: strings.MaxRunes(258) &
 	strings.MinRunes(20) &
@@ -112,7 +106,7 @@ _#defs: "/$defs/Properties/definitions/CapacityReservationConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CaptureContentTypeHeader": close({
+#CaptureContentTypeHeader: close({
 	CsvContentTypes?: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(256) &
 		strings.MinRunes(1) &
@@ -130,19 +124,17 @@ _#defs: "/$defs/Properties/definitions/CaptureContentTypeHeader": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CaptureOption": close(
-	{CaptureMode!: "Input" | "InputAndOutput" | "Output" | fn.#StringExpression},
-) |
+#CaptureOption: close({CaptureMode!: "Input" | "InputAndOutput" | "Output" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClarifyExplainerConfig": close({
+#ClarifyExplainerConfig: close({
 	EnableExplanations?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	InferenceConfig?:    _#defs."/$defs/Properties/definitions/ClarifyInferenceConfig" | fn.#ObjectExpression
-	ShapConfig!:         _#defs."/$defs/Properties/definitions/ClarifyShapConfig" | fn.#ObjectExpression
+	InferenceConfig?:    #ClarifyInferenceConfig | fn.#ObjectExpression
+	ShapConfig!:         #ClarifyShapConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClarifyInferenceConfig": close({
+#ClarifyInferenceConfig: close({
 	ContentTemplate?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	FeatureHeaders?: list.MaxItems(256) & list.MinItems(1) & [
 		...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
@@ -221,7 +213,7 @@ _#defs: "/$defs/Properties/definitions/ClarifyInferenceConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClarifyShapBaselineConfig": close({
+#ClarifyShapBaselineConfig: close({
 	MimeType?: strings.MaxRunes(255) &
 	strings.MinRunes(0) &
 	=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*\\/[a-zA-Z0-9](-*[a-zA-Z0-9+.])*" |
@@ -232,7 +224,7 @@ _#defs: "/$defs/Properties/definitions/ClarifyShapBaselineConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClarifyShapConfig": close({
+#ClarifyShapConfig: close({
 	NumberOfSamples?: int & >=1 |
 		{
 			string &
@@ -262,20 +254,20 @@ _#defs: "/$defs/Properties/definitions/ClarifyShapConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	ShapBaselineConfig!: _#defs."/$defs/Properties/definitions/ClarifyShapBaselineConfig" | fn.#ObjectExpression
-	TextConfig?:         _#defs."/$defs/Properties/definitions/ClarifyTextConfig" | fn.#ObjectExpression
+	ShapBaselineConfig!: #ClarifyShapBaselineConfig | fn.#ObjectExpression
+	TextConfig?:         #ClarifyTextConfig | fn.#ObjectExpression
 	UseLogit?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClarifyTextConfig": close({
+#ClarifyTextConfig: close({
 	Granularity!: =~"token|sentence|paragraph" | fn.#StringExpression
 	Language!: =~"af|sq|ar|hy|eu|bn|bg|ca|zh|hr|cs|da|nl|en|et|fi|fr|de|el|gu|he|hi|hu|is|id|ga|it|kn|ky|lv|lt|lb|mk|ml|mr|ne|nb|fa|pl|pt|ro|ru|sa|sr|tn|si|sk|sl|es|sv|tl|ta|tt|te|tr|uk|ur|yo|lij|xx" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CoreDumpConfig": close({
+#CoreDumpConfig: close({
 	DestinationS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" |
 	fn.#StringExpression
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -287,10 +279,9 @@ _#defs: "/$defs/Properties/definitions/CoreDumpConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataCaptureConfig": close({
-	CaptureContentTypeHeader?: _#defs."/$defs/Properties/definitions/CaptureContentTypeHeader" | fn.#ObjectExpression
-	CaptureOptions!: list.MaxItems(32) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CaptureOption"] |
-		fn.#ListExpression
+#DataCaptureConfig: close({
+	CaptureContentTypeHeader?: #CaptureContentTypeHeader | fn.#ObjectExpression
+	CaptureOptions!:           list.MaxItems(32) & list.MinItems(1) & [...#CaptureOption] | fn.#ListExpression
 	DestinationS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" |
 	fn.#StringExpression
 	EnableCapture?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -319,12 +310,10 @@ _#defs: "/$defs/Properties/definitions/DataCaptureConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExplainerConfig": close(
-	{ClarifyExplainerConfig?: _#defs."/$defs/Properties/definitions/ClarifyExplainerConfig" | fn.#ObjectExpression},
-) |
+#ExplainerConfig: close({ClarifyExplainerConfig?: #ClarifyExplainerConfig | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstancePool": close({
+#InstancePool: close({
 	InstanceType!: "ml.c4.2xlarge" |
 		"ml.c4.4xlarge" |
 		"ml.c4.8xlarge" |
@@ -624,7 +613,7 @@ _#defs: "/$defs/Properties/definitions/InstancePool": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedInstanceScaling": close({
+#ManagedInstanceScaling: close({
 	MaxInstanceCount?: int & >=1 |
 		{
 			string &
@@ -655,19 +644,19 @@ _#defs: "/$defs/Properties/definitions/ManagedInstanceScaling": close({
 				)
 		} |
 		fn.#NumberExpression
-	ScaleInPolicy?: _#defs."/$defs/Properties/definitions/ScaleInPolicy" | fn.#ObjectExpression
+	ScaleInPolicy?: #ScaleInPolicy | fn.#ObjectExpression
 	Status?:        ("DISABLED" | "ENABLED") & (strings.MaxRunes(10) & strings.MinRunes(1)) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricsConfig": close({
+#MetricsConfig: close({
 	EnableDetailedObservability?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableEnhancedMetrics?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MetricPublishFrequencyInSeconds?: (==10 | ==30 | ==60 | ==120 | ==180 | ==240 | ==300) & int | fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrefixAwareRoutingConfig": close({
+#PrefixAwareRoutingConfig: close({
 	ConcurrencyThreshold?: int & <=1024 & >=1 |
 		{
 			string &
@@ -703,8 +692,8 @@ _#defs: "/$defs/Properties/definitions/PrefixAwareRoutingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProductionVariant": close({
-	CapacityReservationConfig?: _#defs."/$defs/Properties/definitions/CapacityReservationConfig" | fn.#ObjectExpression
+#ProductionVariant: close({
+	CapacityReservationConfig?: #CapacityReservationConfig | fn.#ObjectExpression
 	ContainerStartupHealthCheckTimeoutInSeconds?: int & <=3600 & >=60 |
 		{
 			string &
@@ -721,7 +710,7 @@ _#defs: "/$defs/Properties/definitions/ProductionVariant": close({
 				)
 		} |
 		fn.#NumberExpression
-	CoreDumpConfig?:  _#defs."/$defs/Properties/definitions/CoreDumpConfig" | fn.#ObjectExpression
+	CoreDumpConfig?:  #CoreDumpConfig | fn.#ObjectExpression
 	EnableSSMAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InferenceAmiVersion?: "al2-ami-sagemaker-inference-gpu-2" |
 		"al2-ami-sagemaker-inference-gpu-2-1" |
@@ -763,8 +752,7 @@ _#defs: "/$defs/Properties/definitions/ProductionVariant": close({
 				)
 		} |
 		fn.#NumberExpression
-	InstancePools?: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/InstancePool"] |
-		fn.#ListExpression
+	InstancePools?: list.MaxItems(5) & list.MinItems(1) & [...#InstancePool] | fn.#ListExpression
 	InstanceType?: "ml.c4.2xlarge" |
 		"ml.c4.4xlarge" |
 		"ml.c4.8xlarge" |
@@ -1043,7 +1031,7 @@ _#defs: "/$defs/Properties/definitions/ProductionVariant": close({
 		"ml.trn1n.32xlarge" |
 		"ml.trn2.48xlarge" |
 		fn.#StringExpression
-	ManagedInstanceScaling?: _#defs."/$defs/Properties/definitions/ManagedInstanceScaling"
+	ManagedInstanceScaling?: #ManagedInstanceScaling
 	ModelDataDownloadTimeoutInSeconds?: int & <=3600 & >=60 |
 		{
 			string &
@@ -1062,8 +1050,8 @@ _#defs: "/$defs/Properties/definitions/ProductionVariant": close({
 		fn.#NumberExpression
 	ModelName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?$" |
 	fn.#StringExpression
-	RoutingConfig?:    _#defs."/$defs/Properties/definitions/RoutingConfig" | fn.#ObjectExpression
-	ServerlessConfig?: _#defs."/$defs/Properties/definitions/ServerlessConfig" | fn.#ObjectExpression
+	RoutingConfig?:    #RoutingConfig | fn.#ObjectExpression
+	ServerlessConfig?: #ServerlessConfig | fn.#ObjectExpression
 	VariantInstanceProvisionTimeoutInSeconds?: int & <=3600 & >=300 |
 		{
 			string &
@@ -1101,14 +1089,14 @@ _#defs: "/$defs/Properties/definitions/ProductionVariant": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingConfig": close({
-	PrefixAwareRoutingConfig?: _#defs."/$defs/Properties/definitions/PrefixAwareRoutingConfig" | fn.#ObjectExpression
+#RoutingConfig: close({
+	PrefixAwareRoutingConfig?: #PrefixAwareRoutingConfig | fn.#ObjectExpression
 	RoutingStrategy?: ("LEAST_OUTSTANDING_REQUESTS" | "PREFIX_AWARE" | "RANDOM") & (strings.MaxRunes(63) & strings.MinRunes(1)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScaleInPolicy": close({
+#ScaleInPolicy: close({
 	CooldownInMinutes?: int & <=1440 & >=5 |
 		{
 			string &
@@ -1145,7 +1133,7 @@ _#defs: "/$defs/Properties/definitions/ScaleInPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerlessConfig": close({
+#ServerlessConfig: close({
 	MaxConcurrency!: int & <=200 & >=1 |
 		{
 			string &
@@ -1197,13 +1185,13 @@ _#defs: "/$defs/Properties/definitions/ServerlessConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(32) &

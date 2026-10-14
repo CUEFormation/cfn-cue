@@ -162,7 +162,7 @@ package schema
 	SourceVolumeId?: string
 
 	// The tags to apply to the volume during creation.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The throughput to provision for a volume, with a maximum of 2,000 MiB/s.
 	// This parameter is valid only for ``gp3`` volumes. The default value is 125.
@@ -210,7 +210,7 @@ package schema
 
 // Specifies a tag. For more information, see [Resource
 // tags](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: string
 

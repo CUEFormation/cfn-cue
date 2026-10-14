@@ -17,9 +17,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::Route53GlobalResolver::FirewallRule
 #Properties: close({
-	Action!:               _#defs."/$defs/Properties/definitions/FirewallRuleAction"
-	BlockOverrideDnsType?: _#defs."/$defs/Properties/definitions/BlockOverrideDnsQueryType"
-	BlockOverrideDomain?:  _#defs."/$defs/Properties/definitions/Domain"
+	Action!:               #FirewallRuleAction
+	BlockOverrideDnsType?: #BlockOverrideDnsQueryType
+	BlockOverrideDomain?:  #Domain
 	BlockOverrideTtl?: int & <=604800 & >=0 |
 		{
 			string &
@@ -36,14 +36,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	BlockResponse?:         _#defs."/$defs/Properties/definitions/FirewallBlockResponse"
+	BlockResponse?:         #FirewallBlockResponse
 	ClientToken?:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ConfidenceThreshold?:   _#defs."/$defs/Properties/definitions/ConfidenceThreshold"
-	Description?:           _#defs."/$defs/Properties/definitions/ResourceDescription"
-	DnsAdvancedProtection?: _#defs."/$defs/Properties/definitions/DnsAdvancedProtection"
+	ConfidenceThreshold?:   #ConfidenceThreshold
+	Description?:           #ResourceDescription
+	DnsAdvancedProtection?: #DnsAdvancedProtection
 	DnsViewId!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
 	FirewallDomainListId?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-	Name!:                  _#defs."/$defs/Properties/definitions/ResourceName"
+	Name!:                  #ResourceName
 	Priority?: int & <=10000 & >=1 |
 		{
 			string &
@@ -63,32 +63,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	QType?: strings.MaxRunes(16) & strings.MinRunes(0) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/BlockOverrideDnsQueryType": "CNAME" | fn.#StringExpression
+#BlockOverrideDnsQueryType: "CNAME" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CRResourceStatus": "CREATING" |
-	"OPERATIONAL" |
-	"UPDATING" |
-	"DELETING" |
-	fn.#StringExpression
+#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConfidenceThreshold": "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
+#ConfidenceThreshold: "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DnsAdvancedProtection": "DGA" |
-	"DNS_TUNNELING" |
-	"DICTIONARY_DGA" |
-	fn.#StringExpression
+#DnsAdvancedProtection: "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Domain": strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\*?[-a-zA-Z0-9.]+" |
-fn.#StringExpression
+#Domain: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\*?[-a-zA-Z0-9.]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FirewallBlockResponse": "NODATA" | "NXDOMAIN" | "OVERRIDE" | fn.#StringExpression
+#FirewallBlockResponse: "NODATA" | "NXDOMAIN" | "OVERRIDE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FirewallRuleAction": "ALLOW" | "ALERT" | "BLOCK" | fn.#StringExpression
+#FirewallRuleAction: "ALLOW" | "ALERT" | "BLOCK" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceDescription": strings.MaxRunes(256) & strings.MinRunes(1) |
-fn.#StringExpression
+#ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Route53GlobalResolver::FirewallRule"
 	Properties!: #Properties

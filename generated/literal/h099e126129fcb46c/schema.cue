@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"list"
 )
 
@@ -27,7 +27,7 @@ import (
 		=~"^arn:(aws|aws-cn|aws-us-gov):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:evaluator/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$"
 
 	// The configuration for the evaluator, including LLM-as-a-Judge, code-based, or derived settings.
-	EvaluatorConfig!: _#defs."/$defs/Properties/definitions/EvaluatorConfig"
+	EvaluatorConfig!: #EvaluatorConfig
 
 	// The unique identifier of the evaluator.
 	EvaluatorId?: =~"^(Builtin.[a-zA-Z0-9_-]+|[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10})$"
@@ -38,7 +38,7 @@ import (
 	// The kind of evaluator resource. Builtin and ThirdParty are AWS-managed global
 	// evaluators that you reference but don't create; Custom, CustomCode, and
 	// CustomDerived are evaluators that you create.
-	EvaluatorType?: _#defs."/$defs/Properties/definitions/EvaluatorType"
+	EvaluatorType?: #EvaluatorType
 
 	// The ARN of the KMS key used to encrypt evaluator data.
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
@@ -49,35 +49,35 @@ import (
 	// The evaluation level that determines the scope of evaluation. Required for
 	// all evaluator configuration types. For Derived evaluators it must match the
 	// level of the base evaluator identified by BaseEvaluatorId.
-	Level!: _#defs."/$defs/Properties/definitions/EvaluatorLevel"
+	Level!: #EvaluatorLevel
 
 	// Where the evaluator's logic comes from: AWS, a third-party library (DeepEval
 	// or AutoEval), or you. Derived evaluators inherit the provider of their base
 	// evaluator.
-	Provider?: _#defs."/$defs/Properties/definitions/Provider"
+	Provider?: #Provider
 
 	// The current status of the evaluator.
-	Status?: _#defs."/$defs/Properties/definitions/EvaluatorStatus"
+	Status?: #EvaluatorStatus
 
 	// A list of tags to assign to the evaluator.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The timestamp when the evaluator was last updated.
 	UpdatedAt?: time.Time
 })
 
 // The configuration for using Amazon Bedrock models in evaluator assessments.
-_#defs: "/$defs/Properties/definitions/BedrockEvaluatorModelConfig": close({
+#BedrockEvaluatorModelConfig: close({
 	// Additional model-specific request fields.
 	AdditionalModelRequestFields?: {...}
-	InferenceConfig?:              _#defs."/$defs/Properties/definitions/InferenceConfiguration"
+	InferenceConfig?:              #InferenceConfiguration
 
 	// The identifier of the Amazon Bedrock model to use for evaluation.
 	ModelId!: string
 })
 
 // A categorical rating scale option.
-_#defs: "/$defs/Properties/definitions/CategoricalScaleDefinition": close({
+#CategoricalScaleDefinition: close({
 	// The description that explains what this categorical rating represents.
 	Definition!: string
 
@@ -86,25 +86,23 @@ _#defs: "/$defs/Properties/definitions/CategoricalScaleDefinition": close({
 })
 
 // The configuration for code-based evaluation using a Lambda function.
-_#defs: "/$defs/Properties/definitions/CodeBasedEvaluatorConfig": close(
-	{LambdaConfig!: _#defs."/$defs/Properties/definitions/LambdaEvaluatorConfig"},
-)
+#CodeBasedEvaluatorConfig: close({LambdaConfig!: #LambdaEvaluatorConfig})
 
 // The configuration for an evaluator derived from an existing base evaluator (a
 // built-in or third-party evaluator), run on your own model. The base
 // evaluator supplies the prompt and scoring logic.
-_#defs: "/$defs/Properties/definitions/DerivedEvaluatorConfig": close({
+#DerivedEvaluatorConfig: close({
 	// The identifier of the base evaluator whose logic to run (a Builtin.* or ThirdParty.* evaluator).
 	BaseEvaluatorId!:
 		=~"^(Builtin\\.[a-zA-Z0-9._-]+|ThirdParty\\.[a-zA-Z0-9._-]+|[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10})$"
-	ModelConfig!: _#defs."/$defs/Properties/definitions/EvaluatorModelConfig"
+	ModelConfig!: #EvaluatorModelConfig
 })
 
 // The configuration that defines how an evaluator assesses agent performance.
-_#defs: "/$defs/Properties/definitions/EvaluatorConfig": close({
-	CodeBased?:   _#defs."/$defs/Properties/definitions/CodeBasedEvaluatorConfig"
-	Derived?:     _#defs."/$defs/Properties/definitions/DerivedEvaluatorConfig"
-	LlmAsAJudge?: _#defs."/$defs/Properties/definitions/LlmAsAJudgeEvaluatorConfig"
+#EvaluatorConfig: close({
+	CodeBased?:   #CodeBasedEvaluatorConfig
+	Derived?:     #DerivedEvaluatorConfig
+	LlmAsAJudge?: #LlmAsAJudgeEvaluatorConfig
 	if LlmAsAJudge != _|_ {
 		CodeBased?: error(
 			"CodeBased cannot be used with LlmAsAJudge; set exactly one of LlmAsAJudge, CodeBased, Derived",
@@ -116,12 +114,12 @@ _#defs: "/$defs/Properties/definitions/EvaluatorConfig": close({
 	}
 }) & matchN(>=1, [{LlmAsAJudge!: _}, {CodeBased!: _}, {Derived!: _}])
 
-_#defs: "/$defs/Properties/definitions/EvaluatorLevel": "TOOL_CALL" | "TRACE" | "SESSION"
+#EvaluatorLevel: "TOOL_CALL" | "TRACE" | "SESSION"
 
 // The model configuration that specifies which foundation model to use for evaluation.
-_#defs: "/$defs/Properties/definitions/EvaluatorModelConfig": close({
-	BedrockEvaluatorModelConfig?:   _#defs."/$defs/Properties/definitions/BedrockEvaluatorModelConfig"
-	ResponsesEvaluatorModelConfig?: _#defs."/$defs/Properties/definitions/OpenResponsesEvaluatorModelConfig"
+#EvaluatorModelConfig: close({
+	BedrockEvaluatorModelConfig?:   #BedrockEvaluatorModelConfig
+	ResponsesEvaluatorModelConfig?: #OpenResponsesEvaluatorModelConfig
 	if BedrockEvaluatorModelConfig != _|_ {
 		ResponsesEvaluatorModelConfig?: error(
 			"ResponsesEvaluatorModelConfig cannot be used with BedrockEvaluatorModelConfig; set exactly one of BedrockEvaluatorModelConfig, ResponsesEvaluatorModelConfig",
@@ -129,24 +127,15 @@ _#defs: "/$defs/Properties/definitions/EvaluatorModelConfig": close({
 	}
 }) & matchN(>=1, [{BedrockEvaluatorModelConfig!: _}, {ResponsesEvaluatorModelConfig!: _}])
 
-_#defs: "/$defs/Properties/definitions/EvaluatorStatus": "ACTIVE" |
-	"CREATING" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"DELETING"
+#EvaluatorStatus: "ACTIVE" | "CREATING" | "CREATE_FAILED" | "UPDATING" | "UPDATE_FAILED" | "DELETING"
 
 // The kind of evaluator resource. Builtin and ThirdParty are AWS-managed global
 // evaluators that you reference but don't create; Custom, CustomCode, and
 // CustomDerived are evaluators that you create.
-_#defs: "/$defs/Properties/definitions/EvaluatorType": "Builtin" |
-	"ThirdParty" |
-	"Custom" |
-	"CustomCode" |
-	"CustomDerived"
+#EvaluatorType: "Builtin" | "ThirdParty" | "Custom" | "CustomCode" | "CustomDerived"
 
 // The inference configuration parameters that control model behavior during evaluation.
-_#defs: "/$defs/Properties/definitions/InferenceConfiguration": close({
+#InferenceConfiguration: close({
 	// The maximum number of tokens to generate in the model response.
 	MaxTokens?: int & >=1
 
@@ -158,7 +147,7 @@ _#defs: "/$defs/Properties/definitions/InferenceConfiguration": close({
 })
 
 // The Lambda function configuration for code-based evaluation.
-_#defs: "/$defs/Properties/definitions/LambdaEvaluatorConfig": close({
+#LambdaEvaluatorConfig: close({
 	// The ARN of the Lambda function used for evaluation.
 	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 		=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$"
@@ -168,15 +157,15 @@ _#defs: "/$defs/Properties/definitions/LambdaEvaluatorConfig": close({
 })
 
 // The configuration for LLM-as-a-Judge evaluation.
-_#defs: "/$defs/Properties/definitions/LlmAsAJudgeEvaluatorConfig": close({
+#LlmAsAJudgeEvaluatorConfig: close({
 	// The evaluation instructions that guide the language model in assessing agent performance.
 	Instructions!: string
-	ModelConfig!:  _#defs."/$defs/Properties/definitions/EvaluatorModelConfig"
-	RatingScale!:  _#defs."/$defs/Properties/definitions/RatingScale"
+	ModelConfig!:  #EvaluatorModelConfig
+	RatingScale!:  #RatingScale
 })
 
 // A numerical rating scale option.
-_#defs: "/$defs/Properties/definitions/NumericalScaleDefinition": close({
+#NumericalScaleDefinition: close({
 	// The description that explains what this numerical rating represents.
 	Definition!: string
 
@@ -188,13 +177,13 @@ _#defs: "/$defs/Properties/definitions/NumericalScaleDefinition": close({
 })
 
 // The configuration for using OpenResponses-compatible models in evaluator assessments.
-_#defs: "/$defs/Properties/definitions/OpenResponsesEvaluatorModelConfig": close({
+#OpenResponsesEvaluatorModelConfig: close({
 	// The maximum number of output tokens to generate, including visible output and reasoning tokens.
 	MaxOutputTokens?: int & >=1
 
 	// The identifier of the model to use for evaluation.
 	ModelId!:   string
-	Reasoning?: _#defs."/$defs/Properties/definitions/ReasoningConfiguration"
+	Reasoning?: #ReasoningConfiguration
 
 	// The sampling temperature between 0 and 2.
 	Temperature?: <=2 & >=0
@@ -206,24 +195,24 @@ _#defs: "/$defs/Properties/definitions/OpenResponsesEvaluatorModelConfig": close
 // Where the evaluator's logic comes from: AWS for AWS-authored evaluators,
 // DeepEval or AutoEval for the corresponding third-party libraries, or Custom
 // for an evaluator that you authored.
-_#defs: "/$defs/Properties/definitions/Provider": "AWS" | "DeepEval" | "AutoEval" | "Custom"
+#Provider: "AWS" | "DeepEval" | "AutoEval" | "Custom"
 
 // The rating scale that defines how evaluators should score agent performance.
-_#defs: "/$defs/Properties/definitions/RatingScale": close({
-	Categorical?: [..._#defs."/$defs/Properties/definitions/CategoricalScaleDefinition"]
-	Numerical?:   [..._#defs."/$defs/Properties/definitions/NumericalScaleDefinition"]
+#RatingScale: close({
+	Categorical?: [...#CategoricalScaleDefinition]
+	Numerical?:   [...#NumericalScaleDefinition]
 	if Numerical != _|_ {
 		Categorical?: error("Categorical cannot be used with Numerical; set exactly one of Numerical, Categorical")
 	}
 }) & matchN(>=1, [{Numerical!: _}, {Categorical!: _}])
 
 // The reasoning configuration for reasoning models.
-_#defs: "/$defs/Properties/definitions/ReasoningConfiguration": close({
+#ReasoningConfiguration: close({
 	// The level of reasoning effort the model applies.
 	Effort?: strings.MaxRunes(64) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -18,33 +18,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AgentId!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.+]+$" | fn.#StringExpression
 	AgentLifecycle?:    "PREVIEW" | "PUBLISHED" | fn.#StringExpression
 	AwsAccountId!:      strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	CustomPromptInput?: _#defs."/$defs/Properties/definitions/CustomPromptInput"
+	CustomPromptInput?: #CustomPromptInput
 	Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
 	IconId?:            strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:              strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 	Spaces?:            list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 	StarterPrompts?: list.MaxItems(3) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression] |
 	fn.#ListExpression
-	Tags?:           list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/AgentTag"] | fn.#ListExpression
+	Tags?:           list.MaxItems(200) & [...#AgentTag] | fn.#ListExpression
 	WelcomeMessage?: strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AgentTag": close({
+#AgentTag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomPromptInput": close({
-	ExistingPrompt?: _#defs."/$defs/Properties/definitions/CustomPromptProfile"
-	NewPrompt?:      _#defs."/$defs/Properties/definitions/CustomPromptInputParameters"
+#CustomPromptInput: close({
+	ExistingPrompt?: #CustomPromptProfile
+	NewPrompt?:      #CustomPromptInputParameters
 	if ExistingPrompt != _|_ {
 		NewPrompt?: error("NewPrompt cannot be used with ExistingPrompt; set exactly one of ExistingPrompt, NewPrompt")
 	}
 }) & matchN(>=1, [{ExistingPrompt!: _}, {NewPrompt!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomPromptInputParameters": close({
+#CustomPromptInputParameters: close({
 	CustomInstructions?: strings.MaxRunes(350000) & strings.MinRunes(5) | fn.#StringExpression
 	Identity?:           strings.MaxRunes(350000) & strings.MinRunes(5) | fn.#StringExpression
 	OutputStyle?:        strings.MaxRunes(350000) & strings.MinRunes(5) | fn.#StringExpression
@@ -53,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/CustomPromptInputParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomPromptInterface": close({
+#CustomPromptInterface: close({
 	CustomInstructions?: strings.MaxRunes(350000) & strings.MinRunes(5) | fn.#StringExpression
 	Identity?:           strings.MaxRunes(350000) & strings.MinRunes(5) | fn.#StringExpression
 	ModelProfileId?: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
@@ -67,7 +67,7 @@ _#defs: "/$defs/Properties/definitions/CustomPromptInterface": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomPromptProfile": close({
+#CustomPromptProfile: close({
 	ModelProfileId!:  strings.MaxRunes(36) | fn.#StringExpression
 	QbsAwsAccountId!: strings.MaxRunes(15) & =~"^QBS[0-9]{12}$" | fn.#StringExpression
 	SubscriptionId!:  strings.MaxRunes(32) | fn.#StringExpression

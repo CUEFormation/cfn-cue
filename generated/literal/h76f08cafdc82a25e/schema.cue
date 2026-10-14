@@ -24,15 +24,13 @@ import (
 
 	// The name of the payment connector
 	ConnectorName!:   =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$"
-	ConnectorStatus?: _#defs."/$defs/Properties/definitions/PaymentConnectorStatus"
-	ConnectorType!:   _#defs."/$defs/Properties/definitions/PaymentConnectorType"
+	ConnectorStatus?: #PaymentConnectorStatus
+	ConnectorType!:   #PaymentConnectorType
 
 	// The credential provider configurations for the connector. Required when
 	// ProvisionMode is MANUAL or not specified. Empty for QUICK_CREATE until
 	// provisioning completes.
-	CredentialProviderConfigurations?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CredentialsProviderConfiguration"
-	]
+	CredentialProviderConfigurations?: list.MaxItems(1) & [...] & [...#CredentialsProviderConfiguration]
 
 	// A description of the payment connector
 	Description?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s]+$"
@@ -50,17 +48,17 @@ import (
 	// The provision mode for creating the connector. MANUAL requires
 	// CredentialProviderConfigurations; QUICK_CREATE orchestrates OAuth consent
 	// and credential provisioning.
-	ProvisionMode?: _#defs."/$defs/Properties/definitions/PaymentConnectorProvisionMode"
+	ProvisionMode?: #PaymentConnectorProvisionMode
 })
 
-_#defs: "/$defs/Properties/definitions/CredentialsProviderConfiguration": close({
-	CoinbaseCDP?: _#defs."/$defs/Properties/definitions/PaymentCredentialProviderConfiguration"
-	StripePrivy?: _#defs."/$defs/Properties/definitions/PaymentCredentialProviderConfiguration"
+#CredentialsProviderConfiguration: close({
+	CoinbaseCDP?: #PaymentCredentialProviderConfiguration
+	StripePrivy?: #PaymentCredentialProviderConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/PaymentConnectorProvisionMode": "MANUAL" | "QUICK_CREATE"
+#PaymentConnectorProvisionMode: "MANUAL" | "QUICK_CREATE"
 
-_#defs: "/$defs/Properties/definitions/PaymentConnectorStatus": "CREATING" |
+#PaymentConnectorStatus: "CREATING" |
 	"UPDATING" |
 	"DELETING" |
 	"READY" |
@@ -73,9 +71,9 @@ _#defs: "/$defs/Properties/definitions/PaymentConnectorStatus": "CREATING" |
 	"AUTHENTICATION_EXPIRED" |
 	"AUTHENTICATION_FAILED"
 
-_#defs: "/$defs/Properties/definitions/PaymentConnectorType": "CoinbaseCDP" | "StripePrivy"
+#PaymentConnectorType: "CoinbaseCDP" | "StripePrivy"
 
-_#defs: "/$defs/Properties/definitions/PaymentCredentialProviderConfiguration": close({
+#PaymentCredentialProviderConfiguration: close({
 	// The ARN of the payment credential provider
 	CredentialProviderArn!: string
 })

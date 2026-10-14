@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -24,19 +24,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
 	fn.#StringExpression
 	Name!:          strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	PortalOptions?: _#defs."/$defs/Properties/definitions/PortalOptionsConfiguration" | fn.#ObjectExpression
+	PortalOptions?: #PortalOptionsConfiguration | fn.#ObjectExpression
 	Status?:        "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?: list.MaxItems(75) & [..._#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Tags?:          list.MaxItems(75) & [...#Tag | fn.#ObjectExpression] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/PortalOptionsConfiguration": close({
-	SignInOptions?: _#defs."/$defs/Properties/definitions/SignInOptions" | fn.#ObjectExpression
+#PortalOptionsConfiguration: close({
+	SignInOptions?: #SignInOptions | fn.#ObjectExpression
 	Visibility?:    "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SignInOptions": close({
+#SignInOptions: close({
 	ApplicationUrl?: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^http(s)?:\\/\\/[-a-zA-Z0-9+&@#\\/%?=~_|!:,.;]*[-a-zA-Z0-9+&bb@#\\/%?=~_|]$" |
@@ -45,7 +44,7 @@ _#defs: "/$defs/Properties/definitions/SignInOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
 }) |

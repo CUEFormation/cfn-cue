@@ -20,96 +20,86 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [IssueCertificate](https://docs.aws.amazon.com/privateca/latest/APIReference/API_IssueCertificate.html)
 // action.
 #Properties: close({
-	ApiPassthrough?:            _#defs."/$defs/Properties/definitions/ApiPassthrough" | fn.#ObjectExpression
-	CertificateAuthorityArn!:   _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
+	ApiPassthrough?:            #ApiPassthrough | fn.#ObjectExpression
+	CertificateAuthorityArn!:   #Arn | fn.#StringExpression
 	CertificateSigningRequest!: strings.MinRunes(1) | fn.#StringExpression
 	SigningAlgorithm!:          string | fn.#StringExpression
-	TemplateArn?:               _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	Validity!:                  _#defs."/$defs/Properties/definitions/Validity" | fn.#ObjectExpression
-	ValidityNotBefore?:         _#defs."/$defs/Properties/definitions/Validity" | fn.#ObjectExpression
+	TemplateArn?:               #Arn | fn.#StringExpression
+	Validity!:                  #Validity | fn.#ObjectExpression
+	ValidityNotBefore?:         #Validity | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ApiPassthrough": close({
-	Extensions?: _#defs."/$defs/Properties/definitions/Extensions" | fn.#ObjectExpression
-	Subject?:    _#defs."/$defs/Properties/definitions/Subject" | fn.#ObjectExpression
+#ApiPassthrough: close({
+	Extensions?: #Extensions | fn.#ObjectExpression
+	Subject?:    #Subject | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
+#Arn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CertificatePolicyList": [
-	..._#defs."/$defs/Properties/definitions/PolicyInformation"
-] |
-	fn.#ListExpression
+#CertificatePolicyList: [...#PolicyInformation] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CustomAttribute": close({
-	ObjectIdentifier!: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier" | fn.#StringExpression
+#CustomAttribute: close({
+	ObjectIdentifier!: #CustomObjectIdentifier | fn.#StringExpression
 	Value!:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomAttributeList": [..._#defs."/$defs/Properties/definitions/CustomAttribute"] |
-	fn.#ListExpression
+#CustomAttributeList: [...#CustomAttribute] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CustomExtension": close({
+#CustomExtension: close({
 	Critical?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ObjectIdentifier!: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier" | fn.#StringExpression
+	ObjectIdentifier!: #CustomObjectIdentifier | fn.#StringExpression
 	Value!:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomExtensionList": [..._#defs."/$defs/Properties/definitions/CustomExtension"] |
-	fn.#ListExpression
+#CustomExtensionList: [...#CustomExtension] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CustomObjectIdentifier": string | fn.#StringExpression
+#CustomObjectIdentifier: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DnsName": string | fn.#StringExpression
+#DnsName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EdiPartyName": close({
+#EdiPartyName: close({
 	NameAssigner!: string | fn.#StringExpression
 	PartyName!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExtendedKeyUsage": close({
-	ExtendedKeyUsageObjectIdentifier?: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier" |
-		fn.#StringExpression
-	ExtendedKeyUsageType?: string | fn.#StringExpression
+#ExtendedKeyUsage: close({
+	ExtendedKeyUsageObjectIdentifier?: #CustomObjectIdentifier | fn.#StringExpression
+	ExtendedKeyUsageType?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExtendedKeyUsageList": [
-	..._#defs."/$defs/Properties/definitions/ExtendedKeyUsage"
-] |
-	fn.#ListExpression
+#ExtendedKeyUsageList: [...#ExtendedKeyUsage] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Extensions": close({
-	CertificatePolicies?:     _#defs."/$defs/Properties/definitions/CertificatePolicyList" | fn.#ListExpression
-	CustomExtensions?:        _#defs."/$defs/Properties/definitions/CustomExtensionList" | fn.#ListExpression
-	ExtendedKeyUsage?:        _#defs."/$defs/Properties/definitions/ExtendedKeyUsageList" | fn.#ListExpression
-	KeyUsage?:                _#defs."/$defs/Properties/definitions/KeyUsage" | fn.#ObjectExpression
-	SubjectAlternativeNames?: _#defs."/$defs/Properties/definitions/GeneralNameList" | fn.#ListExpression
+#Extensions: close({
+	CertificatePolicies?:     #CertificatePolicyList | fn.#ListExpression
+	CustomExtensions?:        #CustomExtensionList | fn.#ListExpression
+	ExtendedKeyUsage?:        #ExtendedKeyUsageList | fn.#ListExpression
+	KeyUsage?:                #KeyUsage | fn.#ObjectExpression
+	SubjectAlternativeNames?: #GeneralNameList | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeneralName": close({
-	DirectoryName?:             _#defs."/$defs/Properties/definitions/Subject" | fn.#ObjectExpression
-	DnsName?:                   _#defs."/$defs/Properties/definitions/DnsName" | fn.#StringExpression
-	EdiPartyName?:              _#defs."/$defs/Properties/definitions/EdiPartyName" | fn.#ObjectExpression
-	IpAddress?:                 _#defs."/$defs/Properties/definitions/IpAddress" | fn.#StringExpression
-	OtherName?:                 _#defs."/$defs/Properties/definitions/OtherName" | fn.#ObjectExpression
-	RegisteredId?:              _#defs."/$defs/Properties/definitions/CustomObjectIdentifier" | fn.#StringExpression
-	Rfc822Name?:                _#defs."/$defs/Properties/definitions/Rfc822Name" | fn.#StringExpression
-	UniformResourceIdentifier?: _#defs."/$defs/Properties/definitions/UniformResourceIdentifier" | fn.#StringExpression
+#GeneralName: close({
+	DirectoryName?:             #Subject | fn.#ObjectExpression
+	DnsName?:                   #DnsName | fn.#StringExpression
+	EdiPartyName?:              #EdiPartyName | fn.#ObjectExpression
+	IpAddress?:                 #IpAddress | fn.#StringExpression
+	OtherName?:                 #OtherName | fn.#ObjectExpression
+	RegisteredId?:              #CustomObjectIdentifier | fn.#StringExpression
+	Rfc822Name?:                #Rfc822Name | fn.#StringExpression
+	UniformResourceIdentifier?: #UniformResourceIdentifier | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeneralNameList": [..._#defs."/$defs/Properties/definitions/GeneralName"] |
-	fn.#ListExpression
+#GeneralNameList: [...#GeneralName] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/IpAddress": string | fn.#StringExpression
+#IpAddress: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KeyUsage": close({
+#KeyUsage: close({
 	CRLSign?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DataEncipherment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DecipherOnly?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -122,38 +112,34 @@ _#defs: "/$defs/Properties/definitions/KeyUsage": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OtherName": close({
-	TypeId!: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier" | fn.#StringExpression
+#OtherName: close({
+	TypeId!: #CustomObjectIdentifier | fn.#StringExpression
 	Value!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyInformation": close({
-	CertPolicyId!:     _#defs."/$defs/Properties/definitions/CustomObjectIdentifier" | fn.#StringExpression
-	PolicyQualifiers?: _#defs."/$defs/Properties/definitions/PolicyQualifierInfoList" | fn.#ListExpression
+#PolicyInformation: close({
+	CertPolicyId!:     #CustomObjectIdentifier | fn.#StringExpression
+	PolicyQualifiers?: #PolicyQualifierInfoList | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyQualifierInfo": close({
+#PolicyQualifierInfo: close({
 	PolicyQualifierId!: string | fn.#StringExpression
-	Qualifier!:         _#defs."/$defs/Properties/definitions/Qualifier" | fn.#ObjectExpression
+	Qualifier!:         #Qualifier | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyQualifierInfoList": [
-	..._#defs."/$defs/Properties/definitions/PolicyQualifierInfo"
-] |
-	fn.#ListExpression
+#PolicyQualifierInfoList: [...#PolicyQualifierInfo] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Qualifier": close({CpsUri!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Qualifier: close({CpsUri!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rfc822Name": string | fn.#StringExpression
+#Rfc822Name: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Subject": close({
+#Subject: close({
 	CommonName?:                 string | fn.#StringExpression
 	Country?:                    string | fn.#StringExpression
-	CustomAttributes?:           _#defs."/$defs/Properties/definitions/CustomAttributeList" | fn.#ListExpression
+	CustomAttributes?:           #CustomAttributeList | fn.#ListExpression
 	DistinguishedNameQualifier?: string | fn.#StringExpression
 	GenerationQualifier?:        string | fn.#StringExpression
 	GivenName?:                  string | fn.#StringExpression
@@ -169,9 +155,9 @@ _#defs: "/$defs/Properties/definitions/Subject": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UniformResourceIdentifier": string | fn.#StringExpression
+#UniformResourceIdentifier: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Validity": close({
+#Validity: close({
 	Type!: string | fn.#StringExpression
 	Value!: number |
 		{

@@ -12,12 +12,12 @@ import (
 
 // Definition of AWS::WorkSpacesWeb::Portal Resource Type
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
-	AuthenticationType?:          _#defs."/$defs/Properties/definitions/AuthenticationType"
+	AdditionalEncryptionContext?: #EncryptionContextMap
+	AuthenticationType?:          #AuthenticationType
 	BrowserSettingsArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$"
-	BrowserType?:  _#defs."/$defs/Properties/definitions/BrowserType"
+	BrowserType?:  #BrowserType
 	CreationDate?: time.Time
 	CustomerManagedKey?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -26,7 +26,7 @@ import (
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$"
 	DisplayName?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$"
-	InstanceType?: _#defs."/$defs/Properties/definitions/InstanceType"
+	InstanceType?: #InstanceType
 	IpAccessSettingsArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$"
@@ -39,14 +39,14 @@ import (
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$"
 	PortalCustomDomain?:          strings.MaxRunes(128) & strings.MinRunes(0)
 	PortalEndpoint?:              strings.MaxRunes(253) & strings.MinRunes(1)
-	PortalStatus?:                _#defs."/$defs/Properties/definitions/PortalStatus"
-	RendererType?:                _#defs."/$defs/Properties/definitions/RendererType"
+	PortalStatus?:                #PortalStatus
+	RendererType?:                #RendererType
 	ServiceProviderSamlMetadata?: strings.MaxRunes(204800) & strings.MinRunes(0) & =~"^.*$"
 	SessionLoggerArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$"
 	StatusReason?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*"
-	Tags?:         list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:         list.MaxItems(200) & [...] & [...#Tag]
 	TrustStoreArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$"
@@ -58,21 +58,21 @@ import (
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$"
 })
 
-_#defs: "/$defs/Properties/definitions/AuthenticationType": "Standard" | "IAM_Identity_Center"
+#AuthenticationType: "Standard" | "IAM_Identity_Center"
 
-_#defs: "/$defs/Properties/definitions/BrowserType": "Chrome"
+#BrowserType: "Chrome"
 
-_#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
+#EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$"}})
 
-_#defs: "/$defs/Properties/definitions/InstanceType": "standard.regular" | "standard.large" | "standard.xlarge"
+#InstanceType: "standard.regular" | "standard.large" | "standard.xlarge"
 
-_#defs: "/$defs/Properties/definitions/PortalStatus": "Incomplete" | "Pending" | "Active"
+#PortalStatus: "Incomplete" | "Pending" | "Active"
 
-_#defs: "/$defs/Properties/definitions/RendererType": "AppStream"
+#RendererType: "AppStream"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

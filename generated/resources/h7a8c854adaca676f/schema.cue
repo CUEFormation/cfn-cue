@@ -47,10 +47,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	LimitType!: "time" | "data-scanned" | fn.#StringExpression
 	Period?:    "daily" | "weekly" | "monthly" | fn.#StringExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:      [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

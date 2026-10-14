@@ -85,8 +85,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"sagemaker:variant:DesiredProvisionedConcurrency" |
 		"workspaces:workspacespool:DesiredUserSessions" |
 		fn.#StringExpression
-	ScheduledActions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ScheduledAction"] |
-		fn.#ListExpression
+	ScheduledActions?: list.UniqueItems() & [...#ScheduledAction] | fn.#ListExpression
 	ServiceNamespace!: "appstream" |
 		"cassandra" |
 		"comprehend" |
@@ -103,11 +102,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"sagemaker" |
 		"workspaces" |
 		fn.#StringExpression
-	SuspendedState?: _#defs."/$defs/Properties/definitions/SuspendedState" | fn.#ObjectExpression
-	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	SuspendedState?: #SuspendedState | fn.#ObjectExpression
+	Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ScalableTargetAction": close({
+#ScalableTargetAction: close({
 	MaxCapacity?: int |
 		{
 			string &
@@ -139,9 +138,9 @@ _#defs: "/$defs/Properties/definitions/ScalableTargetAction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduledAction": close({
+#ScheduledAction: close({
 	EndTime?:              string | fn.#StringExpression
-	ScalableTargetAction?: _#defs."/$defs/Properties/definitions/ScalableTargetAction" | fn.#ObjectExpression
+	ScalableTargetAction?: #ScalableTargetAction | fn.#ObjectExpression
 	Schedule!:             string | fn.#StringExpression
 	ScheduledActionName!:  string | fn.#StringExpression
 	StartTime?:            string | fn.#StringExpression
@@ -149,14 +148,14 @@ _#defs: "/$defs/Properties/definitions/ScheduledAction": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SuspendedState": close({
+#SuspendedState: close({
 	DynamicScalingInSuspended?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DynamicScalingOutSuspended?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ScheduledScalingSuspended?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

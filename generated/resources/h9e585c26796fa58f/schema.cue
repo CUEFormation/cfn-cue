@@ -15,10 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::AmazonMQ::ConfigurationAssociation
 #Properties: close({
 	Broker!:        string | fn.#StringExpression
-	Configuration!: _#defs."/$defs/Properties/definitions/ConfigurationId"
+	Configuration!: #ConfigurationId
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigurationId": close({
+#ConfigurationId: close({
 	Id!: string | fn.#StringExpression
 	Revision!: int |
 		{

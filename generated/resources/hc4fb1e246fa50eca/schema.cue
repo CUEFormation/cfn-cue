@@ -14,36 +14,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SES::Tenant
 #Properties: close({
-	ReputationEntity?:      _#defs."/$defs/Properties/definitions/ReputationEntity" | fn.#ObjectExpression
-	ResourceAssociations?:  [...] & [..._#defs."/$defs/Properties/definitions/ResourceAssociation"] | fn.#ListExpression
-	SuppressionAttributes?: _#defs."/$defs/Properties/definitions/TenantSuppressionAttributes" | fn.#ObjectExpression
-	Tags?:       list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TenantName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" | fn.#StringExpression
+	ReputationEntity?:      #ReputationEntity | fn.#ObjectExpression
+	ResourceAssociations?:  [...] & [...#ResourceAssociation] | fn.#ListExpression
+	SuppressionAttributes?: #TenantSuppressionAttributes | fn.#ObjectExpression
+	Tags?:                  list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	TenantName!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ReputationEntity": close(
-	{Policy!: _#defs."/$defs/Properties/definitions/ReputationPolicy"},
-) |
-	fn.#ObjectExpression
+#ReputationEntity: close({Policy!: #ReputationPolicy}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReputationPolicy": close({
+#ReputationPolicy: close({
 	ReputationEntityPolicy!: =~"^arn:[a-z0-9-]+:ses:[a-z0-9-]+:aws:reputation-policy/(none|standard|strict)$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceAssociation": close(
-	{ResourceArn!: strings.MinRunes(1) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#ResourceAssociation: close({ResourceArn!: strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TenantSuppressionAttributes": close({
+#TenantSuppressionAttributes: close({
 	SuppressedReasons!: list.UniqueItems() & [..."BOUNCE" | "COMPLAINT" | fn.#StringExpression] | fn.#ListExpression
 	SuppressionScope!:  "ACCOUNT" | "TENANT" | fn.#StringExpression
 }) |

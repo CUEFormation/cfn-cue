@@ -8,11 +8,11 @@ import "strings"
 
 // Resource Type definition for AWS::EMR::InstanceGroupConfig
 #Properties: close({
-	AutoScalingPolicy?: _#defs."/$defs/Properties/definitions/AutoScalingPolicy"
+	AutoScalingPolicy?: #AutoScalingPolicy
 	BidPrice?:          string
-	Configurations?:    [..._#defs."/$defs/Properties/definitions/AppConfiguration"]
+	Configurations?:    [...#AppConfiguration]
 	CustomAmiId?:       string
-	EbsConfiguration?:  _#defs."/$defs/Properties/definitions/EbsConfiguration"
+	EbsConfiguration?:  #EbsConfiguration
 	InstanceCount!:     int
 	InstanceGroupId?:   string
 	InstanceRole!:      string
@@ -22,22 +22,22 @@ import "strings"
 	Name?:              string
 })
 
-_#defs: "/$defs/Properties/definitions/AppConfiguration": close({
+#AppConfiguration: close({
 	Classification?: string
 	ConfigurationProperties?: close({
 
 		{[=~"^.*$"]: string}})
-	Configurations?: [..._#defs."/$defs/Properties/definitions/AppConfiguration"]
+	Configurations?: [...#AppConfiguration]
 })
 
-_#defs: "/$defs/Properties/definitions/AutoScalingPolicy": close({
-	Constraints!: _#defs."/$defs/Properties/definitions/ScalingConstraints"
-	Rules!:       [..._#defs."/$defs/Properties/definitions/ScalingRule"]
+#AutoScalingPolicy: close({
+	Constraints!: #ScalingConstraints
+	Rules!:       [...#ScalingRule]
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchAlarmDefinition": close({
+#CloudWatchAlarmDefinition: close({
 	ComparisonOperator!: string
-	Dimensions?:         [..._#defs."/$defs/Properties/definitions/MetricDimension"]
+	Dimensions?:         [...#MetricDimension]
 	EvaluationPeriods?:  int
 	MetricName!:         string
 	Namespace?:          string
@@ -47,8 +47,8 @@ _#defs: "/$defs/Properties/definitions/CloudWatchAlarmDefinition": close({
 	Unit?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
-	VolumeSpecification!: _#defs."/$defs/Properties/definitions/VolumeSpecification"
+#EbsBlockDeviceConfig: close({
+	VolumeSpecification!: #VolumeSpecification
 
 	// Use of this property can confuse CloudFormation drift detection. The
 	// EbsBlockDeviceConfigs read from the system may return a list with one entry
@@ -61,44 +61,42 @@ _#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
 	VolumesPerInstance?: int
 })
 
-_#defs: "/$defs/Properties/definitions/EbsConfiguration": close({
-	EbsBlockDeviceConfigs?: [..._#defs."/$defs/Properties/definitions/EbsBlockDeviceConfig"]
+#EbsConfiguration: close({
+	EbsBlockDeviceConfigs?: [...#EbsBlockDeviceConfig]
 	EbsOptimized?:          bool
 })
 
-_#defs: "/$defs/Properties/definitions/MetricDimension": close({
+#MetricDimension: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/ScalingAction": close({
+#ScalingAction: close({
 	Market?:                           string
-	SimpleScalingPolicyConfiguration!: _#defs."/$defs/Properties/definitions/SimpleScalingPolicyConfiguration"
+	SimpleScalingPolicyConfiguration!: #SimpleScalingPolicyConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/ScalingConstraints": close({
+#ScalingConstraints: close({
 	MaxCapacity!: int
 	MinCapacity!: int
 })
 
-_#defs: "/$defs/Properties/definitions/ScalingRule": close({
-	Action!:      _#defs."/$defs/Properties/definitions/ScalingAction"
+#ScalingRule: close({
+	Action!:      #ScalingAction
 	Description?: string
 	Name!:        string
-	Trigger!:     _#defs."/$defs/Properties/definitions/ScalingTrigger"
+	Trigger!:     #ScalingTrigger
 })
 
-_#defs: "/$defs/Properties/definitions/ScalingTrigger": close(
-	{CloudWatchAlarmDefinition!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmDefinition"},
-)
+#ScalingTrigger: close({CloudWatchAlarmDefinition!: #CloudWatchAlarmDefinition})
 
-_#defs: "/$defs/Properties/definitions/SimpleScalingPolicyConfiguration": close({
+#SimpleScalingPolicyConfiguration: close({
 	AdjustmentType?:    string
 	CoolDown?:          int
 	ScalingAdjustment!: int
 })
 
-_#defs: "/$defs/Properties/definitions/VolumeSpecification": close({
+#VolumeSpecification: close({
 	Iops?:       int
 	SizeInGB!:   int
 	Throughput?: int

@@ -23,10 +23,10 @@ package schema
 
 	// Tags are composed of a Key/Value pair. You can use tags to categorize and
 	// track each parameter group. The tag value null is permitted.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

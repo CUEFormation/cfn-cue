@@ -15,7 +15,7 @@ import "list"
 	CreatedAt?: string
 
 	// The list of egress endpoints available for the Asset.
-	EgressEndpoints?: [..._#defs."/$defs/Properties/definitions/EgressEndpoint"]
+	EgressEndpoints?: [...#EgressEndpoint]
 
 	// The unique identifier for the Asset.
 	Id!: string
@@ -33,11 +33,11 @@ import "list"
 	SourceRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 	// A collection of tags associated with a resource
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The endpoint URL used to access an Asset using one PackagingConfiguration.
-_#defs: "/$defs/Properties/definitions/EgressEndpoint": close({
+#EgressEndpoint: close({
 	// The ID of the PackagingConfiguration being applied to the Asset.
 	PackagingConfigurationId!: string
 
@@ -45,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/EgressEndpoint": close({
 	Url!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

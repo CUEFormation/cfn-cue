@@ -12,98 +12,94 @@ import (
 
 // Resource Type definition for AWS::ECS::ExpressGatewayService
 #Properties: close({
-	ActiveConfigurations?:   [..._#defs."/$defs/Properties/definitions/ExpressGatewayServiceConfiguration"]
+	ActiveConfigurations?:   [...#ExpressGatewayServiceConfiguration]
 	Cluster?:                string
 	Cpu?:                    string
 	CreatedAt?:              time.Time
-	ECSManagedResourceArns?: _#defs."/$defs/Properties/definitions/ECSManagedResourceArns"
+	ECSManagedResourceArns?: #ECSManagedResourceArns
 	Endpoint?:               string
 	ExecutionRoleArn?:       =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	HealthCheckPath?:        string
 	InfrastructureRoleArn!:  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Memory?:                 string
-	NetworkConfiguration?:   _#defs."/$defs/Properties/definitions/ExpressGatewayServiceNetworkConfiguration"
-	PrimaryContainer?:       _#defs."/$defs/Properties/definitions/ExpressGatewayContainer"
-	ScalingTarget?:          _#defs."/$defs/Properties/definitions/ExpressGatewayScalingTarget"
+	NetworkConfiguration?:   #ExpressGatewayServiceNetworkConfiguration
+	PrimaryContainer?:       #ExpressGatewayContainer
+	ScalingTarget?:          #ExpressGatewayScalingTarget
 	ServiceArn?:             string
 	ServiceName?:            string
-	Status?:                 _#defs."/$defs/Properties/definitions/ExpressGatewayServiceStatus"
-	Tags?:                   list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Status?:                 #ExpressGatewayServiceStatus
+	Tags?:                   list.MaxItems(50) & [...] & [...#Tag]
 	TaskDefinitionArn?:      string
 	TaskRoleArn?:            =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	UpdatedAt?:              time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/AccessType": "PUBLIC" | "PRIVATE"
+#AccessType: "PUBLIC" | "PRIVATE"
 
-_#defs: "/$defs/Properties/definitions/AutoScalingArns": close({
+#AutoScalingArns: close({
 	ApplicationAutoScalingPolicies?: [...string]
 	ScalableTarget?:                 string
 })
 
-_#defs: "/$defs/Properties/definitions/ECSManagedResourceArns": close({
-	AutoScaling?:           _#defs."/$defs/Properties/definitions/AutoScalingArns"
-	IngressPath?:           _#defs."/$defs/Properties/definitions/IngressPathArns"
+#ECSManagedResourceArns: close({
+	AutoScaling?:           #AutoScalingArns
+	IngressPath?:           #IngressPathArns
 	LogGroups?:             [...string]
 	MetricAlarms?:          [...string]
 	ServiceSecurityGroups?: [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayContainer": close({
-	AwsLogsConfiguration?:  _#defs."/$defs/Properties/definitions/ExpressGatewayServiceAwsLogsConfiguration"
+#ExpressGatewayContainer: close({
+	AwsLogsConfiguration?:  #ExpressGatewayServiceAwsLogsConfiguration
 	Command?:               [...string]
 	ContainerPort?:         int
-	Environment?:           [..._#defs."/$defs/Properties/definitions/KeyValuePair"]
+	Environment?:           [...#KeyValuePair]
 	Image!:                 string
-	RepositoryCredentials?: _#defs."/$defs/Properties/definitions/ExpressGatewayRepositoryCredentials"
-	Secrets?:               [..._#defs."/$defs/Properties/definitions/Secret"]
+	RepositoryCredentials?: #ExpressGatewayRepositoryCredentials
+	Secrets?:               [...#Secret]
 })
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayRepositoryCredentials": close({CredentialsParameter!: string})
+#ExpressGatewayRepositoryCredentials: close({CredentialsParameter!: string})
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayScalingTarget": close({
-	AutoScalingMetric?:      _#defs."/$defs/Properties/definitions/ExpressGatewayServiceScalingMetric"
+#ExpressGatewayScalingTarget: close({
+	AutoScalingMetric?:      #ExpressGatewayServiceScalingMetric
 	AutoScalingTargetValue?: int
 	MaxTaskCount?:           int
 	MinTaskCount?:           int
 })
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayServiceAwsLogsConfiguration": close({
+#ExpressGatewayServiceAwsLogsConfiguration: close({
 	LogGroup!:        string
 	LogStreamPrefix!: string
 })
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayServiceConfiguration": close({
+#ExpressGatewayServiceConfiguration: close({
 	Cpu?:                  string
 	CreatedAt?:            time.Time
 	ExecutionRoleArn?:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	HealthCheckPath?:      string
-	IngressPaths?:         [..._#defs."/$defs/Properties/definitions/IngressPathSummary"]
+	IngressPaths?:         [...#IngressPathSummary]
 	Memory?:               string
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/ExpressGatewayServiceNetworkConfiguration"
-	PrimaryContainer?:     _#defs."/$defs/Properties/definitions/ExpressGatewayContainer"
-	ScalingTarget?:        _#defs."/$defs/Properties/definitions/ExpressGatewayScalingTarget"
+	NetworkConfiguration?: #ExpressGatewayServiceNetworkConfiguration
+	PrimaryContainer?:     #ExpressGatewayContainer
+	ScalingTarget?:        #ExpressGatewayScalingTarget
 	ServiceRevisionArn?:   string
 	TaskDefinitionArn?:    string
 	TaskRoleArn?:          =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayServiceNetworkConfiguration": close({
+#ExpressGatewayServiceNetworkConfiguration: close({
 	SecurityGroups?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	Subnets?:        [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayServiceScalingMetric": "AVERAGE_CPU" |
-	"AVERAGE_MEMORY" |
-	"REQUEST_COUNT_PER_TARGET"
+#ExpressGatewayServiceScalingMetric: "AVERAGE_CPU" | "AVERAGE_MEMORY" | "REQUEST_COUNT_PER_TARGET"
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayServiceStatus": close(
-	{StatusCode?: _#defs."/$defs/Properties/definitions/ExpressGatewayServiceStatusCode"},
-)
+#ExpressGatewayServiceStatus: close({StatusCode?: #ExpressGatewayServiceStatusCode})
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayServiceStatusCode": "ACTIVE" | "DRAINING" | "INACTIVE"
+#ExpressGatewayServiceStatusCode: "ACTIVE" | "DRAINING" | "INACTIVE"
 
-_#defs: "/$defs/Properties/definitions/IngressPathArns": close({
+#IngressPathArns: close({
 	CertificateArn?:             =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
 	ListenerArn?:                string
 	ListenerRuleArn?:            string
@@ -112,22 +108,22 @@ _#defs: "/$defs/Properties/definitions/IngressPathArns": close({
 	TargetGroupArns?:            [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/IngressPathSummary": close({
-	AccessType?: _#defs."/$defs/Properties/definitions/AccessType"
+#IngressPathSummary: close({
+	AccessType?: #AccessType
 	Endpoint?:   string
 })
 
-_#defs: "/$defs/Properties/definitions/KeyValuePair": close({
+#KeyValuePair: close({
 	Name!:  string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Secret": close({
+#Secret: close({
 	Name!:      string
 	ValueFrom!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

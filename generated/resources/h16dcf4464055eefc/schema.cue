@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,8 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::RDS::DBProxy
 #Properties: close({
-	Auth?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AuthFormat"] |
-		fn.#ListExpression
+	Auth?:                list.MaxItems(200) & list.MinItems(1) & [...#AuthFormat] | fn.#ListExpression
 	DBProxyName!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-z]*" | fn.#StringExpression
 	DebugLogging?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DefaultAuthScheme?:   "IAM_AUTH" | "NONE" | fn.#StringExpression
@@ -42,7 +41,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	RequireTLS?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
-	Tags?:                        [..._#defs."/$defs/Properties/definitions/TagFormat"] | fn.#ListExpression
+	Tags?:                        [...#TagFormat] | fn.#ListExpression
 	TargetConnectionNetworkType?: "IPV4" | "IPV6" | fn.#StringExpression
 	VpcSecurityGroupIds?: list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -52,7 +51,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	VpcSubnetIds!: list.MinItems(2) & [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AuthFormat": close({
+#AuthFormat: close({
 	AuthScheme?: "SECRETS" | fn.#StringExpression
 	ClientPasswordAuthType?: "MYSQL_NATIVE_PASSWORD" |
 		"MYSQL_CACHING_SHA2_PASSWORD" |
@@ -66,7 +65,7 @@ _#defs: "/$defs/Properties/definitions/AuthFormat": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagFormat": close({
+#TagFormat: close({
 	Key?:   strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" | fn.#StringExpression
 	Value?: strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" | fn.#StringExpression
 }) |

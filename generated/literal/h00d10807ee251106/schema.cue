@@ -36,18 +36,18 @@ import "strings"
 	RollbackAvailable?: bool
 
 	// The scheduled auto-activation events for the certificate authority.
-	ScheduledEvents?: _#defs."/$defs/Properties/definitions/ScheduledEvents"
+	ScheduledEvents?: #ScheduledEvents
 
 	// The signing status of the certificate authority.
 	SigningStatus?: string
 
 	// The validity period of the certificate authority.
-	Validity?: _#defs."/$defs/Properties/definitions/Validity"
+	Validity?: #Validity
 })
 
 // The scheduled auto-activation events for the certificate authority, computed
 // from its validity window.
-_#defs: "/$defs/Properties/definitions/ScheduledEvents": close({
+#ScheduledEvents: close({
 	// The deadline by which EKS will auto-activate this certificate authority (notAfter minus 45 days).
 	FinalAutoActivation?: string
 
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/ScheduledEvents": close({
 })
 
 // The validity period of the certificate authority.
-_#defs: "/$defs/Properties/definitions/Validity": close({
+#Validity: close({
 	// The end of the validity period for the certificate authority.
 	NotAfter?: string
 

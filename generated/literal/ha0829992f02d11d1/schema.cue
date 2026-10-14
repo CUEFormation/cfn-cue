@@ -32,7 +32,7 @@ import (
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & strings.MaxRunes(2048)
 
 	// The configuration of the serverless cache, at the time the snapshot was taken.
-	ServerlessCacheConfiguration?: _#defs."/$defs/Properties/definitions/ServerlessCacheConfiguration"
+	ServerlessCacheConfiguration?: #ServerlessCacheConfiguration
 
 	// The name of an existing serverless cache. The snapshot is created from this cache.
 	ServerlessCacheName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
@@ -48,10 +48,10 @@ import (
 	Status?: string
 
 	// A list of tags to be added to the serverless cache snapshot resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ServerlessCacheConfiguration": close({
+#ServerlessCacheConfiguration: close({
 	// The engine that the serverless cache is configured with.
 	Engine?: string
 
@@ -62,7 +62,7 @@ _#defs: "/$defs/Properties/definitions/ServerlessCacheConfiguration": close({
 	ServerlessCacheName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for the tag. May not be null.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

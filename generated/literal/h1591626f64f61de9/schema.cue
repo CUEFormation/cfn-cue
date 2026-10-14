@@ -37,7 +37,7 @@ import (
 
 	// Inline file list. Mutually exclusive with Zip; enforced by the handler at
 	// Create/Update time. Write-only: not repopulated by Read.
-	Files?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AssetFile"]
+	Files?: list.MinItems(1) & [...#AssetFile]
 
 	// Asset metadata document. Required and optional keys depend on AssetType.
 	// Values may be strings, numbers, booleans, or lists of any of those -
@@ -61,7 +61,7 @@ import (
 
 // A single file inside an Asset's bundle. Path is the diff key on update;
 // Content is write-only and not repopulated by Read.
-_#defs: "/$defs/Properties/definitions/AssetFile": close({
+#AssetFile: close({
 	// Base64-encoded binary contents of the file. Mutually exclusive with ContentText (max 6 MiB).
 	ContentBytes?: strings.MaxRunes(8388608)
 

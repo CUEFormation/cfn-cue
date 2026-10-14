@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -22,21 +22,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ClusterEndpoint?:         close({}) | fn.#ObjectExpression
 	ClusterName!:             =~"[a-z][a-z0-9\\-]*" | fn.#StringExpression
-	DataTiering?:   _#defs."/$defs/Properties/definitions/DataTieringStatus" & fn.#Object & {...} | fn.#StringExpression
-	Description?:   string | fn.#StringExpression
-	Engine?:        string | fn.#StringExpression
-	EngineVersion?: string | fn.#StringExpression
-	FinalSnapshotName?: string | fn.#StringExpression
-	IpDiscovery?: _#defs."/$defs/Properties/definitions/SupportedIpDiscoveryTypes" & fn.#Object & {...} |
-	fn.#StringExpression
+	DataTiering?:             #DataTieringStatus & fn.#Object & {...} | fn.#StringExpression
+	Description?:             string | fn.#StringExpression
+	Engine?:                  string | fn.#StringExpression
+	EngineVersion?:           string | fn.#StringExpression
+	FinalSnapshotName?:       string | fn.#StringExpression
+	IpDiscovery?:             #SupportedIpDiscoveryTypes & fn.#Object & {...} | fn.#StringExpression
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
 	MaintenanceWindow?:      string | fn.#StringExpression
 	MultiRegionClusterName?: string | fn.#StringExpression
-	NetworkType?: _#defs."/$defs/Properties/definitions/SupportedNetworkTypes" & fn.#Object & {...} |
-	fn.#StringExpression
-	NodeType!: string | fn.#StringExpression
+	NetworkType?:            #SupportedNetworkTypes & fn.#Object & {...} | fn.#StringExpression
+	NodeType!:               string | fn.#StringExpression
 	NumReplicasPerShard?: int |
 		{
 			string &
@@ -107,13 +105,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SnsTopicStatus?:  string | fn.#StringExpression
 	SubnetGroupName?: string | fn.#StringExpression
 	TLSEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DataTieringStatus": "true" | "false" | fn.#StringExpression
+#DataTieringStatus: "true" | "false" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	Address?: string | fn.#StringExpression
 	Port?: int |
 		{
@@ -132,11 +129,11 @@ _#defs: "/$defs/Properties/definitions/Endpoint": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SupportedIpDiscoveryTypes": "ipv4" | "ipv6" | fn.#StringExpression
+#SupportedIpDiscoveryTypes: "ipv4" | "ipv6" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SupportedNetworkTypes": "ipv4" | "ipv6" | "dual_stack" | fn.#StringExpression
+#SupportedNetworkTypes: "ipv4" | "ipv6" | "dual_stack" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

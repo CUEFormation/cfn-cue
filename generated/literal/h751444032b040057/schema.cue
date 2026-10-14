@@ -7,11 +7,11 @@ package schema
 // Resource Type definition for AWS::Greengrass::ConnectorDefinitionVersion
 #Properties: close({
 	ConnectorDefinitionId!: string
-	Connectors!:            [..._#defs."/$defs/Properties/definitions/Connector"]
+	Connectors!:            [...#Connector]
 	Id?:                    string
 })
 
-_#defs: "/$defs/Properties/definitions/Connector": close({
+#Connector: close({
 	ConnectorArn!: string
 	Id!:           string
 	Parameters?:   string | {...}

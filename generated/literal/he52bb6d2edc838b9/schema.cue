@@ -59,7 +59,7 @@ import (
 	ResourceArns?: [...string]
 
 	// Specifies the configuration for the resource share
-	ResourceShareConfiguration?: _#defs."/$defs/Properties/definitions/ResourceShareConfiguration"
+	ResourceShareConfiguration?: #ResourceShareConfiguration
 
 	// Specifies from which source accounts the service principal has access to the
 	// resources in this resource share.
@@ -70,20 +70,20 @@ import (
 
 	// Specifies one or more tags to attach to the resource share itself. It doesn't
 	// attach the tags to the resources associated with the resource share.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Specifies a permission ARN and its template parameters for a resource share.
-_#defs: "/$defs/Properties/definitions/PermissionArnTemplateParameters": close({
+#PermissionArnTemplateParameters: close({
 	// The Amazon Resource Name (ARN) of the permission.
 	PermissionArn!: string
 
 	// The template parameters for the permission.
-	PermissionTemplateParameters?: [..._#defs."/$defs/Properties/definitions/PermissionTemplateParameter"]
+	PermissionTemplateParameters?: [...#PermissionTemplateParameter]
 })
 
 // A single template parameter name and its values for a managed permission.
-_#defs: "/$defs/Properties/definitions/PermissionTemplateParameter": close({
+#PermissionTemplateParameter: close({
 	// The name of the template parameter.
 	Name!: string
 
@@ -92,7 +92,7 @@ _#defs: "/$defs/Properties/definitions/PermissionTemplateParameter": close({
 })
 
 // The configuration for a resource share.
-_#defs: "/$defs/Properties/definitions/ResourceShareConfiguration": close({
+#ResourceShareConfiguration: close({
 	// The resource share restricts access to an account
 	ExclusiveAccountAccess?: bool
 
@@ -102,7 +102,7 @@ _#defs: "/$defs/Properties/definitions/ResourceShareConfiguration": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

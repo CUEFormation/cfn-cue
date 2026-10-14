@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -34,18 +34,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Manager](https://docs.aws.amazon.com/secretsmanager/latest/userguide/retrieving-secrets.html).
 #Properties: close({
 	Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	GenerateSecretString?: _#defs."/$defs/Properties/definitions/GenerateSecretString" | fn.#ObjectExpression
+	GenerateSecretString?: #GenerateSecretString | fn.#ObjectExpression
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) & (strings.MaxRunes(2048) & strings.MinRunes(0)) |
 	fn.#StringExpression
 	Name?:           strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	ReplicaRegions?: [..._#defs."/$defs/Properties/definitions/ReplicaRegion"] | fn.#ListExpression
+	ReplicaRegions?: [...#ReplicaRegion] | fn.#ListExpression
 	SecretString?:   strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:           [...#Tag] | fn.#ListExpression
 	Type?:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/GenerateSecretString": close({
+#GenerateSecretString: close({
 	ExcludeCharacters?:  string | fn.#StringExpression
 	ExcludeLowercase?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ExcludeNumbers?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -72,7 +72,7 @@ _#defs: "/$defs/Properties/definitions/GenerateSecretString": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicaRegion": close({
+#ReplicaRegion: close({
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
@@ -80,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/ReplicaRegion": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

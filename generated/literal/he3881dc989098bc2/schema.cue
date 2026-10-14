@@ -18,8 +18,8 @@ import (
 	MetricAttributionArn?: strings.MaxRunes(256) & =~"^arn:([a-z\\d-]+):personalize:.*:.*:.+$"
 
 	// A list of metric attributes for the metric attribution.
-	Metrics!:             list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/MetricAttribute"]
-	MetricsOutputConfig!: _#defs."/$defs/Properties/definitions/MetricsOutputConfig"
+	Metrics!:             list.MaxItems(10) & [...] & [...#MetricAttribute]
+	MetricsOutputConfig!: #MetricsOutputConfig
 
 	// The name of the metric attribution.
 	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*$"
@@ -29,7 +29,7 @@ import (
 })
 
 // A metric attribute for the metric attribution.
-_#defs: "/$defs/Properties/definitions/MetricAttribute": close({
+#MetricAttribute: close({
 	// The metric's event type.
 	EventType!: strings.MaxRunes(256) & strings.MinRunes(0)
 
@@ -41,17 +41,17 @@ _#defs: "/$defs/Properties/definitions/MetricAttribute": close({
 })
 
 // The output configuration details for the metric attribution.
-_#defs: "/$defs/Properties/definitions/MetricsOutputConfig": close({
+#MetricsOutputConfig: close({
 	// The ARN of the IAM role for the metric attribution.
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^arn:([a-z\\d-]+):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
-	S3DataDestination?: _#defs."/$defs/Properties/definitions/S3DataDestination"
+	S3DataDestination?: #S3DataDestination
 })
 
 // The configuration details of an Amazon S3 output bucket.
-_#defs: "/$defs/Properties/definitions/S3DataDestination": close({
+#S3DataDestination: close({
 	// The ARN of the KMS key.
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &

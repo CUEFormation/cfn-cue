@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 	"struct"
 )
 
@@ -13,49 +13,47 @@ import (
 // Resource Type definition for an Amazon Lex conversational bot performing
 // automated tasks such as ordering a pizza, booking a hotel, and so on.
 #Properties: close({
-	Arn?:                 _#defs."/$defs/Properties/definitions/BotArn"
+	Arn?:                 #BotArn
 	AutoBuildBotLocales?: bool
-	BotFileS3Location?:   _#defs."/$defs/Properties/definitions/S3Location"
-	BotLocales?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BotLocale"]
+	BotFileS3Location?:   #S3Location
+	BotLocales?:          list.UniqueItems() & [...#BotLocale]
 
 	// The list of bot members in a network to be created.
-	BotMembers?: list.MaxItems(10) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BotMember"]
-	BotTags?:    list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	BotMembers?: list.MaxItems(10) & list.UniqueItems() & [...#BotMember]
+	BotTags?:    list.MaxItems(200) & list.UniqueItems() & [...#Tag]
 
 	// The type of a bot to create.
 	BotType?:                 "Bot" | "BotNetwork"
 	DataPrivacy!:             close({ChildDirected!: bool})
-	Description?:             _#defs."/$defs/Properties/definitions/Description"
+	Description?:             #Description
 	ErrorLogSettings?:        close({Enabled!: bool})
-	Id?:                      _#defs."/$defs/Properties/definitions/Id"
+	Id?:                      #Id
 	IdleSessionTTLInSeconds!: int & <=86400 & >=60
-	Name!:                    _#defs."/$defs/Properties/definitions/Name"
-	Replication?:             _#defs."/$defs/Properties/definitions/Replication"
-	RoleArn!:                 _#defs."/$defs/Properties/definitions/RoleArn"
-	TestBotAliasSettings?:    _#defs."/$defs/Properties/definitions/TestBotAliasSettings"
-	TestBotAliasTags?:        list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Name!:                    #Name
+	Replication?:             #Replication
+	RoleArn!:                 #RoleArn
+	TestBotAliasSettings?:    #TestBotAliasSettings
+	TestBotAliasTags?:        list.MaxItems(200) & list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AdvancedRecognitionSetting": close(
-	{AudioRecognitionStrategy?: _#defs."/$defs/Properties/definitions/AudioRecognitionStrategy"},
-)
+#AdvancedRecognitionSetting: close({AudioRecognitionStrategy?: #AudioRecognitionStrategy})
 
-_#defs: "/$defs/Properties/definitions/AllowedInputTypes": close({
+#AllowedInputTypes: close({
 	AllowAudioInput!: bool
 	AllowDTMFInput!:  bool
 })
 
-_#defs: "/$defs/Properties/definitions/AttachmentTitle": strings.MaxRunes(250) & strings.MinRunes(1)
+#AttachmentTitle: strings.MaxRunes(250) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/AttachmentUrl": strings.MaxRunes(250) & strings.MinRunes(1)
+#AttachmentUrl: strings.MaxRunes(250) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/AudioAndDTMFInputSpecification": close({
-	AudioSpecification?: _#defs."/$defs/Properties/definitions/AudioSpecification"
-	DTMFSpecification?:  _#defs."/$defs/Properties/definitions/DTMFSpecification"
+#AudioAndDTMFInputSpecification: close({
+	AudioSpecification?: #AudioSpecification
+	DTMFSpecification?:  #DTMFSpecification
 	StartTimeoutMs!:     int & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/AudioFillerSettings": close({
+#AudioFillerSettings: close({
 	AudioType?: "MELODY_CHIPPER_CHIME" |
 		"MELODY_CURIOUS_CRAWL" |
 		"MELODY_RISING_RIPPLE" |
@@ -69,38 +67,34 @@ _#defs: "/$defs/Properties/definitions/AudioFillerSettings": close({
 	StartDelayInMilliseconds?:            int & <=5000 & >=500
 })
 
-_#defs: "/$defs/Properties/definitions/AudioLogDestination": close(
-	{S3Bucket!: _#defs."/$defs/Properties/definitions/S3BucketLogDestination"},
-)
+#AudioLogDestination: close({S3Bucket!: #S3BucketLogDestination})
 
-_#defs: "/$defs/Properties/definitions/AudioLogSetting": close({
-	Destination!: _#defs."/$defs/Properties/definitions/AudioLogDestination"
+#AudioLogSetting: close({
+	Destination!: #AudioLogDestination
 	Enabled!:     bool
 })
 
-_#defs: "/$defs/Properties/definitions/AudioLogSettings": list.MaxItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AudioLogSetting"
-]
+#AudioLogSettings: list.MaxItems(1) & list.UniqueItems() & [...#AudioLogSetting]
 
-_#defs: "/$defs/Properties/definitions/AudioRecognitionStrategy": "UseSlotValuesAsCustomVocabulary"
+#AudioRecognitionStrategy: "UseSlotValuesAsCustomVocabulary"
 
-_#defs: "/$defs/Properties/definitions/AudioSpecification": close({
+#AudioSpecification: close({
 	EndTimeoutMs!: int & >=1
 	MaxLengthMs!:  int & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/BedrockAgentIntentConfiguration": close({
+#BedrockAgentIntentConfiguration: close({
 	BedrockAgentConfiguration?: close({
 		BedrockAgentAliasId?: strings.MaxRunes(5000) & strings.MinRunes(1)
 		BedrockAgentId?:      strings.MaxRunes(5000) & strings.MinRunes(1)
 	})
 	BedrockAgentIntentKnowledgeBaseConfiguration?: close({
 		BedrockKnowledgeBaseArn!:   strings.MaxRunes(5000) & strings.MinRunes(1)
-		BedrockModelConfiguration!: _#defs."/$defs/Properties/definitions/BedrockModelSpecification"
+		BedrockModelConfiguration!: #BedrockModelSpecification
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/BedrockModelSpecification": close({
+#BedrockModelSpecification: close({
 	BedrockGuardrailConfiguration?: close({
 		BedrockGuardrailIdentifier?: strings.MaxRunes(5000) & strings.MinRunes(1)
 		BedrockGuardrailVersion?:    strings.MaxRunes(5000) & strings.MinRunes(1)
@@ -110,41 +104,39 @@ _#defs: "/$defs/Properties/definitions/BedrockModelSpecification": close({
 	ModelArn!:                 strings.MaxRunes(5000) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/BotAliasLocaleSettings": close({
-	CodeHookSpecification?: _#defs."/$defs/Properties/definitions/CodeHookSpecification"
+#BotAliasLocaleSettings: close({
+	CodeHookSpecification?: #CodeHookSpecification
 	Enabled!:               bool
 })
 
-_#defs: "/$defs/Properties/definitions/BotAliasLocaleSettingsItem": close({
-	BotAliasLocaleSetting!: _#defs."/$defs/Properties/definitions/BotAliasLocaleSettings"
+#BotAliasLocaleSettingsItem: close({
+	BotAliasLocaleSetting!: #BotAliasLocaleSettings
 	LocaleId!:              strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/BotAliasLocaleSettingsList": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/BotAliasLocaleSettingsItem"
-]
+#BotAliasLocaleSettingsList: list.MaxItems(50) & list.UniqueItems() & [...#BotAliasLocaleSettingsItem]
 
-_#defs: "/$defs/Properties/definitions/BotArn": strings.MaxRunes(1011) &
+#BotArn: strings.MaxRunes(1011) &
 strings.MinRunes(1) &
 =~"^arn:aws[a-zA-Z-]*:lex:[a-z]+-(?:[a-z]+-)*[0-9]:[0-9]{12}:bot/[0-9a-zA-Z]+$"
 
-_#defs: "/$defs/Properties/definitions/BotLocale": close({
-	AudioFillerSettings?:  _#defs."/$defs/Properties/definitions/AudioFillerSettings"
-	CustomVocabulary?:     _#defs."/$defs/Properties/definitions/CustomVocabulary"
-	Description?:          _#defs."/$defs/Properties/definitions/Description"
-	GenerativeAISettings?: _#defs."/$defs/Properties/definitions/GenerativeAISettings"
-	Intents?:              list.MaxItems(1000) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Intent"]
-	LocaleId!:             _#defs."/$defs/Properties/definitions/LocaleId"
-	NluConfidenceThreshold!: _#defs."/$defs/Properties/definitions/ConfidenceThreshold"
-	SlotTypes?: list.MaxItems(250) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SlotType"]
-	SpeechDetectionSensitivity?: _#defs."/$defs/Properties/definitions/SpeechDetectionSensitivity"
-	SpeechRecognitionSettings?:  _#defs."/$defs/Properties/definitions/SpeechRecognitionSettings"
-	UnifiedSpeechSettings?:      _#defs."/$defs/Properties/definitions/UnifiedSpeechSettings"
-	VoiceSettings?:              _#defs."/$defs/Properties/definitions/VoiceSettings"
+#BotLocale: close({
+	AudioFillerSettings?:        #AudioFillerSettings
+	CustomVocabulary?:           #CustomVocabulary
+	Description?:                #Description
+	GenerativeAISettings?:       #GenerativeAISettings
+	Intents?:                    list.MaxItems(1000) & list.UniqueItems() & [...#Intent]
+	LocaleId!:                   #LocaleId
+	NluConfidenceThreshold!:     #ConfidenceThreshold
+	SlotTypes?:                  list.MaxItems(250) & list.UniqueItems() & [...#SlotType]
+	SpeechDetectionSensitivity?: #SpeechDetectionSensitivity
+	SpeechRecognitionSettings?:  #SpeechRecognitionSettings
+	UnifiedSpeechSettings?:      #UnifiedSpeechSettings
+	VoiceSettings?:              #VoiceSettings
 })
 
 // A bot that is a member of a bot network.
-_#defs: "/$defs/Properties/definitions/BotMember": close({
+#BotMember: close({
 	// The alias ID of a bot that is a member of this network of bots.
 	BotMemberAliasId!: strings.MaxRunes(10) & strings.MinRunes(10)
 
@@ -161,112 +153,100 @@ _#defs: "/$defs/Properties/definitions/BotMember": close({
 	BotMemberVersion!: strings.MaxRunes(5) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Button": close({
+#Button: close({
 	Text!:  strings.MaxRunes(50) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(50) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogGroupLogDestination": close({
+#CloudWatchLogGroupLogDestination: close({
 	CloudWatchLogGroupArn!: strings.MaxRunes(2048) & strings.MinRunes(1)
 	LogPrefix!:             strings.MaxRunes(1024) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/CodeHookSpecification": close(
-	{LambdaCodeHook!: _#defs."/$defs/Properties/definitions/LambdaCodeHook"},
+#CodeHookSpecification: close({LambdaCodeHook!: #LambdaCodeHook})
+
+#CompositeSlotTypeSetting: close(
+	{SubSlots?: list.MaxItems(6) & list.MinItems(1) & list.UniqueItems() & [...#SubSlotTypeComposition]},
 )
 
-_#defs: "/$defs/Properties/definitions/CompositeSlotTypeSetting": close({
-	SubSlots?: list.MaxItems(6) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SubSlotTypeComposition"
-	]
-})
+#Condition: close({ExpressionString!: #ConditionExpression})
 
-_#defs: "/$defs/Properties/definitions/Condition": close(
-	{ExpressionString!: _#defs."/$defs/Properties/definitions/ConditionExpression"},
-)
+#ConditionExpression: strings.MaxRunes(1024) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/ConditionExpression": strings.MaxRunes(1024) & strings.MinRunes(1)
-
-_#defs: "/$defs/Properties/definitions/Conditional": close({
-	ConditionalBranches!: _#defs."/$defs/Properties/definitions/ConditionalBranches"
+#Conditional: close({
+	ConditionalBranches!: #ConditionalBranches
 	IsActive!:            bool
 })
 
-_#defs: "/$defs/Properties/definitions/ConditionalBranch": close({
-	Condition!: _#defs."/$defs/Properties/definitions/Condition"
-	Name!:      _#defs."/$defs/Properties/definitions/Name"
-	NextStep!:  _#defs."/$defs/Properties/definitions/DialogState"
-	Response?:  _#defs."/$defs/Properties/definitions/ResponseSpecification"
+#ConditionalBranch: close({
+	Condition!: #Condition
+	Name!:      #Name
+	NextStep!:  #DialogState
+	Response?:  #ResponseSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/ConditionalBranches": list.MaxItems(4) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ConditionalBranch"
-]
+#ConditionalBranches: list.MaxItems(4) & list.MinItems(1) & [...#ConditionalBranch]
 
-_#defs: "/$defs/Properties/definitions/ConditionalSpecification": close({
-	ConditionalBranches!: _#defs."/$defs/Properties/definitions/ConditionalBranches"
-	DefaultBranch!:       _#defs."/$defs/Properties/definitions/DefaultConditionalBranch"
+#ConditionalSpecification: close({
+	ConditionalBranches!: #ConditionalBranches
+	DefaultBranch!:       #DefaultConditionalBranch
 	IsActive!:            bool
 })
 
-_#defs: "/$defs/Properties/definitions/ConfidenceThreshold": <=1 & >=0
+#ConfidenceThreshold: <=1 & >=0
 
-_#defs: "/$defs/Properties/definitions/ContextTimeToLiveInSeconds": int & <=86400 & >=5
+#ContextTimeToLiveInSeconds: int & <=86400 & >=5
 
-_#defs: "/$defs/Properties/definitions/ContextTurnsToLive": int & <=20 & >=1
+#ContextTurnsToLive: int & <=20 & >=1
 
-_#defs: "/$defs/Properties/definitions/ConversationLogSettings": close({
-	AudioLogSettings?: _#defs."/$defs/Properties/definitions/AudioLogSettings"
-	TextLogSettings?:  _#defs."/$defs/Properties/definitions/TextLogSettings"
+#ConversationLogSettings: close({
+	AudioLogSettings?: #AudioLogSettings
+	TextLogSettings?:  #TextLogSettings
 })
 
-_#defs: "/$defs/Properties/definitions/CustomPayload": close({Value!: strings.MaxRunes(1000) & strings.MinRunes(1)})
+#CustomPayload: close({Value!: strings.MaxRunes(1000) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/CustomVocabulary": close(
-	{CustomVocabularyItems!: _#defs."/$defs/Properties/definitions/CustomVocabularyItems"},
-)
+#CustomVocabulary: close({CustomVocabularyItems!: #CustomVocabularyItems})
 
-_#defs: "/$defs/Properties/definitions/CustomVocabularyItem": close({
+#CustomVocabularyItem: close({
 	DisplayAs?: strings.MaxRunes(100) & strings.MinRunes(1)
 	Phrase!:    strings.MaxRunes(100) & strings.MinRunes(1)
 	Weight?:    int & <=3 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/CustomVocabularyItems": list.MaxItems(500) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/CustomVocabularyItem"
-]
+#CustomVocabularyItems: list.MaxItems(500) & list.UniqueItems() & [...#CustomVocabularyItem]
 
-_#defs: "/$defs/Properties/definitions/DTMFSpecification": close({
+#DTMFSpecification: close({
 	DeletionCharacter!: =~"^[A-D0-9#*]{1}$"
 	EndCharacter!:      =~"^[A-D0-9#*]{1}$"
 	EndTimeoutMs!:      int & >=1
 	MaxLength!:         int & <=1024 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/DataPrivacy": close({ChildDirected!: bool})
+#DataPrivacy: close({ChildDirected!: bool})
 
-_#defs: "/$defs/Properties/definitions/DeepgramModelId": strings.MaxRunes(32) & strings.MinRunes(4) & =~"[A-Za-z0-9-_]+"
+#DeepgramModelId: strings.MaxRunes(32) & strings.MinRunes(4) & =~"[A-Za-z0-9-_]+"
 
-_#defs: "/$defs/Properties/definitions/DeepgramSpeechModelConfig": close({
-	ApiTokenSecretArn!: _#defs."/$defs/Properties/definitions/SecretsManagerSecretArn"
-	ModelId?:           _#defs."/$defs/Properties/definitions/DeepgramModelId"
+#DeepgramSpeechModelConfig: close({
+	ApiTokenSecretArn!: #SecretsManagerSecretArn
+	ModelId?:           #DeepgramModelId
 })
 
-_#defs: "/$defs/Properties/definitions/DefaultConditionalBranch": close({
-	NextStep?: _#defs."/$defs/Properties/definitions/DialogState"
-	Response?: _#defs."/$defs/Properties/definitions/ResponseSpecification"
+#DefaultConditionalBranch: close({
+	NextStep?: #DialogState
+	Response?: #ResponseSpecification
 })
 
 // A description of the resource
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(2000)
+#Description: strings.MaxRunes(2000)
 
-_#defs: "/$defs/Properties/definitions/DialogAction": close({
-	SlotToElicit?:        _#defs."/$defs/Properties/definitions/Name"
+#DialogAction: close({
+	SlotToElicit?:        #Name
 	SuppressNextMessage?: bool
-	Type!:                _#defs."/$defs/Properties/definitions/DialogActionType"
+	Type!:                #DialogActionType
 })
 
-_#defs: "/$defs/Properties/definitions/DialogActionType": "CloseIntent" |
+#DialogActionType: "CloseIntent" |
 	"ConfirmIntent" |
 	"ElicitIntent" |
 	"ElicitSlot" |
@@ -276,73 +256,71 @@ _#defs: "/$defs/Properties/definitions/DialogActionType": "CloseIntent" |
 	"EvaluateConditional" |
 	"InvokeDialogCodeHook"
 
-_#defs: "/$defs/Properties/definitions/DialogCodeHookInvocationSetting": close({
+#DialogCodeHookInvocationSetting: close({
 	EnableCodeHookInvocation!:  bool
-	InvocationLabel?:           _#defs."/$defs/Properties/definitions/Name"
+	InvocationLabel?:           #Name
 	IsActive!:                  bool
-	PostCodeHookSpecification!: _#defs."/$defs/Properties/definitions/PostDialogCodeHookInvocationSpecification"
+	PostCodeHookSpecification!: #PostDialogCodeHookInvocationSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/DialogCodeHookSetting": close({Enabled!: bool})
+#DialogCodeHookSetting: close({Enabled!: bool})
 
-_#defs: "/$defs/Properties/definitions/DialogState": close({
-	DialogAction?:      _#defs."/$defs/Properties/definitions/DialogAction"
-	Intent?:            _#defs."/$defs/Properties/definitions/IntentOverride"
-	SessionAttributes?: [..._#defs."/$defs/Properties/definitions/SessionAttribute"]
+#DialogState: close({
+	DialogAction?:      #DialogAction
+	Intent?:            #IntentOverride
+	SessionAttributes?: [...#SessionAttribute]
 })
 
-_#defs: "/$defs/Properties/definitions/DisplayName": strings.MaxRunes(100) & strings.MinRunes(1)
+#DisplayName: strings.MaxRunes(100) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/ElicitationCodeHookInvocationSetting": close({
+#ElicitationCodeHookInvocationSetting: close({
 	EnableCodeHookInvocation!: bool
-	InvocationLabel?:          _#defs."/$defs/Properties/definitions/Name"
+	InvocationLabel?:          #Name
 })
 
 // Error logs configuration for this bot. This is used by Amazon Lex to emit any
 // errors that occur during Lex Runtime API invocations.
-_#defs: "/$defs/Properties/definitions/ErrorLogSettings": close({
+#ErrorLogSettings: close({
 	// Specify whether error log feature has been enabled
 	Enabled!: bool
 })
 
-_#defs: "/$defs/Properties/definitions/ExternalSourceSetting": close(
-	{GrammarSlotTypeSetting?: _#defs."/$defs/Properties/definitions/GrammarSlotTypeSetting"},
-)
+#ExternalSourceSetting: close({GrammarSlotTypeSetting?: #GrammarSlotTypeSetting})
 
-_#defs: "/$defs/Properties/definitions/FulfillmentCodeHookSetting": close({
+#FulfillmentCodeHookSetting: close({
 	Enabled!:                            bool
-	FulfillmentUpdatesSpecification?:    _#defs."/$defs/Properties/definitions/FulfillmentUpdatesSpecification"
+	FulfillmentUpdatesSpecification?:    #FulfillmentUpdatesSpecification
 	IsActive?:                           bool
-	PostFulfillmentStatusSpecification?: _#defs."/$defs/Properties/definitions/PostFulfillmentStatusSpecification"
+	PostFulfillmentStatusSpecification?: #PostFulfillmentStatusSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/FulfillmentStartResponseSpecification": close({
+#FulfillmentStartResponseSpecification: close({
 	AllowInterrupt?: bool
 	DelayInSeconds!: int & <=900 & >=1
-	MessageGroups!:  _#defs."/$defs/Properties/definitions/MessageGroupsList"
+	MessageGroups!:  #MessageGroupsList
 })
 
-_#defs: "/$defs/Properties/definitions/FulfillmentUpdateResponseSpecification": close({
+#FulfillmentUpdateResponseSpecification: close({
 	AllowInterrupt?:     bool
 	FrequencyInSeconds!: int & <=900 & >=1
-	MessageGroups!:      _#defs."/$defs/Properties/definitions/MessageGroupsList"
+	MessageGroups!:      #MessageGroupsList
 })
 
-_#defs: "/$defs/Properties/definitions/FulfillmentUpdatesSpecification": close({
+#FulfillmentUpdatesSpecification: close({
 	Active!:           bool
-	StartResponse?:    _#defs."/$defs/Properties/definitions/FulfillmentStartResponseSpecification"
+	StartResponse?:    #FulfillmentStartResponseSpecification
 	TimeoutInSeconds?: int & <=900 & >=1
-	UpdateResponse?:   _#defs."/$defs/Properties/definitions/FulfillmentUpdateResponseSpecification"
+	UpdateResponse?:   #FulfillmentUpdateResponseSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/GenerativeAISettings": close({
+#GenerativeAISettings: close({
 	BuildtimeSettings?: close({
 		DescriptiveBotBuilderSpecification?: close({
-			BedrockModelSpecification?: _#defs."/$defs/Properties/definitions/BedrockModelSpecification"
+			BedrockModelSpecification?: #BedrockModelSpecification
 			Enabled!:                   bool
 		})
 		SampleUtteranceGenerationSpecification?: close({
-			BedrockModelSpecification?: _#defs."/$defs/Properties/definitions/BedrockModelSpecification"
+			BedrockModelSpecification?: #BedrockModelSpecification
 			Enabled!:                   bool
 		})
 	})
@@ -350,215 +328,205 @@ _#defs: "/$defs/Properties/definitions/GenerativeAISettings": close({
 		NluImprovementSpecification?: close({
 			AssistedNluMode?:              "Primary" | "Fallback"
 			Enabled!:                      bool
-			IntentDisambiguationSettings?: _#defs."/$defs/Properties/definitions/IntentDisambiguationSettings"
+			IntentDisambiguationSettings?: #IntentDisambiguationSettings
 		})
 		SlotResolutionImprovementSpecification?: close({
-			BedrockModelSpecification?: _#defs."/$defs/Properties/definitions/BedrockModelSpecification"
+			BedrockModelSpecification?: #BedrockModelSpecification
 			Enabled!:                   bool
 		})
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/GrammarSlotTypeSetting": close(
-	{Source?: _#defs."/$defs/Properties/definitions/GrammarSlotTypeSource"},
-)
+#GrammarSlotTypeSetting: close({Source?: #GrammarSlotTypeSource})
 
-_#defs: "/$defs/Properties/definitions/GrammarSlotTypeSource": close({
+#GrammarSlotTypeSource: close({
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w\\-]+:kms:[\\w\\-]+:[\\d]{12}:(?:key\\/[\\w\\-]+|alias\\/[a-zA-Z0-9:\\/_\\-]{1,256})$"
-	S3BucketName!: _#defs."/$defs/Properties/definitions/S3BucketName"
-	S3ObjectKey!:  _#defs."/$defs/Properties/definitions/S3ObjectKey"
+	S3BucketName!: #S3BucketName
+	S3ObjectKey!:  #S3ObjectKey
 })
 
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$"
+#Id: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$"
 
-_#defs: "/$defs/Properties/definitions/IdleSessionTTLInSeconds": int & <=86400 & >=60
+#IdleSessionTTLInSeconds: int & <=86400 & >=60
 
-_#defs: "/$defs/Properties/definitions/ImageResponseCard": close({
-	Buttons?:  list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/Button"]
-	ImageUrl?: _#defs."/$defs/Properties/definitions/AttachmentUrl"
-	Subtitle?: _#defs."/$defs/Properties/definitions/AttachmentTitle"
-	Title!:    _#defs."/$defs/Properties/definitions/AttachmentTitle"
+#ImageResponseCard: close({
+	Buttons?:  list.MaxItems(5) & [...#Button]
+	ImageUrl?: #AttachmentUrl
+	Subtitle?: #AttachmentTitle
+	Title!:    #AttachmentTitle
 })
 
-_#defs: "/$defs/Properties/definitions/InitialResponseSetting": close({
-	CodeHook?:        _#defs."/$defs/Properties/definitions/DialogCodeHookInvocationSetting"
-	Conditional?:     _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	InitialResponse?: _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	NextStep?:        _#defs."/$defs/Properties/definitions/DialogState"
+#InitialResponseSetting: close({
+	CodeHook?:        #DialogCodeHookInvocationSetting
+	Conditional?:     #ConditionalSpecification
+	InitialResponse?: #ResponseSpecification
+	NextStep?:        #DialogState
 })
 
-_#defs: "/$defs/Properties/definitions/InputContext": close({Name!: _#defs."/$defs/Properties/definitions/Name"})
+#InputContext: close({Name!: #Name})
 
-_#defs: "/$defs/Properties/definitions/InputContextsList": list.MaxItems(5) & [
-	..._#defs."/$defs/Properties/definitions/InputContext"
-]
+#InputContextsList: list.MaxItems(5) & [...#InputContext]
 
-_#defs: "/$defs/Properties/definitions/Intent": close({
-	BedrockAgentIntentConfiguration?: _#defs."/$defs/Properties/definitions/BedrockAgentIntentConfiguration"
+#Intent: close({
+	BedrockAgentIntentConfiguration?: #BedrockAgentIntentConfiguration
 
 	// Resource Type definition for the intent.
-	Description?:                   _#defs."/$defs/Properties/definitions/Description"
-	DialogCodeHook?:                _#defs."/$defs/Properties/definitions/DialogCodeHookSetting"
-	DisplayName?:                   _#defs."/$defs/Properties/definitions/DisplayName"
-	FulfillmentCodeHook?:           _#defs."/$defs/Properties/definitions/FulfillmentCodeHookSetting"
-	InitialResponseSetting?:        _#defs."/$defs/Properties/definitions/InitialResponseSetting"
-	InputContexts?:                 _#defs."/$defs/Properties/definitions/InputContextsList"
-	IntentClosingSetting?:          _#defs."/$defs/Properties/definitions/IntentClosingSetting"
-	IntentConfirmationSetting?:     _#defs."/$defs/Properties/definitions/IntentConfirmationSetting"
-	KendraConfiguration?:           _#defs."/$defs/Properties/definitions/KendraConfiguration"
-	Name!:                          _#defs."/$defs/Properties/definitions/Name"
-	OutputContexts?:                _#defs."/$defs/Properties/definitions/OutputContextsList"
-	ParentIntentSignature?:         _#defs."/$defs/Properties/definitions/ParentIntentSignature"
-	QInConnectIntentConfiguration?: _#defs."/$defs/Properties/definitions/QInConnectIntentConfiguration"
-	QnAIntentConfiguration?:        _#defs."/$defs/Properties/definitions/QnAIntentConfiguration"
-	SampleUtterances?:              _#defs."/$defs/Properties/definitions/SampleUtterancesList"
-	SlotPriorities?:                _#defs."/$defs/Properties/definitions/SlotPrioritiesList"
-	Slots?: list.MaxItems(100) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Slot"]
+	Description?:                   #Description
+	DialogCodeHook?:                #DialogCodeHookSetting
+	DisplayName?:                   #DisplayName
+	FulfillmentCodeHook?:           #FulfillmentCodeHookSetting
+	InitialResponseSetting?:        #InitialResponseSetting
+	InputContexts?:                 #InputContextsList
+	IntentClosingSetting?:          #IntentClosingSetting
+	IntentConfirmationSetting?:     #IntentConfirmationSetting
+	KendraConfiguration?:           #KendraConfiguration
+	Name!:                          #Name
+	OutputContexts?:                #OutputContextsList
+	ParentIntentSignature?:         #ParentIntentSignature
+	QInConnectIntentConfiguration?: #QInConnectIntentConfiguration
+	QnAIntentConfiguration?:        #QnAIntentConfiguration
+	SampleUtterances?:              #SampleUtterancesList
+	SlotPriorities?:                #SlotPrioritiesList
+	Slots?:                         list.MaxItems(100) & list.UniqueItems() & [...#Slot]
 })
 
-_#defs: "/$defs/Properties/definitions/IntentClosingSetting": close({
-	ClosingResponse?: _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	Conditional?:     _#defs."/$defs/Properties/definitions/ConditionalSpecification"
+#IntentClosingSetting: close({
+	ClosingResponse?: #ResponseSpecification
+	Conditional?:     #ConditionalSpecification
 	IsActive?:        bool
-	NextStep?:        _#defs."/$defs/Properties/definitions/DialogState"
+	NextStep?:        #DialogState
 })
 
-_#defs: "/$defs/Properties/definitions/IntentConfirmationSetting": close({
-	CodeHook?:                _#defs."/$defs/Properties/definitions/DialogCodeHookInvocationSetting"
-	ConfirmationConditional?: _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	ConfirmationNextStep?:    _#defs."/$defs/Properties/definitions/DialogState"
-	ConfirmationResponse?:    _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	DeclinationConditional?:  _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	DeclinationNextStep?:     _#defs."/$defs/Properties/definitions/DialogState"
-	DeclinationResponse?:     _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	ElicitationCodeHook?:     _#defs."/$defs/Properties/definitions/ElicitationCodeHookInvocationSetting"
-	FailureConditional?:      _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	FailureNextStep?:         _#defs."/$defs/Properties/definitions/DialogState"
-	FailureResponse?:         _#defs."/$defs/Properties/definitions/ResponseSpecification"
+#IntentConfirmationSetting: close({
+	CodeHook?:                #DialogCodeHookInvocationSetting
+	ConfirmationConditional?: #ConditionalSpecification
+	ConfirmationNextStep?:    #DialogState
+	ConfirmationResponse?:    #ResponseSpecification
+	DeclinationConditional?:  #ConditionalSpecification
+	DeclinationNextStep?:     #DialogState
+	DeclinationResponse?:     #ResponseSpecification
+	ElicitationCodeHook?:     #ElicitationCodeHookInvocationSetting
+	FailureConditional?:      #ConditionalSpecification
+	FailureNextStep?:         #DialogState
+	FailureResponse?:         #ResponseSpecification
 	IsActive?:                bool
-	PromptSpecification!:     _#defs."/$defs/Properties/definitions/PromptSpecification"
+	PromptSpecification!:     #PromptSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/IntentDisambiguationSettings": close({
+#IntentDisambiguationSettings: close({
 	CustomDisambiguationMessage?: strings.MaxRunes(1000) & strings.MinRunes(1)
 	Enabled!:                     bool
 	MaxDisambiguationIntents?:    int & <=5 & >=2
 })
 
-_#defs: "/$defs/Properties/definitions/IntentOverride": close({
-	Name?:  _#defs."/$defs/Properties/definitions/Name"
-	Slots?: [..._#defs."/$defs/Properties/definitions/SlotValueOverrideMap"]
+#IntentOverride: close({
+	Name?:  #Name
+	Slots?: [...#SlotValueOverrideMap]
 })
 
-_#defs: "/$defs/Properties/definitions/KendraConfiguration": close({
-	KendraIndex!:              _#defs."/$defs/Properties/definitions/KendraIndexArn"
-	QueryFilterString?:        _#defs."/$defs/Properties/definitions/QueryFilterString"
+#KendraConfiguration: close({
+	KendraIndex!:              #KendraIndexArn
+	QueryFilterString?:        #QueryFilterString
 	QueryFilterStringEnabled?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/KendraIndexArn": strings.MaxRunes(2048) &
+#KendraIndexArn: strings.MaxRunes(2048) &
 strings.MinRunes(32) &
 =~"^arn:aws[a-zA-Z-]*:kendra:[a-z]+-(?:[a-z]+-)*[0-9]:[0-9]{12}:index/[a-zA-Z0-9][a-zA-Z0-9_-]*$"
 
-_#defs: "/$defs/Properties/definitions/LambdaCodeHook": close({
+#LambdaCodeHook: close({
 	CodeHookInterfaceVersion!: strings.MaxRunes(5) & strings.MinRunes(1)
 	LambdaArn!:
 		=~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
-_#defs: "/$defs/Properties/definitions/LocaleId": string
+#LocaleId: string
 
-_#defs: "/$defs/Properties/definitions/Message": close({
-	CustomPayload?:     _#defs."/$defs/Properties/definitions/CustomPayload"
-	ImageResponseCard?: _#defs."/$defs/Properties/definitions/ImageResponseCard"
-	PlainTextMessage?:  _#defs."/$defs/Properties/definitions/PlainTextMessage"
-	SSMLMessage?:       _#defs."/$defs/Properties/definitions/SSMLMessage"
+#Message: close({
+	CustomPayload?:     #CustomPayload
+	ImageResponseCard?: #ImageResponseCard
+	PlainTextMessage?:  #PlainTextMessage
+	SSMLMessage?:       #SSMLMessage
 })
 
-_#defs: "/$defs/Properties/definitions/MessageGroup": close({
-	Message!:    _#defs."/$defs/Properties/definitions/Message"
-	Variations?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/Message"]
+#MessageGroup: close({
+	Message!:    #Message
+	Variations?: list.MaxItems(2) & [...#Message]
 })
 
-_#defs: "/$defs/Properties/definitions/MessageGroupsList": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/MessageGroup"
-]
+#MessageGroupsList: list.MaxItems(5) & list.MinItems(1) & [...#MessageGroup]
 
-_#defs: "/$defs/Properties/definitions/MessageSelectionStrategy": "Random" | "Ordered"
+#MessageSelectionStrategy: "Random" | "Ordered"
 
-_#defs: "/$defs/Properties/definitions/MultipleValuesSetting": close({AllowMultipleValues?: bool})
+#MultipleValuesSetting: close({AllowMultipleValues?: bool})
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$"
+#Name: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$"
 
-_#defs: "/$defs/Properties/definitions/ObfuscationSetting": close(
-	{ObfuscationSettingType!: "None" | "DefaultObfuscation"},
-)
+#ObfuscationSetting: close({ObfuscationSettingType!: "None" | "DefaultObfuscation"})
 
-_#defs: "/$defs/Properties/definitions/OutputContext": close({
-	Name!:                _#defs."/$defs/Properties/definitions/Name"
-	TimeToLiveInSeconds!: _#defs."/$defs/Properties/definitions/ContextTimeToLiveInSeconds"
-	TurnsToLive!:         _#defs."/$defs/Properties/definitions/ContextTurnsToLive"
+#OutputContext: close({
+	Name!:                #Name
+	TimeToLiveInSeconds!: #ContextTimeToLiveInSeconds
+	TurnsToLive!:         #ContextTurnsToLive
 })
 
-_#defs: "/$defs/Properties/definitions/OutputContextsList": list.MaxItems(10) & [
-	..._#defs."/$defs/Properties/definitions/OutputContext"
-]
+#OutputContextsList: list.MaxItems(10) & [...#OutputContext]
 
-_#defs: "/$defs/Properties/definitions/ParentIntentSignature": string
+#ParentIntentSignature: string
 
-_#defs: "/$defs/Properties/definitions/ParentSlotTypeSignature": string
+#ParentSlotTypeSignature: string
 
-_#defs: "/$defs/Properties/definitions/PlainTextMessage": close({Value!: strings.MaxRunes(1000) & strings.MinRunes(1)})
+#PlainTextMessage: close({Value!: strings.MaxRunes(1000) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/PostDialogCodeHookInvocationSpecification": close({
-	FailureConditional?: _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	FailureNextStep?:    _#defs."/$defs/Properties/definitions/DialogState"
-	FailureResponse?:    _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	SuccessConditional?: _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	SuccessNextStep?:    _#defs."/$defs/Properties/definitions/DialogState"
-	SuccessResponse?:    _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	TimeoutConditional?: _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	TimeoutNextStep?:    _#defs."/$defs/Properties/definitions/DialogState"
-	TimeoutResponse?:    _#defs."/$defs/Properties/definitions/ResponseSpecification"
+#PostDialogCodeHookInvocationSpecification: close({
+	FailureConditional?: #ConditionalSpecification
+	FailureNextStep?:    #DialogState
+	FailureResponse?:    #ResponseSpecification
+	SuccessConditional?: #ConditionalSpecification
+	SuccessNextStep?:    #DialogState
+	SuccessResponse?:    #ResponseSpecification
+	TimeoutConditional?: #ConditionalSpecification
+	TimeoutNextStep?:    #DialogState
+	TimeoutResponse?:    #ResponseSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/PostFulfillmentStatusSpecification": close({
-	FailureConditional?: _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	FailureNextStep?:    _#defs."/$defs/Properties/definitions/DialogState"
-	FailureResponse?:    _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	SuccessConditional?: _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	SuccessNextStep?:    _#defs."/$defs/Properties/definitions/DialogState"
-	SuccessResponse?:    _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	TimeoutConditional?: _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	TimeoutNextStep?:    _#defs."/$defs/Properties/definitions/DialogState"
-	TimeoutResponse?:    _#defs."/$defs/Properties/definitions/ResponseSpecification"
+#PostFulfillmentStatusSpecification: close({
+	FailureConditional?: #ConditionalSpecification
+	FailureNextStep?:    #DialogState
+	FailureResponse?:    #ResponseSpecification
+	SuccessConditional?: #ConditionalSpecification
+	SuccessNextStep?:    #DialogState
+	SuccessResponse?:    #ResponseSpecification
+	TimeoutConditional?: #ConditionalSpecification
+	TimeoutNextStep?:    #DialogState
+	TimeoutResponse?:    #ResponseSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/PriorityValue": int & <=100 & >=0
+#PriorityValue: int & <=100 & >=0
 
-_#defs: "/$defs/Properties/definitions/PromptAttemptSpecification": close({
+#PromptAttemptSpecification: close({
 	AllowInterrupt?:                 bool
-	AllowedInputTypes!:              _#defs."/$defs/Properties/definitions/AllowedInputTypes"
-	AudioAndDTMFInputSpecification?: _#defs."/$defs/Properties/definitions/AudioAndDTMFInputSpecification"
-	TextInputSpecification?:         _#defs."/$defs/Properties/definitions/TextInputSpecification"
+	AllowedInputTypes!:              #AllowedInputTypes
+	AudioAndDTMFInputSpecification?: #AudioAndDTMFInputSpecification
+	TextInputSpecification?:         #TextInputSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/PromptMaxRetries": int & <=5 & >=0
+#PromptMaxRetries: int & <=5 & >=0
 
-_#defs: "/$defs/Properties/definitions/PromptSpecification": close({
+#PromptSpecification: close({
 	AllowInterrupt?:           bool
-	MaxRetries!:               _#defs."/$defs/Properties/definitions/PromptMaxRetries"
-	MessageGroupsList!:        _#defs."/$defs/Properties/definitions/MessageGroupsList"
-	MessageSelectionStrategy?: _#defs."/$defs/Properties/definitions/MessageSelectionStrategy"
+	MaxRetries!:               #PromptMaxRetries
+	MessageGroupsList!:        #MessageGroupsList
+	MessageSelectionStrategy?: #MessageSelectionStrategy
 	PromptAttemptsSpecification?: close({
 
-		{[=~"^(Initial|Retry1|Retry2|Retry3|Retry4|Retry5)$"]: _#defs."/$defs/Properties/definitions/PromptAttemptSpecification"}})
+		{[=~"^(Initial|Retry1|Retry2|Retry3|Retry4|Retry5)$"]: #PromptAttemptSpecification}})
 })
 
-_#defs: "/$defs/Properties/definitions/QInConnectIntentConfiguration": close({
+#QInConnectIntentConfiguration: close({
 	QInConnectAssistantConfiguration?: close({
 		AssistantArn!: strings.MaxRunes(200) &
 		strings.MinRunes(1) &
@@ -566,15 +534,15 @@ _#defs: "/$defs/Properties/definitions/QInConnectIntentConfiguration": close({
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/QnAIntentConfiguration": close({
-	BedrockModelConfiguration!: _#defs."/$defs/Properties/definitions/BedrockModelSpecification"
+#QnAIntentConfiguration: close({
+	BedrockModelConfiguration!: #BedrockModelSpecification
 	DataSourceConfiguration!: close({
 		BedrockKnowledgeStoreConfiguration?: close({
 			BKBExactResponseFields?:  close({AnswerField?: strings.MaxRunes(5000) & strings.MinRunes(1)})
 			BedrockKnowledgeBaseArn?: strings.MaxRunes(5000) & strings.MinRunes(1)
 			ExactResponse?:           bool
 		})
-		KendraConfiguration?: _#defs."/$defs/Properties/definitions/QnAKendraConfiguration"
+		KendraConfiguration?: #QnAKendraConfiguration
 		OpensearchConfiguration?: close({
 			DomainEndpoint?: strings.MaxRunes(5000) & strings.MinRunes(1)
 			ExactResponse?:  bool
@@ -588,35 +556,31 @@ _#defs: "/$defs/Properties/definitions/QnAIntentConfiguration": close({
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/QnAKendraConfiguration": close({
+#QnAKendraConfiguration: close({
 	ExactResponse!:            bool
 	KendraIndex!:              strings.MaxRunes(5000) & strings.MinRunes(1)
 	QueryFilterString?:        strings.MaxRunes(5000) & strings.MinRunes(1)
 	QueryFilterStringEnabled!: bool
 })
 
-_#defs: "/$defs/Properties/definitions/QueryFilterString": strings.MaxRunes(5000) & strings.MinRunes(1)
+#QueryFilterString: strings.MaxRunes(5000) & strings.MinRunes(1)
 
 // The secondary region that will be used in the replication of the source bot.
-_#defs: "/$defs/Properties/definitions/ReplicaRegion": strings.MaxRunes(25) & strings.MinRunes(2)
+#ReplicaRegion: strings.MaxRunes(25) & strings.MinRunes(2)
 
-_#defs: "/$defs/Properties/definitions/Replication": close({
-	ReplicaRegions!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ReplicaRegion"
-	]
-})
+#Replication: close({ReplicaRegions!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ReplicaRegion]})
 
-_#defs: "/$defs/Properties/definitions/ResponseSpecification": close({
+#ResponseSpecification: close({
 	AllowInterrupt?:    bool
-	MessageGroupsList!: _#defs."/$defs/Properties/definitions/MessageGroupsList"
+	MessageGroupsList!: #MessageGroupsList
 })
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(32) &
 =~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.*$"
 
-_#defs: "/$defs/Properties/definitions/S3BucketLogDestination": close({
+#S3BucketLogDestination: close({
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -627,252 +591,222 @@ _#defs: "/$defs/Properties/definitions/S3BucketLogDestination": close({
 	=~"^arn:[\\w\\-]+:s3:::[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 })
 
-_#defs: "/$defs/Properties/definitions/S3BucketName": strings.MaxRunes(63) &
-strings.MinRunes(3) &
-=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
+#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
-	S3Bucket!:        _#defs."/$defs/Properties/definitions/S3BucketName"
-	S3ObjectKey!:     _#defs."/$defs/Properties/definitions/S3ObjectKey"
+#S3Location: close({
+	S3Bucket!:        #S3BucketName
+	S3ObjectKey!:     #S3ObjectKey
 	S3ObjectVersion?: strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/S3ObjectKey": strings.MaxRunes(1024) &
+#S3ObjectKey: strings.MaxRunes(1024) &
 strings.MinRunes(1) &
 =~"[\\.\\-\\!\\*\\_\\'\\(\\)a-zA-Z0-9][\\.\\-\\!\\*\\_\\'\\(\\)\\/a-zA-Z0-9]*$"
 
-_#defs: "/$defs/Properties/definitions/SSMLMessage": close({Value!: strings.MaxRunes(1000) & strings.MinRunes(1)})
+#SSMLMessage: close({Value!: strings.MaxRunes(1000) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/SampleUtterance": close(
-	{Utterance!: _#defs."/$defs/Properties/definitions/Utterance"},
-)
+#SampleUtterance: close({Utterance!: #Utterance})
 
-_#defs: "/$defs/Properties/definitions/SampleUtterancesList": [
-	..._#defs."/$defs/Properties/definitions/SampleUtterance"
-]
+#SampleUtterancesList: [...#SampleUtterance]
 
-_#defs: "/$defs/Properties/definitions/SampleValue": close({Value!: strings.MaxRunes(140) & strings.MinRunes(1)})
+#SampleValue: close({Value!: strings.MaxRunes(140) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/SecretsManagerSecretArn": strings.MaxRunes(2048) &
+#SecretsManagerSecretArn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws[A-Za-z-]*:secretsmanager:[a-z0-9-]{1,20}:[0-9]{12}:secret:[A-Za-z0-9/_+=.@-]{1,512}-[A-Za-z0-9]{6}$"
 
-_#defs: "/$defs/Properties/definitions/SessionAttribute": close({
+#SessionAttribute: close({
 	Key!:   strings.MaxRunes(1024) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(1024) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Slot": close({
-	Description?:             _#defs."/$defs/Properties/definitions/Description"
-	MultipleValuesSetting?:   _#defs."/$defs/Properties/definitions/MultipleValuesSetting"
-	Name!:                    _#defs."/$defs/Properties/definitions/Name"
-	ObfuscationSetting?:      _#defs."/$defs/Properties/definitions/ObfuscationSetting"
-	SlotTypeName!:            _#defs."/$defs/Properties/definitions/SlotTypeName"
-	SubSlotSetting?:          _#defs."/$defs/Properties/definitions/SubSlotSetting"
-	ValueElicitationSetting!: _#defs."/$defs/Properties/definitions/SlotValueElicitationSetting"
+#Slot: close({
+	Description?:             #Description
+	MultipleValuesSetting?:   #MultipleValuesSetting
+	Name!:                    #Name
+	ObfuscationSetting?:      #ObfuscationSetting
+	SlotTypeName!:            #SlotTypeName
+	SubSlotSetting?:          #SubSlotSetting
+	ValueElicitationSetting!: #SlotValueElicitationSetting
 })
 
-_#defs: "/$defs/Properties/definitions/SlotCaptureSetting": close({
-	CaptureConditional?:  _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	CaptureNextStep?:     _#defs."/$defs/Properties/definitions/DialogState"
-	CaptureResponse?:     _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	CodeHook?:            _#defs."/$defs/Properties/definitions/DialogCodeHookInvocationSetting"
-	ElicitationCodeHook?: _#defs."/$defs/Properties/definitions/ElicitationCodeHookInvocationSetting"
-	FailureConditional?:  _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	FailureNextStep?:     _#defs."/$defs/Properties/definitions/DialogState"
-	FailureResponse?:     _#defs."/$defs/Properties/definitions/ResponseSpecification"
+#SlotCaptureSetting: close({
+	CaptureConditional?:  #ConditionalSpecification
+	CaptureNextStep?:     #DialogState
+	CaptureResponse?:     #ResponseSpecification
+	CodeHook?:            #DialogCodeHookInvocationSetting
+	ElicitationCodeHook?: #ElicitationCodeHookInvocationSetting
+	FailureConditional?:  #ConditionalSpecification
+	FailureNextStep?:     #DialogState
+	FailureResponse?:     #ResponseSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/SlotConstraint": "Required" | "Optional"
+#SlotConstraint: "Required" | "Optional"
 
-_#defs: "/$defs/Properties/definitions/SlotDefaultValue": close(
-	{DefaultValue!: strings.MaxRunes(202) & strings.MinRunes(1)},
-)
+#SlotDefaultValue: close({DefaultValue!: strings.MaxRunes(202) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/SlotDefaultValueSpecification": close(
-	{DefaultValueList!: list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/SlotDefaultValue"]},
-)
+#SlotDefaultValueSpecification: close({DefaultValueList!: list.MaxItems(10) & [...#SlotDefaultValue]})
 
-_#defs: "/$defs/Properties/definitions/SlotPrioritiesList": [..._#defs."/$defs/Properties/definitions/SlotPriority"]
+#SlotPrioritiesList: [...#SlotPriority]
 
-_#defs: "/$defs/Properties/definitions/SlotPriority": close({
-	Priority!: _#defs."/$defs/Properties/definitions/PriorityValue"
-	SlotName!: _#defs."/$defs/Properties/definitions/Name"
+#SlotPriority: close({
+	Priority!: #PriorityValue
+	SlotName!: #Name
 })
 
-_#defs: "/$defs/Properties/definitions/SlotShape": "Scalar" | "List"
+#SlotShape: "Scalar" | "List"
 
-_#defs: "/$defs/Properties/definitions/SlotType": close({
-	CompositeSlotTypeSetting?: _#defs."/$defs/Properties/definitions/CompositeSlotTypeSetting"
-	Description?:              _#defs."/$defs/Properties/definitions/Description"
-	ExternalSourceSetting?:    _#defs."/$defs/Properties/definitions/ExternalSourceSetting"
-	Name!:                     _#defs."/$defs/Properties/definitions/Name"
-	ParentSlotTypeSignature?:  _#defs."/$defs/Properties/definitions/ParentSlotTypeSignature"
-	SlotTypeValues?:           _#defs."/$defs/Properties/definitions/SlotTypeValues"
-	ValueSelectionSetting?:    _#defs."/$defs/Properties/definitions/SlotValueSelectionSetting"
+#SlotType: close({
+	CompositeSlotTypeSetting?: #CompositeSlotTypeSetting
+	Description?:              #Description
+	ExternalSourceSetting?:    #ExternalSourceSetting
+	Name!:                     #Name
+	ParentSlotTypeSignature?:  #ParentSlotTypeSignature
+	SlotTypeValues?:           #SlotTypeValues
+	ValueSelectionSetting?:    #SlotValueSelectionSetting
 })
 
-_#defs: "/$defs/Properties/definitions/SlotTypeId": strings.MaxRunes(25) &
-strings.MinRunes(1) &
-=~"^((AMAZON\\.)[a-zA-Z_]+?|[0-9a-zA-Z]+)$"
+#SlotTypeId: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^((AMAZON\\.)[a-zA-Z_]+?|[0-9a-zA-Z]+)$"
 
-_#defs: "/$defs/Properties/definitions/SlotTypeName": string
+#SlotTypeName: string
 
-_#defs: "/$defs/Properties/definitions/SlotTypeValue": close({
-	SampleValue!: _#defs."/$defs/Properties/definitions/SampleValue"
-	Synonyms?:    _#defs."/$defs/Properties/definitions/SynonymList"
+#SlotTypeValue: close({
+	SampleValue!: #SampleValue
+	Synonyms?:    #SynonymList
 })
 
-_#defs: "/$defs/Properties/definitions/SlotTypeValues": list.MaxItems(10000) & [
-	..._#defs."/$defs/Properties/definitions/SlotTypeValue"
-]
+#SlotTypeValues: list.MaxItems(10000) & [...#SlotTypeValue]
 
-_#defs: "/$defs/Properties/definitions/SlotValue": close(
-	{InterpretedValue?: strings.MaxRunes(202) & strings.MinRunes(1)},
-)
+#SlotValue: close({InterpretedValue?: strings.MaxRunes(202) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/SlotValueElicitationSetting": close({
-	DefaultValueSpecification?:    _#defs."/$defs/Properties/definitions/SlotDefaultValueSpecification"
-	PromptSpecification?:          _#defs."/$defs/Properties/definitions/PromptSpecification"
-	SampleUtterances?:             _#defs."/$defs/Properties/definitions/SampleUtterancesList"
-	SlotCaptureSetting?:           _#defs."/$defs/Properties/definitions/SlotCaptureSetting"
-	SlotConstraint!:               _#defs."/$defs/Properties/definitions/SlotConstraint"
-	WaitAndContinueSpecification?: _#defs."/$defs/Properties/definitions/WaitAndContinueSpecification"
+#SlotValueElicitationSetting: close({
+	DefaultValueSpecification?:    #SlotDefaultValueSpecification
+	PromptSpecification?:          #PromptSpecification
+	SampleUtterances?:             #SampleUtterancesList
+	SlotCaptureSetting?:           #SlotCaptureSetting
+	SlotConstraint!:               #SlotConstraint
+	WaitAndContinueSpecification?: #WaitAndContinueSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/SlotValueOverride": close({
-	Shape?:  _#defs."/$defs/Properties/definitions/SlotShape"
-	Value?:  _#defs."/$defs/Properties/definitions/SlotValue"
-	Values?: _#defs."/$defs/Properties/definitions/SlotValues"
+#SlotValueOverride: close({
+	Shape?:  #SlotShape
+	Value?:  #SlotValue
+	Values?: #SlotValues
 })
 
-_#defs: "/$defs/Properties/definitions/SlotValueOverrideMap": close({
-	SlotName?:          _#defs."/$defs/Properties/definitions/Name"
-	SlotValueOverride?: _#defs."/$defs/Properties/definitions/SlotValueOverride"
+#SlotValueOverrideMap: close({
+	SlotName?:          #Name
+	SlotValueOverride?: #SlotValueOverride
 })
 
-_#defs: "/$defs/Properties/definitions/SlotValueRegexFilter": close(
-	{Pattern!: strings.MaxRunes(300) & strings.MinRunes(1)},
-)
+#SlotValueRegexFilter: close({Pattern!: strings.MaxRunes(300) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/SlotValueResolutionStrategy": "ORIGINAL_VALUE" |
-	"TOP_RESOLUTION" |
-	"CONCATENATION"
+#SlotValueResolutionStrategy: "ORIGINAL_VALUE" | "TOP_RESOLUTION" | "CONCATENATION"
 
-_#defs: "/$defs/Properties/definitions/SlotValueSelectionSetting": close({
-	AdvancedRecognitionSetting?: _#defs."/$defs/Properties/definitions/AdvancedRecognitionSetting"
-	RegexFilter?:                _#defs."/$defs/Properties/definitions/SlotValueRegexFilter"
-	ResolutionStrategy!:         _#defs."/$defs/Properties/definitions/SlotValueResolutionStrategy"
+#SlotValueSelectionSetting: close({
+	AdvancedRecognitionSetting?: #AdvancedRecognitionSetting
+	RegexFilter?:                #SlotValueRegexFilter
+	ResolutionStrategy!:         #SlotValueResolutionStrategy
 })
 
-_#defs: "/$defs/Properties/definitions/SlotValues": [..._#defs."/$defs/Properties/definitions/SlotValueOverride"]
+#SlotValues: [...#SlotValueOverride]
 
-_#defs: "/$defs/Properties/definitions/Specifications": close({
-	SlotTypeId?:              _#defs."/$defs/Properties/definitions/SlotTypeId"
-	SlotTypeName?:            _#defs."/$defs/Properties/definitions/SlotTypeName"
-	ValueElicitationSetting!: _#defs."/$defs/Properties/definitions/SubSlotValueElicitationSetting"
+#Specifications: close({
+	SlotTypeId?:              #SlotTypeId
+	SlotTypeName?:            #SlotTypeName
+	ValueElicitationSetting!: #SubSlotValueElicitationSetting
 	if SlotTypeId != _|_ {
 		SlotTypeName?: error("SlotTypeName cannot be used with SlotTypeId; set exactly one of SlotTypeId, SlotTypeName")
 	}
 }) & matchN(>=1, [{SlotTypeId!: _}, {SlotTypeName!: _}])
 
-_#defs: "/$defs/Properties/definitions/SpeechDetectionSensitivity": "Default" |
-	"HighNoiseTolerance" |
-	"MaximumNoiseTolerance"
+#SpeechDetectionSensitivity: "Default" | "HighNoiseTolerance" | "MaximumNoiseTolerance"
 
-_#defs: "/$defs/Properties/definitions/SpeechModelConfig": close(
-	{DeepgramConfig?: _#defs."/$defs/Properties/definitions/DeepgramSpeechModelConfig"},
-)
+#SpeechModelConfig: close({DeepgramConfig?: #DeepgramSpeechModelConfig})
 
-_#defs: "/$defs/Properties/definitions/SpeechModelPreference": "Standard" | "Neural" | "Deepgram" | "Advanced"
+#SpeechModelPreference: "Standard" | "Neural" | "Deepgram" | "Advanced"
 
-_#defs: "/$defs/Properties/definitions/SpeechRecognitionSettings": close({
-	SpeechModelConfig?:     _#defs."/$defs/Properties/definitions/SpeechModelConfig"
-	SpeechModelPreference?: _#defs."/$defs/Properties/definitions/SpeechModelPreference"
+#SpeechRecognitionSettings: close({
+	SpeechModelConfig?:     #SpeechModelConfig
+	SpeechModelPreference?: #SpeechModelPreference
 })
 
-_#defs: "/$defs/Properties/definitions/StillWaitingResponseFrequency": int & <=300 & >=1
+#StillWaitingResponseFrequency: int & <=300 & >=1
 
-_#defs: "/$defs/Properties/definitions/StillWaitingResponseSpecification": close({
+#StillWaitingResponseSpecification: close({
 	AllowInterrupt?:     bool
-	FrequencyInSeconds!: _#defs."/$defs/Properties/definitions/StillWaitingResponseFrequency"
-	MessageGroupsList!:  _#defs."/$defs/Properties/definitions/MessageGroupsList"
-	TimeoutInSeconds!:   _#defs."/$defs/Properties/definitions/StillWaitingResponseTimeout"
+	FrequencyInSeconds!: #StillWaitingResponseFrequency
+	MessageGroupsList!:  #MessageGroupsList
+	TimeoutInSeconds!:   #StillWaitingResponseTimeout
 })
 
-_#defs: "/$defs/Properties/definitions/StillWaitingResponseTimeout": int & <=900 & >=1
+#StillWaitingResponseTimeout: int & <=900 & >=1
 
-_#defs: "/$defs/Properties/definitions/SubSlotSetting": close({
+#SubSlotSetting: close({
 	Expression?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[0-9A-Za-z_\\-\\s\\(\\)]+"
 	SlotSpecifications?: struct.MaxFields(6) & struct.MinFields(0) & close({
 
-		{[=~"^([0-9a-zA-Z][_-]?){1,100}$"]: _#defs."/$defs/Properties/definitions/Specifications"}})
+		{[=~"^([0-9a-zA-Z][_-]?){1,100}$"]: #Specifications}})
 })
 
-_#defs: "/$defs/Properties/definitions/SubSlotTypeComposition": close({
+#SubSlotTypeComposition: close({
 	Name!:         strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?){1,100}$"
-	SlotTypeId?:   _#defs."/$defs/Properties/definitions/SlotTypeId"
-	SlotTypeName?: _#defs."/$defs/Properties/definitions/SlotTypeName"
+	SlotTypeId?:   #SlotTypeId
+	SlotTypeName?: #SlotTypeName
 	if SlotTypeId != _|_ {
 		SlotTypeName?: error("SlotTypeName cannot be used with SlotTypeId; set exactly one of SlotTypeId, SlotTypeName")
 	}
 }) & matchN(>=1, [{SlotTypeId!: _}, {SlotTypeName!: _}])
 
-_#defs: "/$defs/Properties/definitions/SubSlotValueElicitationSetting": close({
-	DefaultValueSpecification?:    _#defs."/$defs/Properties/definitions/SlotDefaultValueSpecification"
-	PromptSpecification?:          _#defs."/$defs/Properties/definitions/PromptSpecification"
-	SampleUtterances?:             _#defs."/$defs/Properties/definitions/SampleUtterancesList"
-	WaitAndContinueSpecification?: _#defs."/$defs/Properties/definitions/WaitAndContinueSpecification"
+#SubSlotValueElicitationSetting: close({
+	DefaultValueSpecification?:    #SlotDefaultValueSpecification
+	PromptSpecification?:          #PromptSpecification
+	SampleUtterances?:             #SampleUtterancesList
+	WaitAndContinueSpecification?: #WaitAndContinueSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/SynonymList": list.MaxItems(10000) & [
-	..._#defs."/$defs/Properties/definitions/SampleValue"
-]
+#SynonymList: list.MaxItems(10000) & [...#SampleValue]
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TestBotAliasSettings": close({
-	BotAliasLocaleSettings?:    _#defs."/$defs/Properties/definitions/BotAliasLocaleSettingsList"
-	ConversationLogSettings?:   _#defs."/$defs/Properties/definitions/ConversationLogSettings"
-	Description?:               _#defs."/$defs/Properties/definitions/Description"
+#TestBotAliasSettings: close({
+	BotAliasLocaleSettings?:    #BotAliasLocaleSettingsList
+	ConversationLogSettings?:   #ConversationLogSettings
+	Description?:               #Description
 	SentimentAnalysisSettings?: close({DetectSentiment!: bool})
 })
 
-_#defs: "/$defs/Properties/definitions/TextInputSpecification": close({StartTimeoutMs!: int & >=1})
+#TextInputSpecification: close({StartTimeoutMs!: int & >=1})
 
-_#defs: "/$defs/Properties/definitions/TextLogDestination": close(
-	{CloudWatch!: _#defs."/$defs/Properties/definitions/CloudWatchLogGroupLogDestination"},
-)
+#TextLogDestination: close({CloudWatch!: #CloudWatchLogGroupLogDestination})
 
-_#defs: "/$defs/Properties/definitions/TextLogSetting": close({
-	Destination!: _#defs."/$defs/Properties/definitions/TextLogDestination"
+#TextLogSetting: close({
+	Destination!: #TextLogDestination
 	Enabled!:     bool
 })
 
-_#defs: "/$defs/Properties/definitions/TextLogSettings": list.MaxItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/TextLogSetting"
-]
+#TextLogSettings: list.MaxItems(1) & list.UniqueItems() & [...#TextLogSetting]
 
-_#defs: "/$defs/Properties/definitions/UnifiedSpeechSettings": close({
+#UnifiedSpeechSettings: close({
 	SpeechFoundationModel!: close({
 		ModelArn!: string
 		VoiceId?:  string
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/Utterance": string
+#Utterance: string
 
-_#defs: "/$defs/Properties/definitions/VoiceSettings": close({
+#VoiceSettings: close({
 	Engine?:  "standard" | "neural" | "long-form" | "generative"
 	VoiceId!: string
 })
 
-_#defs: "/$defs/Properties/definitions/WaitAndContinueSpecification": close({
-	ContinueResponse!:     _#defs."/$defs/Properties/definitions/ResponseSpecification"
+#WaitAndContinueSpecification: close({
+	ContinueResponse!:     #ResponseSpecification
 	IsActive?:             bool
-	StillWaitingResponse?: _#defs."/$defs/Properties/definitions/StillWaitingResponseSpecification"
-	WaitingResponse!:      _#defs."/$defs/Properties/definitions/ResponseSpecification"
+	StillWaitingResponse?: #StillWaitingResponseSpecification
+	WaitingResponse!:      #ResponseSpecification
 })

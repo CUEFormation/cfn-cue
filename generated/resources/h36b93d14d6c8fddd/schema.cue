@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -25,14 +25,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ContainerType!:    _
 	...
 } & close({
-	Components?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComponentConfiguration"] |
-		fn.#ListExpression
+	Components?:             list.MinItems(1) & [...#ComponentConfiguration] | fn.#ListExpression
 	ContainerType?:          "DOCKER" | fn.#StringExpression
 	Description?:            strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	DockerfileTemplateData?: strings.MaxRunes(16000) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
 	DockerfileTemplateUri?:  string | fn.#StringExpression
 	ImageOsVersionOverride?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceConfiguration?:  _#defs."/$defs/Properties/definitions/InstanceConfiguration" | fn.#ObjectExpression
+	InstanceConfiguration?:  #InstanceConfiguration | fn.#ObjectExpression
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
 	fn.#StringExpression
@@ -43,25 +42,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	TargetRepository?: _#defs."/$defs/Properties/definitions/TargetContainerRepository" | fn.#ObjectExpression
+	TargetRepository?: #TargetContainerRepository | fn.#ObjectExpression
 	Version?:          string | fn.#StringExpression
 	WorkingDirectory?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentConfiguration": close({
+#ComponentConfiguration: close({
 	ComponentArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws(?:-[a-z-]+)?|third-party):component/[a-z0-9-_]+/(?:(?:([0-9]+|x)\\.([0-9]+|x)\\.([0-9]+|x))|(?:[0-9]+\\.[0-9]+\\.[0-9]+/[0-9]+))$" |
 		fn.#StringExpression
-	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComponentParameter"] | fn.#ListExpression
+	Parameters?: list.MinItems(1) & [...#ComponentParameter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComponentParameter": close({
+#ComponentParameter: close({
 	Name!:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
 	Value!: [...strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsInstanceBlockDeviceSpecification": close({
+#EbsInstanceBlockDeviceSpecification: close({
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Encrypted?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int & <=64000 & >=100 |
@@ -120,21 +119,21 @@ _#defs: "/$defs/Properties/definitions/EbsInstanceBlockDeviceSpecification": clo
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceBlockDeviceMapping": close({
+#InstanceBlockDeviceMapping: close({
 	DeviceName?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Ebs?:         _#defs."/$defs/Properties/definitions/EbsInstanceBlockDeviceSpecification" | fn.#ObjectExpression
+	Ebs?:         #EbsInstanceBlockDeviceSpecification | fn.#ObjectExpression
 	NoDevice?:    strings.MaxRunes(0) & strings.MinRunes(0) | fn.#StringExpression
 	VirtualName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceConfiguration": close({
-	BlockDeviceMappings?: [..._#defs."/$defs/Properties/definitions/InstanceBlockDeviceMapping"] | fn.#ListExpression
+#InstanceConfiguration: close({
+	BlockDeviceMappings?: [...#InstanceBlockDeviceMapping] | fn.#ListExpression
 	Image?:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LatestVersion": close({
+#LatestVersion: close({
 	Arn?:   string | fn.#StringExpression
 	Major?: string | fn.#StringExpression
 	Minor?: string | fn.#StringExpression
@@ -142,7 +141,7 @@ _#defs: "/$defs/Properties/definitions/LatestVersion": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetContainerRepository": close({
+#TargetContainerRepository: close({
 	RepositoryName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Service?:        "ECR" | fn.#StringExpression
 }) |

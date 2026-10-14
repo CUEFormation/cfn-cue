@@ -14,37 +14,31 @@ import (
 	Arn?:                   strings.MaxRunes(2048) & strings.MinRunes(1)
 	ClientToken?:           strings.MaxRunes(256) & strings.MinRunes(1)
 	CreatedAt?:             string
-	Description?:           _#defs."/$defs/Properties/definitions/ResourceDescription"
+	Description?:           #ResourceDescription
 	DnsViewId?:             strings.MaxRunes(64) & strings.MinRunes(1)
-	DnssecValidation?:      _#defs."/$defs/Properties/definitions/DnsSecValidationType"
-	EdnsClientSubnet?:      _#defs."/$defs/Properties/definitions/EdnsClientSubnetType"
-	FirewallRulesFailOpen?: _#defs."/$defs/Properties/definitions/FirewallRulesFailOpenType"
+	DnssecValidation?:      #DnsSecValidationType
+	EdnsClientSubnet?:      #EdnsClientSubnetType
+	FirewallRulesFailOpen?: #FirewallRulesFailOpenType
 	GlobalResolverId!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$"
-	Name!:                  _#defs."/$defs/Properties/definitions/ResourceName"
-	Status?:                _#defs."/$defs/Properties/definitions/ProfileResourceStatus"
-	Tags?:                  list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Name!:                  #ResourceName
+	Status?:                #ProfileResourceStatus
+	Tags?:                  list.MaxItems(50) & [...#Tag]
 	UpdatedAt?:             string
 })
 
-_#defs: "/$defs/Properties/definitions/DnsSecValidationType": "ENABLED" | "DISABLED"
+#DnsSecValidationType: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/EdnsClientSubnetType": "ENABLED" | "DISABLED"
+#EdnsClientSubnetType: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/FirewallRulesFailOpenType": "ENABLED" | "DISABLED"
+#FirewallRulesFailOpenType: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/ProfileResourceStatus": "CREATING" |
-	"OPERATIONAL" |
-	"UPDATING" |
-	"ENABLING" |
-	"DISABLING" |
-	"DISABLED" |
-	"DELETING"
+#ProfileResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "ENABLING" | "DISABLING" | "DISABLED" | "DELETING"
 
-_#defs: "/$defs/Properties/definitions/ResourceDescription": strings.MaxRunes(256) & strings.MinRunes(1)
+#ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(64) & strings.MinRunes(1)
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

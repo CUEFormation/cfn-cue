@@ -16,13 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Identifier!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" |
 	fn.#StringExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
-	Scopes?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceServerScopeType"] |
-		fn.#ListExpression
+	Name!:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
+	Scopes?:     list.MaxItems(100) & [...] & [...#ResourceServerScopeType] | fn.#ListExpression
 	UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceServerScopeType": close({
+#ResourceServerScopeType: close({
 	ScopeDescription!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ScopeName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x2E\\x30-\\x5B\\x5D-\\x7E]+$" |
 	fn.#StringExpression

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"math"
 )
@@ -28,17 +28,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // For more information, see [Adding or removing HTTP headers in CloudFront
 // responses](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/modifying-response-headers.html)
 // in the *Amazon CloudFront Developer Guide*.
-#Properties: close({
-	ResponseHeadersPolicyConfig!: _#defs."/$defs/Properties/definitions/ResponseHeadersPolicyConfig" |
-		fn.#ObjectExpression
-})
+#Properties: close({ResponseHeadersPolicyConfig!: #ResponseHeadersPolicyConfig | fn.#ObjectExpression})
 
-_#defs: "/$defs/Properties/definitions/AccessControlAllowHeaders": close(
-	{Items!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
+#AccessControlAllowHeaders: close({Items!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessControlAllowMethods": close({
+#AccessControlAllowMethods: close({
 	Items!: list.MinItems(1) & [
 		..."ALL" | "DELETE" | "GET" | "HEAD" | "OPTIONS" | "PATCH" | "POST" | "PUT" | fn.#StringExpression
 	] |
@@ -46,28 +41,24 @@ _#defs: "/$defs/Properties/definitions/AccessControlAllowMethods": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessControlAllowOrigins": close(
-	{Items!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
+#AccessControlAllowOrigins: close({Items!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessControlExposeHeaders": close(
-	{Items!: [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
+#AccessControlExposeHeaders: close({Items!: [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContentSecurityPolicy": close({
+#ContentSecurityPolicy: close({
 	ContentSecurityPolicy!: string | fn.#StringExpression
 	Override!:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContentTypeOptions": close(
+#ContentTypeOptions: close(
 	{Override!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CorsConfig": close({
+#CorsConfig: close({
 	AccessControlAllowCredentials!: bool |
 		"true" |
 		"True" |
@@ -76,11 +67,10 @@ _#defs: "/$defs/Properties/definitions/CorsConfig": close({
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	AccessControlAllowHeaders!: _#defs."/$defs/Properties/definitions/AccessControlAllowHeaders" | fn.#ObjectExpression
-	AccessControlAllowMethods!: _#defs."/$defs/Properties/definitions/AccessControlAllowMethods" | fn.#ObjectExpression
-	AccessControlAllowOrigins!: _#defs."/$defs/Properties/definitions/AccessControlAllowOrigins" | fn.#ObjectExpression
-	AccessControlExposeHeaders?: _#defs."/$defs/Properties/definitions/AccessControlExposeHeaders" |
-		fn.#ObjectExpression
+	AccessControlAllowHeaders!:  #AccessControlAllowHeaders | fn.#ObjectExpression
+	AccessControlAllowMethods!:  #AccessControlAllowMethods | fn.#ObjectExpression
+	AccessControlAllowOrigins!:  #AccessControlAllowOrigins | fn.#ObjectExpression
+	AccessControlExposeHeaders?: #AccessControlExposeHeaders | fn.#ObjectExpression
 	AccessControlMaxAgeSec?: int |
 		{
 			string &
@@ -99,67 +89,61 @@ _#defs: "/$defs/Properties/definitions/CorsConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomHeader": close({
+#CustomHeader: close({
 	Header!:   string | fn.#StringExpression
 	Override!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Value!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomHeadersConfig": close(
-	{Items!: [..._#defs."/$defs/Properties/definitions/CustomHeader"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#CustomHeadersConfig: close({Items!: [...#CustomHeader] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FrameOptions": close({
+#FrameOptions: close({
 	FrameOption!: =~"^(DENY|SAMEORIGIN)$" | fn.#StringExpression
 	Override!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReferrerPolicy": close({
+#ReferrerPolicy: close({
 	Override!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReferrerPolicy!: =~"^(no-referrer|no-referrer-when-downgrade|origin|origin-when-cross-origin|same-origin|strict-origin|strict-origin-when-cross-origin|unsafe-url)$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RemoveHeader": close({Header!: string | fn.#StringExpression}) |
+#RemoveHeader: close({Header!: string | fn.#StringExpression}) | fn.#ObjectExpression
+
+#RemoveHeadersConfig: close({Items!: list.UniqueItems() & [...#RemoveHeader] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RemoveHeadersConfig": close(
-	{Items!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RemoveHeader"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/ResponseHeadersPolicyConfig": close({
+#ResponseHeadersPolicyConfig: close({
 	Comment?:                   strings.MaxRunes(128) | fn.#StringExpression
-	CorsConfig?:                _#defs."/$defs/Properties/definitions/CorsConfig" | fn.#ObjectExpression
-	CustomHeadersConfig?:       _#defs."/$defs/Properties/definitions/CustomHeadersConfig" | fn.#ObjectExpression
+	CorsConfig?:                #CorsConfig | fn.#ObjectExpression
+	CustomHeadersConfig?:       #CustomHeadersConfig | fn.#ObjectExpression
 	Name!:                      string | fn.#StringExpression
-	RemoveHeadersConfig?:       _#defs."/$defs/Properties/definitions/RemoveHeadersConfig" | fn.#ObjectExpression
-	SecurityHeadersConfig?:     _#defs."/$defs/Properties/definitions/SecurityHeadersConfig" | fn.#ObjectExpression
-	ServerTimingHeadersConfig?: _#defs."/$defs/Properties/definitions/ServerTimingHeadersConfig" | fn.#ObjectExpression
+	RemoveHeadersConfig?:       #RemoveHeadersConfig | fn.#ObjectExpression
+	SecurityHeadersConfig?:     #SecurityHeadersConfig | fn.#ObjectExpression
+	ServerTimingHeadersConfig?: #ServerTimingHeadersConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityHeadersConfig": close({
-	ContentSecurityPolicy?:   _#defs."/$defs/Properties/definitions/ContentSecurityPolicy" | fn.#ObjectExpression
-	ContentTypeOptions?:      _#defs."/$defs/Properties/definitions/ContentTypeOptions" | fn.#ObjectExpression
-	FrameOptions?:            _#defs."/$defs/Properties/definitions/FrameOptions" | fn.#ObjectExpression
-	ReferrerPolicy?:          _#defs."/$defs/Properties/definitions/ReferrerPolicy" | fn.#ObjectExpression
-	StrictTransportSecurity?: _#defs."/$defs/Properties/definitions/StrictTransportSecurity" | fn.#ObjectExpression
-	XSSProtection?:           _#defs."/$defs/Properties/definitions/XSSProtection" | fn.#ObjectExpression
+#SecurityHeadersConfig: close({
+	ContentSecurityPolicy?:   #ContentSecurityPolicy | fn.#ObjectExpression
+	ContentTypeOptions?:      #ContentTypeOptions | fn.#ObjectExpression
+	FrameOptions?:            #FrameOptions | fn.#ObjectExpression
+	ReferrerPolicy?:          #ReferrerPolicy | fn.#ObjectExpression
+	StrictTransportSecurity?: #StrictTransportSecurity | fn.#ObjectExpression
+	XSSProtection?:           #XSSProtection | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerTimingHeadersConfig": close({
+#ServerTimingHeadersConfig: close({
 	Enabled!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SamplingRate?: math.MultipleOf(0.0001) & <=100 & >=0 | fn.#NumberExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StrictTransportSecurity": close({
+#StrictTransportSecurity: close({
 	AccessControlMaxAgeSec!: int |
 		{
 			string &
@@ -180,7 +164,7 @@ _#defs: "/$defs/Properties/definitions/StrictTransportSecurity": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/XSSProtection": close({
+#XSSProtection: close({
 	ModeBlock?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Override!:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Protection!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

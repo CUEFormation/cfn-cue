@@ -33,13 +33,11 @@ import "strings"
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$"
 
 	// The parameters of the environment action.
-	Parameters?: _#defs."/$defs/Properties/definitions/AwsConsoleLinkParameters"
+	Parameters?: #AwsConsoleLinkParameters
 })
 
 // The parameters of the console link specified as part of the environment action
-_#defs: "/$defs/Properties/definitions/AwsConsoleLinkParameters": close(
-	{Uri?: _#defs."/$defs/Properties/definitions/EnvironmentActionURI"},
-)
+#AwsConsoleLinkParameters: close({Uri?: #EnvironmentActionURI})
 
 // The URI of the console link specified as part of the environment action.
-_#defs: "/$defs/Properties/definitions/EnvironmentActionURI": strings.MaxRunes(2048) & strings.MinRunes(1)
+#EnvironmentActionURI: strings.MaxRunes(2048) & strings.MinRunes(1)

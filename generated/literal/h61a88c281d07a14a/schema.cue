@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"list"
 )
 
@@ -28,22 +28,22 @@ import (
 	strings.MinRunes(1) &
 	=~"^(arn:aws(|-us-gov|-cn|-iso|-iso-b):bedrock:(|[0-9a-z-]{0,20}):(|[0-9]{12}):(inference-profile|application-inference-profile)/)?[a-zA-Z0-9-:.]+$"
 	InferenceProfileName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][ _-]?)+$"
-	ModelSource?:          _#defs."/$defs/Properties/definitions/InferenceProfileModelSource"
+	ModelSource?:          #InferenceProfileModelSource
 
 	// List of model configuration
-	Models?: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/InferenceProfileModel"]
-	Status?: _#defs."/$defs/Properties/definitions/InferenceProfileStatus"
+	Models?: list.MaxItems(5) & list.MinItems(1) & [...#InferenceProfileModel]
+	Status?: #InferenceProfileStatus
 
 	// List of Tags
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Type?: _#defs."/$defs/Properties/definitions/InferenceProfileType"
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
+	Type?: #InferenceProfileType
 
 	// Time Stamp
 	UpdatedAt?: time.Time
 })
 
 // Model configuration
-_#defs: "/$defs/Properties/definitions/InferenceProfileModel": close({
+#InferenceProfileModel: close({
 	// ARN for Foundation Models in Bedrock. These models can be used as base models
 	// for model customization jobs
 	ModelArn?:
@@ -51,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/InferenceProfileModel": close({
 })
 
 // Various ways to encode a list of models in a CreateInferenceProfile request
-_#defs: "/$defs/Properties/definitions/InferenceProfileModelSource": close({
+#InferenceProfileModelSource: close({
 	// Source arns for a custom inference profile to copy its regional load balancing config from. This
 	// can either be a foundation model or predefined inference profile ARN.
 	CopyFrom!: strings.MaxRunes(2048) &
@@ -60,13 +60,13 @@ _#defs: "/$defs/Properties/definitions/InferenceProfileModelSource": close({
 })
 
 // Status of the Inference Profile
-_#defs: "/$defs/Properties/definitions/InferenceProfileStatus": "ACTIVE"
+#InferenceProfileStatus: "ACTIVE"
 
 // Type of the Inference Profile
-_#defs: "/$defs/Properties/definitions/InferenceProfileType": "APPLICATION" | "SYSTEM_DEFINED"
+#InferenceProfileType: "APPLICATION" | "SYSTEM_DEFINED"
 
 // Definition of the key/value pair for a tag
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Tag Key
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 
@@ -74,4 +74,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})

@@ -16,12 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CustomerId!: strings.MaxRunes(4100) | fn.#StringExpression
 	DomainId!:   strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:       list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:       list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	TemplateId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
 	Title!:      strings.MaxRunes(4100) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & =~"^([a-zA-Z0-9 _.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

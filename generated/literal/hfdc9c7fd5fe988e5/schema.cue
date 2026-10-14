@@ -12,42 +12,40 @@ import (
 
 // Definition of AWS::Bedrock::AutomatedReasoningPolicyVersion Resource Type
 #Properties: close({
-	CreatedAt?:                 _#defs."/$defs/Properties/definitions/CreatedAt"
-	DefinitionHash?:            _#defs."/$defs/Properties/definitions/DefinitionHash"
-	Description?:               _#defs."/$defs/Properties/definitions/Description"
-	LastUpdatedDefinitionHash?: _#defs."/$defs/Properties/definitions/DefinitionHash"
-	Name?:                      _#defs."/$defs/Properties/definitions/Name"
-	PolicyArn!:                 _#defs."/$defs/Properties/definitions/PolicyArn"
-	PolicyId?:                  _#defs."/$defs/Properties/definitions/PolicyId"
-	Tags?:                      _#defs."/$defs/Properties/definitions/Tags"
-	UpdatedAt?:                 _#defs."/$defs/Properties/definitions/UpdatedAt"
-	Version?:                   _#defs."/$defs/Properties/definitions/Version"
+	CreatedAt?:                 #CreatedAt
+	DefinitionHash?:            #DefinitionHash
+	Description?:               #Description
+	LastUpdatedDefinitionHash?: #DefinitionHash
+	Name?:                      #Name
+	PolicyArn!:                 #PolicyArn
+	PolicyId?:                  #PolicyId
+	Tags?:                      #Tags
+	UpdatedAt?:                 #UpdatedAt
+	Version?:                   #Version
 })
 
 // Time this policy version was created
-_#defs: "/$defs/Properties/definitions/CreatedAt": time.Time
+#CreatedAt: time.Time
 
 // The hash for this version
-_#defs: "/$defs/Properties/definitions/DefinitionHash": strings.MaxRunes(128) &
-strings.MinRunes(128) &
-=~"^[0-9a-z]{128}$"
+#DefinitionHash: strings.MaxRunes(128) & strings.MinRunes(128) & =~"^[0-9a-z]{128}$"
 
 // The description inherited from the policy
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1024) & =~"^[\\s\\S]+$"
+#Description: strings.MaxRunes(1024) & =~"^[\\s\\S]+$"
 
 // The name inherited from the policy
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$"
+#Name: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$"
 
 // Arn of the policy
-_#defs: "/$defs/Properties/definitions/PolicyArn": strings.MaxRunes(2048) &
+#PolicyArn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:automated-reasoning-policy\\/[a-z0-9]{12}$"
 
 // The id of the associated policy
-_#defs: "/$defs/Properties/definitions/PolicyId": strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$"
+#PolicyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$"
 
 // Definition of the key/value pair for a tag
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Tag Key
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 
@@ -55,12 +53,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(200) & [...] & [...#Tag]
 
 // Time this policy was last updated
-_#defs: "/$defs/Properties/definitions/UpdatedAt": time.Time
+#UpdatedAt: time.Time
 
 // The version of the policy
-_#defs: "/$defs/Properties/definitions/Version": strings.MaxRunes(12) & =~"^([1-9][0-9]{0,11})$"
+#Version: strings.MaxRunes(12) & =~"^([1-9][0-9]{0,11})$"

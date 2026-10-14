@@ -14,46 +14,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Glue::Integration
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/IntegrationAdditionalEncryptionContextMap"
+	AdditionalEncryptionContext?: #IntegrationAdditionalEncryptionContextMap
 	DataFilter?:                  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	Description?:                 strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	IntegrationConfig?:           _#defs."/$defs/Properties/definitions/IntegrationConfig"
+	IntegrationConfig?:           #IntegrationConfig
 	IntegrationName!:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 	fn.#StringExpression
 	SourceArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	TargetArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IntegrationAdditionalEncryptionContextMap": close({
+#IntegrationAdditionalEncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntegrationConfig": close({
+#IntegrationConfig: close({
 	ContinuousSync?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RefreshInterval?:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SourceProperties?: _#defs."/$defs/Properties/definitions/SourceProperties"
+	SourceProperties?: #SourceProperties
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceProperties": close({
+#SourceProperties: close({
 
 	{[=~"^[\\s\\S]*$"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Glue::Integration"
 	Properties!: #Properties

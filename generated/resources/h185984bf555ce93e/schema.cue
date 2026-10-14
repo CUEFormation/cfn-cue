@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,56 +18,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Connect::HoursOfOperation
 #Properties: close({
-	ChildHoursOfOperations?: [..._#defs."/$defs/Properties/definitions/HoursOfOperationsIdentifier"] |
-		fn.#ListExpression
-	Config!: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/HoursOfOperationConfig"
-	] |
-		fn.#ListExpression
+	ChildHoursOfOperations?: [...#HoursOfOperationsIdentifier] | fn.#ListExpression
+	Config!:      list.MaxItems(100) & list.UniqueItems() & [...] & [...#HoursOfOperationConfig] | fn.#ListExpression
 	Description?: strings.MaxRunes(250) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,250}$" | fn.#StringExpression
-	HoursOfOperationOverrides?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/HoursOfOperationOverride"] |
-		fn.#ListExpression
+	HoursOfOperationOverrides?: list.MaxItems(50) & [...#HoursOfOperationOverride] | fn.#ListExpression
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	Name!:        strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,127}$" | fn.#StringExpression
-	ParentHoursOfOperations?: [..._#defs."/$defs/Properties/definitions/HoursOfOperationsIdentifier"] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TimeZone!: string | fn.#StringExpression
+	ParentHoursOfOperations?: [...#HoursOfOperationsIdentifier] | fn.#ListExpression
+	Tags?:                    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	TimeZone!:                string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EffectiveFrom": =~"^\\d{4}-\\d{2}-\\d{2}$" | fn.#StringExpression
+#EffectiveFrom: =~"^\\d{4}-\\d{2}-\\d{2}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EffectiveTill": =~"^\\d{4}-\\d{2}-\\d{2}$" | fn.#StringExpression
+#EffectiveTill: =~"^\\d{4}-\\d{2}-\\d{2}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HoursOfOperationConfig": close({
+#HoursOfOperationConfig: close({
 	Day!:     "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | fn.#StringExpression
-	EndTime!: _#defs."/$defs/Properties/definitions/HoursOfOperationTimeSlice" | fn.#ObjectExpression
-	StartTime!: _#defs."/$defs/Properties/definitions/HoursOfOperationTimeSlice" | fn.#ObjectExpression
+	EndTime!: #HoursOfOperationTimeSlice | fn.#ObjectExpression
+	StartTime!: #HoursOfOperationTimeSlice | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HoursOfOperationOverride": close({
-	EffectiveFrom!:              _#defs."/$defs/Properties/definitions/EffectiveFrom"
-	EffectiveTill!:              _#defs."/$defs/Properties/definitions/EffectiveTill"
-	HoursOfOperationOverrideId?: _#defs."/$defs/Properties/definitions/HoursOfOperationOverrideId"
-	OverrideConfig!:             _#defs."/$defs/Properties/definitions/OverrideConfig"
-	OverrideDescription?:        _#defs."/$defs/Properties/definitions/OverrideDescription"
-	OverrideName!:               _#defs."/$defs/Properties/definitions/OverrideName"
-	OverrideType?:               _#defs."/$defs/Properties/definitions/OverrideType"
-	RecurrenceConfig?:           _#defs."/$defs/Properties/definitions/RecurrenceConfig"
+#HoursOfOperationOverride: close({
+	EffectiveFrom!:              #EffectiveFrom
+	EffectiveTill!:              #EffectiveTill
+	HoursOfOperationOverrideId?: #HoursOfOperationOverrideId
+	OverrideConfig!:             #OverrideConfig
+	OverrideDescription?:        #OverrideDescription
+	OverrideName!:               #OverrideName
+	OverrideType?:               #OverrideType
+	RecurrenceConfig?:           #RecurrenceConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HoursOfOperationOverrideConfig": close({
+#HoursOfOperationOverrideConfig: close({
 	Day!:     "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | fn.#StringExpression
-	EndTime!: _#defs."/$defs/Properties/definitions/OverrideTimeSlice" | fn.#ObjectExpression
-	StartTime!: _#defs."/$defs/Properties/definitions/OverrideTimeSlice" | fn.#ObjectExpression
+	EndTime!: #OverrideTimeSlice | fn.#ObjectExpression
+	StartTime!: #OverrideTimeSlice | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HoursOfOperationOverrideId": =~"^[-a-zA-Z0-9]*$" | fn.#StringExpression
+#HoursOfOperationOverrideId: =~"^[-a-zA-Z0-9]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HoursOfOperationTimeSlice": close({
+#HoursOfOperationTimeSlice: close({
 	Hours!: int & <=23 & >=0 |
 		{
 			string &
@@ -103,13 +97,13 @@ _#defs: "/$defs/Properties/definitions/HoursOfOperationTimeSlice": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HoursOfOperationsIdentifier": close({
+#HoursOfOperationsIdentifier: close({
 	Id!:   string | fn.#StringExpression
 	Name?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MonthDayList": [
+#MonthDayList: [
 	...int & <=31 & >=-1 |
 		{
 			string &
@@ -129,7 +123,7 @@ _#defs: "/$defs/Properties/definitions/MonthDayList": [
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MonthList": [
+#MonthList: [
 	...int & <=12 & >=1 |
 		{
 			string &
@@ -149,17 +143,13 @@ _#defs: "/$defs/Properties/definitions/MonthList": [
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/OverrideConfig": list.MaxItems(100) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/HoursOfOperationOverrideConfig"
-] |
-	fn.#ListExpression
+#OverrideConfig: list.MaxItems(100) & list.UniqueItems() & [...#HoursOfOperationOverrideConfig] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/OverrideDescription": strings.MaxRunes(250) & strings.MinRunes(1) |
-fn.#StringExpression
+#OverrideDescription: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OverrideName": strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+#OverrideName: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OverrideTimeSlice": close({
+#OverrideTimeSlice: close({
 	Hours!: int & <=23 & >=0 |
 		{
 			string &
@@ -195,18 +185,15 @@ _#defs: "/$defs/Properties/definitions/OverrideTimeSlice": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OverrideType": "STANDARD" | "OPEN" | "CLOSED" | fn.#StringExpression
+#OverrideType: "STANDARD" | "OPEN" | "CLOSED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RecurrenceConfig": close(
-	{RecurrencePattern!: _#defs."/$defs/Properties/definitions/RecurrencePattern"},
-) |
-	fn.#ObjectExpression
+#RecurrenceConfig: close({RecurrencePattern!: #RecurrencePattern}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecurrenceFrequency": "WEEKLY" | "MONTHLY" | "YEARLY" | fn.#StringExpression
+#RecurrenceFrequency: "WEEKLY" | "MONTHLY" | "YEARLY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RecurrencePattern": close({
-	ByMonth?:    _#defs."/$defs/Properties/definitions/MonthList"
-	ByMonthDay?: _#defs."/$defs/Properties/definitions/MonthDayList"
+#RecurrencePattern: close({
+	ByMonth?:    #MonthList
+	ByMonthDay?: #MonthDayList
 	ByWeekdayOccurrence?: list.MaxItems(1) & [...] & [
 		...int & <=4 & >=-1 |
 			{
@@ -228,7 +215,7 @@ _#defs: "/$defs/Properties/definitions/RecurrencePattern": close({
 			fn.#NumberExpression
 	] |
 		fn.#ListExpression
-	Frequency?: _#defs."/$defs/Properties/definitions/RecurrenceFrequency"
+	Frequency?: #RecurrenceFrequency
 	Interval?: int & <=6 & >=1 |
 		{
 			string &
@@ -248,7 +235,7 @@ _#defs: "/$defs/Properties/definitions/RecurrencePattern": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |

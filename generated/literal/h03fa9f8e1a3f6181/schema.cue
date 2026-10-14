@@ -9,11 +9,11 @@ package schema
 	Arn?:               string
 	MemberId?:          string
 	NetworkId!:         string
-	NodeConfiguration!: _#defs."/$defs/Properties/definitions/NodeConfiguration"
+	NodeConfiguration!: #NodeConfiguration
 	NodeId?:            string
 })
 
-_#defs: "/$defs/Properties/definitions/NodeConfiguration": close({
+#NodeConfiguration: close({
 	AvailabilityZone!: string
 	InstanceType!:     string
 })

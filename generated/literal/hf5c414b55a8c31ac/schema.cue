@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,14 +16,10 @@ import (
 	Id?:                 string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?:          list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 	ThingTypeName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+"
 	ThingTypeProperties?: close({
-		Mqtt5Configuration?: close({
-			PropagatingAttributes?: list.UniqueItems() & [
-				..._#defs."/$defs/Properties/definitions/PropagatingAttribute"
-			]
-		})
+		Mqtt5Configuration?: close({PropagatingAttributes?: list.UniqueItems() & [...#PropagatingAttribute]})
 		SearchableAttributes?: list.MaxItems(3) & list.UniqueItems() & [
 			...strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9_.,@/:#-]+"
 		]
@@ -31,14 +27,14 @@ import (
 	})
 })
 
-_#defs: "/$defs/Properties/definitions/PropagatingAttribute": close({
+#PropagatingAttribute: close({
 	ConnectionAttribute?: ("iot:ClientId" | "iot:Thing.ThingName") & (strings.MaxRunes(128) & strings.MinRunes(0))
 	ThingAttribute?:      strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9_.,@/:#-]+"
 	UserPropertyKey!:     strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9:$.]+"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Tag key (1-128 chars). No 'aws:' prefix. Allows: [A-Za-z0-9 _.:/=+-]
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

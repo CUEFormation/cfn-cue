@@ -14,16 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::WAFRegional::WebACL
 #Properties: close({
-	DefaultAction!: _#defs."/$defs/Properties/definitions/Action"
+	DefaultAction!: #Action
 	MetricName!:    string | fn.#StringExpression
 	Name!:          string | fn.#StringExpression
-	Rules?:         [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
+	Rules?:         [...#Rule] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Action": close({Type!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Action: close({Type!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	Action!: _#defs."/$defs/Properties/definitions/Action"
+#Rule: close({
+	Action!: #Action
 	Priority!: int |
 		{
 			string &

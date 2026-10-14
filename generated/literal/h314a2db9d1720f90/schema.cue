@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"time"
 	"strings"
-	"list"
 	"struct"
 )
 
@@ -21,24 +21,24 @@ import (
 	Description?:     strings.MaxRunes(512)
 	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:aws(-[a-z-]+)?:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@\\-_/]+$"
-	IdpConfig!: _#defs."/$defs/Properties/definitions/IdpConfig"
+	IdpConfig!: #IdpConfig
 	Name!:      strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,50}$"
 	PortalUrl?: strings.MaxRunes(2000) & strings.MinRunes(1)
-	Sources!:   list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ConsentPortalSource"]
+	Sources!:   list.MaxItems(1) & list.MinItems(1) & [...#ConsentPortalSource]
 	Status?:    "CREATING" | "ACTIVE" | "UPDATING" | "UPDATE_FAILED" | "DELETING" | "FAILED"
 
 	// Tags to assign to the consent portal
-	Tags?:      list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:      list.MaxItems(50) & [...#Tag]
 	UpdatedAt?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/ConsentPortalSource": close({
+#ConsentPortalSource: close({
 	Identifier!:
 		=~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$|^arn:aws(-[a-z-]+)?:bedrock-agentcore:[a-z0-9-]{1,20}:[0-9]{12}:gateway/([0-9a-z][-]?){1,48}-[a-z0-9]{10}$"
 	Type!: "agentcore-gateway"
 })
 
-_#defs: "/$defs/Properties/definitions/IdpConfig": close({
+#IdpConfig: close({
 	Audience?: string
 
 	// The ARN of an AWS::BedrockAgentCore::OAuth2CredentialProvider resource.
@@ -47,12 +47,12 @@ _#defs: "/$defs/Properties/definitions/IdpConfig": close({
 	Scopes!: list.MinItems(1) & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 })
 
 // A map of tags (key-value pairs) to apply to a resource
-_#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & close({
+#TagsMap: struct.MaxFields(50) & close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})

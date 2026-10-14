@@ -24,18 +24,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"GitLabSelfManaged" |
 		"AzureDevOps" |
 		fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration"
+	Tags?:             list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	VpcConfiguration?: #VpcConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
+#VpcConfiguration: close({
 	SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(20) &

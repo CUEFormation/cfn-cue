@@ -12,56 +12,56 @@ import (
 // Resource definition for AWS::BedrockAgentCore::RuntimeEndpoint
 #Properties: close({
 	// The ARN of the Agent Runtime
-	AgentRuntimeArn?: _#defs."/$defs/Properties/definitions/AgentRuntimeArn"
+	AgentRuntimeArn?: #AgentRuntimeArn
 
 	// The Amazon Resource Name (ARN) of the AgentCore Runtime.
-	AgentRuntimeEndpointArn?: _#defs."/$defs/Properties/definitions/AgentRuntimeEndpointArn"
+	AgentRuntimeEndpointArn?: #AgentRuntimeEndpointArn
 
 	// The ID of the parent Agent Runtime (required for creation)
-	AgentRuntimeId!: _#defs."/$defs/Properties/definitions/AgentRuntimeId"
+	AgentRuntimeId!: #AgentRuntimeId
 
 	// The version of the AgentCore Runtime to use for the endpoint.
-	AgentRuntimeVersion?: _#defs."/$defs/Properties/definitions/AgentRuntimeVersion"
+	AgentRuntimeVersion?: #AgentRuntimeVersion
 
 	// The timestamp when the Agent Runtime Endpoint was created
-	CreatedAt?: _#defs."/$defs/Properties/definitions/DateTimestamp"
+	CreatedAt?: #DateTimestamp
 
 	// The description of the AgentCore Runtime endpoint.
-	Description?: _#defs."/$defs/Properties/definitions/AgentEndpointDescription"
+	Description?: #AgentEndpointDescription
 
 	// The reason for failure if the endpoint is in a failed state
 	FailureReason?: string
 
 	// The unique identifier of the AgentCore Runtime endpoint.
-	Id?: _#defs."/$defs/Properties/definitions/AgentRuntimeEndpointId"
+	Id?: #AgentRuntimeEndpointId
 
 	// The timestamp when the Agent Runtime Endpoint was last updated
-	LastUpdatedAt?: _#defs."/$defs/Properties/definitions/DateTimestamp"
+	LastUpdatedAt?: #DateTimestamp
 
 	// The Live version of the Agent Runtime
-	LiveVersion?: _#defs."/$defs/Properties/definitions/AgentRuntimeVersion"
+	LiveVersion?: #AgentRuntimeVersion
 
 	// The name of the Agent Runtime Endpoint
-	Name!: _#defs."/$defs/Properties/definitions/EndpointName"
+	Name!: #EndpointName
 
 	// The status of the Agent Runtime Endpoint
-	Status?: _#defs."/$defs/Properties/definitions/AgentRuntimeEndpointStatus"
-	Tags?:   _#defs."/$defs/Properties/definitions/TagsMap"
+	Status?: #AgentRuntimeEndpointStatus
+	Tags?:   #TagsMap
 
 	// The target version of the AgentCore Runtime for the endpoint.
-	TargetVersion?: _#defs."/$defs/Properties/definitions/AgentRuntimeVersion"
+	TargetVersion?: #AgentRuntimeVersion
 })
 
-_#defs: "/$defs/Properties/definitions/AgentEndpointDescription": strings.MaxRunes(256) & strings.MinRunes(1)
+#AgentEndpointDescription: strings.MaxRunes(256) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$"
+#AgentRuntimeArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$"
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeEndpointArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z0-9_-]+/runtime-endpoint/[a-zA-Z0-9_-]+$"
+#AgentRuntimeEndpointArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z0-9_-]+/runtime-endpoint/[a-zA-Z0-9_-]+$"
 
 // The unique ID of the Agent Runtime Endpoint itself
-_#defs: "/$defs/Properties/definitions/AgentRuntimeEndpointId": =~"^[a-zA-Z0-9_-]+$"
+#AgentRuntimeEndpointId: =~"^[a-zA-Z0-9_-]+$"
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeEndpointStatus": "CREATING" |
+#AgentRuntimeEndpointStatus: "CREATING" |
 	"CREATE_FAILED" |
 	"UPDATING" |
 	"UPDATE_FAILED" |
@@ -70,17 +70,15 @@ _#defs: "/$defs/Properties/definitions/AgentRuntimeEndpointStatus": "CREATING" |
 	"DELETE_FAILED"
 
 // The ID of the parent Agent Runtime
-_#defs: "/$defs/Properties/definitions/AgentRuntimeId": =~"^[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$"
+#AgentRuntimeId: =~"^[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$"
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeVersion": =~"^([1-9][0-9]{0,4})$"
+#AgentRuntimeVersion: =~"^([1-9][0-9]{0,4})$"
 
-_#defs: "/$defs/Properties/definitions/DateTimestamp": time.Time
+#DateTimestamp: time.Time
 
-_#defs: "/$defs/Properties/definitions/EndpointName": strings.MaxRunes(48) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$"
+#EndpointName: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$"
 
 // A map of tag keys and values
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})

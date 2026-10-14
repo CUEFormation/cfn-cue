@@ -16,17 +16,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AggregatorV2 in your account. One aggregatorv2 resource is created for each
 // account in non opt-in region in which you configure region linking mode.
 #Properties: close({
-	LinkedRegions!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Region"
-	] |
-		fn.#ListExpression
+	LinkedRegions!:     list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Region] | fn.#ListExpression
 	RegionLinkingMode!: "SPECIFIED_REGIONS" | fn.#StringExpression
-	Tags?:              _#defs."/$defs/Properties/definitions/Tags"
+	Tags?:              #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Region": =~"^[a-zA-Z0-9-]{1,32}$" | fn.#StringExpression
+#Region: =~"^[a-zA-Z0-9-]{1,32}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(50) & {...} | fn.#ObjectExpression
+#Tags: struct.MaxFields(50) & {...} | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SecurityHub::AggregatorV2"
 	Properties!: #Properties

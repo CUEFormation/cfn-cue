@@ -140,7 +140,7 @@ import (
 		"zu-ZA"
 
 	// Tags associated with the vocabulary filter.
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag]
 
 	// The Amazon S3 location of the text file that contains your custom vocabulary filter terms.
 	VocabularyFilterFileUri?: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^(s3://|http(s*)://).+$"
@@ -153,7 +153,7 @@ import (
 	Words?: list.MinItems(1) & [...strings.MaxRunes(256) & strings.MinRunes(1)]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

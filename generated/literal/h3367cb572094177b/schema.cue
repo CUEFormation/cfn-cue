@@ -8,12 +8,12 @@ import "strings"
 
 // Resource Type definition for AWS::S3Tables::Namespace
 #Properties: close({
-	Namespace!:      _#defs."/$defs/Properties/definitions/Namespace"
-	TableBucketARN!: _#defs."/$defs/Properties/definitions/TableBucketARN"
+	Namespace!:      #Namespace
+	TableBucketARN!: #TableBucketARN
 })
 
 // A name for the namespace.
-_#defs: "/$defs/Properties/definitions/Namespace": strings.MaxRunes(255) & strings.MinRunes(1)
+#Namespace: strings.MaxRunes(255) & strings.MinRunes(1)
 
 // The Amazon Resource Name (ARN) of the specified table bucket.
-_#defs: "/$defs/Properties/definitions/TableBucketARN": =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$"
+#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$"

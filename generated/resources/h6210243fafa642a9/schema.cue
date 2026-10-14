@@ -16,36 +16,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // that you can publish for use in different parts of your workflow, such as
 // development, beta deployment, and production.
 #Properties: close({
-	BotId!:                         _#defs."/$defs/Properties/definitions/Id"
-	BotVersionLocaleSpecification!: _#defs."/$defs/Properties/definitions/BotVersionLocaleSpecificationList"
-	Description?:                   _#defs."/$defs/Properties/definitions/Description"
+	BotId!:                         #Id
+	BotVersionLocaleSpecification!: #BotVersionLocaleSpecificationList
+	Description?:                   #Description
 })
 
-_#defs: "/$defs/Properties/definitions/BotVersion": strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$" |
-fn.#StringExpression
+#BotVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BotVersionLocaleDetails": close(
-	{SourceBotVersion!: _#defs."/$defs/Properties/definitions/BotVersion"},
-) |
-	fn.#ObjectExpression
+#BotVersionLocaleDetails: close({SourceBotVersion!: #BotVersion}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BotVersionLocaleSpecification": close({
-	BotVersionLocaleDetails!: _#defs."/$defs/Properties/definitions/BotVersionLocaleDetails"
-	LocaleId!:                _#defs."/$defs/Properties/definitions/LocaleId"
+#BotVersionLocaleSpecification: close({
+	BotVersionLocaleDetails!: #BotVersionLocaleDetails
+	LocaleId!:                #LocaleId
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BotVersionLocaleSpecificationList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/BotVersionLocaleSpecification"
-] |
-	fn.#ListExpression
+#BotVersionLocaleSpecificationList: list.MinItems(1) & [...#BotVersionLocaleSpecification] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(200) | fn.#StringExpression
+#Description: strings.MaxRunes(200) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" |
-fn.#StringExpression
+#Id: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LocaleId": string | fn.#StringExpression
+#LocaleId: string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Lex::BotVersion"
 	Properties!: #Properties

@@ -49,21 +49,21 @@ import (
 	// name and key. The location must also specify a role ARN that you set up to
 	// allow Amazon GameLift to access your Amazon S3 bucket. The S3 bucket and
 	// your new build must be in the same Region.
-	StorageLocation?: _#defs."/$defs/Properties/definitions/StorageLocation"
+	StorageLocation?: #StorageLocation
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 
 	// Version information that is associated with this build. Version strings do not need to be unique.
 	Version?: strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/S3Location": null | bool | number | string | [...] | {
+#S3Location: null | bool | number | string | [...] | {
 	RoleArn?: null | bool | number | =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" | [...] | {...}
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/StorageLocation": close({
+#StorageLocation: close({
 	// An Amazon S3 bucket identifier. This is the name of the S3 bucket.
 	Bucket!: strings.MinRunes(1)
 
@@ -83,7 +83,7 @@ _#defs: "/$defs/Properties/definitions/StorageLocation": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode characters in length.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

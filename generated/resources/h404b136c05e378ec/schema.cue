@@ -18,34 +18,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::AmplifyUIBuilder::Form Resource Type
 #Properties: close({
 	AppId?:             string | fn.#StringExpression
-	Cta?:               _#defs."/$defs/Properties/definitions/FormCTA"
-	DataType?:          _#defs."/$defs/Properties/definitions/FormDataTypeConfig"
+	Cta?:               #FormCTA
+	DataType?:          #FormDataTypeConfig
 	EnvironmentName?:   string | fn.#StringExpression
-	Fields?:            _#defs."/$defs/Properties/definitions/FieldsMap"
-	FormActionType?:    _#defs."/$defs/Properties/definitions/FormActionType"
-	LabelDecorator?:    _#defs."/$defs/Properties/definitions/LabelDecorator"
+	Fields?:            #FieldsMap
+	FormActionType?:    #FormActionType
+	LabelDecorator?:    #LabelDecorator
 	Name?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	SchemaVersion?:     string | fn.#StringExpression
-	SectionalElements?: _#defs."/$defs/Properties/definitions/SectionalElementMap"
-	Style?:             _#defs."/$defs/Properties/definitions/FormStyle"
-	Tags?:              _#defs."/$defs/Properties/definitions/Tags"
+	SectionalElements?: #SectionalElementMap
+	Style?:             #FormStyle
+	Tags?:              #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/FieldConfig": close({
+#FieldConfig: close({
 	Excluded?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InputType?:   _#defs."/$defs/Properties/definitions/FieldInputConfig"
+	InputType?:   #FieldInputConfig
 	Label?:       string | fn.#StringExpression
-	Position?:    _#defs."/$defs/Properties/definitions/FieldPosition"
-	Validations?: [..._#defs."/$defs/Properties/definitions/FieldValidationConfiguration"] | fn.#ListExpression
+	Position?:    #FieldPosition
+	Validations?: [...#FieldValidationConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldInputConfig": close({
+#FieldInputConfig: close({
 	DefaultChecked?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DefaultCountryCode?: string | fn.#StringExpression
 	DefaultValue?:       string | fn.#StringExpression
 	DescriptiveText?:    string | fn.#StringExpression
-	FileUploaderConfig?: _#defs."/$defs/Properties/definitions/FileUploaderFieldConfig"
+	FileUploaderConfig?: #FileUploaderFieldConfig
 	IsArray?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxValue?: number |
 		{
@@ -110,12 +110,12 @@ _#defs: "/$defs/Properties/definitions/FieldInputConfig": close({
 		fn.#NumberExpression
 	Type!:          string | fn.#StringExpression
 	Value?:         string | fn.#StringExpression
-	ValueMappings?: _#defs."/$defs/Properties/definitions/ValueMappings"
+	ValueMappings?: #ValueMappings
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldPosition": matchN(1, [close(
-	{Fixed!: _#defs."/$defs/Properties/definitions/FixedPosition"},
+#FieldPosition: matchN(1, [close(
+	{Fixed!: #FixedPosition},
 ), close(
 	{RightOf!: string | fn.#StringExpression},
 ), close(
@@ -123,7 +123,7 @@ _#defs: "/$defs/Properties/definitions/FieldPosition": matchN(1, [close(
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/FieldValidationConfiguration": close({
+#FieldValidationConfiguration: close({
 	NumValues?: [
 		...number |
 			{
@@ -152,14 +152,14 @@ _#defs: "/$defs/Properties/definitions/FieldValidationConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldsMap": close({
+#FieldsMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/FieldConfig"}}) |
+	{[=~".+"]: #FieldConfig}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FileUploaderFieldConfig": close({
+#FileUploaderFieldConfig: close({
 	AcceptedFileTypes!: [...string | fn.#StringExpression] | fn.#ListExpression
-	AccessLevel!:       _#defs."/$defs/Properties/definitions/StorageAccessLevel"
+	AccessLevel!:       #StorageAccessLevel
 	IsResumable?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxFileCount?: number |
 		{
@@ -203,79 +203,76 @@ _#defs: "/$defs/Properties/definitions/FileUploaderFieldConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FixedPosition": "first" | fn.#StringExpression
+#FixedPosition: "first" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FormActionType": "create" | "update" | fn.#StringExpression
+#FormActionType: "create" | "update" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FormButton": close({
+#FormButton: close({
 	Children?: string | fn.#StringExpression
 	Excluded?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Position?: _#defs."/$defs/Properties/definitions/FieldPosition"
+	Position?: #FieldPosition
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FormButtonsPosition": "top" | "bottom" | "top_and_bottom" | fn.#StringExpression
+#FormButtonsPosition: "top" | "bottom" | "top_and_bottom" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FormCTA": close({
-	Cancel?:   _#defs."/$defs/Properties/definitions/FormButton"
-	Clear?:    _#defs."/$defs/Properties/definitions/FormButton"
-	Position?: _#defs."/$defs/Properties/definitions/FormButtonsPosition"
-	Submit?:   _#defs."/$defs/Properties/definitions/FormButton"
+#FormCTA: close({
+	Cancel?:   #FormButton
+	Clear?:    #FormButton
+	Position?: #FormButtonsPosition
+	Submit?:   #FormButton
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FormDataSourceType": "DataStore" | "Custom" | fn.#StringExpression
+#FormDataSourceType: "DataStore" | "Custom" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FormDataTypeConfig": close({
-	DataSourceType!: _#defs."/$defs/Properties/definitions/FormDataSourceType"
+#FormDataTypeConfig: close({
+	DataSourceType!: #FormDataSourceType
 	DataTypeName!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FormInputBindingProperties": close({
+#FormInputBindingProperties: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/FormInputBindingPropertiesValue"}}) |
+	{[=~".+"]: #FormInputBindingPropertiesValue}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FormInputBindingPropertiesValue": close({
-	BindingProperties?: _#defs."/$defs/Properties/definitions/FormInputBindingPropertiesValueProperties"
+#FormInputBindingPropertiesValue: close({
+	BindingProperties?: #FormInputBindingPropertiesValueProperties
 	Type?:              string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FormInputBindingPropertiesValueProperties": close(
-	{Model?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#FormInputBindingPropertiesValueProperties: close({Model?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FormInputValueProperty": close({
-	BindingProperties?: _#defs."/$defs/Properties/definitions/FormInputValuePropertyBindingProperties"
-	Concat?:            [..._#defs."/$defs/Properties/definitions/FormInputValueProperty"] | fn.#ListExpression
+#FormInputValueProperty: close({
+	BindingProperties?: #FormInputValuePropertyBindingProperties
+	Concat?:            [...#FormInputValueProperty] | fn.#ListExpression
 	Value?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FormInputValuePropertyBindingProperties": close({
+#FormInputValuePropertyBindingProperties: close({
 	Field?:    string | fn.#StringExpression
 	Property!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FormStyle": close({
-	HorizontalGap?: _#defs."/$defs/Properties/definitions/FormStyleConfig"
-	OuterPadding?:  _#defs."/$defs/Properties/definitions/FormStyleConfig"
-	VerticalGap?:   _#defs."/$defs/Properties/definitions/FormStyleConfig"
+#FormStyle: close({
+	HorizontalGap?: #FormStyleConfig
+	OuterPadding?:  #FormStyleConfig
+	VerticalGap?:   #FormStyleConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FormStyleConfig": matchN(1, [
+#FormStyleConfig: matchN(1, [
 	close({TokenReference!: string | fn.#StringExpression}), close({Value!: string | fn.#StringExpression}),
 ]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/LabelDecorator": "required" | "optional" | "none" | fn.#StringExpression
+#LabelDecorator: "required" | "optional" | "none" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SectionalElement": close({
+#SectionalElement: close({
 	Excluded?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Level?: number |
 		{
@@ -297,30 +294,30 @@ _#defs: "/$defs/Properties/definitions/SectionalElement": close({
 		} |
 		fn.#NumberExpression
 	Orientation?: string | fn.#StringExpression
-	Position?:    _#defs."/$defs/Properties/definitions/FieldPosition"
+	Position?:    #FieldPosition
 	Text?:        string | fn.#StringExpression
 	Type!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SectionalElementMap": close({
+#SectionalElementMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/SectionalElement"}}) |
+	{[=~".+"]: #SectionalElement}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageAccessLevel": "public" | "protected" | "private" | fn.#StringExpression
+#StorageAccessLevel: "public" | "protected" | "private" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": {...} | fn.#ObjectExpression
+#Tags: {...} | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ValueMapping": close({
-	DisplayValue?: _#defs."/$defs/Properties/definitions/FormInputValueProperty"
-	Value!:        _#defs."/$defs/Properties/definitions/FormInputValueProperty"
+#ValueMapping: close({
+	DisplayValue?: #FormInputValueProperty
+	Value!:        #FormInputValueProperty
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ValueMappings": close({
-	BindingProperties?: _#defs."/$defs/Properties/definitions/FormInputBindingProperties"
-	Values!:            [..._#defs."/$defs/Properties/definitions/ValueMapping"] | fn.#ListExpression
+#ValueMappings: close({
+	BindingProperties?: #FormInputBindingProperties
+	Values!:            [...#ValueMapping] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

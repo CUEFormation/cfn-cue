@@ -39,7 +39,7 @@ import (
 	// A list of tags that you want to attach to the newly created policy. For each
 	// tag in the list, you must specify both a tag key and a value. You can set
 	// the value to an empty string, but you can't set it to null.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// List of unique identifiers (IDs) of the root, OU, or account that you want to
 	// attach the policy to
@@ -66,7 +66,7 @@ import (
 })
 
 // A custom key-value pair associated with a resource within your organization.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key identifier, or name, of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*"
 

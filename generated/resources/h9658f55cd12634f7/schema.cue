@@ -18,16 +18,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::NetworkManager::Link type describes a link.
 #Properties: close({
-	Bandwidth!:       _#defs."/$defs/Properties/definitions/Bandwidth" | fn.#ObjectExpression
+	Bandwidth!:       #Bandwidth | fn.#ObjectExpression
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	Provider?:        strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	SiteId!:          strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Tags?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	Type?:            strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Bandwidth": close({
+#Bandwidth: close({
 	DownloadSpeed?: int |
 		{
 			string &
@@ -59,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/Bandwidth": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |

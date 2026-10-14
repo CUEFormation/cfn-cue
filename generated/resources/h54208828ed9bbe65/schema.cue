@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -17,15 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::MSK::Cluster
 #Properties: close({
-	BrokerNodeGroupInfo!:  _#defs."/$defs/Properties/definitions/BrokerNodeGroupInfo"
-	ClientAuthentication?: _#defs."/$defs/Properties/definitions/ClientAuthentication"
+	BrokerNodeGroupInfo!:  #BrokerNodeGroupInfo
+	ClientAuthentication?: #ClientAuthentication
 	ClusterName!:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ConfigurationInfo?:    _#defs."/$defs/Properties/definitions/ConfigurationInfo"
-	EncryptionInfo?:       _#defs."/$defs/Properties/definitions/EncryptionInfo"
+	ConfigurationInfo?:    #ConfigurationInfo
+	EncryptionInfo?:       #EncryptionInfo
 	EnhancedMonitoring?: ("DEFAULT" | "PER_BROKER" | "PER_TOPIC_PER_BROKER" | "PER_TOPIC_PER_PARTITION") & (strings.MaxRunes(23) & strings.MinRunes(7)) |
 	fn.#StringExpression
 	KafkaVersion!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	LoggingInfo?:  _#defs."/$defs/Properties/definitions/LoggingInfo"
+	LoggingInfo?:  #LoggingInfo
 	NumberOfBrokerNodes!: int & >=1 |
 		{
 			string &
@@ -41,58 +41,58 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	OpenMonitoring?: _#defs."/$defs/Properties/definitions/OpenMonitoring"
-	Rebalancing?:    _#defs."/$defs/Properties/definitions/Rebalancing"
+	OpenMonitoring?: #OpenMonitoring
+	Rebalancing?:    #Rebalancing
 	StorageMode?:    ("LOCAL" | "TIERED") & (strings.MaxRunes(6) & strings.MinRunes(5)) | fn.#StringExpression
 	Tags?: close({
 
 		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	ZookeeperAccess?: _#defs."/$defs/Properties/definitions/ZookeeperAccess"
+	ZookeeperAccess?: #ZookeeperAccess
 })
 
-_#defs: "/$defs/Properties/definitions/AuthorizerLogs": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogs"
-	Firehose?:       _#defs."/$defs/Properties/definitions/Firehose"
-	S3?:             _#defs."/$defs/Properties/definitions/S3"
+#AuthorizerLogs: close({
+	CloudWatchLogs?: #CloudWatchLogs
+	Firehose?:       #Firehose
+	S3?:             #S3
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BrokerLogs": close({
-	CloudWatchLogs?: _#defs."/$defs/Properties/definitions/CloudWatchLogs"
-	Firehose?:       _#defs."/$defs/Properties/definitions/Firehose"
-	S3?:             _#defs."/$defs/Properties/definitions/S3"
+#BrokerLogs: close({
+	CloudWatchLogs?: #CloudWatchLogs
+	Firehose?:       #Firehose
+	S3?:             #S3
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BrokerNodeGroupInfo": close({
+#BrokerNodeGroupInfo: close({
 	BrokerAZDistribution?: "DEFAULT" & (strings.MaxRunes(9) & strings.MinRunes(6)) | fn.#StringExpression
 	ClientSubnets!:        [...string | fn.#StringExpression] | fn.#ListExpression
-	ConnectivityInfo?:     _#defs."/$defs/Properties/definitions/ConnectivityInfo"
+	ConnectivityInfo?:     #ConnectivityInfo
 	InstanceType!:         strings.MaxRunes(32) & strings.MinRunes(5) | fn.#StringExpression
 	SecurityGroups?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	StorageInfo?: _#defs."/$defs/Properties/definitions/StorageInfo"
+	StorageInfo?: #StorageInfo
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientAuthentication": close({
-	Sasl?:            _#defs."/$defs/Properties/definitions/Sasl"
-	Tls?:             _#defs."/$defs/Properties/definitions/Tls"
-	Unauthenticated?: _#defs."/$defs/Properties/definitions/Unauthenticated"
+#ClientAuthentication: close({
+	Sasl?:            #Sasl
+	Tls?:             #Tls
+	Unauthenticated?: #Unauthenticated
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogs": close({
+#CloudWatchLogs: close({
 	Enabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogGroup?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationInfo": close({
+#ConfigurationInfo: close({
 	Arn!: string | fn.#StringExpression
 	Revision!: int |
 		{
@@ -111,15 +111,15 @@ _#defs: "/$defs/Properties/definitions/ConfigurationInfo": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectivityInfo": close({
-	NetworkType?:     _#defs."/$defs/Properties/definitions/NetworkType"
-	PublicAccess?:    _#defs."/$defs/Properties/definitions/PublicAccess"
-	VpcConnectivity?: _#defs."/$defs/Properties/definitions/VpcConnectivity"
+#ConnectivityInfo: close({
+	NetworkType?:     #NetworkType
+	PublicAccess?:    #PublicAccess
+	VpcConnectivity?: #VpcConnectivity
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EBSStorageInfo": close({
-	ProvisionedThroughput?: _#defs."/$defs/Properties/definitions/ProvisionedThroughput"
+#EBSStorageInfo: close({
+	ProvisionedThroughput?: #ProvisionedThroughput
 	VolumeSize?: int & <=16384 & >=1 |
 		{
 			string &
@@ -139,62 +139,56 @@ _#defs: "/$defs/Properties/definitions/EBSStorageInfo": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionAtRest": close({DataVolumeKMSKeyId!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#EncryptionAtRest: close({DataVolumeKMSKeyId!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionInTransit": close({
+#EncryptionInTransit: close({
 	ClientBroker?: "TLS" | "TLS_PLAINTEXT" | "PLAINTEXT" | fn.#StringExpression
 	InCluster?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionInfo": close({
-	EncryptionAtRest?:    _#defs."/$defs/Properties/definitions/EncryptionAtRest"
-	EncryptionInTransit?: _#defs."/$defs/Properties/definitions/EncryptionInTransit"
+#EncryptionInfo: close({
+	EncryptionAtRest?:    #EncryptionAtRest
+	EncryptionInTransit?: #EncryptionInTransit
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Firehose": close({
+#Firehose: close({
 	DeliveryStream?: string | fn.#StringExpression
 	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Iam": close(
-	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
+#Iam: close({Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JmxExporter": close(
+#JmxExporter: close(
 	{EnabledInBroker!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingInfo": close({
-	AuthorizerLogs?: _#defs."/$defs/Properties/definitions/AuthorizerLogs"
-	BrokerLogs?:     _#defs."/$defs/Properties/definitions/BrokerLogs"
+#LoggingInfo: close({
+	AuthorizerLogs?: #AuthorizerLogs
+	BrokerLogs?:     #BrokerLogs
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkType": "IPV4" | "DUAL" | fn.#StringExpression
+#NetworkType: "IPV4" | "DUAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NodeExporter": close(
+#NodeExporter: close(
 	{EnabledInBroker!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenMonitoring": close(
-	{Prometheus!: _#defs."/$defs/Properties/definitions/Prometheus"},
-) |
-	fn.#ObjectExpression
+#OpenMonitoring: close({Prometheus!: #Prometheus}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Prometheus": close({
-	JmxExporter?:  _#defs."/$defs/Properties/definitions/JmxExporter"
-	NodeExporter?: _#defs."/$defs/Properties/definitions/NodeExporter"
+#Prometheus: close({
+	JmxExporter?:  #JmxExporter
+	NodeExporter?: #NodeExporter
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
+#ProvisionedThroughput: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VolumeThroughput?: int |
 		{
@@ -213,81 +207,69 @@ _#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PublicAccess": close(
-	{Type?: strings.MaxRunes(23) & strings.MinRunes(7) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#PublicAccess: close({Type?: strings.MaxRunes(23) & strings.MinRunes(7) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rebalancing": close({Status!: "PAUSED" | "ACTIVE" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Rebalancing: close({Status!: "PAUSED" | "ACTIVE" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3": close({
+#S3: close({
 	Bucket?:  string | fn.#StringExpression
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Prefix?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Sasl": close({
-	Iam?:   _#defs."/$defs/Properties/definitions/Iam"
-	Scram?: _#defs."/$defs/Properties/definitions/Scram"
+#Sasl: close({
+	Iam?:   #Iam
+	Scram?: #Scram
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Scram": close(
-	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
+#Scram: close({Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageInfo": close(
-	{EBSStorageInfo?: _#defs."/$defs/Properties/definitions/EBSStorageInfo"},
-) |
-	fn.#ObjectExpression
+#StorageInfo: close({EBSStorageInfo?: #EBSStorageInfo}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tls": close({
+#Tls: close({
 	CertificateAuthorityArnList?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Enabled?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unauthenticated": close(
+#Unauthenticated: close(
 	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivity": close(
-	{ClientAuthentication?: _#defs."/$defs/Properties/definitions/VpcConnectivityClientAuthentication"},
-) |
-	fn.#ObjectExpression
+#VpcConnectivity: close({ClientAuthentication?: #VpcConnectivityClientAuthentication}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivityClientAuthentication": close({
-	Sasl?: _#defs."/$defs/Properties/definitions/VpcConnectivitySasl"
-	Tls?:  _#defs."/$defs/Properties/definitions/VpcConnectivityTls"
+#VpcConnectivityClientAuthentication: close({
+	Sasl?: #VpcConnectivitySasl
+	Tls?:  #VpcConnectivityTls
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivityIam": close(
+#VpcConnectivityIam: close(
 	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivitySasl": close({
-	Iam?:   _#defs."/$defs/Properties/definitions/VpcConnectivityIam"
-	Scram?: _#defs."/$defs/Properties/definitions/VpcConnectivityScram"
+#VpcConnectivitySasl: close({
+	Iam?:   #VpcConnectivityIam
+	Scram?: #VpcConnectivityScram
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivityScram": close(
+#VpcConnectivityScram: close(
 	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConnectivityTls": close(
+#VpcConnectivityTls: close(
 	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ZookeeperAccess": close(
+#ZookeeperAccess: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression

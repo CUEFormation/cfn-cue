@@ -17,12 +17,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AccountId!:           strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 	DefaultLogLevel!:     "ERROR" | "WARN" | "INFO" | "DEBUG" | "DISABLED" | fn.#StringExpression
-	EventConfigurations?: [..._#defs."/$defs/Properties/definitions/EventConfiguration"] | fn.#ListExpression
+	EventConfigurations?: [...#EventConfiguration] | fn.#ListExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EventConfiguration": close({
+#EventConfiguration: close({
 	EventType!:      strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	LogDestination?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	LogLevel?:       "ERROR" | "WARN" | "INFO" | "DEBUG" | "DISABLED" | fn.#StringExpression

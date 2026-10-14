@@ -13,13 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Glue::Classifier
 #Properties: close({
-	CsvClassifier?:  _#defs."/$defs/Properties/definitions/CsvClassifier" | fn.#ObjectExpression
-	GrokClassifier?: _#defs."/$defs/Properties/definitions/GrokClassifier" | fn.#ObjectExpression
-	JsonClassifier?: _#defs."/$defs/Properties/definitions/JsonClassifier" | fn.#ObjectExpression
-	XMLClassifier?:  _#defs."/$defs/Properties/definitions/XMLClassifier" | fn.#ObjectExpression
+	CsvClassifier?:  #CsvClassifier | fn.#ObjectExpression
+	GrokClassifier?: #GrokClassifier | fn.#ObjectExpression
+	JsonClassifier?: #JsonClassifier | fn.#ObjectExpression
+	XMLClassifier?:  #XMLClassifier | fn.#ObjectExpression
 }) & matchN(>=1, [{XMLClassifier!: _}, {CsvClassifier!: _}, {GrokClassifier!: _}, {JsonClassifier!: _}])
 
-_#defs: "/$defs/Properties/definitions/CsvClassifier": close({
+#CsvClassifier: close({
 	AllowSingleColumn?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ContainsCustomDatatype?:   [...string | fn.#StringExpression] | fn.#ListExpression
 	ContainsHeader?:           "ABSENT" | "PRESENT" | "UNKNOWN" | fn.#StringExpression
@@ -32,7 +32,7 @@ _#defs: "/$defs/Properties/definitions/CsvClassifier": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrokClassifier": close({
+#GrokClassifier: close({
 	Classification!: string | fn.#StringExpression
 	CustomPatterns?: strings.MaxRunes(16000) & strings.MinRunes(0) | fn.#StringExpression
 	GrokPattern!:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
@@ -40,13 +40,13 @@ _#defs: "/$defs/Properties/definitions/GrokClassifier": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JsonClassifier": close({
+#JsonClassifier: close({
 	JsonPath!: string | fn.#StringExpression
 	Name?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/XMLClassifier": close({
+#XMLClassifier: close({
 	Classification!: string | fn.#StringExpression
 	Name?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	RowTag!:         string | fn.#StringExpression

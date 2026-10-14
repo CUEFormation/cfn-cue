@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Cognito::ManagedLoginBranding
 #Properties: close({
-	Assets?:                   _#defs."/$defs/Properties/definitions/AssetList"
+	Assets?:                   #AssetList
 	ClientId?:                 strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" | fn.#StringExpression
 	ReturnMergedResources?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Settings?:                 fn.#Object & {...} | fn.#ObjectExpression
@@ -22,23 +22,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AssetList": list.MaxItems(40) & [...] & [
-	..._#defs."/$defs/Properties/definitions/AssetType"
-] |
-	fn.#ListExpression
+#AssetList: list.MaxItems(40) & [...] & [...#AssetType] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AssetType": close({
-	Bytes?:      _#defs."/$defs/Properties/definitions/BytesType"
-	Category!:   _#defs."/$defs/Properties/definitions/CategoryType"
-	ColorMode!:  _#defs."/$defs/Properties/definitions/ColorModeType"
-	Extension!:  _#defs."/$defs/Properties/definitions/ExtensionType"
-	ResourceId?: _#defs."/$defs/Properties/definitions/ResourceIdType"
+#AssetType: close({
+	Bytes?:      #BytesType
+	Category!:   #CategoryType
+	ColorMode!:  #ColorModeType
+	Extension!:  #ExtensionType
+	ResourceId?: #ResourceIdType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BytesType": strings.MaxRunes(1000000) | fn.#StringExpression
+#BytesType: strings.MaxRunes(1000000) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CategoryType": "FAVICON_ICO" |
+#CategoryType: "FAVICON_ICO" |
 	"FAVICON_SVG" |
 	"EMAIL_GRAPHIC" |
 	"SMS_GRAPHIC" |
@@ -55,15 +52,14 @@ _#defs: "/$defs/Properties/definitions/CategoryType": "FAVICON_ICO" |
 	"IDP_BUTTON_ICON" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ColorModeType": "LIGHT" | "DARK" | "DYNAMIC" | fn.#StringExpression
+#ColorModeType: "LIGHT" | "DARK" | "DYNAMIC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ExtensionType": "ICO" | "JPEG" | "PNG" | "SVG" | "WEBP" | fn.#StringExpression
+#ExtensionType: "ICO" | "JPEG" | "PNG" | "SVG" | "WEBP" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedLoginBrandingIdType": =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$" |
+#ManagedLoginBrandingIdType: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceIdType": strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[\\w\\- ]+$" |
-fn.#StringExpression
+#ResourceIdType: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[\\w\\- ]+$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Cognito::ManagedLoginBranding"
 	Properties!: #Properties

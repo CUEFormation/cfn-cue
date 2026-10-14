@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	[...] |
 	close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/RoleMapping"}}) |
+		{[=~"^.+$"]: #RoleMapping}}) |
 	fn.#ValueExpression
 	Roles?: null |
 	bool |
@@ -31,7 +31,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ValueExpression
 })
 
-_#defs: "/$defs/Properties/definitions/MappingRule": close({
+#MappingRule: close({
 	Claim!:     string | fn.#StringExpression
 	MatchType!: string | fn.#StringExpression
 	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -40,18 +40,15 @@ _#defs: "/$defs/Properties/definitions/MappingRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleMapping": close({
+#RoleMapping: close({
 	AmbiguousRoleResolution?: string | fn.#StringExpression
 	IdentityProvider?:        string | fn.#StringExpression
-	RulesConfiguration?:      _#defs."/$defs/Properties/definitions/RulesConfigurationType"
+	RulesConfiguration?:      #RulesConfigurationType
 	Type!:                    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RulesConfigurationType": close(
-	{Rules!: [..._#defs."/$defs/Properties/definitions/MappingRule"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#RulesConfigurationType: close({Rules!: [...#MappingRule] | fn.#ListExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Cognito::IdentityPoolRoleAttachment"
 	Properties!: #Properties

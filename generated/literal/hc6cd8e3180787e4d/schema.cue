@@ -12,79 +12,71 @@ import (
 // Resource Type definition for AWS::IoTAnalytics::Datastore
 #Properties: close({
 	DatastoreName?:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+"
-	DatastorePartitions?:     _#defs."/$defs/Properties/definitions/DatastorePartitions"
-	DatastoreStorage?:        _#defs."/$defs/Properties/definitions/DatastoreStorage"
-	FileFormatConfiguration?: _#defs."/$defs/Properties/definitions/FileFormatConfiguration"
+	DatastorePartitions?:     #DatastorePartitions
+	DatastoreStorage?:        #DatastoreStorage
+	FileFormatConfiguration?: #FileFormatConfiguration
 	Id?:                      string
-	RetentionPeriod?:         _#defs."/$defs/Properties/definitions/RetentionPeriod"
-	Tags?:                    list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	RetentionPeriod?:         #RetentionPeriod
+	Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Column": close({
+#Column: close({
 	Name!: string
 	Type!: string
 })
 
-_#defs: "/$defs/Properties/definitions/CustomerManagedS3": close({
+#CustomerManagedS3: close({
 	Bucket!:    strings.MaxRunes(255) & strings.MinRunes(3) & =~"[a-zA-Z0-9.\\-_]*"
 	KeyPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9!_.*'()/{}:-]*/"
 	RoleArn!:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 })
 
-_#defs: "/$defs/Properties/definitions/CustomerManagedS3Storage": close({
+#CustomerManagedS3Storage: close({
 	Bucket!:    strings.MaxRunes(255) & strings.MinRunes(3) & =~"[a-zA-Z0-9.\\-_]*"
 	KeyPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9!_.*'()/{}:-]*/"
 })
 
-_#defs: "/$defs/Properties/definitions/DatastorePartition": close({
-	Partition?:          _#defs."/$defs/Properties/definitions/Partition"
-	TimestampPartition?: _#defs."/$defs/Properties/definitions/TimestampPartition"
+#DatastorePartition: close({
+	Partition?:          #Partition
+	TimestampPartition?: #TimestampPartition
 })
 
-_#defs: "/$defs/Properties/definitions/DatastorePartitions": close(
-	{Partitions?: list.MaxItems(25) & [...] & [..._#defs."/$defs/Properties/definitions/DatastorePartition"]},
-)
+#DatastorePartitions: close({Partitions?: list.MaxItems(25) & [...] & [...#DatastorePartition]})
 
-_#defs: "/$defs/Properties/definitions/DatastoreStorage": close({
-	CustomerManagedS3?:            _#defs."/$defs/Properties/definitions/CustomerManagedS3"
-	IotSiteWiseMultiLayerStorage?: _#defs."/$defs/Properties/definitions/IotSiteWiseMultiLayerStorage"
-	ServiceManagedS3?:             _#defs."/$defs/Properties/definitions/ServiceManagedS3"
+#DatastoreStorage: close({
+	CustomerManagedS3?:            #CustomerManagedS3
+	IotSiteWiseMultiLayerStorage?: #IotSiteWiseMultiLayerStorage
+	ServiceManagedS3?:             #ServiceManagedS3
 })
 
-_#defs: "/$defs/Properties/definitions/FileFormatConfiguration": close({
-	JsonConfiguration?:    _#defs."/$defs/Properties/definitions/JsonConfiguration"
-	ParquetConfiguration?: _#defs."/$defs/Properties/definitions/ParquetConfiguration"
+#FileFormatConfiguration: close({
+	JsonConfiguration?:    #JsonConfiguration
+	ParquetConfiguration?: #ParquetConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/IotSiteWiseMultiLayerStorage": close(
-	{CustomerManagedS3Storage?: _#defs."/$defs/Properties/definitions/CustomerManagedS3Storage"},
-)
+#IotSiteWiseMultiLayerStorage: close({CustomerManagedS3Storage?: #CustomerManagedS3Storage})
 
-_#defs: "/$defs/Properties/definitions/JsonConfiguration": string | {...}
+#JsonConfiguration: string | {...}
 
-_#defs: "/$defs/Properties/definitions/ParquetConfiguration": close(
-	{SchemaDefinition?: _#defs."/$defs/Properties/definitions/SchemaDefinition"},
-)
+#ParquetConfiguration: close({SchemaDefinition?: #SchemaDefinition})
 
-_#defs: "/$defs/Properties/definitions/Partition": close({AttributeName!: =~"[a-zA-Z0-9_]+"})
+#Partition: close({AttributeName!: =~"[a-zA-Z0-9_]+"})
 
-_#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
+#RetentionPeriod: close({
 	NumberOfDays?: int & <=2147483647 & >=1
 	Unlimited?:    bool
 })
 
-_#defs: "/$defs/Properties/definitions/SchemaDefinition": close(
-	{Columns?: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Column"]},
-)
+#SchemaDefinition: close({Columns?: list.MaxItems(100) & list.MinItems(1) & [...#Column]})
 
-_#defs: "/$defs/Properties/definitions/ServiceManagedS3": string | {...}
+#ServiceManagedS3: string | {...}
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/TimestampPartition": close({
+#TimestampPartition: close({
 	AttributeName!:   =~"[a-zA-Z0-9_]+"
 	TimestampFormat?: =~"[a-zA-Z0-9\\s\\[\\]_,.'/:-]*"
 })

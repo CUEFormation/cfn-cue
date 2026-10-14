@@ -14,29 +14,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::IoTSiteWise::Dataset.
 #Properties: close({
-	DatasetConfig?: _#defs."/$defs/Properties/definitions/DatasetConfig" | fn.#ObjectExpression
+	DatasetConfig?: #DatasetConfig | fn.#ObjectExpression
 	DatasetDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
 	DatasetName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@.]+$" | fn.#StringExpression
-	DatasetSource?: _#defs."/$defs/Properties/definitions/DatasetSource" | fn.#ObjectExpression
+	DatasetSource?: #DatasetSource | fn.#ObjectExpression
 	DatasetType?:   "SESSION" | "CURATED" | "EXTERNAL" | fn.#StringExpression
-	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	WorkspaceName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DatasetConfig": close(
-	{Session?: _#defs."/$defs/Properties/definitions/SessionConfig" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#DatasetConfig: close({Session?: #SessionConfig | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatasetSource": close({
-	SourceDetail?: _#defs."/$defs/Properties/definitions/SourceDetail" | fn.#ObjectExpression
+#DatasetSource: close({
+	SourceDetail?: #SourceDetail | fn.#ObjectExpression
 	SourceFormat!: "KNOWLEDGE_BASE" | "TIMESERIES" | fn.#StringExpression
 	SourceType!:   "KENDRA" | "SITEWISE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KendraSourceDetail": close({
+#KendraSourceDetail: close({
 	KnowledgeBaseArn!: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$" |
 	fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -47,18 +44,15 @@ _#defs: "/$defs/Properties/definitions/KendraSourceDetail": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SessionConfig": close({
+#SessionConfig: close({
 	SessionEndTime!:   string | fn.#StringExpression
 	SessionStartTime!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceDetail": close(
-	{Kendra?: _#defs."/$defs/Properties/definitions/KendraSourceDetail" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#SourceDetail: close({Kendra?: #KendraSourceDetail | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

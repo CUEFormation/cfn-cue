@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"struct"
 )
 
@@ -16,38 +16,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A data source is used to import technical metadata of assets (data) from the
 // source databases or data warehouses into Amazon DataZone.
 #Properties: close({
-	AssetFormsInput?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/FormInput"] |
-		fn.#ListExpression
-	Configuration?:         _#defs."/$defs/Properties/definitions/DataSourceConfigurationInput" | fn.#ValueExpression
+	AssetFormsInput?:       list.MaxItems(10) & [...] & [...#FormInput] | fn.#ListExpression
+	Configuration?:         #DataSourceConfigurationInput | fn.#ValueExpression
 	ConnectionIdentifier?:  string | fn.#StringExpression
 	Description?:           strings.MaxRunes(2048) | fn.#StringExpression
 	DomainIdentifier!:      =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	EnableSetting?:         _#defs."/$defs/Properties/definitions/EnableSetting" | fn.#StringExpression
+	EnableSetting?:         #EnableSetting | fn.#StringExpression
 	EnvironmentIdentifier?: string | fn.#StringExpression
 	Name!:                  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ProjectIdentifier!:     string | fn.#StringExpression
 	PublishOnImport?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Recommendation?:        _#defs."/$defs/Properties/definitions/RecommendationConfiguration" | fn.#ObjectExpression
-	Schedule?:              _#defs."/$defs/Properties/definitions/ScheduleConfiguration" | fn.#ObjectExpression
+	Recommendation?:        #RecommendationConfiguration | fn.#ObjectExpression
+	Schedule?:              #ScheduleConfiguration | fn.#ObjectExpression
 	Type!:                  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccountId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" |
-fn.#StringExpression
+#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataAccessRole": =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
-	fn.#StringExpression
+#DataAccessRole: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceConfigurationInput": matchN(1, [close(
-	{GlueRunConfiguration?: _#defs."/$defs/Properties/definitions/GlueRunConfigurationInput"},
+#DataSourceConfigurationInput: matchN(1, [close(
+	{GlueRunConfiguration?: #GlueRunConfigurationInput},
 ), close(
-	{RedshiftRunConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftRunConfigurationInput"},
+	{RedshiftRunConfiguration?: #RedshiftRunConfigurationInput},
 ), close(
-	{SageMakerRunConfiguration?: _#defs."/$defs/Properties/definitions/SageMakerRunConfigurationInput"},
+	{SageMakerRunConfiguration?: #SageMakerRunConfigurationInput},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceStatus": "CREATING" |
+#DataSourceStatus: "CREATING" |
 	"FAILED_CREATION" |
 	"READY" |
 	"UPDATING" |
@@ -57,105 +54,94 @@ _#defs: "/$defs/Properties/definitions/DataSourceStatus": "CREATING" |
 	"FAILED_DELETION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EnableSetting": "ENABLED" | "DISABLED" | fn.#StringExpression
+#EnableSetting: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FilterExpression": close({
+#FilterExpression: close({
 	Expression!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type!:       _#defs."/$defs/Properties/definitions/FilterExpressionType"
+	Type!:       #FilterExpressionType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterExpressionType": "INCLUDE" | "EXCLUDE" | fn.#StringExpression
+#FilterExpressionType: "INCLUDE" | "EXCLUDE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FormInput": close({
+#FormInput: close({
 	Content?:        strings.MaxRunes(75000) | fn.#StringExpression
-	FormName!:       _#defs."/$defs/Properties/definitions/FormName" | fn.#StringExpression
+	FormName!:       #FormName | fn.#StringExpression
 	TypeIdentifier?: strings.MaxRunes(385) & strings.MinRunes(1) | fn.#StringExpression
-	TypeRevision?:   _#defs."/$defs/Properties/definitions/TypeRevision" | fn.#StringExpression
+	TypeRevision?:   #TypeRevision | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FormName": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#FormName: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GlueRunConfigurationInput": close({
+#GlueRunConfigurationInput: close({
 	AutoImportDataQualityResult?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CatalogName?:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	DataAccessRole?:              _#defs."/$defs/Properties/definitions/DataAccessRole" | fn.#StringExpression
-	RelationalFilterConfigurations!: [..._#defs."/$defs/Properties/definitions/RelationalFilterConfiguration"] |
-		fn.#ListExpression
+	DataAccessRole?:              #DataAccessRole | fn.#StringExpression
+	RelationalFilterConfigurations!: [...#RelationalFilterConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecommendationConfiguration": close({
+#RecommendationConfiguration: close({
 	EnableBusinessNameGeneration?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftClusterStorage": close(
+#RedshiftClusterStorage: close(
 	{ClusterName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[0-9a-z].[a-z0-9\\-]*$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftCredentialConfiguration": close({
+#RedshiftCredentialConfiguration: close({
 	SecretManagerArn!: strings.MaxRunes(256) &
 	=~"^arn:aws[^:]*:secretsmanager:[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]:\\d{12}:secret:.*$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftRunConfigurationInput": close({
-	DataAccessRole?: _#defs."/$defs/Properties/definitions/DataAccessRole" | fn.#StringExpression
-	RedshiftCredentialConfiguration?: _#defs."/$defs/Properties/definitions/RedshiftCredentialConfiguration" |
-		fn.#ObjectExpression
-	RedshiftStorage?:                _#defs."/$defs/Properties/definitions/RedshiftStorage" | fn.#ValueExpression
-	RelationalFilterConfigurations!: _#defs."/$defs/Properties/definitions/RelationalFilterConfigurations"
+#RedshiftRunConfigurationInput: close({
+	DataAccessRole?:                  #DataAccessRole | fn.#StringExpression
+	RedshiftCredentialConfiguration?: #RedshiftCredentialConfiguration | fn.#ObjectExpression
+	RedshiftStorage?:                 #RedshiftStorage | fn.#ValueExpression
+	RelationalFilterConfigurations!:  #RelationalFilterConfigurations
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftServerlessStorage": close(
+#RedshiftServerlessStorage: close(
 	{WorkgroupName!: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftStorage": matchN(1, [close(
-	{RedshiftClusterSource!: _#defs."/$defs/Properties/definitions/RedshiftClusterStorage"},
+#RedshiftStorage: matchN(1, [close(
+	{RedshiftClusterSource!: #RedshiftClusterStorage},
 ), close(
-	{RedshiftServerlessSource!: _#defs."/$defs/Properties/definitions/RedshiftServerlessStorage"},
+	{RedshiftServerlessSource!: #RedshiftServerlessStorage},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Region": strings.MaxRunes(16) &
-strings.MinRunes(4) &
-=~"[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]" |
-fn.#StringExpression
+#Region: strings.MaxRunes(16) & strings.MinRunes(4) & =~"[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RelationalFilterConfiguration": close({
+#RelationalFilterConfiguration: close({
 	DatabaseName!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	FilterExpressions?: [..._#defs."/$defs/Properties/definitions/FilterExpression"] | fn.#ListExpression
+	FilterExpressions?: [...#FilterExpression] | fn.#ListExpression
 	SchemaName?:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RelationalFilterConfigurations": [
-	..._#defs."/$defs/Properties/definitions/RelationalFilterConfiguration"
-] |
-	fn.#ListExpression
+#RelationalFilterConfigurations: [...#RelationalFilterConfiguration] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SageMakerRunConfigurationInput": close(
-	{TrackingAssets!: _#defs."/$defs/Properties/definitions/TrackingAssets" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#SageMakerRunConfigurationInput: close({TrackingAssets!: #TrackingAssets | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close({
+#ScheduleConfiguration: close({
 	Schedule?: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"cron\\((\\b[0-5]?[0-9]\\b) (\\b2[0-3]\\b|\\b[0-1]?[0-9]\\b) (.*){1,5} (.*){1,5} (.*){1,5} (.*){1,5}\\)" |
 	fn.#StringExpression
-	Timezone?: _#defs."/$defs/Properties/definitions/Timezone" | fn.#StringExpression
+	Timezone?: #Timezone | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Timezone": "AFRICA_JOHANNESBURG" |
+#Timezone: "AFRICA_JOHANNESBURG" |
 	"AMERICA_MONTREAL" |
 	"AMERICA_SAO_PAULO" |
 	"ASIA_BAHRAIN" |
@@ -221,7 +207,7 @@ _#defs: "/$defs/Properties/definitions/Timezone": "AFRICA_JOHANNESBURG" |
 	"UTC" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TrackingAssets": struct.MaxFields(1) & close({
+#TrackingAssets: struct.MaxFields(1) & close({
 
 	{[=~"^.{1,64}$"]: list.MaxItems(500) & [...] & [
 		...=~"^arn:aws[^:]*:sagemaker:[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]:\\d{12}:[\\w+=,.@-]{1,128}/[\\w+=,.@-]{1,256}$" |
@@ -230,8 +216,7 @@ _#defs: "/$defs/Properties/definitions/TrackingAssets": struct.MaxFields(1) & cl
 		fn.#ListExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TypeRevision": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
-fn.#StringExpression
+#TypeRevision: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DataZone::DataSource"
 	Properties!: #Properties

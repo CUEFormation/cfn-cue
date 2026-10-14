@@ -14,11 +14,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:  string | fn.#StringExpression
 	RegistryName!: string | fn.#StringExpression
 	SchemaName?:   string | fn.#StringExpression
-	Tags?:         [..._#defs."/$defs/Properties/definitions/TagsEntry"] | fn.#ListExpression
+	Tags?:         [...#TagsEntry] | fn.#ListExpression
 	Type!:         string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/TagsEntry": close({
+#TagsEntry: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

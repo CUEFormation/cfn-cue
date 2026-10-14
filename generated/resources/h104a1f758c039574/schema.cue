@@ -43,31 +43,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		MemoryStoreRetentionPeriodInHours?:  string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Schema?: close({CompositePartitionKey?: _#defs."/$defs/Properties/definitions/PartitionKeyList"}) |
-		fn.#ObjectExpression
+	Schema?:    close({CompositePartitionKey?: #PartitionKeyList}) | fn.#ObjectExpression
 	TableName?: =~"^[a-zA-Z0-9_.-]{3,256}$" | fn.#StringExpression
-	Tags?:      list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:      list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/PartitionKey": close({
-	EnforcementInRecord?: _#defs."/$defs/Properties/definitions/PartitionKeyEnforcementLevel"
-	Name?:                _#defs."/$defs/Properties/definitions/SchemaName"
-	Type!:                _#defs."/$defs/Properties/definitions/PartitionKeyType"
+#PartitionKey: close({
+	EnforcementInRecord?: #PartitionKeyEnforcementLevel
+	Name?:                #SchemaName
+	Type!:                #PartitionKeyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionKeyEnforcementLevel": "REQUIRED" | "OPTIONAL" | fn.#StringExpression
+#PartitionKeyEnforcementLevel: "REQUIRED" | "OPTIONAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionKeyList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/PartitionKey"
-] |
-	fn.#ListExpression
+#PartitionKeyList: list.MinItems(1) & [...#PartitionKey] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionKeyType": "DIMENSION" | "MEASURE" | fn.#StringExpression
+#PartitionKeyType: "DIMENSION" | "MEASURE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaName": strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#SchemaName: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

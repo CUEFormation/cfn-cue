@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -32,7 +32,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Version!: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/LatestVersion": close({
+#LatestVersion: close({
 	Arn?:   string | fn.#StringExpression
 	Major?: string | fn.#StringExpression
 	Minor?: string | fn.#StringExpression

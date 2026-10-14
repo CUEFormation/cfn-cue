@@ -57,10 +57,10 @@ import "strings"
 		{[=~"^.+$"]: string}})
 
 	// An object representing a node group's launch template specification.
-	LaunchTemplate?: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification"
+	LaunchTemplate?: #LaunchTemplateSpecification
 
 	// The node auto repair configuration for node group.
-	NodeRepairConfig?: _#defs."/$defs/Properties/definitions/NodeRepairConfig"
+	NodeRepairConfig?: #NodeRepairConfig
 
 	// The Amazon Resource Name (ARN) of the IAM role to associate with your node group.
 	NodeRole!: string
@@ -72,10 +72,10 @@ import "strings"
 	ReleaseVersion?: string
 
 	// The remote access (SSH) configuration to use with your node group.
-	RemoteAccess?: _#defs."/$defs/Properties/definitions/RemoteAccess"
+	RemoteAccess?: #RemoteAccess
 
 	// The scaling configuration details for the Auto Scaling group that is created for your node group.
-	ScalingConfig?: _#defs."/$defs/Properties/definitions/ScalingConfig"
+	ScalingConfig?: #ScalingConfig
 
 	// The subnets to use for the Auto Scaling group that is created for your node group.
 	Subnets!: [...string]
@@ -88,28 +88,28 @@ import "strings"
 		{[=~"^.+$"]: string}})
 
 	// The Kubernetes taints to be applied to the nodes in the node group when they are created.
-	Taints?: [..._#defs."/$defs/Properties/definitions/Taint"]
+	Taints?: [...#Taint]
 
 	// The node group update configuration.
-	UpdateConfig?: _#defs."/$defs/Properties/definitions/UpdateConfig"
+	UpdateConfig?: #UpdateConfig
 
 	// The Kubernetes version to use for your managed nodes.
 	Version?: string
 
 	// The warm pool configuration details for the Auto Scaling group that is
 	// created for the node group.
-	WarmPoolConfig?: _#defs."/$defs/Properties/definitions/WarmPoolConfig"
+	WarmPoolConfig?: #WarmPoolConfig
 })
 
 // An object representing a launch template specification for AWS EKS Nodegroup.
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": close({
+#LaunchTemplateSpecification: close({
 	Id?:      strings.MinRunes(1)
 	Name?:    strings.MinRunes(1)
 	Version?: strings.MinRunes(1)
 })
 
 // The node auto repair configuration for node group.
-_#defs: "/$defs/Properties/definitions/NodeRepairConfig": close({
+#NodeRepairConfig: close({
 	// Set this value to true to enable node auto repair for the node group.
 	Enabled?: bool
 
@@ -139,14 +139,14 @@ _#defs: "/$defs/Properties/definitions/NodeRepairConfig": close({
 	// control the repair action and the repair delay time before a node is
 	// considered eligible for repair. If you use this, you must specify all the
 	// values.
-	NodeRepairConfigOverrides?: [..._#defs."/$defs/Properties/definitions/NodeRepairConfigOverrides"]
+	NodeRepairConfigOverrides?: [...#NodeRepairConfigOverrides]
 })
 
 // Specify granular overrides for specific repair actions. These overrides
 // control the repair action and the repair delay time before a node is
 // considered eligible for repair. If you use this, you must specify all the
 // values.
-_#defs: "/$defs/Properties/definitions/NodeRepairConfigOverrides": close({
+#NodeRepairConfigOverrides: close({
 	// Specify the minimum time in minutes to wait before attempting to repair a
 	// node with this specific NodeMonitoringCondition and NodeUnhealthyReason.
 	MinRepairWaitTimeMins?: int & >=1
@@ -163,27 +163,27 @@ _#defs: "/$defs/Properties/definitions/NodeRepairConfigOverrides": close({
 })
 
 // An object representing a remote access configuration specification for AWS EKS Nodegroup.
-_#defs: "/$defs/Properties/definitions/RemoteAccess": close({
+#RemoteAccess: close({
 	Ec2SshKey!:            string
 	SourceSecurityGroups?: [...string]
 })
 
 // An object representing a auto scaling group specification for AWS EKS Nodegroup.
-_#defs: "/$defs/Properties/definitions/ScalingConfig": close({
+#ScalingConfig: close({
 	DesiredSize?: int & >=0
 	MaxSize?:     int & >=1
 	MinSize?:     int & >=0
 })
 
 // An object representing a Taint specification for AWS EKS Nodegroup.
-_#defs: "/$defs/Properties/definitions/Taint": close({
+#Taint: close({
 	Effect?: ("NO_EXECUTE" | "NO_SCHEDULE" | "PREFER_NO_SCHEDULE") & strings.MinRunes(1)
 	Key?:    strings.MaxRunes(317) & strings.MinRunes(1)
 	Value?:  strings.MaxRunes(63) & strings.MinRunes(0)
 })
 
 // The node group update configuration.
-_#defs: "/$defs/Properties/definitions/UpdateConfig": close({
+#UpdateConfig: close({
 	// The maximum number of nodes unavailable at once during a version update.
 	// Nodes will be updated in parallel. This value or maxUnavailablePercentage is
 	// required to have a value.The maximum number is 100.
@@ -201,7 +201,7 @@ _#defs: "/$defs/Properties/definitions/UpdateConfig": close({
 })
 
 // The warm pool configuration for the node group.
-_#defs: "/$defs/Properties/definitions/WarmPoolConfig": close({
+#WarmPoolConfig: close({
 	// Enable or disable warm pool for the node group.
 	Enabled?: bool
 

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -24,7 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AutoUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig" | fn.#ObjectExpression
+	LoggingConfig?: #LoggingConfig | fn.#ObjectExpression
 	MajorVersion?:  strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression
 	PublicTypeArn?: strings.MaxRunes(1024) &
 	=~"arn:aws[A-Za-z0-9-]{0,64}:cloudformation:[A-Za-z0-9-]{1,64}:([0-9]{12})?:type/.+" |
@@ -39,7 +39,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	VersionBump?: "MAJOR" | "MINOR" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+#LoggingConfig: close({
 	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
 	LogRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
 	fn.#StringExpression

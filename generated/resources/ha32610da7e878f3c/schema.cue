@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -27,30 +27,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^(https:\\/\\/)[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,32}(:[0-9]{1,5})?(\\/.*)?$" |
 	fn.#StringExpression
-	DeviceCreationTags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	DeviceCreationTags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[0-9]{0,12}:key\\/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
-	MaintenanceWindow?:         _#defs."/$defs/Properties/definitions/MaintenanceWindow" | fn.#ObjectExpression
+	MaintenanceWindow?:         #MaintenanceWindow | fn.#ObjectExpression
 	Name?:                      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	SoftwareSetUpdateMode?:     "USE_LATEST" | "USE_DESIRED" | fn.#StringExpression
 	SoftwareSetUpdateSchedule?: "USE_MAINTENANCE_WINDOW" | "APPLY_IMMEDIATELY" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DayOfWeek": "MONDAY" |
-	"TUESDAY" |
-	"WEDNESDAY" |
-	"THURSDAY" |
-	"FRIDAY" |
-	"SATURDAY" |
-	"SUNDAY" |
-	fn.#StringExpression
+#DayOfWeek: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Hour": int & <=23 & >=0 |
+#Hour: int & <=23 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -67,21 +59,18 @@ _#defs: "/$defs/Properties/definitions/Hour": int & <=23 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
-	ApplyTimeOf?: "UTC" | "DEVICE" | fn.#StringExpression
-	DaysOfTheWeek?: list.MaxItems(7) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DayOfWeek"
-	] |
-		fn.#ListExpression
-	EndTimeHour?:     _#defs."/$defs/Properties/definitions/Hour" | fn.#NumberExpression
-	EndTimeMinute?:   _#defs."/$defs/Properties/definitions/Minute" | fn.#NumberExpression
-	StartTimeHour?:   _#defs."/$defs/Properties/definitions/Hour" | fn.#NumberExpression
-	StartTimeMinute?: _#defs."/$defs/Properties/definitions/Minute" | fn.#NumberExpression
+#MaintenanceWindow: close({
+	ApplyTimeOf?:     "UTC" | "DEVICE" | fn.#StringExpression
+	DaysOfTheWeek?:   list.MaxItems(7) & list.MinItems(1) & list.UniqueItems() & [...#DayOfWeek] | fn.#ListExpression
+	EndTimeHour?:     #Hour | fn.#NumberExpression
+	EndTimeMinute?:   #Minute | fn.#NumberExpression
+	StartTimeHour?:   #Hour | fn.#NumberExpression
+	StartTimeMinute?: #Minute | fn.#NumberExpression
 	Type!:            "SYSTEM" | "CUSTOM" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Minute": int & <=59 & >=0 |
+#Minute: int & <=59 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -98,7 +87,7 @@ _#defs: "/$defs/Properties/definitions/Minute": int & <=59 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |

@@ -27,7 +27,7 @@ package schema
 	SessionNumber!: int
 
 	// The tags assigned to the Traffic Mirror session.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The ID of a Traffic Mirror filter.
 	TrafficMirrorFilterId!: string
@@ -40,11 +40,9 @@ package schema
 })
 
 // A key-value pair to associate with a traffic mirror session resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TrafficMirrorSessionField": "packet-length" |
-	"description" |
-	"virtual-network-id"
+#TrafficMirrorSessionField: "packet-length" | "description" | "virtual-network-id"

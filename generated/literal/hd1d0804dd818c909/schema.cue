@@ -55,11 +55,11 @@ import (
 	UpdatedAt?: time.Time
 
 	// The user parameters of this Amazon DataZone environment profile.
-	UserParameters?: [..._#defs."/$defs/Properties/definitions/EnvironmentParameter"]
+	UserParameters?: [...#EnvironmentParameter]
 })
 
 // The parameter details of an environment profile.
-_#defs: "/$defs/Properties/definitions/EnvironmentParameter": close({
+#EnvironmentParameter: close({
 	// The name of an environment profile parameter.
 	Name?: string
 

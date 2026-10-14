@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -26,19 +26,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		S3BucketRoleArn?: string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	SourceDataProviderDescriptors?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DataProviderDescriptor"
-	] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TargetDataProviderDescriptors?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/DataProviderDescriptor"
-	] |
-		fn.#ListExpression
-	TransformationRules?: string | fn.#StringExpression
+	SourceDataProviderDescriptors?: list.UniqueItems() & [...#DataProviderDescriptor] | fn.#ListExpression
+	Tags?:                          list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	TargetDataProviderDescriptors?: list.UniqueItems() & [...#DataProviderDescriptor] | fn.#ListExpression
+	TransformationRules?:           string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DataProviderDescriptor": close({
+#DataProviderDescriptor: close({
 	DataProviderArn?:        string | fn.#StringExpression
 	DataProviderIdentifier?: string | fn.#StringExpression
 	DataProviderName?:       string | fn.#StringExpression
@@ -48,7 +42,7 @@ _#defs: "/$defs/Properties/definitions/DataProviderDescriptor": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

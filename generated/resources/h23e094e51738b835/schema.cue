@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -22,25 +22,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DisplayName!:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	DomainName!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	SegmentDefinitionName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	SegmentGroups?:         _#defs."/$defs/Properties/definitions/SegmentGroup" | fn.#ObjectExpression
-	SegmentSort?:           _#defs."/$defs/Properties/definitions/SegmentSort" | fn.#ObjectExpression
+	SegmentGroups?:         #SegmentGroup | fn.#ObjectExpression
+	SegmentSort?:           #SegmentSort | fn.#ObjectExpression
 	SegmentSqlQuery?:       strings.MaxRunes(50000) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AddressDimension": close({
-	City?:       _#defs."/$defs/Properties/definitions/ProfileDimension"
-	Country?:    _#defs."/$defs/Properties/definitions/ProfileDimension"
-	County?:     _#defs."/$defs/Properties/definitions/ProfileDimension"
-	PostalCode?: _#defs."/$defs/Properties/definitions/ProfileDimension"
-	Province?:   _#defs."/$defs/Properties/definitions/ProfileDimension"
-	State?:      _#defs."/$defs/Properties/definitions/ProfileDimension"
+#AddressDimension: close({
+	City?:       #ProfileDimension
+	Country?:    #ProfileDimension
+	County?:     #ProfileDimension
+	PostalCode?: #ProfileDimension
+	Province?:   #ProfileDimension
+	State?:      #ProfileDimension
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AttributeDimension": close({
-	DimensionType!: _#defs."/$defs/Properties/definitions/AttributeDimensionType"
+#AttributeDimension: close({
+	DimensionType!: #AttributeDimensionType
 	Values!: list.MaxItems(50) & list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -48,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/AttributeDimension": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AttributeDimensionType": "INCLUSIVE" |
+#AttributeDimensionType: "INCLUSIVE" |
 	"EXCLUSIVE" |
 	"CONTAINS" |
 	"BEGINS_WITH" |
@@ -65,9 +64,9 @@ _#defs: "/$defs/Properties/definitions/AttributeDimensionType": "INCLUSIVE" |
 	"EQUAL" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CalculatedAttributeDimension": close({
-	ConditionOverrides?: _#defs."/$defs/Properties/definitions/ConditionOverrides"
-	DimensionType!:      _#defs."/$defs/Properties/definitions/AttributeDimensionType"
+#CalculatedAttributeDimension: close({
+	ConditionOverrides?: #ConditionOverrides
+	DimensionType!:      #AttributeDimensionType
 	Values!: list.MaxItems(50) & list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -75,43 +74,33 @@ _#defs: "/$defs/Properties/definitions/CalculatedAttributeDimension": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CalculatedCustomAttributes": close({
+#CalculatedCustomAttributes: close({
 
-	{[=~"^[a-zA-Z_][a-zA-Z_0-9-]*$"]: _#defs."/$defs/Properties/definitions/CalculatedAttributeDimension"}}) |
+	{[=~"^[a-zA-Z_][a-zA-Z_0-9-]*$"]: #CalculatedAttributeDimension}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConditionOverrides": close(
-	{Range?: _#defs."/$defs/Properties/definitions/RangeOverride"},
-) |
-	fn.#ObjectExpression
+#ConditionOverrides: close({Range?: #RangeOverride}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomAttributes": close({
+#CustomAttributes: close({
 
-	{[=~"^[a-zA-Z_][a-zA-Z_0-9-]*$"]: _#defs."/$defs/Properties/definitions/AttributeDimension"}}) |
+	{[=~"^[a-zA-Z_][a-zA-Z_0-9-]*$"]: #AttributeDimension}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DateDimension": close({
-	DimensionType!: _#defs."/$defs/Properties/definitions/DateDimensionType"
+#DateDimension: close({
+	DimensionType!: #DateDimensionType
 	Values!:        list.MaxItems(50) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DateDimensionType": "BEFORE" |
-	"AFTER" |
-	"BETWEEN" |
-	"NOT_BETWEEN" |
-	"ON" |
-	fn.#StringExpression
+#DateDimensionType: "BEFORE" | "AFTER" | "BETWEEN" | "NOT_BETWEEN" | "ON" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Dimension": matchN(1, [close(
-	{ProfileAttributes!: _#defs."/$defs/Properties/definitions/ProfileAttributes"},
-), close(
-	{CalculatedAttributes?: _#defs."/$defs/Properties/definitions/CalculatedCustomAttributes"},
-)]) |
+#Dimension: matchN(1, [
+	close({ProfileAttributes!: #ProfileAttributes}), close({CalculatedAttributes?: #CalculatedCustomAttributes}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/ExtraLengthValueProfileDimension": close({
-	DimensionType!: _#defs."/$defs/Properties/definitions/StringDimensionType"
+#ExtraLengthValueProfileDimension: close({
+	DimensionType!: #StringDimensionType
 	Values!: list.MaxItems(50) & list.MinItems(1) & [
 		...strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -119,44 +108,44 @@ _#defs: "/$defs/Properties/definitions/ExtraLengthValueProfileDimension": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Group": close({
-	Dimensions?:     [..._#defs."/$defs/Properties/definitions/Dimension"] | fn.#ListExpression
-	SourceSegments?: [..._#defs."/$defs/Properties/definitions/SourceSegment"] | fn.#ListExpression
-	SourceType?:     _#defs."/$defs/Properties/definitions/IncludeOptions"
-	Type?:           _#defs."/$defs/Properties/definitions/IncludeOptions"
+#Group: close({
+	Dimensions?:     [...#Dimension] | fn.#ListExpression
+	SourceSegments?: [...#SourceSegment] | fn.#ListExpression
+	SourceType?:     #IncludeOptions
+	Type?:           #IncludeOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IncludeOptions": "ALL" | "ANY" | "NONE" | fn.#StringExpression
+#IncludeOptions: "ALL" | "ANY" | "NONE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProfileAttributes": close({
-	AccountNumber?:         _#defs."/$defs/Properties/definitions/ProfileDimension"
-	AdditionalInformation?: _#defs."/$defs/Properties/definitions/ExtraLengthValueProfileDimension"
-	Address?:               _#defs."/$defs/Properties/definitions/AddressDimension"
-	Attributes?:            _#defs."/$defs/Properties/definitions/CustomAttributes"
-	BillingAddress?:        _#defs."/$defs/Properties/definitions/AddressDimension"
-	BirthDate?:             _#defs."/$defs/Properties/definitions/DateDimension"
-	BusinessEmailAddress?:  _#defs."/$defs/Properties/definitions/ProfileDimension"
-	BusinessName?:          _#defs."/$defs/Properties/definitions/ProfileDimension"
-	BusinessPhoneNumber?:   _#defs."/$defs/Properties/definitions/ProfileDimension"
-	EmailAddress?:          _#defs."/$defs/Properties/definitions/ProfileDimension"
-	FirstName?:             _#defs."/$defs/Properties/definitions/ProfileDimension"
-	GenderString?:          _#defs."/$defs/Properties/definitions/ProfileDimension"
-	HomePhoneNumber?:       _#defs."/$defs/Properties/definitions/ProfileDimension"
-	LastName?:              _#defs."/$defs/Properties/definitions/ProfileDimension"
-	MailingAddress?:        _#defs."/$defs/Properties/definitions/AddressDimension"
-	MiddleName?:            _#defs."/$defs/Properties/definitions/ProfileDimension"
-	MobilePhoneNumber?:     _#defs."/$defs/Properties/definitions/ProfileDimension"
-	PartyTypeString?:       _#defs."/$defs/Properties/definitions/ProfileDimension"
-	PersonalEmailAddress?:  _#defs."/$defs/Properties/definitions/ProfileDimension"
-	PhoneNumber?:           _#defs."/$defs/Properties/definitions/ProfileDimension"
-	ProfileType?:           _#defs."/$defs/Properties/definitions/ProfileTypeDimension"
-	ShippingAddress?:       _#defs."/$defs/Properties/definitions/AddressDimension"
+#ProfileAttributes: close({
+	AccountNumber?:         #ProfileDimension
+	AdditionalInformation?: #ExtraLengthValueProfileDimension
+	Address?:               #AddressDimension
+	Attributes?:            #CustomAttributes
+	BillingAddress?:        #AddressDimension
+	BirthDate?:             #DateDimension
+	BusinessEmailAddress?:  #ProfileDimension
+	BusinessName?:          #ProfileDimension
+	BusinessPhoneNumber?:   #ProfileDimension
+	EmailAddress?:          #ProfileDimension
+	FirstName?:             #ProfileDimension
+	GenderString?:          #ProfileDimension
+	HomePhoneNumber?:       #ProfileDimension
+	LastName?:              #ProfileDimension
+	MailingAddress?:        #AddressDimension
+	MiddleName?:            #ProfileDimension
+	MobilePhoneNumber?:     #ProfileDimension
+	PartyTypeString?:       #ProfileDimension
+	PersonalEmailAddress?:  #ProfileDimension
+	PhoneNumber?:           #ProfileDimension
+	ProfileType?:           #ProfileTypeDimension
+	ShippingAddress?:       #AddressDimension
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProfileDimension": close({
-	DimensionType!: _#defs."/$defs/Properties/definitions/StringDimensionType"
+#ProfileDimension: close({
+	DimensionType!: #StringDimensionType
 	Values!: list.MaxItems(50) & list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -164,18 +153,17 @@ _#defs: "/$defs/Properties/definitions/ProfileDimension": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProfileType": "ACCOUNT_PROFILE" | "PROFILE" | fn.#StringExpression
+#ProfileType: "ACCOUNT_PROFILE" | "PROFILE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProfileTypeDimension": close({
-	DimensionType!: _#defs."/$defs/Properties/definitions/ProfileTypeDimensionType"
-	Values!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ProfileType"] |
-		fn.#ListExpression
+#ProfileTypeDimension: close({
+	DimensionType!: #ProfileTypeDimensionType
+	Values!:        list.MaxItems(1) & list.MinItems(1) & [...#ProfileType] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProfileTypeDimensionType": "INCLUSIVE" | "EXCLUSIVE" | fn.#StringExpression
+#ProfileTypeDimensionType: "INCLUSIVE" | "EXCLUSIVE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RangeOverride": close({
+#RangeOverride: close({
 	End?: int & <=2147483647 & >=-2147483648 |
 		{
 			string &
@@ -212,45 +200,37 @@ _#defs: "/$defs/Properties/definitions/RangeOverride": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SegmentGroup": close({
-	Groups?:  [..._#defs."/$defs/Properties/definitions/Group"] | fn.#ListExpression
-	Include?: _#defs."/$defs/Properties/definitions/IncludeOptions"
+#SegmentGroup: close({
+	Groups?:  [...#Group] | fn.#ListExpression
+	Include?: #IncludeOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SegmentSort": close({
-	Attributes!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SortAttribute"] |
-		fn.#ListExpression
-}) |
+#SegmentSort: close({Attributes!: list.MaxItems(10) & list.MinItems(1) & [...#SortAttribute] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SegmentSortDataType": "STRING" | "NUMBER" | "DATE" | fn.#StringExpression
+#SegmentSortDataType: "STRING" | "NUMBER" | "DATE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SegmentSortOrder": "ASC" | "DESC" | fn.#StringExpression
+#SegmentSortOrder: "ASC" | "DESC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SortAttribute": close({
-	DataType?: _#defs."/$defs/Properties/definitions/SegmentSortDataType"
+#SortAttribute: close({
+	DataType?: #SegmentSortDataType
 	Name!:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Order!:    _#defs."/$defs/Properties/definitions/SegmentSortOrder"
-	Type?:     _#defs."/$defs/Properties/definitions/SortAttributeType"
+	Order!:    #SegmentSortOrder
+	Type?:     #SortAttributeType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SortAttributeType": "PROFILE" | "CALCULATED" | fn.#StringExpression
+#SortAttributeType: "PROFILE" | "CALCULATED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SourceSegment": close(
+#SourceSegment: close(
 	{SegmentDefinitionName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StringDimensionType": "INCLUSIVE" |
-	"EXCLUSIVE" |
-	"CONTAINS" |
-	"BEGINS_WITH" |
-	"ENDS_WITH" |
-	fn.#StringExpression
+#StringDimensionType: "INCLUSIVE" | "EXCLUSIVE" | "CONTAINS" | "BEGINS_WITH" | "ENDS_WITH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

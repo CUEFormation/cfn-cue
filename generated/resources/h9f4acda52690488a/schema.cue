@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"time"
+	"list"
 	"strings"
 )
 
@@ -27,35 +27,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	InfrastructureRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	Memory?:               string | fn.#StringExpression
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/ExpressGatewayServiceNetworkConfiguration"
-	PrimaryContainer?:     _#defs."/$defs/Properties/definitions/ExpressGatewayContainer"
-	ScalingTarget?:        _#defs."/$defs/Properties/definitions/ExpressGatewayScalingTarget"
+	NetworkConfiguration?: #ExpressGatewayServiceNetworkConfiguration
+	PrimaryContainer?:     #ExpressGatewayContainer
+	ScalingTarget?:        #ExpressGatewayScalingTarget
 	ServiceName?:          string | fn.#StringExpression
-	Tags?:              list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TaskDefinitionArn?: string | fn.#StringExpression
+	Tags?:                 list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	TaskDefinitionArn?:    string | fn.#StringExpression
 	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessType": "PUBLIC" | "PRIVATE" | fn.#StringExpression
+#AccessType: "PUBLIC" | "PRIVATE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutoScalingArns": close({
+#AutoScalingArns: close({
 	ApplicationAutoScalingPolicies?: [...string | fn.#StringExpression] | fn.#ListExpression
 	ScalableTarget?:                 string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ECSManagedResourceArns": close({
-	AutoScaling?:           _#defs."/$defs/Properties/definitions/AutoScalingArns"
-	IngressPath?:           _#defs."/$defs/Properties/definitions/IngressPathArns"
+#ECSManagedResourceArns: close({
+	AutoScaling?:           #AutoScalingArns
+	IngressPath?:           #IngressPathArns
 	LogGroups?:             [...string | fn.#StringExpression] | fn.#ListExpression
 	MetricAlarms?:          [...string | fn.#StringExpression] | fn.#ListExpression
 	ServiceSecurityGroups?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayContainer": close({
-	AwsLogsConfiguration?: _#defs."/$defs/Properties/definitions/ExpressGatewayServiceAwsLogsConfiguration"
+#ExpressGatewayContainer: close({
+	AwsLogsConfiguration?: #ExpressGatewayServiceAwsLogsConfiguration
 	Command?:              [...string | fn.#StringExpression] | fn.#ListExpression
 	ContainerPort?: int |
 		{
@@ -71,20 +71,18 @@ _#defs: "/$defs/Properties/definitions/ExpressGatewayContainer": close({
 				)
 		} |
 		fn.#NumberExpression
-	Environment?:           [..._#defs."/$defs/Properties/definitions/KeyValuePair"] | fn.#ListExpression
+	Environment?:           [...#KeyValuePair] | fn.#ListExpression
 	Image!:                 string | fn.#StringExpression
-	RepositoryCredentials?: _#defs."/$defs/Properties/definitions/ExpressGatewayRepositoryCredentials"
-	Secrets?:               [..._#defs."/$defs/Properties/definitions/Secret"] | fn.#ListExpression
+	RepositoryCredentials?: #ExpressGatewayRepositoryCredentials
+	Secrets?:               [...#Secret] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayRepositoryCredentials": close(
-	{CredentialsParameter!: string | fn.#StringExpression},
-) |
+#ExpressGatewayRepositoryCredentials: close({CredentialsParameter!: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayScalingTarget": close({
-	AutoScalingMetric?: _#defs."/$defs/Properties/definitions/ExpressGatewayServiceScalingMetric"
+#ExpressGatewayScalingTarget: close({
+	AutoScalingMetric?: #ExpressGatewayServiceScalingMetric
 	AutoScalingTargetValue?: int |
 		{
 			string &
@@ -130,23 +128,23 @@ _#defs: "/$defs/Properties/definitions/ExpressGatewayScalingTarget": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayServiceAwsLogsConfiguration": close({
+#ExpressGatewayServiceAwsLogsConfiguration: close({
 	LogGroup!:        string | fn.#StringExpression
 	LogStreamPrefix!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayServiceConfiguration": close({
+#ExpressGatewayServiceConfiguration: close({
 	Cpu?:       string | fn.#StringExpression
 	CreatedAt?: time.Time | fn.#StringExpression
 	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	HealthCheckPath?:      string | fn.#StringExpression
-	IngressPaths?:         [..._#defs."/$defs/Properties/definitions/IngressPathSummary"] | fn.#ListExpression
+	IngressPaths?:         [...#IngressPathSummary] | fn.#ListExpression
 	Memory?:               string | fn.#StringExpression
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/ExpressGatewayServiceNetworkConfiguration"
-	PrimaryContainer?:     _#defs."/$defs/Properties/definitions/ExpressGatewayContainer"
-	ScalingTarget?:        _#defs."/$defs/Properties/definitions/ExpressGatewayScalingTarget"
+	NetworkConfiguration?: #ExpressGatewayServiceNetworkConfiguration
+	PrimaryContainer?:     #ExpressGatewayContainer
+	ScalingTarget?:        #ExpressGatewayScalingTarget
 	ServiceRevisionArn?:   string | fn.#StringExpression
 	TaskDefinitionArn?:    string | fn.#StringExpression
 	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -154,7 +152,7 @@ _#defs: "/$defs/Properties/definitions/ExpressGatewayServiceConfiguration": clos
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayServiceNetworkConfiguration": close({
+#ExpressGatewayServiceNetworkConfiguration: close({
 	SecurityGroups?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -164,22 +162,16 @@ _#defs: "/$defs/Properties/definitions/ExpressGatewayServiceNetworkConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayServiceScalingMetric": "AVERAGE_CPU" |
+#ExpressGatewayServiceScalingMetric: "AVERAGE_CPU" |
 	"AVERAGE_MEMORY" |
 	"REQUEST_COUNT_PER_TARGET" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayServiceStatus": close(
-	{StatusCode?: _#defs."/$defs/Properties/definitions/ExpressGatewayServiceStatusCode"},
-) |
-	fn.#ObjectExpression
+#ExpressGatewayServiceStatus: close({StatusCode?: #ExpressGatewayServiceStatusCode}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExpressGatewayServiceStatusCode": "ACTIVE" |
-	"DRAINING" |
-	"INACTIVE" |
-	fn.#StringExpression
+#ExpressGatewayServiceStatusCode: "ACTIVE" | "DRAINING" | "INACTIVE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IngressPathArns": close({
+#IngressPathArns: close({
 	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	ListenerArn?:                string | fn.#StringExpression
@@ -190,25 +182,25 @@ _#defs: "/$defs/Properties/definitions/IngressPathArns": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IngressPathSummary": close({
-	AccessType?: _#defs."/$defs/Properties/definitions/AccessType"
+#IngressPathSummary: close({
+	AccessType?: #AccessType
 	Endpoint?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyValuePair": close({
+#KeyValuePair: close({
 	Name!:  string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Secret": close({
+#Secret: close({
 	Name!:      string | fn.#StringExpression
 	ValueFrom!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

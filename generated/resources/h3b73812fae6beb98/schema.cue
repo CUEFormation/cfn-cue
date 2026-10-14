@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,40 +14,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::NetworkFirewall::VpcEndpointAssociation
 #Properties: close({
-	Description?:   _#defs."/$defs/Properties/definitions/Description"
-	FirewallArn!:   _#defs."/$defs/Properties/definitions/ResourceArn"
-	SubnetMapping!: _#defs."/$defs/Properties/definitions/SubnetMapping"
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	VpcId!: _#defs."/$defs/Properties/definitions/VpcId"
+	Description?:   #Description
+	FirewallArn!:   #ResourceArn
+	SubnetMapping!: #SubnetMapping
+	Tags?:          list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	VpcId!:         #VpcId
 })
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" |
+#Description: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
+
+#EndpointId: string | fn.#StringExpression
+
+#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" | fn.#StringExpression
+
+#ResourceId: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^([0-9a-f]{8})-([0-9a-f]{4}-){3}([0-9a-f]{12})$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointId": string | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/ResourceId": strings.MaxRunes(36) &
-strings.MinRunes(36) &
-=~"^([0-9a-f]{8})-([0-9a-f]{4}-){3}([0-9a-f]{12})$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/SubnetMapping": close({
+#SubnetMapping: close({
 	IPAddressType?: "DUALSTACK" | "IPV4" | "IPV6" | fn.#StringExpression
 	SubnetId!:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcId": =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#VpcId: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(128) &
 strings.MinRunes(1) &
 =~"^vpc-[0-9a-f]+$" |

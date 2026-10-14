@@ -14,12 +14,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Greengrass::LoggerDefinition
 #Properties: close({
-	InitialVersion?: _#defs."/$defs/Properties/definitions/LoggerDefinitionVersion"
+	InitialVersion?: #LoggerDefinitionVersion
 	Name!:           string | fn.#StringExpression
 	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Logger": close({
+#Logger: close({
 	Component!: string | fn.#StringExpression
 	Id!:        string | fn.#StringExpression
 	Level!:     string | fn.#StringExpression
@@ -41,10 +41,7 @@ _#defs: "/$defs/Properties/definitions/Logger": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggerDefinitionVersion": close(
-	{Loggers!: [..._#defs."/$defs/Properties/definitions/Logger"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#LoggerDefinitionVersion: close({Loggers!: [...#Logger] | fn.#ListExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Greengrass::LoggerDefinition"
 	Properties!: #Properties

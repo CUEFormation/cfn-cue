@@ -10,7 +10,7 @@ import "strings"
 #Properties: close({
 	// Data Location Constraint of the Policy.
 	DataLocationConstraint?: "AnyLocation" | "SameContinent" | "SameCountry"
-	Policy!:                 _#defs."/$defs/Properties/definitions/PolicyMap"
+	Policy!:                 #PolicyMap
 
 	// Amazon Resource Name (ARN) of the Resiliency Policy.
 	PolicyArn?: string
@@ -20,14 +20,14 @@ import "strings"
 
 	// Name of Resiliency Policy.
 	PolicyName!: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$"
-	Tags?:       _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?:       #TagMap
 
 	// Resiliency Policy Tier.
 	Tier!: "MissionCritical" | "Critical" | "Important" | "CoreServices" | "NonCritical"
 })
 
 // Failure Policy.
-_#defs: "/$defs/Properties/definitions/FailurePolicy": close({
+#FailurePolicy: close({
 	// RPO in seconds.
 	RpoInSecs!: int
 
@@ -35,15 +35,15 @@ _#defs: "/$defs/Properties/definitions/FailurePolicy": close({
 	RtoInSecs!: int
 })
 
-_#defs: "/$defs/Properties/definitions/PolicyMap": close({
-	AZ!:       _#defs."/$defs/Properties/definitions/FailurePolicy"
-	Hardware!: _#defs."/$defs/Properties/definitions/FailurePolicy"
-	Region?:   _#defs."/$defs/Properties/definitions/FailurePolicy"
-	Software!: _#defs."/$defs/Properties/definitions/FailurePolicy"
+#PolicyMap: close({
+	AZ!:       #FailurePolicy
+	Hardware!: #FailurePolicy
+	Region?:   #FailurePolicy
+	Software!: #FailurePolicy
 })
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
-	{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TagValue"}})
+	{[=~".{1,128}"]: #TagValue}})
 
-_#defs: "/$defs/Properties/definitions/TagValue": strings.MaxRunes(256)
+#TagValue: strings.MaxRunes(256)

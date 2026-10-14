@@ -32,7 +32,7 @@ import (
 	SnapshotId?: =~"^snap-[0-9a-zA-Z]{1,63}$"
 
 	// The tags passed to EBS volume
-	TagSpecifications?: list.MaxItems(30) & [..._#defs."/$defs/Properties/definitions/TagSpecification"]
+	TagSpecifications?: list.MaxItems(30) & [...#TagSpecification]
 
 	// The throughput to provision for a volume, with a maximum of 1,000 MiB/s
 	Throughput?: int & >=0
@@ -44,7 +44,7 @@ import (
 	VolumeType?: "standard" | "io1" | "io2" | "gp2" | "sc1" | "st1" | "gp3"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$"
 
@@ -52,9 +52,9 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/TagSpecification": close({
+#TagSpecification: close({
 	ResourceType?: "instance" | "volume" | "spot-instances-request" | "network-interface"
 
 	// The tags to apply to the resource
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })

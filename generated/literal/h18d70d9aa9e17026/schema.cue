@@ -29,10 +29,10 @@ import (
 	// Use CLOUDFRONT for CloudFront RegexPatternSet, use REGIONAL for Application
 	// Load Balancer and API Gateway.
 	Scope!: "CLOUDFRONT" | "REGIONAL"
-	Tags?:  list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:  list.MinItems(1) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

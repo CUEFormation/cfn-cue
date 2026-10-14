@@ -20,12 +20,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	NetworkFunctionGroupName?: string | fn.#StringExpression
 	PeeringId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^peering-([0-9a-f]{8,17})$" | fn.#StringExpression
-	RoutingPolicyLabel?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	RoutingPolicyLabel?:          strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	Tags?:                        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	TransitGatewayRouteTableArn!: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ProposedNetworkFunctionGroupChange": close({
+#ProposedNetworkFunctionGroupChange: close({
 	AttachmentPolicyRuleNumber?: int |
 		{
 			string &
@@ -41,11 +41,11 @@ _#defs: "/$defs/Properties/definitions/ProposedNetworkFunctionGroupChange": clos
 		} |
 		fn.#NumberExpression
 	NetworkFunctionGroupName?: string | fn.#StringExpression
-	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProposedSegmentChange": close({
+#ProposedSegmentChange: close({
 	AttachmentPolicyRuleNumber?: int |
 		{
 			string &
@@ -61,11 +61,11 @@ _#defs: "/$defs/Properties/definitions/ProposedSegmentChange": close({
 		} |
 		fn.#NumberExpression
 	SegmentName?: string | fn.#StringExpression
-	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |

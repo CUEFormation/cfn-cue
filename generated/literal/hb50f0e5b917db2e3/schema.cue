@@ -8,29 +8,28 @@ import "list"
 
 // Definition of AWS::MediaTailor::SourceLocation Resource Type
 #Properties: close({
-	AccessConfiguration?: _#defs."/$defs/Properties/definitions/AccessConfiguration"
+	AccessConfiguration?: #AccessConfiguration
 
 	// <p>The ARN of the source location.</p>
 	Arn?:                                 string
-	DefaultSegmentDeliveryConfiguration?: _#defs."/$defs/Properties/definitions/DefaultSegmentDeliveryConfiguration"
-	HttpConfiguration!:                   _#defs."/$defs/Properties/definitions/HttpConfiguration"
+	DefaultSegmentDeliveryConfiguration?: #DefaultSegmentDeliveryConfiguration
+	HttpConfiguration!:                   #HttpConfiguration
 
 	// <p>A list of the segment delivery configurations associated with this resource.</p>
-	SegmentDeliveryConfigurations?: [..._#defs."/$defs/Properties/definitions/SegmentDeliveryConfiguration"]
+	SegmentDeliveryConfigurations?: [...#SegmentDeliveryConfiguration]
 	SourceLocationName!:            string
 
 	// The tags to assign to the source location.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // <p>Access configuration parameters.</p>
-_#defs: "/$defs/Properties/definitions/AccessConfiguration": close({
-	AccessType?: _#defs."/$defs/Properties/definitions/AccessType"
-	SecretsManagerAccessTokenConfiguration?:
-		_#defs."/$defs/Properties/definitions/SecretsManagerAccessTokenConfiguration"
+#AccessConfiguration: close({
+	AccessType?:                             #AccessType
+	SecretsManagerAccessTokenConfiguration?: #SecretsManagerAccessTokenConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/AccessType": "S3_SIGV4" | "SECRETS_MANAGER_ACCESS_TOKEN" | "AUTODETECT_SIGV4"
+#AccessType: "S3_SIGV4" | "SECRETS_MANAGER_ACCESS_TOKEN" | "AUTODETECT_SIGV4"
 
 // <p>The optional configuration for a server that serves segments. Use this if
 // you want the segment delivery server to be different from the source
@@ -39,14 +38,14 @@ _#defs: "/$defs/Properties/definitions/AccessType": "S3_SIGV4" | "SECRETS_MANAGE
 // server to be a content delivery network (CDN), such as CloudFront. If you
 // don't specify a segment delivery server, then the source location server is
 // used.</p>
-_#defs: "/$defs/Properties/definitions/DefaultSegmentDeliveryConfiguration": close({
+#DefaultSegmentDeliveryConfiguration: close({
 	// <p>The hostname of the server that will be used to serve segments. This
 	// string must include the protocol, such as <b>https://</b>.</p>
 	BaseUrl?: string
 })
 
 // <p>The HTTP configuration for the source location.</p>
-_#defs: "/$defs/Properties/definitions/HttpConfiguration": close({
+#HttpConfiguration: close({
 	// <p>The base URL for the source location host server. This string must include
 	// the protocol, such as <b>https://</b>.</p>
 	BaseUrl!: string
@@ -56,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/HttpConfiguration": close({
 // about Secrets Manager access token authentication, see <a
 // href="https://docs.aws.amazon.com/mediatailor/latest/ug/channel-assembly-access-configuration-access-token.html">Working
 // with AWS Secrets Manager access token authentication</a>.</p>
-_#defs: "/$defs/Properties/definitions/SecretsManagerAccessTokenConfiguration": close({
+#SecretsManagerAccessTokenConfiguration: close({
 	// <p>The name of the HTTP header used to supply the access token in requests to
 	// the source location.</p>
 	HeaderName?: string
@@ -73,7 +72,7 @@ _#defs: "/$defs/Properties/definitions/SecretsManagerAccessTokenConfiguration": 
 })
 
 // <p>The segment delivery configuration settings.</p>
-_#defs: "/$defs/Properties/definitions/SegmentDeliveryConfiguration": close({
+#SegmentDeliveryConfiguration: close({
 	// <p>The base URL of the host or path of the segment delivery server that
 	// you're using to serve segments. This is typically a content delivery network
 	// (CDN). The URL can be absolute or relative. To use an absolute URL include
@@ -87,7 +86,7 @@ _#defs: "/$defs/Properties/definitions/SegmentDeliveryConfiguration": close({
 	Name?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

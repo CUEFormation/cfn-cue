@@ -27,11 +27,11 @@ import (
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// Tags assigned to the AppInstance.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // A tag object containing a key-value pair.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key in a tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

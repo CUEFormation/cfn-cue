@@ -25,15 +25,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // then the product codes from that volume are no longer associated with the
 // instance.
 #Properties: close({
-	Device?:       _#defs."/$defs/Properties/definitions/Device" | fn.#StringExpression
-	EbsCardIndex?: _#defs."/$defs/Properties/definitions/EbsCardIndex" | fn.#NumberExpression
-	InstanceId!:   _#defs."/$defs/Properties/definitions/InstanceId" | fn.#StringExpression
-	VolumeId!:     _#defs."/$defs/Properties/definitions/VolumeId" | fn.#StringExpression
+	Device?:       #Device | fn.#StringExpression
+	EbsCardIndex?: #EbsCardIndex | fn.#NumberExpression
+	InstanceId!:   #InstanceId | fn.#StringExpression
+	VolumeId!:     #VolumeId | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Device": string | fn.#StringExpression
+#Device: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EbsCardIndex": int |
+#EbsCardIndex: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -47,11 +47,11 @@ _#defs: "/$defs/Properties/definitions/EbsCardIndex": int |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Id": string | fn.#StringExpression
+#Id: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceId": string | fn.#StringExpression
+#InstanceId: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VolumeId": string | fn.#StringExpression
+#VolumeId: string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EC2::VolumeAttachment"
 	Properties!: #Properties

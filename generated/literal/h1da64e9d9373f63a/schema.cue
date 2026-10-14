@@ -24,7 +24,7 @@ import "strings"
 	ApiId!: string
 
 	// The caching configuration for the resolver.
-	CachingConfig?: _#defs."/$defs/Properties/definitions/CachingConfig"
+	CachingConfig?: #CachingConfig
 
 	// The ``resolver`` code that contains the request and response functions. When
 	// code is used, the ``runtime`` is required. The runtime value must be
@@ -62,7 +62,7 @@ import "strings"
 	MetricsConfig?: "ENABLED" | "DISABLED"
 
 	// Functions linked with the pipeline resolver.
-	PipelineConfig?: _#defs."/$defs/Properties/definitions/PipelineConfig"
+	PipelineConfig?: #PipelineConfig
 
 	// The request mapping template.
 	// Request mapping templates are optional when using a Lambda data source. For
@@ -86,10 +86,10 @@ import "strings"
 	// Describes a runtime used by an APSYlong resolver or APSYlong function.
 	// Specifies the name and version of the runtime to use. Note that if a runtime
 	// is specified, code must also be specified.
-	Runtime?: _#defs."/$defs/Properties/definitions/AppSyncRuntime"
+	Runtime?: #AppSyncRuntime
 
 	// The ``SyncConfig`` for a resolver attached to a versioned data source.
-	SyncConfig?: _#defs."/$defs/Properties/definitions/SyncConfig"
+	SyncConfig?: #SyncConfig
 
 	// The GraphQL type that invokes this resolver.
 	TypeName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$"
@@ -98,7 +98,7 @@ import "strings"
 // Describes a runtime used by an APSYlong resolver or APSYlong function.
 // Specifies the name and version of the runtime to use. Note that if a runtime
 // is specified, code must also be specified.
-_#defs: "/$defs/Properties/definitions/AppSyncRuntime": close({
+#AppSyncRuntime: close({
 	// The ``name`` of the runtime to use. Currently, the only allowed value is ``APPSYNC_JS``.
 	Name!: "APPSYNC_JS"
 
@@ -107,7 +107,7 @@ _#defs: "/$defs/Properties/definitions/AppSyncRuntime": close({
 })
 
 // The caching configuration for a resolver that has caching activated.
-_#defs: "/$defs/Properties/definitions/CachingConfig": close({
+#CachingConfig: close({
 	// The caching keys for a resolver that has caching activated.
 	// Valid values are entries from the ``$context.arguments``,
 	// ``$context.source``, and ``$context.identity`` maps.
@@ -119,7 +119,7 @@ _#defs: "/$defs/Properties/definitions/CachingConfig": close({
 })
 
 // The ``LambdaConflictHandlerConfig`` when configuring LAMBDA as the Conflict Handler.
-_#defs: "/$defs/Properties/definitions/LambdaConflictHandlerConfig": close({
+#LambdaConflictHandlerConfig: close({
 	// The Amazon Resource Name (ARN) for the Lambda function to use as the Conflict Handler.
 	LambdaConflictHandlerArn?: string
 })
@@ -128,7 +128,7 @@ _#defs: "/$defs/Properties/definitions/LambdaConflictHandlerConfig": close({
 // ``PipelineConfig`` is a property of the
 // [AWS::AppSync::Resolver](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-appsync-resolver.html)
 // resource.
-_#defs: "/$defs/Properties/definitions/PipelineConfig": close({
+#PipelineConfig: close({
 	// A list of ``Function`` objects.
 	Functions?: [...string]
 })
@@ -136,7 +136,7 @@ _#defs: "/$defs/Properties/definitions/PipelineConfig": close({
 // Describes a Sync configuration for a resolver.
 // Specifies which Conflict Detection strategy and Resolution strategy to use
 // when the resolver is invoked.
-_#defs: "/$defs/Properties/definitions/SyncConfig": close({
+#SyncConfig: close({
 	// The Conflict Detection strategy to use.
 	// + *VERSION*: Detect conflicts based on object versions for this resolver.
 	// + *NONE*: Do not detect conflicts when invoking this resolver.
@@ -151,5 +151,5 @@ _#defs: "/$defs/Properties/definitions/SyncConfig": close({
 	ConflictHandler?: "AUTOMERGE" | "LAMBDA" | "NONE" | "OPTIMISTIC_CONCURRENCY"
 
 	// The ``LambdaConflictHandlerConfig`` when configuring ``LAMBDA`` as the Conflict Handler.
-	LambdaConflictHandlerConfig?: _#defs."/$defs/Properties/definitions/LambdaConflictHandlerConfig"
+	LambdaConflictHandlerConfig?: #LambdaConflictHandlerConfig
 })

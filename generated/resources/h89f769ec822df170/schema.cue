@@ -17,65 +17,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // AWS Ground Station config resource type for CloudFormation.
 #Properties: close({
-	ConfigData!: _#defs."/$defs/Properties/definitions/ConfigData"
+	ConfigData!: #ConfigData
 	Name!:       =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
-	Tags?:       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:       [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AntennaDownlinkConfig": close(
-	{SpectrumConfig?: _#defs."/$defs/Properties/definitions/SpectrumConfig"},
-) |
-	fn.#ObjectExpression
+#AntennaDownlinkConfig: close({SpectrumConfig?: #SpectrumConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AntennaDownlinkDemodDecodeConfig": close({
-	DecodeConfig?:       _#defs."/$defs/Properties/definitions/DecodeConfig"
-	DemodulationConfig?: _#defs."/$defs/Properties/definitions/DemodulationConfig"
-	SpectrumConfig?:     _#defs."/$defs/Properties/definitions/SpectrumConfig"
+#AntennaDownlinkDemodDecodeConfig: close({
+	DecodeConfig?:       #DecodeConfig
+	DemodulationConfig?: #DemodulationConfig
+	SpectrumConfig?:     #SpectrumConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AntennaUplinkConfig": close({
-	SpectrumConfig?:   _#defs."/$defs/Properties/definitions/UplinkSpectrumConfig"
-	TargetEirp?:       _#defs."/$defs/Properties/definitions/Eirp"
+#AntennaUplinkConfig: close({
+	SpectrumConfig?:   #UplinkSpectrumConfig
+	TargetEirp?:       #Eirp
 	TransmitDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BandwidthUnits": "GHz" | "MHz" | "kHz" | fn.#StringExpression
+#BandwidthUnits: "GHz" | "MHz" | "kHz" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BucketArn": =~"^arn:aws[A-Za-z0-9-]{0,64}:s3:::[A-Za-z0-9-]{1,64}$" |
-	fn.#StringExpression
+#BucketArn: =~"^arn:aws[A-Za-z0-9-]{0,64}:s3:::[A-Za-z0-9-]{1,64}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigData": struct.MaxFields(1) & struct.MinFields(1) & close({
-	AntennaDownlinkConfig?:            _#defs."/$defs/Properties/definitions/AntennaDownlinkConfig"
-	AntennaDownlinkDemodDecodeConfig?: _#defs."/$defs/Properties/definitions/AntennaDownlinkDemodDecodeConfig"
-	AntennaUplinkConfig?:              _#defs."/$defs/Properties/definitions/AntennaUplinkConfig"
-	DataflowEndpointConfig?:           _#defs."/$defs/Properties/definitions/DataflowEndpointConfig"
-	S3RecordingConfig?:                _#defs."/$defs/Properties/definitions/S3RecordingConfig"
-	TelemetrySinkConfig?:              _#defs."/$defs/Properties/definitions/TelemetrySinkConfig"
-	TrackingConfig?:                   _#defs."/$defs/Properties/definitions/TrackingConfig"
-	UplinkEchoConfig?:                 _#defs."/$defs/Properties/definitions/UplinkEchoConfig"
+#ConfigData: struct.MaxFields(1) & struct.MinFields(1) & close({
+	AntennaDownlinkConfig?:            #AntennaDownlinkConfig
+	AntennaDownlinkDemodDecodeConfig?: #AntennaDownlinkDemodDecodeConfig
+	AntennaUplinkConfig?:              #AntennaUplinkConfig
+	DataflowEndpointConfig?:           #DataflowEndpointConfig
+	S3RecordingConfig?:                #S3RecordingConfig
+	TelemetrySinkConfig?:              #TelemetrySinkConfig
+	TrackingConfig?:                   #TrackingConfig
+	UplinkEchoConfig?:                 #UplinkEchoConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataflowEndpointConfig": close({
+#DataflowEndpointConfig: close({
 	DataflowEndpointName?:   string | fn.#StringExpression
 	DataflowEndpointRegion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DecodeConfig": close(
-	{UnvalidatedJSON?: _#defs."/$defs/Properties/definitions/JsonString"},
-) |
-	fn.#ObjectExpression
+#DecodeConfig: close({UnvalidatedJSON?: #JsonString}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DemodulationConfig": close(
-	{UnvalidatedJSON?: _#defs."/$defs/Properties/definitions/JsonString"},
-) |
-	fn.#ObjectExpression
+#DemodulationConfig: close({UnvalidatedJSON?: #JsonString}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Eirp": close({
-	Units?: _#defs."/$defs/Properties/definitions/EirpUnits"
+#Eirp: close({
+	Units?: #EirpUnits
 	Value?: number |
 		{
 			string &
@@ -98,10 +88,10 @@ _#defs: "/$defs/Properties/definitions/Eirp": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EirpUnits": "dBW" | fn.#StringExpression
+#EirpUnits: "dBW" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Frequency": close({
-	Units?: _#defs."/$defs/Properties/definitions/FrequencyUnits"
+#Frequency: close({
+	Units?: #FrequencyUnits
 	Value?: number |
 		{
 			string &
@@ -124,8 +114,8 @@ _#defs: "/$defs/Properties/definitions/Frequency": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FrequencyBandwidth": close({
-	Units?: _#defs."/$defs/Properties/definitions/BandwidthUnits"
+#FrequencyBandwidth: close({
+	Units?: #BandwidthUnits
 	Value?: number |
 		{
 			string &
@@ -148,75 +138,70 @@ _#defs: "/$defs/Properties/definitions/FrequencyBandwidth": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FrequencyUnits": "GHz" | "MHz" | "kHz" | fn.#StringExpression
+#FrequencyUnits: "GHz" | "MHz" | "kHz" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/JsonString": string | fn.#StringExpression
+#JsonString: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisDataStreamArn": =~"^arn:[a-z0-9-.]{1,63}:kinesis:[-a-z0-9]{1,50}:[0-9]{12}:stream/[a-zA-Z0-9_.-]{1,128}$" |
+#KinesisDataStreamArn: =~"^arn:[a-z0-9-.]{1,63}:kinesis:[-a-z0-9]{1,50}:[0-9]{12}:stream/[a-zA-Z0-9_.-]{1,128}$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisDataStreamData": close({
-	KinesisDataStreamArn!: _#defs."/$defs/Properties/definitions/KinesisDataStreamArn"
-	KinesisRoleArn!:       _#defs."/$defs/Properties/definitions/RoleArn"
+#KinesisDataStreamData: close({
+	KinesisDataStreamArn!: #KinesisDataStreamArn
+	KinesisRoleArn!:       #RoleArn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Polarization": "LEFT_HAND" | "RIGHT_HAND" | "NONE" | fn.#StringExpression
+#Polarization: "LEFT_HAND" | "RIGHT_HAND" | "NONE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	=~"^arn:[^:\\n]+:iam::[^:\\n]+:role\\/.+$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3KeyPrefix": =~"^([a-zA-Z0-9_\\-=/]|\\{satellite_id\\}|\\{config\\-name}|\\{s3\\-config-id}|\\{year\\}|\\{month\\}|\\{day\\}){1,900}$" |
+#S3KeyPrefix: =~"^([a-zA-Z0-9_\\-=/]|\\{satellite_id\\}|\\{config\\-name}|\\{s3\\-config-id}|\\{year\\}|\\{month\\}|\\{day\\}){1,900}$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3RecordingConfig": close({
-	BucketArn?: _#defs."/$defs/Properties/definitions/BucketArn"
-	Prefix?:    _#defs."/$defs/Properties/definitions/S3KeyPrefix"
-	RoleArn?:   _#defs."/$defs/Properties/definitions/RoleArn"
+#S3RecordingConfig: close({
+	BucketArn?: #BucketArn
+	Prefix?:    #S3KeyPrefix
+	RoleArn?:   #RoleArn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpectrumConfig": close({
-	Bandwidth?:       _#defs."/$defs/Properties/definitions/FrequencyBandwidth"
-	CenterFrequency?: _#defs."/$defs/Properties/definitions/Frequency"
-	Polarization?:    _#defs."/$defs/Properties/definitions/Polarization"
+#SpectrumConfig: close({
+	Bandwidth?:       #FrequencyBandwidth
+	CenterFrequency?: #Frequency
+	Polarization?:    #Polarization
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" | fn.#StringExpression
 	Value?: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TelemetrySinkConfig": close({
-	TelemetrySinkData!: _#defs."/$defs/Properties/definitions/TelemetrySinkData"
-	TelemetrySinkType!: _#defs."/$defs/Properties/definitions/TelemetrySinkType"
+#TelemetrySinkConfig: close({
+	TelemetrySinkData!: #TelemetrySinkData
+	TelemetrySinkType!: #TelemetrySinkType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TelemetrySinkData": close(
-	{KinesisDataStreamData?: _#defs."/$defs/Properties/definitions/KinesisDataStreamData"},
-) & matchN(>=1, [{KinesisDataStreamData!: _}]) |
+#TelemetrySinkData: close({KinesisDataStreamData?: #KinesisDataStreamData}) & matchN(>=1, [{KinesisDataStreamData!: _}]) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TelemetrySinkType": "KINESIS_DATA_STREAM" | fn.#StringExpression
+#TelemetrySinkType: "KINESIS_DATA_STREAM" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TrackingConfig": close(
-	{Autotrack?: "REQUIRED" | "PREFERRED" | "REMOVED" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#TrackingConfig: close({Autotrack?: "REQUIRED" | "PREFERRED" | "REMOVED" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UplinkEchoConfig": close({
+#UplinkEchoConfig: close({
 	AntennaUplinkConfigArn?: =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" | fn.#StringExpression
 	Enabled?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UplinkSpectrumConfig": close({
-	CenterFrequency?: _#defs."/$defs/Properties/definitions/Frequency"
-	Polarization?:    _#defs."/$defs/Properties/definitions/Polarization"
+#UplinkSpectrumConfig: close({
+	CenterFrequency?: #Frequency
+	Polarization?:    #Polarization
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -55,10 +55,10 @@ import (
 
 	// The time the subscription was last modified, in ISO 8601 format.
 	UpdatedAt?:  time.Time
-	UsageLevel?: _#defs."/$defs/Properties/definitions/UsageLevel"
+	UsageLevel?: #UsageLevel
 })
 
-_#defs: "/$defs/Properties/definitions/UsageLevel": "DEFAULT" |
+#UsageLevel: "DEFAULT" |
 	"CF_PREMIUM_L2" |
 	"CF_PREMIUM_L3" |
 	"CF_PREMIUM_L4" |

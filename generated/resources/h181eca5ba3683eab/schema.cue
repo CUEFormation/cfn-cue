@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -21,7 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	BlueGreenDeploymentName!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z](?:-?[a-zA-Z0-9]+)*$" |
 	fn.#StringExpression
 	Source!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" | fn.#StringExpression
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:   [...#Tag] | fn.#ListExpression
 	TargetAllocatedStorage?: int |
 		{
 			string &
@@ -73,13 +73,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	UpgradeTargetStorageConfig?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DeploymentTask": close({
+#DeploymentTask: close({
 	TaskName?:   string | fn.#StringExpression
 	TaskStatus?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SwitchoverDetail": close({
+#SwitchoverDetail: close({
 	SourceMember?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" |
 	fn.#StringExpression
 	SwitchoverDetailStatus?: string | fn.#StringExpression
@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/SwitchoverDetail": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

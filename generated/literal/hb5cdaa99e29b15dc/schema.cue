@@ -25,7 +25,7 @@ import (
 	// the returned key ARN when CloudFormation checks for drift; a key alias is
 	// accepted but can be reported as a value difference, because an alias cannot
 	// be matched to the key ARN it points to.
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	EncryptionConfiguration?: #EncryptionConfiguration
 
 	// The Amazon Resource Name (ARN) of the event bus.
 	EventBusArn?: strings.MaxRunes(1011) &
@@ -44,14 +44,14 @@ import (
 
 	// The event storage configuration for the event bus, which controls the number
 	// of days events are retained on the bus.
-	StorageConfiguration?: _#defs."/$defs/Properties/definitions/StorageConfiguration"
+	StorageConfiguration?: #StorageConfiguration
 
 	// The tags assigned to the event bus.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Encryption configuration for an event bus.
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	// The identifier of the AWS KMS customer managed key that the event bus uses to
 	// encrypt events. You can specify the key ARN, key ID, alias name, or alias
 	// ARN. If you do not specify a key, EventBridge uses an AWS owned key.
@@ -59,13 +59,13 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 })
 
 // Storage (retention) configuration for the event bus.
-_#defs: "/$defs/Properties/definitions/StorageConfiguration": close({
+#StorageConfiguration: close({
 	// The number of days events are retained on the event bus for replay, 1-365.
 	RetentionPeriodInDays?: int & <=365 & >=1
 })
 
 // A key-value pair to associate with the resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key. For each resource, each tag key must be unique and each key can
 	// have only one value; keys are case sensitive. A key cannot begin or end with
 	// a whitespace character; whitespace inside the key is allowed.

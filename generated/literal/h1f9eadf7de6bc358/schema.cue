@@ -14,11 +14,11 @@ import (
 #Properties: close({
 	// The number of services associated with this policy.
 	AssociatedServiceCount?: int
-	AvailabilitySlo?:        _#defs."/$defs/Properties/definitions/AvailabilitySlo"
+	AvailabilitySlo?:        #AvailabilitySlo
 
 	// The timestamp when the policy was created.
 	CreatedAt?:    time.Time
-	DataRecovery?: _#defs."/$defs/Properties/definitions/DataRecoveryTargets"
+	DataRecovery?: #DataRecoveryTargets
 
 	// The description of the policy.
 	Description?: strings.MaxRunes(615)
@@ -28,8 +28,8 @@ import (
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^((arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:((key/[a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)))|([a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+))$"
-	MultiAz?:     _#defs."/$defs/Properties/definitions/MultiAzTargets"
-	MultiRegion?: _#defs."/$defs/Properties/definitions/MultiRegionTargets"
+	MultiAz?:     #MultiAzTargets
+	MultiRegion?: #MultiRegionTargets
 
 	// The name of the policy.
 	Name!: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$"
@@ -43,23 +43,23 @@ import (
 	SharingEnabled?: bool
 
 	// Tags assigned to the policy.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The timestamp when the policy was last updated.
 	UpdatedAt?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/AvailabilitySlo": close({
+#AvailabilitySlo: close({
 	// Availability target percentage.
 	Target?: <=100 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/DataRecoveryTargets": close({
+#DataRecoveryTargets: close({
 	// Time between backups in minutes.
 	TimeBetweenBackupsInMinutes?: int & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/MultiAzTargets": close({
+#MultiAzTargets: close({
 	// Multi-AZ disaster recovery approach.
 	DisasterRecoveryApproach?: "ACTIVE_ACTIVE" | "HOT_STANDBY" | "WARM_STANDBY" | "PILOT_LIGHT" | "BACKUP_AND_RESTORE"
 
@@ -70,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/MultiAzTargets": close({
 	RtoInMinutes?: int & <=2147483647 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/MultiRegionTargets": close({
+#MultiRegionTargets: close({
 	// Multi-Region disaster recovery approach.
 	DisasterRecoveryApproach?: "ACTIVE_ACTIVE" | "HOT_STANDBY" | "WARM_STANDBY" | "PILOT_LIGHT" | "BACKUP_AND_RESTORE"
 
@@ -81,7 +81,7 @@ _#defs: "/$defs/Properties/definitions/MultiRegionTargets": close({
 	RtoInMinutes?: int & <=2147483647 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -6,12 +6,12 @@ package schema
 
 // Resource Type definition for AWS::Batch::SchedulingPolicy
 #Properties: close({
-	Arn?:             _#defs."/$defs/Properties/definitions/ResourceArn"
-	FairsharePolicy?: _#defs."/$defs/Properties/definitions/FairsharePolicy"
+	Arn?:             #ResourceArn
+	FairsharePolicy?: #FairsharePolicy
 
 	// Name of Scheduling Policy.
 	Name?:             =~""
-	QuotaSharePolicy?: _#defs."/$defs/Properties/definitions/QuotaSharePolicy"
+	QuotaSharePolicy?: #QuotaSharePolicy
 
 	// A key-value pair to associate with a resource.
 	Tags?: close({
@@ -20,21 +20,21 @@ package schema
 })
 
 // Fair Share Policy for the Job Queue.
-_#defs: "/$defs/Properties/definitions/FairsharePolicy": close({
+#FairsharePolicy: close({
 	ComputeReservation?: <=99 & >=0
 	ShareDecaySeconds?:  <=604800 & >=0
 
 	// List of Share Attributes
-	ShareDistribution?: [..._#defs."/$defs/Properties/definitions/ShareAttributes"]
+	ShareDistribution?: [...#ShareAttributes]
 })
 
 // Quota Share Policy for the Job Queue.
-_#defs: "/$defs/Properties/definitions/QuotaSharePolicy": close({IdleResourceAssignmentStrategy?: =~"(?i)^(?:fifo)$"})
+#QuotaSharePolicy: close({IdleResourceAssignmentStrategy?: =~"(?i)^(?:fifo)$"})
 
 // ARN of the Scheduling Policy.
-_#defs: "/$defs/Properties/definitions/ResourceArn": string
+#ResourceArn: string
 
-_#defs: "/$defs/Properties/definitions/ShareAttributes": close({
+#ShareAttributes: close({
 	ShareIdentifier?: string
 	WeightFactor?:    <=1000 & >=0
 })

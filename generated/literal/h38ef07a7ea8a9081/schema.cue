@@ -11,7 +11,7 @@ import (
 
 // Resource Type definition for AWS::Glue::Integration
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/IntegrationAdditionalEncryptionContextMap"
+	AdditionalEncryptionContext?: #IntegrationAdditionalEncryptionContextMap
 
 	// The time (UTC) when the integration was created.
 	CreateTime?:  string
@@ -20,7 +20,7 @@ import (
 
 	// The Amazon Resource Name (ARN) of the integration.
 	IntegrationArn?:    =~"arn:aws:.*:.*:[0-9]+:.*"
-	IntegrationConfig?: _#defs."/$defs/Properties/definitions/IntegrationConfig"
+	IntegrationConfig?: #IntegrationConfig
 
 	// The name of the integration.
 	IntegrationName!: strings.MaxRunes(128) & strings.MinRunes(1)
@@ -36,7 +36,7 @@ import (
 	Status?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The Amazon Resource Name (ARN) of the Glue data warehouse to use as the target for replication
 	TargetArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*"
@@ -44,28 +44,28 @@ import (
 
 // An optional set of non-secret key value pairs that contains additional
 // contextual information about the data.
-_#defs: "/$defs/Properties/definitions/IntegrationAdditionalEncryptionContextMap": close({
+#IntegrationAdditionalEncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0)}})
 
 // The configuration settings for the integration.
-_#defs: "/$defs/Properties/definitions/IntegrationConfig": close({
+#IntegrationConfig: close({
 	// Enables continuous synchronization for on-demand data extractions.
 	ContinuousSync?: bool
 
 	// Specifies the frequency at which CDC (Change Data Capture) pulls or
 	// incremental loads should occur.
 	RefreshInterval?:  strings.MaxRunes(128) & strings.MinRunes(1)
-	SourceProperties?: _#defs."/$defs/Properties/definitions/SourceProperties"
+	SourceProperties?: #SourceProperties
 })
 
 // A collection of key-value pairs that specify additional properties for the integration source.
-_#defs: "/$defs/Properties/definitions/SourceProperties": close({
+#SourceProperties: close({
 
 	{[=~"^[\\s\\S]*$"]: string}})
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -80,6 +80,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // An array of key-value pairs to apply to this resource.
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...#Tag]

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,8 +13,8 @@ import (
 // CloudWatch Observability Admin Organization Telemetry Rule.
 #Properties: close({
 	// Per-region replication status of the rule
-	RegionStatuses?: [..._#defs."/$defs/Properties/definitions/RegionStatus"]
-	Rule!:           _#defs."/$defs/Properties/definitions/TelemetryRule"
+	RegionStatuses?: [...#RegionStatus]
+	Rule!:           #TelemetryRule
 
 	// The arn of the organization telemetry rule
 	RuleArn?: strings.MaxRunes(1011) &
@@ -25,34 +25,29 @@ import (
 	RuleName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$"
 
 	// An array of key-value pairs to apply to this resource
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The enumerated action to take.
-_#defs: "/$defs/Properties/definitions/Action": "ALLOW" |
-	"BLOCK" |
-	"COUNT" |
-	"CAPTCHA" |
-	"CHALLENGE" |
-	"EXCLUDED_AS_COUNT"
+#Action: "ALLOW" | "BLOCK" | "COUNT" | "CAPTCHA" | "CHALLENGE" | "EXCLUDED_AS_COUNT"
 
 // The condition of the action desired in the filter.
-_#defs: "/$defs/Properties/definitions/ActionCondition": {
-	Action?: _#defs."/$defs/Properties/definitions/Action"
+#ActionCondition: {
+	Action?: #Action
 	...
 }
 
 // An advanced event selector that includes optional name and field selectors
-_#defs: "/$defs/Properties/definitions/AdvancedEventSelector": close({
+#AdvancedEventSelector: close({
 	// Contains all selector statements in an advanced event selector.
-	FieldSelectors!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AdvancedFieldSelector"]
+	FieldSelectors!: list.UniqueItems() & [...#AdvancedFieldSelector]
 
 	// An optional descriptive name for the advanced event selector
 	Name?: string
 })
 
 // A single selector statement in an advanced event selector.
-_#defs: "/$defs/Properties/definitions/AdvancedFieldSelector": {
+#AdvancedFieldSelector: {
 	// An operator that includes events that match the last few characters of the
 	// event record field specified as the value of Field.
 	EndsWith?: list.UniqueItems() & [...string]
@@ -84,34 +79,32 @@ _#defs: "/$defs/Properties/definitions/AdvancedFieldSelector": {
 
 // When true, configuration drift in managed telemetry resources will be
 // detected and remediated for resource-level fields.
-_#defs: "/$defs/Properties/definitions/AllowFieldUpdates": bool
+#AllowFieldUpdates: bool
 
 // Telemetry parameters for Cloudtrail
-_#defs: "/$defs/Properties/definitions/CloudtrailParameters": close({
+#CloudtrailParameters: close({
 	// Create fine-grained selectors for AWS CloudTrail management and data.
-	AdvancedEventSelectors!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AdvancedEventSelector"]
+	AdvancedEventSelectors!: list.UniqueItems() & [...#AdvancedEventSelector]
 })
 
 // A condition for a filter.
-_#defs: "/$defs/Properties/definitions/Condition": {
-	ActionCondition?:    _#defs."/$defs/Properties/definitions/ActionCondition"
-	LabelNameCondition?: _#defs."/$defs/Properties/definitions/LabelNameCondition"
+#Condition: {
+	ActionCondition?:    #ActionCondition
+	LabelNameCondition?: #LabelNameCondition
 	...
 }
 
 // A list of conditions for a filter.
-_#defs: "/$defs/Properties/definitions/Conditions": list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Condition"
-]
+#Conditions: list.MinItems(1) & list.UniqueItems() & [...#Condition]
 
 // Pattern for telemetry data destination
-_#defs: "/$defs/Properties/definitions/DestinationPattern": string
+#DestinationPattern: string
 
 // Type of telemetry destination
-_#defs: "/$defs/Properties/definitions/DestinationType": "cloud-watch-logs"
+#DestinationType: "cloud-watch-logs"
 
 // Telemetry parameters for ELB/NLB Load Balancer Logs
-_#defs: "/$defs/Properties/definitions/ELBLoadBalancerLoggingParameters": {
+#ELBLoadBalancerLoggingParameters: {
 	// A delimiter to delineate log fields
 	FieldDelimiter?: string
 	OutputFormat?:   "plain" | "json"
@@ -119,13 +112,13 @@ _#defs: "/$defs/Properties/definitions/ELBLoadBalancerLoggingParameters": {
 }
 
 // The field that we want to match this rule to.
-_#defs: "/$defs/Properties/definitions/FieldToMatch": {
+#FieldToMatch: {
 	// The method with which to match this rule.
 	Method?: string
 
 	// The query string to find the resource to match this field to.
 	QueryString?:  string
-	SingleHeader?: _#defs."/$defs/Properties/definitions/SingleHeader"
+	SingleHeader?: #SingleHeader
 
 	// This is the URI path to match this rule to.
 	UriPath?: string
@@ -133,58 +126,54 @@ _#defs: "/$defs/Properties/definitions/FieldToMatch": {
 }
 
 // A filter to be applied
-_#defs: "/$defs/Properties/definitions/Filter": {
-	Behavior?:    _#defs."/$defs/Properties/definitions/FilterBehavior"
-	Conditions?:  _#defs."/$defs/Properties/definitions/Conditions"
-	Requirement?: _#defs."/$defs/Properties/definitions/FilterRequirement"
+#Filter: {
+	Behavior?:    #FilterBehavior
+	Conditions?:  #Conditions
+	Requirement?: #FilterRequirement
 	...
 }
 
 // The behavior required of the filter.
-_#defs: "/$defs/Properties/definitions/FilterBehavior": "KEEP" | "DROP"
+#FilterBehavior: "KEEP" | "DROP"
 
 // The requirement portion of the filter.
-_#defs: "/$defs/Properties/definitions/FilterRequirement": "MEETS_ALL" | "MEETS_ANY"
+#FilterRequirement: "MEETS_ALL" | "MEETS_ANY"
 
 // A list of filters to be applied.
-_#defs: "/$defs/Properties/definitions/Filters": list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Filter"
-]
+#Filters: list.MinItems(1) & list.UniqueItems() & [...#Filter]
 
 // The Amazon Resource Name (ARN) of the customer-managed AWS KMS key used to
 // encrypt the destination log groups specified in the Telemetry Rule.
-_#defs: "/$defs/Properties/definitions/KmsKeyArn": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+#KmsKeyArn: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\d{12}:key/(mrk-)?[a-f0-9-]+$"
 
 // The label name of the condition.
-_#defs: "/$defs/Properties/definitions/LabelNameCondition": {
+#LabelNameCondition: {
 	// The label name of the condition.
 	LabelName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\-:]+$"
 	...
 }
 
 // Default handling for logs that don't match any of the specified filtering conditions.
-_#defs: "/$defs/Properties/definitions/LoggingFilter": {
-	DefaultBehavior?: _#defs."/$defs/Properties/definitions/FilterBehavior"
-	Filters?:         _#defs."/$defs/Properties/definitions/Filters"
+#LoggingFilter: {
+	DefaultBehavior?: #FilterBehavior
+	Filters?:         #Filters
 	...
 }
 
 // Configuration parameters for Amazon MSK cluster monitoring.
-_#defs: "/$defs/Properties/definitions/MskMonitoringParameters": close({
+#MskMonitoringParameters: close({
 	// The level of enhanced monitoring for the MSK cluster.
 	EnhancedMonitoring?: "DEFAULT" | "PER_BROKER" | "PER_TOPIC_PER_BROKER" | "PER_TOPIC_PER_PARTITION"
 })
 
 // Fields not to be included in the logs.
-_#defs: "/$defs/Properties/definitions/RedactedFields": list.MaxItems(100) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/FieldToMatch"
-]
+#RedactedFields: list.MaxItems(100) & list.UniqueItems() & [...#FieldToMatch]
 
 // Status of a telemetry rule in a specific region
-_#defs: "/$defs/Properties/definitions/RegionStatus": close({
+#RegionStatus: close({
 	// The AWS region code
 	Region?: string
 
@@ -196,7 +185,7 @@ _#defs: "/$defs/Properties/definitions/RegionStatus": close({
 })
 
 // Resource Type associated with the Organization Telemetry Rule
-_#defs: "/$defs/Properties/definitions/ResourceType": "AWS::EC2::VPC" |
+#ResourceType: "AWS::EC2::VPC" |
 	"AWS::WAFv2::WebACL" |
 	"AWS::CloudTrail" |
 	"AWS::EKS::Cluster" |
@@ -210,22 +199,22 @@ _#defs: "/$defs/Properties/definitions/ResourceType": "AWS::EC2::VPC" |
 	"AWS::CloudWatch::OTelEnrichment"
 
 // Number of days to retain the telemetry data in the specified destination
-_#defs: "/$defs/Properties/definitions/RetentionInDays": int & <=3653 & >=1
+#RetentionInDays: int & <=3653 & >=1
 
 // Selection Criteria on scope level for rule application
-_#defs: "/$defs/Properties/definitions/Scope": string
+#Scope: string
 
 // Selection Criteria on resource level for rule application
-_#defs: "/$defs/Properties/definitions/SelectionCriteria": string
+#SelectionCriteria: string
 
 // Header for the field to match.
-_#defs: "/$defs/Properties/definitions/SingleHeader": close({
+#SingleHeader: close({
 	// The name of the header
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1)
 })
 
 // A key-value pair to associate with a resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -240,12 +229,12 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The destination configuration for telemetry data
-_#defs: "/$defs/Properties/definitions/TelemetryDestinationConfiguration": close({
-	CloudtrailParameters?:             _#defs."/$defs/Properties/definitions/CloudtrailParameters"
-	DestinationPattern?:               _#defs."/$defs/Properties/definitions/DestinationPattern"
-	DestinationType?:                  _#defs."/$defs/Properties/definitions/DestinationType"
-	ELBLoadBalancerLoggingParameters?: _#defs."/$defs/Properties/definitions/ELBLoadBalancerLoggingParameters"
-	KmsKeyArn?:                        _#defs."/$defs/Properties/definitions/KmsKeyArn"
+#TelemetryDestinationConfiguration: close({
+	CloudtrailParameters?:             #CloudtrailParameters
+	DestinationPattern?:               #DestinationPattern
+	DestinationType?:                  #DestinationType
+	ELBLoadBalancerLoggingParameters?: #ELBLoadBalancerLoggingParameters
+	KmsKeyArn?:                        #KmsKeyArn
 
 	// Parameters for log delivery configuration
 	LogDeliveryParameters?: close({
@@ -260,30 +249,30 @@ _#defs: "/$defs/Properties/definitions/TelemetryDestinationConfiguration": close
 				"ALB_HEALTH_CHECK_LOGS"
 		]
 	})
-	MskMonitoringParameters?: _#defs."/$defs/Properties/definitions/MskMonitoringParameters"
-	RetentionInDays?:         _#defs."/$defs/Properties/definitions/RetentionInDays"
-	VPCFlowLogParameters?:    _#defs."/$defs/Properties/definitions/VPCFlowLogParameters"
-	WAFLoggingParameters?:    _#defs."/$defs/Properties/definitions/WAFLoggingParameters"
+	MskMonitoringParameters?: #MskMonitoringParameters
+	RetentionInDays?:         #RetentionInDays
+	VPCFlowLogParameters?:    #VPCFlowLogParameters
+	WAFLoggingParameters?:    #WAFLoggingParameters
 })
 
 // The telemetry rule
-_#defs: "/$defs/Properties/definitions/TelemetryRule": close({
+#TelemetryRule: close({
 	// When true, the rule is replicated to all supported regions
 	AllRegions?:               bool
-	AllowFieldUpdates?:        _#defs."/$defs/Properties/definitions/AllowFieldUpdates"
-	DestinationConfiguration?: _#defs."/$defs/Properties/definitions/TelemetryDestinationConfiguration"
+	AllowFieldUpdates?:        #AllowFieldUpdates
+	DestinationConfiguration?: #TelemetryDestinationConfiguration
 
 	// List of AWS region codes where the rule should be replicated
 	Regions?:              list.MinItems(1) & list.UniqueItems() & [...strings.MinRunes(1)]
-	ResourceType!:         _#defs."/$defs/Properties/definitions/ResourceType"
-	Scope?:                _#defs."/$defs/Properties/definitions/Scope"
-	SelectionCriteria?:    _#defs."/$defs/Properties/definitions/SelectionCriteria"
-	TelemetrySourceTypes?: _#defs."/$defs/Properties/definitions/TelemetrySourceTypes"
-	TelemetryType!:        _#defs."/$defs/Properties/definitions/TelemetryType"
+	ResourceType!:         #ResourceType
+	Scope?:                #Scope
+	SelectionCriteria?:    #SelectionCriteria
+	TelemetrySourceTypes?: #TelemetrySourceTypes
+	TelemetryType!:        #TelemetryType
 })
 
 // The telemetry source type that goes into the array.
-_#defs: "/$defs/Properties/definitions/TelemetrySourceType": "VPC_FLOW_LOGS" |
+#TelemetrySourceType: "VPC_FLOW_LOGS" |
 	"ROUTE53_RESOLVER_QUERY_LOGS" |
 	"EKS_AUDIT_LOGS" |
 	"EKS_AUTHENTICATOR_LOGS" |
@@ -292,15 +281,13 @@ _#defs: "/$defs/Properties/definitions/TelemetrySourceType": "VPC_FLOW_LOGS" |
 	"EKS_API_LOGS"
 
 // The telemetry source types for a telemetry rule.
-_#defs: "/$defs/Properties/definitions/TelemetrySourceTypes": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/TelemetrySourceType"
-]
+#TelemetrySourceTypes: list.UniqueItems() & [...#TelemetrySourceType]
 
 // Telemetry Type associated with the Organization Telemetry Rule
-_#defs: "/$defs/Properties/definitions/TelemetryType": "Logs" | "Metrics"
+#TelemetryType: "Logs" | "Metrics"
 
 // Telemetry parameters for VPC Flow logs
-_#defs: "/$defs/Properties/definitions/VPCFlowLogParameters": close({
+#VPCFlowLogParameters: close({
 	// The fields to include in the flow log record. If you omit this parameter, the
 	// flow log is created using the default format.
 	LogFormat?: string
@@ -314,14 +301,14 @@ _#defs: "/$defs/Properties/definitions/VPCFlowLogParameters": close({
 })
 
 // The type of logs to generate for WAF.
-_#defs: "/$defs/Properties/definitions/WAFLogType": "WAF_LOGS"
+#WAFLogType: "WAF_LOGS"
 
 // Telemetry parameters for WAF v2 Web ACL
-_#defs: "/$defs/Properties/definitions/WAFLoggingParameters": {
-	LogType?:       _#defs."/$defs/Properties/definitions/WAFLogType"
-	LoggingFilter?: _#defs."/$defs/Properties/definitions/LoggingFilter"
+#WAFLoggingParameters: {
+	LogType?:       #WAFLogType
+	LoggingFilter?: #LoggingFilter
 
 	// Fields not to be included in the logs.
-	RedactedFields?: _#defs."/$defs/Properties/definitions/RedactedFields"
+	RedactedFields?: #RedactedFields
 	...
 }

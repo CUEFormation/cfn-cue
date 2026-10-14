@@ -17,20 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::ElastiCache::CacheCluster
 #Properties: close({
-	AZMode?:                  =~"(?i)^(?:cross-az|single-az)$" | fn.#StringExpression
-	AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CacheNodeType!:           string | fn.#StringExpression
-	CacheParameterGroupName?: string | fn.#StringExpression
-	CacheSecurityGroupNames?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	CacheSubnetGroupName?:    string | fn.#StringExpression
-	ClusterName?:             string | fn.#StringExpression
-	Engine!:                  string | fn.#StringExpression
-	EngineVersion?:           string | fn.#StringExpression
-	IpDiscovery?:             =~"(?i)^(?:ipv4|ipv6)$" | fn.#StringExpression
-	LogDeliveryConfigurations?: [..._#defs."/$defs/Properties/definitions/LogDeliveryConfigurationRequest"] |
-		fn.#ListExpression
-	NetworkType?:          =~"(?i)^(?:dual_stack|ipv4|ipv6)$" | fn.#StringExpression
-	NotificationTopicArn?: string | fn.#StringExpression
+	AZMode?:                    =~"(?i)^(?:cross-az|single-az)$" | fn.#StringExpression
+	AutoMinorVersionUpgrade?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CacheNodeType!:             string | fn.#StringExpression
+	CacheParameterGroupName?:   string | fn.#StringExpression
+	CacheSecurityGroupNames?:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	CacheSubnetGroupName?:      string | fn.#StringExpression
+	ClusterName?:               string | fn.#StringExpression
+	Engine!:                    string | fn.#StringExpression
+	EngineVersion?:             string | fn.#StringExpression
+	IpDiscovery?:               =~"(?i)^(?:ipv4|ipv6)$" | fn.#StringExpression
+	LogDeliveryConfigurations?: [...#LogDeliveryConfigurationRequest] | fn.#ListExpression
+	NetworkType?:               =~"(?i)^(?:dual_stack|ipv4|ipv6)$" | fn.#StringExpression
+	NotificationTopicArn?:      string | fn.#StringExpression
 	NumCacheNodes!: int |
 		{
 			string &
@@ -79,7 +78,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	SnapshotWindow?:           string | fn.#StringExpression
-	Tags?:                     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                     [...#Tag] | fn.#ListExpression
 	TransitEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VpcSecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -88,39 +87,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsDestinationDetails": close(
-	{LogGroup!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#CloudWatchLogsDestinationDetails: close({LogGroup!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DestinationDetails": close({
-	CloudWatchLogsDetails?: _#defs."/$defs/Properties/definitions/CloudWatchLogsDestinationDetails" |
-		fn.#ObjectExpression
-	KinesisFirehoseDetails?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestinationDetails" |
-		fn.#ObjectExpression
+#DestinationDetails: close({
+	CloudWatchLogsDetails?:  #CloudWatchLogsDestinationDetails | fn.#ObjectExpression
+	KinesisFirehoseDetails?: #KinesisFirehoseDestinationDetails | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	Address?: string | fn.#StringExpression
 	Port?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseDestinationDetails": close(
-	{DeliveryStream!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#KinesisFirehoseDestinationDetails: close({DeliveryStream!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogDeliveryConfigurationRequest": close({
-	DestinationDetails!: _#defs."/$defs/Properties/definitions/DestinationDetails" | fn.#ObjectExpression
+#LogDeliveryConfigurationRequest: close({
+	DestinationDetails!: #DestinationDetails | fn.#ObjectExpression
 	DestinationType!:    =~"(?i)^(?:cloudwatch-logs|kinesis-firehose)$" | fn.#StringExpression
 	LogFormat!:          =~"(?i)^(?:json|text)$" | fn.#StringExpression
 	LogType!:            =~"(?i)^(?:engine-log|slow-log)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

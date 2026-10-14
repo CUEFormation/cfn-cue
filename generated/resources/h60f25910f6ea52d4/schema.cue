@@ -67,7 +67,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	IsMtlsEnabledVmCluster?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LicenseModel?:           "BRING_YOUR_OWN_LICENSE" | "LICENSE_INCLUDED" | fn.#StringExpression
-	MaintenanceWindow?:      _#defs."/$defs/Properties/definitions/MaintenanceWindow" | fn.#ObjectExpression
+	MaintenanceWindow?:      #MaintenanceWindow | fn.#ObjectExpression
 	MemoryPerOracleComputeUnitInGBs?: int |
 		{
 			string &
@@ -118,7 +118,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?:     [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:     [...#Tag] | fn.#ListExpression
 	TimeZone?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	TotalContainerDatabases?: int |
 		{
@@ -136,7 +136,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IamRole": close({
+#IamRole: close({
 	AwsIntegration?: string | fn.#StringExpression
 	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
@@ -144,7 +144,7 @@ _#defs: "/$defs/Properties/definitions/IamRole": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
+#MaintenanceWindow: close({
 	DaysOfWeek?: [
 		..."MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY" | fn.#StringExpression
 	] |
@@ -221,7 +221,7 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

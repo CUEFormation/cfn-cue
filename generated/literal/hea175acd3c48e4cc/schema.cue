@@ -12,49 +12,45 @@ import (
 
 // Definition of AWS::QBusiness::Index Resource Type
 #Properties: close({
-	ApplicationId!:         strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
-	CapacityConfiguration?: _#defs."/$defs/Properties/definitions/IndexCapacityConfiguration"
-	CreatedAt?:             time.Time
-	Description?:           strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
-	DisplayName!:           strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
-	DocumentAttributeConfigurations?: list.MaxItems(500) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DocumentAttributeConfiguration"
-	]
-	IndexArn?:        strings.MaxRunes(1284) & strings.MinRunes(0)
-	IndexId?:         strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
-	IndexStatistics?: _#defs."/$defs/Properties/definitions/IndexStatistics"
-	Status?:          _#defs."/$defs/Properties/definitions/IndexStatus"
-	Tags?:            list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Type?:            _#defs."/$defs/Properties/definitions/IndexType"
-	UpdatedAt?:       time.Time
+	ApplicationId!:                   strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
+	CapacityConfiguration?:           #IndexCapacityConfiguration
+	CreatedAt?:                       time.Time
+	Description?:                     strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
+	DisplayName!:                     strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
+	DocumentAttributeConfigurations?: list.MaxItems(500) & list.MinItems(1) & [...#DocumentAttributeConfiguration]
+	IndexArn?:                        strings.MaxRunes(1284) & strings.MinRunes(0)
+	IndexId?:                         strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
+	IndexStatistics?:                 #IndexStatistics
+	Status?:                          #IndexStatus
+	Tags?:                            list.MaxItems(200) & [...] & [...#Tag]
+	Type?:                            #IndexType
+	UpdatedAt?:                       time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeType": "STRING" | "STRING_LIST" | "NUMBER" | "DATE"
+#AttributeType: "STRING" | "STRING_LIST" | "NUMBER" | "DATE"
 
-_#defs: "/$defs/Properties/definitions/DocumentAttributeConfiguration": close({
+#DocumentAttributeConfiguration: close({
 	Name?:   strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$"
-	Search?: _#defs."/$defs/Properties/definitions/Status"
-	Type?:   _#defs."/$defs/Properties/definitions/AttributeType"
+	Search?: #Status
+	Type?:   #AttributeType
 })
 
-_#defs: "/$defs/Properties/definitions/IndexCapacityConfiguration": close({Units?: >=1})
+#IndexCapacityConfiguration: close({Units?: >=1})
 
-_#defs: "/$defs/Properties/definitions/IndexStatistics": close(
-	{TextDocumentStatistics?: _#defs."/$defs/Properties/definitions/TextDocumentStatistics"},
-)
+#IndexStatistics: close({TextDocumentStatistics?: #TextDocumentStatistics})
 
-_#defs: "/$defs/Properties/definitions/IndexStatus": "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "UPDATING"
+#IndexStatus: "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "UPDATING"
 
-_#defs: "/$defs/Properties/definitions/IndexType": "ENTERPRISE" | "STARTER"
+#IndexType: "ENTERPRISE" | "STARTER"
 
-_#defs: "/$defs/Properties/definitions/Status": "ENABLED" | "DISABLED"
+#Status: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TextDocumentStatistics": close({
+#TextDocumentStatistics: close({
 	IndexedTextBytes?:         >=0
 	IndexedTextDocumentCount?: >=0
 })

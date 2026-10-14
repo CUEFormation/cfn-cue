@@ -44,25 +44,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	RequestMappingTemplateS3Location?:  string | fn.#StringExpression
 	ResponseMappingTemplate?:           strings.MaxRunes(65536) & strings.MinRunes(0) | fn.#StringExpression
 	ResponseMappingTemplateS3Location?: string | fn.#StringExpression
-	Runtime?:                           _#defs."/$defs/Properties/definitions/AppSyncRuntime" | fn.#ObjectExpression
-	SyncConfig?:                        _#defs."/$defs/Properties/definitions/SyncConfig" | fn.#ObjectExpression
+	Runtime?:                           #AppSyncRuntime | fn.#ObjectExpression
+	SyncConfig?:                        #SyncConfig | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AppSyncRuntime": close({
+#AppSyncRuntime: close({
 	Name!:           "APPSYNC_JS" | fn.#StringExpression
 	RuntimeVersion!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaConflictHandlerConfig": close(
-	{LambdaConflictHandlerArn?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#LambdaConflictHandlerConfig: close({LambdaConflictHandlerArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SyncConfig": close({
+#SyncConfig: close({
 	ConflictDetection!:           "NONE" | "VERSION" | fn.#StringExpression
 	ConflictHandler?:             "AUTOMERGE" | "LAMBDA" | "NONE" | "OPTIMISTIC_CONCURRENCY" | fn.#StringExpression
-	LambdaConflictHandlerConfig?: _#defs."/$defs/Properties/definitions/LambdaConflictHandlerConfig"
+	LambdaConflictHandlerConfig?: #LambdaConflictHandlerConfig
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

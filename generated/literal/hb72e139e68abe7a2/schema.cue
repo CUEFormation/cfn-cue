@@ -22,9 +22,7 @@ import (
 	strings.MinRunes(36) &
 	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 	Parameters!: close({
-		BudgetParameters?: list.MaxItems(2) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/BudgetParameter"
-		]
+		BudgetParameters?:   list.MaxItems(2) & list.MinItems(1) & [...#BudgetParameter]
 		Epsilon?:            int & <=20 & >=1
 		ResourceArn?:        strings.MaxRunes(200)
 		UsersNoisePerQuery?: int & <=100 & >=10
@@ -35,16 +33,16 @@ import (
 	PrivacyBudgetType!: "DIFFERENTIAL_PRIVACY" | "ACCESS_BUDGET"
 
 	// An arbitrary set of tags (key-value pairs) for this cleanrooms privacy budget template.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/BudgetParameter": close({
+#BudgetParameter: close({
 	AutoRefresh?: "ENABLED" | "DISABLED"
 	Budget!:      int & >=0
 	Type!:        "CALENDAR_DAY" | "CALENDAR_MONTH" | "CALENDAR_WEEK" | "LIFETIME"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

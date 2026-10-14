@@ -6,20 +6,20 @@ package schema
 
 // Resource Type definition for AWS::Pinpoint::PushTemplate
 #Properties: close({
-	ADM?:                  _#defs."/$defs/Properties/definitions/AndroidPushNotificationTemplate"
-	APNS?:                 _#defs."/$defs/Properties/definitions/APNSPushNotificationTemplate"
+	ADM?:                  #AndroidPushNotificationTemplate
+	APNS?:                 #APNSPushNotificationTemplate
 	Arn?:                  string
-	Baidu?:                _#defs."/$defs/Properties/definitions/AndroidPushNotificationTemplate"
-	Default?:              _#defs."/$defs/Properties/definitions/DefaultPushNotificationTemplate"
+	Baidu?:                #AndroidPushNotificationTemplate
+	Default?:              #DefaultPushNotificationTemplate
 	DefaultSubstitutions?: string
-	GCM?:                  _#defs."/$defs/Properties/definitions/AndroidPushNotificationTemplate"
+	GCM?:                  #AndroidPushNotificationTemplate
 	Id?:                   string
 	Tags?:                 string | {...}
 	TemplateDescription?:  string
 	TemplateName!:         string
 })
 
-_#defs: "/$defs/Properties/definitions/APNSPushNotificationTemplate": close({
+#APNSPushNotificationTemplate: close({
 	Action?:   string
 	Body?:     string
 	MediaUrl?: string
@@ -28,7 +28,7 @@ _#defs: "/$defs/Properties/definitions/APNSPushNotificationTemplate": close({
 	Url?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/AndroidPushNotificationTemplate": close({
+#AndroidPushNotificationTemplate: close({
 	Action?:            string
 	Body?:              string
 	ImageIconUrl?:      string
@@ -39,7 +39,7 @@ _#defs: "/$defs/Properties/definitions/AndroidPushNotificationTemplate": close({
 	Url?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/DefaultPushNotificationTemplate": close({
+#DefaultPushNotificationTemplate: close({
 	Action?: string
 	Body?:   string
 	Sound?:  string

@@ -3,21 +3,19 @@
 package schema
 
 import (
+	"strings"
 	"list"
 	"time"
-	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Grafana::Workspace Resource Type
 #Properties: close({
-	AccountAccessType!: _#defs."/$defs/Properties/definitions/AccountAccessType"
+	AccountAccessType!: #AccountAccessType
 
 	// List of authentication providers to enable.
-	AuthenticationProviders!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AuthenticationProviderTypes"
-	]
+	AuthenticationProviders!: list.MinItems(1) & list.UniqueItems() & [...#AuthenticationProviderTypes]
 
 	// A unique, case-sensitive, user-provided identifier to ensure the idempotency of the request.
 	ClientToken?: =~"^[!-~]{1,64}$"
@@ -26,7 +24,7 @@ import (
 	CreationTimestamp?: time.Time
 
 	// List of data sources on the service managed IAM role.
-	DataSources?: [..._#defs."/$defs/Properties/definitions/DataSourceType"]
+	DataSources?: [...#DataSourceType]
 
 	// Description of a workspace.
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(0)
@@ -45,11 +43,11 @@ import (
 
 	// The user friendly name of a workspace.
 	Name?:                 =~"^[a-zA-Z0-9-._~]{1,255}$"
-	NetworkAccessControl?: _#defs."/$defs/Properties/definitions/NetworkAccessControl"
+	NetworkAccessControl?: #NetworkAccessControl
 
 	// List of notification destinations on the customers service managed IAM role
 	// that the Grafana workspace can query.
-	NotificationDestinations?: [..._#defs."/$defs/Properties/definitions/NotificationDestinationType"]
+	NotificationDestinations?: [...#NotificationDestinationType]
 
 	// The name of an IAM role that already exists to use with AWS Organizations to
 	// access AWS data sources and notification channels in other accounts in an
@@ -58,15 +56,15 @@ import (
 
 	// List of Organizational Units containing AWS accounts the Grafana workspace can pull data from.
 	OrganizationalUnits?: [...string]
-	PermissionType!:      _#defs."/$defs/Properties/definitions/PermissionType"
+	PermissionType!:      #PermissionType
 
 	// Allow workspace admins to install plugins
 	PluginAdminEnabled?: bool
 
 	// IAM Role that will be used to grant the Grafana workspace access to a customers AWS resources.
 	RoleArn?:                 =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
-	SamlConfiguration?:       _#defs."/$defs/Properties/definitions/SamlConfiguration"
-	SamlConfigurationStatus?: _#defs."/$defs/Properties/definitions/SamlConfigurationStatus"
+	SamlConfiguration?:       #SamlConfiguration
+	SamlConfigurationStatus?: #SamlConfigurationStatus
 
 	// The client ID of the AWS SSO Managed Application.
 	SsoClientId?: string
@@ -74,14 +72,14 @@ import (
 	// The name of the AWS CloudFormation stack set to use to generate IAM roles to
 	// be used for this workspace.
 	StackSetName?: string
-	Status?:       _#defs."/$defs/Properties/definitions/WorkspaceStatus"
+	Status?:       #WorkspaceStatus
 
 	// The list of tags associated with the workspace.
 	Tags?: [...close({
 		Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 		Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 	})]
-	VpcConfiguration?: _#defs."/$defs/Properties/definitions/VpcConfiguration"
+	VpcConfiguration?: #VpcConfiguration
 })
 
 // These enums represent valid account access types. Specifically these enums
@@ -90,10 +88,10 @@ import (
 // organization. If the value CURRENT_ACCOUNT is used, a workspace role ARN
 // must be provided. If the value is ORGANIZATION, a list of organizational
 // units must be provided.
-_#defs: "/$defs/Properties/definitions/AccountAccessType": "CURRENT_ACCOUNT" | "ORGANIZATION"
+#AccountAccessType: "CURRENT_ACCOUNT" | "ORGANIZATION"
 
 // Maps Grafana friendly names to the IdPs SAML attributes.
-_#defs: "/$defs/Properties/definitions/AssertionAttributes": close({
+#AssertionAttributes: close({
 	// Name of the attribute within the SAML assert to use as the users email in Grafana.
 	Email?: strings.MaxRunes(256) & strings.MinRunes(1)
 
@@ -114,13 +112,13 @@ _#defs: "/$defs/Properties/definitions/AssertionAttributes": close({
 })
 
 // Valid workspace authentication providers.
-_#defs: "/$defs/Properties/definitions/AuthenticationProviderTypes": "AWS_SSO" | "SAML"
+#AuthenticationProviderTypes: "AWS_SSO" | "SAML"
 
 // These enums represent valid AWS data sources that can be queried via the
 // Grafana workspace. These data sources are primarily used to help customers
 // visualize which data sources have been added to a service managed workspace
 // IAM role.
-_#defs: "/$defs/Properties/definitions/DataSourceType": "AMAZON_OPENSEARCH_SERVICE" |
+#DataSourceType: "AMAZON_OPENSEARCH_SERVICE" |
 	"CLOUDWATCH" |
 	"PROMETHEUS" |
 	"XRAY" |
@@ -130,7 +128,7 @@ _#defs: "/$defs/Properties/definitions/DataSourceType": "AMAZON_OPENSEARCH_SERVI
 	"REDSHIFT"
 
 // IdP Metadata used to configure SAML authentication in Grafana.
-_#defs: "/$defs/Properties/definitions/IdpMetadata": close({
+#IdpMetadata: close({
 	// URL that vends the IdPs metadata.
 	Url?: strings.MaxRunes(2048) & strings.MinRunes(1)
 
@@ -139,7 +137,7 @@ _#defs: "/$defs/Properties/definitions/IdpMetadata": close({
 })
 
 // The configuration settings for Network Access Control.
-_#defs: "/$defs/Properties/definitions/NetworkAccessControl": close({
+#NetworkAccessControl: close({
 	// The list of prefix list IDs. A prefix list is a list of CIDR ranges of IP
 	// addresses. The IP addresses specified are allowed to access your workspace.
 	// If the list is not included in the configuration then no IP addresses will
@@ -156,7 +154,7 @@ _#defs: "/$defs/Properties/definitions/NetworkAccessControl": close({
 // workspace has permission to use. These notification destinations are
 // primarily used to help customers visualize which destinations have been
 // added to a service managed IAM role.
-_#defs: "/$defs/Properties/definitions/NotificationDestinationType": "SNS"
+#NotificationDestinationType: "SNS"
 
 // These enums represent valid permission types to use when creating or
 // configuring a Grafana workspace. The SERVICE_MANAGED permission type means
@@ -164,10 +162,10 @@ _#defs: "/$defs/Properties/definitions/NotificationDestinationType": "SNS"
 // The CUSTOMER_MANAGED permission type means that the customer is expected to
 // provide an IAM role that the Grafana workspace can use to query data
 // sources.
-_#defs: "/$defs/Properties/definitions/PermissionType": "CUSTOMER_MANAGED" | "SERVICE_MANAGED"
+#PermissionType: "CUSTOMER_MANAGED" | "SERVICE_MANAGED"
 
 // Maps SAML roles to the Grafana Editor and Admin roles.
-_#defs: "/$defs/Properties/definitions/RoleValues": close({
+#RoleValues: close({
 	// List of SAML roles which will be mapped into the Grafana Admin role.
 	Admin?: [...strings.MaxRunes(256) & strings.MinRunes(1)]
 
@@ -176,24 +174,24 @@ _#defs: "/$defs/Properties/definitions/RoleValues": close({
 })
 
 // SAML configuration data associated with an AMG workspace.
-_#defs: "/$defs/Properties/definitions/SamlConfiguration": close({
+#SamlConfiguration: close({
 	// List of SAML organizations allowed to access Grafana.
 	AllowedOrganizations?: [...strings.MaxRunes(256) & strings.MinRunes(1)]
-	AssertionAttributes?:  _#defs."/$defs/Properties/definitions/AssertionAttributes"
-	IdpMetadata!:          _#defs."/$defs/Properties/definitions/IdpMetadata"
+	AssertionAttributes?:  #AssertionAttributes
+	IdpMetadata!:          #IdpMetadata
 
 	// The maximum lifetime an authenticated user can be logged in (in minutes)
 	// before being required to re-authenticate.
 	LoginValidityDuration?: number
-	RoleValues?:            _#defs."/$defs/Properties/definitions/RoleValues"
+	RoleValues?:            #RoleValues
 })
 
 // Valid SAML configuration statuses.
-_#defs: "/$defs/Properties/definitions/SamlConfigurationStatus": "CONFIGURED" | "NOT_CONFIGURED"
+#SamlConfigurationStatus: "CONFIGURED" | "NOT_CONFIGURED"
 
 // The configuration settings for an Amazon VPC that contains data sources for
 // your Grafana workspace to connect to.
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
+#VpcConfiguration: close({
 	// The list of Amazon EC2 security group IDs attached to the Amazon VPC for your
 	// Grafana workspace to connect.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
@@ -208,7 +206,7 @@ _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 })
 
 // These enums represent the status of a workspace.
-_#defs: "/$defs/Properties/definitions/WorkspaceStatus": "ACTIVE" |
+#WorkspaceStatus: "ACTIVE" |
 	"CREATING" |
 	"DELETING" |
 	"FAILED" |

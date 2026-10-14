@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -63,32 +63,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	LaunchTemplate?:   _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification" | fn.#ObjectExpression
-	NodeRepairConfig?: _#defs."/$defs/Properties/definitions/NodeRepairConfig" | fn.#ObjectExpression
+	LaunchTemplate?:   #LaunchTemplateSpecification | fn.#ObjectExpression
+	NodeRepairConfig?: #NodeRepairConfig | fn.#ObjectExpression
 	NodeRole!:         string | fn.#StringExpression
 	NodegroupName?:    strings.MinRunes(1) | fn.#StringExpression
 	ReleaseVersion?:   string | fn.#StringExpression
-	RemoteAccess?:     _#defs."/$defs/Properties/definitions/RemoteAccess" | fn.#ObjectExpression
-	ScalingConfig?:    _#defs."/$defs/Properties/definitions/ScalingConfig" | fn.#ObjectExpression
+	RemoteAccess?:     #RemoteAccess | fn.#ObjectExpression
+	ScalingConfig?:    #ScalingConfig | fn.#ObjectExpression
 	Subnets!:          [...string | fn.#StringExpression] | fn.#ListExpression
 	Tags?: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Taints?:         [..._#defs."/$defs/Properties/definitions/Taint"] | fn.#ListExpression
-	UpdateConfig?:   _#defs."/$defs/Properties/definitions/UpdateConfig" | fn.#ObjectExpression
+	Taints?:         [...#Taint] | fn.#ListExpression
+	UpdateConfig?:   #UpdateConfig | fn.#ObjectExpression
 	Version?:        string | fn.#StringExpression
-	WarmPoolConfig?: _#defs."/$defs/Properties/definitions/WarmPoolConfig" | fn.#ObjectExpression
+	WarmPoolConfig?: #WarmPoolConfig | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": close({
+#LaunchTemplateSpecification: close({
 	Id?:      strings.MinRunes(1) | fn.#StringExpression
 	Name?:    strings.MinRunes(1) | fn.#StringExpression
 	Version?: strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeRepairConfig": close({
+#NodeRepairConfig: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxParallelNodesRepairedCount?: int & >=1 |
 		{
@@ -152,12 +152,11 @@ _#defs: "/$defs/Properties/definitions/NodeRepairConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	NodeRepairConfigOverrides?: [..._#defs."/$defs/Properties/definitions/NodeRepairConfigOverrides"] |
-		fn.#ListExpression
+	NodeRepairConfigOverrides?: [...#NodeRepairConfigOverrides] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeRepairConfigOverrides": close({
+#NodeRepairConfigOverrides: close({
 	MinRepairWaitTimeMins?: int & >=1 |
 		{
 			string &
@@ -179,13 +178,13 @@ _#defs: "/$defs/Properties/definitions/NodeRepairConfigOverrides": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RemoteAccess": close({
+#RemoteAccess: close({
 	Ec2SshKey!:            string | fn.#StringExpression
 	SourceSecurityGroups?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingConfig": close({
+#ScalingConfig: close({
 	DesiredSize?: int & >=0 |
 		{
 			string &
@@ -234,14 +233,14 @@ _#defs: "/$defs/Properties/definitions/ScalingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Taint": close({
+#Taint: close({
 	Effect?: ("NO_EXECUTE" | "NO_SCHEDULE" | "PREFER_NO_SCHEDULE") & strings.MinRunes(1) | fn.#StringExpression
 	Key?:    strings.MaxRunes(317) & strings.MinRunes(1) | fn.#StringExpression
 	Value?:  strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateConfig": close({
+#UpdateConfig: close({
 	MaxUnavailable?: >=1 |
 		{
 			string &
@@ -285,7 +284,7 @@ _#defs: "/$defs/Properties/definitions/UpdateConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WarmPoolConfig": close({
+#WarmPoolConfig: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxGroupPreparedCapacity?: int & >=-1 |
 		{

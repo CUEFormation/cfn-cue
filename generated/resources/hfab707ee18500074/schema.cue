@@ -19,33 +19,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for StateMachine
 #Properties: close({
-	Definition?:              _#defs."/$defs/Properties/definitions/Definition"
-	DefinitionS3Location?:    _#defs."/$defs/Properties/definitions/S3Location"
+	Definition?:              #Definition
+	DefinitionS3Location?:    #S3Location
 	DefinitionString?:        strings.MaxRunes(1048576) & strings.MinRunes(1) | fn.#StringExpression
-	DefinitionSubstitutions?: _#defs."/$defs/Properties/definitions/DefinitionSubstitutions"
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	LoggingConfiguration?:    _#defs."/$defs/Properties/definitions/LoggingConfiguration"
+	DefinitionSubstitutions?: #DefinitionSubstitutions
+	EncryptionConfiguration?: #EncryptionConfiguration
+	LoggingConfiguration?:    #LoggingConfiguration
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
 	fn.#StringExpression
 	StateMachineName?:     strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
 	StateMachineType?:     "STANDARD" | "EXPRESS" | fn.#StringExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/TagsEntry"] | fn.#ListExpression
-	TracingConfiguration?: _#defs."/$defs/Properties/definitions/TracingConfiguration"
+	Tags?:                 [...#TagsEntry] | fn.#ListExpression
+	TracingConfiguration?: #TracingConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsLogGroup": close(
-	{LogGroupArn?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#CloudWatchLogsLogGroup: close({LogGroupArn?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Definition": fn.#Object & {...} & struct.MinFields(1) | fn.#ObjectExpression
+#Definition: fn.#Object & {...} & struct.MinFields(1) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefinitionSubstitutions": struct.MinFields(1) & close({
+#DefinitionSubstitutions: struct.MinFields(1) & close({
 
 	{[=~".*"]: string | int | bool | fn.#ValueExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	KmsDataKeyReusePeriodSeconds?: int & <=900 & >=60 |
 		{
 			string &
@@ -69,32 +67,29 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogDestination": close(
-	{CloudWatchLogsLogGroup?: _#defs."/$defs/Properties/definitions/CloudWatchLogsLogGroup"},
-) |
-	fn.#ObjectExpression
+#LogDestination: close({CloudWatchLogsLogGroup?: #CloudWatchLogsLogGroup}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close({
-	Destinations?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogDestination"] | fn.#ListExpression
+#LoggingConfiguration: close({
+	Destinations?:         list.MinItems(1) & [...#LogDestination] | fn.#ListExpression
 	IncludeExecutionData?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Level?:                "ALL" | "ERROR" | "FATAL" | "OFF" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!:  string | fn.#StringExpression
 	Key!:     string | fn.#StringExpression
 	Version?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagsEntry": close({
+#TagsEntry: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TracingConfiguration": close(
+#TracingConfiguration: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -19,18 +19,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:aws(|-cn|-us-gov|-eusc):kms:[a-z0-9-]{1,20}:[0-9]{12}:(key|alias)/.+$" |
 		fn.#StringExpression
-	Retention?: _#defs."/$defs/Properties/definitions/ArchiveRetention"
-	Tags?:      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Retention?: #ArchiveRetention
+	Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ArchiveRetention": close(
-	{RetentionPeriod!: _#defs."/$defs/Properties/definitions/RetentionPeriod"},
-) |
-	fn.#ValueExpression
+#ArchiveRetention: close({RetentionPeriod!: #RetentionPeriod}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/ArchiveState": "ACTIVE" | "PENDING_DELETION" | fn.#StringExpression
+#ArchiveState: "ACTIVE" | "PENDING_DELETION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RetentionPeriod": "THREE_MONTHS" |
+#RetentionPeriod: "THREE_MONTHS" |
 	"SIX_MONTHS" |
 	"NINE_MONTHS" |
 	"ONE_YEAR" |
@@ -48,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/RetentionPeriod": "THREE_MONTHS" |
 	"PERMANENT" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

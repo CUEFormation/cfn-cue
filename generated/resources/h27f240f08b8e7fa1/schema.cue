@@ -26,8 +26,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(7) &
 	=~"^(^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" |
 	fn.#StringExpression
-	PoolId?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	PoolId?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	TapeBarcode?: strings.MaxRunes(16) & strings.MinRunes(5) & =~"^[A-Z0-9]*$" | fn.#StringExpression
 	TapeSizeInBytes!: >=1 |
 		{
@@ -51,7 +51,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Worm?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

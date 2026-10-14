@@ -16,7 +16,7 @@ import (
 	AppVersion?: strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// A collection of settings that specify the maintenance schedule for the PartnerApp.
-	ApplicationConfig?: _#defs."/$defs/Properties/definitions/PartnerAppConfig"
+	ApplicationConfig?: #PartnerAppConfig
 
 	// The Amazon Resource Name (ARN) of the created PartnerApp.
 	Arn?: strings.MaxRunes(128) &
@@ -54,13 +54,13 @@ import (
 	=~".*"
 
 	// A collection of settings that specify the maintenance schedule for the PartnerApp.
-	MaintenanceConfig?: _#defs."/$defs/Properties/definitions/PartnerAppMaintenanceConfig"
+	MaintenanceConfig?: #PartnerAppMaintenanceConfig
 
 	// A name for the PartnerApp.
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+"
 
 	// A list of tags to apply to the PartnerApp.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The tier of the PartnerApp.
 	Tier!: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -70,28 +70,26 @@ import (
 })
 
 // A collection of AdminUsers for the PartnerApp
-_#defs: "/$defs/Properties/definitions/PartnerAppAdminUserList": strings.MaxRunes(256) & strings.MinRunes(1)
+#PartnerAppAdminUserList: strings.MaxRunes(256) & strings.MinRunes(1)
 
 // A collection of configuration settings for the PartnerApp.
-_#defs: "/$defs/Properties/definitions/PartnerAppConfig": close({
+#PartnerAppConfig: close({
 	// A list of users with administrator privileges for the PartnerApp.
-	AdminUsers?: list.MaxItems(5) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/PartnerAppAdminUserList"
-	]
+	AdminUsers?: list.MaxItems(5) & list.UniqueItems() & [...] & [...#PartnerAppAdminUserList]
 
 	// A list of arguments to pass to the PartnerApp.
 	Arguments?: struct.MaxFields(5) & {...}
 })
 
 // A collection of settings that specify the maintenance schedule for the PartnerApp.
-_#defs: "/$defs/Properties/definitions/PartnerAppMaintenanceConfig": close({
+#PartnerAppMaintenanceConfig: close({
 	// The maintenance window start day and time for the PartnerApp.
 	MaintenanceWindowStart!: strings.MaxRunes(9) &
 	strings.MinRunes(0) &
 	=~"(Mon|Tue|Wed|Thu|Fri|Sat|Sun):([01]\\d|2[0-3]):([0-5]\\d)"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

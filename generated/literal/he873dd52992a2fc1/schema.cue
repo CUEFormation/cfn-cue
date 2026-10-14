@@ -16,15 +16,15 @@ import (
 	Arn?: =~"arn:aws(-[\\w]+)*:codepipeline:[a-z0-9-]+:[0-9]{12}:.+"
 
 	// The S3 bucket where artifacts for the pipeline are stored.
-	ArtifactStore?: _#defs."/$defs/Properties/definitions/ArtifactStore"
+	ArtifactStore?: #ArtifactStore
 
 	// A mapping of artifactStore objects and their corresponding AWS Regions. There
 	// must be an artifact store for the pipeline Region and for each cross-region
 	// action in the pipeline.
-	ArtifactStores?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ArtifactStoreMap"]
+	ArtifactStores?: list.UniqueItems() & [...#ArtifactStoreMap]
 
 	// Represents the input of a DisableStageTransition action.
-	DisableInboundStageTransitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StageTransition"]
+	DisableInboundStageTransitions?: list.UniqueItems() & [...#StageTransition]
 
 	// The method that the pipeline will use to handle multiple executions. The
 	// default mode is SUPERSEDED.
@@ -47,18 +47,18 @@ import (
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*"
 
 	// Represents information about a stage and its definition.
-	Stages!: list.MinItems(2) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StageDeclaration"]
+	Stages!: list.MinItems(2) & list.UniqueItems() & [...#StageDeclaration]
 
 	// Specifies the tags applied to the pipeline.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The trigger configuration specifying a type of event, such as Git tags, that starts the pipeline.
-	Triggers?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PipelineTriggerDeclaration"]
+	Triggers?: list.UniqueItems() & [...#PipelineTriggerDeclaration]
 
 	// A list that defines the pipeline variables for a pipeline resource. Variable
 	// names can have alphanumeric and underscore characters, and the values must
 	// match [A-Za-z0-9@\-_]+.
-	Variables?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VariableDeclaration"]
+	Variables?: list.UniqueItems() & [...#VariableDeclaration]
 
 	// The version of the pipeline.
 	Version?: string
@@ -70,16 +70,16 @@ import (
 }) & matchN(>=1, [{ArtifactStore!: _}, {ArtifactStores!: _}])
 
 // Represents information about an action declaration.
-_#defs: "/$defs/Properties/definitions/ActionDeclaration": close({
-	ActionTypeId!: _#defs."/$defs/Properties/definitions/ActionTypeId"
+#ActionDeclaration: close({
+	ActionTypeId!: #ActionTypeId
 
 	// The shell commands to run with your compute action in CodePipeline.
 	Commands?:      [...string]
 	Configuration?: string | {...}
 
 	// The list of environment variables that are input to a compute based action.
-	EnvironmentVariables?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EnvironmentVariable"]
-	InputArtifacts?:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InputArtifact"]
+	EnvironmentVariables?: list.UniqueItems() & [...#EnvironmentVariable]
+	InputArtifacts?:       list.UniqueItems() & [...#InputArtifact]
 
 	// The action declaration's name.
 	Name!: =~"^[A-Za-z0-9.@\\-_]{1,100}$"
@@ -87,7 +87,7 @@ _#defs: "/$defs/Properties/definitions/ActionDeclaration": close({
 	// The variable namespace associated with the action. All variables produced as
 	// output by this action fall under this namespace.
 	Namespace?:       string
-	OutputArtifacts?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/OutputArtifact"]
+	OutputArtifacts?: list.UniqueItems() & [...#OutputArtifact]
 
 	// The list of variables that are to be exported from the compute action.
 	OutputVariables?: list.UniqueItems() & [...string]
@@ -109,7 +109,7 @@ _#defs: "/$defs/Properties/definitions/ActionDeclaration": close({
 })
 
 // Represents information about an action type.
-_#defs: "/$defs/Properties/definitions/ActionTypeId": close({
+#ActionTypeId: close({
 	// A category defines what kind of action can be taken in the stage, and
 	// constrains the provider type for the action. Valid categories are limited to
 	// one of the values below.
@@ -131,8 +131,8 @@ _#defs: "/$defs/Properties/definitions/ActionTypeId": close({
 })
 
 // The S3 bucket where artifacts for the pipeline are stored.
-_#defs: "/$defs/Properties/definitions/ArtifactStore": close({
-	EncryptionKey?: _#defs."/$defs/Properties/definitions/EncryptionKey"
+#ArtifactStore: close({
+	EncryptionKey?: #EncryptionKey
 
 	// The S3 bucket used for storing the artifacts for a pipeline. You can specify
 	// the name of an S3 bucket but not a folder in the bucket. A folder to contain
@@ -148,20 +148,18 @@ _#defs: "/$defs/Properties/definitions/ArtifactStore": close({
 // A mapping of artifactStore objects and their corresponding AWS Regions. There
 // must be an artifact store for the pipeline Region and for each cross-region
 // action in the pipeline.
-_#defs: "/$defs/Properties/definitions/ArtifactStoreMap": close({
-	ArtifactStore!: _#defs."/$defs/Properties/definitions/ArtifactStore"
+#ArtifactStoreMap: close({
+	ArtifactStore!: #ArtifactStore
 
 	// The action declaration's AWS Region, such as us-east-1.
 	Region!: string
 })
 
 // The configuration that specifies the rules to run before stage starts.
-_#defs: "/$defs/Properties/definitions/BeforeEntryConditions": close(
-	{Conditions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Condition"]},
-)
+#BeforeEntryConditions: close({Conditions?: list.UniqueItems() & [...#Condition]})
 
 // Reserved for future use.
-_#defs: "/$defs/Properties/definitions/BlockerDeclaration": close({
+#BlockerDeclaration: close({
 	// Reserved for future use.
 	Name!: string
 
@@ -170,15 +168,15 @@ _#defs: "/$defs/Properties/definitions/BlockerDeclaration": close({
 })
 
 // Represents information about condition.
-_#defs: "/$defs/Properties/definitions/Condition": close({
+#Condition: close({
 	// The specified result for when the failure conditions are met, such as rolling back the stage
 	Result?: string
-	Rules?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RuleDeclaration"]
+	Rules?:  list.UniqueItems() & [...#RuleDeclaration]
 })
 
 // Represents information about the key used to encrypt data in the artifact
 // store, such as an AWS Key Management Service (AWS KMS) key
-_#defs: "/$defs/Properties/definitions/EncryptionKey": close({
+#EncryptionKey: close({
 	// The ID used to identify the key. For an AWS KMS key, you can use the key ID,
 	// the key ARN, or the alias ARN.
 	Id!: string
@@ -189,7 +187,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionKey": close({
 })
 
 // Represents information about the environment variable of an action.
-_#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
+#EnvironmentVariable: close({
 	// The name of the environment variable.
 	Name!: string
 
@@ -201,8 +199,8 @@ _#defs: "/$defs/Properties/definitions/EnvironmentVariable": close({
 })
 
 // The configuration that specifies the result, such as rollback, to occur upon stage failure
-_#defs: "/$defs/Properties/definitions/FailureConditions": close({
-	Conditions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Condition"]
+#FailureConditions: close({
+	Conditions?: list.UniqueItems() & [...#Condition]
 
 	// The specified result for when the failure conditions are met, such as rolling back the stage
 	Result?: "ROLLBACK" | "RETRY"
@@ -216,7 +214,7 @@ _#defs: "/$defs/Properties/definitions/FailureConditions": close({
 })
 
 // The Git repository branches specified as filter criteria to start the pipeline.
-_#defs: "/$defs/Properties/definitions/GitBranchFilterCriteria": close({
+#GitBranchFilterCriteria: close({
 	// The list of patterns of Git branches that, when a commit is pushed, are to be
 	// excluded from starting the pipeline.
 	Excludes?: list.UniqueItems() & [...string]
@@ -227,13 +225,13 @@ _#defs: "/$defs/Properties/definitions/GitBranchFilterCriteria": close({
 })
 
 // A type of trigger configuration for Git-based source actions.
-_#defs: "/$defs/Properties/definitions/GitConfiguration": close({
+#GitConfiguration: close({
 	// The field where the repository event that will start the pipeline is specified as pull requests.
-	PullRequest?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GitPullRequestFilter"]
+	PullRequest?: list.UniqueItems() & [...#GitPullRequestFilter]
 
 	// The field where the repository event that will start the pipeline, such as
 	// pushing Git tags, is specified with details.
-	Push?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GitPushFilter"]
+	Push?: list.UniqueItems() & [...#GitPushFilter]
 
 	// The name of the pipeline source action where the trigger configuration, such
 	// as Git tags, is specified. The trigger configuration will start the pipeline
@@ -242,7 +240,7 @@ _#defs: "/$defs/Properties/definitions/GitConfiguration": close({
 })
 
 // The Git repository file paths specified as filter criteria to start the pipeline.
-_#defs: "/$defs/Properties/definitions/GitFilePathFilterCriteria": close({
+#GitFilePathFilterCriteria: close({
 	// The list of patterns of Git repository file paths that, when a commit is
 	// pushed, are to be excluded from starting the pipeline.
 	Excludes?: list.UniqueItems() & [...string]
@@ -254,27 +252,27 @@ _#defs: "/$defs/Properties/definitions/GitFilePathFilterCriteria": close({
 
 // The event criteria for the pull request trigger configuration, such as the
 // lists of branches or file paths to include and exclude.
-_#defs: "/$defs/Properties/definitions/GitPullRequestFilter": close({
-	Branches?: _#defs."/$defs/Properties/definitions/GitBranchFilterCriteria"
+#GitPullRequestFilter: close({
+	Branches?: #GitBranchFilterCriteria
 
 	// The field that specifies which pull request events to filter on (opened,
 	// updated, closed) for the trigger configuration.
 	Events?:    list.UniqueItems() & [...string]
-	FilePaths?: _#defs."/$defs/Properties/definitions/GitFilePathFilterCriteria"
+	FilePaths?: #GitFilePathFilterCriteria
 })
 
 // The event criteria that specify when a specified repository event will start
 // the pipeline for the specified trigger configuration, such as the lists of
 // Git tags to include and exclude.
-_#defs: "/$defs/Properties/definitions/GitPushFilter": close({
-	Branches?:  _#defs."/$defs/Properties/definitions/GitBranchFilterCriteria"
-	FilePaths?: _#defs."/$defs/Properties/definitions/GitFilePathFilterCriteria"
-	Tags?:      _#defs."/$defs/Properties/definitions/GitTagFilterCriteria"
+#GitPushFilter: close({
+	Branches?:  #GitBranchFilterCriteria
+	FilePaths?: #GitFilePathFilterCriteria
+	Tags?:      #GitTagFilterCriteria
 })
 
 // The Git tags specified as filter criteria for whether a Git tag repository
 // event will start the pipeline.
-_#defs: "/$defs/Properties/definitions/GitTagFilterCriteria": close({
+#GitTagFilterCriteria: close({
 	// The list of patterns of Git tags that, when pushed, are to be excluded from
 	// starting the pipeline.
 	Excludes?: list.UniqueItems() & [...string]
@@ -285,13 +283,13 @@ _#defs: "/$defs/Properties/definitions/GitTagFilterCriteria": close({
 })
 
 // Represents information about an artifact to be worked on, such as a test or build artifact.
-_#defs: "/$defs/Properties/definitions/InputArtifact": close({
+#InputArtifact: close({
 	// The name of the artifact to be worked on (for example, "My App").
 	Name!: string
 })
 
 // Represents information about the output of an action.
-_#defs: "/$defs/Properties/definitions/OutputArtifact": close({
+#OutputArtifact: close({
 	// The files that you want to associate with the output artifact that will be
 	// exported from the compute action.
 	Files?: list.UniqueItems() & [...string]
@@ -303,8 +301,8 @@ _#defs: "/$defs/Properties/definitions/OutputArtifact": close({
 // Represents information about the specified trigger configuration, such as the
 // filter criteria and the source stage for the action that contains the
 // trigger.
-_#defs: "/$defs/Properties/definitions/PipelineTriggerDeclaration": close({
-	GitConfiguration?: _#defs."/$defs/Properties/definitions/GitConfiguration"
+#PipelineTriggerDeclaration: close({
+	GitConfiguration?: #GitConfiguration
 
 	// The source provider for the event, such as connections configured for a
 	// repository with Git tags, for the specified trigger configuration.
@@ -312,13 +310,13 @@ _#defs: "/$defs/Properties/definitions/PipelineTriggerDeclaration": close({
 })
 
 // Represents information about condition.
-_#defs: "/$defs/Properties/definitions/RuleDeclaration": close({
+#RuleDeclaration: close({
 	// The shell commands to run with your compute action in CodePipeline.
 	Commands?: [...string]
 
 	// The rule's configuration. These are key-value pairs that specify input values for a rule.
 	Configuration?:  {...}
-	InputArtifacts?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InputArtifact"]
+	InputArtifacts?: list.UniqueItems() & [...#InputArtifact]
 
 	// The rule declaration's name.
 	Name?: string
@@ -329,11 +327,11 @@ _#defs: "/$defs/Properties/definitions/RuleDeclaration": close({
 	// The ARN of the IAM service role that performs the declared rule. This is
 	// assumed through the roleArn for the pipeline.
 	RoleArn?:    =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*"
-	RuleTypeId?: _#defs."/$defs/Properties/definitions/RuleTypeId"
+	RuleTypeId?: #RuleTypeId
 })
 
 // Represents information about a rule type.
-_#defs: "/$defs/Properties/definitions/RuleTypeId": close({
+#RuleTypeId: close({
 	// A category for the provider type for the rule.
 	Category?: string
 
@@ -348,26 +346,26 @@ _#defs: "/$defs/Properties/definitions/RuleTypeId": close({
 })
 
 // Represents information about a stage and its definition.
-_#defs: "/$defs/Properties/definitions/StageDeclaration": close({
-	Actions!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ActionDeclaration"]
+#StageDeclaration: close({
+	Actions!: list.MinItems(1) & list.UniqueItems() & [...#ActionDeclaration]
 
 	// The method to use before stage runs.
-	BeforeEntry?: _#defs."/$defs/Properties/definitions/BeforeEntryConditions"
-	Blockers?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BlockerDeclaration"]
+	BeforeEntry?: #BeforeEntryConditions
+	Blockers?:    list.UniqueItems() & [...#BlockerDeclaration]
 
 	// The name of the stage.
 	Name!: string
 
 	// The method to use when a stage has not completed successfully
-	OnFailure?: _#defs."/$defs/Properties/definitions/FailureConditions"
+	OnFailure?: #FailureConditions
 
 	// The method to use when a stage has completed successfully
-	OnSuccess?: _#defs."/$defs/Properties/definitions/SuccessConditions"
+	OnSuccess?: #SuccessConditions
 })
 
 // The name of the pipeline in which you want to disable the flow of artifacts
 // from one stage to another.
-_#defs: "/$defs/Properties/definitions/StageTransition": close({
+#StageTransition: close({
 	// The reason given to the user that a stage is disabled, such as waiting for
 	// manual approval or manual tests. This message is displayed in the pipeline
 	// console UI.
@@ -378,12 +376,10 @@ _#defs: "/$defs/Properties/definitions/StageTransition": close({
 })
 
 // The configuration that specifies the result, such as rollback, to occur upon stage failure
-_#defs: "/$defs/Properties/definitions/SuccessConditions": close(
-	{Conditions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Condition"]},
-)
+#SuccessConditions: close({Conditions?: list.UniqueItems() & [...#Condition]})
 
 // A tag is a key-value pair that is used to manage the resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -392,7 +388,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // A variable declared at the pipeline level.
-_#defs: "/$defs/Properties/definitions/VariableDeclaration": close({
+#VariableDeclaration: close({
 	// The value of a pipeline-level variable.
 	DefaultValue?: string
 

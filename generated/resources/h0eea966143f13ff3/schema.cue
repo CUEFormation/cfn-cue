@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -22,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // to mount your EFS file system on an EC2 or other AWS cloud compute resource.
 #Properties: close({
 	AvailabilityZoneName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	BackupPolicy?:         _#defs."/$defs/Properties/definitions/BackupPolicy" | fn.#ObjectExpression
+	BackupPolicy?:         #BackupPolicy | fn.#ObjectExpression
 	BypassPolicyLockoutSafetyCheck?: bool |
 		"true" |
 		"True" |
@@ -33,20 +33,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#BooleanExpression
 	Encrypted?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FileSystemPolicy?:     fn.#Object & {...} | string | fn.#StringObjectExpression
-	FileSystemProtection?: _#defs."/$defs/Properties/definitions/FileSystemProtection" | fn.#ObjectExpression
-	FileSystemTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ElasticFileSystemTag"] |
-		fn.#ListExpression
+	FileSystemProtection?: #FileSystemProtection | fn.#ObjectExpression
+	FileSystemTags?:       list.UniqueItems() & [...#ElasticFileSystemTag] | fn.#ListExpression
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+|(arn:aws[-a-z]*:kms:[a-z0-9-]+:\\d{12}:((key/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})|(key/mrk-[0-9a-f]{32})|(alias/[a-zA-Z0-9/_-]+))))$" |
 	fn.#StringExpression
-	LifecyclePolicies?: list.MaxItems(3) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/LifecyclePolicy"
-	] |
-		fn.#ListExpression
-	PerformanceMode?: "generalPurpose" | "maxIO" | fn.#StringExpression
+	LifecyclePolicies?: list.MaxItems(3) & list.UniqueItems() & [...] & [...#LifecyclePolicy] | fn.#ListExpression
+	PerformanceMode?:   "generalPurpose" | "maxIO" | fn.#StringExpression
 	ProvisionedThroughputInMibps?: >=1 |
 		{
 			string &
@@ -85,23 +81,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ThroughputMode?: "bursting" | "elastic" | "provisioned" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
+#Arn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BackupPolicy": close({Status!: "DISABLED" | "ENABLED" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#BackupPolicy: close({Status!: "DISABLED" | "ENABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ElasticFileSystemTag": close({
+#ElasticFileSystemTag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FileSystemProtection": close(
-	{ReplicationOverwriteProtection?: "DISABLED" | "ENABLED" | fn.#StringExpression},
-) |
+#FileSystemProtection: close({ReplicationOverwriteProtection?: "DISABLED" | "ENABLED" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecyclePolicy": close({
+#LifecyclePolicy: close({
 	TransitionToArchive?: "AFTER_14_DAYS" |
 		"AFTER_180_DAYS" |
 		"AFTER_1_DAY" |
@@ -126,15 +119,13 @@ _#defs: "/$defs/Properties/definitions/LifecyclePolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
-	Destinations?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ReplicationDestination"
-	] |
+#ReplicationConfiguration: close({
+	Destinations?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ReplicationDestination] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
+#ReplicationDestination: close({
 	AvailabilityZoneName?: string | fn.#StringExpression
 	FileSystemId?: =~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
 		fn.#StringExpression

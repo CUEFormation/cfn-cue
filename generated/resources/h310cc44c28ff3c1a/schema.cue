@@ -51,8 +51,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	RateLimit?: =~"^[0-9]+\\.?[0-9]*(Mbps|Gbps|Tbps)$" | fn.#StringExpression
-	Tags?: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	RateLimit?:            =~"^[0-9]+\\.?[0-9]*(Mbps|Gbps|Tbps)$" | fn.#StringExpression
+	Tags?:                 list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	VirtualInterfaceName!: =~"^[\\w \\-_,\\/]{1,100}$" | fn.#StringExpression
 	Vlan!: int & <=4095 & >=0 |
 		{
@@ -72,7 +72,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/BgpPeer": close({
+#BgpPeer: close({
 	AddressFamily!:   =~"^(ipv4)|(ipv6)$" | fn.#StringExpression
 	AmazonAddress?:   =~"^[0-9a-fA-F:.]+/[0-9]+$" | fn.#StringExpression
 	Asn!:             =~"^[1-9][0-9]*$" | fn.#StringExpression
@@ -82,7 +82,7 @@ _#defs: "/$defs/Properties/definitions/BgpPeer": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

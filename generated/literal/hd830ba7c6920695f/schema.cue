@@ -14,7 +14,7 @@ import (
 	// The Amazon Resource Name (ARN) of the IPAM scope.
 	Arn?:                            string
 	Description?:                    string
-	ExternalAuthorityConfiguration?: _#defs."/$defs/Properties/definitions/IpamScopeExternalAuthorityConfiguration"
+	ExternalAuthorityConfiguration?: #IpamScopeExternalAuthorityConfiguration
 
 	// The Amazon Resource Name (ARN) of the IPAM this scope is a part of.
 	IpamArn?: string
@@ -35,11 +35,11 @@ import (
 	PoolCount?: int
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // External service configuration to connect your AWS IPAM scope.
-_#defs: "/$defs/Properties/definitions/IpamScopeExternalAuthorityConfiguration": close({
+#IpamScopeExternalAuthorityConfiguration: close({
 	// Resource identifier of the scope in the external service connecting to your AWS IPAM scope.
 	ExternalResourceIdentifier!: string
 
@@ -48,7 +48,7 @@ _#defs: "/$defs/Properties/definitions/IpamScopeExternalAuthorityConfiguration":
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

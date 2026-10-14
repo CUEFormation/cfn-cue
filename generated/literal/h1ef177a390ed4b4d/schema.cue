@@ -16,7 +16,7 @@ import (
 
 	// The ARN of the AppInstanceBot.
 	AppInstanceBotArn?: strings.MaxRunes(1600) & strings.MinRunes(5)
-	Configuration!:     _#defs."/$defs/Properties/definitions/Configuration"
+	Configuration!:     #Configuration
 
 	// The time at which the AppInstanceBot was created, as an ISO 8601 timestamp.
 	CreatedTimestamp?: time.Time
@@ -33,16 +33,14 @@ import (
 	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{1000}0-\\x{10FF}FF]*$"
 
 	// The tags assigned to the AppInstanceBot.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // A structure that contains configuration data.
-_#defs: "/$defs/Properties/definitions/Configuration": close(
-	{Lex!: _#defs."/$defs/Properties/definitions/LexConfiguration"},
-)
+#Configuration: close({Lex!: #LexConfiguration})
 
 // Specifies the type of message that triggers a bot.
-_#defs: "/$defs/Properties/definitions/InvokedBy": close({
+#InvokedBy: close({
 	// Sets standard messages as the bot trigger.
 	StandardMessages!: "AUTO" | "ALL" | "MENTIONS" | "NONE"
 
@@ -51,8 +49,8 @@ _#defs: "/$defs/Properties/definitions/InvokedBy": close({
 })
 
 // The configuration for an Amazon Lex V2 bot.
-_#defs: "/$defs/Properties/definitions/LexConfiguration": close({
-	InvokedBy?: _#defs."/$defs/Properties/definitions/InvokedBy"
+#LexConfiguration: close({
+	InvokedBy?: #InvokedBy
 
 	// The ARN of the Amazon Lex V2 bot's alias.
 	LexBotAliasArn!: strings.MaxRunes(2048) &
@@ -71,7 +69,7 @@ _#defs: "/$defs/Properties/definitions/LexConfiguration": close({
 })
 
 // A tag object containing a key-value pair.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key in a tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

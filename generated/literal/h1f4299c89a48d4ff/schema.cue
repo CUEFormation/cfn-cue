@@ -12,17 +12,15 @@ import "list"
 	CapacityReservationFleetId?: string
 	EndDate?:                    string
 	InstanceMatchCriteria?:      "open"
-	InstanceTypeSpecifications?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/InstanceTypeSpecification"
-	]
-	NoRemoveEndDate?:     bool
-	RemoveEndDate?:       bool
-	TagSpecifications?:   [..._#defs."/$defs/Properties/definitions/TagSpecification"]
-	Tenancy?:             "default"
-	TotalTargetCapacity?: int & <=25000 & >=1
+	InstanceTypeSpecifications?: list.MaxItems(50) & list.UniqueItems() & [...#InstanceTypeSpecification]
+	NoRemoveEndDate?:            bool
+	RemoveEndDate?:              bool
+	TagSpecifications?:          [...#TagSpecification]
+	Tenancy?:                    "default"
+	TotalTargetCapacity?:        int & <=25000 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceTypeSpecification": close({
+#InstanceTypeSpecification: close({
 	AvailabilityZone?:   string
 	AvailabilityZoneId?: string
 	EbsOptimized?:       bool
@@ -49,12 +47,12 @@ _#defs: "/$defs/Properties/definitions/InstanceTypeSpecification": close({
 	Weight?:       <=99.999 & >=0.001
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TagSpecification": close({
+#TagSpecification: close({
 	ResourceType?: "application-status-check" |
 		"capacity-block" |
 		"capacity-manager-data-export" |
@@ -167,5 +165,5 @@ _#defs: "/$defs/Properties/definitions/TagSpecification": close({
 		"vpn-connection" |
 		"vpn-connection-device-type" |
 		"vpn-gateway"
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })

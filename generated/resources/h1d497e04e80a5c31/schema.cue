@@ -15,10 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApplicationName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" | fn.#StringExpression
 	ComputePlatform?: "ECS" | "Lambda" | "Server" | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

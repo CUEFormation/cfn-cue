@@ -17,17 +17,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	LocalGatewayId!: string | fn.#StringExpression
 	Mode?:           "coip" | "direct-vpc-routing" | fn.#StringExpression
-	Tags?:           _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	Tags?:           #Tags | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
+#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EC2::LocalGatewayRouteTable"
 	Properties!: #Properties

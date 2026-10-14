@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"time"
-	"list"
 	"struct"
 )
 
@@ -17,16 +17,16 @@ import (
 	strings.MinRunes(1) &
 	=~"^arn:aws([a-z]|\\-)*:([a-zA-Z0-9\\-]+):([a-z]|\\d|\\-)*:([0-9]{12})?:(.+)$"
 	CreationTime?: time.Time
-	CurrentState?: _#defs."/$defs/Properties/definitions/PipeState"
+	CurrentState?: #PipeState
 	Description?:  strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$"
-	DesiredState?: _#defs."/$defs/Properties/definitions/RequestedPipeState"
+	DesiredState?: #RequestedPipeState
 	Enrichment?: strings.MaxRunes(1600) &
 	strings.MinRunes(0) &
 	=~"^$|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)$"
-	EnrichmentParameters?: _#defs."/$defs/Properties/definitions/PipeEnrichmentParameters"
+	EnrichmentParameters?: #PipeEnrichmentParameters
 	KmsKeyIdentifier?:     strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-/:]*$"
 	LastModifiedTime?:     time.Time
-	LogConfiguration?:     _#defs."/$defs/Properties/definitions/PipeLogConfiguration"
+	LogConfiguration?:     #PipeLogConfiguration
 	Name?:                 strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$"
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(1600) &
@@ -35,19 +35,19 @@ import (
 	Source!: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^smk://(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9]):[0-9]{1,5}|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)$"
-	SourceParameters?: _#defs."/$defs/Properties/definitions/PipeSourceParameters"
+	SourceParameters?: #PipeSourceParameters
 	StateReason?:      strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$"
-	Tags?:             _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?:             #TagMap
 	Target!: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)$"
-	TargetParameters?: _#defs."/$defs/Properties/definitions/PipeTargetParameters"
+	TargetParameters?: #PipeTargetParameters
 })
 
-_#defs: "/$defs/Properties/definitions/AssignPublicIp": "ENABLED" | "DISABLED"
+#AssignPublicIp: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
-	AssignPublicIp?: _#defs."/$defs/Properties/definitions/AssignPublicIp"
+#AwsVpcConfiguration: close({
+	AssignPublicIp?: #AssignPublicIp
 	SecurityGroups?: list.MaxItems(5) & [...] & [
 		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^sg-[0-9a-zA-Z]*|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"
 	]
@@ -56,114 +56,114 @@ _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/BatchArrayProperties": close({Size?: int & <=10000 & >=2})
+#BatchArrayProperties: close({Size?: int & <=10000 & >=2})
 
-_#defs: "/$defs/Properties/definitions/BatchContainerOverrides": close({
+#BatchContainerOverrides: close({
 	Command?:              [...string]
-	Environment?:          [..._#defs."/$defs/Properties/definitions/BatchEnvironmentVariable"]
+	Environment?:          [...#BatchEnvironmentVariable]
 	InstanceType?:         string
-	ResourceRequirements?: [..._#defs."/$defs/Properties/definitions/BatchResourceRequirement"]
+	ResourceRequirements?: [...#BatchResourceRequirement]
 })
 
-_#defs: "/$defs/Properties/definitions/BatchEnvironmentVariable": close({
+#BatchEnvironmentVariable: close({
 	Name?:  string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/BatchJobDependency": close({
+#BatchJobDependency: close({
 	JobId?: string
-	Type?:  _#defs."/$defs/Properties/definitions/BatchJobDependencyType"
+	Type?:  #BatchJobDependencyType
 })
 
-_#defs: "/$defs/Properties/definitions/BatchJobDependencyType": "N_TO_N" | "SEQUENTIAL"
+#BatchJobDependencyType: "N_TO_N" | "SEQUENTIAL"
 
-_#defs: "/$defs/Properties/definitions/BatchParametersMap": close({
+#BatchParametersMap: close({
 
 	{[=~".+"]: string}})
 
-_#defs: "/$defs/Properties/definitions/BatchResourceRequirement": close({
-	Type!:  _#defs."/$defs/Properties/definitions/BatchResourceRequirementType"
+#BatchResourceRequirement: close({
+	Type!:  #BatchResourceRequirementType
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/BatchResourceRequirementType": "GPU" | "MEMORY" | "VCPU"
+#BatchResourceRequirementType: "GPU" | "MEMORY" | "VCPU"
 
-_#defs: "/$defs/Properties/definitions/BatchRetryStrategy": close({Attempts?: int & <=10 & >=1})
+#BatchRetryStrategy: close({Attempts?: int & <=10 & >=1})
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
+#CapacityProviderStrategyItem: close({
 	Base?:             int & <=100000 & >=0
 	CapacityProvider!: strings.MaxRunes(255) & strings.MinRunes(1)
 	Weight?:           int & <=1000 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/CloudwatchLogsLogDestination": close({
+#CloudwatchLogsLogDestination: close({
 	LogGroupArn?: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^(^arn:aws([a-z]|\\-)*:logs:([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}):(\\d{12}):log-group:.+)$"
 })
 
-_#defs: "/$defs/Properties/definitions/DeadLetterConfig": close({
+#DeadLetterConfig: close({
 	Arn?: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)$"
 })
 
-_#defs: "/$defs/Properties/definitions/DimensionMapping": close({
+#DimensionMapping: close({
 	DimensionName!:      strings.MaxRunes(256) & strings.MinRunes(1)
 	DimensionValue!:     strings.MaxRunes(2048) & strings.MinRunes(1)
-	DimensionValueType!: _#defs."/$defs/Properties/definitions/DimensionValueType"
+	DimensionValueType!: #DimensionValueType
 })
 
-_#defs: "/$defs/Properties/definitions/DimensionValueType": "VARCHAR"
+#DimensionValueType: "VARCHAR"
 
-_#defs: "/$defs/Properties/definitions/DynamoDBStreamStartPosition": "TRIM_HORIZON" | "LATEST"
+#DynamoDBStreamStartPosition: "TRIM_HORIZON" | "LATEST"
 
-_#defs: "/$defs/Properties/definitions/EcsContainerOverride": close({
+#EcsContainerOverride: close({
 	Command?:              [...string]
 	Cpu?:                  int
-	Environment?:          [..._#defs."/$defs/Properties/definitions/EcsEnvironmentVariable"]
-	EnvironmentFiles?:     [..._#defs."/$defs/Properties/definitions/EcsEnvironmentFile"]
+	Environment?:          [...#EcsEnvironmentVariable]
+	EnvironmentFiles?:     [...#EcsEnvironmentFile]
 	Memory?:               int
 	MemoryReservation?:    int
 	Name?:                 string
-	ResourceRequirements?: [..._#defs."/$defs/Properties/definitions/EcsResourceRequirement"]
+	ResourceRequirements?: [...#EcsResourceRequirement]
 })
 
-_#defs: "/$defs/Properties/definitions/EcsEnvironmentFile": close({
-	Type!:  _#defs."/$defs/Properties/definitions/EcsEnvironmentFileType"
+#EcsEnvironmentFile: close({
+	Type!:  #EcsEnvironmentFileType
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/EcsEnvironmentFileType": "s3"
+#EcsEnvironmentFileType: "s3"
 
-_#defs: "/$defs/Properties/definitions/EcsEnvironmentVariable": close({
+#EcsEnvironmentVariable: close({
 	Name?:  string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/EcsEphemeralStorage": close({SizeInGiB!: int & <=200 & >=21})
+#EcsEphemeralStorage: close({SizeInGiB!: int & <=200 & >=21})
 
-_#defs: "/$defs/Properties/definitions/EcsInferenceAcceleratorOverride": close({
+#EcsInferenceAcceleratorOverride: close({
 	DeviceName?: string
 	DeviceType?: string
 })
 
-_#defs: "/$defs/Properties/definitions/EcsResourceRequirement": close({
-	Type!:  _#defs."/$defs/Properties/definitions/EcsResourceRequirementType"
+#EcsResourceRequirement: close({
+	Type!:  #EcsResourceRequirementType
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/EcsResourceRequirementType": "GPU" | "InferenceAccelerator"
+#EcsResourceRequirementType: "GPU" | "InferenceAccelerator"
 
-_#defs: "/$defs/Properties/definitions/EcsTaskOverride": close({
-	ContainerOverrides?: [..._#defs."/$defs/Properties/definitions/EcsContainerOverride"]
+#EcsTaskOverride: close({
+	ContainerOverrides?: [...#EcsContainerOverride]
 	Cpu?:                string
-	EphemeralStorage?:   _#defs."/$defs/Properties/definitions/EcsEphemeralStorage"
+	EphemeralStorage?:   #EcsEphemeralStorage
 	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"
-	InferenceAcceleratorOverrides?: [..._#defs."/$defs/Properties/definitions/EcsInferenceAcceleratorOverride"]
+	InferenceAcceleratorOverrides?: [...#EcsInferenceAcceleratorOverride]
 	Memory?:                        string
 	TaskRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(1600) &
@@ -171,42 +171,40 @@ _#defs: "/$defs/Properties/definitions/EcsTaskOverride": close({
 	=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/EpochTimeUnit": "MILLISECONDS" | "SECONDS" | "MICROSECONDS" | "NANOSECONDS"
+#EpochTimeUnit: "MILLISECONDS" | "SECONDS" | "MICROSECONDS" | "NANOSECONDS"
 
-_#defs: "/$defs/Properties/definitions/Filter": close({Pattern?: strings.MaxRunes(4096) & strings.MinRunes(0)})
+#Filter: close({Pattern?: strings.MaxRunes(4096) & strings.MinRunes(0)})
 
-_#defs: "/$defs/Properties/definitions/FilterCriteria": close(
-	{Filters?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Filter"]},
-)
+#FilterCriteria: close({Filters?: list.MaxItems(5) & [...] & [...#Filter]})
 
-_#defs: "/$defs/Properties/definitions/FirehoseLogDestination": close({
+#FirehoseLogDestination: close({
 	DeliveryStreamArn?: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^(^arn:aws([a-z]|\\-)*:firehose:([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}):(\\d{12}):deliverystream/.+)$"
 })
 
-_#defs: "/$defs/Properties/definitions/HeaderParametersMap": close({
+#HeaderParametersMap: close({
 
 	{[=~"^[!#$%&'*+-.^_`|~0-9a-zA-Z]+|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"]: strings.MaxRunes(512) &
 	strings.MinRunes(0) &
 	=~"^[ \\t]*[\\x20-\\x7E]+([ \\t]+[\\x20-\\x7E]+)*[ \\t]*|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"}})
 
-_#defs: "/$defs/Properties/definitions/IncludeExecutionDataOption": "ALL"
+#IncludeExecutionDataOption: "ALL"
 
-_#defs: "/$defs/Properties/definitions/KinesisStreamStartPosition": "TRIM_HORIZON" | "LATEST" | "AT_TIMESTAMP"
+#KinesisStreamStartPosition: "TRIM_HORIZON" | "LATEST" | "AT_TIMESTAMP"
 
-_#defs: "/$defs/Properties/definitions/LaunchType": "EC2" | "FARGATE" | "EXTERNAL"
+#LaunchType: "EC2" | "FARGATE" | "EXTERNAL"
 
-_#defs: "/$defs/Properties/definitions/LogLevel": "OFF" | "ERROR" | "INFO" | "TRACE"
+#LogLevel: "OFF" | "ERROR" | "INFO" | "TRACE"
 
-_#defs: "/$defs/Properties/definitions/MQBrokerAccessCredentials": close({
+#MQBrokerAccessCredentials: close({
 	// Optional SecretManager ARN which stores the database credentials
 	BasicAuth!: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^(^arn:aws([a-z]|\\-)*:secretsmanager:([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}):(\\d{12}):secret:.+)$"
 })
 
-_#defs: "/$defs/Properties/definitions/MSKAccessCredentials": matchN(1, [close({
+#MSKAccessCredentials: matchN(1, [close({
 	// Optional SecretManager ARN which stores the database credentials
 	SaslScram512Auth!: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
@@ -218,107 +216,103 @@ _#defs: "/$defs/Properties/definitions/MSKAccessCredentials": matchN(1, [close({
 	=~"^(^arn:aws([a-z]|\\-)*:secretsmanager:([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}):(\\d{12}):secret:.+)$"
 })])
 
-_#defs: "/$defs/Properties/definitions/MSKStartPosition": "TRIM_HORIZON" | "LATEST"
+#MSKStartPosition: "TRIM_HORIZON" | "LATEST"
 
-_#defs: "/$defs/Properties/definitions/MeasureValueType": "DOUBLE" | "BIGINT" | "VARCHAR" | "BOOLEAN" | "TIMESTAMP"
+#MeasureValueType: "DOUBLE" | "BIGINT" | "VARCHAR" | "BOOLEAN" | "TIMESTAMP"
 
-_#defs: "/$defs/Properties/definitions/MultiMeasureAttributeMapping": close({
+#MultiMeasureAttributeMapping: close({
 	MeasureValue!:              strings.MaxRunes(2048) & strings.MinRunes(1)
-	MeasureValueType!:          _#defs."/$defs/Properties/definitions/MeasureValueType"
+	MeasureValueType!:          #MeasureValueType
 	MultiMeasureAttributeName!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/MultiMeasureMapping": close({
-	MultiMeasureAttributeMappings!: list.MaxItems(256) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MultiMeasureAttributeMapping"
-	]
-	MultiMeasureName!: strings.MaxRunes(256) & strings.MinRunes(1)
+#MultiMeasureMapping: close({
+	MultiMeasureAttributeMappings!: list.MaxItems(256) & list.MinItems(1) & [...#MultiMeasureAttributeMapping]
+	MultiMeasureName!:              strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close(
-	{AwsvpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration"},
-)
+#NetworkConfiguration: close({AwsvpcConfiguration?: #AwsVpcConfiguration})
 
-_#defs: "/$defs/Properties/definitions/OnPartialBatchItemFailureStreams": "AUTOMATIC_BISECT"
+#OnPartialBatchItemFailureStreams: "AUTOMATIC_BISECT"
 
-_#defs: "/$defs/Properties/definitions/PipeEnrichmentHttpParameters": close({
-	HeaderParameters?:      _#defs."/$defs/Properties/definitions/HeaderParametersMap"
+#PipeEnrichmentHttpParameters: close({
+	HeaderParameters?:      #HeaderParametersMap
 	PathParameterValues?:   [...string]
-	QueryStringParameters?: _#defs."/$defs/Properties/definitions/QueryStringParametersMap"
+	QueryStringParameters?: #QueryStringParametersMap
 })
 
-_#defs: "/$defs/Properties/definitions/PipeEnrichmentParameters": close({
-	HttpParameters?: _#defs."/$defs/Properties/definitions/PipeEnrichmentHttpParameters"
+#PipeEnrichmentParameters: close({
+	HttpParameters?: #PipeEnrichmentHttpParameters
 	InputTemplate?:  strings.MaxRunes(8192) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/PipeLogConfiguration": close({
-	CloudwatchLogsLogDestination?: _#defs."/$defs/Properties/definitions/CloudwatchLogsLogDestination"
-	FirehoseLogDestination?:       _#defs."/$defs/Properties/definitions/FirehoseLogDestination"
-	IncludeExecutionData?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/IncludeExecutionDataOption"]
-	Level?:                _#defs."/$defs/Properties/definitions/LogLevel"
-	S3LogDestination?:     _#defs."/$defs/Properties/definitions/S3LogDestination"
+#PipeLogConfiguration: close({
+	CloudwatchLogsLogDestination?: #CloudwatchLogsLogDestination
+	FirehoseLogDestination?:       #FirehoseLogDestination
+	IncludeExecutionData?:         list.UniqueItems() & [...#IncludeExecutionDataOption]
+	Level?:                        #LogLevel
+	S3LogDestination?:             #S3LogDestination
 })
 
-_#defs: "/$defs/Properties/definitions/PipeSourceActiveMQBrokerParameters": close({
+#PipeSourceActiveMQBrokerParameters: close({
 	BatchSize?:                      int & <=10000 & >=1
-	Credentials!:                    _#defs."/$defs/Properties/definitions/MQBrokerAccessCredentials"
+	Credentials!:                    #MQBrokerAccessCredentials
 	MaximumBatchingWindowInSeconds?: int & <=300 & >=0
 	QueueName!:                      strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\s\\S]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/PipeSourceDynamoDBStreamParameters": close({
+#PipeSourceDynamoDBStreamParameters: close({
 	BatchSize?:                      int & <=10000 & >=1
-	DeadLetterConfig?:               _#defs."/$defs/Properties/definitions/DeadLetterConfig"
+	DeadLetterConfig?:               #DeadLetterConfig
 	MaximumBatchingWindowInSeconds?: int & <=300 & >=0
 	MaximumRecordAgeInSeconds?:      int & <=604800 & >=-1
 	MaximumRetryAttempts?:           int & <=10000 & >=-1
-	OnPartialBatchItemFailure?:      _#defs."/$defs/Properties/definitions/OnPartialBatchItemFailureStreams"
+	OnPartialBatchItemFailure?:      #OnPartialBatchItemFailureStreams
 	ParallelizationFactor?:          int & <=10 & >=1
-	StartingPosition!:               _#defs."/$defs/Properties/definitions/DynamoDBStreamStartPosition"
+	StartingPosition!:               #DynamoDBStreamStartPosition
 })
 
-_#defs: "/$defs/Properties/definitions/PipeSourceKinesisStreamParameters": close({
+#PipeSourceKinesisStreamParameters: close({
 	BatchSize?:                      int & <=10000 & >=1
-	DeadLetterConfig?:               _#defs."/$defs/Properties/definitions/DeadLetterConfig"
+	DeadLetterConfig?:               #DeadLetterConfig
 	MaximumBatchingWindowInSeconds?: int & <=300 & >=0
 	MaximumRecordAgeInSeconds?:      int & <=604800 & >=-1
 	MaximumRetryAttempts?:           int & <=10000 & >=-1
-	OnPartialBatchItemFailure?:      _#defs."/$defs/Properties/definitions/OnPartialBatchItemFailureStreams"
+	OnPartialBatchItemFailure?:      #OnPartialBatchItemFailureStreams
 	ParallelizationFactor?:          int & <=10 & >=1
-	StartingPosition!:               _#defs."/$defs/Properties/definitions/KinesisStreamStartPosition"
+	StartingPosition!:               #KinesisStreamStartPosition
 	StartingPositionTimestamp?:      time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/PipeSourceManagedStreamingKafkaParameters": close({
+#PipeSourceManagedStreamingKafkaParameters: close({
 	BatchSize?:                      int & <=10000 & >=1
 	ConsumerGroupID?:                strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\/*:_+=.@-]*$"
-	Credentials?:                    _#defs."/$defs/Properties/definitions/MSKAccessCredentials"
+	Credentials?:                    #MSKAccessCredentials
 	MaximumBatchingWindowInSeconds?: int & <=300 & >=0
-	StartingPosition?:               _#defs."/$defs/Properties/definitions/MSKStartPosition"
+	StartingPosition?:               #MSKStartPosition
 	TopicName!:                      strings.MaxRunes(249) & strings.MinRunes(1) & =~"^[^.]([a-zA-Z0-9\\-_.]+)$"
 })
 
-_#defs: "/$defs/Properties/definitions/PipeSourceParameters": close({
-	ActiveMQBrokerParameters?:        _#defs."/$defs/Properties/definitions/PipeSourceActiveMQBrokerParameters"
-	DynamoDBStreamParameters?:        _#defs."/$defs/Properties/definitions/PipeSourceDynamoDBStreamParameters"
-	FilterCriteria?:                  _#defs."/$defs/Properties/definitions/FilterCriteria"
-	KinesisStreamParameters?:         _#defs."/$defs/Properties/definitions/PipeSourceKinesisStreamParameters"
-	ManagedStreamingKafkaParameters?: _#defs."/$defs/Properties/definitions/PipeSourceManagedStreamingKafkaParameters"
-	RabbitMQBrokerParameters?:        _#defs."/$defs/Properties/definitions/PipeSourceRabbitMQBrokerParameters"
-	SelfManagedKafkaParameters?:      _#defs."/$defs/Properties/definitions/PipeSourceSelfManagedKafkaParameters"
-	SqsQueueParameters?:              _#defs."/$defs/Properties/definitions/PipeSourceSqsQueueParameters"
+#PipeSourceParameters: close({
+	ActiveMQBrokerParameters?:        #PipeSourceActiveMQBrokerParameters
+	DynamoDBStreamParameters?:        #PipeSourceDynamoDBStreamParameters
+	FilterCriteria?:                  #FilterCriteria
+	KinesisStreamParameters?:         #PipeSourceKinesisStreamParameters
+	ManagedStreamingKafkaParameters?: #PipeSourceManagedStreamingKafkaParameters
+	RabbitMQBrokerParameters?:        #PipeSourceRabbitMQBrokerParameters
+	SelfManagedKafkaParameters?:      #PipeSourceSelfManagedKafkaParameters
+	SqsQueueParameters?:              #PipeSourceSqsQueueParameters
 })
 
-_#defs: "/$defs/Properties/definitions/PipeSourceRabbitMQBrokerParameters": close({
+#PipeSourceRabbitMQBrokerParameters: close({
 	BatchSize?:                      int & <=10000 & >=1
-	Credentials!:                    _#defs."/$defs/Properties/definitions/MQBrokerAccessCredentials"
+	Credentials!:                    #MQBrokerAccessCredentials
 	MaximumBatchingWindowInSeconds?: int & <=300 & >=0
 	QueueName!:                      strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\s\\S]*$"
 	VirtualHost?:                    strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\/*:_+=.@-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/PipeSourceSelfManagedKafkaParameters": close({
+#PipeSourceSelfManagedKafkaParameters: close({
 	AdditionalBootstrapServers?: list.MaxItems(2) & [...] & [
 		...strings.MaxRunes(300) &
 		strings.MinRunes(1) &
@@ -326,24 +320,24 @@ _#defs: "/$defs/Properties/definitions/PipeSourceSelfManagedKafkaParameters": cl
 	]
 	BatchSize?:                      int & <=10000 & >=1
 	ConsumerGroupID?:                strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\/*:_+=.@-]*$"
-	Credentials?:                    _#defs."/$defs/Properties/definitions/SelfManagedKafkaAccessConfigurationCredentials"
+	Credentials?:                    #SelfManagedKafkaAccessConfigurationCredentials
 	MaximumBatchingWindowInSeconds?: int & <=300 & >=0
 
 	// Optional SecretManager ARN which stores the database credentials
 	ServerRootCaCertificate?: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^(^arn:aws([a-z]|\\-)*:secretsmanager:([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}):(\\d{12}):secret:.+)$"
-	StartingPosition?: _#defs."/$defs/Properties/definitions/SelfManagedKafkaStartPosition"
+	StartingPosition?: #SelfManagedKafkaStartPosition
 	TopicName!:        strings.MaxRunes(249) & strings.MinRunes(1) & =~"^[^.]([a-zA-Z0-9\\-_.]+)$"
-	Vpc?:              _#defs."/$defs/Properties/definitions/SelfManagedKafkaAccessConfigurationVpc"
+	Vpc?:              #SelfManagedKafkaAccessConfigurationVpc
 })
 
-_#defs: "/$defs/Properties/definitions/PipeSourceSqsQueueParameters": close({
+#PipeSourceSqsQueueParameters: close({
 	BatchSize?:                      int & <=10000 & >=1
 	MaximumBatchingWindowInSeconds?: int & <=300 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/PipeState": "RUNNING" |
+#PipeState: "RUNNING" |
 	"STOPPED" |
 	"CREATING" |
 	"UPDATING" |
@@ -359,44 +353,42 @@ _#defs: "/$defs/Properties/definitions/PipeState": "RUNNING" |
 	"DELETE_ROLLBACK_FAILED" |
 	"UPDATE_ROLLBACK_FAILED"
 
-_#defs: "/$defs/Properties/definitions/PipeTargetBatchJobParameters": close({
-	ArrayProperties?:    _#defs."/$defs/Properties/definitions/BatchArrayProperties"
-	ContainerOverrides?: _#defs."/$defs/Properties/definitions/BatchContainerOverrides"
-	DependsOn?:          list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/BatchJobDependency"]
+#PipeTargetBatchJobParameters: close({
+	ArrayProperties?:    #BatchArrayProperties
+	ContainerOverrides?: #BatchContainerOverrides
+	DependsOn?:          list.MaxItems(20) & [...] & [...#BatchJobDependency]
 	JobDefinition!:      string
 	JobName!:            string
-	Parameters?:         _#defs."/$defs/Properties/definitions/BatchParametersMap"
-	RetryStrategy?:      _#defs."/$defs/Properties/definitions/BatchRetryStrategy"
+	Parameters?:         #BatchParametersMap
+	RetryStrategy?:      #BatchRetryStrategy
 })
 
-_#defs: "/$defs/Properties/definitions/PipeTargetCloudWatchLogsParameters": close({
+#PipeTargetCloudWatchLogsParameters: close({
 	LogStreamName?: strings.MaxRunes(256) & strings.MinRunes(1)
 	Timestamp?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\$(\\.[\\w_-]+(\\[(\\d+|\\*)\\])*)*$"
 })
 
-_#defs: "/$defs/Properties/definitions/PipeTargetEcsTaskParameters": close({
-	CapacityProviderStrategy?: list.MaxItems(6) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"
-	]
-	EnableECSManagedTags?: bool
-	EnableExecuteCommand?: bool
-	Group?:                string
-	LaunchType?:           _#defs."/$defs/Properties/definitions/LaunchType"
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-	Overrides?:            _#defs."/$defs/Properties/definitions/EcsTaskOverride"
-	PlacementConstraints?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/PlacementConstraint"]
-	PlacementStrategy?:    list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/PlacementStrategy"]
-	PlatformVersion?:      string
-	PropagateTags?:        _#defs."/$defs/Properties/definitions/PropagateTags"
-	ReferenceId?:          strings.MaxRunes(1024) & strings.MinRunes(0)
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"]
-	TaskCount?:            int & >=1
+#PipeTargetEcsTaskParameters: close({
+	CapacityProviderStrategy?: list.MaxItems(6) & [...] & [...#CapacityProviderStrategyItem]
+	EnableECSManagedTags?:     bool
+	EnableExecuteCommand?:     bool
+	Group?:                    string
+	LaunchType?:               #LaunchType
+	NetworkConfiguration?:     #NetworkConfiguration
+	Overrides?:                #EcsTaskOverride
+	PlacementConstraints?:     list.MaxItems(10) & [...] & [...#PlacementConstraint]
+	PlacementStrategy?:        list.MaxItems(5) & [...] & [...#PlacementStrategy]
+	PlatformVersion?:          string
+	PropagateTags?:            #PropagateTags
+	ReferenceId?:              strings.MaxRunes(1024) & strings.MinRunes(0)
+	Tags?:                     [...#Tag]
+	TaskCount?:                int & >=1
 	TaskDefinitionArn!: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/PipeTargetEventBridgeEventBusParameters": close({
+#PipeTargetEventBridgeEventBusParameters: close({
 	DetailType?: strings.MaxRunes(128) & strings.MinRunes(1)
 	EndpointId?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+[\\.][A-Za-z0-9\\-]+$"
 	Resources?: list.MaxItems(10) & [...] & [
@@ -408,39 +400,35 @@ _#defs: "/$defs/Properties/definitions/PipeTargetEventBridgeEventBusParameters":
 	Time?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*$"
 })
 
-_#defs: "/$defs/Properties/definitions/PipeTargetHttpParameters": close({
-	HeaderParameters?:      _#defs."/$defs/Properties/definitions/HeaderParametersMap"
+#PipeTargetHttpParameters: close({
+	HeaderParameters?:      #HeaderParametersMap
 	PathParameterValues?:   [...string]
-	QueryStringParameters?: _#defs."/$defs/Properties/definitions/QueryStringParametersMap"
+	QueryStringParameters?: #QueryStringParametersMap
 })
 
-_#defs: "/$defs/Properties/definitions/PipeTargetInvocationType": "REQUEST_RESPONSE" | "FIRE_AND_FORGET"
+#PipeTargetInvocationType: "REQUEST_RESPONSE" | "FIRE_AND_FORGET"
 
-_#defs: "/$defs/Properties/definitions/PipeTargetKinesisStreamParameters": close(
-	{PartitionKey!: strings.MaxRunes(256) & strings.MinRunes(0)},
-)
+#PipeTargetKinesisStreamParameters: close({PartitionKey!: strings.MaxRunes(256) & strings.MinRunes(0)})
 
-_#defs: "/$defs/Properties/definitions/PipeTargetLambdaFunctionParameters": close(
-	{InvocationType?: _#defs."/$defs/Properties/definitions/PipeTargetInvocationType"},
-)
+#PipeTargetLambdaFunctionParameters: close({InvocationType?: #PipeTargetInvocationType})
 
-_#defs: "/$defs/Properties/definitions/PipeTargetParameters": close({
-	BatchJobParameters?:                 _#defs."/$defs/Properties/definitions/PipeTargetBatchJobParameters"
-	CloudWatchLogsParameters?:           _#defs."/$defs/Properties/definitions/PipeTargetCloudWatchLogsParameters"
-	EcsTaskParameters?:                  _#defs."/$defs/Properties/definitions/PipeTargetEcsTaskParameters"
-	EventBridgeEventBusParameters?:      _#defs."/$defs/Properties/definitions/PipeTargetEventBridgeEventBusParameters"
-	HttpParameters?:                     _#defs."/$defs/Properties/definitions/PipeTargetHttpParameters"
+#PipeTargetParameters: close({
+	BatchJobParameters?:                 #PipeTargetBatchJobParameters
+	CloudWatchLogsParameters?:           #PipeTargetCloudWatchLogsParameters
+	EcsTaskParameters?:                  #PipeTargetEcsTaskParameters
+	EventBridgeEventBusParameters?:      #PipeTargetEventBridgeEventBusParameters
+	HttpParameters?:                     #PipeTargetHttpParameters
 	InputTemplate?:                      strings.MaxRunes(8192) & strings.MinRunes(0)
-	KinesisStreamParameters?:            _#defs."/$defs/Properties/definitions/PipeTargetKinesisStreamParameters"
-	LambdaFunctionParameters?:           _#defs."/$defs/Properties/definitions/PipeTargetLambdaFunctionParameters"
-	RedshiftDataParameters?:             _#defs."/$defs/Properties/definitions/PipeTargetRedshiftDataParameters"
-	SageMakerPipelineParameters?:        _#defs."/$defs/Properties/definitions/PipeTargetSageMakerPipelineParameters"
-	SqsQueueParameters?:                 _#defs."/$defs/Properties/definitions/PipeTargetSqsQueueParameters"
-	StepFunctionStateMachineParameters?: _#defs."/$defs/Properties/definitions/PipeTargetStateMachineParameters"
-	TimestreamParameters?:               _#defs."/$defs/Properties/definitions/PipeTargetTimestreamParameters"
+	KinesisStreamParameters?:            #PipeTargetKinesisStreamParameters
+	LambdaFunctionParameters?:           #PipeTargetLambdaFunctionParameters
+	RedshiftDataParameters?:             #PipeTargetRedshiftDataParameters
+	SageMakerPipelineParameters?:        #PipeTargetSageMakerPipelineParameters
+	SqsQueueParameters?:                 #PipeTargetSqsQueueParameters
+	StepFunctionStateMachineParameters?: #PipeTargetStateMachineParameters
+	TimestreamParameters?:               #PipeTargetTimestreamParameters
 })
 
-_#defs: "/$defs/Properties/definitions/PipeTargetRedshiftDataParameters": close({
+#PipeTargetRedshiftDataParameters: close({
 	// Redshift Database
 	Database!: strings.MaxRunes(64) & strings.MinRunes(1)
 
@@ -460,77 +448,69 @@ _#defs: "/$defs/Properties/definitions/PipeTargetRedshiftDataParameters": close(
 	WithEvent?:     bool
 })
 
-_#defs: "/$defs/Properties/definitions/PipeTargetSageMakerPipelineParameters": close({
-	PipelineParameterList?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SageMakerPipelineParameter"
-	]
-})
+#PipeTargetSageMakerPipelineParameters: close(
+	{PipelineParameterList?: list.MaxItems(200) & [...] & [...#SageMakerPipelineParameter]},
+)
 
-_#defs: "/$defs/Properties/definitions/PipeTargetSqsQueueParameters": close({
+#PipeTargetSqsQueueParameters: close({
 	MessageDeduplicationId?: strings.MaxRunes(100) & strings.MinRunes(0)
 	MessageGroupId?:         strings.MaxRunes(100) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/PipeTargetStateMachineParameters": close(
-	{InvocationType?: _#defs."/$defs/Properties/definitions/PipeTargetInvocationType"},
-)
+#PipeTargetStateMachineParameters: close({InvocationType?: #PipeTargetInvocationType})
 
-_#defs: "/$defs/Properties/definitions/PipeTargetTimestreamParameters": close({
-	DimensionMappings!: list.MaxItems(128) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DimensionMapping"
-	]
-	EpochTimeUnit?:        _#defs."/$defs/Properties/definitions/EpochTimeUnit"
-	MultiMeasureMappings?: list.MaxItems(1024) & [...] & [..._#defs."/$defs/Properties/definitions/MultiMeasureMapping"]
-	SingleMeasureMappings?: list.MaxItems(8192) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SingleMeasureMapping"
-	]
-	TimeFieldType?:   _#defs."/$defs/Properties/definitions/TimeFieldType"
-	TimeValue!:       strings.MaxRunes(256) & strings.MinRunes(1)
-	TimestampFormat?: strings.MaxRunes(256) & strings.MinRunes(1)
-	VersionValue!:    strings.MaxRunes(256) & strings.MinRunes(1)
+#PipeTargetTimestreamParameters: close({
+	DimensionMappings!:     list.MaxItems(128) & list.MinItems(1) & [...#DimensionMapping]
+	EpochTimeUnit?:         #EpochTimeUnit
+	MultiMeasureMappings?:  list.MaxItems(1024) & [...] & [...#MultiMeasureMapping]
+	SingleMeasureMappings?: list.MaxItems(8192) & [...] & [...#SingleMeasureMapping]
+	TimeFieldType?:         #TimeFieldType
+	TimeValue!:             strings.MaxRunes(256) & strings.MinRunes(1)
+	TimestampFormat?:       strings.MaxRunes(256) & strings.MinRunes(1)
+	VersionValue!:          strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/PlacementConstraint": close({
+#PlacementConstraint: close({
 	Expression?: strings.MaxRunes(2000) & strings.MinRunes(0)
-	Type?:       _#defs."/$defs/Properties/definitions/PlacementConstraintType"
+	Type?:       #PlacementConstraintType
 })
 
-_#defs: "/$defs/Properties/definitions/PlacementConstraintType": "distinctInstance" | "memberOf"
+#PlacementConstraintType: "distinctInstance" | "memberOf"
 
-_#defs: "/$defs/Properties/definitions/PlacementStrategy": close({
+#PlacementStrategy: close({
 	Field?: strings.MaxRunes(255) & strings.MinRunes(0)
-	Type?:  _#defs."/$defs/Properties/definitions/PlacementStrategyType"
+	Type?:  #PlacementStrategyType
 })
 
-_#defs: "/$defs/Properties/definitions/PlacementStrategyType": "random" | "spread" | "binpack"
+#PlacementStrategyType: "random" | "spread" | "binpack"
 
-_#defs: "/$defs/Properties/definitions/PropagateTags": "TASK_DEFINITION"
+#PropagateTags: "TASK_DEFINITION"
 
-_#defs: "/$defs/Properties/definitions/QueryStringParametersMap": close({
+#QueryStringParametersMap: close({
 
 	{[=~"^[^\\x00-\\x1F\\x7F]+|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"]: strings.MaxRunes(512) &
 	strings.MinRunes(0) &
 	=~"^[^\\x00-\\x09\\x0B\\x0C\\x0E-\\x1F\\x7F]+|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"}})
 
-_#defs: "/$defs/Properties/definitions/RequestedPipeState": "RUNNING" | "STOPPED"
+#RequestedPipeState: "RUNNING" | "STOPPED"
 
-_#defs: "/$defs/Properties/definitions/S3LogDestination": close({
+#S3LogDestination: close({
 	BucketName?:   string
 	BucketOwner?:  string
-	OutputFormat?: _#defs."/$defs/Properties/definitions/S3OutputFormat"
+	OutputFormat?: #S3OutputFormat
 	Prefix?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/S3OutputFormat": "json" | "plain" | "w3c"
+#S3OutputFormat: "json" | "plain" | "w3c"
 
-_#defs: "/$defs/Properties/definitions/SageMakerPipelineParameter": close({
+#SageMakerPipelineParameter: close({
 	Name!: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/SelfManagedKafkaAccessConfigurationCredentials": matchN(1, [close({
+#SelfManagedKafkaAccessConfigurationCredentials: matchN(1, [close({
 	// Optional SecretManager ARN which stores the database credentials
 	BasicAuth!: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
@@ -552,7 +532,7 @@ _#defs: "/$defs/Properties/definitions/SelfManagedKafkaAccessConfigurationCreden
 	=~"^(^arn:aws([a-z]|\\-)*:secretsmanager:([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}):(\\d{12}):secret:.+)$"
 })])
 
-_#defs: "/$defs/Properties/definitions/SelfManagedKafkaAccessConfigurationVpc": close({
+#SelfManagedKafkaAccessConfigurationVpc: close({
 	// List of SecurityGroupId.
 	SecurityGroup?: list.MaxItems(5) & [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^sg-[0-9a-zA-Z]*$"]
 
@@ -560,21 +540,21 @@ _#defs: "/$defs/Properties/definitions/SelfManagedKafkaAccessConfigurationVpc": 
 	Subnets?: list.MaxItems(16) & [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^subnet-[0-9a-z]*$"]
 })
 
-_#defs: "/$defs/Properties/definitions/SelfManagedKafkaStartPosition": "TRIM_HORIZON" | "LATEST"
+#SelfManagedKafkaStartPosition: "TRIM_HORIZON" | "LATEST"
 
-_#defs: "/$defs/Properties/definitions/SingleMeasureMapping": close({
+#SingleMeasureMapping: close({
 	MeasureName!:      strings.MaxRunes(1024) & strings.MinRunes(1)
 	MeasureValue!:     strings.MaxRunes(2048) & strings.MinRunes(1)
-	MeasureValueType!: _#defs."/$defs/Properties/definitions/MeasureValueType"
+	MeasureValueType!: #MeasureValueType
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(50) & struct.MinFields(1) & close({
+#TagMap: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})
 
-_#defs: "/$defs/Properties/definitions/TimeFieldType": "EPOCH" | "TIMESTAMP_FORMAT"
+#TimeFieldType: "EPOCH" | "TIMESTAMP_FORMAT"

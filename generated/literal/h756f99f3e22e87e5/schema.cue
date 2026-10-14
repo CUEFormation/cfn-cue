@@ -13,14 +13,14 @@ package schema
 // in the *Amazon CloudFront Developer Guide*.
 #Properties: close({
 	// The current configuration information for the identity.
-	CloudFrontOriginAccessIdentityConfig!: _#defs."/$defs/Properties/definitions/CloudFrontOriginAccessIdentityConfig"
+	CloudFrontOriginAccessIdentityConfig!: #CloudFrontOriginAccessIdentityConfig
 	Id?:                                   string
 	S3CanonicalUserId?:                    string
 })
 
 // Origin access identity configuration. Send a ``GET`` request to the
 // ``/CloudFront API version/CloudFront/identity ID/config`` resource.
-_#defs: "/$defs/Properties/definitions/CloudFrontOriginAccessIdentityConfig": close({
+#CloudFrontOriginAccessIdentityConfig: close({
 	// A comment to describe the origin access identity. The comment cannot be
 	// longer than 128 characters.
 	Comment!: string

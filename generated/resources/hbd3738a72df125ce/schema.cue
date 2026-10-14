@@ -11,19 +11,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates and manages an Amazon FPGA Image (AFI) from a design checkpoint (DCP).
 #Properties: close({
 	Description?:          string | fn.#StringExpression
-	InputStorageLocation?: _#defs."/$defs/Properties/definitions/StorageLocation" | fn.#ObjectExpression
-	LogsStorageLocation?:  _#defs."/$defs/Properties/definitions/StorageLocation" | fn.#ObjectExpression
+	InputStorageLocation?: #StorageLocation | fn.#ObjectExpression
+	LogsStorageLocation?:  #StorageLocation | fn.#ObjectExpression
 	Name?:                 string | fn.#StringExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                 [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/StorageLocation": close({
+#StorageLocation: close({
 	Bucket?: string | fn.#StringExpression
 	Key?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

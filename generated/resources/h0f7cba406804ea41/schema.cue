@@ -18,15 +18,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::MediaPackage::OriginEndpoint
 #Properties: close({
-	Authorization?: _#defs."/$defs/Properties/definitions/Authorization"
+	Authorization?: #Authorization
 	ChannelId!:     string | fn.#StringExpression
-	CmafPackage?:   _#defs."/$defs/Properties/definitions/CmafPackage"
-	DashPackage?:   _#defs."/$defs/Properties/definitions/DashPackage"
+	CmafPackage?:   #CmafPackage
+	DashPackage?:   #DashPackage
 	Description?:   string | fn.#StringExpression
-	HlsPackage?:    _#defs."/$defs/Properties/definitions/HlsPackage"
+	HlsPackage?:    #HlsPackage
 	Id!:            strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ManifestName?:  string | fn.#StringExpression
-	MssPackage?:    _#defs."/$defs/Properties/definitions/MssPackage"
+	MssPackage?:    #MssPackage
 	Origination?:   "ALLOW" | "DENY" | fn.#StringExpression
 	StartoverWindowSeconds?: int |
 		{
@@ -42,7 +42,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	TimeDelaySeconds?: int |
 		{
 			string &
@@ -60,20 +60,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Whitelist?: [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AdsOnDeliveryRestrictions": "NONE" |
-	"RESTRICTED" |
-	"UNRESTRICTED" |
-	"BOTH" |
-	fn.#StringExpression
+#AdsOnDeliveryRestrictions: "NONE" | "RESTRICTED" | "UNRESTRICTED" | "BOTH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Authorization": close({
+#Authorization: close({
 	CdnIdentifierSecret!: string | fn.#StringExpression
 	SecretsRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CmafEncryption": close({
+#CmafEncryption: close({
 	ConstantInitializationVector?: strings.MaxRunes(32) & strings.MinRunes(32) | fn.#StringExpression
 	EncryptionMethod?:             "SAMPLE_AES" | "AES_CTR" | fn.#StringExpression
 	KeyRotationIntervalSeconds?: int |
@@ -90,13 +86,13 @@ _#defs: "/$defs/Properties/definitions/CmafEncryption": close({
 				)
 		} |
 		fn.#NumberExpression
-	SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"
+	SpekeKeyProvider!: #SpekeKeyProvider
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CmafPackage": close({
-	Encryption?:   _#defs."/$defs/Properties/definitions/CmafEncryption"
-	HlsManifests?: [..._#defs."/$defs/Properties/definitions/HlsManifest"] | fn.#ListExpression
+#CmafPackage: close({
+	Encryption?:   #CmafEncryption
+	HlsManifests?: [...#HlsManifest] | fn.#ListExpression
 	SegmentDurationSeconds?: int |
 		{
 			string &
@@ -112,11 +108,11 @@ _#defs: "/$defs/Properties/definitions/CmafPackage": close({
 		} |
 		fn.#NumberExpression
 	SegmentPrefix?:   string | fn.#StringExpression
-	StreamSelection?: _#defs."/$defs/Properties/definitions/StreamSelection"
+	StreamSelection?: #StreamSelection
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashEncryption": close({
+#DashEncryption: close({
 	KeyRotationIntervalSeconds?: int |
 		{
 			string &
@@ -131,11 +127,11 @@ _#defs: "/$defs/Properties/definitions/DashEncryption": close({
 				)
 		} |
 		fn.#NumberExpression
-	SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"
+	SpekeKeyProvider!: #SpekeKeyProvider
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashPackage": close({
+#DashPackage: close({
 	AdTriggers?: [
 		..."SPLICE_INSERT" |
 			"BREAK" |
@@ -148,8 +144,8 @@ _#defs: "/$defs/Properties/definitions/DashPackage": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	AdsOnDeliveryRestrictions?: _#defs."/$defs/Properties/definitions/AdsOnDeliveryRestrictions"
-	Encryption?:                _#defs."/$defs/Properties/definitions/DashEncryption"
+	AdsOnDeliveryRestrictions?: #AdsOnDeliveryRestrictions
+	Encryption?:                #DashEncryption
 	IncludeIframeOnlyStream?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ManifestLayout?:            "FULL" | "COMPACT" | "DRM_TOP_LEVEL_COMPACT" | fn.#StringExpression
 	ManifestWindowSeconds?: int |
@@ -214,7 +210,7 @@ _#defs: "/$defs/Properties/definitions/DashPackage": close({
 		"TIME_WITH_TIMELINE" |
 		"NUMBER_WITH_DURATION" |
 		fn.#StringExpression
-	StreamSelection?: _#defs."/$defs/Properties/definitions/StreamSelection"
+	StreamSelection?: #StreamSelection
 	SuggestedPresentationDelaySeconds?: int |
 		{
 			string &
@@ -234,7 +230,7 @@ _#defs: "/$defs/Properties/definitions/DashPackage": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionContractConfiguration": close({
+#EncryptionContractConfiguration: close({
 	PresetSpeke20Audio!: "PRESET-AUDIO-1" |
 		"PRESET-AUDIO-2" |
 		"PRESET-AUDIO-3" |
@@ -255,7 +251,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionContractConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HlsEncryption": close({
+#HlsEncryption: close({
 	ConstantInitializationVector?: string | fn.#StringExpression
 	EncryptionMethod?:             "AES_128" | "SAMPLE_AES" | fn.#StringExpression
 	KeyRotationIntervalSeconds?: int |
@@ -273,11 +269,11 @@ _#defs: "/$defs/Properties/definitions/HlsEncryption": close({
 		} |
 		fn.#NumberExpression
 	RepeatExtXKey?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"
+	SpekeKeyProvider!: #SpekeKeyProvider
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HlsManifest": close({
+#HlsManifest: close({
 	AdMarkers?: "NONE" | "SCTE35_ENHANCED" | "PASSTHROUGH" | "DATERANGE" | fn.#StringExpression
 	AdTriggers?: [
 		..."SPLICE_INSERT" |
@@ -291,7 +287,7 @@ _#defs: "/$defs/Properties/definitions/HlsManifest": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	AdsOnDeliveryRestrictions?: _#defs."/$defs/Properties/definitions/AdsOnDeliveryRestrictions"
+	AdsOnDeliveryRestrictions?: #AdsOnDeliveryRestrictions
 	Id!:                        string | fn.#StringExpression
 	IncludeIframeOnlyStream?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ManifestName?:              string | fn.#StringExpression
@@ -328,7 +324,7 @@ _#defs: "/$defs/Properties/definitions/HlsManifest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HlsPackage": close({
+#HlsPackage: close({
 	AdMarkers?: "NONE" | "SCTE35_ENHANCED" | "PASSTHROUGH" | "DATERANGE" | fn.#StringExpression
 	AdTriggers?: [
 		..."SPLICE_INSERT" |
@@ -342,8 +338,8 @@ _#defs: "/$defs/Properties/definitions/HlsPackage": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	AdsOnDeliveryRestrictions?: _#defs."/$defs/Properties/definitions/AdsOnDeliveryRestrictions"
-	Encryption?:                _#defs."/$defs/Properties/definitions/HlsEncryption"
+	AdsOnDeliveryRestrictions?: #AdsOnDeliveryRestrictions
+	Encryption?:                #HlsEncryption
 	IncludeDvbSubtitles?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeIframeOnlyStream?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PlaylistType?:              "NONE" | "EVENT" | "VOD" | fn.#StringExpression
@@ -389,18 +385,15 @@ _#defs: "/$defs/Properties/definitions/HlsPackage": close({
 				)
 		} |
 		fn.#NumberExpression
-	StreamSelection?:        _#defs."/$defs/Properties/definitions/StreamSelection"
+	StreamSelection?:        #StreamSelection
 	UseAudioRenditionGroup?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MssEncryption": close(
-	{SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"},
-) |
-	fn.#ObjectExpression
+#MssEncryption: close({SpekeKeyProvider!: #SpekeKeyProvider}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MssPackage": close({
-	Encryption?: _#defs."/$defs/Properties/definitions/MssEncryption"
+#MssPackage: close({
+	Encryption?: #MssEncryption
 	ManifestWindowSeconds?: int |
 		{
 			string &
@@ -429,13 +422,13 @@ _#defs: "/$defs/Properties/definitions/MssPackage": close({
 				)
 		} |
 		fn.#NumberExpression
-	StreamSelection?: _#defs."/$defs/Properties/definitions/StreamSelection"
+	StreamSelection?: #StreamSelection
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
+#SpekeKeyProvider: close({
 	CertificateArn?:                  string | fn.#StringExpression
-	EncryptionContractConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionContractConfiguration"
+	EncryptionContractConfiguration?: #EncryptionContractConfiguration
 	ResourceId!:                      string | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
@@ -444,7 +437,7 @@ _#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamSelection": close({
+#StreamSelection: close({
 	MaxVideoBitsPerSecond?: int |
 		{
 			string &
@@ -477,7 +470,7 @@ _#defs: "/$defs/Properties/definitions/StreamSelection": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

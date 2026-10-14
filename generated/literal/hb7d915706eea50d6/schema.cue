@@ -22,7 +22,7 @@ import (
 
 	// Billing Group ARN
 	BillingGroupArn!:    =~"arn:aws(-cn)?:billingconductor::[0-9]{12}:billinggroup/?[a-zA-Z0-9]{10,12}"
-	BillingPeriodRange?: _#defs."/$defs/Properties/definitions/BillingPeriodRange"
+	BillingPeriodRange?: #BillingPeriodRange
 
 	// The display settings of the Custom Line Item.
 	ComputationRule?: "CONSOLIDATED" | "ITEMIZED"
@@ -30,7 +30,7 @@ import (
 	// Creation timestamp in UNIX epoch time format
 	CreationTime?:                int
 	CurrencyCode?:                "USD" | "CNY"
-	CustomLineItemChargeDetails?: _#defs."/$defs/Properties/definitions/CustomLineItemChargeDetails"
+	CustomLineItemChargeDetails?: #CustomLineItemChargeDetails
 	Description?:                 strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// Latest modified timestamp in UNIX epoch time format
@@ -38,52 +38,50 @@ import (
 	Name!:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+"
 	PresentationDetails?: close({Service!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$"})
 	ProductCode?:         strings.MaxRunes(29) & strings.MinRunes(1)
-	Tags?:                list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeValue": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$"
+#AttributeValue: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$"
 
-_#defs: "/$defs/Properties/definitions/BillingPeriodRange": close({
-	ExclusiveEndBillingPeriod?:   _#defs."/$defs/Properties/definitions/ExclusiveEndBillingPeriod"
-	InclusiveStartBillingPeriod?: _#defs."/$defs/Properties/definitions/InclusiveStartBillingPeriod"
+#BillingPeriodRange: close({
+	ExclusiveEndBillingPeriod?:   #ExclusiveEndBillingPeriod
+	InclusiveStartBillingPeriod?: #InclusiveStartBillingPeriod
 })
 
-_#defs: "/$defs/Properties/definitions/CustomLineItemChargeDetails": close({
-	Flat?:            _#defs."/$defs/Properties/definitions/CustomLineItemFlatChargeDetails"
-	LineItemFilters?: _#defs."/$defs/Properties/definitions/LineItemFilters"
-	Percentage?:      _#defs."/$defs/Properties/definitions/CustomLineItemPercentageChargeDetails"
-	Type!:            _#defs."/$defs/Properties/definitions/Type"
+#CustomLineItemChargeDetails: close({
+	Flat?:            #CustomLineItemFlatChargeDetails
+	LineItemFilters?: #LineItemFilters
+	Percentage?:      #CustomLineItemPercentageChargeDetails
+	Type!:            #Type
 })
 
-_#defs: "/$defs/Properties/definitions/CustomLineItemFlatChargeDetails": close({ChargeValue!: <=1000000 & >=0})
+#CustomLineItemFlatChargeDetails: close({ChargeValue!: <=1000000 & >=0})
 
-_#defs: "/$defs/Properties/definitions/CustomLineItemPercentageChargeDetails": close({
+#CustomLineItemPercentageChargeDetails: close({
 	ChildAssociatedResources?: list.UniqueItems() & [
 		...=~"(arn:aws(-cn)?:billingconductor::[0-9]{12}:(customlineitem|billinggroup)/)?[a-zA-Z0-9]{10,12}"
 	]
 	PercentageValue!: <=10000 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/ExclusiveEndBillingPeriod": =~"\\d{4}-(0?[1-9]|1[012])"
+#ExclusiveEndBillingPeriod: =~"\\d{4}-(0?[1-9]|1[012])"
 
-_#defs: "/$defs/Properties/definitions/InclusiveStartBillingPeriod": =~"\\d{4}-(0?[1-9]|1[012])"
+#InclusiveStartBillingPeriod: =~"\\d{4}-(0?[1-9]|1[012])"
 
-_#defs: "/$defs/Properties/definitions/LineItemFilter": close({
+#LineItemFilter: close({
 	Attribute!:       "LINE_ITEM_TYPE" | "SERVICE"
-	AttributeValues?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AttributeValue"]
+	AttributeValues?: list.UniqueItems() & [...#AttributeValue]
 	MatchOption!:     "NOT_EQUAL" | "EQUAL"
-	Values?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LineItemFilterValue"]
+	Values?:          list.UniqueItems() & [...#LineItemFilterValue]
 })
 
-_#defs: "/$defs/Properties/definitions/LineItemFilterValue": "SAVINGS_PLAN_NEGATION"
+#LineItemFilterValue: "SAVINGS_PLAN_NEGATION"
 
-_#defs: "/$defs/Properties/definitions/LineItemFilters": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/LineItemFilter"
-]
+#LineItemFilters: list.UniqueItems() & [...#LineItemFilter]
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Type": "FEE" | "CREDIT"
+#Type: "FEE" | "CREDIT"

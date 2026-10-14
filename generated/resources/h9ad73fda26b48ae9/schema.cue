@@ -23,11 +23,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	NetworkType?:           "IPV4" | "DUAL" | fn.#StringExpression
 	PubliclyAccessible?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SubnetGroupIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	VpcSecurityGroups?:     list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

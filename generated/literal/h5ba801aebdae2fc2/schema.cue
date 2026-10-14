@@ -3,39 +3,39 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::IntegrationAssociation
 #Properties: close({
-	InstanceId!:               _#defs."/$defs/Properties/definitions/InstanceId"
-	IntegrationArn!:           _#defs."/$defs/Properties/definitions/IntegrationArn"
-	IntegrationAssociationId?: _#defs."/$defs/Properties/definitions/IntegrationAssociationId"
-	IntegrationType!:          _#defs."/$defs/Properties/definitions/IntegrationType"
-	SourceApplicationName?:    _#defs."/$defs/Properties/definitions/SourceApplicationName"
-	SourceApplicationUrl?:     _#defs."/$defs/Properties/definitions/SourceApplicationUrl"
-	SourceType?:               _#defs."/$defs/Properties/definitions/SourceType"
+	InstanceId!:               #InstanceId
+	IntegrationArn!:           #IntegrationArn
+	IntegrationAssociationId?: #IntegrationAssociationId
+	IntegrationType!:          #IntegrationType
+	SourceApplicationName?:    #SourceApplicationName
+	SourceApplicationUrl?:     #SourceApplicationUrl
+	SourceType?:               #SourceType
 
 	// The tags used to organize, track, or control access for this resource.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
 // Amazon Connect instance identifier
-_#defs: "/$defs/Properties/definitions/InstanceId": strings.MaxRunes(100) &
+#InstanceId: strings.MaxRunes(100) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$"
 
 // ARN of Integration being associated with the instance
-_#defs: "/$defs/Properties/definitions/IntegrationArn": strings.MaxRunes(140) & strings.MinRunes(1)
+#IntegrationArn: strings.MaxRunes(140) & strings.MinRunes(1)
 
 // Identifier of the association with Connect Instance
-_#defs: "/$defs/Properties/definitions/IntegrationAssociationId": string
+#IntegrationAssociationId: string
 
 // Specifies the integration type to be associated with the instance
-_#defs: "/$defs/Properties/definitions/IntegrationType": "LEX_BOT" |
+#IntegrationType: "LEX_BOT" |
 	"LAMBDA_FUNCTION" |
 	"APPLICATION" |
 	"CASES_DOMAIN" |
@@ -49,18 +49,16 @@ _#defs: "/$defs/Properties/definitions/IntegrationType": "LEX_BOT" |
 	"EVENT"
 
 // The name of the external application. This is only supported for the EVENT integration type
-_#defs: "/$defs/Properties/definitions/SourceApplicationName": strings.MaxRunes(100) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9_ -]+$"
+#SourceApplicationName: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_ -]+$"
 
 // The URL for the external application. This is only supported for the EVENT integration type
-_#defs: "/$defs/Properties/definitions/SourceApplicationUrl": strings.MaxRunes(2000) & strings.MinRunes(1)
+#SourceApplicationUrl: strings.MaxRunes(2000) & strings.MinRunes(1)
 
 // The type of the data source. This is only supported for the EVENT integration type
-_#defs: "/$defs/Properties/definitions/SourceType": "SALESFORCE" | "ZENDESK" | "CASES"
+#SourceType: "SALESFORCE" | "ZENDESK" | "CASES"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

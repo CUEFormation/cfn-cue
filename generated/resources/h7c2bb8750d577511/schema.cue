@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -38,8 +38,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Fields?: [..._#defs."/$defs/Properties/definitions/FieldMap"] | fn.#ListExpression
-	Keys?:   [..._#defs."/$defs/Properties/definitions/KeyMap"] | fn.#ListExpression
+	Fields?: [...#FieldMap] | fn.#ListExpression
+	Keys?:   [...#KeyMap] | fn.#ListExpression
 	MaxProfileObjectCount?: int & >=1 |
 		{
 			string &
@@ -72,30 +72,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?:       list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:       list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	TemplateId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FieldMap": close({
+#FieldMap: close({
 	Name?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	ObjectTypeField?: _#defs."/$defs/Properties/definitions/ObjectTypeField"
+	ObjectTypeField?: #ObjectTypeField
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyMap": close({
+#KeyMap: close({
 	Name?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ObjectTypeKeyList?: [..._#defs."/$defs/Properties/definitions/ObjectTypeKey"] | fn.#ListExpression
+	ObjectTypeKeyList?: [...#ObjectTypeKey] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectTypeField": close({
+#ObjectTypeField: close({
 	ContentType?: "STRING" | "NUMBER" | "PHONE_NUMBER" | "EMAIL_ADDRESS" | "NAME" | fn.#StringExpression
 	Source?:      strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 	Target?:      strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectTypeKey": close({
+#ObjectTypeKey: close({
 	FieldNames?: [...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression] |
 	fn.#ListExpression
 	StandardIdentifiers?: [
@@ -125,7 +125,7 @@ _#defs: "/$defs/Properties/definitions/ObjectTypeKey": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -11,7 +11,7 @@ package schema
 // in the *API Gateway Developer Guide*.
 #Properties: close({
 	DocumentationPartId?: string
-	Location!:            _#defs."/$defs/Properties/definitions/Location"
+	Location!:            #Location
 	Properties!:          string
 	RestApiId!:           string
 })
@@ -25,7 +25,7 @@ package schema
 // values, see
 // [DocumentationPart](https://docs.aws.amazon.com/apigateway/latest/api/API_DocumentationPartLocation.html)
 // in the *Amazon API Gateway REST API Reference*.
-_#defs: "/$defs/Properties/definitions/Location": close({
+#Location: close({
 	Method?:     string
 	Name?:       string
 	Path?:       string

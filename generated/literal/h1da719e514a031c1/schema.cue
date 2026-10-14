@@ -24,13 +24,13 @@ import (
 	ConnectorProfileArn?: strings.MaxRunes(512) & =~"arn:aws:appflow:.*:[0-9]+:.*"
 
 	// Connector specific configurations needed to create connector profile
-	ConnectorProfileConfig?: _#defs."/$defs/Properties/definitions/ConnectorProfileConfig"
+	ConnectorProfileConfig?: #ConnectorProfileConfig
 
 	// The maximum number of items to retrieve in a single batch.
 	ConnectorProfileName!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+"
 
 	// List of Saas providers that need connector profile to be created
-	ConnectorType!: _#defs."/$defs/Properties/definitions/ConnectorType"
+	ConnectorType!: #ConnectorType
 
 	// A unique Arn for Connector-Profile resource
 	CredentialsArn?: strings.MaxRunes(512) & =~"arn:aws:.*:.*:[0-9]+:.*"
@@ -44,67 +44,65 @@ import (
 	=~"arn:aws:kms:.*:[0-9]+:.*"
 })
 
-_#defs: "/$defs/Properties/definitions/AccessKeyId": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
+#AccessKeyId: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/AccessToken": strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+"
+#AccessToken: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/AccountName": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#AccountName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/AmplitudeConnectorProfileCredentials": {
+#AmplitudeConnectorProfileCredentials: {
 	// A unique alphanumeric identiﬁer used to authenticate a user, developer, or
 	// calling program to your API.
-	ApiKey!:    _#defs."/$defs/Properties/definitions/ApiKey"
-	SecretKey!: _#defs."/$defs/Properties/definitions/SecretKey"
+	ApiKey!:    #ApiKey
+	SecretKey!: #SecretKey
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/ApiKey": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
+#ApiKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/ApiKeyCredentials": close({
-	ApiKey!:       _#defs."/$defs/Properties/definitions/ApiKey"
-	ApiSecretKey?: _#defs."/$defs/Properties/definitions/ApiSecretKey"
+#ApiKeyCredentials: close({
+	ApiKey!:       #ApiKey
+	ApiSecretKey?: #ApiSecretKey
 })
 
-_#defs: "/$defs/Properties/definitions/ApiSecretKey": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
+#ApiSecretKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/ApiToken": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
+#ApiToken: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/ApplicationHostUrl": strings.MaxRunes(256) &
+#ApplicationHostUrl: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]"
 
-_#defs: "/$defs/Properties/definitions/ApplicationKey": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#ApplicationKey: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/ApplicationServicePath": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#ApplicationServicePath: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/AuthCode": strings.MaxRunes(4096) & =~"\\S+"
+#AuthCode: strings.MaxRunes(4096) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/AuthenticationType": "OAUTH2" | "APIKEY" | "BASIC" | "CUSTOM"
+#AuthenticationType: "OAUTH2" | "APIKEY" | "BASIC" | "CUSTOM"
 
-_#defs: "/$defs/Properties/definitions/BasicAuthCredentials": close({
-	Password!: _#defs."/$defs/Properties/definitions/Password"
-	Username!: _#defs."/$defs/Properties/definitions/Username"
+#BasicAuthCredentials: close({
+	Password!: #Password
+	Username!: #Username
 })
 
-_#defs: "/$defs/Properties/definitions/BucketName": strings.MaxRunes(63) & strings.MinRunes(3) & =~"\\S+"
+#BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/BucketPrefix": strings.MaxRunes(128) & strings.MinRunes(0)
+#BucketPrefix: strings.MaxRunes(128) & strings.MinRunes(0)
 
-_#defs: "/$defs/Properties/definitions/BusinessUnitId": strings.MaxRunes(18) & strings.MinRunes(0) & =~"\\S+"
+#BusinessUnitId: strings.MaxRunes(18) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/ClientCredentialsArn": strings.MaxRunes(2048) &
-strings.MinRunes(20) &
-=~"arn:aws:secretsmanager:.*:[0-9]+:.*"
+#ClientCredentialsArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:aws:secretsmanager:.*:[0-9]+:.*"
 
-_#defs: "/$defs/Properties/definitions/ClientId": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#ClientId: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/ClientNumber": strings.MaxRunes(3) & strings.MinRunes(3) & =~"^\\d{3}$"
+#ClientNumber: strings.MaxRunes(3) & strings.MinRunes(3) & =~"^\\d{3}$"
 
-_#defs: "/$defs/Properties/definitions/ClientSecret": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#ClientSecret: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/ClusterIdentifier": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#ClusterIdentifier: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/ConnectorOAuthRequest": {
+#ConnectorOAuthRequest: {
 	// The code provided by the connector when it has been authenticated via the connected app.
 	AuthCode?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^\\S+$"
 
@@ -115,57 +113,57 @@ _#defs: "/$defs/Properties/definitions/ConnectorOAuthRequest": {
 }
 
 // Connector specific configurations needed to create connector profile
-_#defs: "/$defs/Properties/definitions/ConnectorProfileConfig": {
-	ConnectorProfileCredentials?: _#defs."/$defs/Properties/definitions/ConnectorProfileCredentials"
-	ConnectorProfileProperties?:  _#defs."/$defs/Properties/definitions/ConnectorProfileProperties"
+#ConnectorProfileConfig: {
+	ConnectorProfileCredentials?: #ConnectorProfileCredentials
+	ConnectorProfileProperties?:  #ConnectorProfileProperties
 	...
 }
 
 // Connector specific configuration needed to create connector profile based on
 // Authentication mechanism
-_#defs: "/$defs/Properties/definitions/ConnectorProfileCredentials": {
-	Amplitude?:       _#defs."/$defs/Properties/definitions/AmplitudeConnectorProfileCredentials"
-	CustomConnector?: _#defs."/$defs/Properties/definitions/CustomConnectorProfileCredentials"
-	Datadog?:         _#defs."/$defs/Properties/definitions/DatadogConnectorProfileCredentials"
-	Dynatrace?:       _#defs."/$defs/Properties/definitions/DynatraceConnectorProfileCredentials"
-	GoogleAnalytics?: _#defs."/$defs/Properties/definitions/GoogleAnalyticsConnectorProfileCredentials"
-	InforNexus?:      _#defs."/$defs/Properties/definitions/InforNexusConnectorProfileCredentials"
-	Marketo?:         _#defs."/$defs/Properties/definitions/MarketoConnectorProfileCredentials"
-	Pardot?:          _#defs."/$defs/Properties/definitions/PardotConnectorProfileCredentials"
-	Redshift?:        _#defs."/$defs/Properties/definitions/RedshiftConnectorProfileCredentials"
-	SAPOData?:        _#defs."/$defs/Properties/definitions/SAPODataConnectorProfileCredentials"
-	Salesforce?:      _#defs."/$defs/Properties/definitions/SalesforceConnectorProfileCredentials"
-	ServiceNow?:      _#defs."/$defs/Properties/definitions/ServiceNowConnectorProfileCredentials"
-	Singular?:        _#defs."/$defs/Properties/definitions/SingularConnectorProfileCredentials"
-	Slack?:           _#defs."/$defs/Properties/definitions/SlackConnectorProfileCredentials"
-	Snowflake?:       _#defs."/$defs/Properties/definitions/SnowflakeConnectorProfileCredentials"
-	Trendmicro?:      _#defs."/$defs/Properties/definitions/TrendmicroConnectorProfileCredentials"
-	Veeva?:           _#defs."/$defs/Properties/definitions/VeevaConnectorProfileCredentials"
-	Zendesk?:         _#defs."/$defs/Properties/definitions/ZendeskConnectorProfileCredentials"
+#ConnectorProfileCredentials: {
+	Amplitude?:       #AmplitudeConnectorProfileCredentials
+	CustomConnector?: #CustomConnectorProfileCredentials
+	Datadog?:         #DatadogConnectorProfileCredentials
+	Dynatrace?:       #DynatraceConnectorProfileCredentials
+	GoogleAnalytics?: #GoogleAnalyticsConnectorProfileCredentials
+	InforNexus?:      #InforNexusConnectorProfileCredentials
+	Marketo?:         #MarketoConnectorProfileCredentials
+	Pardot?:          #PardotConnectorProfileCredentials
+	Redshift?:        #RedshiftConnectorProfileCredentials
+	SAPOData?:        #SAPODataConnectorProfileCredentials
+	Salesforce?:      #SalesforceConnectorProfileCredentials
+	ServiceNow?:      #ServiceNowConnectorProfileCredentials
+	Singular?:        #SingularConnectorProfileCredentials
+	Slack?:           #SlackConnectorProfileCredentials
+	Snowflake?:       #SnowflakeConnectorProfileCredentials
+	Trendmicro?:      #TrendmicroConnectorProfileCredentials
+	Veeva?:           #VeevaConnectorProfileCredentials
+	Zendesk?:         #ZendeskConnectorProfileCredentials
 	...
 }
 
 // Connector specific properties needed to create connector profile - currently
 // not needed for Amplitude, Trendmicro, Googleanalytics and Singular
-_#defs: "/$defs/Properties/definitions/ConnectorProfileProperties": {
-	CustomConnector?: _#defs."/$defs/Properties/definitions/CustomConnectorProfileProperties"
-	Datadog?:         _#defs."/$defs/Properties/definitions/DatadogConnectorProfileProperties"
-	Dynatrace?:       _#defs."/$defs/Properties/definitions/DynatraceConnectorProfileProperties"
-	InforNexus?:      _#defs."/$defs/Properties/definitions/InforNexusConnectorProfileProperties"
-	Marketo?:         _#defs."/$defs/Properties/definitions/MarketoConnectorProfileProperties"
-	Pardot?:          _#defs."/$defs/Properties/definitions/PardotConnectorProfileProperties"
-	Redshift?:        _#defs."/$defs/Properties/definitions/RedshiftConnectorProfileProperties"
-	SAPOData?:        _#defs."/$defs/Properties/definitions/SAPODataConnectorProfileProperties"
-	Salesforce?:      _#defs."/$defs/Properties/definitions/SalesforceConnectorProfileProperties"
-	ServiceNow?:      _#defs."/$defs/Properties/definitions/ServiceNowConnectorProfileProperties"
-	Slack?:           _#defs."/$defs/Properties/definitions/SlackConnectorProfileProperties"
-	Snowflake?:       _#defs."/$defs/Properties/definitions/SnowflakeConnectorProfileProperties"
-	Veeva?:           _#defs."/$defs/Properties/definitions/VeevaConnectorProfileProperties"
-	Zendesk?:         _#defs."/$defs/Properties/definitions/ZendeskConnectorProfileProperties"
+#ConnectorProfileProperties: {
+	CustomConnector?: #CustomConnectorProfileProperties
+	Datadog?:         #DatadogConnectorProfileProperties
+	Dynatrace?:       #DynatraceConnectorProfileProperties
+	InforNexus?:      #InforNexusConnectorProfileProperties
+	Marketo?:         #MarketoConnectorProfileProperties
+	Pardot?:          #PardotConnectorProfileProperties
+	Redshift?:        #RedshiftConnectorProfileProperties
+	SAPOData?:        #SAPODataConnectorProfileProperties
+	Salesforce?:      #SalesforceConnectorProfileProperties
+	ServiceNow?:      #ServiceNowConnectorProfileProperties
+	Slack?:           #SlackConnectorProfileProperties
+	Snowflake?:       #SnowflakeConnectorProfileProperties
+	Veeva?:           #VeevaConnectorProfileProperties
+	Zendesk?:         #ZendeskConnectorProfileProperties
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/ConnectorType": "Salesforce" |
+#ConnectorType: "Salesforce" |
 	"Pardot" |
 	"Singular" |
 	"Slack" |
@@ -185,159 +183,157 @@ _#defs: "/$defs/Properties/definitions/ConnectorType": "Salesforce" |
 	"CustomConnector"
 
 // A map for properties for custom authentication.
-_#defs: "/$defs/Properties/definitions/CredentialsMap": close({
+#CredentialsMap: close({
 
 	{[=~"^[\\w]{1,128}$"]: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+"}})
 
-_#defs: "/$defs/Properties/definitions/CustomAuthCredentials": close({
-	CredentialsMap?:           _#defs."/$defs/Properties/definitions/CredentialsMap"
-	CustomAuthenticationType!: _#defs."/$defs/Properties/definitions/CustomAuthenticationType"
+#CustomAuthCredentials: close({
+	CredentialsMap?:           #CredentialsMap
+	CustomAuthenticationType!: #CustomAuthenticationType
 })
 
-_#defs: "/$defs/Properties/definitions/CustomAuthenticationType": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
+#CustomAuthenticationType: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/CustomConnectorProfileCredentials": close({
-	ApiKey?:             _#defs."/$defs/Properties/definitions/ApiKeyCredentials"
-	AuthenticationType!: _#defs."/$defs/Properties/definitions/AuthenticationType"
-	Basic?:              _#defs."/$defs/Properties/definitions/BasicAuthCredentials"
-	Custom?:             _#defs."/$defs/Properties/definitions/CustomAuthCredentials"
-	Oauth2?:             _#defs."/$defs/Properties/definitions/OAuth2Credentials"
+#CustomConnectorProfileCredentials: close({
+	ApiKey?:             #ApiKeyCredentials
+	AuthenticationType!: #AuthenticationType
+	Basic?:              #BasicAuthCredentials
+	Custom?:             #CustomAuthCredentials
+	Oauth2?:             #OAuth2Credentials
 })
 
-_#defs: "/$defs/Properties/definitions/CustomConnectorProfileProperties": close({
-	OAuth2Properties?:  _#defs."/$defs/Properties/definitions/OAuth2Properties"
-	ProfileProperties?: _#defs."/$defs/Properties/definitions/ProfileProperties"
+#CustomConnectorProfileProperties: close({
+	OAuth2Properties?:  #OAuth2Properties
+	ProfileProperties?: #ProfileProperties
 })
 
-_#defs: "/$defs/Properties/definitions/DataApiRoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#DataApiRoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(512) &
 strings.MinRunes(0) &
 =~"arn:aws:iam:.*:[0-9]+:.*"
 
-_#defs: "/$defs/Properties/definitions/DatabaseName": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#DatabaseName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/DatabaseUrl": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#DatabaseUrl: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/DatadogConnectorProfileCredentials": {
+#DatadogConnectorProfileCredentials: {
 	// A unique alphanumeric identiﬁer used to authenticate a user, developer, or
 	// calling program to your API.
-	ApiKey!: _#defs."/$defs/Properties/definitions/ApiKey"
+	ApiKey!: #ApiKey
 
 	// Application keys, in conjunction with your API key, give you full access to
 	// Datadog’s programmatic API. Application keys are associated with the user
 	// account that created them. The application key is used to log all requests
 	// made to the API.
-	ApplicationKey!: _#defs."/$defs/Properties/definitions/ApplicationKey"
+	ApplicationKey!: #ApplicationKey
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/DatadogConnectorProfileProperties": {
+#DatadogConnectorProfileProperties: {
 	// The location of the Datadog resource
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl"
+	InstanceUrl!: #InstanceUrl
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/DynatraceConnectorProfileCredentials": {
+#DynatraceConnectorProfileCredentials: {
 	// The API tokens used by Dynatrace API to authenticate various API calls.
-	ApiToken!: _#defs."/$defs/Properties/definitions/ApiToken"
+	ApiToken!: #ApiToken
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/DynatraceConnectorProfileProperties": {
+#DynatraceConnectorProfileProperties: {
 	// The location of the Dynatrace resource
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl"
+	InstanceUrl!: #InstanceUrl
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/GoogleAnalyticsConnectorProfileCredentials": {
+#GoogleAnalyticsConnectorProfileCredentials: {
 	// The credentials used to access protected resources.
-	AccessToken?: _#defs."/$defs/Properties/definitions/AccessToken"
+	AccessToken?: #AccessToken
 
 	// The identiﬁer for the desired client.
-	ClientId!: _#defs."/$defs/Properties/definitions/ClientId"
+	ClientId!: #ClientId
 
 	// The client secret used by the oauth client to authenticate to the authorization server.
-	ClientSecret!: _#defs."/$defs/Properties/definitions/ClientSecret"
+	ClientSecret!: #ClientSecret
 
 	// The oauth needed to request security tokens from the connector endpoint.
-	ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest"
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
 
 	// The credentials used to acquire new access tokens.
-	RefreshToken?: _#defs."/$defs/Properties/definitions/RefreshToken"
+	RefreshToken?: #RefreshToken
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/InforNexusConnectorProfileCredentials": {
+#InforNexusConnectorProfileCredentials: {
 	// The Access Key portion of the credentials.
-	AccessKeyId!: _#defs."/$defs/Properties/definitions/AccessKeyId"
+	AccessKeyId!: #AccessKeyId
 
 	// The encryption keys used to encrypt data.
-	Datakey!: _#defs."/$defs/Properties/definitions/Key"
+	Datakey!: #Key
 
 	// The secret key used to sign requests.
-	SecretAccessKey!: _#defs."/$defs/Properties/definitions/Key"
+	SecretAccessKey!: #Key
 
 	// The identiﬁer for the user.
-	UserId!: _#defs."/$defs/Properties/definitions/Username"
+	UserId!: #Username
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/InforNexusConnectorProfileProperties": {
+#InforNexusConnectorProfileProperties: {
 	// The location of the InforNexus resource
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl"
+	InstanceUrl!: #InstanceUrl
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/InstanceUrl": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
+#InstanceUrl: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/JwtToken": strings.MaxRunes(8000) &
-strings.MinRunes(0) &
-=~"^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
+#JwtToken: strings.MaxRunes(8000) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$"
 
-_#defs: "/$defs/Properties/definitions/Key": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#Key: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/LogonLanguage": strings.MaxRunes(2) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_]*$"
+#LogonLanguage: strings.MaxRunes(2) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_]*$"
 
-_#defs: "/$defs/Properties/definitions/MarketoConnectorProfileCredentials": {
+#MarketoConnectorProfileCredentials: {
 	// The credentials used to access protected resources.
-	AccessToken?: _#defs."/$defs/Properties/definitions/AccessToken"
+	AccessToken?: #AccessToken
 
 	// The identiﬁer for the desired client.
-	ClientId!: _#defs."/$defs/Properties/definitions/ClientId"
+	ClientId!: #ClientId
 
 	// The client secret used by the oauth client to authenticate to the authorization server.
-	ClientSecret!: _#defs."/$defs/Properties/definitions/ClientSecret"
+	ClientSecret!: #ClientSecret
 
 	// The oauth needed to request security tokens from the connector endpoint.
-	ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest"
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/MarketoConnectorProfileProperties": {
+#MarketoConnectorProfileProperties: {
 	// The location of the Marketo resource
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl"
+	InstanceUrl!: #InstanceUrl
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/OAuth2Credentials": close({
-	AccessToken?:  _#defs."/$defs/Properties/definitions/AccessToken"
-	ClientId?:     _#defs."/$defs/Properties/definitions/ClientId"
-	ClientSecret?: _#defs."/$defs/Properties/definitions/ClientSecret"
-	OAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest"
-	RefreshToken?: _#defs."/$defs/Properties/definitions/RefreshToken"
+#OAuth2Credentials: close({
+	AccessToken?:  #AccessToken
+	ClientId?:     #ClientId
+	ClientSecret?: #ClientSecret
+	OAuthRequest?: #ConnectorOAuthRequest
+	RefreshToken?: #RefreshToken
 })
 
-_#defs: "/$defs/Properties/definitions/OAuth2GrantType": "CLIENT_CREDENTIALS" | "AUTHORIZATION_CODE" | "JWT_BEARER"
+#OAuth2GrantType: "CLIENT_CREDENTIALS" | "AUTHORIZATION_CODE" | "JWT_BEARER"
 
-_#defs: "/$defs/Properties/definitions/OAuth2Properties": close({
-	OAuth2GrantType?: _#defs."/$defs/Properties/definitions/OAuth2GrantType"
+#OAuth2Properties: close({
+	OAuth2GrantType?: #OAuth2GrantType
 	TokenUrl?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]"
-	TokenUrlCustomProperties?: _#defs."/$defs/Properties/definitions/TokenUrlCustomProperties"
+	TokenUrlCustomProperties?: #TokenUrlCustomProperties
 })
 
-_#defs: "/$defs/Properties/definitions/OAuthProperties": {
+#OAuthProperties: {
 	AuthCodeUrl?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]"
@@ -348,145 +344,145 @@ _#defs: "/$defs/Properties/definitions/OAuthProperties": {
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/PardotConnectorProfileCredentials": {
+#PardotConnectorProfileCredentials: {
 	// The credentials used to access protected resources.
-	AccessToken?: _#defs."/$defs/Properties/definitions/AccessToken"
+	AccessToken?: #AccessToken
 
 	// The client credentials to fetch access token and refresh token.
-	ClientCredentialsArn?: _#defs."/$defs/Properties/definitions/ClientCredentialsArn"
+	ClientCredentialsArn?: #ClientCredentialsArn
 
 	// The oauth needed to request security tokens from the connector endpoint.
-	ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest"
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
 
 	// The credentials used to acquire new access tokens.
-	RefreshToken?: _#defs."/$defs/Properties/definitions/RefreshToken"
+	RefreshToken?: #RefreshToken
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/PardotConnectorProfileProperties": {
+#PardotConnectorProfileProperties: {
 	// The Business unit id of Salesforce Pardot instance to be connected
-	BusinessUnitId!: _#defs."/$defs/Properties/definitions/BusinessUnitId"
+	BusinessUnitId!: #BusinessUnitId
 
 	// The location of the Salesforce Pardot resource
-	InstanceUrl?: _#defs."/$defs/Properties/definitions/InstanceUrl"
+	InstanceUrl?: #InstanceUrl
 
 	// Indicates whether the connector profile applies to a demo or production environment
 	IsSandboxEnvironment?: bool
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/Password": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#Password: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/PortNumber": int & <=65535 & >=1
+#PortNumber: int & <=65535 & >=1
 
-_#defs: "/$defs/Properties/definitions/PrivateLinkServiceName": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#PrivateLinkServiceName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
 // A map for properties for custom connector.
-_#defs: "/$defs/Properties/definitions/ProfileProperties": close({
+#ProfileProperties: close({
 
 	{[=~"^[\\w]{1,256}$"]: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+"}})
 
-_#defs: "/$defs/Properties/definitions/RedshiftConnectorProfileCredentials": {
+#RedshiftConnectorProfileCredentials: {
 	// The password that corresponds to the username.
-	Password?: _#defs."/$defs/Properties/definitions/Password"
+	Password?: #Password
 
 	// The name of the user.
-	Username?: _#defs."/$defs/Properties/definitions/Username"
+	Username?: #Username
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/RedshiftConnectorProfileProperties": {
+#RedshiftConnectorProfileProperties: {
 	// The name of the Amazon S3 bucket associated with Redshift.
-	BucketName!: _#defs."/$defs/Properties/definitions/BucketName"
+	BucketName!: #BucketName
 
 	// The object key for the destination bucket in which Amazon AppFlow will place the ﬁles.
-	BucketPrefix?: _#defs."/$defs/Properties/definitions/BucketPrefix"
+	BucketPrefix?: #BucketPrefix
 
 	// The unique identifier of the Amazon Redshift cluster.
-	ClusterIdentifier?: _#defs."/$defs/Properties/definitions/ClusterIdentifier"
+	ClusterIdentifier?: #ClusterIdentifier
 
 	// The Amazon Resource Name (ARN) of the IAM role that grants Amazon AppFlow
 	// access to the data through the Amazon Redshift Data API.
-	DataApiRoleArn?: _#defs."/$defs/Properties/definitions/DataApiRoleArn"
+	DataApiRoleArn?: #DataApiRoleArn
 
 	// The name of the Amazon Redshift database that will store the transferred data.
-	DatabaseName?: _#defs."/$defs/Properties/definitions/DatabaseName"
+	DatabaseName?: #DatabaseName
 
 	// The JDBC URL of the Amazon Redshift cluster.
-	DatabaseUrl?: _#defs."/$defs/Properties/definitions/DatabaseUrl"
+	DatabaseUrl?: #DatabaseUrl
 
 	// If Amazon AppFlow will connect to Amazon Redshift Serverless or Amazon Redshift cluster.
 	IsRedshiftServerless?: bool
 
 	// The Amazon Resource Name (ARN) of the IAM role.
-	RoleArn!: _#defs."/$defs/Properties/definitions/RoleArn"
+	RoleArn!: #RoleArn
 
 	// The name of the Amazon Redshift serverless workgroup
-	WorkgroupName?: _#defs."/$defs/Properties/definitions/WorkgroupName"
+	WorkgroupName?: #WorkgroupName
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/RefreshToken": strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+"
+#RefreshToken: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/Region": strings.MaxRunes(64) & strings.MinRunes(0) & =~"\\S+"
+#Region: strings.MaxRunes(64) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(512) &
 strings.MinRunes(0) &
 =~"arn:aws:iam:.*:[0-9]+:.*"
 
-_#defs: "/$defs/Properties/definitions/SAPODataConnectorProfileCredentials": {
-	BasicAuthCredentials?: _#defs."/$defs/Properties/definitions/BasicAuthCredentials"
+#SAPODataConnectorProfileCredentials: {
+	BasicAuthCredentials?: #BasicAuthCredentials
 	OAuthCredentials?: {
-		AccessToken?:           _#defs."/$defs/Properties/definitions/AccessToken"
-		ClientId?:              _#defs."/$defs/Properties/definitions/ClientId"
-		ClientSecret?:          _#defs."/$defs/Properties/definitions/ClientSecret"
-		ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest"
-		RefreshToken?:          _#defs."/$defs/Properties/definitions/RefreshToken"
+		AccessToken?:           #AccessToken
+		ClientId?:              #ClientId
+		ClientSecret?:          #ClientSecret
+		ConnectorOAuthRequest?: #ConnectorOAuthRequest
+		RefreshToken?:          #RefreshToken
 		...
 	}
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/SAPODataConnectorProfileProperties": {
-	ApplicationHostUrl?:     _#defs."/$defs/Properties/definitions/ApplicationHostUrl"
-	ApplicationServicePath?: _#defs."/$defs/Properties/definitions/ApplicationServicePath"
-	ClientNumber?:           _#defs."/$defs/Properties/definitions/ClientNumber"
+#SAPODataConnectorProfileProperties: {
+	ApplicationHostUrl?:     #ApplicationHostUrl
+	ApplicationServicePath?: #ApplicationServicePath
+	ClientNumber?:           #ClientNumber
 
 	// If you set this parameter to true, Amazon AppFlow bypasses the single sign-on
 	// (SSO) settings in your SAP account when it accesses your SAP OData instance.
 	DisableSSO?:             bool
-	LogonLanguage?:          _#defs."/$defs/Properties/definitions/LogonLanguage"
-	OAuthProperties?:        _#defs."/$defs/Properties/definitions/OAuthProperties"
-	PortNumber?:             _#defs."/$defs/Properties/definitions/PortNumber"
-	PrivateLinkServiceName?: _#defs."/$defs/Properties/definitions/PrivateLinkServiceName"
+	LogonLanguage?:          #LogonLanguage
+	OAuthProperties?:        #OAuthProperties
+	PortNumber?:             #PortNumber
+	PrivateLinkServiceName?: #PrivateLinkServiceName
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/SalesforceConnectorProfileCredentials": {
+#SalesforceConnectorProfileCredentials: {
 	// The credentials used to access protected resources.
-	AccessToken?: _#defs."/$defs/Properties/definitions/AccessToken"
+	AccessToken?: #AccessToken
 
 	// The client credentials to fetch access token and refresh token.
-	ClientCredentialsArn?: _#defs."/$defs/Properties/definitions/ClientCredentialsArn"
+	ClientCredentialsArn?: #ClientCredentialsArn
 
 	// The oauth needed to request security tokens from the connector endpoint.
-	ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest"
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
 
 	// The credentials used to access your Salesforce records
-	JwtToken?: _#defs."/$defs/Properties/definitions/JwtToken"
+	JwtToken?: #JwtToken
 
 	// The grant types to fetch an access token
-	OAuth2GrantType?: _#defs."/$defs/Properties/definitions/OAuth2GrantType"
+	OAuth2GrantType?: #OAuth2GrantType
 
 	// The credentials used to acquire new access tokens.
-	RefreshToken?: _#defs."/$defs/Properties/definitions/RefreshToken"
+	RefreshToken?: #RefreshToken
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/SalesforceConnectorProfileProperties": {
+#SalesforceConnectorProfileProperties: {
 	// The location of the Salesforce resource
-	InstanceUrl?: _#defs."/$defs/Properties/definitions/InstanceUrl"
+	InstanceUrl?: #InstanceUrl
 
 	// Indicates whether the connector profile applies to a sandbox or production environment
 	isSandboxEnvironment?: bool
@@ -496,139 +492,139 @@ _#defs: "/$defs/Properties/definitions/SalesforceConnectorProfileProperties": {
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/SecretKey": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
+#SecretKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/ServiceNowConnectorProfileCredentials": {
+#ServiceNowConnectorProfileCredentials: {
 	// The OAuth 2.0 credentials required to authenticate the user.
-	OAuth2Credentials?: _#defs."/$defs/Properties/definitions/OAuth2Credentials"
+	OAuth2Credentials?: #OAuth2Credentials
 
 	// The password that corresponds to the username.
-	Password?: _#defs."/$defs/Properties/definitions/Password"
+	Password?: #Password
 
 	// The name of the user.
-	Username?: _#defs."/$defs/Properties/definitions/Username"
+	Username?: #Username
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/ServiceNowConnectorProfileProperties": {
+#ServiceNowConnectorProfileProperties: {
 	// The location of the ServiceNow resource
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl"
+	InstanceUrl!: #InstanceUrl
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/SingularConnectorProfileCredentials": {
+#SingularConnectorProfileCredentials: {
 	// A unique alphanumeric identiﬁer used to authenticate a user, developer, or
 	// calling program to your API.
-	ApiKey!: _#defs."/$defs/Properties/definitions/ApiKey"
+	ApiKey!: #ApiKey
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/SlackConnectorProfileCredentials": {
+#SlackConnectorProfileCredentials: {
 	// The credentials used to access protected resources.
-	AccessToken?: _#defs."/$defs/Properties/definitions/AccessToken"
+	AccessToken?: #AccessToken
 
 	// The identiﬁer for the desired client.
-	ClientId!: _#defs."/$defs/Properties/definitions/ClientId"
+	ClientId!: #ClientId
 
 	// The client secret used by the oauth client to authenticate to the authorization server.
-	ClientSecret!: _#defs."/$defs/Properties/definitions/ClientSecret"
+	ClientSecret!: #ClientSecret
 
 	// The oauth needed to request security tokens from the connector endpoint.
-	ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest"
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/SlackConnectorProfileProperties": {
+#SlackConnectorProfileProperties: {
 	// The location of the Slack resource
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl"
+	InstanceUrl!: #InstanceUrl
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/SnowflakeConnectorProfileCredentials": {
+#SnowflakeConnectorProfileCredentials: {
 	// The password that corresponds to the username.
-	Password!: _#defs."/$defs/Properties/definitions/Password"
+	Password!: #Password
 
 	// The name of the user.
-	Username!: _#defs."/$defs/Properties/definitions/Username"
+	Username!: #Username
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/SnowflakeConnectorProfileProperties": {
+#SnowflakeConnectorProfileProperties: {
 	// The name of the account.
-	AccountName?: _#defs."/$defs/Properties/definitions/AccountName"
+	AccountName?: #AccountName
 
 	// The name of the Amazon S3 bucket associated with Snowﬂake.
-	BucketName!: _#defs."/$defs/Properties/definitions/BucketName"
+	BucketName!: #BucketName
 
 	// The bucket prefix that refers to the Amazon S3 bucket associated with Snowﬂake.
-	BucketPrefix?: _#defs."/$defs/Properties/definitions/BucketPrefix"
+	BucketPrefix?: #BucketPrefix
 
 	// The Snowﬂake Private Link service name to be used for private data transfers.
-	PrivateLinkServiceName?: _#defs."/$defs/Properties/definitions/PrivateLinkServiceName"
+	PrivateLinkServiceName?: #PrivateLinkServiceName
 
 	// The region of the Snowﬂake account.
-	Region?: _#defs."/$defs/Properties/definitions/Region"
+	Region?: #Region
 
 	// The name of the Amazon S3 stage that was created while setting up an Amazon S3 stage in the
 	// Snowﬂake account. This is written in the following format: < Database>< Schema><Stage Name>.
-	Stage!: _#defs."/$defs/Properties/definitions/Stage"
+	Stage!: #Stage
 
 	// The name of the Snowﬂake warehouse.
-	Warehouse!: _#defs."/$defs/Properties/definitions/Warehouse"
+	Warehouse!: #Warehouse
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/Stage": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#Stage: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
 // A map for properties for custom connector Token Url.
-_#defs: "/$defs/Properties/definitions/TokenUrlCustomProperties": close({
+#TokenUrlCustomProperties: close({
 
 	{[=~"^[\\w]{1,128}$"]: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+"}})
 
-_#defs: "/$defs/Properties/definitions/TrendmicroConnectorProfileCredentials": {
+#TrendmicroConnectorProfileCredentials: {
 	// The Secret Access Key portion of the credentials.
-	ApiSecretKey!: _#defs."/$defs/Properties/definitions/ApiSecretKey"
+	ApiSecretKey!: #ApiSecretKey
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/Username": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#Username: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/VeevaConnectorProfileCredentials": {
+#VeevaConnectorProfileCredentials: {
 	// The password that corresponds to the username.
-	Password!: _#defs."/$defs/Properties/definitions/Password"
+	Password!: #Password
 
 	// The name of the user.
-	Username!: _#defs."/$defs/Properties/definitions/Username"
+	Username!: #Username
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/VeevaConnectorProfileProperties": {
+#VeevaConnectorProfileProperties: {
 	// The location of the Veeva resource
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl"
+	InstanceUrl!: #InstanceUrl
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/Warehouse": strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*"
+#Warehouse: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*"
 
-_#defs: "/$defs/Properties/definitions/WorkgroupName": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#WorkgroupName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/ZendeskConnectorProfileCredentials": {
+#ZendeskConnectorProfileCredentials: {
 	// The credentials used to access protected resources.
-	AccessToken?: _#defs."/$defs/Properties/definitions/AccessToken"
+	AccessToken?: #AccessToken
 
 	// The identiﬁer for the desired client.
-	ClientId!: _#defs."/$defs/Properties/definitions/ClientId"
+	ClientId!: #ClientId
 
 	// The client secret used by the oauth client to authenticate to the authorization server.
-	ClientSecret!: _#defs."/$defs/Properties/definitions/ClientSecret"
+	ClientSecret!: #ClientSecret
 
 	// The oauth needed to request security tokens from the connector endpoint.
-	ConnectorOAuthRequest?: _#defs."/$defs/Properties/definitions/ConnectorOAuthRequest"
+	ConnectorOAuthRequest?: #ConnectorOAuthRequest
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/ZendeskConnectorProfileProperties": {
+#ZendeskConnectorProfileProperties: {
 	// The location of the Zendesk resource
-	InstanceUrl!: _#defs."/$defs/Properties/definitions/InstanceUrl"
+	InstanceUrl!: #InstanceUrl
 	...
 }

@@ -18,25 +18,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::RTBFabric::ResponderGateway Resource Type
 #Properties: close({
-	AcmCertificateArn?:            _#defs."/$defs/Properties/definitions/AcmCertificateArn"
-	Description?:                  _#defs."/$defs/Properties/definitions/Description"
-	DomainName?:                   _#defs."/$defs/Properties/definitions/DomainName"
-	GatewayType?:                  _#defs."/$defs/Properties/definitions/GatewayType"
-	ListenerConfig?:               _#defs."/$defs/Properties/definitions/ListenerConfig"
-	ManagedEndpointConfiguration?: _#defs."/$defs/Properties/definitions/ManagedEndpointConfiguration"
-	Port!:                         _#defs."/$defs/Properties/definitions/Port"
-	Protocol!:                     _#defs."/$defs/Properties/definitions/Protocol"
-	SecurityGroupIds!:             _#defs."/$defs/Properties/definitions/SecurityGroupIds"
-	SubnetIds!:                    _#defs."/$defs/Properties/definitions/SubnetIds"
-	Tags?:                         _#defs."/$defs/Properties/definitions/Tags"
-	TrustStoreConfiguration?:      _#defs."/$defs/Properties/definitions/TrustStoreConfiguration"
-	VpcId!:                        _#defs."/$defs/Properties/definitions/VpcId"
+	AcmCertificateArn?:            #AcmCertificateArn
+	Description?:                  #Description
+	DomainName?:                   #DomainName
+	GatewayType?:                  #GatewayType
+	ListenerConfig?:               #ListenerConfig
+	ManagedEndpointConfiguration?: #ManagedEndpointConfiguration
+	Port!:                         #Port
+	Protocol!:                     #Protocol
+	SecurityGroupIds!:             #SecurityGroupIds
+	SubnetIds!:                    #SubnetIds
+	Tags?:                         #Tags
+	TrustStoreConfiguration?:      #TrustStoreConfiguration
+	VpcId!:                        #VpcId
 })
 
-_#defs: "/$defs/Properties/definitions/AcmCertificateArn": =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#AcmCertificateArn: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ActiveLinksCount": int |
+#ActiveLinksCount: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -50,28 +50,24 @@ _#defs: "/$defs/Properties/definitions/ActiveLinksCount": int |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
+#Arn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AutoScalingGroupNameList": list.UniqueItems() & [
-	...string | fn.#StringExpression
-] |
-	fn.#ListExpression
+#AutoScalingGroupNameList: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AutoScalingGroupsConfiguration": close({
-	AutoScalingGroupNameList!: _#defs."/$defs/Properties/definitions/AutoScalingGroupNameList"
-	HealthCheckConfig?:        _#defs."/$defs/Properties/definitions/HealthCheckConfig"
+#AutoScalingGroupsConfiguration: close({
+	AutoScalingGroupNameList!: #AutoScalingGroupNameList
+	HealthCheckConfig?:        #HealthCheckConfig
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Base64EncodedCertificateChain": strings.MaxRunes(2097152) & strings.MinRunes(1) |
-fn.#StringExpression
+#Base64EncodedCertificateChain: strings.MaxRunes(2097152) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CertificateAssociationStatus": "PENDING_ASSOCIATION" |
+#CertificateAssociationStatus: "PENDING_ASSOCIATION" |
 	"ASSOCIATED" |
 	"PENDING_DISASSOCIATION" |
 	"DISASSOCIATED" |
@@ -79,21 +75,19 @@ _#defs: "/$defs/Properties/definitions/CertificateAssociationStatus": "PENDING_A
 	"FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CertificateAuthorityCertificates": list.MaxItems(1) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Base64EncodedCertificateChain"
-] |
+#CertificateAuthorityCertificates: list.MaxItems(1) & list.UniqueItems() & [...] & [...#Base64EncodedCertificateChain] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CreatedTimestamp": string | fn.#StringExpression
+#CreatedTimestamp: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Description": =~"^[A-Za-z0-9 ]+$" | fn.#StringExpression
+#Description: =~"^[A-Za-z0-9 ]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DomainName": strings.MaxRunes(255) &
+#DomainName: strings.MaxRunes(255) &
 strings.MinRunes(1) &
 =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EksEndpointsConfiguration": close({
+#EksEndpointsConfiguration: close({
 	ClusterApiServerCaCertificateChain!: strings.MaxRunes(2097152) & strings.MinRunes(1) | fn.#StringExpression
 	ClusterApiServerEndpointUri!: strings.MaxRunes(255) &
 	strings.MinRunes(0) &
@@ -107,14 +101,13 @@ _#defs: "/$defs/Properties/definitions/EksEndpointsConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExternalInboundEndpoint": _#defs."/$defs/Properties/definitions/DomainName"
+#ExternalInboundEndpoint: #DomainName
 
-_#defs: "/$defs/Properties/definitions/GatewayId": =~"^(rtbapp-[a-z0-9-]{1,25}|rtb-gw-[a-z0-9-]{1,25})$" |
-	fn.#StringExpression
+#GatewayId: =~"^(rtbapp-[a-z0-9-]{1,25}|rtb-gw-[a-z0-9-]{1,25})$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayType": "EXTERNAL" | "INTERNAL" | fn.#StringExpression
+#GatewayType: "EXTERNAL" | "INTERNAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
+#HealthCheckConfig: close({
 	HealthyThresholdCount?: int & <=10 & >=2 |
 		{
 			string &
@@ -164,7 +157,7 @@ _#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	Protocol?:          _#defs."/$defs/Properties/definitions/Protocol"
+	Protocol?:          #Protocol
 	StatusCodeMatcher?: strings.MaxRunes(2000) & strings.MinRunes(3) & =~"^[0-9,\\-]+$" | fn.#StringExpression
 	TimeoutMs?: int & <=5000 & >=100 |
 		{
@@ -201,7 +194,7 @@ _#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InboundLinksCount": int |
+#InboundLinksCount: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -215,20 +208,17 @@ _#defs: "/$defs/Properties/definitions/InboundLinksCount": int |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ListenerConfig": close({
-	Protocols!: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Protocol"] |
-		fn.#ListExpression
-}) |
+#ListenerConfig: close({Protocols!: list.MaxItems(2) & list.MinItems(1) & [...#Protocol] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedEndpointConfiguration": fn.#Object & {...} & matchN(1, [close(
-	{AutoScalingGroupsConfiguration!: _#defs."/$defs/Properties/definitions/AutoScalingGroupsConfiguration"},
+#ManagedEndpointConfiguration: fn.#Object & {...} & matchN(1, [close(
+	{AutoScalingGroupsConfiguration!: #AutoScalingGroupsConfiguration},
 ), close(
-	{EksEndpointsConfiguration!: _#defs."/$defs/Properties/definitions/EksEndpointsConfiguration"},
+	{EksEndpointsConfiguration!: #EksEndpointsConfiguration},
 )]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=1 |
+#Port: int & <=65535 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -245,9 +235,9 @@ _#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Protocol": "HTTP" | "HTTPS" | fn.#StringExpression
+#Protocol: "HTTP" | "HTTPS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResponderGatewayStatus": "PENDING_CREATION" |
+#ResponderGatewayStatus: "PENDING_CREATION" |
 	"ACTIVE" |
 	"PENDING_DELETION" |
 	"DELETED" |
@@ -258,7 +248,7 @@ _#defs: "/$defs/Properties/definitions/ResponderGatewayStatus": "PENDING_CREATIO
 	"PENDING_RESTORATION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupIds": list.MinItems(1) & list.UniqueItems() & [
+#SecurityGroupIds: list.MinItems(1) & list.UniqueItems() & [
 	...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	string &
 	strings.MaxRunes(43) &
@@ -268,24 +258,21 @@ _#defs: "/$defs/Properties/definitions/SecurityGroupIds": list.MinItems(1) & lis
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SubnetIds": list.MinItems(1) & list.UniqueItems() & [
+#SubnetIds: list.MinItems(1) & list.UniqueItems() & [
 	...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-\\w{8,17}$" | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" |
 	fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TotalLinksCount": int |
+#TotalLinksCount: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -299,14 +286,12 @@ _#defs: "/$defs/Properties/definitions/TotalLinksCount": int |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/TrustStoreConfiguration": close(
-	{CertificateAuthorityCertificates!: _#defs."/$defs/Properties/definitions/CertificateAuthorityCertificates"},
-) |
+#TrustStoreConfiguration: close({CertificateAuthorityCertificates!: #CertificateAuthorityCertificates}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdatedTimestamp": string | fn.#StringExpression
+#UpdatedTimestamp: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VpcId": =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#VpcId: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(50) &
 strings.MinRunes(5) &
 =~"^vpc-[a-f0-9]{8,17}$" |

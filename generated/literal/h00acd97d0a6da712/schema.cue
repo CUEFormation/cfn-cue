@@ -18,8 +18,8 @@ import "strings"
 	Policy!: strings.MaxRunes(20480) &
 	strings.MinRunes(1) &
 	=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]+"
-	Type!: _#defs."/$defs/Properties/definitions/SecurityPolicyType"
+	Type!: #SecurityPolicyType
 })
 
 // The possible types for the network policy
-_#defs: "/$defs/Properties/definitions/SecurityPolicyType": "encryption" | "network"
+#SecurityPolicyType: "encryption" | "network"

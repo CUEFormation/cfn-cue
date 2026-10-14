@@ -8,30 +8,30 @@ package schema
 #Properties: close({
 	ApplicationName!: string
 	Id?:              string
-	Output!:          _#defs."/$defs/Properties/definitions/Output"
+	Output!:          #Output
 })
 
-_#defs: "/$defs/Properties/definitions/DestinationSchema": close({RecordFormatType?: string})
+#DestinationSchema: close({RecordFormatType?: string})
 
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseOutput": close({
+#KinesisFirehoseOutput: close({
 	ResourceARN!: string
 	RoleARN!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/KinesisStreamsOutput": close({
+#KinesisStreamsOutput: close({
 	ResourceARN!: string
 	RoleARN!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaOutput": close({
+#LambdaOutput: close({
 	ResourceARN!: string
 	RoleARN!:     =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/Output": close({
-	DestinationSchema!:     _#defs."/$defs/Properties/definitions/DestinationSchema"
-	KinesisFirehoseOutput?: _#defs."/$defs/Properties/definitions/KinesisFirehoseOutput"
-	KinesisStreamsOutput?:  _#defs."/$defs/Properties/definitions/KinesisStreamsOutput"
-	LambdaOutput?:          _#defs."/$defs/Properties/definitions/LambdaOutput"
+#Output: close({
+	DestinationSchema!:     #DestinationSchema
+	KinesisFirehoseOutput?: #KinesisFirehoseOutput
+	KinesisStreamsOutput?:  #KinesisStreamsOutput
+	LambdaOutput?:          #LambdaOutput
 	Name?:                  string
 })

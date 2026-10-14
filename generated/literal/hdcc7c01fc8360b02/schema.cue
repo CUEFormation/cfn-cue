@@ -17,23 +17,22 @@ import (
 	// The Availability Zone where you want to create the router input. This must be
 	// a valid Availability Zone for the region specified by regionName, or the
 	// current region if no regionName is provided.
-	AvailabilityZone?: string
-	Configuration!:    _#defs."/$defs/Properties/definitions/RouterInputConfiguration"
-	ContentQualityAnalysisConfiguration?:
-		_#defs."/$defs/Properties/definitions/RouterContentQualityAnalysisConfiguration"
-	ContentQualityAnalysisType?: _#defs."/$defs/Properties/definitions/RouterContentQualityAnalysisType"
+	AvailabilityZone?:                    string
+	Configuration!:                       #RouterInputConfiguration
+	ContentQualityAnalysisConfiguration?: #RouterContentQualityAnalysisConfiguration
+	ContentQualityAnalysisType?:          #RouterContentQualityAnalysisType
 
 	// The timestamp when the router input was created.
 	CreatedAt?: time.Time
 
 	// The unique identifier of the router input.
 	Id?:        string
-	InputType?: _#defs."/$defs/Properties/definitions/RouterInputType"
+	InputType?: #RouterInputType
 
 	// The IP address of the router input.
 	IpAddress?:                string
-	MaintenanceConfiguration?: _#defs."/$defs/Properties/definitions/MaintenanceConfiguration"
-	MaintenanceType?:          _#defs."/$defs/Properties/definitions/MaintenanceType"
+	MaintenanceConfiguration?: #MaintenanceConfiguration
+	MaintenanceType?:          #MaintenanceType
 
 	// The maximum bitrate for the router input.
 	MaximumBitrate!: int
@@ -47,13 +46,13 @@ import (
 
 	// The number of router outputs associated with the router input.
 	RoutedOutputs?: int
-	RoutingScope!:  _#defs."/$defs/Properties/definitions/RoutingScope"
-	State?:         _#defs."/$defs/Properties/definitions/RouterInputState"
+	RoutingScope!:  #RoutingScope
+	State?:         #RouterInputState
 
 	// Key-value pairs that can be used to tag and organize this router input.
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"]
-	Tier!:              _#defs."/$defs/Properties/definitions/RouterInputTier"
-	TransitEncryption?: _#defs."/$defs/Properties/definitions/RouterInputTransitEncryption"
+	Tags?:              [...#Tag]
+	Tier!:              #RouterInputTier
+	TransitEncryption?: #RouterInputTransitEncryption
 
 	// The timestamp when the router input was last updated.
 	UpdatedAt?: time.Time
@@ -61,13 +60,13 @@ import (
 
 // Configuration settings for automatic encryption key management, where
 // MediaConnect handles key creation and rotation.
-_#defs: "/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration": close({})
+#AutomaticEncryptionKeyConfiguration: close({})
 
 // Detects black frames in the router input's source content and reports them
 // through a CloudWatch metric, an EventBridge event, and a router input
 // message.
-_#defs: "/$defs/Properties/definitions/BlackFramesConfiguration": close({
-	State!: _#defs."/$defs/Properties/definitions/ContentQualityAnalysisState"
+#BlackFramesConfiguration: close({
+	State!: #ContentQualityAnalysisState
 
 	// The number of consecutive seconds of black frames that MediaConnect must
 	// detect before it reports an issue.
@@ -75,30 +74,24 @@ _#defs: "/$defs/Properties/definitions/BlackFramesConfiguration": close({
 })
 
 // Configures the content quality analysis features for the router input.
-_#defs: "/$defs/Properties/definitions/ContentQualityAnalysisFeatureConfiguration": close({
-	BlackFrames?:  _#defs."/$defs/Properties/definitions/BlackFramesConfiguration"
-	FrozenFrames?: _#defs."/$defs/Properties/definitions/FrozenFramesConfiguration"
-	SilentAudio?:  _#defs."/$defs/Properties/definitions/SilentAudioConfiguration"
+#ContentQualityAnalysisFeatureConfiguration: close({
+	BlackFrames?:  #BlackFramesConfiguration
+	FrozenFrames?: #FrozenFramesConfiguration
+	SilentAudio?:  #SilentAudioConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/ContentQualityAnalysisState": "ENABLED" | "DISABLED"
+#ContentQualityAnalysisState: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/Day": "MONDAY" |
-	"TUESDAY" |
-	"WEDNESDAY" |
-	"THURSDAY" |
-	"FRIDAY" |
-	"SATURDAY" |
-	"SUNDAY"
+#Day: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY"
 
 // Configuration settings for default maintenance scheduling.
-_#defs: "/$defs/Properties/definitions/DefaultMaintenanceConfiguration": close({})
+#DefaultMaintenanceConfiguration: close({})
 
-_#defs: "/$defs/Properties/definitions/FailoverInputSourcePriorityMode": "NO_PRIORITY" | "PRIMARY_SECONDARY"
+#FailoverInputSourcePriorityMode: "NO_PRIORITY" | "PRIMARY_SECONDARY"
 
 // Configuration settings for a failover router input that allows switching
 // between two input sources.
-_#defs: "/$defs/Properties/definitions/FailoverRouterInputConfiguration": close({
+#FailoverRouterInputConfiguration: close({
 	// The ARN of the network interface to use for this failover router input.
 	NetworkInterfaceArn!:
 		=~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:routerNetworkInterface:[a-z0-9]{12}$"
@@ -111,44 +104,44 @@ _#defs: "/$defs/Properties/definitions/FailoverRouterInputConfiguration": close(
 
 	// A list of exactly two protocol configurations for the failover input sources.
 	// Both must use the same protocol type.
-	ProtocolConfigurations!: [..._#defs."/$defs/Properties/definitions/FailoverRouterInputProtocolConfiguration"]
-	SourcePriorityMode!:     _#defs."/$defs/Properties/definitions/FailoverInputSourcePriorityMode"
+	ProtocolConfigurations!: [...#FailoverRouterInputProtocolConfiguration]
+	SourcePriorityMode!:     #FailoverInputSourcePriorityMode
 })
 
 // Protocol configuration settings for failover router inputs.
-_#defs: "/$defs/Properties/definitions/FailoverRouterInputProtocolConfiguration": matchN(1, [close(
-	{Rtp!: _#defs."/$defs/Properties/definitions/RtpRouterInputConfiguration"},
+#FailoverRouterInputProtocolConfiguration: matchN(1, [close(
+	{Rtp!: #RtpRouterInputConfiguration},
 ), close(
-	{Rist!: _#defs."/$defs/Properties/definitions/RistRouterInputConfiguration"},
+	{Rist!: #RistRouterInputConfiguration},
 ), close(
-	{SrtListener!: _#defs."/$defs/Properties/definitions/SrtListenerRouterInputConfiguration"},
+	{SrtListener!: #SrtListenerRouterInputConfiguration},
 ), close(
-	{SrtCaller!: _#defs."/$defs/Properties/definitions/SrtCallerRouterInputConfiguration"},
+	{SrtCaller!: #SrtCallerRouterInputConfiguration},
 )])
 
 // The configuration that defines how content is encrypted during transit
 // between the MediaConnect router and a MediaConnect flow.
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration"
-	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyType"
+#FlowTransitEncryption: close({
+	EncryptionKeyConfiguration!: #FlowTransitEncryptionKeyConfiguration
+	EncryptionKeyType?:          #FlowTransitEncryptionKeyType
 })
 
 // Configuration settings for flow transit encryption keys.
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration": matchN(1, [close(
-	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+#FlowTransitEncryptionKeyConfiguration: matchN(1, [close(
+	{SecretsManager!: #SecretsManagerEncryptionKeyConfiguration},
 ), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
+	{Automatic!: #AutomaticEncryptionKeyConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyType": "SECRETS_MANAGER" | "AUTOMATIC"
+#FlowTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC"
 
-_#defs: "/$defs/Properties/definitions/ForwardErrorCorrectionState": "ENABLED" | "DISABLED"
+#ForwardErrorCorrectionState: "ENABLED" | "DISABLED"
 
 // Detects frozen video frames in the router input's source content and reports
 // them through a CloudWatch metric, an EventBridge event, and a router input
 // message.
-_#defs: "/$defs/Properties/definitions/FrozenFramesConfiguration": close({
-	State!: _#defs."/$defs/Properties/definitions/ContentQualityAnalysisState"
+#FrozenFramesConfiguration: close({
+	State!: #ContentQualityAnalysisState
 
 	// The number of consecutive seconds of a frozen frame that MediaConnect must
 	// detect before it reports an issue.
@@ -157,57 +150,57 @@ _#defs: "/$defs/Properties/definitions/FrozenFramesConfiguration": close({
 
 // The configuration settings for maintenance operations, including preferred
 // maintenance windows and schedules.
-_#defs: "/$defs/Properties/definitions/MaintenanceConfiguration": matchN(1, [close(
-	{PreferredDayTime!: _#defs."/$defs/Properties/definitions/PreferredDayTimeMaintenanceConfiguration"},
+#MaintenanceConfiguration: matchN(1, [close(
+	{PreferredDayTime!: #PreferredDayTimeMaintenanceConfiguration},
 ), close(
-	{Default!: _#defs."/$defs/Properties/definitions/DefaultMaintenanceConfiguration"},
+	{Default!: #DefaultMaintenanceConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/MaintenanceType": "PREFERRED_DAY_TIME" | "DEFAULT"
+#MaintenanceType: "PREFERRED_DAY_TIME" | "DEFAULT"
 
 // Configuration settings for connecting a router input to a flow output.
-_#defs: "/$defs/Properties/definitions/MediaConnectFlowRouterInputConfiguration": close({
+#MediaConnectFlowRouterInputConfiguration: close({
 	// The ARN of the flow to connect to.
 	FlowArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$"
 
 	// The ARN of the flow output to connect to this router input.
 	FlowOutputArn?:           =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:output:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$"
-	SourceTransitDecryption!: _#defs."/$defs/Properties/definitions/FlowTransitEncryption"
+	SourceTransitDecryption!: #FlowTransitEncryption
 })
 
-_#defs: "/$defs/Properties/definitions/MediaLiveChannelPipelineId": "PIPELINE_0" | "PIPELINE_1"
+#MediaLiveChannelPipelineId: "PIPELINE_0" | "PIPELINE_1"
 
 // Configuration settings for connecting a router input to a MediaLive channel output.
-_#defs: "/$defs/Properties/definitions/MediaLiveChannelRouterInputConfiguration": close({
+#MediaLiveChannelRouterInputConfiguration: close({
 	// The ARN of the MediaLive channel to connect to this router input.
 	MediaLiveChannelArn?: =~"^arn:(aws[a-zA-Z-]*):medialive:[a-z0-9-]+:[0-9]{12}:channel:[a-zA-Z0-9]+$"
 
 	// The name of the MediaLive channel output to connect to this router input.
 	MediaLiveChannelOutputName?: string
-	MediaLivePipelineId?:        _#defs."/$defs/Properties/definitions/MediaLiveChannelPipelineId"
-	SourceTransitDecryption!:    _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryption"
+	MediaLivePipelineId?:        #MediaLiveChannelPipelineId
+	SourceTransitDecryption!:    #MediaLiveTransitEncryption
 })
 
 // The encryption configuration that defines how content is encrypted during
 // transit between MediaConnect Router and MediaLive. This configuration
 // determines whether encryption keys are automatically managed by the service
 // or manually managed through Secrets Manager.
-_#defs: "/$defs/Properties/definitions/MediaLiveTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyConfiguration"
-	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyType"
+#MediaLiveTransitEncryption: close({
+	EncryptionKeyConfiguration!: #MediaLiveTransitEncryptionKeyConfiguration
+	EncryptionKeyType?:          #MediaLiveTransitEncryptionKeyType
 })
 
 // Configuration settings for the MediaLive transit encryption key.
-_#defs: "/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyConfiguration": matchN(1, [close(
-	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+#MediaLiveTransitEncryptionKeyConfiguration: matchN(1, [close(
+	{SecretsManager!: #SecretsManagerEncryptionKeyConfiguration},
 ), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
+	{Automatic!: #AutomaticEncryptionKeyConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/MediaLiveTransitEncryptionKeyType": "SECRETS_MANAGER" | "AUTOMATIC"
+#MediaLiveTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC"
 
 // Configuration settings for a merge router input that combines two input sources.
-_#defs: "/$defs/Properties/definitions/MergeRouterInputConfiguration": close({
+#MergeRouterInputConfiguration: close({
 	// The time window in milliseconds for merging the two input sources.
 	MergeRecoveryWindowMilliseconds!: int
 
@@ -217,19 +210,17 @@ _#defs: "/$defs/Properties/definitions/MergeRouterInputConfiguration": close({
 
 	// A list of exactly two protocol configurations for the merge input sources.
 	// Both must use the same protocol type.
-	ProtocolConfigurations!: [..._#defs."/$defs/Properties/definitions/MergeRouterInputProtocolConfiguration"]
+	ProtocolConfigurations!: [...#MergeRouterInputProtocolConfiguration]
 })
 
 // Protocol configuration settings for merge router inputs.
-_#defs: "/$defs/Properties/definitions/MergeRouterInputProtocolConfiguration": matchN(1, [close(
-	{Rtp!: _#defs."/$defs/Properties/definitions/RtpRouterInputConfiguration"},
-), close(
-	{Rist!: _#defs."/$defs/Properties/definitions/RistRouterInputConfiguration"},
-)])
+#MergeRouterInputProtocolConfiguration: matchN(1, [
+	close({Rtp!: #RtpRouterInputConfiguration}), close({Rist!: #RistRouterInputConfiguration}),
+])
 
 // Configuration for preferred day and time maintenance settings.
-_#defs: "/$defs/Properties/definitions/PreferredDayTimeMaintenanceConfiguration": close({
-	Day!: _#defs."/$defs/Properties/definitions/Day"
+#PreferredDayTimeMaintenanceConfiguration: close({
+	Day!: #Day
 
 	// The preferred time for maintenance operations.
 	Time!: string
@@ -238,7 +229,7 @@ _#defs: "/$defs/Properties/definitions/PreferredDayTimeMaintenanceConfiguration"
 // The configuration settings for a router input using the RIST (Reliable
 // Internet Stream Transport) protocol, including the port and recovery
 // latency.
-_#defs: "/$defs/Properties/definitions/RistRouterInputConfiguration": close({
+#RistRouterInputConfiguration: close({
 	// The port number used for the RIST protocol in the router input configuration.
 	Port!: int & <=30000 & >=3000
 
@@ -249,39 +240,37 @@ _#defs: "/$defs/Properties/definitions/RistRouterInputConfiguration": close({
 // The content quality analysis configuration for the router input. The content
 // quality analysis feature only monitors the first video stream and the first
 // audio stream it encounters within the router input source.
-_#defs: "/$defs/Properties/definitions/RouterContentQualityAnalysisConfiguration": close(
-	{ContentLevel!: _#defs."/$defs/Properties/definitions/ContentQualityAnalysisFeatureConfiguration"},
-)
+#RouterContentQualityAnalysisConfiguration: close({ContentLevel!: #ContentQualityAnalysisFeatureConfiguration})
 
-_#defs: "/$defs/Properties/definitions/RouterContentQualityAnalysisType": "CONTENT_LEVEL"
+#RouterContentQualityAnalysisType: "CONTENT_LEVEL"
 
 // The configuration settings for a router input.
-_#defs: "/$defs/Properties/definitions/RouterInputConfiguration": matchN(1, [close(
-	{Standard!: _#defs."/$defs/Properties/definitions/StandardRouterInputConfiguration"},
+#RouterInputConfiguration: matchN(1, [close(
+	{Standard!: #StandardRouterInputConfiguration},
 ), close(
-	{Failover!: _#defs."/$defs/Properties/definitions/FailoverRouterInputConfiguration"},
+	{Failover!: #FailoverRouterInputConfiguration},
 ), close(
-	{Merge!: _#defs."/$defs/Properties/definitions/MergeRouterInputConfiguration"},
+	{Merge!: #MergeRouterInputConfiguration},
 ), close(
-	{MediaConnectFlow!: _#defs."/$defs/Properties/definitions/MediaConnectFlowRouterInputConfiguration"},
+	{MediaConnectFlow!: #MediaConnectFlowRouterInputConfiguration},
 ), close(
-	{MediaLiveChannel!: _#defs."/$defs/Properties/definitions/MediaLiveChannelRouterInputConfiguration"},
+	{MediaLiveChannel!: #MediaLiveChannelRouterInputConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/RouterInputProtocol": "RTP" | "RIST" | "SRT_CALLER" | "SRT_LISTENER"
+#RouterInputProtocol: "RTP" | "RIST" | "SRT_CALLER" | "SRT_LISTENER"
 
 // The protocol configuration settings for a router input.
-_#defs: "/$defs/Properties/definitions/RouterInputProtocolConfiguration": matchN(1, [close(
-	{Rtp!: _#defs."/$defs/Properties/definitions/RtpRouterInputConfiguration"},
+#RouterInputProtocolConfiguration: matchN(1, [close(
+	{Rtp!: #RtpRouterInputConfiguration},
 ), close(
-	{Rist!: _#defs."/$defs/Properties/definitions/RistRouterInputConfiguration"},
+	{Rist!: #RistRouterInputConfiguration},
 ), close(
-	{SrtListener!: _#defs."/$defs/Properties/definitions/SrtListenerRouterInputConfiguration"},
+	{SrtListener!: #SrtListenerRouterInputConfiguration},
 ), close(
-	{SrtCaller!: _#defs."/$defs/Properties/definitions/SrtCallerRouterInputConfiguration"},
+	{SrtCaller!: #SrtCallerRouterInputConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/RouterInputState": "CREATING" |
+#RouterInputState: "CREATING" |
 	"STANDBY" |
 	"STARTING" |
 	"ACTIVE" |
@@ -292,36 +281,32 @@ _#defs: "/$defs/Properties/definitions/RouterInputState": "CREATING" |
 	"RECOVERING" |
 	"MIGRATING"
 
-_#defs: "/$defs/Properties/definitions/RouterInputTier": "INPUT_100" | "INPUT_50" | "INPUT_20"
+#RouterInputTier: "INPUT_100" | "INPUT_50" | "INPUT_20"
 
 // The transit encryption settings for a router input.
-_#defs: "/$defs/Properties/definitions/RouterInputTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/RouterInputTransitEncryptionKeyConfiguration"
-	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/RouterInputTransitEncryptionKeyType"
+#RouterInputTransitEncryption: close({
+	EncryptionKeyConfiguration!: #RouterInputTransitEncryptionKeyConfiguration
+	EncryptionKeyType?:          #RouterInputTransitEncryptionKeyType
 })
 
 // Defines the configuration settings for transit encryption keys.
-_#defs: "/$defs/Properties/definitions/RouterInputTransitEncryptionKeyConfiguration": matchN(1, [close(
-	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+#RouterInputTransitEncryptionKeyConfiguration: matchN(1, [close(
+	{SecretsManager!: #SecretsManagerEncryptionKeyConfiguration},
 ), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
+	{Automatic!: #AutomaticEncryptionKeyConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/RouterInputTransitEncryptionKeyType": "SECRETS_MANAGER" | "AUTOMATIC"
+#RouterInputTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC"
 
-_#defs: "/$defs/Properties/definitions/RouterInputType": "STANDARD" |
-	"FAILOVER" |
-	"MERGE" |
-	"MEDIACONNECT_FLOW" |
-	"MEDIALIVE_CHANNEL"
+#RouterInputType: "STANDARD" | "FAILOVER" | "MERGE" | "MEDIACONNECT_FLOW" | "MEDIALIVE_CHANNEL"
 
-_#defs: "/$defs/Properties/definitions/RoutingScope": "REGIONAL" | "GLOBAL"
+#RoutingScope: "REGIONAL" | "GLOBAL"
 
 // The configuration settings for a Router Input using the RTP (Real-Time
 // Transport Protocol) protocol, including the port and forward error
 // correction state.
-_#defs: "/$defs/Properties/definitions/RtpRouterInputConfiguration": close({
-	ForwardErrorCorrection?: _#defs."/$defs/Properties/definitions/ForwardErrorCorrectionState"
+#RtpRouterInputConfiguration: close({
+	ForwardErrorCorrection?: #ForwardErrorCorrectionState
 
 	// The port number used for the RTP protocol in the router input configuration.
 	Port!: int & <=30000 & >=3000
@@ -329,7 +314,7 @@ _#defs: "/$defs/Properties/definitions/RtpRouterInputConfiguration": close({
 
 // The configuration settings for transit encryption using Secrets Manager,
 // including the secret ARN and role ARN.
-_#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration": close({
+#SecretsManagerEncryptionKeyConfiguration: close({
 	// The ARN of the IAM role assumed by MediaConnect to access the Secrets Manager secret.
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$"
@@ -341,8 +326,8 @@ _#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"
 // Detects silent audio in the router input's source content and reports it
 // through a CloudWatch metric, an EventBridge event, and a router input
 // message.
-_#defs: "/$defs/Properties/definitions/SilentAudioConfiguration": close({
-	State!: _#defs."/$defs/Properties/definitions/ContentQualityAnalysisState"
+#SilentAudioConfiguration: close({
+	State!: #ContentQualityAnalysisState
 
 	// The number of consecutive seconds of silence that MediaConnect must detect
 	// before it reports an issue.
@@ -352,8 +337,8 @@ _#defs: "/$defs/Properties/definitions/SilentAudioConfiguration": close({
 // The configuration settings for a router input using the SRT (Secure Reliable
 // Transport) protocol in caller mode, including the source address and port,
 // minimum latency, stream ID, and decryption key configuration.
-_#defs: "/$defs/Properties/definitions/SrtCallerRouterInputConfiguration": close({
-	DecryptionConfiguration?: _#defs."/$defs/Properties/definitions/SrtDecryptionConfiguration"
+#SrtCallerRouterInputConfiguration: close({
+	DecryptionConfiguration?: #SrtDecryptionConfiguration
 
 	// The minimum latency in milliseconds for the SRT protocol in caller mode.
 	MinimumLatencyMilliseconds!: int & <=10000 & >=10
@@ -370,15 +355,13 @@ _#defs: "/$defs/Properties/definitions/SrtCallerRouterInputConfiguration": close
 
 // Contains the configuration settings for decrypting SRT streams, including the
 // encryption key details and decryption parameters.
-_#defs: "/$defs/Properties/definitions/SrtDecryptionConfiguration": close(
-	{EncryptionKey!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
-)
+#SrtDecryptionConfiguration: close({EncryptionKey!: #SecretsManagerEncryptionKeyConfiguration})
 
 // The configuration settings for a router input using the SRT (Secure Reliable
 // Transport) protocol in listener mode, including the port, minimum latency,
 // and decryption key configuration.
-_#defs: "/$defs/Properties/definitions/SrtListenerRouterInputConfiguration": close({
-	DecryptionConfiguration?: _#defs."/$defs/Properties/definitions/SrtDecryptionConfiguration"
+#SrtListenerRouterInputConfiguration: close({
+	DecryptionConfiguration?: #SrtDecryptionConfiguration
 
 	// The minimum latency in milliseconds for the SRT protocol in listener mode.
 	MinimumLatencyMilliseconds!: int & <=10000 & >=10
@@ -390,16 +373,16 @@ _#defs: "/$defs/Properties/definitions/SrtListenerRouterInputConfiguration": clo
 // The configuration settings for a standard router input, including the
 // protocol, protocol-specific configuration, network interface, and
 // availability zone.
-_#defs: "/$defs/Properties/definitions/StandardRouterInputConfiguration": close({
+#StandardRouterInputConfiguration: close({
 	// The Amazon Resource Name (ARN) of the network interface associated with the
 	// standard router input.
 	NetworkInterfaceArn!:
 		=~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:routerNetworkInterface:[a-z0-9]{12}$"
-	Protocol?:              _#defs."/$defs/Properties/definitions/RouterInputProtocol"
-	ProtocolConfiguration!: _#defs."/$defs/Properties/definitions/RouterInputProtocolConfiguration"
+	Protocol?:              #RouterInputProtocol
+	ProtocolConfiguration!: #RouterInputProtocolConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

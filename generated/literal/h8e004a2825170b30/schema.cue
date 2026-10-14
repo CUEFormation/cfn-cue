@@ -9,13 +9,13 @@ import "strings"
 // Resource Type definition for AWS::WorkSpaces::ConnectionAlias
 #Properties: close({
 	AliasId?:              strings.MaxRunes(68) & strings.MinRunes(13) & =~"^wsca-[0-9a-z]{8,63}$"
-	Associations?:         [..._#defs."/$defs/Properties/definitions/ConnectionAliasAssociation"]
+	Associations?:         [...#ConnectionAliasAssociation]
 	ConnectionAliasState?: "CREATING" | "CREATED" | "DELETING"
 	ConnectionString!:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[.0-9a-zA-Z\\-]{1,255}$"
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                 [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionAliasAssociation": close({
+#ConnectionAliasAssociation: close({
 	AssociatedAccountId?: string
 	AssociationStatus?: "NOT_ASSOCIATED" |
 		"PENDING_ASSOCIATION" |
@@ -26,7 +26,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionAliasAssociation": close({
 	ResourceId?:           strings.MaxRunes(1000) & strings.MinRunes(1) & =~".+"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0)
 })

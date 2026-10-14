@@ -17,13 +17,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Systems Manager (SSM).
 #Properties: close({
 	Name!:             strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
-	SsmCommandConfig?: _#defs."/$defs/Properties/definitions/ConnectorSsmCommandConfig"
+	SsmCommandConfig?: #ConnectorSsmCommandConfig
 	SsmInstanceID!: strings.MaxRunes(20) & strings.MinRunes(19) & =~"(^i-[0-9a-zA-Z]{17}$)|(^mi-[0-9a-zA-Z]{17}$)" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectorSsmCommandConfig": close({
+#ConnectorSsmCommandConfig: close({
 	CloudWatchLogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" |
 	fn.#StringExpression
 	CloudWatchOutputEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -32,7 +32,7 @@ _#defs: "/$defs/Properties/definitions/ConnectorSsmCommandConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

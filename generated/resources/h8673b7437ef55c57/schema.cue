@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AccessPointArn?: strings.MaxRunes(128) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):elasticfilesystem:[a-z\\-0-9]+:[0-9]{12}:access-point/fsap-[0-9a-f]{8,40}$" |
 	fn.#StringExpression
-	Ec2Config!: _#defs."/$defs/Properties/definitions/Ec2Config"
+	Ec2Config!: #Ec2Config
 	EfsFilesystemArn?: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):elasticfilesystem:[a-z\\-0-9]*:[0-9]{12}:file-system/fs-.*$" |
@@ -30,11 +30,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	InTransitEncryption?: "NONE" | "TLS1_2" | fn.#StringExpression
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Ec2Config": close({
+#Ec2Config: close({
 	SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [
 		...strings.MaxRunes(128) &
 		strings.MinRunes(0) &
@@ -49,7 +48,7 @@ _#defs: "/$defs/Properties/definitions/Ec2Config": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
 }) |

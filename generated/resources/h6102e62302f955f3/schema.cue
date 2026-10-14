@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,14 +16,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ControlIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
 	fn.#StringExpression
-	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EnabledControlParameter"] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Parameters?: list.MinItems(1) & [...#EnabledControlParameter] | fn.#ListExpression
+	Tags?:       list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	TargetIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$" |
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EnabledControlParameter": close({
+#EnabledControlParameter: close({
 	Key!: string | fn.#StringExpression
 	Value!: fn.#Object & {...} |
 	bool |
@@ -34,7 +33,7 @@ _#defs: "/$defs/Properties/definitions/EnabledControlParameter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

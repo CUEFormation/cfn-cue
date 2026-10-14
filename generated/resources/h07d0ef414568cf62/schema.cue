@@ -28,19 +28,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	Name!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Purposes?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Purpose"] |
-		fn.#ListExpression
-	Values?: close({StringList?: _#defs."/$defs/Properties/definitions/StringList"}) | fn.#ObjectExpression
+	Purposes?:    list.MaxItems(10) & list.MinItems(1) & [...#Purpose] | fn.#ListExpression
+	Values?:      close({StringList?: #StringList}) | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Purpose": strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#Purpose: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StringList": list.MaxItems(500) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/Value"
-] |
-	fn.#ListExpression
+#StringList: list.MaxItems(500) & list.MinItems(1) & [...#Value] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Value": strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#Value: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Connect::PredefinedAttribute"
 	Properties!: #Properties

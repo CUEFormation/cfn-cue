@@ -11,7 +11,7 @@ import (
 
 // Integration from a source AWS service to a Redshift cluster
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
+	AdditionalEncryptionContext?: #EncryptionContextMap
 
 	// The time (UTC) when the integration was created.
 	CreateTime?: string
@@ -32,7 +32,7 @@ import (
 	=~"^arn:aws[a-z\\-]*:(s3|dynamodb):.*:.*:[a-zA-Z0-9._\\-\\/]+$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The Amazon Resource Name (ARN) of the Redshift data warehouse to use as the
 	// target for replication
@@ -43,12 +43,12 @@ import (
 
 // An optional set of non-secret key–value pairs that contains additional
 // contextual information about the data.
-_#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
+#EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0)}})
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -63,6 +63,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // An array of key-value pairs to apply to this resource.
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...#Tag]

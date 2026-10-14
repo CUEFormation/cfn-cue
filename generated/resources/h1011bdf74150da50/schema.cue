@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -71,7 +71,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Content!:     _#defs."/$defs/Properties/definitions/Content" | fn.#ObjectExpression
+	Content!:     #Content | fn.#ObjectExpression
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	LayerName?: strings.MaxRunes(140) &
 	strings.MinRunes(1) &
@@ -80,7 +80,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	LicenseInfo?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Content": close({
+#Content: close({
 	S3Bucket!:            strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	S3Key!:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	S3ObjectStorageMode?: "COPY" | "REFERENCE" | fn.#StringExpression

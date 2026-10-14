@@ -80,7 +80,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	IpAddressType?: "ipv4" | "ipv6" | fn.#StringExpression
-	Matcher?:       _#defs."/$defs/Properties/definitions/Matcher" | fn.#ObjectExpression
+	Matcher?:       #Matcher | fn.#ObjectExpression
 	Name?:          string | fn.#StringExpression
 	Port?: int & <=65535 & >=1 |
 		{
@@ -109,7 +109,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"UDP" |
 		fn.#StringExpression
 	ProtocolVersion?: string | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            [...#Tag] | fn.#ListExpression
 	TargetControlPort?: int & <=65535 & >=1 |
 		{
 			string &
@@ -126,10 +126,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	TargetGroupAttributes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupAttribute"] |
-		fn.#ListExpression
-	TargetType?: "alb" | "instance" | "ip" | "lambda" | fn.#StringExpression
-	Targets?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetDescription"] | fn.#ListExpression
+	TargetGroupAttributes?: list.UniqueItems() & [...#TargetGroupAttribute] | fn.#ListExpression
+	TargetType?:            "alb" | "instance" | "ip" | "lambda" | fn.#StringExpression
+	Targets?:               list.UniqueItems() & [...#TargetDescription] | fn.#ListExpression
 	UnhealthyThresholdCount?: int & <=10 & >=2 |
 		{
 			string &
@@ -150,19 +149,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Matcher": close({
+#Matcher: close({
 	GrpcCode?: string | fn.#StringExpression
 	HttpCode?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetDescription": close({
+#TargetDescription: close({
 	AvailabilityZone?: string | fn.#StringExpression
 	Id!:               string | fn.#StringExpression
 	Port?: int & <=65535 & >=1 |
@@ -185,7 +184,7 @@ _#defs: "/$defs/Properties/definitions/TargetDescription": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetGroupAttribute": close({
+#TargetGroupAttribute: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |

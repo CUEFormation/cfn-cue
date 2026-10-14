@@ -13,37 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::BedrockAgentCore::Policy
 #Properties: close({
-	Definition!:      _#defs."/$defs/Properties/definitions/PolicyDefinition"
+	Definition!:      #PolicyDefinition
 	Description?:     strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	EnforcementMode?: _#defs."/$defs/Properties/definitions/EnforcementMode"
+	EnforcementMode?: #EnforcementMode
 	Name!:            strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]*$" | fn.#StringExpression
 	PolicyEngineId!: strings.MaxRunes(59) & strings.MinRunes(12) & =~"^[A-Za-z][A-Za-z0-9_]*-[a-z0-9_]{10}$" |
 	fn.#StringExpression
-	ValidationMode?: _#defs."/$defs/Properties/definitions/PolicyValidationMode"
+	ValidationMode?: #PolicyValidationMode
 })
 
-_#defs: "/$defs/Properties/definitions/CedarPolicy": close(
-	{Statement!: strings.MaxRunes(10000) & strings.MinRunes(35) | fn.#StringExpression},
-) |
+#CedarPolicy: close({Statement!: strings.MaxRunes(10000) & strings.MinRunes(35) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnforcementMode": "ACTIVE" | "LOG_ONLY" | fn.#StringExpression
+#EnforcementMode: "ACTIVE" | "LOG_ONLY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinition": close({
-	Cedar?:  _#defs."/$defs/Properties/definitions/CedarPolicy"
-	Policy?: _#defs."/$defs/Properties/definitions/PolicyStatement"
+#PolicyDefinition: close({
+	Cedar?:  #CedarPolicy
+	Policy?: #PolicyStatement
 	if Cedar != _|_ {
 		Policy?: error("Policy cannot be used with Cedar; set exactly one of Cedar, Policy")
 	}
 }) & matchN(>=1, [{Cedar!: _}, {Policy!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyStatement": close(
-	{Statement!: strings.MaxRunes(10000) & strings.MinRunes(35) | fn.#StringExpression},
-) |
+#PolicyStatement: close({Statement!: strings.MaxRunes(10000) & strings.MinRunes(35) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyStatus": "CREATING" |
+#PolicyStatus: "CREATING" |
 	"ACTIVE" |
 	"UPDATING" |
 	"DELETING" |
@@ -52,9 +48,7 @@ _#defs: "/$defs/Properties/definitions/PolicyStatus": "CREATING" |
 	"DELETE_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyValidationMode": "FAIL_ON_ANY_FINDINGS" |
-	"IGNORE_ALL_FINDINGS" |
-	fn.#StringExpression
+#PolicyValidationMode: "FAIL_ON_ANY_FINDINGS" | "IGNORE_ALL_FINDINGS" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::BedrockAgentCore::Policy"
 	Properties!: #Properties

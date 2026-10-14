@@ -21,8 +21,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name?: string | fn.#StringExpression
 	Networking!: close({
 		NetworkType?:      "IPV4" | "IPV6" | fn.#StringExpression
-		SecurityGroupIds?: [..._#defs."/$defs/Properties/definitions/SecurityGroupId"] | fn.#ListExpression
-		SubnetIds?:        list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
+		SecurityGroupIds?: [...#SecurityGroupId] | fn.#ListExpression
+		SubnetIds?:        list.MinItems(1) & [...#SubnetId] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 	Scheduler!: close({
@@ -32,10 +32,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 	Size!: "SMALL" | "MEDIUM" | "LARGE" | fn.#StringExpression
 	SlurmConfiguration?: close({
-		Accounting?:           _#defs."/$defs/Properties/definitions/Accounting"
-		AuthKey?:              _#defs."/$defs/Properties/definitions/AuthKey"
-		CgroupCustomSettings?: [..._#defs."/$defs/Properties/definitions/CgroupCustomSetting"] | fn.#ListExpression
-		JwtAuth?:              _#defs."/$defs/Properties/definitions/JwtAuth"
+		Accounting?:           #Accounting
+		AuthKey?:              #AuthKey
+		CgroupCustomSettings?: [...#CgroupCustomSetting] | fn.#ListExpression
+		JwtAuth?:              #JwtAuth
 		ScaleDownIdleTimeInSeconds?: int & >=1 |
 			{
 				string &
@@ -53,9 +53,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SlurmCustomSettings?:    [..._#defs."/$defs/Properties/definitions/SlurmCustomSetting"] | fn.#ListExpression
-		SlurmRest?:              _#defs."/$defs/Properties/definitions/SlurmRest"
-		SlurmdbdCustomSettings?: [..._#defs."/$defs/Properties/definitions/SlurmdbdCustomSetting"] | fn.#ListExpression
+		SlurmCustomSettings?:    [...#SlurmCustomSetting] | fn.#ListExpression
+		SlurmRest?:              #SlurmRest
+		SlurmdbdCustomSettings?: [...#SlurmdbdCustomSetting] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 	Tags?: null |
@@ -69,7 +69,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ValueExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Accounting": {
+#Accounting: {
 	DefaultPurgeTimeInDays?: int & <=10000 & >=-1 |
 		{
 			string &
@@ -90,19 +90,19 @@ _#defs: "/$defs/Properties/definitions/Accounting": {
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthKey": close({
+#AuthKey: close({
 	SecretArn!:     string | fn.#StringExpression
 	SecretVersion!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CgroupCustomSetting": close({
+#CgroupCustomSetting: close({
 	ParameterName!:  string | fn.#StringExpression
 	ParameterValue!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	Ipv6Address?:      string | fn.#StringExpression
 	Port!:             string | fn.#StringExpression
 	PrivateIpAddress!: string | fn.#StringExpression
@@ -111,43 +111,41 @@ _#defs: "/$defs/Properties/definitions/Endpoint": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ErrorInfo": close({
+#ErrorInfo: close({
 	Code?:    string | fn.#StringExpression
 	Message?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JwtAuth": close({JwtKey?: _#defs."/$defs/Properties/definitions/JwtKey"}) |
-	fn.#ObjectExpression
+#JwtAuth: close({JwtKey?: #JwtKey}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JwtKey": close({
+#JwtKey: close({
 	SecretArn!:     string | fn.#StringExpression
 	SecretVersion!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	=~"^sg-\\w{8,17}$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SlurmCustomSetting": close({
+#SlurmCustomSetting: close({
 	ParameterName!:  string | fn.#StringExpression
 	ParameterValue!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlurmRest": close({Mode!: "STANDARD" | "NONE" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#SlurmRest: close({Mode!: "STANDARD" | "NONE" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlurmdbdCustomSetting": close({
+#SlurmdbdCustomSetting: close({
 	ParameterName!:  string | fn.#StringExpression
 	ParameterValue!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-\\w{8,17}$" | fn.#StringExpression
+#SubnetId: =~"^subnet-\\w{8,17}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

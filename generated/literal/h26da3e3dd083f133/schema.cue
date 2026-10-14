@@ -16,31 +16,31 @@ package schema
 
 	// An object that identifies the name of a control parameter, its current value,
 	// and whether it has been customized.
-	Parameters!: _#defs."/$defs/Properties/definitions/Parameters"
+	Parameters!: #Parameters
 
 	// The Amazon Resource Name (ARN) for a security control across standards, such
 	// as `arn:aws:securityhub:eu-central-1:123456789012:security-control/S3.1`.
 	// This parameter doesn't mention a specific standard.
-	SecurityControlArn?: _#defs."/$defs/Properties/definitions/NonEmptyString"
+	SecurityControlArn?: #NonEmptyString
 
 	// The unique identifier of a security control across standards. Values for this
 	// field typically consist of an AWS service name and a number, such as
 	// APIGateway.3.
-	SecurityControlId?: _#defs."/$defs/Properties/definitions/NonEmptyString"
+	SecurityControlId?: #NonEmptyString
 }) & matchN(>=1, [{SecurityControlId!: _}, {SecurityControlArn!: _}])
 
-_#defs: "/$defs/Properties/definitions/IntegerList": [...int]
+#IntegerList: [...int]
 
-_#defs: "/$defs/Properties/definitions/NonEmptyString": =~".*\\S.*"
+#NonEmptyString: =~".*\\S.*"
 
-_#defs: "/$defs/Properties/definitions/NonEmptyStringList": [..._#defs."/$defs/Properties/definitions/NonEmptyString"]
+#NonEmptyStringList: [...#NonEmptyString]
 
-_#defs: "/$defs/Properties/definitions/ParameterConfiguration": close({
-	Value?:     _#defs."/$defs/Properties/definitions/ParameterValue"
+#ParameterConfiguration: close({
+	Value?:     #ParameterValue
 	ValueType!: "DEFAULT" | "CUSTOM"
 })
 
-_#defs: "/$defs/Properties/definitions/ParameterValue": close({
+#ParameterValue: close({
 	// A control parameter that is a boolean.
 	Boolean?: bool
 
@@ -48,22 +48,22 @@ _#defs: "/$defs/Properties/definitions/ParameterValue": close({
 	Double?: number
 
 	// A control parameter that is a enum.
-	Enum?: _#defs."/$defs/Properties/definitions/NonEmptyString"
+	Enum?: #NonEmptyString
 
 	// A control parameter that is a list of enums.
-	EnumList?: _#defs."/$defs/Properties/definitions/NonEmptyStringList"
+	EnumList?: #NonEmptyStringList
 
 	// A control parameter that is a integer.
 	Integer?: int
 
 	// A control parameter that is a list of integers.
-	IntegerList?: _#defs."/$defs/Properties/definitions/IntegerList"
+	IntegerList?: #IntegerList
 
 	// A control parameter that is a string.
-	String?: _#defs."/$defs/Properties/definitions/NonEmptyString"
+	String?: #NonEmptyString
 
 	// A control parameter that is a list of strings.
-	StringList?: _#defs."/$defs/Properties/definitions/NonEmptyStringList"
+	StringList?: #NonEmptyStringList
 	if Boolean != _|_ {
 		Double?: error(
 			"Double cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
@@ -183,6 +183,6 @@ _#defs: "/$defs/Properties/definitions/ParameterValue": close({
 	}],
 )
 
-_#defs: "/$defs/Properties/definitions/Parameters": close({
+#Parameters: close({
 
-	{[=~".*\\S.*"]: _#defs."/$defs/Properties/definitions/ParameterConfiguration"}})
+	{[=~".*\\S.*"]: #ParameterConfiguration}})

@@ -33,7 +33,7 @@ import "list"
 	ClusterName?: string
 
 	// Specifies the ConfigurationEndpoint address and port
-	ConfigurationEndpoint?: _#defs."/$defs/Properties/definitions/Endpoint"
+	ConfigurationEndpoint?: #Endpoint
 
 	// The name of the cache engine to be used for this cluster.
 	Engine!: string
@@ -45,7 +45,7 @@ import "list"
 	IpDiscovery?: =~"(?i)^(?:ipv4|ipv6)$"
 
 	// Specifies the destination, format and type of the logs
-	LogDeliveryConfigurations?: [..._#defs."/$defs/Properties/definitions/LogDeliveryConfigurationRequest"]
+	LogDeliveryConfigurations?: [...#LogDeliveryConfigurationRequest]
 
 	// The network type parameter for cachecluster.
 	NetworkType?: =~"(?i)^(?:dual_stack|ipv4|ipv6)$"
@@ -71,7 +71,7 @@ import "list"
 	PreferredMaintenanceWindow?: string
 
 	// Specifies the RedisEndPoint address and port
-	RedisEndpoint?: _#defs."/$defs/Properties/definitions/Endpoint"
+	RedisEndpoint?: #Endpoint
 
 	// A single-element string list containing an Amazon Resource Name (ARN) that
 	// uniquely identifies a Redis RDB snapshot file stored in Amazon S3.
@@ -88,7 +88,7 @@ import "list"
 	SnapshotWindow?: string
 
 	// A list of tags to be added to this resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// A flag that enables in-transit encryption when set to true. You cannot modify
 	// the value of TransitEncryptionEnabled after the cluster is created
@@ -98,33 +98,33 @@ import "list"
 	VpcSecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsDestinationDetails": close({
+#CloudWatchLogsDestinationDetails: close({
 	// The name of the CloudWatch Logs log group.
 	LogGroup!: string
 })
 
-_#defs: "/$defs/Properties/definitions/DestinationDetails": close({
+#DestinationDetails: close({
 	// The configuration details of the CloudWatch Logs destination
-	CloudWatchLogsDetails?: _#defs."/$defs/Properties/definitions/CloudWatchLogsDestinationDetails"
+	CloudWatchLogsDetails?: #CloudWatchLogsDestinationDetails
 
 	// The configuration details of the Kinesis Data Firehose destination.
-	KinesisFirehoseDetails?: _#defs."/$defs/Properties/definitions/KinesisFirehoseDestinationDetails"
+	KinesisFirehoseDetails?: #KinesisFirehoseDestinationDetails
 })
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	Address?: string
 	Port?:    string
 })
 
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseDestinationDetails": close({
+#KinesisFirehoseDestinationDetails: close({
 	// The name of the Kinesis Data Firehose delivery stream
 	DeliveryStream!: string
 })
 
-_#defs: "/$defs/Properties/definitions/LogDeliveryConfigurationRequest": close({
+#LogDeliveryConfigurationRequest: close({
 	// Configuration details of either a CloudWatch Logs destination or Kinesis Data
 	// Firehose destination.
-	DestinationDetails!: _#defs."/$defs/Properties/definitions/DestinationDetails"
+	DestinationDetails!: #DestinationDetails
 
 	// Specify either CloudWatch Logs or Kinesis Data Firehose as the destination type.
 	DestinationType!: =~"(?i)^(?:cloudwatch-logs|kinesis-firehose)$"
@@ -136,7 +136,7 @@ _#defs: "/$defs/Properties/definitions/LogDeliveryConfigurationRequest": close({
 	LogType!: =~"(?i)^(?:engine-log|slow-log)$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

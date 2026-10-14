@@ -3,15 +3,15 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityLake::Subscriber
 #Properties: close({
-	AccessTypes!: _#defs."/$defs/Properties/definitions/AccessTypes"
+	AccessTypes!: #AccessTypes
 
 	// The ARN for the data lake.
 	DataLakeArn!:       strings.MaxRunes(256) & strings.MinRunes(1)
@@ -20,7 +20,7 @@ import (
 	S3BucketArn?:       string
 
 	// The supported AWS services from which logs and events are collected.
-	Sources!:       [..._#defs."/$defs/Properties/definitions/Source"]
+	Sources!:       [...#Source]
 	SubscriberArn?: string
 
 	// The description for your subscriber account in Security Lake.
@@ -42,14 +42,14 @@ import (
 	// An array of objects, one for each tag to associate with the subscriber. For
 	// each tag, you must specify both a tag key and a tag value. A tag value
 	// cannot be null, but it can be an empty string.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // The Amazon S3 or AWS Lake Formation access type.
-_#defs: "/$defs/Properties/definitions/AccessTypes": list.MinItems(1) & list.UniqueItems() & [..."LAKEFORMATION" | "S3"]
+#AccessTypes: list.MinItems(1) & list.UniqueItems() & [..."LAKEFORMATION" | "S3"]
 
 // Amazon Security Lake supports log and event collection for natively supported AWS services.
-_#defs: "/$defs/Properties/definitions/AwsLogSource": close({
+#AwsLogSource: close({
 	// The name for a AWS source. This must be a Regionally unique value.
 	SourceName?: string
 
@@ -57,7 +57,7 @@ _#defs: "/$defs/Properties/definitions/AwsLogSource": close({
 	SourceVersion?: =~"^(latest|[0-9]\\.[0-9])$"
 })
 
-_#defs: "/$defs/Properties/definitions/CustomLogSource": close({
+#CustomLogSource: close({
 	// The name for a third-party custom source. This must be a Regionally unique value.
 	SourceName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\\\\\w\\-_:/.]*$"
 
@@ -65,14 +65,14 @@ _#defs: "/$defs/Properties/definitions/CustomLogSource": close({
 	SourceVersion?: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-\\.\\_]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/Source": null |
+#Source: null |
 bool |
 number |
 string |
 [...] |
 close({
-	AwsLogSource?:    _#defs."/$defs/Properties/definitions/AwsLogSource"
-	CustomLogSource?: _#defs."/$defs/Properties/definitions/CustomLogSource"
+	AwsLogSource?:    #AwsLogSource
+	CustomLogSource?: #CustomLogSource
 	if AwsLogSource != _|_ {
 		CustomLogSource?: error(
 			"CustomLogSource cannot be used with AwsLogSource; set exactly one of AwsLogSource, CustomLogSource",
@@ -80,7 +80,7 @@ close({
 	}
 }) & matchN(>=1, [{AwsLogSource!: _}, {CustomLogSource!: _}])
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The name of the tag. This is a general label that acts as a category for a
 	// more specific tag value (value).
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,15 +18,15 @@ import (
 
 	// The timestamp at which you created the inference experiment.
 	CreationTime?:      string
-	DataStorageConfig?: _#defs."/$defs/Properties/definitions/DataStorageConfig"
+	DataStorageConfig?: #DataStorageConfig
 
 	// The description of the inference experiment.
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*"
 
 	// The desired state of the experiment after starting or stopping operation.
 	DesiredState?:     "Running" | "Completed" | "Cancelled"
-	EndpointMetadata?: _#defs."/$defs/Properties/definitions/EndpointMetadata"
-	EndpointName!:     _#defs."/$defs/Properties/definitions/EndpointName"
+	EndpointMetadata?: #EndpointMetadata
+	EndpointName!:     #EndpointName
 
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt data on the storage volume attached to the ML compute instance that
@@ -39,7 +39,7 @@ import (
 	// An array of ModelVariantConfig objects. Each ModelVariantConfig object in the
 	// array describes the infrastructure configuration for the corresponding
 	// variant.
-	ModelVariants!: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ModelVariantConfig"]
+	ModelVariants!: list.MaxItems(2) & list.MinItems(1) & [...#ModelVariantConfig]
 
 	// The name for the inference experiment.
 	Name!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$"
@@ -51,8 +51,8 @@ import (
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
-	Schedule?:         _#defs."/$defs/Properties/definitions/InferenceExperimentSchedule"
-	ShadowModeConfig?: _#defs."/$defs/Properties/definitions/ShadowModeConfig"
+	Schedule?:         #InferenceExperimentSchedule
+	ShadowModeConfig?: #ShadowModeConfig
 
 	// The status of the inference experiment.
 	Status?: "Creating" | "Created" | "Updating" | "Starting" | "Stopping" | "Running" | "Completed" | "Cancelled"
@@ -62,7 +62,7 @@ import (
 	StatusReason?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The type of the inference experiment that you want to run.
 	Type!: "ShadowMode"
@@ -70,7 +70,7 @@ import (
 
 // Configuration specifying how to treat different headers. If no headers are
 // specified SageMaker will by default base64 encode when capturing the data.
-_#defs: "/$defs/Properties/definitions/CaptureContentTypeHeader": close({
+#CaptureContentTypeHeader: close({
 	// The list of all content type headers that SageMaker will treat as CSV and capture accordingly.
 	CsvContentTypes?: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*/[a-zA-Z0-9](-*[a-zA-Z0-9.])*"
@@ -83,8 +83,8 @@ _#defs: "/$defs/Properties/definitions/CaptureContentTypeHeader": close({
 })
 
 // The Amazon S3 location and configuration for storing inference request and response data.
-_#defs: "/$defs/Properties/definitions/DataStorageConfig": close({
-	ContentType?: _#defs."/$defs/Properties/definitions/CaptureContentTypeHeader"
+#DataStorageConfig: close({
+	ContentType?: #CaptureContentTypeHeader
 
 	// The Amazon S3 bucket where the inference request and response data is stored.
 	Destination!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$"
@@ -95,10 +95,10 @@ _#defs: "/$defs/Properties/definitions/DataStorageConfig": close({
 })
 
 // The metadata of the endpoint on which the inference experiment ran.
-_#defs: "/$defs/Properties/definitions/EndpointMetadata": close({
+#EndpointMetadata: close({
 	// The name of the endpoint configuration.
 	EndpointConfigName?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*"
-	EndpointName!:       _#defs."/$defs/Properties/definitions/EndpointName"
+	EndpointName!:       #EndpointName
 
 	// The status of the endpoint. For possible values of the status of an endpoint.
 	EndpointStatus?: ("Creating" |
@@ -113,12 +113,10 @@ _#defs: "/$defs/Properties/definitions/EndpointMetadata": close({
 })
 
 // The name of the endpoint used to run the inference experiment.
-_#defs: "/$defs/Properties/definitions/EndpointName": strings.MaxRunes(63) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*"
+#EndpointName: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*"
 
 // The duration for which you want the inference experiment to run.
-_#defs: "/$defs/Properties/definitions/InferenceExperimentSchedule": close({
+#InferenceExperimentSchedule: close({
 	// The timestamp at which the inference experiment ended or will end.
 	EndTime?: string
 
@@ -127,15 +125,15 @@ _#defs: "/$defs/Properties/definitions/InferenceExperimentSchedule": close({
 })
 
 // The configuration for the infrastructure that the model will be deployed to.
-_#defs: "/$defs/Properties/definitions/ModelInfrastructureConfig": close({
+#ModelInfrastructureConfig: close({
 	// The type of the inference experiment that you want to run.
 	InfrastructureType!:      "RealTimeInference"
-	RealTimeInferenceConfig!: _#defs."/$defs/Properties/definitions/RealTimeInferenceConfig"
+	RealTimeInferenceConfig!: #RealTimeInferenceConfig
 })
 
 // Contains information about the deployment options of a model.
-_#defs: "/$defs/Properties/definitions/ModelVariantConfig": close({
-	InfrastructureConfig!: _#defs."/$defs/Properties/definitions/ModelInfrastructureConfig"
+#ModelVariantConfig: close({
+	InfrastructureConfig!: #ModelInfrastructureConfig
 
 	// The name of the Amazon SageMaker Model entity.
 	ModelName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*"
@@ -145,7 +143,7 @@ _#defs: "/$defs/Properties/definitions/ModelVariantConfig": close({
 })
 
 // The infrastructure configuration for deploying the model to a real-time inference endpoint.
-_#defs: "/$defs/Properties/definitions/RealTimeInferenceConfig": close({
+#RealTimeInferenceConfig: close({
 	// The number of instances of the type specified by InstanceType.
 	InstanceCount!: int & >=0
 
@@ -158,18 +156,16 @@ _#defs: "/$defs/Properties/definitions/RealTimeInferenceConfig": close({
 // shadow variant to which Amazon SageMaker replicates a percentage of the
 // inference requests. For the shadow variant also specify the percentage of
 // requests that Amazon SageMaker replicates.
-_#defs: "/$defs/Properties/definitions/ShadowModeConfig": close({
+#ShadowModeConfig: close({
 	// List of shadow variant configurations.
-	ShadowModelVariants!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ShadowModelVariantConfig"
-	]
+	ShadowModelVariants!: list.MaxItems(1) & list.MinItems(1) & [...#ShadowModelVariantConfig]
 
 	// The name of the production variant, which takes all the inference requests.
 	SourceModelVariantName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?"
 })
 
 // The name and sampling percentage of a shadow variant.
-_#defs: "/$defs/Properties/definitions/ShadowModelVariantConfig": close({
+#ShadowModelVariantConfig: close({
 	// The percentage of inference requests that Amazon SageMaker replicates from
 	// the production variant to the shadow variant.
 	SamplingPercentage!: int & <=100
@@ -179,7 +175,7 @@ _#defs: "/$defs/Properties/definitions/ShadowModelVariantConfig": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

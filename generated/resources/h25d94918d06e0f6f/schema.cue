@@ -19,14 +19,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	FlowLogsS3Bucket?: strings.MaxRunes(255) | fn.#StringExpression
 	FlowLogsS3Prefix?: strings.MaxRunes(255) | fn.#StringExpression
 	IpAddressType?:    "IPV4" | "DUAL_STACK" | fn.#StringExpression
-	IpAddresses?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/IpAddress"] | fn.#ListExpression
-	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	IpAddresses?:      list.MaxItems(2) & [...] & [...#IpAddress] | fn.#ListExpression
+	Name!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
+	Tags?:             [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IpAddress": =~"^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$" | fn.#StringExpression
+#IpAddress: =~"^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |

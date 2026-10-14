@@ -12,10 +12,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	MemberId?:          string | fn.#StringExpression
 	NetworkId!:         string | fn.#StringExpression
-	NodeConfiguration!: _#defs."/$defs/Properties/definitions/NodeConfiguration"
+	NodeConfiguration!: #NodeConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/NodeConfiguration": close({
+#NodeConfiguration: close({
 	AvailabilityZone!: string | fn.#StringExpression
 	InstanceType!:     string | fn.#StringExpression
 }) |

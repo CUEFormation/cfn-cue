@@ -8,58 +8,57 @@ package schema
 #Properties: close({
 	Id?:                   string
 	ResourceDefinitionId!: string
-	Resources!:            [..._#defs."/$defs/Properties/definitions/ResourceInstance"]
+	Resources!:            [...#ResourceInstance]
 })
 
-_#defs: "/$defs/Properties/definitions/GroupOwnerSetting": close({
+#GroupOwnerSetting: close({
 	AutoAddGroupOwner!: bool
 	GroupOwner?:        string
 })
 
-_#defs: "/$defs/Properties/definitions/LocalDeviceResourceData": close({
-	GroupOwnerSetting?: _#defs."/$defs/Properties/definitions/GroupOwnerSetting"
+#LocalDeviceResourceData: close({
+	GroupOwnerSetting?: #GroupOwnerSetting
 	SourcePath!:        string
 })
 
-_#defs: "/$defs/Properties/definitions/LocalVolumeResourceData": close({
+#LocalVolumeResourceData: close({
 	DestinationPath!:   string
-	GroupOwnerSetting?: _#defs."/$defs/Properties/definitions/GroupOwnerSetting"
+	GroupOwnerSetting?: #GroupOwnerSetting
 	SourcePath!:        string
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceDataContainer": close({
-	LocalDeviceResourceData?:            _#defs."/$defs/Properties/definitions/LocalDeviceResourceData"
-	LocalVolumeResourceData?:            _#defs."/$defs/Properties/definitions/LocalVolumeResourceData"
-	S3MachineLearningModelResourceData?: _#defs."/$defs/Properties/definitions/S3MachineLearningModelResourceData"
-	SageMakerMachineLearningModelResourceData?:
-		_#defs."/$defs/Properties/definitions/SageMakerMachineLearningModelResourceData"
-	SecretsManagerSecretResourceData?: _#defs."/$defs/Properties/definitions/SecretsManagerSecretResourceData"
+#ResourceDataContainer: close({
+	LocalDeviceResourceData?:                   #LocalDeviceResourceData
+	LocalVolumeResourceData?:                   #LocalVolumeResourceData
+	S3MachineLearningModelResourceData?:        #S3MachineLearningModelResourceData
+	SageMakerMachineLearningModelResourceData?: #SageMakerMachineLearningModelResourceData
+	SecretsManagerSecretResourceData?:          #SecretsManagerSecretResourceData
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceDownloadOwnerSetting": close({
+#ResourceDownloadOwnerSetting: close({
 	GroupOwner!:      string
 	GroupPermission!: string
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceInstance": close({
+#ResourceInstance: close({
 	Id!:                    string
 	Name!:                  string
-	ResourceDataContainer!: _#defs."/$defs/Properties/definitions/ResourceDataContainer"
+	ResourceDataContainer!: #ResourceDataContainer
 })
 
-_#defs: "/$defs/Properties/definitions/S3MachineLearningModelResourceData": close({
+#S3MachineLearningModelResourceData: close({
 	DestinationPath!: string
-	OwnerSetting?:    _#defs."/$defs/Properties/definitions/ResourceDownloadOwnerSetting"
+	OwnerSetting?:    #ResourceDownloadOwnerSetting
 	S3Uri!:           string
 })
 
-_#defs: "/$defs/Properties/definitions/SageMakerMachineLearningModelResourceData": close({
+#SageMakerMachineLearningModelResourceData: close({
 	DestinationPath!: string
-	OwnerSetting?:    _#defs."/$defs/Properties/definitions/ResourceDownloadOwnerSetting"
+	OwnerSetting?:    #ResourceDownloadOwnerSetting
 	SageMakerJobArn!: string
 })
 
-_#defs: "/$defs/Properties/definitions/SecretsManagerSecretResourceData": close({
+#SecretsManagerSecretResourceData: close({
 	ARN!:                               string
 	AdditionalStagingLabelsToDownload?: [...string]
 })

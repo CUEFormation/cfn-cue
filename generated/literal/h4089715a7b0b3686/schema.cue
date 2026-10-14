@@ -13,33 +13,33 @@ import (
 // Definition of AWS::Location::APIKey Resource Type
 #Properties: close({
 	Arn?: strings.MaxRunes(1600) & =~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:([^/].*)?$"
-	CreateTime?:  _#defs."/$defs/Properties/definitions/iso8601UTC"
+	CreateTime?:  #iso8601UTC
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(0)
-	ExpireTime?:  _#defs."/$defs/Properties/definitions/iso8601UTC"
+	ExpireTime?:  #iso8601UTC
 	ForceDelete?: bool
 	ForceUpdate?: bool
 	KeyArn?: strings.MaxRunes(1600) &
 	=~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:([^/].*)?$"
 	KeyName!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$"
 	NoExpiry?:     bool
-	Restrictions!: _#defs."/$defs/Properties/definitions/ApiKeyRestrictions"
+	Restrictions!: #ApiKeyRestrictions
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?:       list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	UpdateTime?: _#defs."/$defs/Properties/definitions/iso8601UTC"
+	Tags?:       list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
+	UpdateTime?: #iso8601UTC
 })
 
-_#defs: "/$defs/Properties/definitions/AndroidApp": close({
+#AndroidApp: close({
 	CertificateFingerprint!: strings.MaxRunes(59) & strings.MinRunes(59) & =~"^([A-Fa-f0-9]{2}:){19}[A-Fa-f0-9]{2}$"
 	Package!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([A-Za-z][A-Za-z\\d_]*\\.)+[A-Za-z][A-Za-z\\d_]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/ApiKeyRestrictions": close({
+#ApiKeyRestrictions: close({
 	AllowActions!: list.MaxItems(24) & list.MinItems(1) & [
 		...strings.MaxRunes(200) & strings.MinRunes(5) & =~"^(geo|geo-routes|geo-places|geo-maps):\\w*\\*?$"
 	]
-	AllowAndroidApps?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/AndroidApp"]
-	AllowAppleApps?:   list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/AppleApp"]
+	AllowAndroidApps?: list.MaxItems(5) & [...] & [...#AndroidApp]
+	AllowAppleApps?:   list.MaxItems(5) & [...] & [...#AppleApp]
 	AllowReferers?: list.MaxItems(5) & [...] & [
 		...strings.MaxRunes(253) & =~"^([\\w!$&()*+,./:;=?@\\x60-]|%([\\dA-Fa-f]{2}|[\\dA-Fa-f]?\\*))+$"
 	]
@@ -49,12 +49,10 @@ _#defs: "/$defs/Properties/definitions/ApiKeyRestrictions": close({
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/AppleApp": close(
-	{BundleId!: strings.MaxRunes(155) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+(\\.[A-Za-z0-9\\-]+)+$"},
-)
+#AppleApp: close({BundleId!: strings.MaxRunes(155) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+(\\.[A-Za-z0-9\\-]+)+$"})
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -68,11 +66,11 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(50) & close({
+#TagMap: struct.MaxFields(50) & close({
 
 	{[=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$"]: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$"}})
 
 // The datetime value in ISO 8601 format. The timezone is always UTC. (YYYY-MM-DDThh:mm:ss.sssZ)
-_#defs: "/$defs/Properties/definitions/iso8601UTC": =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$"
+#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$"

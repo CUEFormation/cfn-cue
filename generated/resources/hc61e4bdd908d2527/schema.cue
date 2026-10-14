@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -17,41 +17,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // delivers the events to one or more event data stores. You use channels to
 // ingest events into CloudTrail from sources outside AWS.
 #Properties: close({
-	Destinations?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Destination"
-	] |
-		fn.#ListExpression
-	Name?:   _#defs."/$defs/Properties/definitions/ChannelName"
-	Source?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"(.*)" | fn.#StringExpression
-	Tags?:   list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Destinations?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#Destination] | fn.#ListExpression
+	Name?:         #ChannelName
+	Source?:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"(.*)" | fn.#StringExpression
+	Tags?:         list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ChannelArn": strings.MaxRunes(256) &
-strings.MinRunes(3) &
-=~"(^[a-zA-Z0-9._/\\-:]+$)" |
-fn.#StringExpression
+#ChannelArn: strings.MaxRunes(256) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._/\\-:]+$)" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ChannelName": strings.MaxRunes(128) &
-strings.MinRunes(3) &
-=~"(^[a-zA-Z0-9._\\-]+$)" |
-fn.#StringExpression
+#ChannelName: strings.MaxRunes(128) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._\\-]+$)" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Destination": close({
+#Destination: close({
 	Location!: strings.MaxRunes(1024) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._/\\-:]+$)" | fn.#StringExpression
 	Type!:     "EVENT_DATA_STORE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": string | fn.#StringExpression
+#Timestamp: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UUID": strings.MaxRunes(36) & strings.MinRunes(36) & =~"(^[a-f0-9\\-]+$)" |
-fn.#StringExpression
+#UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"(^[a-f0-9\\-]+$)" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::CloudTrail::Channel"
 	Properties?: #Properties

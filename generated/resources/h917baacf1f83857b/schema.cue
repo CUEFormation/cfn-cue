@@ -18,45 +18,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // An object representing an Amazon EKS cluster.
 #Properties: close({
-	AccessConfig?:                 _#defs."/$defs/Properties/definitions/AccessConfig"
+	AccessConfig?:                 #AccessConfig
 	ActiveCertificateAuthorityId?: string | fn.#StringExpression
 	BootstrapSelfManagedAddons?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CertificateAuthority?:         close({Active?: close({}) | fn.#ObjectExpression}) | fn.#ObjectExpression
-	ComputeConfig?:                _#defs."/$defs/Properties/definitions/ComputeConfig"
-	ControlPlaneScalingConfig?:    _#defs."/$defs/Properties/definitions/ControlPlaneScalingConfig"
+	ComputeConfig?:                #ComputeConfig
+	ControlPlaneScalingConfig?:    #ControlPlaneScalingConfig
 	DeletionProtection?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EncryptionConfig?: list.MaxItems(1) & [...] & [
-		..._#defs."/$defs/Properties/definitions/EncryptionConfig" &
-		(null | bool | number | string | list.MaxItems(1) | {...}) |
-		fn.#ObjectExpression
+		...#EncryptionConfig & (null | bool | number | string | list.MaxItems(1) | {...}) | fn.#ObjectExpression
 	] |
 	fn.#ListExpression
 	Force?:                       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KubeApiServerConfig?:         _#defs."/$defs/Properties/definitions/KubeApiServerConfig"
-	KubeControllerManagerConfig?: _#defs."/$defs/Properties/definitions/KubeControllerManagerConfig"
-	KubeSchedulerConfig?:         _#defs."/$defs/Properties/definitions/KubeSchedulerConfig"
+	KubeApiServerConfig?:         #KubeApiServerConfig
+	KubeControllerManagerConfig?: #KubeControllerManagerConfig
+	KubeSchedulerConfig?:         #KubeSchedulerConfig
 	KubernetesNetworkConfig?: close({
-		ElasticLoadBalancing?: _#defs."/$defs/Properties/definitions/ElasticLoadBalancing" | fn.#ObjectExpression
+		ElasticLoadBalancing?: #ElasticLoadBalancing | fn.#ObjectExpression
 		IpFamily?:             "ipv4" | "ipv6" | fn.#StringExpression
 		ServiceIpv4Cidr?:      string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Logging?: _#defs."/$defs/Properties/definitions/Logging"
+	Logging?: #Logging
 	Name?:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*" | fn.#StringExpression
-	OutpostConfig?:       _#defs."/$defs/Properties/definitions/OutpostConfig"
-	RemoteNetworkConfig?: _#defs."/$defs/Properties/definitions/RemoteNetworkConfig"
-	ResourcesVpcConfig!:  _#defs."/$defs/Properties/definitions/ResourcesVpcConfig"
+	OutpostConfig?:       #OutpostConfig
+	RemoteNetworkConfig?: #RemoteNetworkConfig
+	ResourcesVpcConfig!:  #ResourcesVpcConfig
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	RollbackConfig?:   _#defs."/$defs/Properties/definitions/RollbackConfig"
-	StorageConfig?:    _#defs."/$defs/Properties/definitions/StorageConfig"
-	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UpgradePolicy?:    _#defs."/$defs/Properties/definitions/UpgradePolicy"
+	RollbackConfig?:   #RollbackConfig
+	StorageConfig?:    #StorageConfig
+	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	UpgradePolicy?:    #UpgradePolicy
 	Version?:          =~"1\\.\\d\\d" | fn.#StringExpression
-	ZonalShiftConfig?: _#defs."/$defs/Properties/definitions/ZonalShiftConfig"
+	ZonalShiftConfig?: #ZonalShiftConfig
 })
 
-_#defs: "/$defs/Properties/definitions/AccessConfig": close({
+#AccessConfig: close({
 	AuthenticationMode?: "CONFIG_MAP" | "API_AND_CONFIG_MAP" | "API" | fn.#StringExpression
 	BootstrapClusterCreatorAdminPermissions?: bool |
 		"true" |
@@ -69,29 +67,24 @@ _#defs: "/$defs/Properties/definitions/AccessConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ActiveCertificateAuthority": close({
+#ActiveCertificateAuthority: close({
 	ActivatedBy?: string | fn.#StringExpression
 	Id?:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlockStorage": close(
-	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
+#BlockStorage: close({Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CertificateAuthority": close({
-	Active?: _#defs."/$defs/Properties/definitions/ActiveCertificateAuthority"
+#CertificateAuthority: close({
+	Active?: #ActiveCertificateAuthority
 	Data?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterLogging": close(
-	{EnabledTypes?: _#defs."/$defs/Properties/definitions/EnabledTypes"},
-) |
-	fn.#ObjectExpression
+#ClusterLogging: close({EnabledTypes?: #EnabledTypes}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComputeConfig": close({
+#ComputeConfig: close({
 	Enabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NodePools?: [...string | fn.#StringExpression] | fn.#ListExpression
 	NodeRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -99,99 +92,78 @@ _#defs: "/$defs/Properties/definitions/ComputeConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ControlPlanePlacement": close({
+#ControlPlanePlacement: close({
 	GroupName?:   string | fn.#StringExpression
 	SpreadLevel?: "host" | "rack" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ControlPlaneScalingConfig": close(
+#ControlPlaneScalingConfig: close(
 	{Tier?: "standard" | "tier-xl" | "tier-2xl" | "tier-4xl" | "tier-8xl" | "tier-ultra" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeletionProtection": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#DeletionProtection: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/ElasticLoadBalancing": close(
+#ElasticLoadBalancing: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnabledTypes": [..._#defs."/$defs/Properties/definitions/LoggingTypeConfig"] |
-	fn.#ListExpression
+#EnabledTypes: [...#LoggingTypeConfig] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
-	Provider?:  _#defs."/$defs/Properties/definitions/Provider" | fn.#ObjectExpression
+#EncryptionConfig: close({
+	Provider?:  #Provider | fn.#ObjectExpression
 	Resources?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EtcdPlacement": close({SpreadLevel?: "host" | "rack" | fn.#StringExpression}) |
+#EtcdPlacement: close({SpreadLevel?: "host" | "rack" | fn.#StringExpression}) | fn.#ObjectExpression
+
+#HorizontalPodAutoscalerControllerConfig: close({HorizontalPodAutoscalerSyncPeriod?: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HorizontalPodAutoscalerControllerConfig": close(
-	{HorizontalPodAutoscalerSyncPeriod?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/KubeApiServerConfig": close({
+#KubeApiServerConfig: close({
 	EventTtl?:             string | fn.#StringExpression
-	ServiceNodePortRange?: _#defs."/$defs/Properties/definitions/ServiceNodePortRange"
+	ServiceNodePortRange?: #ServiceNodePortRange
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KubeControllerManagerConfig": close({
-	HorizontalPodAutoscalerControllerConfig?:
-		_#defs."/$defs/Properties/definitions/HorizontalPodAutoscalerControllerConfig"
-	PodGcControllerConfig?: _#defs."/$defs/Properties/definitions/PodGcControllerConfig"
+#KubeControllerManagerConfig: close({
+	HorizontalPodAutoscalerControllerConfig?: #HorizontalPodAutoscalerControllerConfig
+	PodGcControllerConfig?:                   #PodGcControllerConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KubeSchedulerConfig": close(
-	{NodeResourcesFit?: _#defs."/$defs/Properties/definitions/NodeResourcesFitConfig"},
-) |
-	fn.#ObjectExpression
+#KubeSchedulerConfig: close({NodeResourcesFit?: #NodeResourcesFitConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KubernetesNetworkConfig": close({
-	ElasticLoadBalancing?: _#defs."/$defs/Properties/definitions/ElasticLoadBalancing" | fn.#ObjectExpression
+#KubernetesNetworkConfig: close({
+	ElasticLoadBalancing?: #ElasticLoadBalancing | fn.#ObjectExpression
 	IpFamily?:             "ipv4" | "ipv6" | fn.#StringExpression
 	ServiceIpv4Cidr?:      string | fn.#StringExpression
 	ServiceIpv6Cidr?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Logging": close(
-	{ClusterLogging?: _#defs."/$defs/Properties/definitions/ClusterLogging" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#Logging: close({ClusterLogging?: #ClusterLogging | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingTypeConfig": close(
+#LoggingTypeConfig: close(
 	{Type?: "api" | "audit" | "authenticator" | "controllerManager" | "scheduler" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeResourcesFitConfig": close(
-	{ScoringStrategy?: _#defs."/$defs/Properties/definitions/ScoringStrategy"},
-) |
-	fn.#ObjectExpression
+#NodeResourcesFitConfig: close({ScoringStrategy?: #ScoringStrategy}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OutpostConfig": close({
+#OutpostConfig: close({
 	ControlPlaneInstanceType!: string | fn.#StringExpression
-	ControlPlanePlacement?:    _#defs."/$defs/Properties/definitions/ControlPlanePlacement" | fn.#ObjectExpression
+	ControlPlanePlacement?:    #ControlPlanePlacement | fn.#ObjectExpression
 	EtcdInstanceType?:         string | fn.#StringExpression
-	EtcdPlacement?:            _#defs."/$defs/Properties/definitions/EtcdPlacement" | fn.#ObjectExpression
+	EtcdPlacement?:            #EtcdPlacement | fn.#ObjectExpression
 	OutpostArns!:              [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PodGcControllerConfig": close({
+#PodGcControllerConfig: close({
 	TerminatedPodGcThreshold?: int & <=1000000 & >=1 |
 		{
 			string &
@@ -211,35 +183,23 @@ _#defs: "/$defs/Properties/definitions/PodGcControllerConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Provider": close({KeyArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Provider: close({KeyArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RemoteNetworkConfig": close({
-	RemoteNodeNetworks?: _#defs."/$defs/Properties/definitions/RemoteNodeNetworks" | fn.#ListExpression
-	RemotePodNetworks?:  _#defs."/$defs/Properties/definitions/RemotePodNetworks" | fn.#ListExpression
+#RemoteNetworkConfig: close({
+	RemoteNodeNetworks?: #RemoteNodeNetworks | fn.#ListExpression
+	RemotePodNetworks?:  #RemotePodNetworks | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RemoteNodeNetwork": close(
-	{Cidrs!: [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#RemoteNodeNetwork: close({Cidrs!: [...string | fn.#StringExpression] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RemoteNodeNetworks": list.MaxItems(1) & [...] & [
-	..._#defs."/$defs/Properties/definitions/RemoteNodeNetwork"
-] |
-	fn.#ListExpression
+#RemoteNodeNetworks: list.MaxItems(1) & [...] & [...#RemoteNodeNetwork] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/RemotePodNetwork": close(
-	{Cidrs!: [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#RemotePodNetwork: close({Cidrs!: [...string | fn.#StringExpression] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RemotePodNetworks": list.MaxItems(1) & [...] & [
-	..._#defs."/$defs/Properties/definitions/RemotePodNetwork"
-] |
-	fn.#ListExpression
+#RemotePodNetworks: list.MaxItems(1) & [...] & [...#RemotePodNetwork] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceWeight": close({
+#ResourceWeight: close({
 	Name?: strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
 	Weight?: int & <=100 & >=1 |
 		{
@@ -260,7 +220,7 @@ _#defs: "/$defs/Properties/definitions/ResourceWeight": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourcesVpcConfig": close({
+#ResourcesVpcConfig: close({
 	ControlPlaneEgressMode?: "AWS_MANAGED" | "CUSTOMER_ISOLATED" | "CUSTOMER_ROUTED" | fn.#StringExpression
 	EndpointPrivateAccess?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EndpointPublicAccess?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -274,7 +234,7 @@ _#defs: "/$defs/Properties/definitions/ResourcesVpcConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RollbackConfig": close({
+#RollbackConfig: close({
 	TimeoutMinutes?: int & <=10080 & >=120 |
 		{
 			string &
@@ -294,14 +254,13 @@ _#defs: "/$defs/Properties/definitions/RollbackConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScoringStrategy": close({
-	Resources?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceWeight"] |
-		fn.#ListExpression
-	Type?: "LeastAllocated" | "MostAllocated" | fn.#StringExpression
+#ScoringStrategy: close({
+	Resources?: list.MaxItems(100) & [...] & [...#ResourceWeight] | fn.#ListExpression
+	Type?:      "LeastAllocated" | "MostAllocated" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceNodePortRange": close({
+#ServiceNodePortRange: close({
 	MaxPort?: int |
 		{
 			string &
@@ -333,23 +292,17 @@ _#defs: "/$defs/Properties/definitions/ServiceNodePortRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageConfig": close(
-	{BlockStorage?: _#defs."/$defs/Properties/definitions/BlockStorage" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#StorageConfig: close({BlockStorage?: #BlockStorage | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpgradePolicy": close(
-	{SupportType?: "STANDARD" | "EXTENDED" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#UpgradePolicy: close({SupportType?: "STANDARD" | "EXTENDED" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ZonalShiftConfig": close(
+#ZonalShiftConfig: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression

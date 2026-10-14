@@ -27,17 +27,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description!: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.!+@/][a-zA-Z0-9-_.!+@/ ]*$" |
 	fn.#StringExpression
 	ExecutablePath!:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	RuntimeEnvironment!: _#defs."/$defs/Properties/definitions/RuntimeEnvironment"
-	Tags?:               _#defs."/$defs/Properties/definitions/Tags"
+	RuntimeEnvironment!: #RuntimeEnvironment
+	Tags?:               #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/RuntimeEnvironment": close({
+#RuntimeEnvironment: close({
 	Type!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Version!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(50) & struct.MinFields(1) & close({
+#Tags: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression

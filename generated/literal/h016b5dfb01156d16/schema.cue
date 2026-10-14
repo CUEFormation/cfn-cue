@@ -21,16 +21,16 @@ import (
 	RetentionPeriod?: int
 
 	// Definition for snapshot resource
-	Snapshot?: _#defs."/$defs/Properties/definitions/Snapshot"
+	Snapshot?: #Snapshot
 
 	// The name of the snapshot.
 	SnapshotName!: strings.MaxRunes(64) & strings.MinRunes(3)
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Snapshot": close({
+#Snapshot: close({
 	AdminUsername?:      string
 	KmsKeyId?:           =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 	NamespaceArn?:       string
@@ -40,17 +40,12 @@ _#defs: "/$defs/Properties/definitions/Snapshot": close({
 	SnapshotArn?:        string
 	SnapshotCreateTime?: string
 	SnapshotName?:       strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$"
-	Status?:             _#defs."/$defs/Properties/definitions/SnapshotStatus"
+	Status?:             #SnapshotStatus
 })
 
-_#defs: "/$defs/Properties/definitions/SnapshotStatus": "AVAILABLE" |
-	"CREATING" |
-	"DELETED" |
-	"CANCELLED" |
-	"FAILED" |
-	"COPYING"
+#SnapshotStatus: "AVAILABLE" | "CREATING" | "DELETED" | "CANCELLED" | "FAILED" | "COPYING"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

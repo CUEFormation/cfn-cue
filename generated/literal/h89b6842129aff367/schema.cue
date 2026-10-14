@@ -19,16 +19,16 @@ import "strings"
 
 	// InstanceTypeConfigs determine the EC2 instances that Amazon EMR attempts to
 	// provision to fulfill On-Demand and Spot target capacities.
-	InstanceTypeConfigs?: [..._#defs."/$defs/Properties/definitions/InstanceTypeConfig"]
+	InstanceTypeConfigs?: [...#InstanceTypeConfig]
 
 	// The launch specification for the instance fleet.
-	LaunchSpecifications?: _#defs."/$defs/Properties/definitions/InstanceFleetProvisioningSpecifications"
+	LaunchSpecifications?: #InstanceFleetProvisioningSpecifications
 
 	// The friendly name of the instance fleet.
 	Name?: string
 
 	// The resize specification for the instance fleet.
-	ResizeSpecifications?: _#defs."/$defs/Properties/definitions/InstanceFleetResizingSpecifications"
+	ResizeSpecifications?: #InstanceFleetResizingSpecifications
 
 	// The target capacity of On-Demand units for the instance fleet, which
 	// determines how many On-Demand instances to provision.
@@ -41,7 +41,7 @@ import "strings"
 
 // Configuration specifies optional configurations for customizing open-source
 // big data applications and environment parameters.
-_#defs: "/$defs/Properties/definitions/ApplicationConfiguration": close({
+#ApplicationConfiguration: close({
 	// The classification within a configuration.
 	Classification?: string
 
@@ -52,16 +52,16 @@ _#defs: "/$defs/Properties/definitions/ApplicationConfiguration": close({
 		{[=~"[a-zA-Z0-9]+"]: string}})
 
 	// A list of additional configurations to apply within a configuration object.
-	Configurations?: [..._#defs."/$defs/Properties/definitions/ApplicationConfiguration"]
+	Configurations?: [...#ApplicationConfiguration]
 })
 
 // EbsBlockDeviceConfig defines the number and type of EBS volumes to associate
 // with all EC2 instances in an EMR cluster.
-_#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
+#EbsBlockDeviceConfig: close({
 	// EBS volume specifications such as volume type, IOPS, size (GiB) and
 	// throughput (MiB/s) that are requested for the EBS volume attached to an
 	// Amazon EC2 instance in the cluster.
-	VolumeSpecification!: _#defs."/$defs/Properties/definitions/VolumeSpecification"
+	VolumeSpecification!: #VolumeSpecification
 
 	// Use of this property can confuse CloudFormation drift detection. The
 	// EbsBlockDeviceConfigs read from the system may return a list with one entry
@@ -75,9 +75,9 @@ _#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
 })
 
 // EbsConfiguration determines the EBS volumes to attach to EMR cluster instances.
-_#defs: "/$defs/Properties/definitions/EbsConfiguration": close({
+#EbsConfiguration: close({
 	// An array of Amazon EBS volume specifications attached to a cluster instance.
-	EbsBlockDeviceConfigs?: [..._#defs."/$defs/Properties/definitions/EbsBlockDeviceConfig"]
+	EbsBlockDeviceConfigs?: [...#EbsBlockDeviceConfig]
 
 	// Indicates whether an Amazon EBS volume is EBS-optimized.
 	EbsOptimized?: bool
@@ -85,31 +85,31 @@ _#defs: "/$defs/Properties/definitions/EbsConfiguration": close({
 
 // InstanceTypeConfig determines the EC2 instances that Amazon EMR attempts to
 // provision to fulfill On-Demand and Spot target capacities.
-_#defs: "/$defs/Properties/definitions/InstanceFleetProvisioningSpecifications": close({
+#InstanceFleetProvisioningSpecifications: close({
 	// The launch specification for On-Demand Instances in the instance fleet, which
 	// determines the allocation strategy.
-	OnDemandSpecification?: _#defs."/$defs/Properties/definitions/OnDemandProvisioningSpecification"
+	OnDemandSpecification?: #OnDemandProvisioningSpecification
 
 	// The launch specification for Spot instances in the fleet, which determines
 	// the defined duration, provisioning timeout behavior, and allocation
 	// strategy.
-	SpotSpecification?: _#defs."/$defs/Properties/definitions/SpotProvisioningSpecification"
+	SpotSpecification?: #SpotProvisioningSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceFleetResizingSpecifications": close({
+#InstanceFleetResizingSpecifications: close({
 	// The resize specification for On-Demand Instances in the instance fleet, which
 	// contains the allocation strategy, capacity reservation options, and the
 	// resize timeout period.
-	OnDemandResizeSpecification?: _#defs."/$defs/Properties/definitions/OnDemandResizingSpecification"
+	OnDemandResizeSpecification?: #OnDemandResizingSpecification
 
 	// The resize specification for Spot Instances in the instance fleet, which
 	// contains the allocation strategy and the resize timeout period.
-	SpotResizeSpecification?: _#defs."/$defs/Properties/definitions/SpotResizingSpecification"
+	SpotResizeSpecification?: #SpotResizingSpecification
 })
 
 // The configuration determines the EC2 instances Amazon EMR attempts to
 // provision to fulfill On-Demand and Spot target capacities.
-_#defs: "/$defs/Properties/definitions/InstanceTypeConfig": close({
+#InstanceTypeConfig: close({
 	// The bid price for each Amazon EC2 Spot Instance type as defined by
 	// InstanceType. Expressed in USD. If neither BidPrice nor
 	// BidPriceAsPercentageOfOnDemandPrice is provided,
@@ -125,14 +125,14 @@ _#defs: "/$defs/Properties/definitions/InstanceTypeConfig": close({
 	// An optional configuration specification to be used when provisioning cluster
 	// instances, which can include configurations for applications and software
 	// bundled with Amazon EMR.
-	Configurations?: [..._#defs."/$defs/Properties/definitions/ApplicationConfiguration"]
+	Configurations?: [...#ApplicationConfiguration]
 
 	// The custom AMI ID to use for the instance type.
 	CustomAmiId?: string
 
 	// The configuration of Amazon Elastic Block Store (Amazon EBS) attached to each
 	// instance as defined by InstanceType.
-	EbsConfiguration?: _#defs."/$defs/Properties/definitions/EbsConfiguration"
+	EbsConfiguration?: #EbsConfiguration
 
 	// An Amazon EC2 instance type, such as m3.xlarge.
 	InstanceType!: string
@@ -147,7 +147,7 @@ _#defs: "/$defs/Properties/definitions/InstanceTypeConfig": close({
 	WeightedCapacity?: int
 })
 
-_#defs: "/$defs/Properties/definitions/OnDemandCapacityReservationOptions": close({
+#OnDemandCapacityReservationOptions: close({
 	// Indicates the instance's Capacity Reservation preferences.
 	CapacityReservationPreference?: string
 
@@ -160,21 +160,21 @@ _#defs: "/$defs/Properties/definitions/OnDemandCapacityReservationOptions": clos
 
 // The launch specification for On-Demand Instances in the instance fleet, which
 // determines the allocation strategy.
-_#defs: "/$defs/Properties/definitions/OnDemandProvisioningSpecification": close({
+#OnDemandProvisioningSpecification: close({
 	// Specifies the strategy to use in launching On-Demand instance fleets.
 	// Currently, the only option is lowest-price (the default), which launches the
 	// lowest price first.
 	AllocationStrategy!:         string
-	CapacityReservationOptions?: _#defs."/$defs/Properties/definitions/OnDemandCapacityReservationOptions"
+	CapacityReservationOptions?: #OnDemandCapacityReservationOptions
 })
 
-_#defs: "/$defs/Properties/definitions/OnDemandResizingSpecification": close({
+#OnDemandResizingSpecification: close({
 	// Specifies the allocation strategy to use to launch On-Demand instances during
 	// a resize. The default is lowest-price.
 	AllocationStrategy?: string
 
 	// Describes the strategy for using unused Capacity Reservations for fulfilling On-Demand capacity.
-	CapacityReservationOptions?: _#defs."/$defs/Properties/definitions/OnDemandCapacityReservationOptions"
+	CapacityReservationOptions?: #OnDemandCapacityReservationOptions
 
 	// On-Demand resize timeout in minutes.
 	TimeoutDurationMinutes?: int
@@ -183,7 +183,7 @@ _#defs: "/$defs/Properties/definitions/OnDemandResizingSpecification": close({
 // SpotProvisioningSpecification determines the launch specification for Spot
 // instances in the instance fleet, which includes the defined duration and
 // provisioning timeout behavior.
-_#defs: "/$defs/Properties/definitions/SpotProvisioningSpecification": close({
+#SpotProvisioningSpecification: close({
 	// Specifies one of the following strategies to launch Spot Instance fleets:
 	// price-capacity-optimized, capacity-optimized, lowest-price, or diversified
 	AllocationStrategy?: string
@@ -209,7 +209,7 @@ _#defs: "/$defs/Properties/definitions/SpotProvisioningSpecification": close({
 	TimeoutDurationMinutes!: int
 })
 
-_#defs: "/$defs/Properties/definitions/SpotResizingSpecification": close({
+#SpotResizingSpecification: close({
 	// Specifies the allocation strategy to use to launch Spot instances during a resize.
 	AllocationStrategy?: string
 
@@ -220,7 +220,7 @@ _#defs: "/$defs/Properties/definitions/SpotResizingSpecification": close({
 // VolumeSpecification is a subproperty of the EbsBlockDeviceConfig property
 // type. VolumeSecification determines the volume type, IOPS, and size (GiB)
 // for EBS volumes attached to EC2 instances.
-_#defs: "/$defs/Properties/definitions/VolumeSpecification": close({
+#VolumeSpecification: close({
 	// The number of I/O operations per second (IOPS) that the volume supports.
 	Iops?: int
 

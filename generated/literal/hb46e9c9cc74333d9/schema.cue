@@ -11,13 +11,13 @@ import "strings"
 	Action?:          "ARCHIVE" | "NOOP"
 	Description?:     strings.MaxRunes(512) & strings.MinRunes(0)
 	DetectorId!:      strings.MaxRunes(300) & strings.MinRunes(1)
-	FindingCriteria!: _#defs."/$defs/Properties/definitions/FindingCriteria"
+	FindingCriteria!: #FindingCriteria
 	Name!:            strings.MaxRunes(64) & strings.MinRunes(1)
 	Rank?:            int & <=100 & >=1
-	Tags?:            [..._#defs."/$defs/Properties/definitions/TagItem"]
+	Tags?:            [...#TagItem]
 })
 
-_#defs: "/$defs/Properties/definitions/Condition": close({
+#Condition: close({
 	Eq?:                 [...string]
 	Equals?:             [...string]
 	GreaterThan?:        int
@@ -34,13 +34,13 @@ _#defs: "/$defs/Properties/definitions/Condition": close({
 	NotMatches?:         [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/FindingCriteria": close({
+#FindingCriteria: close({
 	Criterion?: close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Condition"}})
+		{[=~"^.+$"]: #Condition}})
 })
 
-_#defs: "/$defs/Properties/definitions/TagItem": close({
+#TagItem: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

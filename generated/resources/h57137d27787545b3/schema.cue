@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Properties: close({
-	AIMLOptions?:    _#defs."/$defs/Properties/definitions/AIMLOptions"
+	AIMLOptions?:    #AIMLOptions
 	AccessPolicies?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	AdvancedOptions?: close({
 
@@ -27,7 +27,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AdvancedSecurityOptions?: close({
 		AnonymousAuthEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Enabled?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		IAMFederationOptions?: _#defs."/$defs/Properties/definitions/IAMFederationOptions"
+		IAMFederationOptions?: #IAMFederationOptions
 		InternalUserDatabaseEnabled?: bool |
 			"true" |
 			"True" |
@@ -36,70 +36,70 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		JWTOptions?:        _#defs."/$defs/Properties/definitions/JWTOptions"
-		MasterUserOptions?: _#defs."/$defs/Properties/definitions/MasterUserOptions"
-		SAMLOptions?:       _#defs."/$defs/Properties/definitions/SAMLOptions"
+		JWTOptions?:        #JWTOptions
+		MasterUserOptions?: #MasterUserOptions
+		SAMLOptions?:       #SAMLOptions
 	}) |
 	fn.#ObjectExpression
-	AutomatedSnapshotPauseOptions?: _#defs."/$defs/Properties/definitions/AutomatedSnapshotPauseOptions"
-	ClusterConfig?:                 _#defs."/$defs/Properties/definitions/ClusterConfig"
-	CognitoOptions?:                _#defs."/$defs/Properties/definitions/CognitoOptions"
-	DeploymentStrategyOptions?:     _#defs."/$defs/Properties/definitions/DeploymentStrategyOptions"
-	DomainEndpointOptions?:         _#defs."/$defs/Properties/definitions/DomainEndpointOptions"
+	AutomatedSnapshotPauseOptions?: #AutomatedSnapshotPauseOptions
+	ClusterConfig?:                 #ClusterConfig
+	CognitoOptions?:                #CognitoOptions
+	DeploymentStrategyOptions?:     #DeploymentStrategyOptions
+	DomainEndpointOptions?:         #DomainEndpointOptions
 	DomainName?:                    string | fn.#StringExpression
-	EBSOptions?:                    _#defs."/$defs/Properties/definitions/EBSOptions"
-	EncryptionAtRestOptions?:       _#defs."/$defs/Properties/definitions/EncryptionAtRestOptions"
+	EBSOptions?:                    #EBSOptions
+	EncryptionAtRestOptions?:       #EncryptionAtRestOptions
 	EngineMode?:                    "GENERAL" | "OPTIMIZED" | fn.#StringExpression
 	EngineVersion?:                 string | fn.#StringExpression
 	IPAddressType?:                 string | fn.#StringExpression
 	IdentityCenterOptions?: close({
 		EnabledAPIAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		IdentityCenterInstanceARN?: string | fn.#StringExpression
-		RolesKey?:                  _#defs."/$defs/Properties/definitions/RolesKeyIdcType" | fn.#StringExpression
-		SubjectKey?:                _#defs."/$defs/Properties/definitions/SubjectKeyIdcType" | fn.#StringExpression
+		RolesKey?:                  #RolesKeyIdcType | fn.#StringExpression
+		SubjectKey?:                #SubjectKeyIdcType | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	LogPublishingOptions?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: _#defs."/$defs/Properties/definitions/LogPublishingOption"}}) |
+		{[=~"[a-zA-Z0-9]+"]: #LogPublishingOption}}) |
 	fn.#ObjectExpression
-	NodeToNodeEncryptionOptions?: _#defs."/$defs/Properties/definitions/NodeToNodeEncryptionOptions"
-	OffPeakWindowOptions?:        _#defs."/$defs/Properties/definitions/OffPeakWindowOptions"
+	NodeToNodeEncryptionOptions?: #NodeToNodeEncryptionOptions
+	OffPeakWindowOptions?:        #OffPeakWindowOptions
 	SkipShardMigrationWait?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SnapshotOptions?:             _#defs."/$defs/Properties/definitions/SnapshotOptions"
-	SoftwareUpdateOptions?:       _#defs."/$defs/Properties/definitions/SoftwareUpdateOptions"
-	Tags?:       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UseCase?:    "SEARCH" | "VECTOR" | "OBSERVABILITY" | "MIXED" | fn.#StringExpression
-	VPCOptions?: _#defs."/$defs/Properties/definitions/VPCOptions"
+	SnapshotOptions?:             #SnapshotOptions
+	SoftwareUpdateOptions?:       #SoftwareUpdateOptions
+	Tags?:                        list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	UseCase?:                     "SEARCH" | "VECTOR" | "OBSERVABILITY" | "MIXED" | fn.#StringExpression
+	VPCOptions?:                  #VPCOptions
 })
 
-_#defs: "/$defs/Properties/definitions/AIMLOptions": close({
-	S3VectorsEngine?:              _#defs."/$defs/Properties/definitions/S3VectorsEngine"
-	ServerlessVectorAcceleration?: _#defs."/$defs/Properties/definitions/ServerlessVectorAcceleration"
+#AIMLOptions: close({
+	S3VectorsEngine?:              #S3VectorsEngine
+	ServerlessVectorAcceleration?: #ServerlessVectorAcceleration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AdvancedSecurityOptionsInput": close({
+#AdvancedSecurityOptionsInput: close({
 	AnonymousAuthDisableDate?:    string | fn.#StringExpression
 	AnonymousAuthEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Enabled?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IAMFederationOptions?:        _#defs."/$defs/Properties/definitions/IAMFederationOptions"
+	IAMFederationOptions?:        #IAMFederationOptions
 	InternalUserDatabaseEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	JWTOptions?:                  _#defs."/$defs/Properties/definitions/JWTOptions"
-	MasterUserOptions?:           _#defs."/$defs/Properties/definitions/MasterUserOptions"
-	SAMLOptions?:                 _#defs."/$defs/Properties/definitions/SAMLOptions"
+	JWTOptions?:                  #JWTOptions
+	MasterUserOptions?:           #MasterUserOptions
+	SAMLOptions?:                 #SAMLOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutomatedSnapshotPauseOptions": close({
+#AutomatedSnapshotPauseOptions: close({
 	Enabled!:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EndTime?:   string | fn.#StringExpression
 	StartTime?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterConfig": close({
-	ColdStorageOptions?: _#defs."/$defs/Properties/definitions/ColdStorageOptions"
+#ClusterConfig: close({
+	ColdStorageOptions?: #ColdStorageOptions
 	DedicatedMasterCount?: int |
 		{
 			string &
@@ -132,7 +132,7 @@ _#defs: "/$defs/Properties/definitions/ClusterConfig": close({
 		fn.#NumberExpression
 	InstanceType?:              string | fn.#StringExpression
 	MultiAZWithStandbyEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NodeOptions?:               [..._#defs."/$defs/Properties/definitions/NodeOption"] | fn.#ListExpression
+	NodeOptions?:               [...#NodeOption] | fn.#ListExpression
 	WarmCount?: int |
 		{
 			string &
@@ -149,12 +149,12 @@ _#defs: "/$defs/Properties/definitions/ClusterConfig": close({
 		fn.#NumberExpression
 	WarmEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	WarmType?:             string | fn.#StringExpression
-	ZoneAwarenessConfig?:  _#defs."/$defs/Properties/definitions/ZoneAwarenessConfig"
+	ZoneAwarenessConfig?:  #ZoneAwarenessConfig
 	ZoneAwarenessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CognitoOptions": close({
+#CognitoOptions: close({
 	Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IdentityPoolId?: string | fn.#StringExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -163,17 +163,15 @@ _#defs: "/$defs/Properties/definitions/CognitoOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ColdStorageOptions": close(
+#ColdStorageOptions: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentStrategyOptions": close(
-	{DeploymentStrategy?: "Default" | "CapacityOptimized" | fn.#StringExpression},
-) |
+#DeploymentStrategyOptions: close({DeploymentStrategy?: "Default" | "CapacityOptimized" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DomainEndpointOptions": close({
+#DomainEndpointOptions: close({
 	CustomEndpoint?:               string | fn.#StringExpression
 	CustomEndpointCertificateArn?: string | fn.#StringExpression
 	CustomEndpointEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -182,7 +180,7 @@ _#defs: "/$defs/Properties/definitions/DomainEndpointOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EBSOptions": close({
+#EBSOptions: close({
 	EBSEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int |
 		{
@@ -230,7 +228,7 @@ _#defs: "/$defs/Properties/definitions/EBSOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionAtRestOptions": close({
+#EncryptionAtRestOptions: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
@@ -238,30 +236,30 @@ _#defs: "/$defs/Properties/definitions/EncryptionAtRestOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IAMFederationOptions": close({
+#IAMFederationOptions: close({
 	Enabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RolesKey?:   string | fn.#StringExpression
 	SubjectKey?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdentityCenterOptions": close({
+#IdentityCenterOptions: close({
 	EnabledAPIAccess?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IdentityCenterApplicationARN?: string | fn.#StringExpression
 	IdentityCenterInstanceARN?:    string | fn.#StringExpression
 	IdentityStoreId?:              string | fn.#StringExpression
-	RolesKey?:                     _#defs."/$defs/Properties/definitions/RolesKeyIdcType" | fn.#StringExpression
-	SubjectKey?:                   _#defs."/$defs/Properties/definitions/SubjectKeyIdcType" | fn.#StringExpression
+	RolesKey?:                     #RolesKeyIdcType | fn.#StringExpression
+	SubjectKey?:                   #SubjectKeyIdcType | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Idp": close({
+#Idp: close({
 	EntityId!:        string | fn.#StringExpression
 	MetadataContent!: strings.MaxRunes(1048576) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JWTOptions": close({
+#JWTOptions: close({
 	Enabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PublicKey?:  string | fn.#StringExpression
 	RolesKey?:   string | fn.#StringExpression
@@ -269,20 +267,20 @@ _#defs: "/$defs/Properties/definitions/JWTOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogPublishingOption": close({
+#LogPublishingOption: close({
 	CloudWatchLogsLogGroupArn?: string | fn.#StringExpression
 	Enabled?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MasterUserOptions": close({
+#MasterUserOptions: close({
 	MasterUserARN?:      string | fn.#StringExpression
 	MasterUserName?:     string | fn.#StringExpression
 	MasterUserPassword?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeConfig": close({
+#NodeConfig: close({
 	Count?: int |
 		{
 			string &
@@ -302,38 +300,35 @@ _#defs: "/$defs/Properties/definitions/NodeConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeOption": close({
-	NodeConfig?: _#defs."/$defs/Properties/definitions/NodeConfig"
+#NodeOption: close({
+	NodeConfig?: #NodeConfig
 	NodeType?:   "coordinator" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeToNodeEncryptionOptions": close(
+#NodeToNodeEncryptionOptions: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OffPeakWindow": close(
-	{WindowStartTime?: _#defs."/$defs/Properties/definitions/WindowStartTime"},
-) |
-	fn.#ObjectExpression
+#OffPeakWindow: close({WindowStartTime?: #WindowStartTime}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OffPeakWindowOptions": close({
+#OffPeakWindowOptions: close({
 	Enabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OffPeakWindow?: _#defs."/$defs/Properties/definitions/OffPeakWindow"
+	OffPeakWindow?: #OffPeakWindow
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RolesKeyIdcType": "GroupName" | "GroupId" | fn.#StringExpression
+#RolesKeyIdcType: "GroupName" | "GroupId" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3VectorsEngine": close(
+#S3VectorsEngine: close(
 	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SAMLOptions": close({
+#SAMLOptions: close({
 	Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Idp?:               _#defs."/$defs/Properties/definitions/Idp"
+	Idp?:               #Idp
 	MasterBackendRole?: string | fn.#StringExpression
 	MasterUserName?:    string | fn.#StringExpression
 	RolesKey?:          string | fn.#StringExpression
@@ -355,12 +350,12 @@ _#defs: "/$defs/Properties/definitions/SAMLOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerlessVectorAcceleration": close(
+#ServerlessVectorAcceleration: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceSoftwareOptions": close({
+#ServiceSoftwareOptions: close({
 	AutomatedUpdateDate?: string | fn.#StringExpression
 	Cancellable?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CurrentVersion?:      string | fn.#StringExpression
@@ -372,7 +367,7 @@ _#defs: "/$defs/Properties/definitions/ServiceSoftwareOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnapshotOptions": close({
+#SnapshotOptions: close({
 	AutomatedSnapshotStartHour?: int |
 		{
 			string &
@@ -390,7 +385,7 @@ _#defs: "/$defs/Properties/definitions/SnapshotOptions": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SoftwareUpdateOptions": close({
+#SoftwareUpdateOptions: close({
 	AutoSoftwareUpdateEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	UseLatestServiceSoftwareForBlueGreen?: bool |
 		"true" |
@@ -403,15 +398,15 @@ _#defs: "/$defs/Properties/definitions/SoftwareUpdateOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubjectKeyIdcType": "UserName" | "UserId" | "Email" | fn.#StringExpression
+#SubjectKeyIdcType: "UserName" | "UserId" | "Email" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VPCOptions": close({
+#VPCOptions: close({
 	EgressEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SecurityGroupIds?: list.UniqueItems() & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -422,7 +417,7 @@ _#defs: "/$defs/Properties/definitions/VPCOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WindowStartTime": close({
+#WindowStartTime: close({
 	Hours!: int & <=23 & >=0 |
 		{
 			string &
@@ -458,7 +453,7 @@ _#defs: "/$defs/Properties/definitions/WindowStartTime": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ZoneAwarenessConfig": close({
+#ZoneAwarenessConfig: close({
 	AvailabilityZoneCount?: int |
 		{
 			string &

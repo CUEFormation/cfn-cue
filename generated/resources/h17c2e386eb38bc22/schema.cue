@@ -12,7 +12,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the Amazon DevOps Guru.
 #Properties: close({})
 
-_#defs: "/$defs/Properties/definitions/AccountId": =~"^\\d{12}$" | fn.#StringExpression
+#AccountId: =~"^\\d{12}$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DevOpsGuru::LogAnomalyDetectionIntegration"
 	Properties?: #Properties

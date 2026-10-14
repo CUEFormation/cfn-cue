@@ -23,7 +23,7 @@ import (
 	Description?: strings.MaxRunes(500) & strings.MinRunes(0) & =~".*\\S.*"
 
 	// Defines the external invocation configuration of the flow module resource
-	ExternalInvocationConfiguration?: close({Enabled?: _#defs."/$defs/Properties/definitions/Enabled"})
+	ExternalInvocationConfiguration?: close({Enabled?: #Enabled})
 
 	// The identifier of the Amazon Connect instance (ARN).
 	InstanceArn!: strings.MaxRunes(256) &
@@ -43,14 +43,14 @@ import (
 	Status?: strings.MaxRunes(500)
 
 	// One or more tags.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Specifies whether the flow module resource is enabled for external invocation
-_#defs: "/$defs/Properties/definitions/Enabled": bool
+#Enabled: bool
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

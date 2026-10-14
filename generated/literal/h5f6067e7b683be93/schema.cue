@@ -9,26 +9,26 @@ import "strings"
 // Resource Type definition for AWS::MSK::VpcConnection
 #Properties: close({
 	Arn?:            string
-	Authentication!: _#defs."/$defs/Properties/definitions/Authentication"
-	ClientSubnets!:  _#defs."/$defs/Properties/definitions/ClientSubnets"
-	SecurityGroups!: _#defs."/$defs/Properties/definitions/SecurityGroups"
-	Tags?:           _#defs."/$defs/Properties/definitions/Tags"
+	Authentication!: #Authentication
+	ClientSubnets!:  #ClientSubnets
+	SecurityGroups!: #SecurityGroups
+	Tags?:           #Tags
 
 	// The Amazon Resource Name (ARN) of the target cluster
 	TargetClusterArn!: string
-	VpcId!:            _#defs."/$defs/Properties/definitions/VpcId"
+	VpcId!:            #VpcId
 })
 
 // The type of private link authentication
-_#defs: "/$defs/Properties/definitions/Authentication": ("SASL_IAM" | "SASL_SCRAM" | "TLS") & (strings.MaxRunes(10) & strings.MinRunes(3))
+#Authentication: ("SASL_IAM" | "SASL_SCRAM" | "TLS") & (strings.MaxRunes(10) & strings.MinRunes(3))
 
-_#defs: "/$defs/Properties/definitions/ClientSubnets": [...string]
+#ClientSubnets: [...string]
 
-_#defs: "/$defs/Properties/definitions/SecurityGroups": [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
+#SecurityGroups: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string}})
 
-_#defs: "/$defs/Properties/definitions/VpcId": =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
+#VpcId: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"

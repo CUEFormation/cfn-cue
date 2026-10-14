@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"list"
 	"time"
-	"strings"
 	"struct"
 )
 
@@ -13,8 +13,8 @@ import (
 
 // Resource Type definition for AWS::BedrockAgentCore::GatewayRule
 #Properties: close({
-	Actions!:     list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Action"]
-	Conditions?:  list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/Condition"]
+	Actions!:     list.MaxItems(2) & list.MinItems(1) & [...#Action]
+	Conditions?:  list.MaxItems(2) & [...] & [...#Condition]
 	CreatedAt?:   time.Time
 	Description?: strings.MaxRunes(256) & strings.MinRunes(1)
 	GatewayArn?:
@@ -24,99 +24,75 @@ import (
 	RuleId?: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-	Status?:    _#defs."/$defs/Properties/definitions/GatewayRuleStatus"
-	System?:    _#defs."/$defs/Properties/definitions/SystemManagedBlock"
+	Status?:    #GatewayRuleStatus
+	System?:    #SystemManagedBlock
 	UpdatedAt?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/Action": matchN(1, [close(
-	{ConfigurationBundle!: _#defs."/$defs/Properties/definitions/ConfigurationBundleAction"},
-), close(
-	{RouteToTarget!: _#defs."/$defs/Properties/definitions/RouteToTargetAction"},
-)])
+#Action: matchN(1, [
+	close({ConfigurationBundle!: #ConfigurationBundleAction}), close({RouteToTarget!: #RouteToTargetAction}),
+])
 
-_#defs: "/$defs/Properties/definitions/Condition": matchN(1, [close(
-	{MatchPrincipals!: _#defs."/$defs/Properties/definitions/MatchPrincipals"},
-), close(
-	{MatchPaths!: _#defs."/$defs/Properties/definitions/MatchPaths"},
-)])
+#Condition: matchN(1, [close({MatchPrincipals!: #MatchPrincipals}), close({MatchPaths!: #MatchPaths})])
 
-_#defs: "/$defs/Properties/definitions/ConfigurationBundleAction": matchN(1, [close(
-	{StaticOverride!: _#defs."/$defs/Properties/definitions/StaticOverride"},
-), close(
-	{WeightedOverride!: _#defs."/$defs/Properties/definitions/WeightedOverride"},
-)])
+#ConfigurationBundleAction: matchN(1, [
+	close({StaticOverride!: #StaticOverride}), close({WeightedOverride!: #WeightedOverride}),
+])
 
-_#defs: "/$defs/Properties/definitions/ConfigurationBundleReference": close({
+#ConfigurationBundleReference: close({
 	BundleArn!:
 		=~"^arn:aws[a-zA-Z-]*:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:configuration-bundle/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$"
 	BundleVersion!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
 })
 
-_#defs: "/$defs/Properties/definitions/GatewayRuleStatus": "CREATING" | "ACTIVE" | "UPDATING" | "DELETING"
+#GatewayRuleStatus: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING"
 
-_#defs: "/$defs/Properties/definitions/IamPrincipal": close({
+#IamPrincipal: close({
 	Arn!: strings.MaxRunes(2048) &
 	=~"^(arn:aws[a-zA-Z-]*:iam::(\\d{12}|\\*):(user|role)/[\\w+=,.@*?/-]+|arn:aws[a-zA-Z-]*:sts::(\\d{12}|\\*):assumed-role/[\\w+=,.@*?/-]+)$"
-	Operator?: _#defs."/$defs/Properties/definitions/PrincipalMatchOperator"
+	Operator?: #PrincipalMatchOperator
 })
 
-_#defs: "/$defs/Properties/definitions/MatchPaths": close(
-	{AnyOf!: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(512) & =~"^/[\\w\\-.]+/\\*$"]},
-)
+#MatchPaths: close({AnyOf!: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(512) & =~"^/[\\w\\-.]+/\\*$"]})
 
-_#defs: "/$defs/Properties/definitions/MatchPrincipalEntry": close(
-	{IamPrincipal!: _#defs."/$defs/Properties/definitions/IamPrincipal"},
-)
+#MatchPrincipalEntry: close({IamPrincipal!: #IamPrincipal})
 
-_#defs: "/$defs/Properties/definitions/MatchPrincipals": close(
-	{AnyOf!: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MatchPrincipalEntry"]},
-)
+#MatchPrincipals: close({AnyOf!: list.MaxItems(100) & list.MinItems(1) & [...#MatchPrincipalEntry]})
 
-_#defs: "/$defs/Properties/definitions/PrincipalMatchOperator": "StringEquals" | "StringLike"
+#PrincipalMatchOperator: "StringEquals" | "StringLike"
 
-_#defs: "/$defs/Properties/definitions/RouteToTargetAction": matchN(1, [close(
-	{StaticRoute!: _#defs."/$defs/Properties/definitions/StaticRoute"},
-), close(
-	{WeightedRoute!: _#defs."/$defs/Properties/definitions/WeightedRoute"},
-)])
+#RouteToTargetAction: matchN(1, [close({StaticRoute!: #StaticRoute}), close({WeightedRoute!: #WeightedRoute})])
 
-_#defs: "/$defs/Properties/definitions/StaticOverride": close({
+#StaticOverride: close({
 	BundleArn!:
 		=~"^arn:aws[a-zA-Z-]*:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:configuration-bundle/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$"
 	BundleVersion!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
 })
 
-_#defs: "/$defs/Properties/definitions/StaticRoute": close({TargetName!: =~"^([0-9a-zA-Z][-]?){1,100}$"})
+#StaticRoute: close({TargetName!: =~"^([0-9a-zA-Z][-]?){1,100}$"})
 
-_#defs: "/$defs/Properties/definitions/SystemManagedBlock": close({ManagedBy!: string})
+#SystemManagedBlock: close({ManagedBy!: string})
 
-_#defs: "/$defs/Properties/definitions/TargetTrafficSplitEntry": close({
+#TargetTrafficSplitEntry: close({
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1)
-	Metadata?:    _#defs."/$defs/Properties/definitions/TrafficSplitMetadataMap"
+	Metadata?:    #TrafficSplitMetadataMap
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9-]{0,62}[a-zA-Z0-9])?$"
 	TargetName!:  =~"^([0-9a-zA-Z][-]?){1,100}$"
 	Weight!:      <=99 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/TrafficSplitEntry": close({
-	ConfigurationBundle!: _#defs."/$defs/Properties/definitions/ConfigurationBundleReference"
+#TrafficSplitEntry: close({
+	ConfigurationBundle!: #ConfigurationBundleReference
 	Description?:         strings.MaxRunes(200) & strings.MinRunes(1)
-	Metadata?:            _#defs."/$defs/Properties/definitions/TrafficSplitMetadataMap"
+	Metadata?:            #TrafficSplitMetadataMap
 	Name!:                strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9-]{0,62}[a-zA-Z0-9])?$"
 	Weight!:              <=99 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/TrafficSplitMetadataMap": struct.MaxFields(25) & close({
+#TrafficSplitMetadataMap: struct.MaxFields(25) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(1)}})
 
-_#defs: "/$defs/Properties/definitions/WeightedOverride": close(
-	{TrafficSplit!: list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/TrafficSplitEntry"]},
-)
+#WeightedOverride: close({TrafficSplit!: list.MaxItems(2) & list.MinItems(2) & [...#TrafficSplitEntry]})
 
-_#defs: "/$defs/Properties/definitions/WeightedRoute": close({
-	TrafficSplit!: list.MaxItems(2) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/TargetTrafficSplitEntry"
-	]
-})
+#WeightedRoute: close({TrafficSplit!: list.MaxItems(2) & list.MinItems(2) & [...#TargetTrafficSplitEntry]})

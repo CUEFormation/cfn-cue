@@ -20,13 +20,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Represents a plan that specifies Regions, IAM roles, and workflows of logic
 // required to perform the desired change to your multi-Region application
 #Properties: close({
-	AssociatedAlarms?: _#defs."/$defs/Properties/definitions/AssociatedAlarmMap"
+	AssociatedAlarms?: #AssociatedAlarmMap
 	Description?:      string | fn.#StringExpression
 	ExecutionRole!:    =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
 	Name!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,30}[a-zA-Z0-9])?$" |
 	fn.#StringExpression
 	PrimaryRegion?:    =~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression
-	RecoveryApproach!: _#defs."/$defs/Properties/definitions/RecoveryApproach"
+	RecoveryApproach!: #RecoveryApproach
 	RecoveryTimeObjectiveMinutes?: <=10080 & >=1 |
 		{
 			string &
@@ -49,21 +49,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	Regions!: list.MaxItems(2) & list.MinItems(2) & [...=~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression] |
 		fn.#ListExpression
-	ReportConfiguration?:       _#defs."/$defs/Properties/definitions/ReportConfiguration"
+	ReportConfiguration?:       #ReportConfiguration
 	ServiceQuotaChecksEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                      _#defs."/$defs/Properties/definitions/Tags"
-	Triggers?:                  [..._#defs."/$defs/Properties/definitions/Trigger"] | fn.#ListExpression
-	Workflows!:                 [..._#defs."/$defs/Properties/definitions/Workflow"] | fn.#ListExpression
+	Tags?:                      #Tags
+	Triggers?:                  [...#Trigger] | fn.#ListExpression
+	Workflows!:                 [...#Workflow] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AlarmCondition": "red" | "green" | fn.#StringExpression
+#AlarmCondition: "red" | "green" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AlarmType": "applicationHealth" | "trigger" | fn.#StringExpression
+#AlarmType: "applicationHealth" | "trigger" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ArcRoutingControlConfiguration": close({
+#ArcRoutingControlConfiguration: close({
 	CrossAccountRole?:         =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
 	ExternalId?:               string | fn.#StringExpression
-	RegionAndRoutingControls!: _#defs."/$defs/Properties/definitions/RegionAndRoutingControls"
+	RegionAndRoutingControls!: #RegionAndRoutingControls
 	TimeoutMinutes?: >=1 |
 		{
 			string &
@@ -86,13 +86,13 @@ _#defs: "/$defs/Properties/definitions/ArcRoutingControlConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ArcRoutingControlState": close({
+#ArcRoutingControlState: close({
 	RoutingControlArn!: string | fn.#StringExpression
-	State!:             _#defs."/$defs/Properties/definitions/RoutingControlStateChange"
+	State!:             #RoutingControlStateChange
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Asg": close({
+#Asg: close({
 	Arn?: =~"^arn:aws[a-zA-Z-]*:autoscaling:[a-z0-9-]+:\\d{12}:autoScalingGroup:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:autoScalingGroupName/[\\S\\s]{1,255}$" |
 		fn.#StringExpression
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
@@ -100,26 +100,26 @@ _#defs: "/$defs/Properties/definitions/Asg": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssociatedAlarm": close({
-	AlarmType!:          _#defs."/$defs/Properties/definitions/AlarmType"
+#AssociatedAlarm: close({
+	AlarmType!:          #AlarmType
 	CrossAccountRole?:   =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
 	ExternalId?:         string | fn.#StringExpression
 	ResourceIdentifier!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssociatedAlarmMap": close({
+#AssociatedAlarmMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/AssociatedAlarm"}}) |
+	{[=~".+"]: #AssociatedAlarm}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuroraProvisionedScalingConfiguration": close({
+#AuroraProvisionedScalingConfiguration: close({
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
 	ExternalId?:       string | fn.#StringExpression
 	GlobalClusterIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$" |
 	fn.#StringExpression
-	InstanceArns!:              _#defs."/$defs/Properties/definitions/RegionAuroraInstanceArnMap"
-	RegionDatabaseClusterArns!: _#defs."/$defs/Properties/definitions/RegionAuroraClusterMap"
+	InstanceArns!:              #RegionAuroraInstanceArnMap
+	RegionDatabaseClusterArns!: #RegionAuroraClusterMap
 	TimeoutMinutes?: >=1 |
 		{
 			string &
@@ -142,12 +142,12 @@ _#defs: "/$defs/Properties/definitions/AuroraProvisionedScalingConfiguration": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuroraServerlessScalingConfiguration": close({
+#AuroraServerlessScalingConfiguration: close({
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
 	ExternalId?:       string | fn.#StringExpression
 	GlobalClusterIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$" |
 	fn.#StringExpression
-	RegionDatabaseClusterArns!: _#defs."/$defs/Properties/definitions/RegionAuroraClusterMap"
+	RegionDatabaseClusterArns!: #RegionAuroraClusterMap
 	TargetPercent?: number |
 		{
 			string &
@@ -189,10 +189,9 @@ _#defs: "/$defs/Properties/definitions/AuroraServerlessScalingConfiguration": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomActionLambdaConfiguration": close({
-	Lambdas!: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Lambdas"] |
-		fn.#ListExpression
-	RegionToRun!: _#defs."/$defs/Properties/definitions/RegionToRunIn"
+#CustomActionLambdaConfiguration: close({
+	Lambdas!:     list.MaxItems(2) & list.MinItems(1) & [...#Lambdas] | fn.#ListExpression
+	RegionToRun!: #RegionToRunIn
 	RetryIntervalMinutes!: number |
 		{
 			string &
@@ -231,12 +230,12 @@ _#defs: "/$defs/Properties/definitions/CustomActionLambdaConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	Ungraceful?: _#defs."/$defs/Properties/definitions/LambdaUngraceful"
+	Ungraceful?: #LambdaUngraceful
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentDbConfiguration": close({
-	Behavior!:         _#defs."/$defs/Properties/definitions/DocumentDbDefaultBehavior" | fn.#ValueExpression
+#DocumentDbConfiguration: close({
+	Behavior!:         #DocumentDbDefaultBehavior | fn.#ValueExpression
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
 	DatabaseClusterArns!: [
 		...=~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[a-zA-Z0-9][a-zA-Z0-9-_]{0,99}$" | fn.#StringExpression
@@ -263,23 +262,19 @@ _#defs: "/$defs/Properties/definitions/DocumentDbConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	Ungraceful?: _#defs."/$defs/Properties/definitions/DocumentDbUngraceful"
+	Ungraceful?: #DocumentDbUngraceful
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentDbDefaultBehavior": "switchoverOnly" | "failover" | fn.#StringExpression
+#DocumentDbDefaultBehavior: "switchoverOnly" | "failover" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentDbUngraceful": close(
-	{Ungraceful?: _#defs."/$defs/Properties/definitions/DocumentDbUngracefulBehavior"},
-) |
-	fn.#ObjectExpression
+#DocumentDbUngraceful: close({Ungraceful?: #DocumentDbUngracefulBehavior}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentDbUngracefulBehavior": "failover" | fn.#StringExpression
+#DocumentDbUngracefulBehavior: "failover" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Ec2AsgCapacityIncreaseConfiguration": close({
-	Asgs!: list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/Asg"] | fn.#ListExpression
-	CapacityMonitoringApproach?: _#defs."/$defs/Properties/definitions/Ec2AsgCapacityMonitoringApproach" |
-		fn.#ValueExpression
+#Ec2AsgCapacityIncreaseConfiguration: close({
+	Asgs!:                       list.MaxItems(2) & list.MinItems(2) & [...#Asg] | fn.#ListExpression
+	CapacityMonitoringApproach?: #Ec2AsgCapacityMonitoringApproach | fn.#ValueExpression
 	TargetPercent?: number |
 		{
 			string &
@@ -318,16 +313,14 @@ _#defs: "/$defs/Properties/definitions/Ec2AsgCapacityIncreaseConfiguration": clo
 				)
 		} |
 		fn.#NumberExpression
-	Ungraceful?:                _#defs."/$defs/Properties/definitions/Ec2Ungraceful"
-	WaitELBTargetGroupHealthy?: _#defs."/$defs/Properties/definitions/WaitELBTargetGroupHealthy"
+	Ungraceful?:                #Ec2Ungraceful
+	WaitELBTargetGroupHealthy?: #WaitELBTargetGroupHealthy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ec2AsgCapacityMonitoringApproach": "sampledMaxInLast24Hours" |
-	"autoscalingMaxInLast24Hours" |
-	fn.#StringExpression
+#Ec2AsgCapacityMonitoringApproach: "sampledMaxInLast24Hours" | "autoscalingMaxInLast24Hours" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Ec2Ungraceful": close({
+#Ec2Ungraceful: close({
 	MinimumSuccessPercentage!: <=99 & >=0 |
 		{
 			string &
@@ -351,11 +344,9 @@ _#defs: "/$defs/Properties/definitions/Ec2Ungraceful": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcsCapacityIncreaseConfiguration": close({
-	CapacityMonitoringApproach?: _#defs."/$defs/Properties/definitions/EcsCapacityMonitoringApproach" |
-		fn.#ValueExpression
-	Services!: list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/Service"] |
-		fn.#ListExpression
+#EcsCapacityIncreaseConfiguration: close({
+	CapacityMonitoringApproach?: #EcsCapacityMonitoringApproach | fn.#ValueExpression
+	Services!:                   list.MaxItems(2) & list.MinItems(2) & [...#Service] | fn.#ListExpression
 	TargetPercent?: number |
 		{
 			string &
@@ -394,16 +385,14 @@ _#defs: "/$defs/Properties/definitions/EcsCapacityIncreaseConfiguration": close(
 				)
 		} |
 		fn.#NumberExpression
-	Ungraceful?:                _#defs."/$defs/Properties/definitions/EcsUngraceful"
-	WaitELBTargetGroupHealthy?: _#defs."/$defs/Properties/definitions/WaitELBTargetGroupHealthy"
+	Ungraceful?:                #EcsUngraceful
+	WaitELBTargetGroupHealthy?: #WaitELBTargetGroupHealthy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcsCapacityMonitoringApproach": "sampledMaxInLast24Hours" |
-	"containerInsightsMaxInLast24Hours" |
-	fn.#StringExpression
+#EcsCapacityMonitoringApproach: "sampledMaxInLast24Hours" | "containerInsightsMaxInLast24Hours" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EcsUngraceful": close({
+#EcsUngraceful: close({
 	MinimumSuccessPercentage!: <=99 & >=0 |
 		{
 			string &
@@ -427,9 +416,9 @@ _#defs: "/$defs/Properties/definitions/EcsUngraceful": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksCapacityMonitoringApproach": "sampledMaxInLast24Hours" | fn.#StringExpression
+#EksCapacityMonitoringApproach: "sampledMaxInLast24Hours" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EksCluster": close({
+#EksCluster: close({
 	ClusterArn!: =~"^arn:aws[a-zA-Z-]*:eks:[a-z0-9-]+:\\d{12}:cluster/[a-zA-Z0-9][a-zA-Z0-9-_]{0,99}$" |
 		fn.#StringExpression
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
@@ -437,13 +426,11 @@ _#defs: "/$defs/Properties/definitions/EksCluster": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksResourceScalingConfiguration": close({
-	CapacityMonitoringApproach?: _#defs."/$defs/Properties/definitions/EksCapacityMonitoringApproach" |
-		fn.#ValueExpression
-	EksClusters?: list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/EksCluster"] | fn.#ListExpression
-	KubernetesResourceType!: _#defs."/$defs/Properties/definitions/KubernetesResourceType"
-	ScalingResources?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/KubernetesScalingApplication"] |
-		fn.#ListExpression
+#EksResourceScalingConfiguration: close({
+	CapacityMonitoringApproach?: #EksCapacityMonitoringApproach | fn.#ValueExpression
+	EksClusters?:                list.MinItems(2) & [...#EksCluster] | fn.#ListExpression
+	KubernetesResourceType!:     #KubernetesResourceType
+	ScalingResources?:           list.MinItems(1) & [...#KubernetesScalingApplication] | fn.#ListExpression
 	TargetPercent?: >=1 |
 		{
 			string &
@@ -482,11 +469,11 @@ _#defs: "/$defs/Properties/definitions/EksResourceScalingConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	Ungraceful?: _#defs."/$defs/Properties/definitions/EksResourceScalingUngraceful"
+	Ungraceful?: #EksResourceScalingUngraceful
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksResourceScalingUngraceful": close({
+#EksResourceScalingUngraceful: close({
 	MinimumSuccessPercentage!: <=99 & >=0 |
 		{
 			string &
@@ -510,7 +497,7 @@ _#defs: "/$defs/Properties/definitions/EksResourceScalingUngraceful": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventSourceMapping": close({
+#EventSourceMapping: close({
 	Arn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\d{12}:event-source-mapping:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" |
 		fn.#StringExpression
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
@@ -518,7 +505,7 @@ _#defs: "/$defs/Properties/definitions/EventSourceMapping": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExecutionApprovalConfiguration": close({
+#ExecutionApprovalConfiguration: close({
 	ApprovalRole!: string | fn.#StringExpression
 	TimeoutMinutes?: >=1 |
 		{
@@ -542,47 +529,46 @@ _#defs: "/$defs/Properties/definitions/ExecutionApprovalConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExecutionBlockConfiguration": matchN(1, [close(
-	{CustomActionLambdaConfig!: _#defs."/$defs/Properties/definitions/CustomActionLambdaConfiguration"},
+#ExecutionBlockConfiguration: matchN(1, [close(
+	{CustomActionLambdaConfig!: #CustomActionLambdaConfiguration},
 ), close(
-	{Ec2AsgCapacityIncreaseConfig!: _#defs."/$defs/Properties/definitions/Ec2AsgCapacityIncreaseConfiguration"},
+	{Ec2AsgCapacityIncreaseConfig!: #Ec2AsgCapacityIncreaseConfiguration},
 ), close(
-	{ExecutionApprovalConfig!: _#defs."/$defs/Properties/definitions/ExecutionApprovalConfiguration"},
+	{ExecutionApprovalConfig!: #ExecutionApprovalConfiguration},
 ), close(
-	{ArcRoutingControlConfig!: _#defs."/$defs/Properties/definitions/ArcRoutingControlConfiguration"},
+	{ArcRoutingControlConfig!: #ArcRoutingControlConfiguration},
 ), close(
-	{AuroraProvisionedScalingConfig!: _#defs."/$defs/Properties/definitions/AuroraProvisionedScalingConfiguration"},
+	{AuroraProvisionedScalingConfig!: #AuroraProvisionedScalingConfiguration},
 ), close(
-	{AuroraServerlessScalingConfig!: _#defs."/$defs/Properties/definitions/AuroraServerlessScalingConfiguration"},
+	{AuroraServerlessScalingConfig!: #AuroraServerlessScalingConfiguration},
 ), close(
-	{GlobalAuroraConfig!: _#defs."/$defs/Properties/definitions/GlobalAuroraConfiguration"},
+	{GlobalAuroraConfig!: #GlobalAuroraConfiguration},
 ), close(
-	{ParallelConfig!: _#defs."/$defs/Properties/definitions/ParallelExecutionBlockConfiguration"},
+	{ParallelConfig!: #ParallelExecutionBlockConfiguration},
 ), close(
-	{RegionSwitchPlanConfig!: _#defs."/$defs/Properties/definitions/RegionSwitchPlanConfiguration"},
+	{RegionSwitchPlanConfig!: #RegionSwitchPlanConfiguration},
 ), close(
-	{EcsCapacityIncreaseConfig!: _#defs."/$defs/Properties/definitions/EcsCapacityIncreaseConfiguration"},
+	{EcsCapacityIncreaseConfig!: #EcsCapacityIncreaseConfiguration},
 ), close(
-	{EksResourceScalingConfig!: _#defs."/$defs/Properties/definitions/EksResourceScalingConfiguration"},
+	{EksResourceScalingConfig!: #EksResourceScalingConfiguration},
 ), close(
-	{Route53HealthCheckConfig!: _#defs."/$defs/Properties/definitions/Route53HealthCheckConfiguration"},
+	{Route53HealthCheckConfig!: #Route53HealthCheckConfiguration},
 ), close(
-	{DocumentDbConfig!: _#defs."/$defs/Properties/definitions/DocumentDbConfiguration"},
+	{DocumentDbConfig!: #DocumentDbConfiguration},
 ), close(
-	{RdsPromoteReadReplicaConfig!: _#defs."/$defs/Properties/definitions/RdsPromoteReadReplicaConfiguration"},
-), close({
-	RdsCreateCrossRegionReadReplicaConfig!:
-		_#defs."/$defs/Properties/definitions/RdsCreateCrossRegionReplicaConfiguration"
-}), close(
-	{LambdaEventSourceMappingConfig!: _#defs."/$defs/Properties/definitions/LambdaEventSourceMappingConfiguration"},
+	{RdsPromoteReadReplicaConfig!: #RdsPromoteReadReplicaConfiguration},
 ), close(
-	{NeptuneGlobalDatabaseConfig!: _#defs."/$defs/Properties/definitions/NeptuneGlobalDatabaseConfiguration"},
+	{RdsCreateCrossRegionReadReplicaConfig!: #RdsCreateCrossRegionReplicaConfiguration},
 ), close(
-	{RdsSwitchoverReadReplicaConfig!: _#defs."/$defs/Properties/definitions/RdsSwitchoverReadReplicaConfiguration"},
+	{LambdaEventSourceMappingConfig!: #LambdaEventSourceMappingConfiguration},
+), close(
+	{NeptuneGlobalDatabaseConfig!: #NeptuneGlobalDatabaseConfiguration},
+), close(
+	{RdsSwitchoverReadReplicaConfig!: #RdsSwitchoverReadReplicaConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/ExecutionBlockType": "ARCRegionSwitchPlan" |
+#ExecutionBlockType: "ARCRegionSwitchPlan" |
 	"ARCRoutingControl" |
 	"AuroraGlobalDatabase" |
 	"AuroraProvisionedScaling" |
@@ -602,8 +588,8 @@ _#defs: "/$defs/Properties/definitions/ExecutionBlockType": "ARCRegionSwitchPlan
 	"Route53HealthCheck" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GlobalAuroraConfiguration": close({
-	Behavior!:                _#defs."/$defs/Properties/definitions/GlobalAuroraDefaultBehavior" | fn.#ValueExpression
+#GlobalAuroraConfiguration: close({
+	Behavior!:                #GlobalAuroraDefaultBehavior | fn.#ValueExpression
 	CrossAccountRole?:        =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
 	DatabaseClusterArns!:     [...string | fn.#StringExpression] | fn.#ListExpression
 	ExternalId?:              string | fn.#StringExpression
@@ -627,61 +613,53 @@ _#defs: "/$defs/Properties/definitions/GlobalAuroraConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	Ungraceful?: _#defs."/$defs/Properties/definitions/GlobalAuroraUngraceful"
+	Ungraceful?: #GlobalAuroraUngraceful
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GlobalAuroraDefaultBehavior": "switchoverOnly" |
-	"failover" |
-	fn.#StringExpression
+#GlobalAuroraDefaultBehavior: "switchoverOnly" | "failover" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GlobalAuroraUngraceful": close(
-	{Ungraceful?: _#defs."/$defs/Properties/definitions/GlobalAuroraUngracefulBehavior"},
-) |
-	fn.#ObjectExpression
+#GlobalAuroraUngraceful: close({Ungraceful?: #GlobalAuroraUngracefulBehavior}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GlobalAuroraUngracefulBehavior": "failover" | fn.#StringExpression
+#GlobalAuroraUngracefulBehavior: "failover" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckIds": [...string | fn.#StringExpression] | fn.#ListExpression
+#HealthCheckIds: [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckRecordNames": [...string | fn.#StringExpression] | fn.#ListExpression
+#HealthCheckRecordNames: [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckRegions": [...string | fn.#StringExpression] | fn.#ListExpression
+#HealthCheckRegions: [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckState": close({
+#HealthCheckState: close({
 	HealthCheckId?: string | fn.#StringExpression
 	Region?:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthChecks": list.MaxItems(2) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/HealthCheckState"
-] |
-	fn.#ListExpression
+#HealthChecks: list.MaxItems(2) & list.MinItems(2) & [...#HealthCheckState] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/HostedZoneIds": [...string | fn.#StringExpression] | fn.#ListExpression
+#HostedZoneIds: [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/KubernetesResourceType": close({
+#KubernetesResourceType: close({
 	ApiVersion!: string | fn.#StringExpression
 	Kind!:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KubernetesScalingApplication": close({
+#KubernetesScalingApplication: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/RegionalScalingResource"}}) |
+	{[=~".+"]: #RegionalScalingResource}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KubernetesScalingResource": close({
+#KubernetesScalingResource: close({
 	HpaName?:   string | fn.#StringExpression
 	Name!:      string | fn.#StringExpression
 	Namespace!: =~"^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaEventSourceMappingConfiguration": close({
+#LambdaEventSourceMappingConfiguration: close({
 	Action!:                    "enable" | "disable" | fn.#StringExpression
-	RegionEventSourceMappings!: _#defs."/$defs/Properties/definitions/RegionEventSourceMappingMap"
+	RegionEventSourceMappings!: #RegionEventSourceMappingMap
 	TimeoutMinutes?: >=1 |
 		{
 			string &
@@ -701,38 +679,32 @@ _#defs: "/$defs/Properties/definitions/LambdaEventSourceMappingConfiguration": c
 				)
 		} |
 		fn.#NumberExpression
-	Ungraceful?: _#defs."/$defs/Properties/definitions/LambdaEventSourceMappingUngraceful"
+	Ungraceful?: #LambdaEventSourceMappingUngraceful
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaEventSourceMappingUngraceful": close(
-	{Behavior?: "skip" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#LambdaEventSourceMappingUngraceful: close({Behavior?: "skip" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaUngraceful": close(
-	{Behavior?: _#defs."/$defs/Properties/definitions/LambdaUngracefulBehavior" | fn.#ValueExpression},
-) |
-	fn.#ObjectExpression
+#LambdaUngraceful: close({Behavior?: #LambdaUngracefulBehavior | fn.#ValueExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaUngracefulBehavior": "skip" | fn.#StringExpression
+#LambdaUngracefulBehavior: "skip" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Lambdas": close({
+#Lambdas: close({
 	Arn?:              string | fn.#StringExpression
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
 	ExternalId?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NeptuneDefaultBehavior": "failover" | "switchoverOnly" | fn.#StringExpression
+#NeptuneDefaultBehavior: "failover" | "switchoverOnly" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NeptuneGlobalDatabaseConfiguration": close({
-	Behavior!:         _#defs."/$defs/Properties/definitions/NeptuneDefaultBehavior" | fn.#ValueExpression
+#NeptuneGlobalDatabaseConfiguration: close({
+	Behavior!:         #NeptuneDefaultBehavior | fn.#ValueExpression
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
 	ExternalId?:       string | fn.#StringExpression
 	GlobalClusterIdentifier!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-]*$" |
 	fn.#StringExpression
-	RegionDatabaseClusterArns!: _#defs."/$defs/Properties/definitions/RegionNeptuneClusterArnMap"
+	RegionDatabaseClusterArns!: #RegionNeptuneClusterArnMap
 	TimeoutMinutes?: >=1 |
 		{
 			string &
@@ -752,25 +724,19 @@ _#defs: "/$defs/Properties/definitions/NeptuneGlobalDatabaseConfiguration": clos
 				)
 		} |
 		fn.#NumberExpression
-	Ungraceful?: _#defs."/$defs/Properties/definitions/NeptuneUngraceful"
+	Ungraceful?: #NeptuneUngraceful
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NeptuneUngraceful": close(
-	{Ungraceful?: _#defs."/$defs/Properties/definitions/NeptuneUngracefulBehavior"},
-) |
-	fn.#ObjectExpression
+#NeptuneUngraceful: close({Ungraceful?: #NeptuneUngracefulBehavior}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NeptuneUngracefulBehavior": "failover" | fn.#StringExpression
+#NeptuneUngracefulBehavior: "failover" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ParallelExecutionBlockConfiguration": close(
-	{Steps!: [..._#defs."/$defs/Properties/definitions/Step"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#ParallelExecutionBlockConfiguration: close({Steps!: [...#Step] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RdsCreateCrossRegionReplicaConfiguration": close({
+#RdsCreateCrossRegionReplicaConfiguration: close({
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	DbInstanceArnMap!: _#defs."/$defs/Properties/definitions/RdsDbInstanceArnMap"
+	DbInstanceArnMap!: #RdsDbInstanceArnMap
 	ExternalId?:       string | fn.#StringExpression
 	TimeoutMinutes?: >=1 |
 		{
@@ -794,15 +760,15 @@ _#defs: "/$defs/Properties/definitions/RdsCreateCrossRegionReplicaConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RdsDbInstanceArnMap": close({
+#RdsDbInstanceArnMap: close({
 
 	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:db:[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
 		fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RdsPromoteReadReplicaConfiguration": close({
+#RdsPromoteReadReplicaConfiguration: close({
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	DbInstanceArnMap!: _#defs."/$defs/Properties/definitions/RdsDbInstanceArnMap"
+	DbInstanceArnMap!: #RdsDbInstanceArnMap
 	ExternalId?:       string | fn.#StringExpression
 	TimeoutMinutes?: >=1 |
 		{
@@ -826,9 +792,9 @@ _#defs: "/$defs/Properties/definitions/RdsPromoteReadReplicaConfiguration": clos
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RdsSwitchoverReadReplicaConfiguration": close({
+#RdsSwitchoverReadReplicaConfiguration: close({
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	DbInstanceArnMap!: _#defs."/$defs/Properties/definitions/RdsDbInstanceArnMap"
+	DbInstanceArnMap!: #RdsDbInstanceArnMap
 	ExternalId?:       string | fn.#StringExpression
 	TimeoutMinutes?: >=1 |
 		{
@@ -849,48 +815,45 @@ _#defs: "/$defs/Properties/definitions/RdsSwitchoverReadReplicaConfiguration": c
 				)
 		} |
 		fn.#NumberExpression
-	Ungraceful?: _#defs."/$defs/Properties/definitions/RdsUngraceful"
+	Ungraceful?: #RdsUngraceful
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RdsUngraceful": close(
-	{Ungraceful?: _#defs."/$defs/Properties/definitions/RdsUngracefulBehavior"},
-) |
-	fn.#ObjectExpression
+#RdsUngraceful: close({Ungraceful?: #RdsUngracefulBehavior}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RdsUngracefulBehavior": "promoteReadReplica" | fn.#StringExpression
+#RdsUngracefulBehavior: "promoteReadReplica" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RecoveryApproach": "activeActive" | "activePassive" | fn.#StringExpression
+#RecoveryApproach: "activeActive" | "activePassive" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RegionAndRoutingControls": close({
+#RegionAndRoutingControls: close({
 
-	{[=~".+"]: [..._#defs."/$defs/Properties/definitions/ArcRoutingControlState"] | fn.#ListExpression}}) |
+	{[=~".+"]: [...#ArcRoutingControlState] | fn.#ListExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RegionAuroraClusterMap": struct.MaxFields(2) & struct.MinFields(2) & close({
+#RegionAuroraClusterMap: struct.MaxFields(2) & struct.MinFields(2) & close({
 
 	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[A-Za-z][0-9A-Za-z-:._]*$" |
 		fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RegionAuroraInstanceArnMap": struct.MaxFields(2) & struct.MinFields(1) & close({
+#RegionAuroraInstanceArnMap: struct.MaxFields(2) & struct.MinFields(1) & close({
 
 	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:db:[A-Za-z][0-9A-Za-z-]*$" |
 		fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RegionEventSourceMappingMap": close({
+#RegionEventSourceMappingMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/EventSourceMapping"}}) |
+	{[=~".+"]: #EventSourceMapping}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RegionNeptuneClusterArnMap": struct.MaxFields(2) & struct.MinFields(2) & close({
+#RegionNeptuneClusterArnMap: struct.MaxFields(2) & struct.MinFields(2) & close({
 
 	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[A-Za-z][0-9A-Za-z-]*$" |
 		fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RegionSwitchPlanConfiguration": close({
+#RegionSwitchPlanConfiguration: close({
 	Arn!: =~"^arn:aws[a-zA-Z-]*:arc-region-switch::[0-9]{12}:plan/([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,30}[a-zA-Z0-9])?):([a-z0-9]{6})$" |
 		fn.#StringExpression
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
@@ -898,36 +861,26 @@ _#defs: "/$defs/Properties/definitions/RegionSwitchPlanConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RegionToRunIn": "activatingRegion" |
-	"deactivatingRegion" |
-	"activeRegion" |
-	"inactiveRegion" |
-	fn.#StringExpression
+#RegionToRunIn: "activatingRegion" | "deactivatingRegion" | "activeRegion" | "inactiveRegion" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RegionalScalingResource": close({
+#RegionalScalingResource: close({
 
-	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: _#defs."/$defs/Properties/definitions/KubernetesScalingResource"}}) |
+	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: #KubernetesScalingResource}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReportConfiguration": close({
-	ReportOutput?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ReportOutputConfiguration"
-	] |
-		fn.#ListExpression
-}) |
+#ReportConfiguration: close(
+	{ReportOutput?: list.MaxItems(1) & list.MinItems(1) & [...#ReportOutputConfiguration] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReportOutputConfiguration": close(
-	{S3Configuration!: _#defs."/$defs/Properties/definitions/S3ReportOutputConfiguration"},
-) |
-	fn.#ValueExpression
+#ReportOutputConfiguration: close({S3Configuration!: #S3ReportOutputConfiguration}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Route53HealthCheckConfiguration": close({
+#Route53HealthCheckConfiguration: close({
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
 	ExternalId?:       string | fn.#StringExpression
 	HostedZoneId!:     strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 	RecordName!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	RecordSets?:       [..._#defs."/$defs/Properties/definitions/Route53ResourceRecordSet"] | fn.#ListExpression
+	RecordSets?:       [...#Route53ResourceRecordSet] | fn.#ListExpression
 	TimeoutMinutes?: >=1 |
 		{
 			string &
@@ -950,15 +903,15 @@ _#defs: "/$defs/Properties/definitions/Route53HealthCheckConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Route53ResourceRecordSet": close({
+#Route53ResourceRecordSet: close({
 	RecordSetIdentifier?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Region?:              =~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingControlStateChange": "On" | "Off" | fn.#StringExpression
+#RoutingControlStateChange: "On" | "Off" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3ReportOutputConfiguration": close({
+#S3ReportOutputConfiguration: close({
 	BucketOwner?: =~"^\\d{12}$" | fn.#StringExpression
 	BucketPath?: strings.MaxRunes(512) &
 	strings.MinRunes(3) &
@@ -967,7 +920,7 @@ _#defs: "/$defs/Properties/definitions/S3ReportOutputConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Service": close({
+#Service: close({
 	ClusterArn?: =~"^arn:aws[a-zA-Z-]*:ecs:[a-z0-9-]+:\\d{12}:cluster/[a-zA-Z0-9_-]{1,255}$" | fn.#StringExpression
 	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
 	ExternalId?:       string | fn.#StringExpression
@@ -976,23 +929,22 @@ _#defs: "/$defs/Properties/definitions/Service": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Step": close({
+#Step: close({
 	Description?:                 string | fn.#StringExpression
-	ExecutionBlockConfiguration!: _#defs."/$defs/Properties/definitions/ExecutionBlockConfiguration"
-	ExecutionBlockType!:          _#defs."/$defs/Properties/definitions/ExecutionBlockType"
+	ExecutionBlockConfiguration!: #ExecutionBlockConfiguration
+	ExecutionBlockType!:          #ExecutionBlockType
 	Name!:                        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(200) & struct.MinFields(0) & close({
+#Tags: struct.MaxFields(200) & struct.MinFields(0) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Trigger": close({
-	Action!: _#defs."/$defs/Properties/definitions/WorkflowTargetAction"
-	Conditions!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TriggerCondition"] |
-		fn.#ListExpression
+#Trigger: close({
+	Action!:      #WorkflowTargetAction
+	Conditions!:  list.MaxItems(10) & list.MinItems(1) & [...#TriggerCondition] | fn.#ListExpression
 	Description?: string | fn.#StringExpression
 	MinDelayMinutesBetweenExecutions!: number |
 		{
@@ -1017,26 +969,23 @@ _#defs: "/$defs/Properties/definitions/Trigger": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TriggerCondition": close({
+#TriggerCondition: close({
 	AssociatedAlarmName!: string | fn.#StringExpression
-	Condition!:           _#defs."/$defs/Properties/definitions/AlarmCondition"
+	Condition!:           #AlarmCondition
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WaitELBTargetGroupHealthy": "enabled" | "disabled" | fn.#StringExpression
+#WaitELBTargetGroupHealthy: "enabled" | "disabled" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Workflow": close({
-	Steps?:                [..._#defs."/$defs/Properties/definitions/Step"] | fn.#ListExpression
+#Workflow: close({
+	Steps?:                [...#Step] | fn.#ListExpression
 	WorkflowDescription?:  string | fn.#StringExpression
-	WorkflowTargetAction!: _#defs."/$defs/Properties/definitions/WorkflowTargetAction"
+	WorkflowTargetAction!: #WorkflowTargetAction
 	WorkflowTargetRegion?: =~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowTargetAction": "activate" |
-	"deactivate" |
-	"postRecovery" |
-	fn.#StringExpression
+#WorkflowTargetAction: "activate" | "deactivate" | "postRecovery" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ARCRegionSwitch::Plan"
 	Properties!: #Properties

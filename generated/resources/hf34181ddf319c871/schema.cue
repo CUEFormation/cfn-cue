@@ -18,18 +18,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::WorkSpacesWeb::DataProtectionSettings Resource Type
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
+	AdditionalEncryptionContext?: #EncryptionContextMap
 	CustomerManagedKey?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
 	fn.#StringExpression
 	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" | fn.#StringExpression
 	DisplayName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" | fn.#StringExpression
-	InlineRedactionConfiguration?: _#defs."/$defs/Properties/definitions/InlineRedactionConfiguration"
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	InlineRedactionConfiguration?: #InlineRedactionConfiguration
+	Tags?:                         list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CustomPattern": close({
+#CustomPattern: close({
 	KeywordRegex?: strings.MaxRunes(300) & strings.MinRunes(0) & =~"^\\/((?:[^\\n])+)\\/([gimsuyvd]{0,8})$" |
 	fn.#StringExpression
 	PatternDescription?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" | fn.#StringExpression
@@ -39,12 +39,12 @@ _#defs: "/$defs/Properties/definitions/CustomPattern": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
+#EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InlineRedactionConfiguration": close({
+#InlineRedactionConfiguration: close({
 	GlobalConfidenceLevel?: <=3 & >=1 |
 		{
 			string &
@@ -75,14 +75,11 @@ _#defs: "/$defs/Properties/definitions/InlineRedactionConfiguration": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	InlineRedactionPatterns!: list.MaxItems(150) & [...] & [
-		..._#defs."/$defs/Properties/definitions/InlineRedactionPattern"
-	] |
-		fn.#ListExpression
+	InlineRedactionPatterns!: list.MaxItems(150) & [...] & [...#InlineRedactionPattern] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InlineRedactionPattern": close({
+#InlineRedactionPattern: close({
 	BuiltInPatternId?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[_\\-\\d\\w]+$" | fn.#StringExpression
 	ConfidenceLevel?: <=3 & >=1 |
 		{
@@ -104,7 +101,7 @@ _#defs: "/$defs/Properties/definitions/InlineRedactionPattern": close({
 				)
 		} |
 		fn.#NumberExpression
-	CustomPattern?: _#defs."/$defs/Properties/definitions/CustomPattern"
+	CustomPattern?: #CustomPattern
 	EnforcedUrls?: list.MaxItems(20) & list.MinItems(1) & [
 		...=~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" |
 			fn.#StringExpression
@@ -115,19 +112,19 @@ _#defs: "/$defs/Properties/definitions/InlineRedactionPattern": close({
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	RedactionPlaceHolder!: _#defs."/$defs/Properties/definitions/RedactionPlaceHolder"
+	RedactionPlaceHolder!: #RedactionPlaceHolder
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedactionPlaceHolder": close({
+#RedactionPlaceHolder: close({
 	RedactionPlaceHolderText?: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[*_\\-\\d\\w]+$" | fn.#StringExpression
-	RedactionPlaceHolderType!: _#defs."/$defs/Properties/definitions/RedactionPlaceHolderType"
+	RedactionPlaceHolderType!: #RedactionPlaceHolderType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedactionPlaceHolderType": "CustomText" | fn.#StringExpression
+#RedactionPlaceHolderType: "CustomText" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

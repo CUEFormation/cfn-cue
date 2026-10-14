@@ -14,41 +14,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Greengrass::FunctionDefinitionVersion
 #Properties: close({
-	DefaultConfig?:        _#defs."/$defs/Properties/definitions/DefaultConfig"
+	DefaultConfig?:        #DefaultConfig
 	FunctionDefinitionId!: string | fn.#StringExpression
-	Functions!:            [..._#defs."/$defs/Properties/definitions/Function"] | fn.#ListExpression
+	Functions!:            [...#Function] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DefaultConfig": close(
-	{Execution!: _#defs."/$defs/Properties/definitions/Execution"},
-) |
-	fn.#ObjectExpression
+#DefaultConfig: close({Execution!: #Execution}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Environment": close({
+#Environment: close({
 	AccessSysfs?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Execution?:              _#defs."/$defs/Properties/definitions/Execution"
-	ResourceAccessPolicies?: [..._#defs."/$defs/Properties/definitions/ResourceAccessPolicy"] | fn.#ListExpression
+	Execution?:              #Execution
+	ResourceAccessPolicies?: [...#ResourceAccessPolicy] | fn.#ListExpression
 	Variables?:              fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Execution": close({
+#Execution: close({
 	IsolationMode?: string | fn.#StringExpression
-	RunAs?:         _#defs."/$defs/Properties/definitions/RunAs"
+	RunAs?:         #RunAs
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Function": close({
+#Function: close({
 	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	FunctionConfiguration!: _#defs."/$defs/Properties/definitions/FunctionConfiguration"
+	FunctionConfiguration!: #FunctionConfiguration
 	Id!:                    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FunctionConfiguration": close({
+#FunctionConfiguration: close({
 	EncodingType?: string | fn.#StringExpression
-	Environment?:  _#defs."/$defs/Properties/definitions/Environment"
+	Environment?:  #Environment
 	ExecArgs?:     string | fn.#StringExpression
 	Executable?:   string | fn.#StringExpression
 	MemorySize?: int |
@@ -83,13 +80,13 @@ _#defs: "/$defs/Properties/definitions/FunctionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceAccessPolicy": close({
+#ResourceAccessPolicy: close({
 	Permission?: string | fn.#StringExpression
 	ResourceId!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RunAs": close({
+#RunAs: close({
 	Gid?: int |
 		{
 			string &

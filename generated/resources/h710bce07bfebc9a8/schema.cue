@@ -17,11 +17,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::EMR::InstanceGroupConfig
 #Properties: close({
-	AutoScalingPolicy?: _#defs."/$defs/Properties/definitions/AutoScalingPolicy"
+	AutoScalingPolicy?: #AutoScalingPolicy
 	BidPrice?:          string | fn.#StringExpression
-	Configurations?:    [..._#defs."/$defs/Properties/definitions/AppConfiguration"] | fn.#ListExpression
+	Configurations?:    [...#AppConfiguration] | fn.#ListExpression
 	CustomAmiId?:       string | fn.#StringExpression
-	EbsConfiguration?:  _#defs."/$defs/Properties/definitions/EbsConfiguration"
+	EbsConfiguration?:  #EbsConfiguration
 	InstanceCount!: int |
 		{
 			string &
@@ -43,25 +43,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name?:         string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AppConfiguration": close({
+#AppConfiguration: close({
 	Classification?: string | fn.#StringExpression
 	ConfigurationProperties?: close({
 
 		{[=~"^.*$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Configurations?: [..._#defs."/$defs/Properties/definitions/AppConfiguration"] | fn.#ListExpression
+	Configurations?: [...#AppConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoScalingPolicy": close({
-	Constraints!: _#defs."/$defs/Properties/definitions/ScalingConstraints"
-	Rules!:       [..._#defs."/$defs/Properties/definitions/ScalingRule"] | fn.#ListExpression
+#AutoScalingPolicy: close({
+	Constraints!: #ScalingConstraints
+	Rules!:       [...#ScalingRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchAlarmDefinition": close({
+#CloudWatchAlarmDefinition: close({
 	ComparisonOperator!: string | fn.#StringExpression
-	Dimensions?:         [..._#defs."/$defs/Properties/definitions/MetricDimension"] | fn.#ListExpression
+	Dimensions?:         [...#MetricDimension] | fn.#ListExpression
 	EvaluationPeriods?: int |
 		{
 			string &
@@ -116,8 +116,8 @@ _#defs: "/$defs/Properties/definitions/CloudWatchAlarmDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
-	VolumeSpecification!: _#defs."/$defs/Properties/definitions/VolumeSpecification"
+#EbsBlockDeviceConfig: close({
+	VolumeSpecification!: #VolumeSpecification
 	VolumesPerInstance?: int |
 		{
 			string &
@@ -135,25 +135,25 @@ _#defs: "/$defs/Properties/definitions/EbsBlockDeviceConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsConfiguration": close({
-	EbsBlockDeviceConfigs?: [..._#defs."/$defs/Properties/definitions/EbsBlockDeviceConfig"] | fn.#ListExpression
+#EbsConfiguration: close({
+	EbsBlockDeviceConfigs?: [...#EbsBlockDeviceConfig] | fn.#ListExpression
 	EbsOptimized?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDimension": close({
+#MetricDimension: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingAction": close({
+#ScalingAction: close({
 	Market?:                           string | fn.#StringExpression
-	SimpleScalingPolicyConfiguration!: _#defs."/$defs/Properties/definitions/SimpleScalingPolicyConfiguration"
+	SimpleScalingPolicyConfiguration!: #SimpleScalingPolicyConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingConstraints": close({
+#ScalingConstraints: close({
 	MaxCapacity!: int |
 		{
 			string &
@@ -185,20 +185,17 @@ _#defs: "/$defs/Properties/definitions/ScalingConstraints": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingRule": close({
-	Action!:      _#defs."/$defs/Properties/definitions/ScalingAction"
+#ScalingRule: close({
+	Action!:      #ScalingAction
 	Description?: string | fn.#StringExpression
 	Name!:        string | fn.#StringExpression
-	Trigger!:     _#defs."/$defs/Properties/definitions/ScalingTrigger"
+	Trigger!:     #ScalingTrigger
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingTrigger": close(
-	{CloudWatchAlarmDefinition!: _#defs."/$defs/Properties/definitions/CloudWatchAlarmDefinition"},
-) |
-	fn.#ObjectExpression
+#ScalingTrigger: close({CloudWatchAlarmDefinition!: #CloudWatchAlarmDefinition}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SimpleScalingPolicyConfiguration": close({
+#SimpleScalingPolicyConfiguration: close({
 	AdjustmentType?: string | fn.#StringExpression
 	CoolDown?: int |
 		{
@@ -231,7 +228,7 @@ _#defs: "/$defs/Properties/definitions/SimpleScalingPolicyConfiguration": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VolumeSpecification": close({
+#VolumeSpecification: close({
 	Iops?: int |
 		{
 			string &

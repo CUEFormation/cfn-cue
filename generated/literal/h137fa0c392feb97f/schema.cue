@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -66,7 +66,7 @@ import (
 	Arn?:           =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 
 	// Configuration for the capacity provider that manages compute resources for Lambda functions.
-	CapacityProviderConfig?: _#defs."/$defs/Properties/definitions/CapacityProviderConfig"
+	CapacityProviderConfig?: #CapacityProviderConfig
 
 	// The code for the function. You can define your function code in multiple ways:
 	// + For .zip deployment packages, you can specify the S3 location of the .zip
@@ -76,7 +76,7 @@ import (
 	// and Python functions.
 	// + For container images, specify the URI of your container image in the ECR
 	// registry in the ``ImageUri`` property.
-	Code!: _#defs."/$defs/Properties/definitions/Code"
+	Code!: #Code
 
 	// To enable code signing for this function, specify the ARN of a code-signing
 	// configuration. A code-signing configuration includes a set of signing
@@ -89,7 +89,7 @@ import (
 	// Lambda sends asynchronous events when they fail processing. For more
 	// information, see [Dead-letter
 	// queues](https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html#invocation-dlq).
-	DeadLetterConfig?: _#defs."/$defs/Properties/definitions/DeadLetterConfig"
+	DeadLetterConfig?: #DeadLetterConfig
 
 	// A description of the function.
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0)
@@ -100,14 +100,14 @@ import (
 	// optional ARN of the KMSlong (KMS) customer managed key that is used to
 	// encrypt your durable execution's payload data, including input, output, and
 	// error payloads.
-	DurableConfig?: _#defs."/$defs/Properties/definitions/DurableConfig"
+	DurableConfig?: #DurableConfig
 
 	// Environment variables that are accessible from function code during execution.
-	Environment?: _#defs."/$defs/Properties/definitions/Environment"
+	Environment?: #Environment
 
 	// The size of the function's ``/tmp`` directory in MB. The default value is
 	// 512, but it can be any whole number between 512 and 10,240 MB.
-	EphemeralStorage?: _#defs."/$defs/Properties/definitions/EphemeralStorage"
+	EphemeralStorage?: #EphemeralStorage
 
 	// Connection settings for an Amazon EFS or Amazon S3 Files file system. To
 	// connect a function to a file system, a mount target must be available in
@@ -120,7 +120,7 @@ import (
 	// mount target is created or updated before the function.
 	// For more information about using the ``DependsOn`` attribute, see [DependsOn
 	// Attribute](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-dependson.html).
-	FileSystemConfigs?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/FileSystemConfig"]
+	FileSystemConfigs?: list.MaxItems(1) & [...] & [...#FileSystemConfig]
 
 	// The name of the Lambda function, up to 64 characters in length. If you don't
 	// specify a name, CFN generates one.
@@ -133,7 +133,7 @@ import (
 	// Configuration that defines the scaling behavior for a Lambda Managed
 	// Instances function, including the minimum and maximum number of execution
 	// environments that can be provisioned.
-	FunctionScalingConfig?: _#defs."/$defs/Properties/definitions/FunctionScalingConfig"
+	FunctionScalingConfig?: #FunctionScalingConfig
 
 	// The name of the method within your code that Lambda calls to run your
 	// function. Handler is required if the deployment package is a .zip file
@@ -146,7 +146,7 @@ import (
 	// Configuration values that override the container image Dockerfile settings.
 	// For more information, see [Container image
 	// settings](https://docs.aws.amazon.com/lambda/latest/dg/images-create.html#images-parms).
-	ImageConfig?: _#defs."/$defs/Properties/definitions/ImageConfig"
+	ImageConfig?: #ImageConfig
 
 	// The ARN of the KMSlong (KMS) customer managed key that's used to encrypt the following resources:
 	// + The function's [environment
@@ -183,7 +183,7 @@ import (
 	]
 
 	// The function's Amazon CloudWatch Logs configuration settings.
-	LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig"
+	LoggingConfig?: #LoggingConfig
 
 	// The amount of [memory available to the
 	// function](https://docs.aws.amazon.com/lambda/latest/dg/configuration-function-common.html#configuration-memory-console)
@@ -205,7 +205,7 @@ import (
 	// When this value is set to ``Terminate`` and Lambda detects your function
 	// being invoked as part of a recursive loop, it stops your function being
 	// invoked and notifies you.
-	RecursiveLoop?: _#defs."/$defs/Properties/definitions/RecursiveLoop"
+	RecursiveLoop?: #RecursiveLoop
 
 	// The number of simultaneous executions to reserve for the function.
 	ReservedConcurrentExecutions?: int & >=0
@@ -281,11 +281,11 @@ import (
 	// Sets the runtime management configuration for a function's version. For more
 	// information, see [Runtime
 	// updates](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-update.html).
-	RuntimeManagementConfig?: _#defs."/$defs/Properties/definitions/RuntimeManagementConfig"
+	RuntimeManagementConfig?: #RuntimeManagementConfig
 
 	// The function's [SnapStart](https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html) setting.
-	SnapStart?:         _#defs."/$defs/Properties/definitions/SnapStart"
-	SnapStartResponse?: _#defs."/$defs/Properties/definitions/SnapStartResponse"
+	SnapStart?:         #SnapStart
+	SnapStartResponse?: #SnapStartResponse
 
 	// A list of [tags](https://docs.aws.amazon.com/lambda/latest/dg/tagging.html)
 	// to apply to the function.
@@ -295,12 +295,12 @@ import (
 	// to manage the CFN stack. If you don't have these permissions, there might be
 	// unexpected behavior with stack-level tags propagating to the resource during
 	// resource creation and update.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The function's tenant isolation configuration settings. Determines whether
 	// the Lambda function runs on a shared or dedicated infrastructure per unique
 	// tenant.
-	TenancyConfig?: _#defs."/$defs/Properties/definitions/TenancyConfig"
+	TenancyConfig?: #TenancyConfig
 
 	// The amount of time (in seconds) that Lambda allows a function to run before
 	// stopping it. The default is 3 seconds. The maximum allowed value is 900
@@ -311,21 +311,20 @@ import (
 	// Set ``Mode`` to ``Active`` to sample and trace a subset of incoming requests
 	// with
 	// [X-Ray](https://docs.aws.amazon.com/lambda/latest/dg/services-xray.html).
-	TracingConfig?: _#defs."/$defs/Properties/definitions/TracingConfig"
+	TracingConfig?: #TracingConfig
 
 	// For network connectivity to AWS resources in a VPC, specify a list of
 	// security groups and subnets in the VPC. When you connect a function to a
 	// VPC, it can access resources and the internet only through that VPC. For
 	// more information, see [Configuring a Lambda function to access resources in
 	// a VPC](https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html).
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
+	VpcConfig?: #VpcConfig
 })
 
 // Configuration for the capacity provider that manages compute resources for Lambda functions.
-_#defs: "/$defs/Properties/definitions/CapacityProviderConfig": close({
+#CapacityProviderConfig: close({
 	// Configuration for Lambda-managed instances used by the capacity provider.
-	LambdaManagedInstancesCapacityProviderConfig!:
-		_#defs."/$defs/Properties/definitions/LambdaManagedInstancesCapacityProviderConfig"
+	LambdaManagedInstancesCapacityProviderConfig!: #LambdaManagedInstancesCapacityProviderConfig
 })
 
 // The [deployment
@@ -341,7 +340,7 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderConfig": close({
 // Changes to a deployment package in Amazon S3 or a container image in ECR are
 // not detected automatically during stack updates. To update the function
 // code, change the object key or version in the template.
-_#defs: "/$defs/Properties/definitions/Code": close({
+#Code: close({
 	// URI of a [container
 	// image](https://docs.aws.amazon.com/lambda/latest/dg/lambda-images.html) in
 	// the Amazon ECR registry.
@@ -401,7 +400,7 @@ _#defs: "/$defs/Properties/definitions/Code": close({
 // The [dead-letter
 // queue](https://docs.aws.amazon.com/lambda/latest/dg/invocation-async-retain-records.html#invocation-dlq)
 // for failed asynchronous invocations.
-_#defs: "/$defs/Properties/definitions/DeadLetterConfig": close({
+#DeadLetterConfig: close({
 	// The Amazon Resource Name (ARN) of an Amazon SQS queue or Amazon SNS topic.
 	TargetArn?: strings.MaxRunes(10000) & strings.MinRunes(0) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
 })
@@ -412,7 +411,7 @@ _#defs: "/$defs/Properties/definitions/DeadLetterConfig": close({
 // optional ARN of the KMSlong (KMS) customer managed key that is used to
 // encrypt your durable execution's payload data, including input, output, and
 // error payloads.
-_#defs: "/$defs/Properties/definitions/DurableConfig": close({
+#DurableConfig: close({
 	// The maximum time (in seconds) that a durable execution can run before timing
 	// out. This timeout applies to the entire durable execution, not individual
 	// function invocations.
@@ -436,7 +435,7 @@ _#defs: "/$defs/Properties/definitions/DurableConfig": close({
 // to adjust your function's behavior without updating code. An environment
 // variable is a pair of strings that are stored in a function's
 // version-specific configuration.
-_#defs: "/$defs/Properties/definitions/Environment": close({
+#Environment: close({
 	// Environment variable key-value pairs. For more information, see [Using Lambda
 	// environment
 	// variables](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html).
@@ -448,7 +447,7 @@ _#defs: "/$defs/Properties/definitions/Environment": close({
 
 // The size of the function's ``/tmp`` directory in MB. The default value is
 // 512, but it can be any whole number between 512 and 10,240 MB.
-_#defs: "/$defs/Properties/definitions/EphemeralStorage": close({
+#EphemeralStorage: close({
 	// The size of the function's ``/tmp`` directory.
 	Size!: int & <=32768 & >=512
 })
@@ -458,7 +457,7 @@ _#defs: "/$defs/Properties/definitions/EphemeralStorage": close({
 // system](https://docs.aws.amazon.com/lambda/latest/dg/configuration-filesystem.html)
 // or an [Amazon S3 file
 // system](https://docs.aws.amazon.com/lambda/latest/dg/configuration-filesystem.html).
-_#defs: "/$defs/Properties/definitions/FileSystemConfig": close({
+#FileSystemConfig: close({
 	// The Amazon Resource Name (ARN) of the Amazon EFS or Amazon S3 Files access
 	// point that provides access to the file system.
 	Arn!: strings.MaxRunes(200) &
@@ -472,13 +471,13 @@ _#defs: "/$defs/Properties/definitions/FileSystemConfig": close({
 	// Files access point. If you specify a different access point type (for
 	// example, Amazon Elastic File System), the operation returns an
 	// ``InvalidParameterException``.
-	S3FilesConfig?: _#defs."/$defs/Properties/definitions/S3FilesConfig"
+	S3FilesConfig?: #S3FilesConfig
 })
 
 // Configuration that defines the scaling behavior for a Lambda Managed
 // Instances function, including the minimum and maximum number of execution
 // environments that can be provisioned.
-_#defs: "/$defs/Properties/definitions/FunctionScalingConfig": close({
+#FunctionScalingConfig: close({
 	// The maximum number of execution environments that can be provisioned for the function.
 	MaxExecutionEnvironments?: int & <=15000 & >=0
 
@@ -489,7 +488,7 @@ _#defs: "/$defs/Properties/definitions/FunctionScalingConfig": close({
 // Configuration values that override the container image Dockerfile settings.
 // For more information, see [Container image
 // settings](https://docs.aws.amazon.com/lambda/latest/dg/images-create.html#images-parms).
-_#defs: "/$defs/Properties/definitions/ImageConfig": close({
+#ImageConfig: close({
 	// Specifies parameters that you want to pass in with ENTRYPOINT. You can
 	// specify a maximum of 1,500 parameters in the list.
 	Command?: list.MaxItems(1500) & list.UniqueItems() & [...] & [...string]
@@ -505,7 +504,7 @@ _#defs: "/$defs/Properties/definitions/ImageConfig": close({
 })
 
 // Configuration for Lambda-managed instances used by the capacity provider.
-_#defs: "/$defs/Properties/definitions/LambdaManagedInstancesCapacityProviderConfig": close({
+#LambdaManagedInstancesCapacityProviderConfig: close({
 	// The Amazon Resource Name (ARN) of the capacity provider.
 	CapacityProviderArn!: strings.MaxRunes(140) &
 	strings.MinRunes(1) &
@@ -519,7 +518,7 @@ _#defs: "/$defs/Properties/definitions/LambdaManagedInstancesCapacityProviderCon
 })
 
 // The function's Amazon CloudWatch Logs configuration settings.
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+#LoggingConfig: close({
 	// Set this property to filter the application logs for your function that
 	// Lambda sends to CloudWatch. Lambda only sends application logs at the
 	// selected level of detail and lower, where ``TRACE`` is the highest level and
@@ -544,12 +543,12 @@ _#defs: "/$defs/Properties/definitions/LoggingConfig": close({
 })
 
 // The function recursion configuration.
-_#defs: "/$defs/Properties/definitions/RecursiveLoop": "Allow" | "Terminate"
+#RecursiveLoop: "Allow" | "Terminate"
 
 // Sets the runtime management configuration for a function's version. For more
 // information, see [Runtime
 // updates](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-update.html).
-_#defs: "/$defs/Properties/definitions/RuntimeManagementConfig": close({
+#RuntimeManagementConfig: close({
 	// The ARN of the runtime version you want the function to use.
 	// This is only required if you're using the *Manual* runtime update mode.
 	RuntimeVersionArn?: string
@@ -579,7 +578,7 @@ _#defs: "/$defs/Properties/definitions/RuntimeManagementConfig": close({
 })
 
 // Setting controls how your function accesses data from an Amazon S3 file system.
-_#defs: "/$defs/Properties/definitions/S3FilesConfig": close({
+#S3FilesConfig: close({
 	// Specifies if a function reads from the file system for the lowest latency, or
 	// through Amazon S3 Files feature "direct Amazon S3 bucket reads" for the
 	// highest throughput. Valid values:
@@ -596,14 +595,14 @@ _#defs: "/$defs/Properties/definitions/S3FilesConfig": close({
 })
 
 // The function's [SnapStart](https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html) setting.
-_#defs: "/$defs/Properties/definitions/SnapStart": close({
+#SnapStart: close({
 	// Set ``ApplyOn`` to ``PublishedVersions`` to create a snapshot of the
 	// initialized execution environment when you publish a function version.
 	ApplyOn!: "PublishedVersions" | "None"
 })
 
 // The function's [SnapStart](https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html) setting.
-_#defs: "/$defs/Properties/definitions/SnapStartResponse": close({
+#SnapStartResponse: close({
 	// When set to ``PublishedVersions``, Lambda creates a snapshot of the execution
 	// environment when you publish a function version.
 	ApplyOn?: "PublishedVersions" | "None"
@@ -616,7 +615,7 @@ _#defs: "/$defs/Properties/definitions/SnapStartResponse": close({
 })
 
 // A [tag](https://docs.aws.amazon.com/lambda/latest/dg/tagging.html) to apply to the function.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for this tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -628,7 +627,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // allows you to configure specific tenant isolation strategies for your
 // function invocations. Tenant isolation configuration cannot be modified
 // after function creation.
-_#defs: "/$defs/Properties/definitions/TenancyConfig": close({
+#TenancyConfig: close({
 	// Tenant isolation mode allows for invocation to be sent to a corresponding
 	// execution environment dedicated to a specific tenant ID.
 	TenantIsolationMode!: "PER_TENANT"
@@ -638,7 +637,7 @@ _#defs: "/$defs/Properties/definitions/TenancyConfig": close({
 // [](https://docs.aws.amazon.com/lambda/latest/dg/services-xray.html) tracing
 // configuration. To sample and record incoming requests, set ``Mode`` to
 // ``Active``.
-_#defs: "/$defs/Properties/definitions/TracingConfig": close({
+#TracingConfig: close({
 	// The tracing mode.
 	Mode?: "Active" | "PassThrough"
 })
@@ -657,7 +656,7 @@ _#defs: "/$defs/Properties/definitions/TracingConfig": close({
 // ``ec2:DescribeNetworkInterfaces`` permission. It obtains this from the user
 // or role that modifies the stack. If you don't provide this permission, CFN
 // does not wait for network interfaces to be deleted.
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	// Allows outbound IPv6 traffic on VPC functions that are connected to dual-stack subnets.
 	Ipv6AllowedForDualStack?: bool
 

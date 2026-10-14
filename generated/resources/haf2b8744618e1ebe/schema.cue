@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -23,10 +23,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AuthorizationType?:   string | fn.#StringExpression
 	AuthorizerId?:        string | fn.#StringExpression
 	HttpMethod!:          string | fn.#StringExpression
-	Integration?:         _#defs."/$defs/Properties/definitions/Integration" | fn.#ObjectExpression
-	MethodResponses?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MethodResponse"] |
-		fn.#ListExpression
-	OperationName?: string | fn.#StringExpression
+	Integration?:         #Integration | fn.#ObjectExpression
+	MethodResponses?:     list.UniqueItems() & [...#MethodResponse] | fn.#ListExpression
+	OperationName?:       string | fn.#StringExpression
 	RequestModels?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
@@ -40,7 +39,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	RestApiId!:          string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Integration": close({
+#Integration: close({
 	CacheKeyParameters?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	CacheNamespace?:        string | fn.#StringExpression
 	ConnectionId?:          string | fn.#StringExpression
@@ -48,10 +47,9 @@ _#defs: "/$defs/Properties/definitions/Integration": close({
 	ContentHandling?:       "CONVERT_TO_BINARY" | "CONVERT_TO_TEXT" | fn.#StringExpression
 	Credentials?:           string | fn.#StringExpression
 	IntegrationHttpMethod?: string | fn.#StringExpression
-	IntegrationResponses?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/IntegrationResponse"] |
-		fn.#ListExpression
-	IntegrationTarget?:   string | fn.#StringExpression
-	PassthroughBehavior?: "WHEN_NO_MATCH" | "WHEN_NO_TEMPLATES" | "NEVER" | fn.#StringExpression
+	IntegrationResponses?:  list.UniqueItems() & [...#IntegrationResponse] | fn.#ListExpression
+	IntegrationTarget?:     string | fn.#StringExpression
+	PassthroughBehavior?:   "WHEN_NO_MATCH" | "WHEN_NO_TEMPLATES" | "NEVER" | fn.#StringExpression
 	RequestParameters?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
@@ -81,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/Integration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntegrationResponse": close({
+#IntegrationResponse: close({
 	ContentHandling?: "CONVERT_TO_BINARY" | "CONVERT_TO_TEXT" | fn.#StringExpression
 	ResponseParameters?: close({
 
@@ -96,7 +94,7 @@ _#defs: "/$defs/Properties/definitions/IntegrationResponse": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MethodResponse": close({
+#MethodResponse: close({
 	ResponseModels?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |

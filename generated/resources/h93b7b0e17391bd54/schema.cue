@@ -16,10 +16,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$" | fn.#StringExpression
-	Tags?:        list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

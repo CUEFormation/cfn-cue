@@ -13,22 +13,20 @@ import (
 #Properties: close({
 	ApplicationArn?: string
 	ApplicationId?:  =~"^\\S{1,80}$"
-	Definition?:     _#defs."/$defs/Properties/definitions/Definition"
+	Definition?:     #Definition
 	Description?:    strings.MaxRunes(500) & strings.MinRunes(0)
-	EngineType!:     _#defs."/$defs/Properties/definitions/EngineType"
+	EngineType!:     #EngineType
 
 	// The ID or the Amazon Resource Name (ARN) of the customer managed KMS Key used
 	// for encrypting application-related resources.
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & strings.MaxRunes(2048)
 	Name!:     =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$"
 	RoleArn?:  =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	Tags?:     _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?:     #TagMap
 })
 
-_#defs: "/$defs/Properties/definitions/Definition": matchN(1, [
-	close({S3Location!: string}), close({Content!: strings.MaxRunes(6500) & strings.MinRunes(1)}),
-])
+#Definition: matchN(1, [close({S3Location!: string}), close({Content!: strings.MaxRunes(6500) & strings.MinRunes(1)})])
 
-_#defs: "/$defs/Properties/definitions/EngineType": "microfocus" | "bluage"
+#EngineType: "microfocus" | "bluage"
 
-_#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(200) & struct.MinFields(0) & {...}
+#TagMap: struct.MaxFields(200) & struct.MinFields(0) & {...}

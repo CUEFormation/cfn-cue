@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,22 +13,20 @@ import (
 // Collection. A collection is a logical grouping of information about detected
 // faces which can later be referenced for searches on the group
 #Properties: close({
-	Arn?:          _#defs."/$defs/Properties/definitions/Arn"
-	CollectionId!: _#defs."/$defs/Properties/definitions/CollectionId"
+	Arn?:          #Arn
+	CollectionId!: #CollectionId
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048)
+#Arn: strings.MaxRunes(2048)
 
 // The name of the collection
-_#defs: "/$defs/Properties/definitions/CollectionId": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"\\A[a-zA-Z0-9_\\.\\-]+$"
+#CollectionId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\A[a-zA-Z0-9_\\.\\-]+$"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

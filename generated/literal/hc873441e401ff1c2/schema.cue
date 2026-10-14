@@ -8,18 +8,18 @@ import "strings"
 
 // Resource Type definition for AWS::Connect::SecurityKey
 #Properties: close({
-	AssociationId?: _#defs."/$defs/Properties/definitions/AssociationId"
-	InstanceId!:    _#defs."/$defs/Properties/definitions/InstanceId"
-	Key!:           _#defs."/$defs/Properties/definitions/Key"
+	AssociationId?: #AssociationId
+	InstanceId!:    #InstanceId
+	Key!:           #Key
 })
 
 // An associationID is automatically generated when a storage config is associated with an instance
-_#defs: "/$defs/Properties/definitions/AssociationId": strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-z0-9]*$"
+#AssociationId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-z0-9]*$"
 
 // Amazon Connect instance identifier
-_#defs: "/$defs/Properties/definitions/InstanceId": strings.MaxRunes(100) &
+#InstanceId: strings.MaxRunes(100) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$"
 
 // A valid security key in PEM format.
-_#defs: "/$defs/Properties/definitions/Key": strings.MaxRunes(1024) & strings.MinRunes(1)
+#Key: strings.MaxRunes(1024) & strings.MinRunes(1)

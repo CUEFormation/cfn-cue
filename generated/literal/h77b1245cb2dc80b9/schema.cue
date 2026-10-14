@@ -13,7 +13,7 @@ import (
 // Definition of AWS::B2BI::Partnership Resource Type
 #Properties: close({
 	Capabilities!:      [...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"]
-	CapabilityOptions?: _#defs."/$defs/Properties/definitions/CapabilityOptions"
+	CapabilityOptions?: #CapabilityOptions
 	CreatedAt?:         time.Time
 	Email!:             strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$"
 	ModifiedAt?:        time.Time
@@ -24,77 +24,71 @@ import (
 	strings.MinRunes(7) &
 	=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$"
 	ProfileId!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
-	Tags?:             list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:             list.MaxItems(200) & [...] & [...#Tag]
 	TradingPartnerId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/CapabilityOptions": close({
-	InboundEdi?:  _#defs."/$defs/Properties/definitions/InboundEdiOptions"
-	OutboundEdi?: _#defs."/$defs/Properties/definitions/OutboundEdiOptions"
+#CapabilityOptions: close({
+	InboundEdi?:  #InboundEdiOptions
+	OutboundEdi?: #OutboundEdiOptions
 })
 
-_#defs: "/$defs/Properties/definitions/InboundEdiOptions": close(
-	{X12?: _#defs."/$defs/Properties/definitions/X12InboundEdiOptions"},
-)
+#InboundEdiOptions: close({X12?: #X12InboundEdiOptions})
 
-_#defs: "/$defs/Properties/definitions/LineTerminator": "CRLF" | "LF" | "CR"
+#LineTerminator: "CRLF" | "LF" | "CR"
 
-_#defs: "/$defs/Properties/definitions/OutboundEdiOptions": close(
-	{X12!: _#defs."/$defs/Properties/definitions/X12Envelope"},
-)
+#OutboundEdiOptions: close({X12!: #X12Envelope})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/WrapFormat": "SEGMENT" | "ONE_LINE" | "LINE_LENGTH"
+#WrapFormat: "SEGMENT" | "ONE_LINE" | "LINE_LENGTH"
 
-_#defs: "/$defs/Properties/definitions/WrapOptions": close({
+#WrapOptions: close({
 	LineLength?:     >=1
-	LineTerminator?: _#defs."/$defs/Properties/definitions/LineTerminator"
-	WrapBy?:         _#defs."/$defs/Properties/definitions/WrapFormat"
+	LineTerminator?: #LineTerminator
+	WrapBy?:         #WrapFormat
 })
 
-_#defs: "/$defs/Properties/definitions/X12AcknowledgmentOptions": close({
-	FunctionalAcknowledgment!: _#defs."/$defs/Properties/definitions/X12FunctionalAcknowledgment"
-	TechnicalAcknowledgment!:  _#defs."/$defs/Properties/definitions/X12TechnicalAcknowledgment"
+#X12AcknowledgmentOptions: close({
+	FunctionalAcknowledgment!: #X12FunctionalAcknowledgment
+	TechnicalAcknowledgment!:  #X12TechnicalAcknowledgment
 })
 
-_#defs: "/$defs/Properties/definitions/X12ControlNumbers": close({
+#X12ControlNumbers: close({
 	StartingFunctionalGroupControlNumber?: <=999999999 & >=1
 	StartingInterchangeControlNumber?:     <=999999999 & >=1
 	StartingTransactionSetControlNumber?:  <=999999999 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/X12Delimiters": close({
+#X12Delimiters: close({
 	ComponentSeparator?:   strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[!&'()*+,\\-./:;?=%@\\[\\]_{}|<>~^`\"]$"
 	DataElementSeparator?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[!&'()*+,\\-./:;?=%@\\[\\]_{}|<>~^`\"]$"
 	SegmentTerminator?:    strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[!&'()*+,\\-./:;?=%@\\[\\]_{}|<>~^`\"]$"
 })
 
-_#defs: "/$defs/Properties/definitions/X12Envelope": close({
-	Common?:      _#defs."/$defs/Properties/definitions/X12OutboundEdiHeaders"
-	WrapOptions?: _#defs."/$defs/Properties/definitions/WrapOptions"
+#X12Envelope: close({
+	Common?:      #X12OutboundEdiHeaders
+	WrapOptions?: #WrapOptions
 })
 
-_#defs: "/$defs/Properties/definitions/X12FunctionalAcknowledgment": "DO_NOT_GENERATE" |
+#X12FunctionalAcknowledgment: "DO_NOT_GENERATE" |
 	"GENERATE_ALL_SEGMENTS" |
 	"GENERATE_WITHOUT_TRANSACTION_SET_RESPONSE_LOOP"
 
-_#defs: "/$defs/Properties/definitions/X12FunctionalGroupHeaders": close({
+#X12FunctionalGroupHeaders: close({
 	ApplicationReceiverCode?: strings.MaxRunes(15) & strings.MinRunes(2) & =~"^[a-zA-Z0-9 ]*$"
 	ApplicationSenderCode?:   strings.MaxRunes(15) & strings.MinRunes(2) & =~"^[a-zA-Z0-9 ]*$"
 	ResponsibleAgencyCode?:   strings.MaxRunes(2) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/X12GS05TimeFormat": "HHMM" | "HHMMSS" | "HHMMSSDD"
+#X12GS05TimeFormat: "HHMM" | "HHMMSS" | "HHMMSSDD"
 
-_#defs: "/$defs/Properties/definitions/X12InboundEdiOptions": close(
-	{AcknowledgmentOptions?: _#defs."/$defs/Properties/definitions/X12AcknowledgmentOptions"},
-)
+#X12InboundEdiOptions: close({AcknowledgmentOptions?: #X12AcknowledgmentOptions})
 
-_#defs: "/$defs/Properties/definitions/X12InterchangeControlHeaders": close({
+#X12InterchangeControlHeaders: close({
 	AcknowledgmentRequestedCode?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$"
 	ReceiverId?:                  strings.MaxRunes(15) & strings.MinRunes(15) & =~"^[a-zA-Z0-9 ]*$"
 	ReceiverIdQualifier?:         strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[a-zA-Z0-9]*$"
@@ -104,13 +98,13 @@ _#defs: "/$defs/Properties/definitions/X12InterchangeControlHeaders": close({
 	UsageIndicatorCode?:          strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/X12OutboundEdiHeaders": close({
-	ControlNumbers?:            _#defs."/$defs/Properties/definitions/X12ControlNumbers"
-	Delimiters?:                _#defs."/$defs/Properties/definitions/X12Delimiters"
-	FunctionalGroupHeaders?:    _#defs."/$defs/Properties/definitions/X12FunctionalGroupHeaders"
-	Gs05TimeFormat?:            _#defs."/$defs/Properties/definitions/X12GS05TimeFormat"
-	InterchangeControlHeaders?: _#defs."/$defs/Properties/definitions/X12InterchangeControlHeaders"
+#X12OutboundEdiHeaders: close({
+	ControlNumbers?:            #X12ControlNumbers
+	Delimiters?:                #X12Delimiters
+	FunctionalGroupHeaders?:    #X12FunctionalGroupHeaders
+	Gs05TimeFormat?:            #X12GS05TimeFormat
+	InterchangeControlHeaders?: #X12InterchangeControlHeaders
 	ValidateEdi?:               bool
 })
 
-_#defs: "/$defs/Properties/definitions/X12TechnicalAcknowledgment": "DO_NOT_GENERATE" | "GENERATE_ALL_SEGMENTS"
+#X12TechnicalAcknowledgment: "DO_NOT_GENERATE" | "GENERATE_ALL_SEGMENTS"

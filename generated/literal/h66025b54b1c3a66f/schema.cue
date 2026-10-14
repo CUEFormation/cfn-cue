@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,7 +18,7 @@ import (
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(1)
 
 	// The configuration for what files should be pulled from the source.
-	FileConfiguration?: _#defs."/$defs/Properties/definitions/FileConfiguration"
+	FileConfiguration?: #FileConfiguration
 
 	// The unique identifer of the data integration.
 	Id?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
@@ -30,10 +30,10 @@ import (
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$"
 
 	// The configuration for what data should be pulled from the source.
-	ObjectConfiguration?: _#defs."/$defs/Properties/definitions/ObjectConfiguration"
+	ObjectConfiguration?: #ObjectConfiguration
 
 	// The name of the data and how often it should be pulled from the source.
-	ScheduleConfig?: _#defs."/$defs/Properties/definitions/ScheduleConfig"
+	ScheduleConfig?: #ScheduleConfig
 
 	// The URI of the data source.
 	SourceURI!: strings.MaxRunes(1000) &
@@ -41,11 +41,11 @@ import (
 	=~"^(\\w+\\:\\/\\/[\\w.-]+[\\w/!@#+=.-]+$)|(\\w+\\:\\/\\/[\\w.-]+[\\w/!@#+=.-]+[\\w/!@#+=.-]+[\\w/!@#+=.,-]+$)"
 
 	// The tags (keys and values) associated with the data integration.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
 // The configuration for what files should be pulled from the source.
-_#defs: "/$defs/Properties/definitions/FileConfiguration": close({
+#FileConfiguration: close({
 	// Restrictions for what files should be pulled from the source.
 	Filters?: close({
 
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/FileConfiguration": close({
 })
 
 // The configuration for what data should be pulled from the source.
-_#defs: "/$defs/Properties/definitions/ObjectConfiguration": close({
+#ObjectConfiguration: close({
 
 	{
 		[=~"^.+$"]: close({
@@ -64,7 +64,7 @@ _#defs: "/$defs/Properties/definitions/ObjectConfiguration": close({
 			{[=~"^[A-Za-z]"]: list.MaxItems(2048) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1)]}})
 	}})
 
-_#defs: "/$defs/Properties/definitions/ScheduleConfig": close({
+#ScheduleConfig: close({
 	// The start date for objects to import in the first flow run. Epoch or ISO
 	// timestamp format is supported.
 	FirstExecutionFrom?: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*"
@@ -77,7 +77,7 @@ _#defs: "/$defs/Properties/definitions/ScheduleConfig": close({
 })
 
 // A label for tagging DataIntegration resources
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A key to identify the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

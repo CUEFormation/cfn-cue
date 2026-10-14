@@ -21,7 +21,7 @@ import "math"
 // origin but *not* include them in the cache key, use ``OriginRequestPolicy``.
 #Properties: close({
 	// The cache policy configuration.
-	CachePolicyConfig!: _#defs."/$defs/Properties/definitions/CachePolicyConfig"
+	CachePolicyConfig!: #CachePolicyConfig
 	Id?:                string
 	LastModifiedTime?:  string
 })
@@ -43,7 +43,7 @@ import "math"
 // CloudFront sends a request when it can't find a valid object in its cache
 // that matches the request's cache key. If you want to send values to the
 // origin but *not* include them in the cache key, use ``OriginRequestPolicy``.
-_#defs: "/$defs/Properties/definitions/CachePolicyConfig": close({
+#CachePolicyConfig: close({
 	// A comment to describe the cache policy. The comment cannot be longer than 128 characters.
 	Comment?: string
 
@@ -86,14 +86,13 @@ _#defs: "/$defs/Properties/definitions/CachePolicyConfig": close({
 	// The HTTP headers, cookies, and URL query strings to include in the cache key.
 	// The values included in the cache key are also included in requests that
 	// CloudFront sends to the origin.
-	ParametersInCacheKeyAndForwardedToOrigin!:
-		_#defs."/$defs/Properties/definitions/ParametersInCacheKeyAndForwardedToOrigin"
+	ParametersInCacheKeyAndForwardedToOrigin!: #ParametersInCacheKeyAndForwardedToOrigin
 })
 
 // An object that determines whether any cookies in viewer requests (and if so,
 // which cookies) are included in the cache key and in requests that CloudFront
 // sends to the origin.
-_#defs: "/$defs/Properties/definitions/CookiesConfig": close({
+#CookiesConfig: close({
 	// Determines whether any cookies in viewer requests are included in the cache
 	// key and in requests that CloudFront sends to the origin. Valid values are:
 	// + ``none`` – No cookies in viewer requests are included in the cache key or
@@ -117,7 +116,7 @@ _#defs: "/$defs/Properties/definitions/CookiesConfig": close({
 // An object that determines whether any HTTP headers (and if so, which headers)
 // are included in the cache key and in requests that CloudFront sends to the
 // origin.
-_#defs: "/$defs/Properties/definitions/HeadersConfig": close({
+#HeadersConfig: close({
 	// Determines whether any HTTP headers are included in the cache key and in
 	// requests that CloudFront sends to the origin. Valid values are:
 	// + ``none`` – No HTTP headers are included in the cache key or in requests
@@ -142,11 +141,11 @@ _#defs: "/$defs/Properties/definitions/HeadersConfig": close({
 // CloudFront sends a request when it can't find an object in its cache that
 // matches the request's cache key. If you want to send values to the origin
 // but *not* include them in the cache key, use ``OriginRequestPolicy``.
-_#defs: "/$defs/Properties/definitions/ParametersInCacheKeyAndForwardedToOrigin": close({
+#ParametersInCacheKeyAndForwardedToOrigin: close({
 	// An object that determines whether any cookies in viewer requests (and if so,
 	// which cookies) are included in the cache key and in requests that CloudFront
 	// sends to the origin.
-	CookiesConfig!: _#defs."/$defs/Properties/definitions/CookiesConfig"
+	CookiesConfig!: #CookiesConfig
 
 	// A flag that can affect whether the ``Accept-Encoding`` HTTP header is
 	// included in the cache key and included in requests that CloudFront sends to
@@ -203,18 +202,18 @@ _#defs: "/$defs/Properties/definitions/ParametersInCacheKeyAndForwardedToOrigin"
 	// An object that determines whether any HTTP headers (and if so, which headers)
 	// are included in the cache key and in requests that CloudFront sends to the
 	// origin.
-	HeadersConfig!: _#defs."/$defs/Properties/definitions/HeadersConfig"
+	HeadersConfig!: #HeadersConfig
 
 	// An object that determines whether any URL query strings in viewer requests
 	// (and if so, which query strings) are included in the cache key and in
 	// requests that CloudFront sends to the origin.
-	QueryStringsConfig!: _#defs."/$defs/Properties/definitions/QueryStringsConfig"
+	QueryStringsConfig!: #QueryStringsConfig
 })
 
 // An object that determines whether any URL query strings in viewer requests
 // (and if so, which query strings) are included in the cache key and in
 // requests that CloudFront sends to the origin.
-_#defs: "/$defs/Properties/definitions/QueryStringsConfig": close({
+#QueryStringsConfig: close({
 	// Determines whether any URL query strings in viewer requests are included in
 	// the cache key and in requests that CloudFront sends to the origin. Valid
 	// values are:

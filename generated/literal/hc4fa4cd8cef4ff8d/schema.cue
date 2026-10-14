@@ -14,7 +14,7 @@ import "strings"
 	QueueEnvironmentId?: =~"^queueenv-[0-9a-f]{32}$"
 	QueueId!:            =~"^queue-[0-9a-f]{32}$"
 	Template!:           strings.MaxRunes(15000) & strings.MinRunes(1)
-	TemplateType!:       _#defs."/$defs/Properties/definitions/EnvironmentTemplateType"
+	TemplateType!:       #EnvironmentTemplateType
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentTemplateType": "JSON" | "YAML"
+#EnvironmentTemplateType: "JSON" | "YAML"

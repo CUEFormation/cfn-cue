@@ -20,11 +20,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AgentVersion?: string | fn.#StringExpression
 	AmiId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	Architecture?:     string | fn.#StringExpression
-	AutoScalingType?:  string | fn.#StringExpression
-	AvailabilityZone?: string | fn.#StringExpression
-	BlockDeviceMappings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"] |
-		fn.#ListExpression
+	Architecture?:         string | fn.#StringExpression
+	AutoScalingType?:      string | fn.#StringExpression
+	AvailabilityZone?:     string | fn.#StringExpression
+	BlockDeviceMappings?:  list.UniqueItems() & [...#BlockDeviceMapping] | fn.#ListExpression
 	EbsOptimized?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ElasticIps?:           list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Hostname?:             string | fn.#StringExpression
@@ -37,14 +36,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	StackId!:              string | fn.#StringExpression
 	SubnetId?:             string | fn.#StringExpression
 	Tenancy?:              string | fn.#StringExpression
-	TimeBasedAutoScaling?: _#defs."/$defs/Properties/definitions/TimeBasedAutoScaling"
+	TimeBasedAutoScaling?: #TimeBasedAutoScaling
 	VirtualizationType?:   string | fn.#StringExpression
 	Volumes?:              list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
+#BlockDeviceMapping: close({
 	DeviceName?:  string | fn.#StringExpression
-	Ebs?:         _#defs."/$defs/Properties/definitions/EbsBlockDevice"
+	Ebs?:         #EbsBlockDevice
 	NoDevice?:    string | fn.#StringExpression
 	VirtualName?: string | fn.#StringExpression
 	if VirtualName != _|_ {
@@ -57,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 }) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
+#EbsBlockDevice: close({
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int |
 		{
@@ -92,7 +91,7 @@ _#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeBasedAutoScaling": close({
+#TimeBasedAutoScaling: close({
 	Friday?: {
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
 		...

@@ -14,11 +14,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::NovaAct::WorkflowDefinition Resource Type
 #Properties: close({
 	Description?:  strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression
-	ExportConfig?: _#defs."/$defs/Properties/definitions/WorkflowExportConfig"
+	ExportConfig?: #WorkflowExportConfig
 	Name!:         strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,40}$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/WorkflowExportConfig": close({
+#WorkflowExportConfig: close({
 	S3BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$" | fn.#StringExpression
 	S3KeyPrefix?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!\\-_.*'()]+(?:/[a-zA-Z0-9!\\-_.*'()]+)*$" |
 	fn.#StringExpression

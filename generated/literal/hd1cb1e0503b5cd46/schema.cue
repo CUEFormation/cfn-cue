@@ -35,13 +35,13 @@ import (
 	RuleId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9]+(-[a-z0-9]+)*$"
 
 	// The tags applied to the association.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagItem"]
+	Tags?: list.UniqueItems() & [...#TagItem]
 
 	// The time the association was last updated.
 	UpdatedAt?: string
 })
 
-_#defs: "/$defs/Properties/definitions/TagItem": close({
+#TagItem: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

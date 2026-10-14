@@ -10,38 +10,38 @@ import "list"
 #Properties: close({
 	// The Amazon Resource Number (ARN) of the bridge.
 	BridgeArn?:            string
-	BridgeState?:          _#defs."/$defs/Properties/definitions/BridgeStateEnum"
-	EgressGatewayBridge?:  _#defs."/$defs/Properties/definitions/EgressGatewayBridge"
-	IngressGatewayBridge?: _#defs."/$defs/Properties/definitions/IngressGatewayBridge"
+	BridgeState?:          #BridgeStateEnum
+	EgressGatewayBridge?:  #EgressGatewayBridge
+	IngressGatewayBridge?: #IngressGatewayBridge
 
 	// The name of the bridge.
 	Name!: string
 
 	// The outputs on this bridge.
-	Outputs?: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/BridgeOutput"]
+	Outputs?: list.MaxItems(2) & [...] & [...#BridgeOutput]
 
 	// The placement Amazon Resource Number (ARN) of the bridge.
 	PlacementArn!:         string
-	SourceFailoverConfig?: _#defs."/$defs/Properties/definitions/FailoverConfig"
+	SourceFailoverConfig?: #FailoverConfig
 
 	// The sources on this bridge.
-	Sources!: list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/BridgeSource"]
+	Sources!: list.MaxItems(2) & [...] & [...#BridgeSource]
 })
 
 // The source of the bridge. A flow source originates in MediaConnect as an existing cloud flow.
-_#defs: "/$defs/Properties/definitions/BridgeFlowSource": close({
+#BridgeFlowSource: close({
 	// The ARN of the cloud flow used as a source of this bridge.
 	FlowArn!: string
 
 	// The name of the VPC interface attachment to use for this source.
-	FlowVpcInterfaceAttachment?: _#defs."/$defs/Properties/definitions/VpcInterfaceAttachment"
+	FlowVpcInterfaceAttachment?: #VpcInterfaceAttachment
 
 	// The name of the flow source.
 	Name!: string
 })
 
 // The output of the bridge. A network output is delivered to your premises.
-_#defs: "/$defs/Properties/definitions/BridgeNetworkOutput": close({
+#BridgeNetworkOutput: close({
 	// The network output IP Address.
 	IpAddress!: string
 
@@ -55,19 +55,19 @@ _#defs: "/$defs/Properties/definitions/BridgeNetworkOutput": close({
 	Port!: int
 
 	// The network output protocol.
-	Protocol!: _#defs."/$defs/Properties/definitions/ProtocolEnum"
+	Protocol!: #ProtocolEnum
 
 	// The network output TTL.
 	Ttl!: int
 })
 
 // The source of the bridge. A network source originates at your premises.
-_#defs: "/$defs/Properties/definitions/BridgeNetworkSource": close({
+#BridgeNetworkSource: close({
 	// The network source multicast IP.
 	MulticastIp!: string
 
 	// The settings related to the multicast source.
-	MulticastSourceSettings?: _#defs."/$defs/Properties/definitions/MulticastSourceSettings"
+	MulticastSourceSettings?: #MulticastSourceSettings
 
 	// The name of the network source.
 	Name!: string
@@ -79,21 +79,19 @@ _#defs: "/$defs/Properties/definitions/BridgeNetworkSource": close({
 	Port!: int
 
 	// The network source protocol.
-	Protocol!: _#defs."/$defs/Properties/definitions/ProtocolEnum"
+	Protocol!: #ProtocolEnum
 })
 
 // The output of the bridge.
-_#defs: "/$defs/Properties/definitions/BridgeOutput": close(
-	{NetworkOutput?: _#defs."/$defs/Properties/definitions/BridgeNetworkOutput"},
-)
+#BridgeOutput: close({NetworkOutput?: #BridgeNetworkOutput})
 
 // The bridge's source.
-_#defs: "/$defs/Properties/definitions/BridgeSource": close({
-	FlowSource?:    _#defs."/$defs/Properties/definitions/BridgeFlowSource"
-	NetworkSource?: _#defs."/$defs/Properties/definitions/BridgeNetworkSource"
+#BridgeSource: close({
+	FlowSource?:    #BridgeFlowSource
+	NetworkSource?: #BridgeNetworkSource
 })
 
-_#defs: "/$defs/Properties/definitions/BridgeStateEnum": "CREATING" |
+#BridgeStateEnum: "CREATING" |
 	"STANDBY" |
 	"STARTING" |
 	"DEPLOYING" |
@@ -105,28 +103,28 @@ _#defs: "/$defs/Properties/definitions/BridgeStateEnum": "CREATING" |
 	"START_PENDING" |
 	"UPDATING"
 
-_#defs: "/$defs/Properties/definitions/EgressGatewayBridge": close({
+#EgressGatewayBridge: close({
 	// The maximum expected bitrate of the egress bridge.
 	MaxBitrate!: int
 })
 
 // The settings for source failover.
-_#defs: "/$defs/Properties/definitions/FailoverConfig": close({
+#FailoverConfig: close({
 	// The type of failover you choose for this flow. FAILOVER allows switching
 	// between different streams.
-	FailoverMode!: _#defs."/$defs/Properties/definitions/FailoverModeEnum"
+	FailoverMode!: #FailoverModeEnum
 
 	// The priority you want to assign to a source. You can have a primary stream
 	// and a backup stream or two equally prioritized streams.
-	SourcePriority?: _#defs."/$defs/Properties/definitions/SourcePriority"
-	State?:          _#defs."/$defs/Properties/definitions/FailoverConfigStateEnum"
+	SourcePriority?: #SourcePriority
+	State?:          #FailoverConfigStateEnum
 })
 
-_#defs: "/$defs/Properties/definitions/FailoverConfigStateEnum": "ENABLED" | "DISABLED"
+#FailoverConfigStateEnum: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/FailoverModeEnum": "FAILOVER"
+#FailoverModeEnum: "FAILOVER"
 
-_#defs: "/$defs/Properties/definitions/IngressGatewayBridge": close({
+#IngressGatewayBridge: close({
 	// The maximum expected bitrate of the ingress bridge.
 	MaxBitrate!: int
 
@@ -135,22 +133,22 @@ _#defs: "/$defs/Properties/definitions/IngressGatewayBridge": close({
 })
 
 // The settings related to the multicast source.
-_#defs: "/$defs/Properties/definitions/MulticastSourceSettings": close({
+#MulticastSourceSettings: close({
 	// The IP address of the source for source-specific multicast (SSM).
 	MulticastSourceIp?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ProtocolEnum": "rtp-fec" | "rtp" | "udp"
+#ProtocolEnum: "rtp-fec" | "rtp" | "udp"
 
 // The priority you want to assign to a source. You can have a primary stream
 // and a backup stream or two equally prioritized streams.
-_#defs: "/$defs/Properties/definitions/SourcePriority": close({
+#SourcePriority: close({
 	// The name of the source you choose as the primary source for this flow.
 	PrimarySource?: string
 })
 
 // The settings for attaching a VPC interface to an resource.
-_#defs: "/$defs/Properties/definitions/VpcInterfaceAttachment": close({
+#VpcInterfaceAttachment: close({
 	// The name of the VPC interface to use for this resource.
 	VpcInterfaceName?: string
 })

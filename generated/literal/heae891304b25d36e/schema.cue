@@ -23,7 +23,7 @@ import (
 	// The encryption setting for the SAML provider
 	AssertionEncryptionMode?: "Allowed" | "Required"
 	Name?:                    strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w._-]+"
-	PrivateKeyList?:          list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/SAMLPrivateKey"]
+	PrivateKeyList?:          list.MaxItems(2) & [...#SAMLPrivateKey]
 
 	// The Key ID of the private key to remove
 	RemovePrivateKey?:     strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+"
@@ -31,11 +31,11 @@ import (
 
 	// The unique identifier assigned to the SAML provider
 	SamlProviderUUID?: strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+"
-	Tags?:             list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:             list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // The private key metadata for the SAML provider
-_#defs: "/$defs/Properties/definitions/SAMLPrivateKey": close({
+#SAMLPrivateKey: close({
 	// The unique identifier for the SAML private key.
 	KeyId!: strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+"
 
@@ -45,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/SAMLPrivateKey": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

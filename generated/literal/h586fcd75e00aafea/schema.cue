@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"time"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -36,112 +36,100 @@ import (
 
 	// Name for a prompt resource.
 	Name!: =~"^([0-9a-zA-Z][_-]?){1,100}$"
-	Tags?: _#defs."/$defs/Properties/definitions/TagsMap"
+	Tags?: #TagsMap
 
 	// Time Stamp.
 	UpdatedAt?: time.Time
 
 	// List of prompt variants
-	Variants?: list.MaxItems(3) & [...] & [..._#defs."/$defs/Properties/definitions/PromptVariant"]
+	Variants?: list.MaxItems(3) & [...] & [...#PromptVariant]
 
 	// Draft Version.
 	Version?: strings.MaxRunes(5) & strings.MinRunes(5) & =~"^DRAFT$"
 })
 
 // Contains model-specific configurations
-_#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": {...}
+#AdditionalModelRequestFields: {...}
 
 // Any Tool choice
-_#defs: "/$defs/Properties/definitions/AnyToolChoice": close({})
+#AnyToolChoice: close({})
 
 // Auto Tool choice
-_#defs: "/$defs/Properties/definitions/AutoToolChoice": close({})
+#AutoToolChoice: close({})
 
 // CachePointBlock
-_#defs: "/$defs/Properties/definitions/CachePointBlock": close(
-	{Type!: _#defs."/$defs/Properties/definitions/CachePointType"},
-)
+#CachePointBlock: close({Type!: #CachePointType})
 
 // CachePoint types for CachePointBlock
-_#defs: "/$defs/Properties/definitions/CachePointType": "default"
+#CachePointType: "default"
 
 // Configuration for chat prompt template
-_#defs: "/$defs/Properties/definitions/ChatPromptTemplateConfiguration": close({
+#ChatPromptTemplateConfiguration: close({
 	// List of input variables
-	InputVariables?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/PromptInputVariable"]
+	InputVariables?: list.MaxItems(20) & [...] & [...#PromptInputVariable]
 
 	// List of messages for chat prompt template
-	Messages!: [...] & [..._#defs."/$defs/Properties/definitions/Message"]
+	Messages!: [...] & [...#Message]
 
 	// Configuration for chat prompt template
-	System?:            [...] & [..._#defs."/$defs/Properties/definitions/SystemContentBlock"]
-	ToolConfiguration?: _#defs."/$defs/Properties/definitions/ToolConfiguration"
+	System?:            [...] & [...#SystemContentBlock]
+	ToolConfiguration?: #ToolConfiguration
 })
 
 // Configuration for chat prompt template
-_#defs: "/$defs/Properties/definitions/ContentBlock": matchN(1, [close({
+#ContentBlock: matchN(1, [close({
 	// Configuration for chat prompt template
 	Text!: strings.MinRunes(1)
 }), close(
-	{CachePoint!: _#defs."/$defs/Properties/definitions/CachePointBlock"},
+	{CachePoint!: #CachePointBlock},
 )])
 
 // Conversation roles for the chat prompt
-_#defs: "/$defs/Properties/definitions/ConversationRole": "user" | "assistant"
+#ConversationRole: "user" | "assistant"
 
 // Chat prompt Message
-_#defs: "/$defs/Properties/definitions/Message": close({
+#Message: close({
 	// List of Content Blocks
-	Content!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ContentBlock"]
-	Role!:    _#defs."/$defs/Properties/definitions/ConversationRole"
+	Content!: list.MinItems(1) & [...#ContentBlock]
+	Role!:    #ConversationRole
 })
 
 // Target Agent to invoke with Prompt
-_#defs: "/$defs/Properties/definitions/PromptAgentResource": close({
+#PromptAgentResource: close({
 	// Arn representation of the Agent Alias.
 	AgentIdentifier!: strings.MaxRunes(2048) &
 	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:agent-alias/[0-9a-zA-Z]{10}/[0-9a-zA-Z]{10}$"
 })
 
 // Target resource to invoke with Prompt
-_#defs: "/$defs/Properties/definitions/PromptGenAiResource": close(
-	{Agent!: _#defs."/$defs/Properties/definitions/PromptAgentResource"},
-)
+#PromptGenAiResource: close({Agent!: #PromptAgentResource})
 
 // Model inference configuration
-_#defs: "/$defs/Properties/definitions/PromptInferenceConfiguration": close(
-	{Text!: _#defs."/$defs/Properties/definitions/PromptModelInferenceConfiguration"},
-)
+#PromptInferenceConfiguration: close({Text!: #PromptModelInferenceConfiguration})
 
 // Input variable
-_#defs: "/$defs/Properties/definitions/PromptInputVariable": close({
+#PromptInputVariable: close({
 	// Name for an input variable
 	Name?: =~"^([0-9a-zA-Z][_-]?){1,100}$"
 })
 
 // Contains a key-value pair that defines a metadata tag and value to attach to a prompt variant.
-_#defs: "/$defs/Properties/definitions/PromptMetadataEntry": close({
-	Key!:   _#defs."/$defs/Properties/definitions/PromptMetadataKey"
-	Value!: _#defs."/$defs/Properties/definitions/PromptMetadataValue"
+#PromptMetadataEntry: close({
+	Key!:   #PromptMetadataKey
+	Value!: #PromptMetadataValue
 })
 
 // The key of a metadata tag for a prompt variant.
-_#defs: "/$defs/Properties/definitions/PromptMetadataKey": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\s._:/=+@-]*$"
+#PromptMetadataKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 
 // List of metadata to associate with the prompt variant.
-_#defs: "/$defs/Properties/definitions/PromptMetadataList": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PromptMetadataEntry"
-]
+#PromptMetadataList: list.MaxItems(50) & [...] & [...#PromptMetadataEntry]
 
 // The value of a metadata tag for a prompt variant.
-_#defs: "/$defs/Properties/definitions/PromptMetadataValue": strings.MaxRunes(1024) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\s._:/=+@-]*$"
+#PromptMetadataValue: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 
 // Prompt model inference configuration
-_#defs: "/$defs/Properties/definitions/PromptModelInferenceConfiguration": close({
+#PromptModelInferenceConfiguration: close({
 	// Maximum length of output
 	MaxTokens?: <=512000 & >=0
 
@@ -156,21 +144,19 @@ _#defs: "/$defs/Properties/definitions/PromptModelInferenceConfiguration": close
 })
 
 // Prompt template configuration
-_#defs: "/$defs/Properties/definitions/PromptTemplateConfiguration": matchN(1, [close(
-	{Text!: _#defs."/$defs/Properties/definitions/TextPromptTemplateConfiguration"},
-), close(
-	{Chat!: _#defs."/$defs/Properties/definitions/ChatPromptTemplateConfiguration"},
-)])
+#PromptTemplateConfiguration: matchN(1, [
+	close({Text!: #TextPromptTemplateConfiguration}), close({Chat!: #ChatPromptTemplateConfiguration}),
+])
 
 // Prompt template type
-_#defs: "/$defs/Properties/definitions/PromptTemplateType": "TEXT" | "CHAT"
+#PromptTemplateType: "TEXT" | "CHAT"
 
 // Prompt variant
-_#defs: "/$defs/Properties/definitions/PromptVariant": close({
-	AdditionalModelRequestFields?: _#defs."/$defs/Properties/definitions/AdditionalModelRequestFields"
-	GenAiResource?:                _#defs."/$defs/Properties/definitions/PromptGenAiResource"
-	InferenceConfiguration?:       _#defs."/$defs/Properties/definitions/PromptInferenceConfiguration"
-	Metadata?:                     _#defs."/$defs/Properties/definitions/PromptMetadataList"
+#PromptVariant: close({
+	AdditionalModelRequestFields?: #AdditionalModelRequestFields
+	GenAiResource?:                #PromptGenAiResource
+	InferenceConfiguration?:       #PromptInferenceConfiguration
+	Metadata?:                     #PromptMetadataList
 
 	// ARN or Id of a Bedrock Foundational Model or Inference Profile, or the ARN of
 	// a imported model, or a provisioned throughput ARN for custom models.
@@ -180,43 +166,43 @@ _#defs: "/$defs/Properties/definitions/PromptVariant": close({
 
 	// Name for a variant.
 	Name!:                  =~"^([0-9a-zA-Z][_-]?){1,100}$"
-	TemplateConfiguration!: _#defs."/$defs/Properties/definitions/PromptTemplateConfiguration"
-	TemplateType!:          _#defs."/$defs/Properties/definitions/PromptTemplateType"
+	TemplateConfiguration!: #PromptTemplateConfiguration
+	TemplateType!:          #PromptTemplateType
 })
 
 // Specific Tool choice
-_#defs: "/$defs/Properties/definitions/SpecificToolChoice": close({
+#SpecificToolChoice: close({
 	// Tool name
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$"
 })
 
 // Configuration for chat prompt template
-_#defs: "/$defs/Properties/definitions/SystemContentBlock": matchN(1, [close({
+#SystemContentBlock: matchN(1, [close({
 	// Configuration for chat prompt template
 	Text!: strings.MinRunes(1)
 }), close(
-	{CachePoint!: _#defs."/$defs/Properties/definitions/CachePointBlock"},
+	{CachePoint!: #CachePointBlock},
 )])
 
 // A map of tag keys and values
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})
 
 // Configuration for text prompt template
-_#defs: "/$defs/Properties/definitions/TextPromptTemplateConfiguration": close({
-	CachePoint?: _#defs."/$defs/Properties/definitions/CachePointBlock"
+#TextPromptTemplateConfiguration: close({
+	CachePoint?: #CachePointBlock
 
 	// List of input variables
-	InputVariables?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/PromptInputVariable"]
+	InputVariables?: list.MaxItems(20) & [...] & [...#PromptInputVariable]
 
 	// Prompt content for String prompt template
 	Text?:           strings.MaxRunes(200000) & strings.MinRunes(1)
-	TextS3Location?: _#defs."/$defs/Properties/definitions/TextS3Location"
+	TextS3Location?: #TextS3Location
 })
 
 // The identifier for the S3 resource.
-_#defs: "/$defs/Properties/definitions/TextS3Location": close({
+#TextS3Location: close({
 	// A bucket in S3
 	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 
@@ -228,36 +214,28 @@ _#defs: "/$defs/Properties/definitions/TextS3Location": close({
 })
 
 // Tool details
-_#defs: "/$defs/Properties/definitions/Tool": matchN(1, [close(
-	{ToolSpec!: _#defs."/$defs/Properties/definitions/ToolSpecification"},
-), close(
-	{CachePoint!: _#defs."/$defs/Properties/definitions/CachePointBlock"},
-)])
+#Tool: matchN(1, [close({ToolSpec!: #ToolSpecification}), close({CachePoint!: #CachePointBlock})])
 
 // Tool choice
-_#defs: "/$defs/Properties/definitions/ToolChoice": matchN(1, [close(
-	{Auto!: _#defs."/$defs/Properties/definitions/AutoToolChoice"},
-), close(
-	{Any!: _#defs."/$defs/Properties/definitions/AnyToolChoice"},
-), close(
-	{Tool!: _#defs."/$defs/Properties/definitions/SpecificToolChoice"},
-)])
+#ToolChoice: matchN(1, [
+	close({Auto!: #AutoToolChoice}), close({Any!: #AnyToolChoice}), close({Tool!: #SpecificToolChoice}),
+])
 
 // Tool configuration
-_#defs: "/$defs/Properties/definitions/ToolConfiguration": close({
-	ToolChoice?: _#defs."/$defs/Properties/definitions/ToolChoice"
+#ToolConfiguration: close({
+	ToolChoice?: #ToolChoice
 
 	// List of Tools
-	Tools!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tool"]
+	Tools!: list.MinItems(1) & [...#Tool]
 })
 
 // Tool input schema
-_#defs: "/$defs/Properties/definitions/ToolInputSchema": close({Json!: {...}})
+#ToolInputSchema: close({Json!: {...}})
 
 // Tool specification
-_#defs: "/$defs/Properties/definitions/ToolSpecification": close({
+#ToolSpecification: close({
 	Description?: strings.MinRunes(1)
-	InputSchema!: _#defs."/$defs/Properties/definitions/ToolInputSchema"
+	InputSchema!: #ToolInputSchema
 
 	// Tool name
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$"

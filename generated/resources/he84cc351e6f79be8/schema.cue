@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 	"struct"
 )
 
@@ -26,82 +26,70 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // one Rule to a WebACL, a request needs to match only one of the
 // specifications to be allowed, blocked, or counted.
 #Properties: close({
-	ApplicationConfig?:            _#defs."/$defs/Properties/definitions/ApplicationConfig" | fn.#ObjectExpression
-	AssociationConfig?:            _#defs."/$defs/Properties/definitions/AssociationConfig"
-	CaptchaConfig?:                _#defs."/$defs/Properties/definitions/CaptchaConfig"
-	ChallengeConfig?:              _#defs."/$defs/Properties/definitions/ChallengeConfig"
-	CustomResponseBodies?:         _#defs."/$defs/Properties/definitions/CustomResponseBodies"
-	DataProtectionConfig?:         _#defs."/$defs/Properties/definitions/DataProtectionConfig" | fn.#ObjectExpression
-	DefaultAction!:                _#defs."/$defs/Properties/definitions/DefaultAction"
-	Description?:                  _#defs."/$defs/Properties/definitions/EntityDescription"
-	MonetizationConfig?:           _#defs."/$defs/Properties/definitions/MonetizationConfig"
-	Name?:                         _#defs."/$defs/Properties/definitions/EntityName"
-	OnSourceDDoSProtectionConfig?: _#defs."/$defs/Properties/definitions/OnSourceDDoSProtectionConfig"
-	Rules?:                        [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
-	Scope!:                        _#defs."/$defs/Properties/definitions/Scope"
-	Tags?:             list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TokenDomains?:     _#defs."/$defs/Properties/definitions/TokenDomains"
-	VisibilityConfig!: _#defs."/$defs/Properties/definitions/VisibilityConfig"
+	ApplicationConfig?:            #ApplicationConfig | fn.#ObjectExpression
+	AssociationConfig?:            #AssociationConfig
+	CaptchaConfig?:                #CaptchaConfig
+	ChallengeConfig?:              #ChallengeConfig
+	CustomResponseBodies?:         #CustomResponseBodies
+	DataProtectionConfig?:         #DataProtectionConfig | fn.#ObjectExpression
+	DefaultAction!:                #DefaultAction
+	Description?:                  #EntityDescription
+	MonetizationConfig?:           #MonetizationConfig
+	Name?:                         #EntityName
+	OnSourceDDoSProtectionConfig?: #OnSourceDDoSProtectionConfig
+	Rules?:                        [...#Rule] | fn.#ListExpression
+	Scope!:                        #Scope
+	Tags?:                         list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	TokenDomains?:                 #TokenDomains
+	VisibilityConfig!:             #VisibilityConfig
 })
 
-_#defs: "/$defs/Properties/definitions/AWSManagedRulesACFPRuleSet": close({
+#AWSManagedRulesACFPRuleSet: close({
 	CreationPath!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 	EnableRegexInPath?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RegistrationPagePath!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	RequestInspection!:    _#defs."/$defs/Properties/definitions/RequestInspectionACFP"
-	ResponseInspection?:   _#defs."/$defs/Properties/definitions/ResponseInspection"
+	RequestInspection!:    #RequestInspectionACFP
+	ResponseInspection?:   #ResponseInspection
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AWSManagedRulesATPRuleSet": close({
+#AWSManagedRulesATPRuleSet: close({
 	EnableRegexInPath?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LoginPath!:          string | fn.#StringExpression
-	RequestInspection?:  _#defs."/$defs/Properties/definitions/RequestInspection"
-	ResponseInspection?: _#defs."/$defs/Properties/definitions/ResponseInspection"
+	RequestInspection?:  #RequestInspection
+	ResponseInspection?: #ResponseInspection
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AWSManagedRulesAntiDDoSRuleSet": close({
-	ClientSideActionConfig!: _#defs."/$defs/Properties/definitions/ClientSideActionConfig"
-	SensitivityToBlock?:     _#defs."/$defs/Properties/definitions/SensitivityToAct"
+#AWSManagedRulesAntiDDoSRuleSet: close({
+	ClientSideActionConfig!: #ClientSideActionConfig
+	SensitivityToBlock?:     #SensitivityToAct
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AWSManagedRulesBotControlRuleSet": close({
+#AWSManagedRulesBotControlRuleSet: close({
 	EnableMachineLearning?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InspectionLevel!:       "COMMON" | "TARGETED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AddressField": _#defs."/$defs/Properties/definitions/FieldIdentifier"
+#AddressField: #FieldIdentifier
 
-_#defs: "/$defs/Properties/definitions/AllowAction": close(
-	{CustomRequestHandling?: _#defs."/$defs/Properties/definitions/CustomRequestHandling"},
-) |
-	fn.#ObjectExpression
+#AllowAction: close({CustomRequestHandling?: #CustomRequestHandling}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AndStatement": close(
-	{Statements!: [..._#defs."/$defs/Properties/definitions/Statement"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#AndStatement: close({Statements!: [...#Statement] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationAttribute": close({
-	Name!:   _#defs."/$defs/Properties/definitions/AttributeName"
-	Values!: _#defs."/$defs/Properties/definitions/AttributeValues"
+#ApplicationAttribute: close({
+	Name!:   #AttributeName
+	Values!: #AttributeValues
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationAttributes": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ApplicationAttribute"
-] |
-	fn.#ListExpression
+#ApplicationAttributes: list.MaxItems(10) & list.MinItems(1) & [...#ApplicationAttribute] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationConfig": close(
-	{Attributes!: _#defs."/$defs/Properties/definitions/ApplicationAttributes"},
-) |
-	fn.#ObjectExpression
+#ApplicationConfig: close({Attributes!: #ApplicationAttributes}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AsnMatchStatement": close({
+#AsnMatchStatement: close({
 	AsnList?: list.MaxItems(100) & list.MinItems(1) & [
 		...int & <=4294967295 & >=0 |
 			{
@@ -123,92 +111,54 @@ _#defs: "/$defs/Properties/definitions/AsnMatchStatement": close({
 			fn.#NumberExpression
 	] |
 		fn.#ListExpression
-	ForwardedIPConfig?: _#defs."/$defs/Properties/definitions/ForwardedIPConfiguration"
+	ForwardedIPConfig?: #ForwardedIPConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssociationConfig": close(
-	{RequestBody?: _#defs."/$defs/Properties/definitions/RequestBody"},
-) |
-	fn.#ObjectExpression
+#AssociationConfig: close({RequestBody?: #RequestBody}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AttributeName": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
-fn.#StringExpression
+#AttributeName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AttributeValue": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
-fn.#StringExpression
+#AttributeValue: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AttributeValues": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AttributeValue"
-] |
-	fn.#ListExpression
+#AttributeValues: list.MaxItems(10) & list.MinItems(1) & [...#AttributeValue] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/BlockAction": close(
-	{CustomResponse?: _#defs."/$defs/Properties/definitions/CustomResponse"},
-) |
-	fn.#ObjectExpression
+#BlockAction: close({CustomResponse?: #CustomResponse}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlockchainChain": "BASE" |
-	"SOLANA" |
-	"BASE_SEPOLIA" |
-	"SOLANA_DEVNET" |
-	fn.#StringExpression
+#BlockchainChain: "BASE" | "SOLANA" | "BASE_SEPOLIA" | "SOLANA_DEVNET" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Body": close(
-	{OversizeHandling?: _#defs."/$defs/Properties/definitions/OversizeHandling"},
-) |
-	fn.#ObjectExpression
+#Body: close({OversizeHandling?: #OversizeHandling}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BodyParsingFallbackBehavior": "MATCH" |
-	"NO_MATCH" |
-	"EVALUATE_AS_STRING" |
-	fn.#StringExpression
+#BodyParsingFallbackBehavior: "MATCH" | "NO_MATCH" | "EVALUATE_AS_STRING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ByteMatchStatement": close({
-	FieldToMatch!:         _#defs."/$defs/Properties/definitions/FieldToMatch"
-	PositionalConstraint!: _#defs."/$defs/Properties/definitions/PositionalConstraint"
-	PreParseTextTransformations?: [..._#defs."/$defs/Properties/definitions/PreParseTextTransformation"] |
-		fn.#ListExpression
-	SearchString?:       _#defs."/$defs/Properties/definitions/SearchString"
-	SearchStringBase64?: _#defs."/$defs/Properties/definitions/SearchStringBase64"
-	TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"] |
-		fn.#ListExpression
+#ByteMatchStatement: close({
+	FieldToMatch!:                #FieldToMatch
+	PositionalConstraint!:        #PositionalConstraint
+	PreParseTextTransformations?: [...#PreParseTextTransformation] | fn.#ListExpression
+	SearchString?:                #SearchString
+	SearchStringBase64?:          #SearchStringBase64
+	TextTransformations!:         list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CaptchaAction": close(
-	{CustomRequestHandling?: _#defs."/$defs/Properties/definitions/CustomRequestHandling"},
-) |
-	fn.#ObjectExpression
+#CaptchaAction: close({CustomRequestHandling?: #CustomRequestHandling}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CaptchaConfig": close(
-	{ImmunityTimeProperty?: _#defs."/$defs/Properties/definitions/ImmunityTimeProperty"},
-) |
-	fn.#ObjectExpression
+#CaptchaConfig: close({ImmunityTimeProperty?: #ImmunityTimeProperty}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ChallengeAction": close(
-	{CustomRequestHandling?: _#defs."/$defs/Properties/definitions/CustomRequestHandling"},
-) |
-	fn.#ObjectExpression
+#ChallengeAction: close({CustomRequestHandling?: #CustomRequestHandling}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ChallengeConfig": close(
-	{ImmunityTimeProperty?: _#defs."/$defs/Properties/definitions/ImmunityTimeProperty"},
-) |
-	fn.#ObjectExpression
+#ChallengeConfig: close({ImmunityTimeProperty?: #ImmunityTimeProperty}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientSideAction": close({
-	ExemptUriRegularExpressions?: _#defs."/$defs/Properties/definitions/RegularExpressionList"
-	Sensitivity?:                 _#defs."/$defs/Properties/definitions/SensitivityToAct"
-	UsageOfAction!:               _#defs."/$defs/Properties/definitions/UsageOfAction"
+#ClientSideAction: close({
+	ExemptUriRegularExpressions?: #RegularExpressionList
+	Sensitivity?:                 #SensitivityToAct
+	UsageOfAction!:               #UsageOfAction
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientSideActionConfig": close(
-	{Challenge!: _#defs."/$defs/Properties/definitions/ClientSideAction"},
-) |
-	fn.#ObjectExpression
+#ClientSideActionConfig: close({Challenge!: #ClientSideAction}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CookieMatchPattern": close({
+#CookieMatchPattern: close({
 	All?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	ExcludedCookies?: list.MaxItems(199) & list.MinItems(1) & [
 		...strings.MaxRunes(60) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
@@ -221,135 +171,110 @@ _#defs: "/$defs/Properties/definitions/CookieMatchPattern": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Cookies": close({
-	MatchPattern!:     _#defs."/$defs/Properties/definitions/CookieMatchPattern"
-	MatchScope!:       _#defs."/$defs/Properties/definitions/MapMatchScope"
-	OversizeHandling!: _#defs."/$defs/Properties/definitions/OversizeHandling"
+#Cookies: close({
+	MatchPattern!:     #CookieMatchPattern
+	MatchScope!:       #MapMatchScope
+	OversizeHandling!: #OversizeHandling
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CountAction": close(
-	{CustomRequestHandling?: _#defs."/$defs/Properties/definitions/CustomRequestHandling"},
-) |
-	fn.#ObjectExpression
+#CountAction: close({CustomRequestHandling?: #CustomRequestHandling}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CryptoConfig": close(
-	{PaymentNetworks!: _#defs."/$defs/Properties/definitions/PaymentNetworks"},
-) |
-	fn.#ObjectExpression
+#CryptoConfig: close({PaymentNetworks!: #PaymentNetworks}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CryptoCurrency": "USDC" | fn.#StringExpression
+#CryptoCurrency: "USDC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CurrencyMode": "REAL" | "TEST" | fn.#StringExpression
+#CurrencyMode: "REAL" | "TEST" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomHTTPHeader": close({
-	Name!:  _#defs."/$defs/Properties/definitions/CustomHTTPHeaderName"
-	Value!: _#defs."/$defs/Properties/definitions/CustomHTTPHeaderValue"
+#CustomHTTPHeader: close({
+	Name!:  #CustomHTTPHeaderName
+	Value!: #CustomHTTPHeaderValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomHTTPHeaderName": strings.MaxRunes(64) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9._$-]+$" |
-fn.#StringExpression
+#CustomHTTPHeaderName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._$-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomHTTPHeaderValue": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
+#CustomHTTPHeaderValue: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CustomRequestHandling": close({
-	InsertHeaders!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomHTTPHeader"] | fn.#ListExpression
-}) |
+#CustomRequestHandling: close({InsertHeaders!: list.MinItems(1) & [...#CustomHTTPHeader] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomResponse": close({
+#CustomResponse: close({
 	CustomResponseBodyKey?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	ResponseCode!:          _#defs."/$defs/Properties/definitions/ResponseStatusCode"
-	ResponseHeaders?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomHTTPHeader"] |
-		fn.#ListExpression
+	ResponseCode!:          #ResponseStatusCode
+	ResponseHeaders?:       list.MinItems(1) & [...#CustomHTTPHeader] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomResponseBodies": struct.MinFields(1) & close({
+#CustomResponseBodies: struct.MinFields(1) & close({
 
-	{[=~"^[\\w\\-]+$"]: _#defs."/$defs/Properties/definitions/CustomResponseBody"}}) |
+	{[=~"^[\\w\\-]+$"]: #CustomResponseBody}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomResponseBody": close({
-	Content!:     _#defs."/$defs/Properties/definitions/ResponseContent"
-	ContentType!: _#defs."/$defs/Properties/definitions/ResponseContentType"
+#CustomResponseBody: close({
+	Content!:     #ResponseContent
+	ContentType!: #ResponseContentType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataProtect": close({
-	Action!:                  _#defs."/$defs/Properties/definitions/DataProtectionAction"
+#DataProtect: close({
+	Action!:                  #DataProtectionAction
 	ExcludeRateBasedDetails?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ExcludeRuleMatchDetails?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Field!:                   _#defs."/$defs/Properties/definitions/FieldToProtect"
+	Field!:                   #FieldToProtect
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataProtectionAction": "SUBSTITUTION" | "HASH" | fn.#StringExpression
+#DataProtectionAction: "SUBSTITUTION" | "HASH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataProtectionConfig": close(
-	{DataProtections!: _#defs."/$defs/Properties/definitions/DataProtections"},
-) |
-	fn.#ObjectExpression
+#DataProtectionConfig: close({DataProtections!: #DataProtections}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataProtections": list.MaxItems(26) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/DataProtect"
-] |
-	fn.#ListExpression
+#DataProtections: list.MaxItems(26) & list.MinItems(1) & [...#DataProtect] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultAction": close({
-	Allow?: _#defs."/$defs/Properties/definitions/AllowAction"
-	Block?: _#defs."/$defs/Properties/definitions/BlockAction"
+#DefaultAction: close({
+	Allow?: #AllowAction
+	Block?: #BlockAction
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityDescription": =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$" |
+#EntityDescription: =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EntityId": =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" |
-	fn.#StringExpression
+#EntityId: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EntityName": =~"^[0-9A-Za-z_-]{1,128}$" | fn.#StringExpression
+#EntityName: =~"^[0-9A-Za-z_-]{1,128}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationWindowSec": (==60 | ==120 | ==300 | ==600) & int | fn.#NumberExpression
+#EvaluationWindowSec: (==60 | ==120 | ==300 | ==600) & int | fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ExcludedRule": close({Name!: _#defs."/$defs/Properties/definitions/EntityName"}) |
-	fn.#ObjectExpression
+#ExcludedRule: close({Name!: #EntityName}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExcludedRules": [..._#defs."/$defs/Properties/definitions/ExcludedRule"] |
-	fn.#ListExpression
+#ExcludedRules: [...#ExcludedRule] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/FieldIdentifier": close(
-	{Identifier!: strings.MaxRunes(512) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression},
-) |
+#FieldIdentifier: close({Identifier!: strings.MaxRunes(512) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	AllQueryArguments?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Body?:              _#defs."/$defs/Properties/definitions/Body"
-	Cookies?:           _#defs."/$defs/Properties/definitions/Cookies"
-	HeaderOrder?:       _#defs."/$defs/Properties/definitions/HeaderOrder"
-	Headers?:           _#defs."/$defs/Properties/definitions/Headers"
-	JA3Fingerprint?:    _#defs."/$defs/Properties/definitions/JA3Fingerprint"
-	JA4Fingerprint?:    _#defs."/$defs/Properties/definitions/JA4Fingerprint"
-	JsonBody?:          _#defs."/$defs/Properties/definitions/JsonBody"
+	Body?:              #Body
+	Cookies?:           #Cookies
+	HeaderOrder?:       #HeaderOrder
+	Headers?:           #Headers
+	JA3Fingerprint?:    #JA3Fingerprint
+	JA4Fingerprint?:    #JA4Fingerprint
+	JsonBody?:          #JsonBody
 	Method?:            fn.#Object & {...} | string | fn.#StringObjectExpression
 	QueryString?:       fn.#Object & {...} | string | fn.#StringObjectExpression
 	SingleHeader?: close({Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 	SingleQueryArgument?: close({Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression}) |
 	fn.#ObjectExpression
-	UriFragment?: _#defs."/$defs/Properties/definitions/UriFragment"
+	UriFragment?: #UriFragment
 	UriPath?:     fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldToProtect": close({
-	FieldKeys?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/FieldToProtectKeyName"] |
-		fn.#ListExpression
+#FieldToProtect: close({
+	FieldKeys?: list.MaxItems(100) & [...] & [...#FieldToProtectKeyName] | fn.#ListExpression
 	FieldType!: "SINGLE_HEADER" |
 		"SINGLE_COOKIE" |
 		"SINGLE_QUERY_ARGUMENT" |
@@ -359,16 +284,15 @@ _#defs: "/$defs/Properties/definitions/FieldToProtect": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldToProtectKeyName": strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" |
-fn.#StringExpression
+#FieldToProtectKeyName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ForwardedIPConfiguration": close({
+#ForwardedIPConfiguration: close({
 	FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression
 	HeaderName!:       =~"^[a-zA-Z0-9-]{1,255}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeoMatchStatement": close({
+#GeoMatchStatement: close({
 	CountryCodes?: list.MinItems(1) & [
 		...("AD" |
 			"AE" |
@@ -623,11 +547,11 @@ _#defs: "/$defs/Properties/definitions/GeoMatchStatement": close({
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	ForwardedIPConfig?: _#defs."/$defs/Properties/definitions/ForwardedIPConfiguration"
+	ForwardedIPConfig?: #ForwardedIPConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HeaderMatchPattern": close({
+#HeaderMatchPattern: close({
 	All?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	ExcludedHeaders?: list.MaxItems(199) & list.MinItems(1) & [
 		...strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
@@ -640,32 +564,29 @@ _#defs: "/$defs/Properties/definitions/HeaderMatchPattern": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HeaderOrder": close(
-	{OversizeHandling!: _#defs."/$defs/Properties/definitions/OversizeHandling"},
-) |
-	fn.#ObjectExpression
+#HeaderOrder: close({OversizeHandling!: #OversizeHandling}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Headers": close({
-	MatchPattern!:     _#defs."/$defs/Properties/definitions/HeaderMatchPattern"
-	MatchScope!:       _#defs."/$defs/Properties/definitions/MapMatchScope"
-	OversizeHandling!: _#defs."/$defs/Properties/definitions/OversizeHandling"
+#Headers: close({
+	MatchPattern!:     #HeaderMatchPattern
+	MatchScope!:       #MapMatchScope
+	OversizeHandling!: #OversizeHandling
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IPSetForwardedIPConfiguration": close({
+#IPSetForwardedIPConfiguration: close({
 	FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression
 	HeaderName!:       =~"^[a-zA-Z0-9-]{1,255}$" | fn.#StringExpression
 	Position!:         "FIRST" | "LAST" | "ANY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IPSetReferenceStatement": close({
-	Arn!:                    _#defs."/$defs/Properties/definitions/ResourceArn"
-	IPSetForwardedIPConfig?: _#defs."/$defs/Properties/definitions/IPSetForwardedIPConfiguration"
+#IPSetReferenceStatement: close({
+	Arn!:                    #ResourceArn
+	IPSetForwardedIPConfig?: #IPSetForwardedIPConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImmunityTimeProperty": close({
+#ImmunityTimeProperty: close({
 	ImmunityTime!: int & <=259200 & >=60 |
 		{
 			string &
@@ -685,138 +606,110 @@ _#defs: "/$defs/Properties/definitions/ImmunityTimeProperty": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JA3Fingerprint": close(
-	{FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#JA3Fingerprint: close({FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JA4Fingerprint": close(
-	{FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#JA4Fingerprint: close({FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JsonBody": close({
-	InvalidFallbackBehavior?: _#defs."/$defs/Properties/definitions/BodyParsingFallbackBehavior"
-	MatchPattern!:            _#defs."/$defs/Properties/definitions/JsonMatchPattern"
-	MatchScope!:              _#defs."/$defs/Properties/definitions/JsonMatchScope"
-	OversizeHandling?:        _#defs."/$defs/Properties/definitions/OversizeHandling"
+#JsonBody: close({
+	InvalidFallbackBehavior?: #BodyParsingFallbackBehavior
+	MatchPattern!:            #JsonMatchPattern
+	MatchScope!:              #JsonMatchScope
+	OversizeHandling?:        #OversizeHandling
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JsonMatchPattern": close({
+#JsonMatchPattern: close({
 	All?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	IncludedPaths?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/JsonPointerPath"] | fn.#ListExpression
+	IncludedPaths?: list.MinItems(1) & [...#JsonPointerPath] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JsonMatchScope": "ALL" | "KEY" | "VALUE" | fn.#StringExpression
+#JsonMatchScope: "ALL" | "KEY" | "VALUE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/JsonPointerPath": =~"^[\\/]+([^~]*(~[01])*){1,512}$" | fn.#StringExpression
+#JsonPointerPath: =~"^[\\/]+([^~]*(~[01])*){1,512}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Label": close({Name!: _#defs."/$defs/Properties/definitions/LabelName"}) |
-	fn.#ObjectExpression
+#Label: close({Name!: #LabelName}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LabelMatchKey": string | fn.#StringExpression
+#LabelMatchKey: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LabelMatchScope": "LABEL" | "NAMESPACE" | fn.#StringExpression
+#LabelMatchScope: "LABEL" | "NAMESPACE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LabelMatchStatement": close({
-	Key!:   _#defs."/$defs/Properties/definitions/LabelMatchKey"
-	Scope!: _#defs."/$defs/Properties/definitions/LabelMatchScope"
+#LabelMatchStatement: close({
+	Key!:   #LabelMatchKey
+	Scope!: #LabelMatchScope
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LabelName": string | fn.#StringExpression
+#LabelName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedRuleGroupConfig": close({
-	AWSManagedRulesACFPRuleSet?:       _#defs."/$defs/Properties/definitions/AWSManagedRulesACFPRuleSet"
-	AWSManagedRulesATPRuleSet?:        _#defs."/$defs/Properties/definitions/AWSManagedRulesATPRuleSet"
-	AWSManagedRulesAntiDDoSRuleSet?:   _#defs."/$defs/Properties/definitions/AWSManagedRulesAntiDDoSRuleSet"
-	AWSManagedRulesBotControlRuleSet?: _#defs."/$defs/Properties/definitions/AWSManagedRulesBotControlRuleSet"
+#ManagedRuleGroupConfig: close({
+	AWSManagedRulesACFPRuleSet?:       #AWSManagedRulesACFPRuleSet
+	AWSManagedRulesATPRuleSet?:        #AWSManagedRulesATPRuleSet
+	AWSManagedRulesAntiDDoSRuleSet?:   #AWSManagedRulesAntiDDoSRuleSet
+	AWSManagedRulesBotControlRuleSet?: #AWSManagedRulesBotControlRuleSet
 	LoginPath?:                        strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	PasswordField?:                    _#defs."/$defs/Properties/definitions/FieldIdentifier"
+	PasswordField?:                    #FieldIdentifier
 	PayloadType?:                      "JSON" | "FORM_ENCODED" | fn.#StringExpression
-	UsernameField?:                    _#defs."/$defs/Properties/definitions/FieldIdentifier"
+	UsernameField?:                    #FieldIdentifier
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedRuleGroupStatement": close({
-	ExcludedRules?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ExcludedRule"] |
-		fn.#ListExpression
-	ManagedRuleGroupConfigs?: [..._#defs."/$defs/Properties/definitions/ManagedRuleGroupConfig"] | fn.#ListExpression
-	Name!:                    _#defs."/$defs/Properties/definitions/EntityName"
-	RuleActionOverrides?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/RuleActionOverride"] |
-		fn.#ListExpression
-	ScopeDownStatement?: _#defs."/$defs/Properties/definitions/Statement"
-	VendorName!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Version?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w#:\\.\\-/]+$" | fn.#StringExpression
+#ManagedRuleGroupStatement: close({
+	ExcludedRules?:           list.MaxItems(100) & [...] & [...#ExcludedRule] | fn.#ListExpression
+	ManagedRuleGroupConfigs?: [...#ManagedRuleGroupConfig] | fn.#ListExpression
+	Name!:                    #EntityName
+	RuleActionOverrides?:     list.MaxItems(100) & [...] & [...#RuleActionOverride] | fn.#ListExpression
+	ScopeDownStatement?:      #Statement
+	VendorName!:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+	Version?:                 strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w#:\\.\\-/]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MapMatchScope": "ALL" | "KEY" | "VALUE" | fn.#StringExpression
+#MapMatchScope: "ALL" | "KEY" | "VALUE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MonetizationConfig": close({
-	CryptoConfig?: _#defs."/$defs/Properties/definitions/CryptoConfig"
-	CurrencyMode?: _#defs."/$defs/Properties/definitions/CurrencyMode"
+#MonetizationConfig: close({
+	CryptoConfig?: #CryptoConfig
+	CurrencyMode?: #CurrencyMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MonetizeAction": close(
-	{PriceMultiplier?: _#defs."/$defs/Properties/definitions/PriceMultiplier"},
-) |
+#MonetizeAction: close({PriceMultiplier?: #PriceMultiplier}) | fn.#ObjectExpression
+
+#NotStatement: close({Statement!: #Statement}) | fn.#ObjectExpression
+
+#OnSourceDDoSProtectionConfig: close({ALBLowReputationMode!: "ACTIVE_UNDER_DDOS" | "ALWAYS_ON" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotStatement": close(
-	{Statement!: _#defs."/$defs/Properties/definitions/Statement"},
-) |
-	fn.#ObjectExpression
+#OrStatement: close({Statements!: [...#Statement] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnSourceDDoSProtectionConfig": close(
-	{ALBLowReputationMode!: "ACTIVE_UNDER_DDOS" | "ALWAYS_ON" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/OrStatement": close(
-	{Statements!: [..._#defs."/$defs/Properties/definitions/Statement"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/OverrideAction": close({
+#OverrideAction: close({
 	Count?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	None?:  fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OversizeHandling": "CONTINUE" | "MATCH" | "NO_MATCH" | fn.#StringExpression
+#OversizeHandling: "CONTINUE" | "MATCH" | "NO_MATCH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PaymentNetwork": close({
-	Chain!:         _#defs."/$defs/Properties/definitions/BlockchainChain"
-	Prices!:        _#defs."/$defs/Properties/definitions/Prices"
-	WalletAddress!: _#defs."/$defs/Properties/definitions/WalletAddress"
+#PaymentNetwork: close({
+	Chain!:         #BlockchainChain
+	Prices!:        #Prices
+	WalletAddress!: #WalletAddress
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PaymentNetworks": list.MaxItems(2) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/PaymentNetwork"
-] |
-	fn.#ListExpression
+#PaymentNetworks: list.MaxItems(2) & list.MinItems(1) & [...#PaymentNetwork] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PhoneNumberField": _#defs."/$defs/Properties/definitions/FieldIdentifier"
+#PhoneNumberField: #FieldIdentifier
 
-_#defs: "/$defs/Properties/definitions/PositionalConstraint": "EXACTLY" |
-	"STARTS_WITH" |
-	"ENDS_WITH" |
-	"CONTAINS" |
-	"CONTAINS_WORD" |
-	fn.#StringExpression
+#PositionalConstraint: "EXACTLY" | "STARTS_WITH" | "ENDS_WITH" | "CONTAINS" | "CONTAINS_WORD" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PreParseTextTransformation": close({
-	Priority!: _#defs."/$defs/Properties/definitions/PreParseTextTransformationPriority"
-	Type!:     _#defs."/$defs/Properties/definitions/PreParseTextTransformationType"
+#PreParseTextTransformation: close({
+	Priority!: #PreParseTextTransformationPriority
+	Type!:     #PreParseTextTransformationType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PreParseTextTransformationPriority": int & >=0 |
+#PreParseTextTransformationPriority: int & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -832,64 +725,57 @@ _#defs: "/$defs/Properties/definitions/PreParseTextTransformationPriority": int 
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/PreParseTextTransformationType": "NONE" |
+#PreParseTextTransformationType: "NONE" |
 	"URL_DECODE" |
 	"URL_DECODE_UNI" |
 	"COMBINE_DUPLICATE_QUERY_ARGS_BY_COMMA" |
 	"REPLACE_SEMICOLONS_WITH_AMPERSANDS" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Price": close({
-	Amount!:   _#defs."/$defs/Properties/definitions/PriceAmount"
-	Currency!: _#defs."/$defs/Properties/definitions/CryptoCurrency"
+#Price: close({
+	Amount!:   #PriceAmount
+	Currency!: #CryptoCurrency
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PriceAmount": strings.MaxRunes(13) &
+#PriceAmount: strings.MaxRunes(13) &
 strings.MinRunes(1) &
 =~"^([1-9][0-9]*(\\.[0-9]{1,3})?|0\\.([1-9][0-9]{0,2}|0[1-9][0-9]?|00[1-9]))$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PriceMultiplier": strings.MaxRunes(3) &
-strings.MinRunes(1) &
-=~"^([1-9][0-9]?|100)$" |
-fn.#StringExpression
+#PriceMultiplier: strings.MaxRunes(3) & strings.MinRunes(1) & =~"^([1-9][0-9]?|100)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Prices": list.MaxItems(1) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/Price"
-] |
-	fn.#ListExpression
+#Prices: list.MaxItems(1) & list.MinItems(1) & [...#Price] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/QueryString": fn.#Object & {...} | string | fn.#StringObjectExpression
+#QueryString: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateBasedStatement": close({
-	AggregateKeyType!: "CONSTANT" | "IP" | "FORWARDED_IP" | "CUSTOM_KEYS" | fn.#StringExpression
-	CustomKeys?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/RateBasedStatementCustomKey"] |
-		fn.#ListExpression
-	EvaluationWindowSec?: _#defs."/$defs/Properties/definitions/EvaluationWindowSec"
-	ForwardedIPConfig?:   _#defs."/$defs/Properties/definitions/ForwardedIPConfiguration"
-	Limit!:               _#defs."/$defs/Properties/definitions/RateLimit"
-	ScopeDownStatement?:  _#defs."/$defs/Properties/definitions/Statement"
+#RateBasedStatement: close({
+	AggregateKeyType!:    "CONSTANT" | "IP" | "FORWARDED_IP" | "CUSTOM_KEYS" | fn.#StringExpression
+	CustomKeys?:          list.MaxItems(5) & [...] & [...#RateBasedStatementCustomKey] | fn.#ListExpression
+	EvaluationWindowSec?: #EvaluationWindowSec
+	ForwardedIPConfig?:   #ForwardedIPConfiguration
+	Limit!:               #RateLimit
+	ScopeDownStatement?:  #Statement
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateBasedStatementCustomKey": close({
-	ASN?:            _#defs."/$defs/Properties/definitions/RateLimitAsn"
-	Cookie?:         _#defs."/$defs/Properties/definitions/RateLimitCookie"
-	ForwardedIP?:    _#defs."/$defs/Properties/definitions/RateLimitForwardedIP"
-	HTTPMethod?:     _#defs."/$defs/Properties/definitions/RateLimitHTTPMethod"
-	Header?:         _#defs."/$defs/Properties/definitions/RateLimitHeader"
-	IP?:             _#defs."/$defs/Properties/definitions/RateLimitIP"
-	JA3Fingerprint?: _#defs."/$defs/Properties/definitions/RateLimitJA3Fingerprint"
-	JA4Fingerprint?: _#defs."/$defs/Properties/definitions/RateLimitJA4Fingerprint"
-	LabelNamespace?: _#defs."/$defs/Properties/definitions/RateLimitLabelNamespace"
-	QueryArgument?:  _#defs."/$defs/Properties/definitions/RateLimitQueryArgument"
-	QueryString?:    _#defs."/$defs/Properties/definitions/RateLimitQueryString"
-	UriPath?:        _#defs."/$defs/Properties/definitions/RateLimitUriPath"
+#RateBasedStatementCustomKey: close({
+	ASN?:            #RateLimitAsn
+	Cookie?:         #RateLimitCookie
+	ForwardedIP?:    #RateLimitForwardedIP
+	HTTPMethod?:     #RateLimitHTTPMethod
+	Header?:         #RateLimitHeader
+	IP?:             #RateLimitIP
+	JA3Fingerprint?: #RateLimitJA3Fingerprint
+	JA4Fingerprint?: #RateLimitJA4Fingerprint
+	LabelNamespace?: #RateLimitLabelNamespace
+	QueryArgument?:  #RateLimitQueryArgument
+	QueryString?:    #RateLimitQueryString
+	UriPath?:        #RateLimitUriPath
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimit": int & <=2000000000 & >=10 |
+#RateLimit: int & <=2000000000 & >=10 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -906,138 +792,109 @@ _#defs: "/$defs/Properties/definitions/RateLimit": int & <=2000000000 & >=10 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitAsn": fn.#Object & {...} | fn.#ObjectExpression
+#RateLimitAsn: fn.#Object & {...} | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitCookie": close({
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"] |
-		fn.#ListExpression
+#RateLimitCookie: close({
+	Name!:                strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+	TextTransformations!: list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitForwardedIP": fn.#Object & {...} | string | fn.#StringObjectExpression
+#RateLimitForwardedIP: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitHTTPMethod": fn.#Object & {...} | string | fn.#StringObjectExpression
+#RateLimitHTTPMethod: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitHeader": close({
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"] |
-		fn.#ListExpression
+#RateLimitHeader: close({
+	Name!:                strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+	TextTransformations!: list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitIP": fn.#Object & {...} | string | fn.#StringObjectExpression
+#RateLimitIP: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitJA3Fingerprint": close(
-	{FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#RateLimitJA3Fingerprint: close({FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitJA4Fingerprint": close(
-	{FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#RateLimitJA4Fingerprint: close({FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitLabelNamespace": close({Namespace!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#RateLimitLabelNamespace: close({Namespace!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitQueryArgument": close({
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"] |
-		fn.#ListExpression
+#RateLimitQueryArgument: close({
+	Name!:                strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+	TextTransformations!: list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitQueryString": close({
-	TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"] |
-		fn.#ListExpression
-}) |
+#RateLimitQueryString: close({TextTransformations!: list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RateLimitUriPath": close({
-	TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"] |
-		fn.#ListExpression
-}) |
+#RateLimitUriPath: close({TextTransformations!: list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Regex": {
-	RegexString?: _#defs."/$defs/Properties/definitions/RegexPatternString"
+#Regex: {
+	RegexString?: #RegexPatternString
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RegexMatchStatement": close({
-	FieldToMatch!: _#defs."/$defs/Properties/definitions/FieldToMatch"
-	PreParseTextTransformations?: [..._#defs."/$defs/Properties/definitions/PreParseTextTransformation"] |
-		fn.#ListExpression
-	RegexString!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"] |
-		fn.#ListExpression
+#RegexMatchStatement: close({
+	FieldToMatch!:                #FieldToMatch
+	PreParseTextTransformations?: [...#PreParseTextTransformation] | fn.#ListExpression
+	RegexString!:                 strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	TextTransformations!:         list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RegexPatternSetReferenceStatement": close({
-	Arn!:          _#defs."/$defs/Properties/definitions/ResourceArn"
-	FieldToMatch!: _#defs."/$defs/Properties/definitions/FieldToMatch"
-	PreParseTextTransformations?: [..._#defs."/$defs/Properties/definitions/PreParseTextTransformation"] |
-		fn.#ListExpression
-	TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"] |
-		fn.#ListExpression
+#RegexPatternSetReferenceStatement: close({
+	Arn!:                         #ResourceArn
+	FieldToMatch!:                #FieldToMatch
+	PreParseTextTransformations?: [...#PreParseTextTransformation] | fn.#ListExpression
+	TextTransformations!:         list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RegexPatternString": strings.MaxRunes(512) & strings.MinRunes(1) |
-fn.#StringExpression
+#RegexPatternString: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RegularExpressionList": [..._#defs."/$defs/Properties/definitions/Regex"] |
-	fn.#ListExpression
+#RegularExpressionList: [...#Regex] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/RequestBody": close({
+#RequestBody: close({
 
-	{[=~"^(CLOUDFRONT|API_GATEWAY|COGNITO_USER_POOL|APP_RUNNER_SERVICE|VERIFIED_ACCESS_INSTANCE)$"]: _#defs."/$defs/Properties/definitions/RequestBodyAssociatedResourceTypeConfig"}}) |
+	{[=~"^(CLOUDFRONT|API_GATEWAY|COGNITO_USER_POOL|APP_RUNNER_SERVICE|VERIFIED_ACCESS_INSTANCE)$"]: #RequestBodyAssociatedResourceTypeConfig}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RequestBodyAssociatedResourceTypeConfig": close(
-	{DefaultSizeInspectionLimit!: _#defs."/$defs/Properties/definitions/SizeInspectionLimit"},
-) |
+#RequestBodyAssociatedResourceTypeConfig: close({DefaultSizeInspectionLimit!: #SizeInspectionLimit}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RequestInspection": close({
-	PasswordField!: _#defs."/$defs/Properties/definitions/FieldIdentifier"
+#RequestInspection: close({
+	PasswordField!: #FieldIdentifier
 	PayloadType!:   "JSON" | "FORM_ENCODED" | fn.#StringExpression
-	UsernameField!: _#defs."/$defs/Properties/definitions/FieldIdentifier"
+	UsernameField!: #FieldIdentifier
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RequestInspectionACFP": close({
-	AddressFields?:     [..._#defs."/$defs/Properties/definitions/AddressField"] | fn.#ListExpression
-	EmailField?:        _#defs."/$defs/Properties/definitions/FieldIdentifier"
-	PasswordField?:     _#defs."/$defs/Properties/definitions/FieldIdentifier"
+#RequestInspectionACFP: close({
+	AddressFields?:     [...#AddressField] | fn.#ListExpression
+	EmailField?:        #FieldIdentifier
+	PasswordField?:     #FieldIdentifier
 	PayloadType!:       "JSON" | "FORM_ENCODED" | fn.#StringExpression
-	PhoneNumberFields?: [..._#defs."/$defs/Properties/definitions/PhoneNumberField"] | fn.#ListExpression
-	UsernameField?:     _#defs."/$defs/Properties/definitions/FieldIdentifier"
+	PhoneNumberFields?: [...#PhoneNumberField] | fn.#ListExpression
+	UsernameField?:     #FieldIdentifier
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(2048) & strings.MinRunes(20) & =~"\\S" |
-fn.#StringExpression
+#ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"\\S" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseContent": strings.MaxRunes(10240) & strings.MinRunes(1) |
-fn.#StringExpression
+#ResponseContent: strings.MaxRunes(10240) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseContentType": "TEXT_PLAIN" |
-	"TEXT_HTML" |
-	"APPLICATION_JSON" |
-	fn.#StringExpression
+#ResponseContentType: "TEXT_PLAIN" | "TEXT_HTML" | "APPLICATION_JSON" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseInspection": close({
-	BodyContains?: _#defs."/$defs/Properties/definitions/ResponseInspectionBodyContains"
-	Header?:       _#defs."/$defs/Properties/definitions/ResponseInspectionHeader"
-	Json?:         _#defs."/$defs/Properties/definitions/ResponseInspectionJson"
-	StatusCode?:   _#defs."/$defs/Properties/definitions/ResponseInspectionStatusCode"
+#ResponseInspection: close({
+	BodyContains?: #ResponseInspectionBodyContains
+	Header?:       #ResponseInspectionHeader
+	Json?:         #ResponseInspectionJson
+	StatusCode?:   #ResponseInspectionStatusCode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseInspectionBodyContains": close({
+#ResponseInspectionBodyContains: close({
 	FailureStrings!: list.MaxItems(5) & list.MinItems(1) & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 	] |
@@ -1049,7 +906,7 @@ _#defs: "/$defs/Properties/definitions/ResponseInspectionBodyContains": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseInspectionHeader": close({
+#ResponseInspectionHeader: close({
 	FailureValues!: list.MaxItems(3) & list.MinItems(1) & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 	] |
@@ -1062,7 +919,7 @@ _#defs: "/$defs/Properties/definitions/ResponseInspectionHeader": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseInspectionJson": close({
+#ResponseInspectionJson: close({
 	FailureValues!: list.MaxItems(5) & list.MinItems(1) & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 	] |
@@ -1075,7 +932,7 @@ _#defs: "/$defs/Properties/definitions/ResponseInspectionJson": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseInspectionStatusCode": close({
+#ResponseInspectionStatusCode: close({
 	FailureCodes!: list.MaxItems(10) & list.MinItems(1) & [
 		...int & <=999 & >=0 |
 			{
@@ -1121,7 +978,7 @@ _#defs: "/$defs/Properties/definitions/ResponseInspectionStatusCode": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseStatusCode": int & <=599 & >=200 |
+#ResponseStatusCode: int & <=599 & >=200 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -1138,45 +995,43 @@ _#defs: "/$defs/Properties/definitions/ResponseStatusCode": int & <=599 & >=200 
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	Action?:           _#defs."/$defs/Properties/definitions/RuleAction"
-	CaptchaConfig?:    _#defs."/$defs/Properties/definitions/CaptchaConfig"
-	ChallengeConfig?:  _#defs."/$defs/Properties/definitions/ChallengeConfig"
-	Name!:             _#defs."/$defs/Properties/definitions/EntityName"
-	OverrideAction?:   _#defs."/$defs/Properties/definitions/OverrideAction"
-	Priority!:         _#defs."/$defs/Properties/definitions/RulePriority"
-	RuleLabels?:       [..._#defs."/$defs/Properties/definitions/Label"] | fn.#ListExpression
-	Statement!:        _#defs."/$defs/Properties/definitions/Statement"
-	VisibilityConfig!: _#defs."/$defs/Properties/definitions/VisibilityConfig"
+#Rule: close({
+	Action?:           #RuleAction
+	CaptchaConfig?:    #CaptchaConfig
+	ChallengeConfig?:  #ChallengeConfig
+	Name!:             #EntityName
+	OverrideAction?:   #OverrideAction
+	Priority!:         #RulePriority
+	RuleLabels?:       [...#Label] | fn.#ListExpression
+	Statement!:        #Statement
+	VisibilityConfig!: #VisibilityConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleAction": close({
-	Allow?:     _#defs."/$defs/Properties/definitions/AllowAction"
-	Block?:     _#defs."/$defs/Properties/definitions/BlockAction"
-	Captcha?:   _#defs."/$defs/Properties/definitions/CaptchaAction"
-	Challenge?: _#defs."/$defs/Properties/definitions/ChallengeAction"
-	Count?:     _#defs."/$defs/Properties/definitions/CountAction"
-	Monetize?:  _#defs."/$defs/Properties/definitions/MonetizeAction"
+#RuleAction: close({
+	Allow?:     #AllowAction
+	Block?:     #BlockAction
+	Captcha?:   #CaptchaAction
+	Challenge?: #ChallengeAction
+	Count?:     #CountAction
+	Monetize?:  #MonetizeAction
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleActionOverride": close({
-	ActionToUse!: _#defs."/$defs/Properties/definitions/RuleAction"
-	Name!:        _#defs."/$defs/Properties/definitions/EntityName"
+#RuleActionOverride: close({
+	ActionToUse!: #RuleAction
+	Name!:        #EntityName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleGroupReferenceStatement": close({
-	Arn!: _#defs."/$defs/Properties/definitions/ResourceArn"
-	ExcludedRules?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ExcludedRule"] |
-		fn.#ListExpression
-	RuleActionOverrides?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/RuleActionOverride"] |
-		fn.#ListExpression
+#RuleGroupReferenceStatement: close({
+	Arn!:                 #ResourceArn
+	ExcludedRules?:       list.MaxItems(100) & [...] & [...#ExcludedRule] | fn.#ListExpression
+	RuleActionOverrides?: list.MaxItems(100) & [...] & [...#RuleActionOverride] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RulePriority": int & >=0 |
+#RulePriority: int & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -1192,29 +1047,26 @@ _#defs: "/$defs/Properties/definitions/RulePriority": int & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Rules": [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
+#Rules: [...#Rule] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Scope": "CLOUDFRONT" | "REGIONAL" | fn.#StringExpression
+#Scope: "CLOUDFRONT" | "REGIONAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SearchString": string | fn.#StringExpression
+#SearchString: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SearchStringBase64": string | fn.#StringExpression
+#SearchStringBase64: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SensitivityLevel": "LOW" | "HIGH" | fn.#StringExpression
+#SensitivityLevel: "LOW" | "HIGH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SensitivityToAct": "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
+#SensitivityToAct: "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SingleHeader": close({Name?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#SingleHeader: close({Name?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SingleQueryArgument": close({Name?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#SingleQueryArgument: close({Name?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SizeConstraintStatement": close({
-	ComparisonOperator!: "EQ" | "NE" | "LE" | "LT" | "GE" | "GT" | fn.#StringExpression
-	FieldToMatch!:       _#defs."/$defs/Properties/definitions/FieldToMatch"
-	PreParseTextTransformations?: [..._#defs."/$defs/Properties/definitions/PreParseTextTransformation"] |
-		fn.#ListExpression
+#SizeConstraintStatement: close({
+	ComparisonOperator!:          "EQ" | "NE" | "LE" | "LT" | "GE" | "GT" | fn.#StringExpression
+	FieldToMatch!:                #FieldToMatch
+	PreParseTextTransformations?: [...#PreParseTextTransformation] | fn.#ListExpression
 	Size!: <=21474836480 & >=0 |
 		{
 			string &
@@ -1235,60 +1087,53 @@ _#defs: "/$defs/Properties/definitions/SizeConstraintStatement": close({
 				)
 		} |
 		fn.#NumberExpression
-	TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"] |
-		fn.#ListExpression
+	TextTransformations!: list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SizeInspectionLimit": "KB_16" |
-	"KB_32" |
-	"KB_48" |
-	"KB_64" |
-	fn.#StringExpression
+#SizeInspectionLimit: "KB_16" | "KB_32" | "KB_48" | "KB_64" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SqliMatchStatement": close({
-	FieldToMatch!: _#defs."/$defs/Properties/definitions/FieldToMatch"
-	PreParseTextTransformations?: [..._#defs."/$defs/Properties/definitions/PreParseTextTransformation"] |
-		fn.#ListExpression
-	SensitivityLevel?: _#defs."/$defs/Properties/definitions/SensitivityLevel"
-	TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"] |
-		fn.#ListExpression
+#SqliMatchStatement: close({
+	FieldToMatch!:                #FieldToMatch
+	PreParseTextTransformations?: [...#PreParseTextTransformation] | fn.#ListExpression
+	SensitivityLevel?:            #SensitivityLevel
+	TextTransformations!:         list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Statement": close({
-	AndStatement?:                      _#defs."/$defs/Properties/definitions/AndStatement"
-	AsnMatchStatement?:                 _#defs."/$defs/Properties/definitions/AsnMatchStatement"
-	ByteMatchStatement?:                _#defs."/$defs/Properties/definitions/ByteMatchStatement"
-	GeoMatchStatement?:                 _#defs."/$defs/Properties/definitions/GeoMatchStatement"
-	IPSetReferenceStatement?:           _#defs."/$defs/Properties/definitions/IPSetReferenceStatement"
-	LabelMatchStatement?:               _#defs."/$defs/Properties/definitions/LabelMatchStatement"
-	ManagedRuleGroupStatement?:         _#defs."/$defs/Properties/definitions/ManagedRuleGroupStatement"
-	NotStatement?:                      _#defs."/$defs/Properties/definitions/NotStatement"
-	OrStatement?:                       _#defs."/$defs/Properties/definitions/OrStatement"
-	RateBasedStatement?:                _#defs."/$defs/Properties/definitions/RateBasedStatement"
-	RegexMatchStatement?:               _#defs."/$defs/Properties/definitions/RegexMatchStatement"
-	RegexPatternSetReferenceStatement?: _#defs."/$defs/Properties/definitions/RegexPatternSetReferenceStatement"
-	RuleGroupReferenceStatement?:       _#defs."/$defs/Properties/definitions/RuleGroupReferenceStatement"
-	SizeConstraintStatement?:           _#defs."/$defs/Properties/definitions/SizeConstraintStatement"
-	SqliMatchStatement?:                _#defs."/$defs/Properties/definitions/SqliMatchStatement"
-	XssMatchStatement?:                 _#defs."/$defs/Properties/definitions/XssMatchStatement"
+#Statement: close({
+	AndStatement?:                      #AndStatement
+	AsnMatchStatement?:                 #AsnMatchStatement
+	ByteMatchStatement?:                #ByteMatchStatement
+	GeoMatchStatement?:                 #GeoMatchStatement
+	IPSetReferenceStatement?:           #IPSetReferenceStatement
+	LabelMatchStatement?:               #LabelMatchStatement
+	ManagedRuleGroupStatement?:         #ManagedRuleGroupStatement
+	NotStatement?:                      #NotStatement
+	OrStatement?:                       #OrStatement
+	RateBasedStatement?:                #RateBasedStatement
+	RegexMatchStatement?:               #RegexMatchStatement
+	RegexPatternSetReferenceStatement?: #RegexPatternSetReferenceStatement
+	RuleGroupReferenceStatement?:       #RuleGroupReferenceStatement
+	SizeConstraintStatement?:           #SizeConstraintStatement
+	SqliMatchStatement?:                #SqliMatchStatement
+	XssMatchStatement?:                 #XssMatchStatement
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TextTransformation": close({
-	Priority!: _#defs."/$defs/Properties/definitions/TextTransformationPriority"
-	Type!:     _#defs."/$defs/Properties/definitions/TextTransformationType"
+#TextTransformation: close({
+	Priority!: #TextTransformationPriority
+	Type!:     #TextTransformationType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TextTransformationPriority": int & >=0 |
+#TextTransformationPriority: int & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -1304,7 +1149,7 @@ _#defs: "/$defs/Properties/definitions/TextTransformationPriority": int & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/TextTransformationType": "NONE" |
+#TextTransformationType: "NONE" |
 	"COMPRESS_WHITE_SPACE" |
 	"HTML_ENTITY_DECODE" |
 	"LOWERCASE" |
@@ -1337,36 +1182,28 @@ _#defs: "/$defs/Properties/definitions/TextTransformationType": "NONE" |
 	"SHA256" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TokenDomains": [
-	...strings.MaxRunes(253) & strings.MinRunes(1) & =~"^[\\w\\.\\-/]+$" | fn.#StringExpression
-] |
+#TokenDomains: [...strings.MaxRunes(253) & strings.MinRunes(1) & =~"^[\\w\\.\\-/]+$" | fn.#StringExpression] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/UriFragment": close(
-	{FallbackBehavior?: "MATCH" | "NO_MATCH" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#UriFragment: close({FallbackBehavior?: "MATCH" | "NO_MATCH" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UriPath": fn.#Object & {...} | string | fn.#StringObjectExpression
+#UriPath: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UsageOfAction": "ENABLED" | "DISABLED" | fn.#StringExpression
+#UsageOfAction: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VisibilityConfig": close({
+#VisibilityConfig: close({
 	CloudWatchMetricsEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MetricName!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w#:\\.\\-/]+$" | fn.#StringExpression
 	SampledRequestsEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WalletAddress": strings.MaxRunes(44) & strings.MinRunes(26) & =~".*\\S.*" |
-fn.#StringExpression
+#WalletAddress: strings.MaxRunes(44) & strings.MinRunes(26) & =~".*\\S.*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/XssMatchStatement": close({
-	FieldToMatch!: _#defs."/$defs/Properties/definitions/FieldToMatch"
-	PreParseTextTransformations?: [..._#defs."/$defs/Properties/definitions/PreParseTextTransformation"] |
-		fn.#ListExpression
-	TextTransformations!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TextTransformation"] |
-		fn.#ListExpression
+#XssMatchStatement: close({
+	FieldToMatch!:                #FieldToMatch
+	PreParseTextTransformations?: [...#PreParseTextTransformation] | fn.#ListExpression
+	TextTransformations!:         list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

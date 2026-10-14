@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 	"time"
 )
 
@@ -19,24 +19,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::IoTFleetWise::Campaign Resource Type
 #Properties: close({
-	Action?:           _#defs."/$defs/Properties/definitions/UpdateCampaignAction"
-	CollectionScheme!: _#defs."/$defs/Properties/definitions/CollectionScheme"
-	Compression?:      _#defs."/$defs/Properties/definitions/Compression"
-	DataDestinationConfigs?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DataDestinationConfig"
-	] |
-		fn.#ListExpression
+	Action?:                 #UpdateCampaignAction
+	CollectionScheme!:       #CollectionScheme
+	Compression?:            #Compression
+	DataDestinationConfigs?: list.MaxItems(1) & list.MinItems(1) & [...#DataDestinationConfig] | fn.#ListExpression
 	DataExtraDimensions?: list.MaxItems(5) & [...] & [
 		...strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	DataPartitions?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/DataPartition"
-	] |
-		fn.#ListExpression
+	DataPartitions?: list.MaxItems(20) & list.UniqueItems() & [...] & [...#DataPartition] | fn.#ListExpression
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
-	DiagnosticsMode?: _#defs."/$defs/Properties/definitions/DiagnosticsMode"
+	DiagnosticsMode?: #DiagnosticsMode
 	ExpiryTime?:      time.Time | fn.#StringExpression
 	Name!:            strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
 	PostTriggerCollectionDuration?: <=4294967295 & >=0 |
@@ -75,35 +69,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	SignalCatalogArn!: string | fn.#StringExpression
-	SignalsToCollect?: list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/SignalInformation"] |
-		fn.#ListExpression
-	SignalsToFetch?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/SignalFetchInformation"] |
-		fn.#ListExpression
-	SpoolingMode?: _#defs."/$defs/Properties/definitions/SpoolingMode"
-	StartTime?:    time.Time | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	TargetArn!: string | fn.#StringExpression
+	SignalsToCollect?: list.MaxItems(1000) & [...] & [...#SignalInformation] | fn.#ListExpression
+	SignalsToFetch?:   list.MaxItems(10) & [...] & [...#SignalFetchInformation] | fn.#ListExpression
+	SpoolingMode?:     #SpoolingMode
+	StartTime?:        time.Time | fn.#StringExpression
+	Tags?:             list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	TargetArn!:        string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CampaignStatus": "CREATING" |
-	"WAITING_FOR_APPROVAL" |
-	"RUNNING" |
-	"SUSPENDED" |
-	fn.#StringExpression
+#CampaignStatus: "CREATING" | "WAITING_FOR_APPROVAL" | "RUNNING" | "SUSPENDED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CollectionScheme": matchN(1, [close(
-	{TimeBasedCollectionScheme!: _#defs."/$defs/Properties/definitions/TimeBasedCollectionScheme"},
+#CollectionScheme: matchN(1, [close(
+	{TimeBasedCollectionScheme!: #TimeBasedCollectionScheme},
 ), close(
-	{ConditionBasedCollectionScheme!: _#defs."/$defs/Properties/definitions/ConditionBasedCollectionScheme"},
+	{ConditionBasedCollectionScheme!: #ConditionBasedCollectionScheme},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Compression": "OFF" | "SNAPPY" | fn.#StringExpression
+#Compression: "OFF" | "SNAPPY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConditionBasedCollectionScheme": close({
-	ConditionLanguageVersion?: _#defs."/$defs/Properties/definitions/LanguageVersion"
-	Expression!:               _#defs."/$defs/Properties/definitions/EventExpression"
+#ConditionBasedCollectionScheme: close({
+	ConditionLanguageVersion?: #LanguageVersion
+	Expression!:               #EventExpression
 	MinimumTriggerIntervalMs?: <=4294967295 & >=0 |
 		{
 			string &
@@ -124,58 +111,54 @@ _#defs: "/$defs/Properties/definitions/ConditionBasedCollectionScheme": close({
 				)
 		} |
 		fn.#NumberExpression
-	TriggerMode?: _#defs."/$defs/Properties/definitions/TriggerMode"
+	TriggerMode?: #TriggerMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConditionBasedSignalFetchConfig": close({
+#ConditionBasedSignalFetchConfig: close({
 	ConditionExpression!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	TriggerMode!:         _#defs."/$defs/Properties/definitions/TriggerMode"
+	TriggerMode!:         #TriggerMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataDestinationConfig": matchN(1, [close(
-	{S3Config!: _#defs."/$defs/Properties/definitions/S3Config"},
+#DataDestinationConfig: matchN(1, [close(
+	{S3Config!: #S3Config},
 ), close(
-	{TimestreamConfig!: _#defs."/$defs/Properties/definitions/TimestreamConfig"},
+	{TimestreamConfig!: #TimestreamConfig},
 ), close(
-	{MqttTopicConfig!: _#defs."/$defs/Properties/definitions/MqttTopicConfig"},
+	{MqttTopicConfig!: #MqttTopicConfig},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/DataFormat": "JSON" | "PARQUET" | fn.#StringExpression
+#DataFormat: "JSON" | "PARQUET" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataPartition": close({
-	Id!:             _#defs."/$defs/Properties/definitions/DataPartitionId"
-	StorageOptions!: _#defs."/$defs/Properties/definitions/DataPartitionStorageOptions"
-	UploadOptions?:  _#defs."/$defs/Properties/definitions/DataPartitionUploadOptions"
+#DataPartition: close({
+	Id!:             #DataPartitionId
+	StorageOptions!: #DataPartitionStorageOptions
+	UploadOptions?:  #DataPartitionUploadOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataPartitionId": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9]+$" |
-fn.#StringExpression
+#DataPartitionId: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataPartitionStorageOptions": close({
-	MaximumSize!:       _#defs."/$defs/Properties/definitions/StorageMaximumSize"
-	MinimumTimeToLive!: _#defs."/$defs/Properties/definitions/StorageMinimumTimeToLive"
-	StorageLocation!:   _#defs."/$defs/Properties/definitions/StorageLocation"
+#DataPartitionStorageOptions: close({
+	MaximumSize!:       #StorageMaximumSize
+	MinimumTimeToLive!: #StorageMinimumTimeToLive
+	StorageLocation!:   #StorageLocation
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataPartitionUploadOptions": close({
-	ConditionLanguageVersion?: _#defs."/$defs/Properties/definitions/LanguageVersion"
-	Expression!:               _#defs."/$defs/Properties/definitions/EventExpression"
+#DataPartitionUploadOptions: close({
+	ConditionLanguageVersion?: #LanguageVersion
+	Expression!:               #EventExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DiagnosticsMode": "OFF" | "SEND_ACTIVE_DTCS" | fn.#StringExpression
+#DiagnosticsMode: "OFF" | "SEND_ACTIVE_DTCS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EventExpression": strings.MaxRunes(2048) & strings.MinRunes(1) |
-fn.#StringExpression
+#EventExpression: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LanguageVersion": int & <=1 & >=1 |
+#LanguageVersion: int & <=1 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -192,7 +175,7 @@ _#defs: "/$defs/Properties/definitions/LanguageVersion": int & <=1 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MqttTopicConfig": close({
+#MqttTopicConfig: close({
 	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -202,23 +185,21 @@ _#defs: "/$defs/Properties/definitions/MqttTopicConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Config": close({
+#S3Config: close({
 	BucketArn!: strings.MaxRunes(100) & strings.MinRunes(16) & =~"^arn:(aws[a-zA-Z0-9-]*):s3:::.+$" |
 	fn.#StringExpression
-	DataFormat?: _#defs."/$defs/Properties/definitions/DataFormat"
+	DataFormat?: #DataFormat
 	Prefix?:     strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_:./!*'()]+$" | fn.#StringExpression
-	StorageCompressionFormat?: _#defs."/$defs/Properties/definitions/StorageCompressionFormat"
+	StorageCompressionFormat?: #StorageCompressionFormat
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SignalFetchConfig": matchN(1, [close(
-	{TimeBased!: _#defs."/$defs/Properties/definitions/TimeBasedSignalFetchConfig"},
-), close(
-	{ConditionBased!: _#defs."/$defs/Properties/definitions/ConditionBasedSignalFetchConfig"},
-)]) |
+#SignalFetchConfig: matchN(1, [
+	close({TimeBased!: #TimeBasedSignalFetchConfig}), close({ConditionBased!: #ConditionBasedSignalFetchConfig}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/SignalFetchInformation": close({
+#SignalFetchInformation: close({
 	Actions!: list.MaxItems(5) & list.MinItems(1) & [
 		...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -244,12 +225,12 @@ _#defs: "/$defs/Properties/definitions/SignalFetchInformation": close({
 		} |
 		fn.#NumberExpression
 	FullyQualifiedName!: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
-	SignalFetchConfig!:  _#defs."/$defs/Properties/definitions/SignalFetchConfig"
+	SignalFetchConfig!:  #SignalFetchConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SignalInformation": close({
-	DataPartitionId?: _#defs."/$defs/Properties/definitions/DataPartitionId"
+#SignalInformation: close({
+	DataPartitionId?: #DataPartitionId
 	MaxSampleCount?: <=4294967295 & >=1 |
 		{
 			string &
@@ -294,22 +275,21 @@ _#defs: "/$defs/Properties/definitions/SignalInformation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpoolingMode": "OFF" | "TO_DISK" | fn.#StringExpression
+#SpoolingMode: "OFF" | "TO_DISK" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageCompressionFormat": "NONE" | "GZIP" | fn.#StringExpression
+#StorageCompressionFormat: "NONE" | "GZIP" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageLocation": strings.MaxRunes(4096) & strings.MinRunes(1) |
-fn.#StringExpression
+#StorageLocation: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageMaximumSize": close({
-	Unit!:  _#defs."/$defs/Properties/definitions/StorageMaximumSizeUnit"
-	Value!: _#defs."/$defs/Properties/definitions/StorageMaximumSizeValue"
+#StorageMaximumSize: close({
+	Unit!:  #StorageMaximumSizeUnit
+	Value!: #StorageMaximumSizeValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageMaximumSizeUnit": "MB" | "GB" | "TB" | fn.#StringExpression
+#StorageMaximumSizeUnit: "MB" | "GB" | "TB" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageMaximumSizeValue": int & <=1073741824 & >=1 |
+#StorageMaximumSizeValue: int & <=1073741824 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -326,15 +306,15 @@ _#defs: "/$defs/Properties/definitions/StorageMaximumSizeValue": int & <=1073741
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/StorageMinimumTimeToLive": close({
-	Unit!:  _#defs."/$defs/Properties/definitions/StorageMinimumTimeToLiveUnit"
-	Value!: _#defs."/$defs/Properties/definitions/StorageMinimumTimeToLiveValue"
+#StorageMinimumTimeToLive: close({
+	Unit!:  #StorageMinimumTimeToLiveUnit
+	Value!: #StorageMinimumTimeToLiveValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageMinimumTimeToLiveUnit": "HOURS" | "DAYS" | "WEEKS" | fn.#StringExpression
+#StorageMinimumTimeToLiveUnit: "HOURS" | "DAYS" | "WEEKS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StorageMinimumTimeToLiveValue": int & <=10000 & >=1 |
+#StorageMinimumTimeToLiveValue: int & <=10000 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -351,13 +331,13 @@ _#defs: "/$defs/Properties/definitions/StorageMinimumTimeToLiveValue": int & <=1
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeBasedCollectionScheme": close({
+#TimeBasedCollectionScheme: close({
 	PeriodMs!: <=86400000 & >=10000 |
 		{
 			string &
@@ -381,7 +361,7 @@ _#defs: "/$defs/Properties/definitions/TimeBasedCollectionScheme": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeBasedSignalFetchConfig": close({
+#TimeBasedSignalFetchConfig: close({
 	ExecutionFrequencyMs!: >=1 |
 		{
 			string &
@@ -404,8 +384,8 @@ _#defs: "/$defs/Properties/definitions/TimeBasedSignalFetchConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimePeriod": close({
-	Unit!: _#defs."/$defs/Properties/definitions/TimeUnit"
+#TimePeriod: close({
+	Unit!: #TimeUnit
 	Value!: >=1 |
 		{
 			string &
@@ -428,9 +408,9 @@ _#defs: "/$defs/Properties/definitions/TimePeriod": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeUnit": "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | fn.#StringExpression
+#TimeUnit: "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TimestreamConfig": close({
+#TimestreamConfig: close({
 	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -443,13 +423,9 @@ _#defs: "/$defs/Properties/definitions/TimestreamConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TriggerMode": "ALWAYS" | "RISING_EDGE" | fn.#StringExpression
+#TriggerMode: "ALWAYS" | "RISING_EDGE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateCampaignAction": "APPROVE" |
-	"SUSPEND" |
-	"RESUME" |
-	"UPDATE" |
-	fn.#StringExpression
+#UpdateCampaignAction: "APPROVE" | "SUSPEND" | "RESUME" | "UPDATE" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::IoTFleetWise::Campaign"
 	Properties!: #Properties

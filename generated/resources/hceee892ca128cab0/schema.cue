@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -20,12 +20,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Alias!:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9_\\-\\.]*$" | fn.#StringExpression
 	DisplayName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-\\s]*$" | fn.#StringExpression
-	Plan?:        [..._#defs."/$defs/Properties/definitions/Stage"] | fn.#ListExpression
-	Tags?:        list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Plan?:        [...#Stage] | fn.#ListExpression
+	Tags?:        list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	Type!:        "PERSONAL" | "ESCALATION" | "ONCALL_SCHEDULE" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ChannelTargetInfo": close({
+#ChannelTargetInfo: close({
 	ChannelId!: string | fn.#StringExpression
 	RetryIntervalInMinutes!: int |
 		{
@@ -44,13 +44,13 @@ _#defs: "/$defs/Properties/definitions/ChannelTargetInfo": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContactTargetInfo": close({
+#ContactTargetInfo: close({
 	ContactId!:   string | fn.#StringExpression
 	IsEssential!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Stage": close({
+#Stage: close({
 	DurationInMinutes?: int |
 		{
 			string &
@@ -66,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/Stage": close({
 		} |
 		fn.#NumberExpression
 	RotationIds?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Targets?:     [..._#defs."/$defs/Properties/definitions/Targets"] | fn.#ListExpression
+	Targets?:     [...#Targets] | fn.#ListExpression
 	if DurationInMinutes != _|_ {
 		RotationIds?: error(
 			"RotationIds cannot be used with DurationInMinutes; set exactly one of DurationInMinutes, RotationIds",
@@ -75,15 +75,15 @@ _#defs: "/$defs/Properties/definitions/Stage": close({
 }) & matchN(>=1, [{DurationInMinutes!: _}, {RotationIds!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\\\\\/a-zA-Z0-9_+=\\-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Targets": close({
-	ChannelTargetInfo?: _#defs."/$defs/Properties/definitions/ChannelTargetInfo"
-	ContactTargetInfo?: _#defs."/$defs/Properties/definitions/ContactTargetInfo"
+#Targets: close({
+	ChannelTargetInfo?: #ChannelTargetInfo
+	ContactTargetInfo?: #ContactTargetInfo
 	if ChannelTargetInfo != _|_ {
 		ContactTargetInfo?: error(
 			"ContactTargetInfo cannot be used with ChannelTargetInfo; set exactly one of ChannelTargetInfo, ContactTargetInfo",

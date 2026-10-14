@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,9 +17,7 @@ import (
 	ConformancePackArn?: string
 
 	// A list of ConformancePackInputParameter objects.
-	ConformancePackInputParameters?: list.MaxItems(60) & [...] & [
-		..._#defs."/$defs/Properties/definitions/ConformancePackInputParameter"
-	]
+	ConformancePackInputParameters?: list.MaxItems(60) & [...] & [...#ConformancePackInputParameter]
 
 	// Name of the conformance pack which will be assigned as the unique identifier.
 	ConformancePackName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*"
@@ -31,7 +29,7 @@ import (
 	DeliveryS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0)
 
 	// The tags for the conformance pack.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 
 	// A string containing full conformance pack template body. You can only specify
 	// one of the template body or template S3Uri fields.
@@ -51,19 +49,19 @@ import (
 })
 
 // Input parameters in the form of key-value pairs for the conformance pack.
-_#defs: "/$defs/Properties/definitions/ConformancePackInputParameter": close({
-	ParameterName!:  _#defs."/$defs/Properties/definitions/ParameterName"
-	ParameterValue!: _#defs."/$defs/Properties/definitions/ParameterValue"
+#ConformancePackInputParameter: close({
+	ParameterName!:  #ParameterName
+	ParameterValue!: #ParameterValue
 })
 
 // Key part of key-value pair with value being parameter value
-_#defs: "/$defs/Properties/definitions/ParameterName": strings.MaxRunes(255) & strings.MinRunes(0)
+#ParameterName: strings.MaxRunes(255) & strings.MinRunes(0)
 
 // Value part of key-value pair with key being parameter Name
-_#defs: "/$defs/Properties/definitions/ParameterValue": strings.MaxRunes(4096) & strings.MinRunes(0)
+#ParameterValue: strings.MaxRunes(4096) & strings.MinRunes(0)
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

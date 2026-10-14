@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -108,7 +108,7 @@ import (
 
 	// If true, the data in the cluster is encrypted at rest.
 	Encrypted?: bool
-	Endpoint?:  _#defs."/$defs/Properties/definitions/Endpoint"
+	Endpoint?:  #Endpoint
 
 	// An option that specifies whether to create the cluster with enhanced VPC
 	// routing enabled. To create a cluster that uses enhanced VPC routing, the
@@ -137,7 +137,7 @@ import (
 	// The AWS Key Management Service (KMS) key ID of the encryption key that you
 	// want to use to encrypt data in the cluster.
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
-	LoggingProperties?: _#defs."/$defs/Properties/definitions/LoggingProperties"
+	LoggingProperties?: #LoggingProperties
 
 	// The name for the maintenance track that you want to assign for the cluster.
 	// This name change is asynchronous. The new track name stays in the
@@ -244,7 +244,7 @@ import (
 	SnapshotIdentifier?: string
 
 	// The list of tags for the cluster parameter group.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// A list of Virtual Private Cloud (VPC) security groups to be associated with the cluster.
 	VpcSecurityGroupIds?: [
@@ -252,12 +252,12 @@ import (
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	Address?: string
 	Port?:    string
 })
 
-_#defs: "/$defs/Properties/definitions/LoggingProperties": close({
+#LoggingProperties: close({
 	BucketName?:         string
 	LogDestinationType?: string
 	LogExports?:         list.MaxItems(3) & [...string]
@@ -265,7 +265,7 @@ _#defs: "/$defs/Properties/definitions/LoggingProperties": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

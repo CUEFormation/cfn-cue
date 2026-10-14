@@ -4,8 +4,8 @@ package schema
 
 import (
 	"strings"
-	"time"
 	"list"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,14 +13,14 @@ import (
 // Definition of AWS::Bedrock::Agent Resource Type
 #Properties: close({
 	// List of ActionGroups
-	ActionGroups?: [..._#defs."/$defs/Properties/definitions/AgentActionGroup"]
+	ActionGroups?: [...#AgentActionGroup]
 
 	// Arn representation of the Agent.
 	AgentArn?: strings.MaxRunes(2048) & =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:agent/[0-9a-zA-Z]{10}$"
-	AgentCollaboration?: _#defs."/$defs/Properties/definitions/AgentCollaboration"
+	AgentCollaboration?: #AgentCollaboration
 
 	// List of Agent Collaborators
-	AgentCollaborators?: [..._#defs."/$defs/Properties/definitions/AgentCollaborator"]
+	AgentCollaborators?: [...#AgentCollaborator]
 
 	// Identifier for a resource.
 	AgentId?: =~"^[0-9a-zA-Z]{10}$"
@@ -30,7 +30,7 @@ import (
 
 	// ARN of a IAM role.
 	AgentResourceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MaxRunes(2048)
-	AgentStatus?:          _#defs."/$defs/Properties/definitions/AgentStatus"
+	AgentStatus?:          #AgentStatus
 
 	// Draft Agent Version.
 	AgentVersion?: strings.MaxRunes(5) & strings.MinRunes(5) & =~"^DRAFT$"
@@ -40,7 +40,7 @@ import (
 
 	// Time Stamp.
 	CreatedAt?:           time.Time
-	CustomOrchestration?: _#defs."/$defs/Properties/definitions/CustomOrchestration"
+	CustomOrchestration?: #CustomOrchestration
 
 	// A KMS key ARN
 	CustomerEncryptionKeyArn?: strings.MaxRunes(2048) &
@@ -52,8 +52,8 @@ import (
 
 	// Failure Reasons for Error.
 	FailureReasons?:         list.MaxItems(2048) & [...strings.MaxRunes(2048)]
-	FoundationModel?:        _#defs."/$defs/Properties/definitions/FoundationModel"
-	GuardrailConfiguration?: _#defs."/$defs/Properties/definitions/GuardrailConfiguration"
+	FoundationModel?:        #FoundationModel
+	GuardrailConfiguration?: #GuardrailConfiguration
 
 	// Max Session Time.
 	IdleSessionTTLInSeconds?: <=5400 & >=60
@@ -62,75 +62,75 @@ import (
 	Instruction?: strings.MinRunes(40)
 
 	// List of Agent Knowledge Bases
-	KnowledgeBases?:      [..._#defs."/$defs/Properties/definitions/AgentKnowledgeBase"]
-	MemoryConfiguration?: _#defs."/$defs/Properties/definitions/MemoryConfiguration"
-	OrchestrationType?:   _#defs."/$defs/Properties/definitions/OrchestrationType"
+	KnowledgeBases?:      [...#AgentKnowledgeBase]
+	MemoryConfiguration?: #MemoryConfiguration
+	OrchestrationType?:   #OrchestrationType
 
 	// Time Stamp.
 	PreparedAt?:                  time.Time
-	PromptOverrideConfiguration?: _#defs."/$defs/Properties/definitions/PromptOverrideConfiguration"
+	PromptOverrideConfiguration?: #PromptOverrideConfiguration
 
 	// The recommended actions users can take to resolve an error in failureReasons.
 	RecommendedActions?: list.MaxItems(2048) & [...strings.MaxRunes(2048)]
 
 	// Specifies whether to allow deleting agent while it is in use.
 	SkipResourceInUseCheckOnDelete?: bool
-	Tags?:                           _#defs."/$defs/Properties/definitions/TagsMap"
-	TestAliasTags?:                  _#defs."/$defs/Properties/definitions/TagsMap"
+	Tags?:                           #TagsMap
+	TestAliasTags?:                  #TagsMap
 
 	// Time Stamp.
 	UpdatedAt?: time.Time
 })
 
 // Contains information about the API Schema for the Action Group
-_#defs: "/$defs/Properties/definitions/APISchema": matchN(1, [close(
-	{S3!: _#defs."/$defs/Properties/definitions/S3Identifier"},
+#APISchema: matchN(1, [close(
+	{S3!: #S3Identifier},
 ), close({
 	// String OpenAPI Payload
 	Payload!: string
 })])
 
 // Type of Executors for an Action Group
-_#defs: "/$defs/Properties/definitions/ActionGroupExecutor": matchN(1, [close({
+#ActionGroupExecutor: matchN(1, [close({
 	// ARN of a Lambda.
 	Lambda!: strings.MaxRunes(2048) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z0-9-]{1,20}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$"
 }), close(
-	{CustomControl!: _#defs."/$defs/Properties/definitions/CustomControlMethod"},
+	{CustomControl!: #CustomControlMethod},
 )])
 
 // Action Group Signature for a BuiltIn Action
-_#defs: "/$defs/Properties/definitions/ActionGroupSignature": "AMAZON.UserInput" | "AMAZON.CodeInterpreter"
+#ActionGroupSignature: "AMAZON.UserInput" | "AMAZON.CodeInterpreter"
 
 // State of the action group
-_#defs: "/$defs/Properties/definitions/ActionGroupState": "ENABLED" | "DISABLED"
+#ActionGroupState: "ENABLED" | "DISABLED"
 
 // Additional Model Request Fields for Prompt Configuration
-_#defs: "/$defs/Properties/definitions/AdditionalModelRequestFields": {...}
+#AdditionalModelRequestFields: {...}
 
 // Contains the information of an Agent Action Group
-_#defs: "/$defs/Properties/definitions/AgentActionGroup": close({
-	ActionGroupExecutor?: _#defs."/$defs/Properties/definitions/ActionGroupExecutor"
+#AgentActionGroup: close({
+	ActionGroupExecutor?: #ActionGroupExecutor
 
 	// Name of the action group
 	ActionGroupName!:  =~"^([0-9a-zA-Z][_-]?){1,100}$"
-	ActionGroupState?: _#defs."/$defs/Properties/definitions/ActionGroupState"
-	ApiSchema?:        _#defs."/$defs/Properties/definitions/APISchema"
+	ActionGroupState?: #ActionGroupState
+	ApiSchema?:        #APISchema
 
 	// Description of action group
 	Description?:                strings.MaxRunes(200) & strings.MinRunes(1)
-	FunctionSchema?:             _#defs."/$defs/Properties/definitions/FunctionSchema"
-	ParentActionGroupSignature?: _#defs."/$defs/Properties/definitions/ActionGroupSignature"
+	FunctionSchema?:             #FunctionSchema
+	ParentActionGroupSignature?: #ActionGroupSignature
 
 	// Specifies whether to allow deleting action group while it is in use.
 	SkipResourceInUseCheckOnDelete?: bool
 })
 
 // Agent collaboration state
-_#defs: "/$defs/Properties/definitions/AgentCollaboration": "DISABLED" | "SUPERVISOR" | "SUPERVISOR_ROUTER"
+#AgentCollaboration: "DISABLED" | "SUPERVISOR" | "SUPERVISOR_ROUTER"
 
 // Agent Collaborator
-_#defs: "/$defs/Properties/definitions/AgentCollaborator": close({
+#AgentCollaborator: close({
 	// Agent descriptor for agent collaborator
 	AgentDescriptor!: close({
 		// Alias ARN for agent descriptor
@@ -143,69 +143,60 @@ _#defs: "/$defs/Properties/definitions/AgentCollaborator": close({
 
 	// Agent collaborator name
 	CollaboratorName!:         string
-	RelayConversationHistory?: _#defs."/$defs/Properties/definitions/RelayConversationHistory"
+	RelayConversationHistory?: #RelayConversationHistory
 })
 
 // Agent Knowledge Base
-_#defs: "/$defs/Properties/definitions/AgentKnowledgeBase": close({
+#AgentKnowledgeBase: close({
 	// Description of the Resource.
 	Description!: strings.MaxRunes(200) & strings.MinRunes(1)
 
 	// Identifier for a resource.
 	KnowledgeBaseId!:    =~"^[0-9a-zA-Z]{10}$"
-	KnowledgeBaseState?: _#defs."/$defs/Properties/definitions/KnowledgeBaseState"
+	KnowledgeBaseState?: #KnowledgeBaseState
 })
 
 // Schema Type for Action APIs.
-_#defs: "/$defs/Properties/definitions/AgentStatus": "CREATING" |
-	"PREPARING" |
-	"PREPARED" |
-	"NOT_PREPARED" |
-	"DELETING" |
-	"FAILED" |
-	"VERSIONING" |
-	"UPDATING"
+#AgentStatus: "CREATING" | "PREPARING" | "PREPARED" | "NOT_PREPARED" | "DELETING" | "FAILED" | "VERSIONING" | "UPDATING"
 
 // Creation Mode for Prompt Configuration.
-_#defs: "/$defs/Properties/definitions/CreationMode": "DEFAULT" | "OVERRIDDEN"
+#CreationMode: "DEFAULT" | "OVERRIDDEN"
 
 // Custom control of action execution
-_#defs: "/$defs/Properties/definitions/CustomControlMethod": "RETURN_CONTROL"
+#CustomControlMethod: "RETURN_CONTROL"
 
 // Structure for custom orchestration
-_#defs: "/$defs/Properties/definitions/CustomOrchestration": close(
-	{Executor?: _#defs."/$defs/Properties/definitions/OrchestrationExecutor"},
-)
+#CustomOrchestration: close({Executor?: #OrchestrationExecutor})
 
 // Types of session storage persisted in memory
-_#defs: "/$defs/Properties/definitions/EnabledMemoryTypes": [..._#defs."/$defs/Properties/definitions/MemoryType"]
+#EnabledMemoryTypes: [...#MemoryType]
 
 // ARN or name of a Bedrock model.
-_#defs: "/$defs/Properties/definitions/FoundationModel": strings.MaxRunes(2048) &
+#FoundationModel: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:(([0-9]{12}:custom-model/[a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63}(([:][a-z0-9-]{1,63}){0,2})?/[a-z0-9]{12})|(:foundation-model/([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63}([.]?[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}))|([0-9]{12}:(inference-profile|application-inference-profile)/[a-zA-Z0-9-:.]+))|(([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63}([.]?[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}))|(([0-9a-zA-Z][_-]?)+)$"
 
 // Function definition
-_#defs: "/$defs/Properties/definitions/Function": close({
+#Function: close({
 	// Description of function
 	Description?: strings.MaxRunes(1200) & strings.MinRunes(1)
 
 	// Name for a resource.
 	Name!:                =~"^([0-9a-zA-Z][_-]?){1,100}$"
-	Parameters?:          _#defs."/$defs/Properties/definitions/ParameterMap"
-	RequireConfirmation?: _#defs."/$defs/Properties/definitions/RequireConfirmation"
+	Parameters?:          #ParameterMap
+	RequireConfirmation?: #RequireConfirmation
 })
 
 // Functions
 //
 // Schema of Functions
-_#defs: "/$defs/Properties/definitions/FunctionSchema": close({
+#FunctionSchema: close({
 	// List of Function definitions
-	Functions!: [..._#defs."/$defs/Properties/definitions/Function"]
+	Functions!: [...#Function]
 })
 
 // Configuration for a guardrail.
-_#defs: "/$defs/Properties/definitions/GuardrailConfiguration": close({
+#GuardrailConfiguration: close({
 	// Identifier for the guardrail, could be the id or the arn
 	GuardrailIdentifier?: strings.MaxRunes(2048) &
 	=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$"
@@ -215,7 +206,7 @@ _#defs: "/$defs/Properties/definitions/GuardrailConfiguration": close({
 })
 
 // Configuration for inference in prompt configuration
-_#defs: "/$defs/Properties/definitions/InferenceConfiguration": close({
+#InferenceConfiguration: close({
 	// Maximum length of output
 	MaximumLength?: <=131072 & >=0
 
@@ -233,76 +224,76 @@ _#defs: "/$defs/Properties/definitions/InferenceConfiguration": close({
 })
 
 // State of the knowledge base; whether it is enabled or disabled
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseState": "ENABLED" | "DISABLED"
+#KnowledgeBaseState: "ENABLED" | "DISABLED"
 
 // Configuration for memory storage
-_#defs: "/$defs/Properties/definitions/MemoryConfiguration": close({
-	EnabledMemoryTypes?:          _#defs."/$defs/Properties/definitions/EnabledMemoryTypes"
-	SessionSummaryConfiguration?: _#defs."/$defs/Properties/definitions/SessionSummaryConfiguration"
+#MemoryConfiguration: close({
+	EnabledMemoryTypes?:          #EnabledMemoryTypes
+	SessionSummaryConfiguration?: #SessionSummaryConfiguration
 
 	// Maximum number of days to store session details
 	StorageDays?: number
 })
 
 // Memory type
-_#defs: "/$defs/Properties/definitions/MemoryType": "SESSION_SUMMARY"
+#MemoryType: "SESSION_SUMMARY"
 
 // Lambda
 //
 // Types of executors for custom orchestration strategy
-_#defs: "/$defs/Properties/definitions/OrchestrationExecutor": close({
+#OrchestrationExecutor: close({
 	// ARN of a Lambda.
 	Lambda!: strings.MaxRunes(2048) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z0-9-]{1,20}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$"
 })
 
 // Types of orchestration strategy for agents
-_#defs: "/$defs/Properties/definitions/OrchestrationType": "DEFAULT" | "CUSTOM_ORCHESTRATION"
+#OrchestrationType: "DEFAULT" | "CUSTOM_ORCHESTRATION"
 
 // Parameter detail
-_#defs: "/$defs/Properties/definitions/ParameterDetail": close({
+#ParameterDetail: close({
 	// Description of function parameter.
 	Description?: strings.MaxRunes(500) & strings.MinRunes(1)
 
 	// Information about if a parameter is required for function call. Default to false.
 	Required?: bool
-	Type!:     _#defs."/$defs/Properties/definitions/Type"
+	Type!:     #Type
 })
 
 // A map of parameter name and detail
-_#defs: "/$defs/Properties/definitions/ParameterMap": close({
+#ParameterMap: close({
 
-	{[=~"^([0-9a-zA-Z][_-]?){1,100}$"]: _#defs."/$defs/Properties/definitions/ParameterDetail"}})
+	{[=~"^([0-9a-zA-Z][_-]?){1,100}$"]: #ParameterDetail}})
 
 // BasePromptConfiguration per Prompt Type.
-_#defs: "/$defs/Properties/definitions/PromptConfiguration": close({
-	AdditionalModelRequestFields?: _#defs."/$defs/Properties/definitions/AdditionalModelRequestFields"
+#PromptConfiguration: close({
+	AdditionalModelRequestFields?: #AdditionalModelRequestFields
 
 	// Base Prompt Template.
 	BasePromptTemplate?:     strings.MaxRunes(100000) & strings.MinRunes(1)
-	FoundationModel?:        _#defs."/$defs/Properties/definitions/FoundationModel"
-	InferenceConfiguration?: _#defs."/$defs/Properties/definitions/InferenceConfiguration"
-	ParserMode?:             _#defs."/$defs/Properties/definitions/CreationMode"
-	PromptCreationMode?:     _#defs."/$defs/Properties/definitions/CreationMode"
-	PromptState?:            _#defs."/$defs/Properties/definitions/PromptState"
-	PromptType?:             _#defs."/$defs/Properties/definitions/PromptType"
+	FoundationModel?:        #FoundationModel
+	InferenceConfiguration?: #InferenceConfiguration
+	ParserMode?:             #CreationMode
+	PromptCreationMode?:     #CreationMode
+	PromptState?:            #PromptState
+	PromptType?:             #PromptType
 })
 
 // Configuration for prompt override.
-_#defs: "/$defs/Properties/definitions/PromptOverrideConfiguration": close({
+#PromptOverrideConfiguration: close({
 	// ARN of a Lambda.
 	OverrideLambda?: strings.MaxRunes(2048) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z0-9-]{1,20}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$"
 
 	// List of BasePromptConfiguration
-	PromptConfigurations!: list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/PromptConfiguration"]
+	PromptConfigurations!: list.MaxItems(10) & [...#PromptConfiguration]
 })
 
 // Prompt State.
-_#defs: "/$defs/Properties/definitions/PromptState": "ENABLED" | "DISABLED"
+#PromptState: "ENABLED" | "DISABLED"
 
 // Prompt Type.
-_#defs: "/$defs/Properties/definitions/PromptType": "PRE_PROCESSING" |
+#PromptType: "PRE_PROCESSING" |
 	"ORCHESTRATION" |
 	"POST_PROCESSING" |
 	"ROUTING_CLASSIFIER" |
@@ -310,13 +301,13 @@ _#defs: "/$defs/Properties/definitions/PromptType": "PRE_PROCESSING" |
 	"KNOWLEDGE_BASE_RESPONSE_GENERATION"
 
 // Relay conversation history state
-_#defs: "/$defs/Properties/definitions/RelayConversationHistory": "TO_COLLABORATOR" | "DISABLED"
+#RelayConversationHistory: "TO_COLLABORATOR" | "DISABLED"
 
 // ENUM to check if action requires user confirmation
-_#defs: "/$defs/Properties/definitions/RequireConfirmation": "ENABLED" | "DISABLED"
+#RequireConfirmation: "ENABLED" | "DISABLED"
 
 // The identifier for the S3 resource.
-_#defs: "/$defs/Properties/definitions/S3Identifier": close({
+#S3Identifier: close({
 	// A bucket in S3.
 	S3BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 
@@ -327,15 +318,15 @@ _#defs: "/$defs/Properties/definitions/S3Identifier": close({
 })
 
 // Configuration for Session Summarization
-_#defs: "/$defs/Properties/definitions/SessionSummaryConfiguration": close({
+#SessionSummaryConfiguration: close({
 	// Maximum number of Sessions to Summarize
 	MaxRecentSessions?: number
 })
 
 // A map of tag keys and values
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})
 
 // Parameter Type
-_#defs: "/$defs/Properties/definitions/Type": "string" | "number" | "integer" | "boolean" | "array"
+#Type: "string" | "number" | "integer" | "boolean" | "array"

@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -19,86 +19,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // repositories](https://docs.aws.amazon.com/AmazonECR/latest/userguide/Repositories.html)
 // in the *Amazon ECR User Guide*.
 #Properties: close({
-	EmptyOnDelete?:           _#defs."/$defs/Properties/definitions/EmptyOnDelete" | fn.#BooleanExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	ImageScanningConfiguration?: _#defs."/$defs/Properties/definitions/ImageScanningConfiguration" |
-		fn.#ObjectExpression
+	EmptyOnDelete?:              #EmptyOnDelete | fn.#BooleanExpression
+	EncryptionConfiguration?:    #EncryptionConfiguration | fn.#ObjectExpression
+	ImageScanningConfiguration?: #ImageScanningConfiguration | fn.#ObjectExpression
 	ImageTagMutability?: "MUTABLE" |
 		"IMMUTABLE" |
 		"MUTABLE_WITH_EXCLUSION" |
 		"IMMUTABLE_WITH_EXCLUSION" |
 		fn.#StringExpression
-	ImageTagMutabilityExclusionFilters?: list.MaxItems(5) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ImageTagMutabilityExclusionFilter"
-	] |
+	ImageTagMutabilityExclusionFilters?: list.MaxItems(5) & list.MinItems(1) & [...#ImageTagMutabilityExclusionFilter] |
 		fn.#ListExpression
-	LifecyclePolicy?:      _#defs."/$defs/Properties/definitions/LifecyclePolicy" | fn.#ObjectExpression
+	LifecyclePolicy?:      #LifecyclePolicy | fn.#ObjectExpression
 	RepositoryName?:       strings.MaxRunes(256) & strings.MinRunes(2) | fn.#StringExpression
 	RepositoryPolicyText?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EmptyOnDelete": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#EmptyOnDelete: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
-	EncryptionType!: _#defs."/$defs/Properties/definitions/EncryptionType" | fn.#StringExpression
-	KmsKey?:         _#defs."/$defs/Properties/definitions/KmsKey" | fn.#StringExpression
+#EncryptionConfiguration: close({
+	EncryptionType!: #EncryptionType | fn.#StringExpression
+	KmsKey?:         #KmsKey | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionType": "AES256" | "KMS" | "KMS_DSSE" | fn.#StringExpression
+#EncryptionType: "AES256" | "KMS" | "KMS_DSSE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ImageScanningConfiguration": close(
-	{ScanOnPush?: _#defs."/$defs/Properties/definitions/ScanOnPush" | fn.#BooleanExpression},
-) |
-	fn.#ObjectExpression
+#ImageScanningConfiguration: close({ScanOnPush?: #ScanOnPush | fn.#BooleanExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageTagMutabilityExclusionFilter": close({
-	ImageTagMutabilityExclusionFilterType!: _#defs."/$defs/Properties/definitions/ImageTagMutabilityExclusionFilterType" |
-		fn.#StringExpression
-	ImageTagMutabilityExclusionFilterValue!: _#defs."/$defs/Properties/definitions/ImageTagMutabilityExclusionFilterValue" |
-		fn.#StringExpression
+#ImageTagMutabilityExclusionFilter: close({
+	ImageTagMutabilityExclusionFilterType!:  #ImageTagMutabilityExclusionFilterType | fn.#StringExpression
+	ImageTagMutabilityExclusionFilterValue!: #ImageTagMutabilityExclusionFilterValue | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageTagMutabilityExclusionFilterType": "WILDCARD" | fn.#StringExpression
+#ImageTagMutabilityExclusionFilterType: "WILDCARD" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ImageTagMutabilityExclusionFilterValue": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[0-9a-zA-Z._*-]{1,128}" |
+#ImageTagMutabilityExclusionFilterValue: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._*-]{1,128}" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKey": strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#KmsKey: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LifecyclePolicy": close({
-	LifecyclePolicyText?: _#defs."/$defs/Properties/definitions/LifecyclePolicyText" | fn.#StringExpression
-	RegistryId?:          _#defs."/$defs/Properties/definitions/RegistryId" | fn.#StringExpression
+#LifecyclePolicy: close({
+	LifecyclePolicyText?: #LifecyclePolicyText | fn.#StringExpression
+	RegistryId?:          #RegistryId | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecyclePolicyText": strings.MaxRunes(30720) & strings.MinRunes(100) |
-fn.#StringExpression
+#LifecyclePolicyText: strings.MaxRunes(30720) & strings.MinRunes(100) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RegistryId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
-fn.#StringExpression
+#RegistryId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ScanOnPush": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#ScanOnPush: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |

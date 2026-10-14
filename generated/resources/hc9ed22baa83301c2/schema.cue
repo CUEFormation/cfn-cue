@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -32,10 +32,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	ConfigParameters?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ConfigParameter"
-	] |
-		fn.#ListExpression
+	ConfigParameters?:   list.MinItems(1) & list.UniqueItems() & [...#ConfigParameter] | fn.#ListExpression
 	EnhancedVpcRouting?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxCapacity?: int |
 		{
@@ -66,10 +63,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	PricePerformanceTarget?: _#defs."/$defs/Properties/definitions/PerformanceTarget" & fn.#Object & {...} |
-	fn.#ObjectExpression
-	PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RecoveryPointId?:    string | fn.#StringExpression
+	PricePerformanceTarget?: #PerformanceTarget & fn.#Object & {...} | fn.#ObjectExpression
+	PubliclyAccessible?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RecoveryPointId?:        string | fn.#StringExpression
 	SecurityGroupIds?: list.MaxItems(32) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(255) &
@@ -85,7 +81,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Tags?:      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	TrackName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
 	Workgroup?: close({
 		Endpoint?: close({
@@ -96,19 +92,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				fn.#ListExpression
 		}) |
 			fn.#ObjectExpression
-		PricePerformanceTarget?: _#defs."/$defs/Properties/definitions/PerformanceTarget"
+		PricePerformanceTarget?: #PerformanceTarget
 	}) |
 	fn.#ObjectExpression
 	WorkgroupName!: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigParameter": close({
+#ConfigParameter: close({
 	ParameterKey?:   strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	ParameterValue?: strings.MaxRunes(15000) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	Address?: string | fn.#StringExpression
 	Port?: int |
 		{
@@ -124,11 +120,11 @@ _#defs: "/$defs/Properties/definitions/Endpoint": close({
 				)
 		} |
 		fn.#NumberExpression
-	VpcEndpoints?: [..._#defs."/$defs/Properties/definitions/VpcEndpoint"] | fn.#ListExpression
+	VpcEndpoints?: [...#VpcEndpoint] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkInterface": close({
+#NetworkInterface: close({
 	AvailabilityZone?:   string | fn.#StringExpression
 	NetworkInterfaceId?: string | fn.#StringExpression
 	PrivateIpAddress?:   string | fn.#StringExpression
@@ -136,7 +132,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PerformanceTarget": close({
+#PerformanceTarget: close({
 	Level?: int & <=100 & >=1 |
 		{
 			string &
@@ -153,27 +149,27 @@ _#defs: "/$defs/Properties/definitions/PerformanceTarget": close({
 				)
 		} |
 		fn.#NumberExpression
-	Status?: _#defs."/$defs/Properties/definitions/PerformanceTargetStatus"
+	Status?: #PerformanceTargetStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PerformanceTargetStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
+#PerformanceTargetStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcEndpoint": close({
-	NetworkInterfaces?: [..._#defs."/$defs/Properties/definitions/NetworkInterface"] | fn.#ListExpression
+#VpcEndpoint: close({
+	NetworkInterfaces?: [...#NetworkInterface] | fn.#ListExpression
 	VpcEndpointId?:     string | fn.#StringExpression
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Workgroup": close({
+#Workgroup: close({
 	BaseCapacity?: int |
 		{
 			string &
@@ -188,10 +184,9 @@ _#defs: "/$defs/Properties/definitions/Workgroup": close({
 				)
 		} |
 		fn.#NumberExpression
-	ConfigParameters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ConfigParameter"] |
-		fn.#ListExpression
+	ConfigParameters?:   list.UniqueItems() & [...#ConfigParameter] | fn.#ListExpression
 	CreationDate?:       string | fn.#StringExpression
-	Endpoint?:           _#defs."/$defs/Properties/definitions/Endpoint"
+	Endpoint?:           #Endpoint
 	EnhancedVpcRouting?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxCapacity?: int |
 		{
@@ -208,7 +203,7 @@ _#defs: "/$defs/Properties/definitions/Workgroup": close({
 		} |
 		fn.#NumberExpression
 	NamespaceName?:          strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	PricePerformanceTarget?: _#defs."/$defs/Properties/definitions/PerformanceTarget"
+	PricePerformanceTarget?: #PerformanceTarget
 	PubliclyAccessible?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -218,7 +213,7 @@ _#defs: "/$defs/Properties/definitions/Workgroup": close({
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Status?: _#defs."/$defs/Properties/definitions/WorkgroupStatus"
+	Status?: #WorkgroupStatus
 	SubnetIds?: [...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$" | fn.#StringExpression] |
 	fn.#ListExpression
 	TrackName?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
@@ -228,11 +223,7 @@ _#defs: "/$defs/Properties/definitions/Workgroup": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkgroupStatus": "CREATING" |
-	"AVAILABLE" |
-	"MODIFYING" |
-	"DELETING" |
-	fn.#StringExpression
+#WorkgroupStatus: "CREATING" | "AVAILABLE" | "MODIFYING" | "DELETING" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::RedshiftServerless::Workgroup"
 	Properties!: #Properties

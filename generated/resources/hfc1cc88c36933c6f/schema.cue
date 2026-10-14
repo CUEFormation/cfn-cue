@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/iam:iam"
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -53,18 +53,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
 	fn.#StringExpression
 	PermissionsBoundary?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	Policies?:            [..._#defs."/$defs/Properties/definitions/Policy"] | fn.#ListExpression
+	Policies?:            [...#Policy] | fn.#ListExpression
 	RoleName?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Policy": close({
+#Policy: close({
 	PolicyDocument!: iam.#IdentityPolicyValue
 	PolicyName!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
 }) |

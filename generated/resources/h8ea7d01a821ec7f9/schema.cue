@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -20,15 +20,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // your application or service. A target group can only be used by a single
 // service.
 #Properties: close({
-	Config?: _#defs."/$defs/Properties/definitions/TargetGroupConfig"
-	Name?:   strings.MaxRunes(128) & strings.MinRunes(3) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	Targets?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Target"] | fn.#ListExpression
+	Config?:  #TargetGroupConfig
+	Name?:    strings.MaxRunes(128) & strings.MinRunes(3) | fn.#StringExpression
+	Tags?:    list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	Targets?: list.MaxItems(100) & [...] & [...#Target] | fn.#ListExpression
 	Type!:    "IP" | "LAMBDA" | "INSTANCE" | "ALB" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
+#HealthCheckConfig: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	HealthCheckIntervalSeconds?: int & <=300 & >=5 |
 		{
@@ -78,7 +77,7 @@ _#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	Matcher?: _#defs."/$defs/Properties/definitions/Matcher"
+	Matcher?: #Matcher
 	Path?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"(^/[a-zA-Z0-9@:%_+.~#?&/=-]*$|(^$))" | fn.#StringExpression
 	Port?: int & <=65535 & >=1 |
 		{
@@ -117,18 +116,16 @@ _#defs: "/$defs/Properties/definitions/HealthCheckConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Matcher": close(
-	{HttpCode!: strings.MaxRunes(2000) & strings.MinRunes(3) & =~"^[0-9-,]+$" | fn.#StringExpression},
-) |
+#Matcher: close({HttpCode!: strings.MaxRunes(2000) & strings.MinRunes(3) & =~"^[0-9-,]+$" | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Target": close({
+#Target: close({
 	Id!: string | fn.#StringExpression
 	Port?: int & <=65535 & >=1 |
 		{
@@ -149,8 +146,8 @@ _#defs: "/$defs/Properties/definitions/Target": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetGroupConfig": close({
-	HealthCheck?:                 _#defs."/$defs/Properties/definitions/HealthCheckConfig"
+#TargetGroupConfig: close({
+	HealthCheck?:                 #HealthCheckConfig
 	IpAddressType?:               "IPV4" | "IPV6" | fn.#StringExpression
 	LambdaEventStructureVersion?: "V1" | "V2" | fn.#StringExpression
 	Port?: int & <=65535 & >=1 |

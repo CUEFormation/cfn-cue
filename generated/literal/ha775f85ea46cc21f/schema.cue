@@ -21,14 +21,14 @@ import "strings"
 	GroupName!: string
 
 	// The tags for the IP access control group.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The rules for the IP access control group.
-	UserRules?: [..._#defs."/$defs/Properties/definitions/IpRuleItem"]
+	UserRules?: [...#IpRuleItem]
 })
 
 // Describes a rule for an IP access control group.
-_#defs: "/$defs/Properties/definitions/IpRuleItem": close({
+#IpRuleItem: close({
 	// The IP address range, in CIDR notation.
 	IpRule!: string
 
@@ -37,7 +37,7 @@ _#defs: "/$defs/Properties/definitions/IpRuleItem": close({
 })
 
 // Describes a tag.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(127) & strings.MinRunes(1)
 

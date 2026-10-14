@@ -20,14 +20,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	MonitorName!:          strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
 	MonitorSpecification?: string | fn.#StringExpression
 	MonitorType!:          "DIMENSIONAL" | "CUSTOM" | fn.#StringExpression
-	ResourceTags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceTag"] |
-		fn.#ListExpression
+	ResourceTags?:         list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" |
-	fn.#StringExpression
+#Arn: =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

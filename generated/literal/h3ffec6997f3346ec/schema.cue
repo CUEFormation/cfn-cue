@@ -8,13 +8,13 @@ package schema
 #Properties: close({
 	Arn?:              string
 	Id?:               string
-	InitialVersion?:   _#defs."/$defs/Properties/definitions/LoggerDefinitionVersion"
+	InitialVersion?:   #LoggerDefinitionVersion
 	LatestVersionArn?: string
 	Name!:             string
 	Tags?:             string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/Logger": close({
+#Logger: close({
 	Component!: string
 	Id!:        string
 	Level!:     string
@@ -22,6 +22,4 @@ _#defs: "/$defs/Properties/definitions/Logger": close({
 	Type!:      string
 })
 
-_#defs: "/$defs/Properties/definitions/LoggerDefinitionVersion": close(
-	{Loggers!: [..._#defs."/$defs/Properties/definitions/Logger"]},
-)
+#LoggerDefinitionVersion: close({Loggers!: [...#Logger]})

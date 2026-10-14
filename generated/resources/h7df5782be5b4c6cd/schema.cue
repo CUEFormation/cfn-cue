@@ -20,31 +20,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // on a link within RTB Fabric that controls request routing based on
 // conditions such as host headers, path matching, and query string parameters.
 #Properties: close({
-	Conditions!: _#defs."/$defs/Properties/definitions/RuleCondition"
-	GatewayId!:  _#defs."/$defs/Properties/definitions/GatewayId"
-	LinkId!:     _#defs."/$defs/Properties/definitions/LinkId"
-	Priority!:   _#defs."/$defs/Properties/definitions/RulePriority"
-	Tags?:       _#defs."/$defs/Properties/definitions/Tags"
+	Conditions!: #RuleCondition
+	GatewayId!:  #GatewayId
+	LinkId!:     #LinkId
+	Priority!:   #RulePriority
+	Tags?:       #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
+#Arn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+/link/[a-zA-Z0-9-]+/routing-rule/[a-zA-Z0-9-]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CreatedTimestamp": string | fn.#StringExpression
+#CreatedTimestamp: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayId": =~"^rtb-gw-[a-z0-9-]{1,25}$" | fn.#StringExpression
+#GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LinkId": =~"^link-[a-z0-9-]{1,25}$" | fn.#StringExpression
+#LinkId: =~"^link-[a-z0-9-]{1,25}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/QueryStringKeyValuePair": close({
+#QueryStringKeyValuePair: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleCondition": close({
+#RuleCondition: close({
 	HostHeader?: _
 	if HostHeader != _|_ {
 		matchN(1, [
@@ -80,14 +80,14 @@ _#defs: "/$defs/Properties/definitions/RuleCondition": close({
 	HostHeaderWildcard?:  strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[A-Za-z0-9._~*-]+$" | fn.#StringExpression
 	PathExact?:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/[A-Za-z0-9._~/-]*$" | fn.#StringExpression
 	"PathPrefix"?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/[A-Za-z0-9._~/-]*$" | fn.#StringExpression
-	"QueryStringEquals"?: _#defs."/$defs/Properties/definitions/QueryStringKeyValuePair" | fn.#ObjectExpression
+	"QueryStringEquals"?: #QueryStringKeyValuePair | fn.#ObjectExpression
 	QueryStringExists?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9._~-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleId": =~"^rule-[a-z0-9-]{1,25}$" | fn.#StringExpression
+#RuleId: =~"^rule-[a-z0-9-]{1,25}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RulePriority": int & <=1000 & >=1 |
+#RulePriority: int & <=1000 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -104,7 +104,7 @@ _#defs: "/$defs/Properties/definitions/RulePriority": int & <=1000 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/RuleStatus": "CREATION_IN_PROGRESS" |
+#RuleStatus: "CREATION_IN_PROGRESS" |
 	"ACTIVE" |
 	"UPDATE_IN_PROGRESS" |
 	"DELETION_IN_PROGRESS" |
@@ -112,19 +112,16 @@ _#defs: "/$defs/Properties/definitions/RuleStatus": "CREATION_IN_PROGRESS" |
 	"FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" |
 	fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/UpdatedTimestamp": string | fn.#StringExpression
+#UpdatedTimestamp: string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::RTBFabric::LinkRoutingRule"
 	Properties!: #Properties

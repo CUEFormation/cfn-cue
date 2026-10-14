@@ -22,10 +22,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^global-network-[a-z0-9-]*$" |
 	fn.#StringExpression
 	LinkId?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^link-[a-z0-9-]*$" | fn.#StringExpression
-	Tags?:   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:   list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[!-~]([ -~]*[!-~])?$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[!-~]([ -~]*[!-~])?$" | fn.#StringExpression
 }) |

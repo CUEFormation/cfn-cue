@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,12 +18,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::AppStream::Stack
 #Properties: close({
-	AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AccessEndpoint"] |
-		fn.#ListExpression
-	AgentAccessConfig?:       _#defs."/$defs/Properties/definitions/AgentAccessConfig" | fn.#ObjectExpression
-	ApplicationSettings?:     _#defs."/$defs/Properties/definitions/ApplicationSettings" | fn.#ObjectExpression
+	AccessEndpoints?:         list.MaxItems(4) & list.MinItems(1) & [...#AccessEndpoint] | fn.#ListExpression
+	AgentAccessConfig?:       #AgentAccessConfig | fn.#ObjectExpression
+	ApplicationSettings?:     #ApplicationSettings | fn.#ObjectExpression
 	AttributesToDelete?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	ContentRedirection?:      _#defs."/$defs/Properties/definitions/ContentRedirection" | fn.#ObjectExpression
+	ContentRedirection?:      #ContentRedirection | fn.#ObjectExpression
 	DeleteStorageConnectors?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Description?:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	DisplayName?:             strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
@@ -44,47 +43,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	StreamingExperienceSettings?: _#defs."/$defs/Properties/definitions/StreamingExperienceSettings" |
-		fn.#ObjectExpression
-	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UserSettings?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/UserSetting"] | fn.#ListExpression
+	StreamingExperienceSettings?: #StreamingExperienceSettings | fn.#ObjectExpression
+	Tags?:                        [...#Tag] | fn.#ListExpression
+	UserSettings?:                list.MinItems(1) & [...#UserSetting] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessEndpoint": close({
+#AccessEndpoint: close({
 	EndpointType!: "STREAMING" | fn.#StringExpression
 	VpceId!:       strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AgentAccessConfig": close({
+#AgentAccessConfig: close({
 	S3BucketArn?: =~"^arn:aws(?:\\-cn|\\-iso\\-b|\\-iso|\\-us\\-gov)?:s3:::[a-z0-9][a-z0-9.\\-]{1,61}[a-z0-9]$" |
 		fn.#StringExpression
 	ScreenImageFormat!:        "JPEG" | "PNG" | fn.#StringExpression
 	ScreenResolution!:         "W_1280xH_720" | fn.#StringExpression
 	ScreenshotsUploadEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Settings!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AgentAccessSetting"] | fn.#ListExpression
-	UserControlMode?: "DISABLED" | "VIEW_ONLY" | "VIEW_STOP" | fn.#StringExpression
+	Settings!:                 list.MinItems(1) & [...#AgentAccessSetting] | fn.#ListExpression
+	UserControlMode?:          "DISABLED" | "VIEW_ONLY" | "VIEW_STOP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AgentAccessSetting": close({
+#AgentAccessSetting: close({
 	AgentAction!: "COMPUTER_INPUT" | "COMPUTER_VISION" | "FORWARD_MCP_TOOLS" | fn.#StringExpression
 	Permission!:  "DISABLED" | "ENABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationSettings": close({
+#ApplicationSettings: close({
 	Enabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SettingsGroup?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContentRedirection": close(
-	{HostToClient?: _#defs."/$defs/Properties/definitions/UrlRedirectionConfig" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#ContentRedirection: close({HostToClient?: #UrlRedirectionConfig | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageConnector": close({
+#StorageConnector: close({
 	ConnectorType!: "GOOGLE_DRIVE" | "HOMEFOLDERS" | "ONE_DRIVE" | fn.#StringExpression
 	Domains?: list.MaxItems(50) & [...] & [...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
@@ -92,18 +87,15 @@ _#defs: "/$defs/Properties/definitions/StorageConnector": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamingExperienceSettings": close(
-	{PreferredProtocol?: "TCP" | "UDP" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#StreamingExperienceSettings: close({PreferredProtocol?: "TCP" | "UDP" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UrlRedirectionConfig": close({
+#UrlRedirectionConfig: close({
 	AllowedUrls?: list.MaxItems(100) & [...] & [
 		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(\\*|https?://[^\\s,;]+)$" | fn.#StringExpression
 	] |
@@ -116,7 +108,7 @@ _#defs: "/$defs/Properties/definitions/UrlRedirectionConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserSetting": close({
+#UserSetting: close({
 	Action!: "AUTO_TIME_ZONE_REDIRECTION" |
 		"CLIPBOARD_COPY_FROM_LOCAL_DEVICE" |
 		"CLIPBOARD_COPY_TO_LOCAL_DEVICE" |

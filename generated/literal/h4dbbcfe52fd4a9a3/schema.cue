@@ -15,10 +15,10 @@ package schema
 	StartDate?:                             string
 	Status?:                                "running" | "failed" | "succeeded"
 	StatusMessage?:                         string
-	Tags?:                                  [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                                  [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value?: string
 })

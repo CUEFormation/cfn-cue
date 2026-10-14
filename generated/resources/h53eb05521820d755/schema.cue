@@ -19,10 +19,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DashboardName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
 	ProjectId?: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:      [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

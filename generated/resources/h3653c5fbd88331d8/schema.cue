@@ -17,27 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CidrEndpointsCustomSubDomain?: string | fn.#StringExpression
 	Description?:                  string | fn.#StringExpression
 	FipsEnabled?:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LoggingConfigurations?:        _#defs."/$defs/Properties/definitions/VerifiedAccessLogs" | fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VerifiedAccessTrustProviderIds?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/VerifiedAccessTrustProviderId"
-	] |
-		fn.#ListExpression
-	VerifiedAccessTrustProviders?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/VerifiedAccessTrustProvider"
-	] |
-		fn.#ListExpression
+	LoggingConfigurations?:        #VerifiedAccessLogs | fn.#ObjectExpression
+	Tags?:                         list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	VerifiedAccessTrustProviderIds?: list.UniqueItems() & [...#VerifiedAccessTrustProviderId] | fn.#ListExpression
+	VerifiedAccessTrustProviders?:   list.UniqueItems() & [...#VerifiedAccessTrustProvider] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Nameserver": string | fn.#StringExpression
+#Nameserver: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VerifiedAccessLogs": close({
+#VerifiedAccessLogs: close({
 	CloudWatchLogs?: close({
 		Enabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		LogGroup?: string | fn.#StringExpression
@@ -60,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/VerifiedAccessLogs": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VerifiedAccessTrustProvider": close({
+#VerifiedAccessTrustProvider: close({
 	Description?:                   string | fn.#StringExpression
 	DeviceTrustProviderType?:       string | fn.#StringExpression
 	TrustProviderType?:             string | fn.#StringExpression
@@ -69,7 +63,7 @@ _#defs: "/$defs/Properties/definitions/VerifiedAccessTrustProvider": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VerifiedAccessTrustProviderId": string | fn.#StringExpression
+#VerifiedAccessTrustProviderId: string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EC2::VerifiedAccessInstance"
 	Properties?: #Properties

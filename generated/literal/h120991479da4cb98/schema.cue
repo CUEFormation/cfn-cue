@@ -6,26 +6,26 @@ package schema
 
 // Resource Type definition for AWS::EC2::SqlHaStandbyDetectedInstance
 #Properties: close({
-	HaStatus?:              _#defs."/$defs/Properties/definitions/HaStatus"
-	InstanceId!:            _#defs."/$defs/Properties/definitions/InstanceId"
-	LastUpdatedTime?:       _#defs."/$defs/Properties/definitions/LastUpdatedTime"
-	SqlServerCredentials?:  _#defs."/$defs/Properties/definitions/SqlServerCredentials"
-	SqlServerLicenseUsage?: _#defs."/$defs/Properties/definitions/SqlServerLicenseUsage"
+	HaStatus?:              #HaStatus
+	InstanceId!:            #InstanceId
+	LastUpdatedTime?:       #LastUpdatedTime
+	SqlServerCredentials?:  #SqlServerCredentials
+	SqlServerLicenseUsage?: #SqlServerLicenseUsage
 })
 
 // The SQL Server high availability status of the EC2 instance.
-_#defs: "/$defs/Properties/definitions/HaStatus": "processing" | "active" | "standby" | "invalid"
+#HaStatus: "processing" | "active" | "standby" | "invalid"
 
 // The ID of the EC2 instance to enable for SQL Server high availability standby detection.
-_#defs: "/$defs/Properties/definitions/InstanceId": =~"^i-[0-9a-f]{8,17}$"
+#InstanceId: =~"^i-[0-9a-f]{8,17}$"
 
 // The timestamp when the EC2 instance's SQL Server high availability status was last updated.
-_#defs: "/$defs/Properties/definitions/LastUpdatedTime": string
+#LastUpdatedTime: string
 
 // The ARN of the AWS Secrets Manager secret containing SQL Server access
 // credentials to the EC2 instance. If not specified, AWS Systems Manager agent
 // will use default local user credentials.
-_#defs: "/$defs/Properties/definitions/SqlServerCredentials": string
+#SqlServerCredentials: string
 
 // The SQL Server license type of the EC2 instance.
-_#defs: "/$defs/Properties/definitions/SqlServerLicenseUsage": "full" | "waived"
+#SqlServerLicenseUsage: "full" | "waived"

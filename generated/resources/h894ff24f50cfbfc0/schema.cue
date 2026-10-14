@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 	"struct"
 )
 
@@ -21,18 +21,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // automated tasks such as ordering a pizza, booking a hotel, and so on.
 #Properties: close({
 	AutoBuildBotLocales?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BotFileS3Location?:   _#defs."/$defs/Properties/definitions/S3Location"
-	BotLocales?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BotLocale"] | fn.#ListExpression
-	BotMembers?: list.MaxItems(10) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BotMember"] |
-		fn.#ListExpression
-	BotTags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	BotType?: "Bot" | "BotNetwork" | fn.#StringExpression
+	BotFileS3Location?:   #S3Location
+	BotLocales?:          list.UniqueItems() & [...#BotLocale] | fn.#ListExpression
+	BotMembers?:          list.MaxItems(10) & list.UniqueItems() & [...#BotMember] | fn.#ListExpression
+	BotTags?:             list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	BotType?:             "Bot" | "BotNetwork" | fn.#StringExpression
 	DataPrivacy!: close(
 		{ChildDirected!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 	) |
 		fn.#ObjectExpression
-	Description?: _#defs."/$defs/Properties/definitions/Description"
+	Description?: #Description
 	ErrorLogSettings?: close(
 		{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 	) |
@@ -53,34 +51,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Name!:                 _#defs."/$defs/Properties/definitions/Name"
-	Replication?:          _#defs."/$defs/Properties/definitions/Replication"
-	RoleArn!:              _#defs."/$defs/Properties/definitions/RoleArn"
-	TestBotAliasSettings?: _#defs."/$defs/Properties/definitions/TestBotAliasSettings"
-	TestBotAliasTags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Name!:                 #Name
+	Replication?:          #Replication
+	RoleArn!:              #RoleArn
+	TestBotAliasSettings?: #TestBotAliasSettings
+	TestBotAliasTags?:     list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AdvancedRecognitionSetting": close(
-	{AudioRecognitionStrategy?: _#defs."/$defs/Properties/definitions/AudioRecognitionStrategy"},
-) |
-	fn.#ObjectExpression
+#AdvancedRecognitionSetting: close({AudioRecognitionStrategy?: #AudioRecognitionStrategy}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AllowedInputTypes": close({
+#AllowedInputTypes: close({
 	AllowAudioInput!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AllowDTMFInput!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AttachmentTitle": strings.MaxRunes(250) & strings.MinRunes(1) |
-fn.#StringExpression
+#AttachmentTitle: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AttachmentUrl": strings.MaxRunes(250) & strings.MinRunes(1) |
-fn.#StringExpression
+#AttachmentUrl: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AudioAndDTMFInputSpecification": close({
-	AudioSpecification?: _#defs."/$defs/Properties/definitions/AudioSpecification"
-	DTMFSpecification?:  _#defs."/$defs/Properties/definitions/DTMFSpecification"
+#AudioAndDTMFInputSpecification: close({
+	AudioSpecification?: #AudioSpecification
+	DTMFSpecification?:  #DTMFSpecification
 	StartTimeoutMs!: int & >=1 |
 		{
 			string &
@@ -99,7 +91,7 @@ _#defs: "/$defs/Properties/definitions/AudioAndDTMFInputSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioFillerSettings": close({
+#AudioFillerSettings: close({
 	AudioType?: "MELODY_CHIPPER_CHIME" |
 		"MELODY_CURIOUS_CRAWL" |
 		"MELODY_RISING_RIPPLE" |
@@ -160,26 +152,19 @@ _#defs: "/$defs/Properties/definitions/AudioFillerSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioLogDestination": close(
-	{S3Bucket!: _#defs."/$defs/Properties/definitions/S3BucketLogDestination"},
-) |
-	fn.#ObjectExpression
+#AudioLogDestination: close({S3Bucket!: #S3BucketLogDestination}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioLogSetting": close({
-	Destination!: _#defs."/$defs/Properties/definitions/AudioLogDestination"
+#AudioLogSetting: close({
+	Destination!: #AudioLogDestination
 	Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioLogSettings": list.MaxItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/AudioLogSetting"
-] |
-	fn.#ListExpression
+#AudioLogSettings: list.MaxItems(1) & list.UniqueItems() & [...#AudioLogSetting] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/AudioRecognitionStrategy": "UseSlotValuesAsCustomVocabulary" |
-	fn.#StringExpression
+#AudioRecognitionStrategy: "UseSlotValuesAsCustomVocabulary" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AudioSpecification": close({
+#AudioSpecification: close({
 	EndTimeoutMs!: int & >=1 |
 		{
 			string &
@@ -213,7 +198,7 @@ _#defs: "/$defs/Properties/definitions/AudioSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BedrockAgentIntentConfiguration": close({
+#BedrockAgentIntentConfiguration: close({
 	BedrockAgentConfiguration?: close({
 		BedrockAgentAliasId?: strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
 		BedrockAgentId?:      strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
@@ -221,13 +206,13 @@ _#defs: "/$defs/Properties/definitions/BedrockAgentIntentConfiguration": close({
 	fn.#ObjectExpression
 	BedrockAgentIntentKnowledgeBaseConfiguration?: close({
 		BedrockKnowledgeBaseArn!:   strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
-		BedrockModelConfiguration!: _#defs."/$defs/Properties/definitions/BedrockModelSpecification"
+		BedrockModelConfiguration!: #BedrockModelSpecification
 	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BedrockModelSpecification": close({
+#BedrockModelSpecification: close({
 	BedrockGuardrailConfiguration?: close({
 		BedrockGuardrailIdentifier?: strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
 		BedrockGuardrailVersion?:    strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
@@ -239,47 +224,43 @@ _#defs: "/$defs/Properties/definitions/BedrockModelSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BotAliasLocaleSettings": close({
-	CodeHookSpecification?: _#defs."/$defs/Properties/definitions/CodeHookSpecification"
+#BotAliasLocaleSettings: close({
+	CodeHookSpecification?: #CodeHookSpecification
 	Enabled!:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BotAliasLocaleSettingsItem": close({
-	BotAliasLocaleSetting!: _#defs."/$defs/Properties/definitions/BotAliasLocaleSettings"
+#BotAliasLocaleSettingsItem: close({
+	BotAliasLocaleSetting!: #BotAliasLocaleSettings
 	LocaleId!:              strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BotAliasLocaleSettingsList": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/BotAliasLocaleSettingsItem"
-] |
+#BotAliasLocaleSettingsList: list.MaxItems(50) & list.UniqueItems() & [...#BotAliasLocaleSettingsItem] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/BotArn": strings.MaxRunes(1011) &
+#BotArn: strings.MaxRunes(1011) &
 strings.MinRunes(1) &
 =~"^arn:aws[a-zA-Z-]*:lex:[a-z]+-(?:[a-z]+-)*[0-9]:[0-9]{12}:bot/[0-9a-zA-Z]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BotLocale": close({
-	AudioFillerSettings?:  _#defs."/$defs/Properties/definitions/AudioFillerSettings"
-	CustomVocabulary?:     _#defs."/$defs/Properties/definitions/CustomVocabulary"
-	Description?:          _#defs."/$defs/Properties/definitions/Description"
-	GenerativeAISettings?: _#defs."/$defs/Properties/definitions/GenerativeAISettings"
-	Intents?: list.MaxItems(1000) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Intent"] |
-		fn.#ListExpression
-	LocaleId!:               _#defs."/$defs/Properties/definitions/LocaleId"
-	NluConfidenceThreshold!: _#defs."/$defs/Properties/definitions/ConfidenceThreshold"
-	SlotTypes?: list.MaxItems(250) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SlotType"] |
-		fn.#ListExpression
-	SpeechDetectionSensitivity?: _#defs."/$defs/Properties/definitions/SpeechDetectionSensitivity"
-	SpeechRecognitionSettings?:  _#defs."/$defs/Properties/definitions/SpeechRecognitionSettings"
-	UnifiedSpeechSettings?:      _#defs."/$defs/Properties/definitions/UnifiedSpeechSettings"
-	VoiceSettings?:              _#defs."/$defs/Properties/definitions/VoiceSettings"
+#BotLocale: close({
+	AudioFillerSettings?:        #AudioFillerSettings
+	CustomVocabulary?:           #CustomVocabulary
+	Description?:                #Description
+	GenerativeAISettings?:       #GenerativeAISettings
+	Intents?:                    list.MaxItems(1000) & list.UniqueItems() & [...#Intent] | fn.#ListExpression
+	LocaleId!:                   #LocaleId
+	NluConfidenceThreshold!:     #ConfidenceThreshold
+	SlotTypes?:                  list.MaxItems(250) & list.UniqueItems() & [...#SlotType] | fn.#ListExpression
+	SpeechDetectionSensitivity?: #SpeechDetectionSensitivity
+	SpeechRecognitionSettings?:  #SpeechRecognitionSettings
+	UnifiedSpeechSettings?:      #UnifiedSpeechSettings
+	VoiceSettings?:              #VoiceSettings
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BotMember": close({
+#BotMember: close({
 	BotMemberAliasId!:   strings.MaxRunes(10) & strings.MinRunes(10) | fn.#StringExpression
 	BotMemberAliasName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	BotMemberId!:        strings.MaxRunes(10) & strings.MinRunes(10) | fn.#StringExpression
@@ -288,66 +269,54 @@ _#defs: "/$defs/Properties/definitions/BotMember": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Button": close({
+#Button: close({
 	Text!:  strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogGroupLogDestination": close({
+#CloudWatchLogGroupLogDestination: close({
 	CloudWatchLogGroupArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	LogPrefix!:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeHookSpecification": close(
-	{LambdaCodeHook!: _#defs."/$defs/Properties/definitions/LambdaCodeHook"},
-) |
-	fn.#ObjectExpression
+#CodeHookSpecification: close({LambdaCodeHook!: #LambdaCodeHook}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CompositeSlotTypeSetting": close({
-	SubSlots?: list.MaxItems(6) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SubSlotTypeComposition"
-	] |
+#CompositeSlotTypeSetting: close({
+	SubSlots?: list.MaxItems(6) & list.MinItems(1) & list.UniqueItems() & [...#SubSlotTypeComposition] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Condition": close(
-	{ExpressionString!: _#defs."/$defs/Properties/definitions/ConditionExpression"},
-) |
-	fn.#ObjectExpression
+#Condition: close({ExpressionString!: #ConditionExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConditionExpression": strings.MaxRunes(1024) & strings.MinRunes(1) |
-fn.#StringExpression
+#ConditionExpression: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Conditional": close({
-	ConditionalBranches!: _#defs."/$defs/Properties/definitions/ConditionalBranches"
+#Conditional: close({
+	ConditionalBranches!: #ConditionalBranches
 	IsActive!:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConditionalBranch": close({
-	Condition!: _#defs."/$defs/Properties/definitions/Condition"
-	Name!:      _#defs."/$defs/Properties/definitions/Name"
-	NextStep!:  _#defs."/$defs/Properties/definitions/DialogState"
-	Response?:  _#defs."/$defs/Properties/definitions/ResponseSpecification"
+#ConditionalBranch: close({
+	Condition!: #Condition
+	Name!:      #Name
+	NextStep!:  #DialogState
+	Response?:  #ResponseSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConditionalBranches": list.MaxItems(4) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ConditionalBranch"
-] |
-	fn.#ListExpression
+#ConditionalBranches: list.MaxItems(4) & list.MinItems(1) & [...#ConditionalBranch] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ConditionalSpecification": close({
-	ConditionalBranches!: _#defs."/$defs/Properties/definitions/ConditionalBranches"
-	DefaultBranch!:       _#defs."/$defs/Properties/definitions/DefaultConditionalBranch"
+#ConditionalSpecification: close({
+	ConditionalBranches!: #ConditionalBranches
+	DefaultBranch!:       #DefaultConditionalBranch
 	IsActive!:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfidenceThreshold": <=1 & >=0 |
+#ConfidenceThreshold: <=1 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -368,7 +337,7 @@ _#defs: "/$defs/Properties/definitions/ConfidenceThreshold": <=1 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ContextTimeToLiveInSeconds": int & <=86400 & >=5 |
+#ContextTimeToLiveInSeconds: int & <=86400 & >=5 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -385,7 +354,7 @@ _#defs: "/$defs/Properties/definitions/ContextTimeToLiveInSeconds": int & <=8640
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ContextTurnsToLive": int & <=20 & >=1 |
+#ContextTurnsToLive: int & <=20 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -402,23 +371,18 @@ _#defs: "/$defs/Properties/definitions/ContextTurnsToLive": int & <=20 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ConversationLogSettings": close({
-	AudioLogSettings?: _#defs."/$defs/Properties/definitions/AudioLogSettings"
-	TextLogSettings?:  _#defs."/$defs/Properties/definitions/TextLogSettings"
+#ConversationLogSettings: close({
+	AudioLogSettings?: #AudioLogSettings
+	TextLogSettings?:  #TextLogSettings
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomPayload": close(
-	{Value!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#CustomPayload: close({Value!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomVocabulary": close(
-	{CustomVocabularyItems!: _#defs."/$defs/Properties/definitions/CustomVocabularyItems"},
-) |
-	fn.#ObjectExpression
+#CustomVocabulary: close({CustomVocabularyItems!: #CustomVocabularyItems}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomVocabularyItem": close({
+#CustomVocabularyItem: close({
 	DisplayAs?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	Phrase!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	Weight?: int & <=3 & >=0 |
@@ -440,12 +404,9 @@ _#defs: "/$defs/Properties/definitions/CustomVocabularyItem": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomVocabularyItems": list.MaxItems(500) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/CustomVocabularyItem"
-] |
-	fn.#ListExpression
+#CustomVocabularyItems: list.MaxItems(500) & list.UniqueItems() & [...#CustomVocabularyItem] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/DTMFSpecification": close({
+#DTMFSpecification: close({
 	DeletionCharacter!: =~"^[A-D0-9#*]{1}$" | fn.#StringExpression
 	EndCharacter!:      =~"^[A-D0-9#*]{1}$" | fn.#StringExpression
 	EndTimeoutMs!: int & >=1 |
@@ -482,36 +443,35 @@ _#defs: "/$defs/Properties/definitions/DTMFSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataPrivacy": close(
+#DataPrivacy: close(
 	{ChildDirected!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeepgramModelId": strings.MaxRunes(32) & strings.MinRunes(4) & =~"[A-Za-z0-9-_]+" |
-fn.#StringExpression
+#DeepgramModelId: strings.MaxRunes(32) & strings.MinRunes(4) & =~"[A-Za-z0-9-_]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DeepgramSpeechModelConfig": close({
-	ApiTokenSecretArn!: _#defs."/$defs/Properties/definitions/SecretsManagerSecretArn"
-	ModelId?:           _#defs."/$defs/Properties/definitions/DeepgramModelId"
+#DeepgramSpeechModelConfig: close({
+	ApiTokenSecretArn!: #SecretsManagerSecretArn
+	ModelId?:           #DeepgramModelId
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultConditionalBranch": close({
-	NextStep?: _#defs."/$defs/Properties/definitions/DialogState"
-	Response?: _#defs."/$defs/Properties/definitions/ResponseSpecification"
+#DefaultConditionalBranch: close({
+	NextStep?: #DialogState
+	Response?: #ResponseSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(2000) | fn.#StringExpression
+#Description: strings.MaxRunes(2000) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DialogAction": close({
-	SlotToElicit?:        _#defs."/$defs/Properties/definitions/Name"
+#DialogAction: close({
+	SlotToElicit?:        #Name
 	SuppressNextMessage?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Type!:                _#defs."/$defs/Properties/definitions/DialogActionType"
+	Type!:                #DialogActionType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DialogActionType": "CloseIntent" |
+#DialogActionType: "CloseIntent" |
 	"ConfirmIntent" |
 	"ElicitIntent" |
 	"ElicitSlot" |
@@ -522,53 +482,50 @@ _#defs: "/$defs/Properties/definitions/DialogActionType": "CloseIntent" |
 	"InvokeDialogCodeHook" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DialogCodeHookInvocationSetting": close({
+#DialogCodeHookInvocationSetting: close({
 	EnableCodeHookInvocation!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InvocationLabel?:           _#defs."/$defs/Properties/definitions/Name"
+	InvocationLabel?:           #Name
 	IsActive!:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PostCodeHookSpecification!: _#defs."/$defs/Properties/definitions/PostDialogCodeHookInvocationSpecification"
+	PostCodeHookSpecification!: #PostDialogCodeHookInvocationSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DialogCodeHookSetting": close(
+#DialogCodeHookSetting: close(
 	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DialogState": close({
-	DialogAction?:      _#defs."/$defs/Properties/definitions/DialogAction"
-	Intent?:            _#defs."/$defs/Properties/definitions/IntentOverride"
-	SessionAttributes?: [..._#defs."/$defs/Properties/definitions/SessionAttribute"] | fn.#ListExpression
+#DialogState: close({
+	DialogAction?:      #DialogAction
+	Intent?:            #IntentOverride
+	SessionAttributes?: [...#SessionAttribute] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DisplayName": strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#DisplayName: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ElicitationCodeHookInvocationSetting": close({
+#ElicitationCodeHookInvocationSetting: close({
 	EnableCodeHookInvocation!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InvocationLabel?:          _#defs."/$defs/Properties/definitions/Name"
+	InvocationLabel?:          #Name
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ErrorLogSettings": close(
+#ErrorLogSettings: close(
 	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExternalSourceSetting": close(
-	{GrammarSlotTypeSetting?: _#defs."/$defs/Properties/definitions/GrammarSlotTypeSetting"},
-) |
-	fn.#ObjectExpression
+#ExternalSourceSetting: close({GrammarSlotTypeSetting?: #GrammarSlotTypeSetting}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FulfillmentCodeHookSetting": close({
+#FulfillmentCodeHookSetting: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FulfillmentUpdatesSpecification?: _#defs."/$defs/Properties/definitions/FulfillmentUpdatesSpecification"
+	FulfillmentUpdatesSpecification?: #FulfillmentUpdatesSpecification
 	IsActive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PostFulfillmentStatusSpecification?: _#defs."/$defs/Properties/definitions/PostFulfillmentStatusSpecification"
+	PostFulfillmentStatusSpecification?: #PostFulfillmentStatusSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FulfillmentStartResponseSpecification": close({
+#FulfillmentStartResponseSpecification: close({
 	AllowInterrupt?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DelayInSeconds!: int & <=900 & >=1 |
 		{
@@ -586,11 +543,11 @@ _#defs: "/$defs/Properties/definitions/FulfillmentStartResponseSpecification": c
 				)
 		} |
 		fn.#NumberExpression
-	MessageGroups!: _#defs."/$defs/Properties/definitions/MessageGroupsList"
+	MessageGroups!: #MessageGroupsList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FulfillmentUpdateResponseSpecification": close({
+#FulfillmentUpdateResponseSpecification: close({
 	AllowInterrupt?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FrequencyInSeconds!: int & <=900 & >=1 |
 		{
@@ -608,13 +565,13 @@ _#defs: "/$defs/Properties/definitions/FulfillmentUpdateResponseSpecification": 
 				)
 		} |
 		fn.#NumberExpression
-	MessageGroups!: _#defs."/$defs/Properties/definitions/MessageGroupsList"
+	MessageGroups!: #MessageGroupsList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FulfillmentUpdatesSpecification": close({
+#FulfillmentUpdatesSpecification: close({
 	Active!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	StartResponse?: _#defs."/$defs/Properties/definitions/FulfillmentStartResponseSpecification"
+	StartResponse?: #FulfillmentStartResponseSpecification
 	TimeoutInSeconds?: int & <=900 & >=1 |
 		{
 			string &
@@ -631,19 +588,19 @@ _#defs: "/$defs/Properties/definitions/FulfillmentUpdatesSpecification": close({
 				)
 		} |
 		fn.#NumberExpression
-	UpdateResponse?: _#defs."/$defs/Properties/definitions/FulfillmentUpdateResponseSpecification"
+	UpdateResponse?: #FulfillmentUpdateResponseSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GenerativeAISettings": close({
+#GenerativeAISettings: close({
 	BuildtimeSettings?: close({
 		DescriptiveBotBuilderSpecification?: close({
-			BedrockModelSpecification?: _#defs."/$defs/Properties/definitions/BedrockModelSpecification"
+			BedrockModelSpecification?: #BedrockModelSpecification
 			Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		}) |
 		fn.#ObjectExpression
 		SampleUtteranceGenerationSpecification?: close({
-			BedrockModelSpecification?: _#defs."/$defs/Properties/definitions/BedrockModelSpecification"
+			BedrockModelSpecification?: #BedrockModelSpecification
 			Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		}) |
 		fn.#ObjectExpression
@@ -653,11 +610,11 @@ _#defs: "/$defs/Properties/definitions/GenerativeAISettings": close({
 		NluImprovementSpecification?: close({
 			AssistedNluMode?: "Primary" | "Fallback" | fn.#StringExpression
 			Enabled!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			IntentDisambiguationSettings?: _#defs."/$defs/Properties/definitions/IntentDisambiguationSettings"
+			IntentDisambiguationSettings?: #IntentDisambiguationSettings
 		}) |
 		fn.#ObjectExpression
 		SlotResolutionImprovementSpecification?: close({
-			BedrockModelSpecification?: _#defs."/$defs/Properties/definitions/BedrockModelSpecification"
+			BedrockModelSpecification?: #BedrockModelSpecification
 			Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		}) |
 		fn.#ObjectExpression
@@ -666,26 +623,22 @@ _#defs: "/$defs/Properties/definitions/GenerativeAISettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrammarSlotTypeSetting": close(
-	{Source?: _#defs."/$defs/Properties/definitions/GrammarSlotTypeSource"},
-) |
-	fn.#ObjectExpression
+#GrammarSlotTypeSetting: close({Source?: #GrammarSlotTypeSource}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrammarSlotTypeSource": close({
+#GrammarSlotTypeSource: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w\\-]+:kms:[\\w\\-]+:[\\d]{12}:(?:key\\/[\\w\\-]+|alias\\/[a-zA-Z0-9:\\/_\\-]{1,256})$" |
 	fn.#StringExpression
-	S3BucketName!: _#defs."/$defs/Properties/definitions/S3BucketName"
-	S3ObjectKey!:  _#defs."/$defs/Properties/definitions/S3ObjectKey"
+	S3BucketName!: #S3BucketName
+	S3ObjectKey!:  #S3ObjectKey
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" |
-fn.#StringExpression
+#Id: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IdleSessionTTLInSeconds": int & <=86400 & >=60 |
+#IdleSessionTTLInSeconds: int & <=86400 & >=60 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -702,79 +655,74 @@ _#defs: "/$defs/Properties/definitions/IdleSessionTTLInSeconds": int & <=86400 &
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ImageResponseCard": close({
-	Buttons?:  list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/Button"] | fn.#ListExpression
-	ImageUrl?: _#defs."/$defs/Properties/definitions/AttachmentUrl"
-	Subtitle?: _#defs."/$defs/Properties/definitions/AttachmentTitle"
-	Title!:    _#defs."/$defs/Properties/definitions/AttachmentTitle"
+#ImageResponseCard: close({
+	Buttons?:  list.MaxItems(5) & [...#Button] | fn.#ListExpression
+	ImageUrl?: #AttachmentUrl
+	Subtitle?: #AttachmentTitle
+	Title!:    #AttachmentTitle
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InitialResponseSetting": close({
-	CodeHook?:        _#defs."/$defs/Properties/definitions/DialogCodeHookInvocationSetting"
-	Conditional?:     _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	InitialResponse?: _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	NextStep?:        _#defs."/$defs/Properties/definitions/DialogState"
+#InitialResponseSetting: close({
+	CodeHook?:        #DialogCodeHookInvocationSetting
+	Conditional?:     #ConditionalSpecification
+	InitialResponse?: #ResponseSpecification
+	NextStep?:        #DialogState
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputContext": close({Name!: _#defs."/$defs/Properties/definitions/Name"}) |
-	fn.#ObjectExpression
+#InputContext: close({Name!: #Name}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputContextsList": list.MaxItems(5) & [
-	..._#defs."/$defs/Properties/definitions/InputContext"
-] |
-	fn.#ListExpression
+#InputContextsList: list.MaxItems(5) & [...#InputContext] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Intent": close({
-	BedrockAgentIntentConfiguration?: _#defs."/$defs/Properties/definitions/BedrockAgentIntentConfiguration"
-	Description?:                     _#defs."/$defs/Properties/definitions/Description" | fn.#StringExpression
-	DialogCodeHook?:                  _#defs."/$defs/Properties/definitions/DialogCodeHookSetting"
-	DisplayName?:                     _#defs."/$defs/Properties/definitions/DisplayName"
-	FulfillmentCodeHook?:             _#defs."/$defs/Properties/definitions/FulfillmentCodeHookSetting"
-	InitialResponseSetting?:          _#defs."/$defs/Properties/definitions/InitialResponseSetting"
-	InputContexts?:                   _#defs."/$defs/Properties/definitions/InputContextsList"
-	IntentClosingSetting?:            _#defs."/$defs/Properties/definitions/IntentClosingSetting"
-	IntentConfirmationSetting?:       _#defs."/$defs/Properties/definitions/IntentConfirmationSetting"
-	KendraConfiguration?:             _#defs."/$defs/Properties/definitions/KendraConfiguration"
-	Name!:                            _#defs."/$defs/Properties/definitions/Name"
-	OutputContexts?:                  _#defs."/$defs/Properties/definitions/OutputContextsList"
-	ParentIntentSignature?:           _#defs."/$defs/Properties/definitions/ParentIntentSignature"
-	QInConnectIntentConfiguration?:   _#defs."/$defs/Properties/definitions/QInConnectIntentConfiguration"
-	QnAIntentConfiguration?:          _#defs."/$defs/Properties/definitions/QnAIntentConfiguration"
-	SampleUtterances?:                _#defs."/$defs/Properties/definitions/SampleUtterancesList"
-	SlotPriorities?:                  _#defs."/$defs/Properties/definitions/SlotPrioritiesList"
-	Slots?: list.MaxItems(100) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Slot"] |
-		fn.#ListExpression
+#Intent: close({
+	BedrockAgentIntentConfiguration?: #BedrockAgentIntentConfiguration
+	Description?:                     #Description | fn.#StringExpression
+	DialogCodeHook?:                  #DialogCodeHookSetting
+	DisplayName?:                     #DisplayName
+	FulfillmentCodeHook?:             #FulfillmentCodeHookSetting
+	InitialResponseSetting?:          #InitialResponseSetting
+	InputContexts?:                   #InputContextsList
+	IntentClosingSetting?:            #IntentClosingSetting
+	IntentConfirmationSetting?:       #IntentConfirmationSetting
+	KendraConfiguration?:             #KendraConfiguration
+	Name!:                            #Name
+	OutputContexts?:                  #OutputContextsList
+	ParentIntentSignature?:           #ParentIntentSignature
+	QInConnectIntentConfiguration?:   #QInConnectIntentConfiguration
+	QnAIntentConfiguration?:          #QnAIntentConfiguration
+	SampleUtterances?:                #SampleUtterancesList
+	SlotPriorities?:                  #SlotPrioritiesList
+	Slots?:                           list.MaxItems(100) & list.UniqueItems() & [...#Slot] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntentClosingSetting": close({
-	ClosingResponse?: _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	Conditional?:     _#defs."/$defs/Properties/definitions/ConditionalSpecification"
+#IntentClosingSetting: close({
+	ClosingResponse?: #ResponseSpecification
+	Conditional?:     #ConditionalSpecification
 	IsActive?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NextStep?:        _#defs."/$defs/Properties/definitions/DialogState"
+	NextStep?:        #DialogState
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntentConfirmationSetting": close({
-	CodeHook?:                _#defs."/$defs/Properties/definitions/DialogCodeHookInvocationSetting"
-	ConfirmationConditional?: _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	ConfirmationNextStep?:    _#defs."/$defs/Properties/definitions/DialogState"
-	ConfirmationResponse?:    _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	DeclinationConditional?:  _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	DeclinationNextStep?:     _#defs."/$defs/Properties/definitions/DialogState"
-	DeclinationResponse?:     _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	ElicitationCodeHook?:     _#defs."/$defs/Properties/definitions/ElicitationCodeHookInvocationSetting"
-	FailureConditional?:      _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	FailureNextStep?:         _#defs."/$defs/Properties/definitions/DialogState"
-	FailureResponse?:         _#defs."/$defs/Properties/definitions/ResponseSpecification"
+#IntentConfirmationSetting: close({
+	CodeHook?:                #DialogCodeHookInvocationSetting
+	ConfirmationConditional?: #ConditionalSpecification
+	ConfirmationNextStep?:    #DialogState
+	ConfirmationResponse?:    #ResponseSpecification
+	DeclinationConditional?:  #ConditionalSpecification
+	DeclinationNextStep?:     #DialogState
+	DeclinationResponse?:     #ResponseSpecification
+	ElicitationCodeHook?:     #ElicitationCodeHookInvocationSetting
+	FailureConditional?:      #ConditionalSpecification
+	FailureNextStep?:         #DialogState
+	FailureResponse?:         #ResponseSpecification
 	IsActive?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PromptSpecification!:     _#defs."/$defs/Properties/definitions/PromptSpecification"
+	PromptSpecification!:     #PromptSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntentDisambiguationSettings": close({
+#IntentDisambiguationSettings: close({
 	CustomDisambiguationMessage?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 	Enabled!:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxDisambiguationIntents?: int & <=5 & >=2 |
@@ -796,115 +744,104 @@ _#defs: "/$defs/Properties/definitions/IntentDisambiguationSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntentOverride": close({
-	Name?:  _#defs."/$defs/Properties/definitions/Name"
-	Slots?: [..._#defs."/$defs/Properties/definitions/SlotValueOverrideMap"] | fn.#ListExpression
+#IntentOverride: close({
+	Name?:  #Name
+	Slots?: [...#SlotValueOverrideMap] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KendraConfiguration": close({
-	KendraIndex!:              _#defs."/$defs/Properties/definitions/KendraIndexArn"
-	QueryFilterString?:        _#defs."/$defs/Properties/definitions/QueryFilterString"
+#KendraConfiguration: close({
+	KendraIndex!:              #KendraIndexArn
+	QueryFilterString?:        #QueryFilterString
 	QueryFilterStringEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KendraIndexArn": strings.MaxRunes(2048) &
+#KendraIndexArn: strings.MaxRunes(2048) &
 strings.MinRunes(32) &
 =~"^arn:aws[a-zA-Z-]*:kendra:[a-z]+-(?:[a-z]+-)*[0-9]:[0-9]{12}:index/[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaCodeHook": close({
+#LambdaCodeHook: close({
 	CodeHookInterfaceVersion!: strings.MaxRunes(5) & strings.MinRunes(1) | fn.#StringExpression
 	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LocaleId": string | fn.#StringExpression
+#LocaleId: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Message": close({
-	CustomPayload?:     _#defs."/$defs/Properties/definitions/CustomPayload"
-	ImageResponseCard?: _#defs."/$defs/Properties/definitions/ImageResponseCard"
-	PlainTextMessage?:  _#defs."/$defs/Properties/definitions/PlainTextMessage"
-	SSMLMessage?:       _#defs."/$defs/Properties/definitions/SSMLMessage"
+#Message: close({
+	CustomPayload?:     #CustomPayload
+	ImageResponseCard?: #ImageResponseCard
+	PlainTextMessage?:  #PlainTextMessage
+	SSMLMessage?:       #SSMLMessage
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MessageGroup": close({
-	Message!:    _#defs."/$defs/Properties/definitions/Message"
-	Variations?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/Message"] | fn.#ListExpression
+#MessageGroup: close({
+	Message!:    #Message
+	Variations?: list.MaxItems(2) & [...#Message] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MessageGroupsList": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/MessageGroup"
-] |
-	fn.#ListExpression
+#MessageGroupsList: list.MaxItems(5) & list.MinItems(1) & [...#MessageGroup] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MessageSelectionStrategy": "Random" | "Ordered" | fn.#StringExpression
+#MessageSelectionStrategy: "Random" | "Ordered" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MultipleValuesSetting": close(
+#MultipleValuesSetting: close(
 	{AllowMultipleValues?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$" |
-fn.#StringExpression
+#Name: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ObfuscationSetting": close(
-	{ObfuscationSettingType!: "None" | "DefaultObfuscation" | fn.#StringExpression},
-) |
+#ObfuscationSetting: close({ObfuscationSettingType!: "None" | "DefaultObfuscation" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OutputContext": close({
-	Name!:                _#defs."/$defs/Properties/definitions/Name"
-	TimeToLiveInSeconds!: _#defs."/$defs/Properties/definitions/ContextTimeToLiveInSeconds"
-	TurnsToLive!:         _#defs."/$defs/Properties/definitions/ContextTurnsToLive"
+#OutputContext: close({
+	Name!:                #Name
+	TimeToLiveInSeconds!: #ContextTimeToLiveInSeconds
+	TurnsToLive!:         #ContextTurnsToLive
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OutputContextsList": list.MaxItems(10) & [
-	..._#defs."/$defs/Properties/definitions/OutputContext"
-] |
-	fn.#ListExpression
+#OutputContextsList: list.MaxItems(10) & [...#OutputContext] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ParentIntentSignature": string | fn.#StringExpression
+#ParentIntentSignature: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ParentSlotTypeSignature": string | fn.#StringExpression
+#ParentSlotTypeSignature: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PlainTextMessage": close(
-	{Value!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#PlainTextMessage: close({Value!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PostDialogCodeHookInvocationSpecification": close({
-	FailureConditional?: _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	FailureNextStep?:    _#defs."/$defs/Properties/definitions/DialogState"
-	FailureResponse?:    _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	SuccessConditional?: _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	SuccessNextStep?:    _#defs."/$defs/Properties/definitions/DialogState"
-	SuccessResponse?:    _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	TimeoutConditional?: _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	TimeoutNextStep?:    _#defs."/$defs/Properties/definitions/DialogState"
-	TimeoutResponse?:    _#defs."/$defs/Properties/definitions/ResponseSpecification"
+#PostDialogCodeHookInvocationSpecification: close({
+	FailureConditional?: #ConditionalSpecification
+	FailureNextStep?:    #DialogState
+	FailureResponse?:    #ResponseSpecification
+	SuccessConditional?: #ConditionalSpecification
+	SuccessNextStep?:    #DialogState
+	SuccessResponse?:    #ResponseSpecification
+	TimeoutConditional?: #ConditionalSpecification
+	TimeoutNextStep?:    #DialogState
+	TimeoutResponse?:    #ResponseSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PostFulfillmentStatusSpecification": close({
-	FailureConditional?: _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	FailureNextStep?:    _#defs."/$defs/Properties/definitions/DialogState"
-	FailureResponse?:    _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	SuccessConditional?: _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	SuccessNextStep?:    _#defs."/$defs/Properties/definitions/DialogState"
-	SuccessResponse?:    _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	TimeoutConditional?: _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	TimeoutNextStep?:    _#defs."/$defs/Properties/definitions/DialogState"
-	TimeoutResponse?:    _#defs."/$defs/Properties/definitions/ResponseSpecification"
+#PostFulfillmentStatusSpecification: close({
+	FailureConditional?: #ConditionalSpecification
+	FailureNextStep?:    #DialogState
+	FailureResponse?:    #ResponseSpecification
+	SuccessConditional?: #ConditionalSpecification
+	SuccessNextStep?:    #DialogState
+	SuccessResponse?:    #ResponseSpecification
+	TimeoutConditional?: #ConditionalSpecification
+	TimeoutNextStep?:    #DialogState
+	TimeoutResponse?:    #ResponseSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PriorityValue": int & <=100 & >=0 |
+#PriorityValue: int & <=100 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -921,15 +858,15 @@ _#defs: "/$defs/Properties/definitions/PriorityValue": int & <=100 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/PromptAttemptSpecification": close({
+#PromptAttemptSpecification: close({
 	AllowInterrupt?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AllowedInputTypes!: _#defs."/$defs/Properties/definitions/AllowedInputTypes"
-	AudioAndDTMFInputSpecification?: _#defs."/$defs/Properties/definitions/AudioAndDTMFInputSpecification"
-	TextInputSpecification?:         _#defs."/$defs/Properties/definitions/TextInputSpecification"
+	AllowedInputTypes!: #AllowedInputTypes
+	AudioAndDTMFInputSpecification?: #AudioAndDTMFInputSpecification
+	TextInputSpecification?:         #TextInputSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PromptMaxRetries": int & <=5 & >=0 |
+#PromptMaxRetries: int & <=5 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -946,19 +883,19 @@ _#defs: "/$defs/Properties/definitions/PromptMaxRetries": int & <=5 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/PromptSpecification": close({
+#PromptSpecification: close({
 	AllowInterrupt?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MaxRetries!:               _#defs."/$defs/Properties/definitions/PromptMaxRetries"
-	MessageGroupsList!:        _#defs."/$defs/Properties/definitions/MessageGroupsList"
-	MessageSelectionStrategy?: _#defs."/$defs/Properties/definitions/MessageSelectionStrategy"
+	MaxRetries!:               #PromptMaxRetries
+	MessageGroupsList!:        #MessageGroupsList
+	MessageSelectionStrategy?: #MessageSelectionStrategy
 	PromptAttemptsSpecification?: close({
 
-		{[=~"^(Initial|Retry1|Retry2|Retry3|Retry4|Retry5)$"]: _#defs."/$defs/Properties/definitions/PromptAttemptSpecification"}}) |
+		{[=~"^(Initial|Retry1|Retry2|Retry3|Retry4|Retry5)$"]: #PromptAttemptSpecification}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QInConnectIntentConfiguration": close({
+#QInConnectIntentConfiguration: close({
 	QInConnectAssistantConfiguration?: close({
 		AssistantArn!: strings.MaxRunes(200) &
 		strings.MinRunes(1) &
@@ -969,8 +906,8 @@ _#defs: "/$defs/Properties/definitions/QInConnectIntentConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QnAIntentConfiguration": close({
-	BedrockModelConfiguration!: _#defs."/$defs/Properties/definitions/BedrockModelSpecification"
+#QnAIntentConfiguration: close({
+	BedrockModelConfiguration!: #BedrockModelSpecification
 	DataSourceConfiguration!: close({
 		BedrockKnowledgeStoreConfiguration?: close({
 			BKBExactResponseFields?: close(
@@ -981,7 +918,7 @@ _#defs: "/$defs/Properties/definitions/QnAIntentConfiguration": close({
 			ExactResponse?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		}) |
 		fn.#ObjectExpression
-		KendraConfiguration?: _#defs."/$defs/Properties/definitions/QnAKendraConfiguration"
+		KendraConfiguration?: #QnAKendraConfiguration
 		OpensearchConfiguration?: close({
 			DomainEndpoint?: strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
 			ExactResponse?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -1000,7 +937,7 @@ _#defs: "/$defs/Properties/definitions/QnAIntentConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QnAKendraConfiguration": close({
+#QnAKendraConfiguration: close({
 	ExactResponse!:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KendraIndex!:              strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
 	QueryFilterString?:        strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
@@ -1008,32 +945,28 @@ _#defs: "/$defs/Properties/definitions/QnAKendraConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryFilterString": strings.MaxRunes(5000) & strings.MinRunes(1) |
-fn.#StringExpression
+#QueryFilterString: strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicaRegion": strings.MaxRunes(25) & strings.MinRunes(2) | fn.#StringExpression
+#ReplicaRegion: strings.MaxRunes(25) & strings.MinRunes(2) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Replication": close({
-	ReplicaRegions!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ReplicaRegion"
-	] |
-		fn.#ListExpression
+#Replication: close({
+	ReplicaRegions!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ReplicaRegion] | fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResponseSpecification": close({
+#ResponseSpecification: close({
 	AllowInterrupt?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MessageGroupsList!: _#defs."/$defs/Properties/definitions/MessageGroupsList"
+	MessageGroupsList!: #MessageGroupsList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(32) &
 =~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3BucketLogDestination": close({
+#S3BucketLogDestination: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -1047,211 +980,171 @@ _#defs: "/$defs/Properties/definitions/S3BucketLogDestination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3BucketName": strings.MaxRunes(63) &
-strings.MinRunes(3) &
-=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
+#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
-	S3Bucket!:        _#defs."/$defs/Properties/definitions/S3BucketName"
-	S3ObjectKey!:     _#defs."/$defs/Properties/definitions/S3ObjectKey"
+#S3Location: close({
+	S3Bucket!:        #S3BucketName
+	S3ObjectKey!:     #S3ObjectKey
 	S3ObjectVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3ObjectKey": strings.MaxRunes(1024) &
+#S3ObjectKey: strings.MaxRunes(1024) &
 strings.MinRunes(1) &
 =~"[\\.\\-\\!\\*\\_\\'\\(\\)a-zA-Z0-9][\\.\\-\\!\\*\\_\\'\\(\\)\\/a-zA-Z0-9]*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SSMLMessage": close(
-	{Value!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#SSMLMessage: close({Value!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SampleUtterance": close(
-	{Utterance!: _#defs."/$defs/Properties/definitions/Utterance"},
-) |
-	fn.#ObjectExpression
+#SampleUtterance: close({Utterance!: #Utterance}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SampleUtterancesList": [
-	..._#defs."/$defs/Properties/definitions/SampleUtterance"
-] |
-	fn.#ListExpression
+#SampleUtterancesList: [...#SampleUtterance] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SampleValue": close(
-	{Value!: strings.MaxRunes(140) & strings.MinRunes(1) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#SampleValue: close({Value!: strings.MaxRunes(140) & strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecretsManagerSecretArn": strings.MaxRunes(2048) &
+#SecretsManagerSecretArn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws[A-Za-z-]*:secretsmanager:[a-z0-9-]{1,20}:[0-9]{12}:secret:[A-Za-z0-9/_+=.@-]{1,512}-[A-Za-z0-9]{6}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SessionAttribute": close({
+#SessionAttribute: close({
 	Key!:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Slot": close({
-	Description?:             _#defs."/$defs/Properties/definitions/Description"
-	MultipleValuesSetting?:   _#defs."/$defs/Properties/definitions/MultipleValuesSetting"
-	Name!:                    _#defs."/$defs/Properties/definitions/Name"
-	ObfuscationSetting?:      _#defs."/$defs/Properties/definitions/ObfuscationSetting"
-	SlotTypeName!:            _#defs."/$defs/Properties/definitions/SlotTypeName"
-	SubSlotSetting?:          _#defs."/$defs/Properties/definitions/SubSlotSetting"
-	ValueElicitationSetting!: _#defs."/$defs/Properties/definitions/SlotValueElicitationSetting"
+#Slot: close({
+	Description?:             #Description
+	MultipleValuesSetting?:   #MultipleValuesSetting
+	Name!:                    #Name
+	ObfuscationSetting?:      #ObfuscationSetting
+	SlotTypeName!:            #SlotTypeName
+	SubSlotSetting?:          #SubSlotSetting
+	ValueElicitationSetting!: #SlotValueElicitationSetting
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlotCaptureSetting": close({
-	CaptureConditional?:  _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	CaptureNextStep?:     _#defs."/$defs/Properties/definitions/DialogState"
-	CaptureResponse?:     _#defs."/$defs/Properties/definitions/ResponseSpecification"
-	CodeHook?:            _#defs."/$defs/Properties/definitions/DialogCodeHookInvocationSetting"
-	ElicitationCodeHook?: _#defs."/$defs/Properties/definitions/ElicitationCodeHookInvocationSetting"
-	FailureConditional?:  _#defs."/$defs/Properties/definitions/ConditionalSpecification"
-	FailureNextStep?:     _#defs."/$defs/Properties/definitions/DialogState"
-	FailureResponse?:     _#defs."/$defs/Properties/definitions/ResponseSpecification"
+#SlotCaptureSetting: close({
+	CaptureConditional?:  #ConditionalSpecification
+	CaptureNextStep?:     #DialogState
+	CaptureResponse?:     #ResponseSpecification
+	CodeHook?:            #DialogCodeHookInvocationSetting
+	ElicitationCodeHook?: #ElicitationCodeHookInvocationSetting
+	FailureConditional?:  #ConditionalSpecification
+	FailureNextStep?:     #DialogState
+	FailureResponse?:     #ResponseSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlotConstraint": "Required" | "Optional" | fn.#StringExpression
+#SlotConstraint: "Required" | "Optional" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SlotDefaultValue": close(
-	{DefaultValue!: strings.MaxRunes(202) & strings.MinRunes(1) | fn.#StringExpression},
+#SlotDefaultValue: close({DefaultValue!: strings.MaxRunes(202) & strings.MinRunes(1) | fn.#StringExpression}) |
+fn.#ObjectExpression
+
+#SlotDefaultValueSpecification: close(
+	{DefaultValueList!: list.MaxItems(10) & [...#SlotDefaultValue] | fn.#ListExpression},
 ) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/SlotDefaultValueSpecification": close({
-	DefaultValueList!: list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/SlotDefaultValue"] |
-		fn.#ListExpression
-}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlotPrioritiesList": [..._#defs."/$defs/Properties/definitions/SlotPriority"] |
-	fn.#ListExpression
+#SlotPrioritiesList: [...#SlotPriority] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SlotPriority": close({
-	Priority!: _#defs."/$defs/Properties/definitions/PriorityValue"
-	SlotName!: _#defs."/$defs/Properties/definitions/Name"
+#SlotPriority: close({
+	Priority!: #PriorityValue
+	SlotName!: #Name
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlotShape": "Scalar" | "List" | fn.#StringExpression
+#SlotShape: "Scalar" | "List" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SlotType": close({
-	CompositeSlotTypeSetting?: _#defs."/$defs/Properties/definitions/CompositeSlotTypeSetting"
-	Description?:              _#defs."/$defs/Properties/definitions/Description"
-	ExternalSourceSetting?:    _#defs."/$defs/Properties/definitions/ExternalSourceSetting"
-	Name!:                     _#defs."/$defs/Properties/definitions/Name"
-	ParentSlotTypeSignature?:  _#defs."/$defs/Properties/definitions/ParentSlotTypeSignature"
-	SlotTypeValues?:           _#defs."/$defs/Properties/definitions/SlotTypeValues"
-	ValueSelectionSetting?:    _#defs."/$defs/Properties/definitions/SlotValueSelectionSetting"
+#SlotType: close({
+	CompositeSlotTypeSetting?: #CompositeSlotTypeSetting
+	Description?:              #Description
+	ExternalSourceSetting?:    #ExternalSourceSetting
+	Name!:                     #Name
+	ParentSlotTypeSignature?:  #ParentSlotTypeSignature
+	SlotTypeValues?:           #SlotTypeValues
+	ValueSelectionSetting?:    #SlotValueSelectionSetting
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlotTypeId": strings.MaxRunes(25) &
-strings.MinRunes(1) &
-=~"^((AMAZON\\.)[a-zA-Z_]+?|[0-9a-zA-Z]+)$" |
+#SlotTypeId: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^((AMAZON\\.)[a-zA-Z_]+?|[0-9a-zA-Z]+)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SlotTypeName": string | fn.#StringExpression
+#SlotTypeName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SlotTypeValue": close({
-	SampleValue!: _#defs."/$defs/Properties/definitions/SampleValue"
-	Synonyms?:    _#defs."/$defs/Properties/definitions/SynonymList"
+#SlotTypeValue: close({
+	SampleValue!: #SampleValue
+	Synonyms?:    #SynonymList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlotTypeValues": list.MaxItems(10000) & [
-	..._#defs."/$defs/Properties/definitions/SlotTypeValue"
-] |
-	fn.#ListExpression
+#SlotTypeValues: list.MaxItems(10000) & [...#SlotTypeValue] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SlotValue": close(
-	{InterpretedValue?: strings.MaxRunes(202) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#SlotValue: close({InterpretedValue?: strings.MaxRunes(202) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlotValueElicitationSetting": close({
-	DefaultValueSpecification?:    _#defs."/$defs/Properties/definitions/SlotDefaultValueSpecification"
-	PromptSpecification?:          _#defs."/$defs/Properties/definitions/PromptSpecification"
-	SampleUtterances?:             _#defs."/$defs/Properties/definitions/SampleUtterancesList"
-	SlotCaptureSetting?:           _#defs."/$defs/Properties/definitions/SlotCaptureSetting"
-	SlotConstraint!:               _#defs."/$defs/Properties/definitions/SlotConstraint"
-	WaitAndContinueSpecification?: _#defs."/$defs/Properties/definitions/WaitAndContinueSpecification"
+#SlotValueElicitationSetting: close({
+	DefaultValueSpecification?:    #SlotDefaultValueSpecification
+	PromptSpecification?:          #PromptSpecification
+	SampleUtterances?:             #SampleUtterancesList
+	SlotCaptureSetting?:           #SlotCaptureSetting
+	SlotConstraint!:               #SlotConstraint
+	WaitAndContinueSpecification?: #WaitAndContinueSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlotValueOverride": close({
-	Shape?:  _#defs."/$defs/Properties/definitions/SlotShape"
-	Value?:  _#defs."/$defs/Properties/definitions/SlotValue"
-	Values?: _#defs."/$defs/Properties/definitions/SlotValues"
+#SlotValueOverride: close({
+	Shape?:  #SlotShape
+	Value?:  #SlotValue
+	Values?: #SlotValues
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlotValueOverrideMap": close({
-	SlotName?:          _#defs."/$defs/Properties/definitions/Name"
-	SlotValueOverride?: _#defs."/$defs/Properties/definitions/SlotValueOverride"
+#SlotValueOverrideMap: close({
+	SlotName?:          #Name
+	SlotValueOverride?: #SlotValueOverride
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlotValueRegexFilter": close(
-	{Pattern!: strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#SlotValueRegexFilter: close({Pattern!: strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlotValueResolutionStrategy": "ORIGINAL_VALUE" |
-	"TOP_RESOLUTION" |
-	"CONCATENATION" |
-	fn.#StringExpression
+#SlotValueResolutionStrategy: "ORIGINAL_VALUE" | "TOP_RESOLUTION" | "CONCATENATION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SlotValueSelectionSetting": close({
-	AdvancedRecognitionSetting?: _#defs."/$defs/Properties/definitions/AdvancedRecognitionSetting"
-	RegexFilter?:                _#defs."/$defs/Properties/definitions/SlotValueRegexFilter"
-	ResolutionStrategy!:         _#defs."/$defs/Properties/definitions/SlotValueResolutionStrategy"
+#SlotValueSelectionSetting: close({
+	AdvancedRecognitionSetting?: #AdvancedRecognitionSetting
+	RegexFilter?:                #SlotValueRegexFilter
+	ResolutionStrategy!:         #SlotValueResolutionStrategy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SlotValues": [..._#defs."/$defs/Properties/definitions/SlotValueOverride"] |
-	fn.#ListExpression
+#SlotValues: [...#SlotValueOverride] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Specifications": close({
-	SlotTypeId?:              _#defs."/$defs/Properties/definitions/SlotTypeId"
-	SlotTypeName?:            _#defs."/$defs/Properties/definitions/SlotTypeName"
-	ValueElicitationSetting!: _#defs."/$defs/Properties/definitions/SubSlotValueElicitationSetting"
+#Specifications: close({
+	SlotTypeId?:              #SlotTypeId
+	SlotTypeName?:            #SlotTypeName
+	ValueElicitationSetting!: #SubSlotValueElicitationSetting
 	if SlotTypeId != _|_ {
 		SlotTypeName?: error("SlotTypeName cannot be used with SlotTypeId; set exactly one of SlotTypeId, SlotTypeName")
 	}
 }) & matchN(>=1, [{SlotTypeId!: _}, {SlotTypeName!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpeechDetectionSensitivity": "Default" |
-	"HighNoiseTolerance" |
-	"MaximumNoiseTolerance" |
-	fn.#StringExpression
+#SpeechDetectionSensitivity: "Default" | "HighNoiseTolerance" | "MaximumNoiseTolerance" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SpeechModelConfig": close(
-	{DeepgramConfig?: _#defs."/$defs/Properties/definitions/DeepgramSpeechModelConfig"},
-) |
-	fn.#ObjectExpression
+#SpeechModelConfig: close({DeepgramConfig?: #DeepgramSpeechModelConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SpeechModelPreference": "Standard" |
-	"Neural" |
-	"Deepgram" |
-	"Advanced" |
-	fn.#StringExpression
+#SpeechModelPreference: "Standard" | "Neural" | "Deepgram" | "Advanced" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SpeechRecognitionSettings": close({
-	SpeechModelConfig?:     _#defs."/$defs/Properties/definitions/SpeechModelConfig"
-	SpeechModelPreference?: _#defs."/$defs/Properties/definitions/SpeechModelPreference"
+#SpeechRecognitionSettings: close({
+	SpeechModelConfig?:     #SpeechModelConfig
+	SpeechModelPreference?: #SpeechModelPreference
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StillWaitingResponseFrequency": int & <=300 & >=1 |
+#StillWaitingResponseFrequency: int & <=300 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -1268,15 +1161,15 @@ _#defs: "/$defs/Properties/definitions/StillWaitingResponseFrequency": int & <=3
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/StillWaitingResponseSpecification": close({
+#StillWaitingResponseSpecification: close({
 	AllowInterrupt?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FrequencyInSeconds!: _#defs."/$defs/Properties/definitions/StillWaitingResponseFrequency"
-	MessageGroupsList!:  _#defs."/$defs/Properties/definitions/MessageGroupsList"
-	TimeoutInSeconds!:   _#defs."/$defs/Properties/definitions/StillWaitingResponseTimeout"
+	FrequencyInSeconds!: #StillWaitingResponseFrequency
+	MessageGroupsList!:  #MessageGroupsList
+	TimeoutInSeconds!:   #StillWaitingResponseTimeout
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StillWaitingResponseTimeout": int & <=900 & >=1 |
+#StillWaitingResponseTimeout: int & <=900 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -1293,48 +1186,45 @@ _#defs: "/$defs/Properties/definitions/StillWaitingResponseTimeout": int & <=900
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/SubSlotSetting": close({
+#SubSlotSetting: close({
 	Expression?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[0-9A-Za-z_\\-\\s\\(\\)]+" | fn.#StringExpression
 	SlotSpecifications?: struct.MaxFields(6) & struct.MinFields(0) & close({
 
-		{[=~"^([0-9a-zA-Z][_-]?){1,100}$"]: _#defs."/$defs/Properties/definitions/Specifications"}}) |
+		{[=~"^([0-9a-zA-Z][_-]?){1,100}$"]: #Specifications}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubSlotTypeComposition": close({
+#SubSlotTypeComposition: close({
 	Name!:         strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	SlotTypeId?:   _#defs."/$defs/Properties/definitions/SlotTypeId"
-	SlotTypeName?: _#defs."/$defs/Properties/definitions/SlotTypeName"
+	SlotTypeId?:   #SlotTypeId
+	SlotTypeName?: #SlotTypeName
 	if SlotTypeId != _|_ {
 		SlotTypeName?: error("SlotTypeName cannot be used with SlotTypeId; set exactly one of SlotTypeId, SlotTypeName")
 	}
 }) & matchN(>=1, [{SlotTypeId!: _}, {SlotTypeName!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubSlotValueElicitationSetting": close({
-	DefaultValueSpecification?:    _#defs."/$defs/Properties/definitions/SlotDefaultValueSpecification"
-	PromptSpecification?:          _#defs."/$defs/Properties/definitions/PromptSpecification"
-	SampleUtterances?:             _#defs."/$defs/Properties/definitions/SampleUtterancesList"
-	WaitAndContinueSpecification?: _#defs."/$defs/Properties/definitions/WaitAndContinueSpecification"
+#SubSlotValueElicitationSetting: close({
+	DefaultValueSpecification?:    #SlotDefaultValueSpecification
+	PromptSpecification?:          #PromptSpecification
+	SampleUtterances?:             #SampleUtterancesList
+	WaitAndContinueSpecification?: #WaitAndContinueSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SynonymList": list.MaxItems(10000) & [
-	..._#defs."/$defs/Properties/definitions/SampleValue"
-] |
-	fn.#ListExpression
+#SynonymList: list.MaxItems(10000) & [...#SampleValue] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TestBotAliasSettings": close({
-	BotAliasLocaleSettings?:  _#defs."/$defs/Properties/definitions/BotAliasLocaleSettingsList"
-	ConversationLogSettings?: _#defs."/$defs/Properties/definitions/ConversationLogSettings"
-	Description?:             _#defs."/$defs/Properties/definitions/Description"
+#TestBotAliasSettings: close({
+	BotAliasLocaleSettings?:  #BotAliasLocaleSettingsList
+	ConversationLogSettings?: #ConversationLogSettings
+	Description?:             #Description
 	SentimentAnalysisSettings?: close(
 		{DetectSentiment!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 	) |
@@ -1342,7 +1232,7 @@ _#defs: "/$defs/Properties/definitions/TestBotAliasSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TextInputSpecification": close({
+#TextInputSpecification: close({
 	StartTimeoutMs!: int & >=1 |
 		{
 			string &
@@ -1361,23 +1251,17 @@ _#defs: "/$defs/Properties/definitions/TextInputSpecification": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TextLogDestination": close(
-	{CloudWatch!: _#defs."/$defs/Properties/definitions/CloudWatchLogGroupLogDestination"},
-) |
-	fn.#ObjectExpression
+#TextLogDestination: close({CloudWatch!: #CloudWatchLogGroupLogDestination}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TextLogSetting": close({
-	Destination!: _#defs."/$defs/Properties/definitions/TextLogDestination"
+#TextLogSetting: close({
+	Destination!: #TextLogDestination
 	Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TextLogSettings": list.MaxItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/TextLogSetting"
-] |
-	fn.#ListExpression
+#TextLogSettings: list.MaxItems(1) & list.UniqueItems() & [...#TextLogSetting] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/UnifiedSpeechSettings": close({
+#UnifiedSpeechSettings: close({
 	SpeechFoundationModel!: close({
 		ModelArn!: string | fn.#StringExpression
 		VoiceId?:  string | fn.#StringExpression
@@ -1386,19 +1270,19 @@ _#defs: "/$defs/Properties/definitions/UnifiedSpeechSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Utterance": string | fn.#StringExpression
+#Utterance: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VoiceSettings": close({
+#VoiceSettings: close({
 	Engine?:  "standard" | "neural" | "long-form" | "generative" | fn.#StringExpression
 	VoiceId!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WaitAndContinueSpecification": close({
-	ContinueResponse!:     _#defs."/$defs/Properties/definitions/ResponseSpecification"
+#WaitAndContinueSpecification: close({
+	ContinueResponse!:     #ResponseSpecification
 	IsActive?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	StillWaitingResponse?: _#defs."/$defs/Properties/definitions/StillWaitingResponseSpecification"
-	WaitingResponse!:      _#defs."/$defs/Properties/definitions/ResponseSpecification"
+	StillWaitingResponse?: #StillWaitingResponseSpecification
+	WaitingResponse!:      #ResponseSpecification
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

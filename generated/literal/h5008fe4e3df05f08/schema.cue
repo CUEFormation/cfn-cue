@@ -30,14 +30,14 @@ import (
 	Owner?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\S(.*\\S)?$"
 
 	// The tags associated with a repository association.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The type of repository to be associated.
 	Type!: "CodeCommit" | "Bitbucket" | "GitHubEnterpriseServer" | "S3Bucket"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. The allowed
 	// characters across services are: letters, numbers, and spaces representable

@@ -45,7 +45,7 @@ import (
 	Status?: "valid" | "expired"
 
 	// The tags for the token.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The token name.
 	TokenName?: string
@@ -54,7 +54,7 @@ import (
 	TokenValue?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

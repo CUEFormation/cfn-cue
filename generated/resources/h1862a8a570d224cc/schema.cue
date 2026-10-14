@@ -22,11 +22,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DeletionProtectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OptOutListName?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
 	SelfManagedOptOutsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	TwoWayChannelArn?:  strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^\\S+$" | fn.#StringExpression
-	TwoWayChannelRole?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:\\S+$" | fn.#StringExpression
-	TwoWayEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Tags?:                      list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	TwoWayChannelArn?:          strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^\\S+$" | fn.#StringExpression
+	TwoWayChannelRole?:         strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:\\S+$" | fn.#StringExpression
+	TwoWayEnabled?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TwoWayMediaS3BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$" |
 	fn.#StringExpression
 	TwoWayMediaS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\S]+$" | fn.#StringExpression
@@ -37,13 +36,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TestingAgentInformation": close({
+#TestingAgentInformation: close({
 	RegistrationId!:     string | fn.#StringExpression
 	TestingAgentId?:     string | fn.#StringExpression
 	TestingAgentStatus!: "CREATED" | "PENDING" | "ACTIVE" | fn.#StringExpression

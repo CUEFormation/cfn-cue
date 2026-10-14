@@ -24,11 +24,11 @@ import (
 	// data](https://docs.aws.amazon.com/AmazonECR/latest/public/public-repository-catalog-data.html)
 	// in the *Amazon ECR Public User Guide*.
 	RepositoryCatalogData?: close({
-		AboutText?:             _#defs."/$defs/Properties/definitions/AboutText"
-		Architectures?:         _#defs."/$defs/Properties/definitions/ArchitectureList"
-		OperatingSystems?:      _#defs."/$defs/Properties/definitions/OperatingSystemList"
-		RepositoryDescription?: _#defs."/$defs/Properties/definitions/RepositoryDescription"
-		UsageText?:             _#defs."/$defs/Properties/definitions/UsageText"
+		AboutText?:             #AboutText
+		Architectures?:         #ArchitectureList
+		OperatingSystems?:      #OperatingSystemList
+		RepositoryDescription?: #RepositoryDescription
+		UsageText?:             #UsageText
 	})
 
 	// The name to use for the public repository. The repository name may be
@@ -50,41 +50,37 @@ import (
 	RepositoryPolicyText?: string | {...}
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Provide a detailed description of the repository. Identify what is included
 // in the repository, any licensing details, or other relevant information.
-_#defs: "/$defs/Properties/definitions/AboutText": strings.MaxRunes(10240)
+#AboutText: strings.MaxRunes(10240)
 
 // The name of the architecture.
-_#defs: "/$defs/Properties/definitions/Architecture": strings.MaxRunes(50) & strings.MinRunes(1)
+#Architecture: strings.MaxRunes(50) & strings.MinRunes(1)
 
 // Select the system architectures that the images in your repository are compatible with.
-_#defs: "/$defs/Properties/definitions/ArchitectureList": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Architecture"
-]
+#ArchitectureList: list.MaxItems(50) & list.UniqueItems() & [...#Architecture]
 
 // The name of the operating system.
-_#defs: "/$defs/Properties/definitions/OperatingSystem": strings.MaxRunes(50) & strings.MinRunes(1)
+#OperatingSystem: strings.MaxRunes(50) & strings.MinRunes(1)
 
 // Select the operating systems that the images in your repository are compatible with.
-_#defs: "/$defs/Properties/definitions/OperatingSystemList": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/OperatingSystem"
-]
+#OperatingSystemList: list.MaxItems(50) & list.UniqueItems() & [...#OperatingSystem]
 
 // The AWS account ID associated with the registry that contains the repository.
 // If you do not specify a registry, the default registry is assumed.
-_#defs: "/$defs/Properties/definitions/RegistryId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
+#RegistryId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
 
 // The description of the public repository.
-_#defs: "/$defs/Properties/definitions/RepositoryDescription": strings.MaxRunes(1024)
+#RepositoryDescription: strings.MaxRunes(1024)
 
 // The metadata to apply to a resource to help you categorize and organize them.
 // Each tag consists of a key and a value, both of which you define. Tag keys
 // can have a maximum character length of 128 characters, and tag values can
 // have a maximum length of 256 characters.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// One part of a key-value pair that make up a tag. A ``key`` is a general label
 	// that acts like a category for more specific tag values.
 	Key!: strings.MaxRunes(127) & strings.MinRunes(1)
@@ -96,4 +92,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // Provide detailed information about how to use the images in the repository.
 // This provides context, support information, and additional usage details for
 // users of the repository.
-_#defs: "/$defs/Properties/definitions/UsageText": strings.MaxRunes(10240)
+#UsageText: strings.MaxRunes(10240)

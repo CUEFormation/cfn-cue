@@ -16,24 +16,24 @@ import "list"
 	AutoAssignPublicIps!:         bool
 	CustomInstanceProfileArn?:    string
 	CustomJson?:                  string | {...}
-	CustomRecipes?:               _#defs."/$defs/Properties/definitions/Recipes"
+	CustomRecipes?:               #Recipes
 	CustomSecurityGroupIds?:      [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	EnableAutoHealing!:           bool
 	Id?:                          string
 	InstallUpdatesOnBoot?:        bool
-	LifecycleEventConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleEventConfiguration"
-	LoadBasedAutoScaling?:        _#defs."/$defs/Properties/definitions/LoadBasedAutoScaling"
+	LifecycleEventConfiguration?: #LifecycleEventConfiguration
+	LoadBasedAutoScaling?:        #LoadBasedAutoScaling
 	Name!:                        string
 	Packages?:                    [...string]
 	Shortname!:                   string
 	StackId!:                     string
-	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                        [...#Tag]
 	Type!:                        string
 	UseEbsOptimizedInstances?:    bool
-	VolumeConfigurations?:        [..._#defs."/$defs/Properties/definitions/VolumeConfiguration"]
+	VolumeConfigurations?:        [...#VolumeConfiguration]
 })
 
-_#defs: "/$defs/Properties/definitions/AutoScalingThresholds": close({
+#AutoScalingThresholds: close({
 	CpuThreshold?:       number
 	IgnoreMetricsTime?:  int
 	InstanceCount?:      int
@@ -42,17 +42,15 @@ _#defs: "/$defs/Properties/definitions/AutoScalingThresholds": close({
 	ThresholdsWaitTime?: int
 })
 
-_#defs: "/$defs/Properties/definitions/LifecycleEventConfiguration": close(
-	{ShutdownEventConfiguration?: _#defs."/$defs/Properties/definitions/ShutdownEventConfiguration"},
-)
+#LifecycleEventConfiguration: close({ShutdownEventConfiguration?: #ShutdownEventConfiguration})
 
-_#defs: "/$defs/Properties/definitions/LoadBasedAutoScaling": close({
-	DownScaling?: _#defs."/$defs/Properties/definitions/AutoScalingThresholds"
+#LoadBasedAutoScaling: close({
+	DownScaling?: #AutoScalingThresholds
 	Enable?:      bool
-	UpScaling?:   _#defs."/$defs/Properties/definitions/AutoScalingThresholds"
+	UpScaling?:   #AutoScalingThresholds
 })
 
-_#defs: "/$defs/Properties/definitions/Recipes": close({
+#Recipes: close({
 	Configure?: list.UniqueItems() & [...string]
 	Deploy?:    list.UniqueItems() & [...string]
 	Setup?:     list.UniqueItems() & [...string]
@@ -60,17 +58,17 @@ _#defs: "/$defs/Properties/definitions/Recipes": close({
 	Undeploy?:  list.UniqueItems() & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/ShutdownEventConfiguration": close({
+#ShutdownEventConfiguration: close({
 	DelayUntilElbConnectionsDrained?: bool
 	ExecutionTimeout?:                int
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/VolumeConfiguration": close({
+#VolumeConfiguration: close({
 	Encrypted?:     bool
 	Iops?:          int
 	MountPoint?:    string

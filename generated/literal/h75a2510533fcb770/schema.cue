@@ -10,14 +10,14 @@ import "list"
 // ``RestApi`` resource to a stage so that clients can call the API over the
 // internet. The stage acts as an environment.
 #Properties: close({
-	DeploymentCanarySettings?: _#defs."/$defs/Properties/definitions/DeploymentCanarySettings"
+	DeploymentCanarySettings?: #DeploymentCanarySettings
 	DeploymentId?:             string
 	Description?:              string
 	RestApiId!:                string
 
 	// The description of the Stage resource for the Deployment resource to create.
 	// To specify a stage description, you must also provide a stage name.
-	StageDescription?: _#defs."/$defs/Properties/definitions/StageDescription"
+	StageDescription?: #StageDescription
 	StageName?:        string
 })
 
@@ -25,7 +25,7 @@ import "list"
 // ``AccessLogSetting`` is a property of the
 // [StageDescription](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-apigateway-deployment-stagedescription.html)
 // property type.
-_#defs: "/$defs/Properties/definitions/AccessLogSetting": close({
+#AccessLogSetting: close({
 	DestinationArn?: string
 	Format?:         string
 })
@@ -34,7 +34,7 @@ _#defs: "/$defs/Properties/definitions/AccessLogSetting": close({
 // ``CanarySetting`` is a property of the
 // [StageDescription](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-apigateway-deployment-stagedescription.html)
 // property type.
-_#defs: "/$defs/Properties/definitions/CanarySetting": close({
+#CanarySetting: close({
 	PercentTraffic?: number
 	StageVariableOverrides?: close({
 
@@ -43,7 +43,7 @@ _#defs: "/$defs/Properties/definitions/CanarySetting": close({
 })
 
 // The ``DeploymentCanarySettings`` property type specifies settings for the canary deployment.
-_#defs: "/$defs/Properties/definitions/DeploymentCanarySettings": close({
+#DeploymentCanarySettings: close({
 	PercentTraffic?: number
 	StageVariableOverrides?: close({
 
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/DeploymentCanarySettings": close({
 // The ``MethodSettings`` property of the [Amazon API Gateway Deployment
 // StageDescription](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-apigateway-deployment-stagedescription.html)
 // property type contains a list of ``MethodSetting`` property types.
-_#defs: "/$defs/Properties/definitions/MethodSetting": close({
+#MethodSetting: close({
 	CacheDataEncrypted?: bool
 	CacheTtlInSeconds?:  int
 	CachingEnabled?:     bool
@@ -79,9 +79,9 @@ _#defs: "/$defs/Properties/definitions/MethodSetting": close({
 // ``StageDescription`` is a property of the
 // [AWS::ApiGateway::Deployment](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigateway-deployment.html)
 // resource that configures a deployment stage.
-_#defs: "/$defs/Properties/definitions/StageDescription": close({
+#StageDescription: close({
 	// Specifies settings for logging access in this stage.
-	AccessLogSetting?:    _#defs."/$defs/Properties/definitions/AccessLogSetting"
+	AccessLogSetting?:    #AccessLogSetting
 	CacheClusterEnabled?: bool
 
 	// The size of the stage's cache cluster. For more information, see
@@ -103,7 +103,7 @@ _#defs: "/$defs/Properties/definitions/StageDescription": close({
 	CachingEnabled?: bool
 
 	// Specifies settings for the canary deployment in this stage.
-	CanarySetting?: _#defs."/$defs/Properties/definitions/CanarySetting"
+	CanarySetting?: #CanarySetting
 
 	// The identifier of the client certificate that API Gateway uses to call your
 	// integration endpoints in the stage.
@@ -126,13 +126,13 @@ _#defs: "/$defs/Properties/definitions/StageDescription": close({
 	LoggingLevel?: string
 
 	// Configures settings for all of the stage's methods.
-	MethodSettings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MethodSetting"]
+	MethodSettings?: list.UniqueItems() & [...#MethodSetting]
 
 	// Indicates whether Amazon CloudWatch metrics are enabled for methods in the stage.
 	MetricsEnabled?: bool
 
 	// An array of arbitrary tags (key-value pairs) to associate with the stage.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The target request burst rate limit. This allows more requests through for a
 	// period of time than the target rate limit. For more information, see [Manage
@@ -164,7 +164,7 @@ _#defs: "/$defs/Properties/definitions/StageDescription": close({
 // An array of key-value pairs to apply to this resource.
 // For more information, see
 // [Tag](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string you can use to assign a value. The combination of tag keys and
 	// values can help you organize and categorize your resources.
 	Key!: string

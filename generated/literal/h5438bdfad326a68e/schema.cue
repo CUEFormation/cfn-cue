@@ -18,8 +18,8 @@ import (
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// List of the data quality rules in the ruleset
-	Rules!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Rule"]
-	Tags?:  [..._#defs."/$defs/Properties/definitions/Tag"]
+	Rules!: list.MinItems(1) & [...#Rule]
+	Tags?:  [...#Tag]
 
 	// Arn of the target resource (dataset) to apply the ruleset to
 	TargetArn!: strings.MaxRunes(2048) & strings.MinRunes(20)
@@ -27,7 +27,7 @@ import (
 
 // Selector of a column from a dataset for profile job configuration. One
 // selector includes either a column name or a regular expression
-_#defs: "/$defs/Properties/definitions/ColumnSelector": close({
+#ColumnSelector: close({
 	// The name of a column from a dataset
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -36,27 +36,25 @@ _#defs: "/$defs/Properties/definitions/ColumnSelector": close({
 })
 
 // Boolean value to disable/enable a rule
-_#defs: "/$defs/Properties/definitions/Disabled": bool
+#Disabled: bool
 
 // Expression with rule conditions
-_#defs: "/$defs/Properties/definitions/Expression": strings.MaxRunes(1024) &
-strings.MinRunes(4) &
-=~"^[><0-9A-Za-z_.,:)(!= ]+$"
+#Expression: strings.MaxRunes(1024) & strings.MinRunes(4) & =~"^[><0-9A-Za-z_.,:)(!= ]+$"
 
 // Data quality rule for a target resource (dataset)
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	CheckExpression!: _#defs."/$defs/Properties/definitions/Expression"
-	ColumnSelectors?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnSelector"]
-	Disabled?:        _#defs."/$defs/Properties/definitions/Disabled"
+#Rule: close({
+	CheckExpression!: #Expression
+	ColumnSelectors?: list.MinItems(1) & [...#ColumnSelector]
+	Disabled?:        #Disabled
 
 	// Name of the rule
 	Name!:            strings.MaxRunes(128) & strings.MinRunes(1)
-	SubstitutionMap?: _#defs."/$defs/Properties/definitions/ValuesMap"
-	Threshold?:       _#defs."/$defs/Properties/definitions/Threshold"
+	SubstitutionMap?: #ValuesMap
+	Threshold?:       #Threshold
 })
 
 // A key-value pair to associate expression's substitution variable names with their values
-_#defs: "/$defs/Properties/definitions/SubstitutionValue": close({
+#SubstitutionValue: close({
 	// Value or column name
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(0)
 
@@ -65,27 +63,24 @@ _#defs: "/$defs/Properties/definitions/SubstitutionValue": close({
 })
 
 // A key-value pair to associate with a resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Threshold": close({
-	Type?:  _#defs."/$defs/Properties/definitions/ThresholdType"
-	Unit?:  _#defs."/$defs/Properties/definitions/ThresholdUnit"
-	Value!: _#defs."/$defs/Properties/definitions/ThresholdValue"
+#Threshold: close({
+	Type?:  #ThresholdType
+	Unit?:  #ThresholdUnit
+	Value!: #ThresholdValue
 })
 
 // Threshold type for a rule
-_#defs: "/$defs/Properties/definitions/ThresholdType": "GREATER_THAN_OR_EQUAL" |
-	"LESS_THAN_OR_EQUAL" |
-	"GREATER_THAN" |
-	"LESS_THAN"
+#ThresholdType: "GREATER_THAN_OR_EQUAL" | "LESS_THAN_OR_EQUAL" | "GREATER_THAN" | "LESS_THAN"
 
 // Threshold unit for a rule
-_#defs: "/$defs/Properties/definitions/ThresholdUnit": "COUNT" | "PERCENTAGE"
+#ThresholdUnit: "COUNT" | "PERCENTAGE"
 
 // Threshold value for a rule
-_#defs: "/$defs/Properties/definitions/ThresholdValue": >=0
+#ThresholdValue: >=0
 
-_#defs: "/$defs/Properties/definitions/ValuesMap": [..._#defs."/$defs/Properties/definitions/SubstitutionValue"]
+#ValuesMap: [...#SubstitutionValue]

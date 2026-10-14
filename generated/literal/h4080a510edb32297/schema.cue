@@ -3,17 +3,17 @@
 package schema
 
 import (
-	"time"
 	"strings"
 	"list"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::PaymentManager
 #Properties: close({
-	AuthorizerConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizerConfiguration"
-	AuthorizerType!:          _#defs."/$defs/Properties/definitions/PaymentsAuthorizerType"
+	AuthorizerConfiguration?: #AuthorizerConfiguration
+	AuthorizerType!:          #PaymentsAuthorizerType
 
 	// The timestamp when the payment manager was created
 	CreatedAt?: time.Time
@@ -39,44 +39,42 @@ import (
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$"
-	Status?: _#defs."/$defs/Properties/definitions/PaymentManagerStatus"
+	Status?: #PaymentManagerStatus
 
 	// Tags to assign to the payment manager
-	Tags?:                    list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
-	WorkloadIdentityDetails?: _#defs."/$defs/Properties/definitions/WorkloadIdentityDetails"
+	Tags?:                    list.MaxItems(50) & [...#Tag]
+	WorkloadIdentityDetails?: #WorkloadIdentityDetails
 })
 
-_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close(
-	{CustomJWTAuthorizer!: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration"},
-)
+#AuthorizerConfiguration: close({CustomJWTAuthorizer!: #CustomJWTAuthorizerConfiguration})
 
-_#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
+#AuthorizingClaimMatchValueType: close({
 	ClaimMatchOperator!: "EQUALS" | "CONTAINS" | "CONTAINS_ANY"
-	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
+	ClaimMatchValue!:    #ClaimMatchValueType
 })
 
-_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": close({
+#ClaimMatchValueType: close({
 	MatchValueString?:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-]+$"
 	MatchValueStringList?: [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.-]+$"]
 })
 
-_#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({
-	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType"
+#CustomClaimValidationType: close({
+	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
 	InboundTokenClaimName!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$"
 	InboundTokenClaimValueType!: "STRING" | "STRING_ARRAY"
 })
 
-_#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close({
+#CustomJWTAuthorizerConfiguration: close({
 	AllowedAudience?: list.MinItems(1) & [...string]
 	AllowedClients?:  list.MinItems(1) & [...string]
 	AllowedScopes?: list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
 	]
-	CustomClaims?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomClaimValidationType"]
+	CustomClaims?: list.MinItems(1) & [...#CustomClaimValidationType]
 	DiscoveryUrl!: =~"^.+/\\.well-known/openid-configuration$"
 })
 
-_#defs: "/$defs/Properties/definitions/PaymentManagerStatus": "CREATING" |
+#PaymentManagerStatus: "CREATING" |
 	"UPDATING" |
 	"DELETING" |
 	"READY" |
@@ -84,13 +82,11 @@ _#defs: "/$defs/Properties/definitions/PaymentManagerStatus": "CREATING" |
 	"UPDATE_FAILED" |
 	"DELETE_FAILED"
 
-_#defs: "/$defs/Properties/definitions/PaymentsAuthorizerType": "CUSTOM_JWT" | "AWS_IAM"
+#PaymentsAuthorizerType: "CUSTOM_JWT" | "AWS_IAM"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/WorkloadIdentityDetails": close(
-	{WorkloadIdentityArn!: strings.MaxRunes(1024) & strings.MinRunes(1)},
-)
+#WorkloadIdentityDetails: close({WorkloadIdentityArn!: strings.MaxRunes(1024) & strings.MinRunes(1)})

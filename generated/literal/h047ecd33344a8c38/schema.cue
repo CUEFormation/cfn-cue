@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"time"
 	"strings"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -24,7 +24,7 @@ import (
 	CreatedTimestamp?: time.Time
 
 	// Filter criteria that specify which recommended actions qualify for implementation.
-	Criteria?: _#defs."/$defs/Properties/definitions/Criteria"
+	Criteria?: #Criteria
 
 	// The description of the automation rule.
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\s@\\.]*$"
@@ -36,7 +36,7 @@ import (
 	Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_-]*$"
 
 	// Organization configuration for organization rules, including rule apply order and account scope.
-	OrganizationConfiguration?: _#defs."/$defs/Properties/definitions/OrganizationConfiguration"
+	OrganizationConfiguration?: #OrganizationConfiguration
 
 	// Rule priority within its group
 	Priority?: string
@@ -57,27 +57,27 @@ import (
 	RuleType!: "AccountRule" | "OrganizationRule"
 
 	// The schedule configuration for when the rule runs.
-	Schedule!: _#defs."/$defs/Properties/definitions/Schedule"
+	Schedule!: #Schedule
 
 	// The status of the automation rule.
 	Status!: "Active" | "Inactive"
 
 	// Tags associated with the automation rule.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Criteria": close({
-	EbsVolumeSizeInGib?:      _#defs."/$defs/Properties/definitions/IntegerCriteriaConditionList"
-	EbsVolumeType?:           _#defs."/$defs/Properties/definitions/StringCriteriaConditionList"
-	EstimatedMonthlySavings?: _#defs."/$defs/Properties/definitions/DoubleCriteriaConditionList"
-	LookBackPeriodInDays?:    _#defs."/$defs/Properties/definitions/IntegerCriteriaConditionList"
-	Region?:                  _#defs."/$defs/Properties/definitions/StringCriteriaConditionList"
-	ResourceArn?:             _#defs."/$defs/Properties/definitions/StringCriteriaConditionList"
-	ResourceTag?:             _#defs."/$defs/Properties/definitions/ResourceTagsCriteriaConditionList"
-	RestartNeeded?:           _#defs."/$defs/Properties/definitions/StringCriteriaConditionList"
+#Criteria: close({
+	EbsVolumeSizeInGib?:      #IntegerCriteriaConditionList
+	EbsVolumeType?:           #StringCriteriaConditionList
+	EstimatedMonthlySavings?: #DoubleCriteriaConditionList
+	LookBackPeriodInDays?:    #IntegerCriteriaConditionList
+	Region?:                  #StringCriteriaConditionList
+	ResourceArn?:             #StringCriteriaConditionList
+	ResourceTag?:             #ResourceTagsCriteriaConditionList
+	RestartNeeded?:           #StringCriteriaConditionList
 })
 
-_#defs: "/$defs/Properties/definitions/DoubleCriteriaCondition": close({
+#DoubleCriteriaCondition: close({
 	Comparison?: "StringEquals" |
 		"StringNotEquals" |
 		"StringEqualsIgnoreCase" |
@@ -93,11 +93,9 @@ _#defs: "/$defs/Properties/definitions/DoubleCriteriaCondition": close({
 	Values?: [...number]
 })
 
-_#defs: "/$defs/Properties/definitions/DoubleCriteriaConditionList": [
-	..._#defs."/$defs/Properties/definitions/DoubleCriteriaCondition"
-]
+#DoubleCriteriaConditionList: [...#DoubleCriteriaCondition]
 
-_#defs: "/$defs/Properties/definitions/IntegerCriteriaCondition": close({
+#IntegerCriteriaCondition: close({
 	Comparison?: "StringEquals" |
 		"StringNotEquals" |
 		"StringEqualsIgnoreCase" |
@@ -113,11 +111,9 @@ _#defs: "/$defs/Properties/definitions/IntegerCriteriaCondition": close({
 	Values?: [...int]
 })
 
-_#defs: "/$defs/Properties/definitions/IntegerCriteriaConditionList": [
-	..._#defs."/$defs/Properties/definitions/IntegerCriteriaCondition"
-]
+#IntegerCriteriaConditionList: [...#IntegerCriteriaCondition]
 
-_#defs: "/$defs/Properties/definitions/OrganizationConfiguration": close({
+#OrganizationConfiguration: close({
 	// List of account IDs where the organization rule applies
 	AccountIds?: list.MaxItems(50) & list.MinItems(1) & [...=~"^[0-9]{12}$"]
 
@@ -125,7 +121,7 @@ _#defs: "/$defs/Properties/definitions/OrganizationConfiguration": close({
 	RuleApplyOrder?: "BeforeAccountRules" | "AfterAccountRules"
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceTagsCriteriaCondition": close({
+#ResourceTagsCriteriaCondition: close({
 	Comparison?: "StringEquals" |
 		"StringNotEquals" |
 		"StringEqualsIgnoreCase" |
@@ -142,11 +138,9 @@ _#defs: "/$defs/Properties/definitions/ResourceTagsCriteriaCondition": close({
 	Values?: [...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@\\*\\?]+$"]
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceTagsCriteriaConditionList": [
-	..._#defs."/$defs/Properties/definitions/ResourceTagsCriteriaCondition"
-]
+#ResourceTagsCriteriaConditionList: [...#ResourceTagsCriteriaCondition]
 
-_#defs: "/$defs/Properties/definitions/Schedule": close({
+#Schedule: close({
 	// Execution window duration in minutes
 	ExecutionWindowInMinutes?: int & <=1440 & >=60
 
@@ -157,7 +151,7 @@ _#defs: "/$defs/Properties/definitions/Schedule": close({
 	ScheduleExpressionTimezone?: string
 })
 
-_#defs: "/$defs/Properties/definitions/StringCriteriaCondition": close({
+#StringCriteriaCondition: close({
 	Comparison?: "StringEquals" |
 		"StringNotEquals" |
 		"StringEqualsIgnoreCase" |
@@ -173,11 +167,9 @@ _#defs: "/$defs/Properties/definitions/StringCriteriaCondition": close({
 	Values?: [...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@\\*\\?]+$"]
 })
 
-_#defs: "/$defs/Properties/definitions/StringCriteriaConditionList": [
-	..._#defs."/$defs/Properties/definitions/StringCriteriaCondition"
-]
+#StringCriteriaConditionList: [...#StringCriteriaCondition]
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@]+$"
 	Value!: strings.MaxRunes(256) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@]*$"
 })

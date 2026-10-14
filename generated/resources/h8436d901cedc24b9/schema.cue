@@ -17,15 +17,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // requirements based on customer-defined routing policies.
 #Properties: close({
 	Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]{1,48}[a-z0-9]$" | fn.#StringExpression
-	PublicAccessBlockConfiguration?: _#defs."/$defs/Properties/definitions/PublicAccessBlockConfiguration" |
-		fn.#ObjectExpression
-	Regions!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Region" | fn.#ObjectExpression
-	] |
-		fn.#ListExpression
+	PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration | fn.#ObjectExpression
+	Regions!: list.MinItems(1) & list.UniqueItems() & [...#Region | fn.#ObjectExpression] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
+#PublicAccessBlockConfiguration: close({
 	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -33,7 +29,7 @@ _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Region": close({
+#Region: close({
 	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$" | fn.#StringExpression
 	BucketAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 }) |

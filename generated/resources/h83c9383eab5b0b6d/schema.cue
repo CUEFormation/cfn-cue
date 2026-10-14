@@ -24,23 +24,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description!: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	ManualAssignmentQueueConfigs?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/RoutingProfileManualAssignmentQueueConfig"
+		...#RoutingProfileManualAssignmentQueueConfig
 	] |
 		fn.#ListExpression
-	MediaConcurrencies!: [..._#defs."/$defs/Properties/definitions/MediaConcurrency"] | fn.#ListExpression
+	MediaConcurrencies!: [...#MediaConcurrency] | fn.#ListExpression
 	Name!:               strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	QueueConfigs?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RoutingProfileQueueConfig"] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	QueueConfigs?:       list.MinItems(1) & [...#RoutingProfileQueueConfig] | fn.#ListExpression
+	Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/BehaviorType": "ROUTE_CURRENT_CHANNEL_ONLY" |
-	"ROUTE_ANY_CHANNEL" |
-	fn.#StringExpression
+#BehaviorType: "ROUTE_CURRENT_CHANNEL_ONLY" | "ROUTE_ANY_CHANNEL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Channel": "VOICE" | "CHAT" | "TASK" | "EMAIL" | fn.#StringExpression
+#Channel: "VOICE" | "CHAT" | "TASK" | "EMAIL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Concurrency": int & <=10 & >=1 |
+#Concurrency: int & <=10 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -57,12 +54,9 @@ _#defs: "/$defs/Properties/definitions/Concurrency": int & <=10 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/CrossChannelBehavior": close(
-	{BehaviorType!: _#defs."/$defs/Properties/definitions/BehaviorType"},
-) |
-	fn.#ObjectExpression
+#CrossChannelBehavior: close({BehaviorType!: #BehaviorType}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Delay": int & <=9999 & >=0 |
+#Delay: int & <=9999 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -79,14 +73,14 @@ _#defs: "/$defs/Properties/definitions/Delay": int & <=9999 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/MediaConcurrency": close({
-	Channel!:              _#defs."/$defs/Properties/definitions/Channel"
-	Concurrency!:          _#defs."/$defs/Properties/definitions/Concurrency"
-	CrossChannelBehavior?: _#defs."/$defs/Properties/definitions/CrossChannelBehavior"
+#MediaConcurrency: close({
+	Channel!:              #Channel
+	Concurrency!:          #Concurrency
+	CrossChannelBehavior?: #CrossChannelBehavior
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Priority": int & <=99 & >=1 |
+#Priority: int & <=99 & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -103,28 +97,26 @@ _#defs: "/$defs/Properties/definitions/Priority": int & <=99 & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/QueueArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$" |
+#QueueArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingProfileManualAssignmentQueueConfig": close(
-	{QueueReference!: _#defs."/$defs/Properties/definitions/RoutingProfileQueueReference"},
-) |
+#RoutingProfileManualAssignmentQueueConfig: close({QueueReference!: #RoutingProfileQueueReference}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingProfileQueueConfig": close({
-	Delay!:          _#defs."/$defs/Properties/definitions/Delay"
-	Priority!:       _#defs."/$defs/Properties/definitions/Priority"
-	QueueReference!: _#defs."/$defs/Properties/definitions/RoutingProfileQueueReference"
+#RoutingProfileQueueConfig: close({
+	Delay!:          #Delay
+	Priority!:       #Priority
+	QueueReference!: #RoutingProfileQueueReference
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoutingProfileQueueReference": close({
-	Channel!:  _#defs."/$defs/Properties/definitions/Channel"
-	QueueArn!: _#defs."/$defs/Properties/definitions/QueueArn"
+#RoutingProfileQueueReference: close({
+	Channel!:  #Channel
+	QueueArn!: #QueueArn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |

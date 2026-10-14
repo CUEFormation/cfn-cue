@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -19,22 +19,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Kinesis::Channel
 #Properties: close({
 	ChannelName!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
-	LoggingConfiguration?:    _#defs."/$defs/Properties/definitions/LoggingConfiguration" | fn.#ObjectExpression
-	S3DestinationConfiguration?: _#defs."/$defs/Properties/definitions/S3DestinationConfiguration" |
-		fn.#ObjectExpression
-	S3TablesDestinationConfiguration?: _#defs."/$defs/Properties/definitions/S3TablesDestinationConfiguration" |
-		fn.#ObjectExpression
+	EncryptionConfiguration?: #EncryptionConfiguration | fn.#ObjectExpression
+	LoggingConfiguration?:    #LoggingConfiguration | fn.#ObjectExpression
+	S3DestinationConfiguration?:       #S3DestinationConfiguration | fn.#ObjectExpression
+	S3TablesDestinationConfiguration?: #S3TablesDestinationConfiguration | fn.#ObjectExpression
 	ServiceExecutionRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[-a-z0-9]*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	StreamConfigurationList!: list.MaxItems(10000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/StreamConfiguration"
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	StreamConfigurationList!: list.MaxItems(10000) & list.MinItems(1) & [...#StreamConfiguration] | fn.#ListExpression
+	Tags?:                    list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	if S3DestinationConfiguration != _|_ {
 		S3TablesDestinationConfiguration?: error(
 			"S3TablesDestinationConfiguration cannot be used with S3DestinationConfiguration; set exactly one of S3DestinationConfiguration, S3TablesDestinationConfiguration",
@@ -42,14 +37,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}
 }) & matchN(>=1, [{S3DestinationConfiguration!: _}, {S3TablesDestinationConfiguration!: _}])
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogsConfiguration": close({
+#CloudWatchLogsConfiguration: close({
 	Enabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogGroupName?:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
 	LogStreamName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeadLetterQueueS3Configuration": close({
+#DeadLetterQueueS3Configuration: close({
 	BucketARN!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws[-a-z0-9]*:s3:::[a-z0-9._-]{3,63}$" |
 	fn.#StringExpression
 	ErrorOutputPrefix?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[0-9A-Za-z!\\-_'.*()\\/]+$" |
@@ -58,30 +53,27 @@ _#defs: "/$defs/Properties/definitions/DeadLetterQueueS3Configuration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	EncryptionType!: "KMS" | fn.#StringExpression
 	KeyId!:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close(
-	{CloudWatchLogs!: _#defs."/$defs/Properties/definitions/CloudWatchLogsConfiguration" | fn.#ObjectExpression},
-) |
+#LoggingConfiguration: close({CloudWatchLogs!: #CloudWatchLogsConfiguration | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionField": close({
+#PartitionField: close({
 	SourceName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._]+$" | fn.#StringExpression
 	Transform!:  "TIME_HOUR" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PartitionSpec": close({
-	PartitionFields!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/PartitionField"] |
-		fn.#ListExpression
-}) |
+#PartitionSpec: close(
+	{PartitionFields!: list.MaxItems(10) & list.MinItems(1) & [...#PartitionField] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecordConfiguration": close({
+#RecordConfiguration: close({
 	GSRSchemaARN?: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[-a-z0-9]*:glue:[-a-z0-9]+:\\d{12}:schema/[-a-zA-Z0-9_$#.]+/[-a-zA-Z0-9_$#.]+$" |
@@ -90,7 +82,7 @@ _#defs: "/$defs/Properties/definitions/RecordConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
+#S3DestinationConfiguration: close({
 	DataFreshnessInSeconds?: int |
 		{
 			string &
@@ -105,13 +97,12 @@ _#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	DeadLetterQueueS3Configuration?: _#defs."/$defs/Properties/definitions/DeadLetterQueueS3Configuration" |
-		fn.#ObjectExpression
-	StorageConfiguration!: _#defs."/$defs/Properties/definitions/S3StorageConfiguration" | fn.#ObjectExpression
+	DeadLetterQueueS3Configuration?: #DeadLetterQueueS3Configuration | fn.#ObjectExpression
+	StorageConfiguration!:           #S3StorageConfiguration | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3StorageConfiguration": close({
+#S3StorageConfiguration: close({
 	BucketARN!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws[-a-z0-9]*:s3:::[a-z0-9._-]{3,63}$" |
 	fn.#StringExpression
 	CompressionType!:     "NONE" | "GZIP" | "ZSTD" | fn.#StringExpression
@@ -122,10 +113,10 @@ _#defs: "/$defs/Properties/definitions/S3StorageConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3TableConfiguration": close({
+#S3TableConfiguration: close({
 	CompressionType!: "NONE" | "ZSTD" | "SNAPPY" | fn.#StringExpression
 	Namespace!:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]+$" | fn.#StringExpression
-	PartitionSpec?:   _#defs."/$defs/Properties/definitions/PartitionSpec" | fn.#ObjectExpression
+	PartitionSpec?:   #PartitionSpec | fn.#ObjectExpression
 	TableBucketARN!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[-a-z0-9]*:s3tables:[-a-z0-9]+:[0-9]{12}:bucket/[a-z0-9_-]{3,63}$" |
@@ -134,7 +125,7 @@ _#defs: "/$defs/Properties/definitions/S3TableConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3TablesDestinationConfiguration": close({
+#S3TablesDestinationConfiguration: close({
 	DataFreshnessInSeconds?: int |
 		{
 			string &
@@ -149,23 +140,20 @@ _#defs: "/$defs/Properties/definitions/S3TablesDestinationConfiguration": close(
 				)
 		} |
 		fn.#NumberExpression
-	DeadLetterQueueS3Configuration!: _#defs."/$defs/Properties/definitions/DeadLetterQueueS3Configuration" |
-		fn.#ObjectExpression
-	S3TablesConfigurationList!: list.MaxItems(10000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/S3TableConfiguration"
-	] |
+	DeadLetterQueueS3Configuration!: #DeadLetterQueueS3Configuration | fn.#ObjectExpression
+	S3TablesConfigurationList!: list.MaxItems(10000) & list.MinItems(1) & [...#S3TableConfiguration] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamConfiguration": close({
-	RecordConfiguration!: _#defs."/$defs/Properties/definitions/RecordConfiguration" | fn.#ObjectExpression
+#StreamConfiguration: close({
+	RecordConfiguration!: #RecordConfiguration | fn.#ObjectExpression
 	StreamARN!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws.*:kinesis:.*:\\d{12}:stream/\\S+" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |

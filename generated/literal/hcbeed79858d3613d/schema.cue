@@ -12,20 +12,20 @@ import "strings"
 	DirectoryId!:                 string
 	Id?:                          string
 	RootVolumeEncryptionEnabled?: bool
-	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                        [...#Tag]
 	UserName!:                    string
 	UserVolumeEncryptionEnabled?: bool
 	VolumeEncryptionKey?:         string
 	WorkspaceId?:                 string
-	WorkspaceProperties?:         _#defs."/$defs/Properties/definitions/WorkspaceProperties"
+	WorkspaceProperties?:         #WorkspaceProperties
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/WorkspaceProperties": close({
+#WorkspaceProperties: close({
 	ComputeTypeName?:                     string
 	RootVolumeSizeGib?:                   int
 	RunningMode?:                         string

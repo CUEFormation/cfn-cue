@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"struct"
+	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -19,27 +19,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::IoTAnalytics::Pipeline
 #Properties: close({
-	PipelineActivities!: list.MaxItems(25) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Activity"] |
-		fn.#ListExpression
-	PipelineName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	PipelineActivities!: list.MaxItems(25) & list.MinItems(1) & [...#Activity] | fn.#ListExpression
+	PipelineName?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
+	Tags?:               list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Activity": close({
-	AddAttributes?:        _#defs."/$defs/Properties/definitions/AddAttributes"
-	Channel?:              _#defs."/$defs/Properties/definitions/Channel"
-	Datastore?:            _#defs."/$defs/Properties/definitions/Datastore"
-	DeviceRegistryEnrich?: _#defs."/$defs/Properties/definitions/DeviceRegistryEnrich"
-	DeviceShadowEnrich?:   _#defs."/$defs/Properties/definitions/DeviceShadowEnrich"
-	Filter?:               _#defs."/$defs/Properties/definitions/Filter"
-	Lambda?:               _#defs."/$defs/Properties/definitions/Lambda"
-	Math?:                 _#defs."/$defs/Properties/definitions/Math"
-	RemoveAttributes?:     _#defs."/$defs/Properties/definitions/RemoveAttributes"
-	SelectAttributes?:     _#defs."/$defs/Properties/definitions/SelectAttributes"
+#Activity: close({
+	AddAttributes?:        #AddAttributes
+	Channel?:              #Channel
+	Datastore?:            #Datastore
+	DeviceRegistryEnrich?: #DeviceRegistryEnrich
+	DeviceShadowEnrich?:   #DeviceShadowEnrich
+	Filter?:               #Filter
+	Lambda?:               #Lambda
+	Math?:                 #Math
+	RemoveAttributes?:     #RemoveAttributes
+	SelectAttributes?:     #SelectAttributes
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AddAttributes": close({
+#AddAttributes: close({
 	Attributes!: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 		{[=~"^.*$"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
@@ -49,20 +48,20 @@ _#defs: "/$defs/Properties/definitions/AddAttributes": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Channel": close({
+#Channel: close({
 	ChannelName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
 	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Next?:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Datastore": close({
+#Datastore: close({
 	DatastoreName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
 	Name!:          strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeviceRegistryEnrich": close({
+#DeviceRegistryEnrich: close({
 	Attribute!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Next?:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -72,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/DeviceRegistryEnrich": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeviceShadowEnrich": close({
+#DeviceShadowEnrich: close({
 	Attribute!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Next?:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -82,14 +81,14 @@ _#defs: "/$defs/Properties/definitions/DeviceShadowEnrich": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Filter": close({
+#Filter: close({
 	Filter!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Next?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Lambda": close({
+#Lambda: close({
 	BatchSize!: int & <=1000 & >=1 |
 		{
 			string &
@@ -112,7 +111,7 @@ _#defs: "/$defs/Properties/definitions/Lambda": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Math": close({
+#Math: close({
 	Attribute!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Math!:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
@@ -120,7 +119,7 @@ _#defs: "/$defs/Properties/definitions/Math": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RemoveAttributes": close({
+#RemoveAttributes: close({
 	Attributes!: list.MaxItems(50) & list.MinItems(1) & [
 		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -130,7 +129,7 @@ _#defs: "/$defs/Properties/definitions/RemoveAttributes": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelectAttributes": close({
+#SelectAttributes: close({
 	Attributes!: list.MaxItems(50) & list.MinItems(1) & [
 		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -140,7 +139,7 @@ _#defs: "/$defs/Properties/definitions/SelectAttributes": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

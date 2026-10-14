@@ -10,7 +10,7 @@ import "strings"
 #Properties: close({
 	// The target architecture of the robot.
 	Architecture!: "X86_64" | "ARM64" | "ARMHF"
-	Arn?:          _#defs."/$defs/Properties/definitions/Arn"
+	Arn?:          #Arn
 
 	// The Amazon Resource Name (ARN) of the fleet.
 	Fleet?: strings.MaxRunes(1224) & strings.MinRunes(1)
@@ -20,12 +20,12 @@ import "strings"
 
 	// The name for the robot.
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1)
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Tags?: #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*"
+#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1)}})

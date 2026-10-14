@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -25,10 +25,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Tags?: #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/IamIdentityCenter": close({
+#IamIdentityCenter: close({
 	ApprovalPortalUrl?: string | fn.#StringExpression
 	InstanceArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -38,21 +38,17 @@ _#defs: "/$defs/Properties/definitions/IamIdentityCenter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdentitySourceArn": string | fn.#StringExpression
+#IdentitySourceArn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IdentitySourceParameters": close(
-	{IamIdentityCenter!: _#defs."/$defs/Properties/definitions/IamIdentityCenter"},
-) |
-	fn.#ObjectExpression
+#IdentitySourceParameters: close({IamIdentityCenter!: #IamIdentityCenter}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
+#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MPA::IdentitySource"
 	Properties!: #Properties

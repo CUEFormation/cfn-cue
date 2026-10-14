@@ -23,7 +23,7 @@ import (
 	DomainName!: strings.MaxRunes(253) &
 	strings.MinRunes(1) &
 	=~"^([a-z0-9]([a-z0-9-]*[a-z0-9])?\\.)*[a-z0-9]([a-z0-9-]*[a-z0-9])?$"
-	PrevalidationOptions!: _#defs."/$defs/Properties/definitions/PrevalidationOptions"
+	PrevalidationOptions!: #PrevalidationOptions
 
 	// Tags associated with the domain validation.
 	Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
@@ -36,8 +36,8 @@ import (
 })
 
 // DNS-based prevalidation options for the domain validation.
-_#defs: "/$defs/Properties/definitions/DnsPrevalidationOptions": close({
-	DomainScope?: _#defs."/$defs/Properties/definitions/DomainScope"
+#DnsPrevalidationOptions: close({
+	DomainScope?: #DomainScope
 
 	// The Route 53 hosted zone ID for automatic DNS record management. When
 	// provided, the service creates the validation DNS record on the customer's
@@ -47,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/DnsPrevalidationOptions": close({
 
 // Controls which certificate types are authorized to be issued for the domain
 // via the ACME endpoint.
-_#defs: "/$defs/Properties/definitions/DomainScope": close({
+#DomainScope: close({
 	// Whether certificates may be issued for the exact domain.
 	ExactDomain?: string
 
@@ -59,12 +59,10 @@ _#defs: "/$defs/Properties/definitions/DomainScope": close({
 })
 
 // Prevalidation method configuration. Currently only DNS-based prevalidation is supported.
-_#defs: "/$defs/Properties/definitions/PrevalidationOptions": close(
-	{DnsPrevalidation!: _#defs."/$defs/Properties/definitions/DnsPrevalidationOptions"},
-)
+#PrevalidationOptions: close({DnsPrevalidation!: #DnsPrevalidationOptions})
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

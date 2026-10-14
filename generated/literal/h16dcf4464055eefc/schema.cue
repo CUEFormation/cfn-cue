@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,7 +12,7 @@ import (
 // Resource schema for AWS::RDS::DBProxy
 #Properties: close({
 	// The authorization mechanism that the proxy uses.
-	Auth?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AuthFormat"]
+	Auth?: list.MaxItems(200) & list.MinItems(1) & [...#AuthFormat]
 
 	// The Amazon Resource Name (ARN) for the proxy.
 	DBProxyArn?: string
@@ -52,7 +52,7 @@ import (
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// An optional set of key-value pairs to associate arbitrary data of your choosing with the proxy.
-	Tags?: [..._#defs."/$defs/Properties/definitions/TagFormat"]
+	Tags?: [...#TagFormat]
 
 	// The network type that the proxy uses to connect to the target database. The
 	// network type determines the IP version that the proxy uses for connections
@@ -69,7 +69,7 @@ import (
 	VpcSubnetIds!: list.MinItems(2) & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/AuthFormat": close({
+#AuthFormat: close({
 	// The type of authentication that the proxy uses for connections from the proxy
 	// to the underlying database.
 	AuthScheme?: "SECRETS"
@@ -96,7 +96,7 @@ _#defs: "/$defs/Properties/definitions/AuthFormat": close({
 	SecretArn?: strings.MaxRunes(2048) & strings.MinRunes(20)
 })
 
-_#defs: "/$defs/Properties/definitions/TagFormat": close({
+#TagFormat: close({
 	Key?:   strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*"
 	Value?: strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*"
 })

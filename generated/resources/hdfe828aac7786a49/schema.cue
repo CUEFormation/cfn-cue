@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -13,19 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Creates a data source for an Amazon OpenSearch Service domain.
 #Properties: close({
-	DataSourceType!: _#defs."/$defs/Properties/definitions/DataSourceType"
+	DataSourceType!: #DataSourceType
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^([a-zA-Z0-9_])*[\\\\a-zA-Z0-9_@#%*+=:?./!\\s-]*$" |
 	fn.#StringExpression
 	DomainName!: strings.MaxRunes(28) & strings.MinRunes(3) & =~"^[a-z][a-z0-9\\-]+$" | fn.#StringExpression
 	Name!:       strings.MaxRunes(80) & strings.MinRunes(3) & =~"^[a-z][a-z0-9_]+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DataSourceType": close(
-	{S3GlueDataCatalog?: _#defs."/$defs/Properties/definitions/S3GlueDataCatalog"},
-) |
-	fn.#ObjectExpression
+#DataSourceType: close({S3GlueDataCatalog?: #S3GlueDataCatalog}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3GlueDataCatalog": close({
+#S3GlueDataCatalog: close({
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &

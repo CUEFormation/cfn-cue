@@ -10,7 +10,7 @@ import "strings"
 #Properties: close({
 	// The action that you are enabling the other account to perform.
 	Action?:    "events:PutEvents" & strings.MaxRunes(64) & strings.MinRunes(1) & =~"events:[a-zA-Z]+"
-	Condition?: _#defs."/$defs/Properties/definitions/Condition"
+	Condition?: #Condition
 
 	// The name of the event bus associated with the rule. If you omit this, the
 	// default event bus is used.
@@ -28,7 +28,7 @@ import "strings"
 
 // This parameter enables you to limit the permission to accounts that fulfill a
 // certain condition, such as being a member of a certain AWS organization.
-_#defs: "/$defs/Properties/definitions/Condition": close({
+#Condition: close({
 	// Specifies the value for the key. Currently, this must be the ID of the organization.
 	Key?: string
 

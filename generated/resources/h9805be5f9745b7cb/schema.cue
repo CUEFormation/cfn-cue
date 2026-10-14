@@ -19,10 +19,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DBInstanceIdentifier?:       string | fn.#StringExpression
 	EnablePerformanceInsights?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PreferredMaintenanceWindow?: string | fn.#StringExpression
-	Tags?:                       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                       [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

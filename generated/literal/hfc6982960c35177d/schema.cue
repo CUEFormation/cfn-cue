@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"time"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,33 +14,33 @@ import (
 // allowlisting](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/request-static-ips.html)
 // in the *Amazon CloudFront Developer Guide*.
 #Properties: close({
-	AnycastIpList?: _#defs."/$defs/Properties/definitions/AnycastIpList"
+	AnycastIpList?: #AnycastIpList
 	ETag?:          string
 	Id?:            string
 
 	// The IP address type for the Anycast static IP list.
-	IpAddressType?: _#defs."/$defs/Properties/definitions/IpAddressType"
+	IpAddressType?: #IpAddressType
 
 	// The number of IP addresses in the Anycast static IP list.
 	IpCount!:               int
-	IpamCidrConfigResults?: _#defs."/$defs/Properties/definitions/IpamCidrConfigResults"
+	IpamCidrConfigResults?: #IpamCidrConfigResults
 
 	// A list of IPAM CIDR configurations that define the IP address ranges, IPAM
 	// pools, and associated Anycast IP addresses.
-	IpamCidrConfigs?: _#defs."/$defs/Properties/definitions/IpamCidrConfigs"
+	IpamCidrConfigs?: #IpamCidrConfigs
 
 	// The name of the Anycast static IP list.
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$"
 
 	// A complex type that contains zero or more ``Tag`` elements.
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Tags?: #Tags
 })
 
 // An Anycast static IP list. For more information, see [Request Anycast static
 // IPs to use for
 // allowlisting](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/request-static-ips.html)
 // in the *Amazon CloudFront Developer Guide*.
-_#defs: "/$defs/Properties/definitions/AnycastIpList": close({
+#AnycastIpList: close({
 	// The static IP addresses that are allocated to the Anycast static IP list.
 	AnycastIps!: [...string]
 
@@ -51,14 +51,14 @@ _#defs: "/$defs/Properties/definitions/AnycastIpList": close({
 	Id!: string
 
 	// The IP address type for the Anycast static IP list.
-	IpAddressType?: _#defs."/$defs/Properties/definitions/IpAddressType"
+	IpAddressType?: #IpAddressType
 
 	// The number of IP addresses in the Anycast static IP list.
 	IpCount!: int
 
 	// The results for the IPAM CIDRs that defines a specific IP address range, IPAM
 	// pool, and associated Anycast IP address.
-	IpamCidrConfigResults?: _#defs."/$defs/Properties/definitions/IpamCidrConfigResults"
+	IpamCidrConfigResults?: #IpamCidrConfigResults
 
 	// The last time the Anycast static IP list was modified.
 	LastModifiedTime!: time.Time
@@ -71,11 +71,11 @@ _#defs: "/$defs/Properties/definitions/AnycastIpList": close({
 	Status!: string
 })
 
-_#defs: "/$defs/Properties/definitions/IpAddressType": "ipv4" | "dualstack"
+#IpAddressType: "ipv4" | "dualstack"
 
 // Configuration for an IPAM CIDR that defines a specific IP address range, IPAM
 // pool, and associated Anycast IP address.
-_#defs: "/$defs/Properties/definitions/IpamCidrConfig": close({
+#IpamCidrConfig: close({
 	// The CIDR that specifies the IP address range for this IPAM configuration.
 	Cidr!: string
 
@@ -85,7 +85,7 @@ _#defs: "/$defs/Properties/definitions/IpamCidrConfig": close({
 
 // The result for the IPAM CIDR that defines a specific IP address range, IPAM
 // pool, and associated Anycast IP address.
-_#defs: "/$defs/Properties/definitions/IpamCidrConfigResult": close({
+#IpamCidrConfigResult: close({
 	// The specified Anycast IP address allocated from the IPAM pool for this CIDR configuration.
 	AnycastIp?: string
 
@@ -99,14 +99,12 @@ _#defs: "/$defs/Properties/definitions/IpamCidrConfigResult": close({
 	Status?: string
 })
 
-_#defs: "/$defs/Properties/definitions/IpamCidrConfigResults": [
-	..._#defs."/$defs/Properties/definitions/IpamCidrConfigResult"
-]
+#IpamCidrConfigResults: [...#IpamCidrConfigResult]
 
-_#defs: "/$defs/Properties/definitions/IpamCidrConfigs": [..._#defs."/$defs/Properties/definitions/IpamCidrConfig"]
+#IpamCidrConfigs: [...#IpamCidrConfig]
 
 // A complex type that contains ``Tag`` key and ``Tag`` value.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string that contains ``Tag`` key.
 	// The string length should be between 1 and 128 characters. Valid characters
 	// include ``a-z``, ``A-Z``, ``0-9``, space, and the special characters ``_ - .
@@ -121,7 +119,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // A complex type that contains zero or more ``Tag`` elements.
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	// A complex type that contains ``Tag`` elements.
-	Items?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Items?: [...#Tag]
 })

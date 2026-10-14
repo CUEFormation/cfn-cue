@@ -18,13 +18,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression
 	SubnetIds!:        [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:             [...#Tag] | fn.#ListExpression
 	TransitGatewayId!: string | fn.#StringExpression
 	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

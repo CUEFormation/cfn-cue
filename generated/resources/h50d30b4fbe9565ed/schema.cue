@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -19,13 +19,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$" |
 	fn.#StringExpression
 	GuardrailVersion!:         =~"^[1-9][0-9]{0,7}$" | fn.#StringExpression
-	ModelEnforcement?:         _#defs."/$defs/Properties/definitions/ModelEnforcement"
-	SelectiveContentGuarding?: _#defs."/$defs/Properties/definitions/SelectiveContentGuarding"
+	ModelEnforcement?:         #ModelEnforcement
+	SelectiveContentGuarding?: #SelectiveContentGuarding
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigOwner": "ACCOUNT" | "ORGANIZATION" | fn.#StringExpression
+#ConfigOwner: "ACCOUNT" | "ORGANIZATION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ModelEnforcement": close({
+#ModelEnforcement: close({
 	ExcludedModels!: [...] & [
 		...=~"^([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}(/[a-z0-9]{12}){0,1}$" |
 			fn.#StringExpression
@@ -39,7 +39,7 @@ _#defs: "/$defs/Properties/definitions/ModelEnforcement": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelectiveContentGuarding": close({
+#SelectiveContentGuarding: close({
 	Messages?: "SELECTIVE" | "COMPREHENSIVE" | fn.#StringExpression
 	System?:   "SELECTIVE" | "COMPREHENSIVE" | fn.#StringExpression
 }) |

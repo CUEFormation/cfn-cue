@@ -18,46 +18,44 @@ import (
 	CustomDomainName?:              strings.MaxRunes(255) & strings.MinRunes(3)
 	DomainVerificationId?:          strings.MaxRunes(20) & strings.MinRunes(20) & =~"^dv-[a-fA-F0-9]{17}$"
 	GroupDomain?:                   strings.MaxRunes(255) & strings.MinRunes(3)
-	Id?:                            _#defs."/$defs/Properties/definitions/Id"
+	Id?:                            #Id
 	Name!:                          strings.MaxRunes(40) & strings.MinRunes(3)
-	PortRanges?:                    [..._#defs."/$defs/Properties/definitions/PortRange"]
+	PortRanges?:                    [...#PortRange]
 	ProtocolType?:                  "TCP"
 	ResourceConfigurationAuthType?: "NONE" | "AWS_IAM"
 	ResourceConfigurationDefinition?: matchN(1, [close(
-		{IpResource!: _#defs."/$defs/Properties/definitions/IpResource"},
+		{IpResource!: #IpResource},
 	), close(
-		{ArnResource!: _#defs."/$defs/Properties/definitions/ArnResource"},
+		{ArnResource!: #ArnResource},
 	), close(
-		{DnsResource!: _#defs."/$defs/Properties/definitions/DnsResource"},
+		{DnsResource!: #DnsResource},
 	), close(
-		{CidrResource!: _#defs."/$defs/Properties/definitions/CidrResource"},
+		{CidrResource!: #CidrResource},
 	)])
-	ResourceConfigurationGroupId?: _#defs."/$defs/Properties/definitions/Id"
+	ResourceConfigurationGroupId?: #Id
 	ResourceConfigurationType!:    "GROUP" | "CHILD" | "SINGLE" | "ARN" | "CIDR"
 	ResourceGatewayId?:            string
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                         list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ArnResource": strings.MaxRunes(1224) & =~"^arn.*"
+#ArnResource: strings.MaxRunes(1224) & =~"^arn.*"
 
-_#defs: "/$defs/Properties/definitions/CidrResource": close(
+#CidrResource: close(
 	{CidrRanges!: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(50) & strings.MinRunes(1)]},
 )
 
-_#defs: "/$defs/Properties/definitions/DnsResource": close({
+#DnsResource: close({
 	DomainName!:    strings.MaxRunes(255) & strings.MinRunes(3)
 	IpAddressType!: "IPV4" | "IPV6" | "DUALSTACK"
 })
 
-_#defs: "/$defs/Properties/definitions/Id": strings.MaxRunes(22) & strings.MinRunes(22) & =~"^rcfg-[0-9a-z]{17}$"
+#Id: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^rcfg-[0-9a-z]{17}$"
 
-_#defs: "/$defs/Properties/definitions/IpResource": strings.MaxRunes(39) & strings.MinRunes(4)
+#IpResource: strings.MaxRunes(39) & strings.MinRunes(4)
 
-_#defs: "/$defs/Properties/definitions/PortRange": strings.MaxRunes(11) &
-strings.MinRunes(1) &
-=~"^((\\d{1,5}\\-\\d{1,5})|(\\d+))$"
+#PortRange: strings.MaxRunes(11) & strings.MinRunes(1) & =~"^((\\d{1,5}\\-\\d{1,5})|(\\d+))$"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1)
 })

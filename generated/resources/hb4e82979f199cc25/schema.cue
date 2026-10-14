@@ -20,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Content!:            strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
 	Description?:        strings.MaxRunes(500) & =~".*\\S.*" | fn.#StringExpression
-	EntryPoint?:         _#defs."/$defs/Properties/definitions/EntryPoint" | fn.#ObjectExpression
+	EntryPoint?:         #EntryPoint | fn.#ObjectExpression
 	InitializationData?: strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
 	InstanceArn!: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
@@ -28,10 +28,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Name!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 	Status?: "SAVED" | "PUBLISHED" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EntryPoint": close({
+#EntryPoint: close({
 	ChatEntryPointParameters?: close({FlowId?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
 	fn.#ObjectExpression
 	Type?: "VOICE_CALL" | "CHAT" | fn.#StringExpression
@@ -44,13 +44,13 @@ _#defs: "/$defs/Properties/definitions/EntryPoint": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": number |
+#Timestamp: number |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &

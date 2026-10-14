@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"time"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,11 +25,11 @@ import (
 
 	// The name of the support permit.
 	Name!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{1,256}$"
-	Permit!: _#defs."/$defs/Properties/definitions/Permit"
+	Permit!: #Permit
 
 	// The service-generated identifier of the support permit (the resource segment of the ARN).
 	PermitId?:       strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]{1,512}$"
-	SigningKeyInfo!: _#defs."/$defs/Properties/definitions/SigningKeyInfo"
+	SigningKeyInfo!: #SigningKeyInfo
 
 	// The current status of the support permit.
 	Status?: "ACTIVE" | "INACTIVE" | "DELETING"
@@ -39,12 +39,12 @@ import (
 	SupportCaseDisplayId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/-]{1,512}$"
 
 	// A list of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // The set of actions a support permit grants. Exactly one of AllActions or
 // Actions must be provided.
-_#defs: "/$defs/Properties/definitions/ActionSet": close({
+#ActionSet: close({
 	// An explicit list of actions to grant.
 	Actions?: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]*:[A-Za-z0-9_.-]+$"
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/ActionSet": close({
 
 // A time-bound condition controlling when the permit is active. Exactly one of
 // AllowAfter or AllowBefore must be provided.
-_#defs: "/$defs/Properties/definitions/Condition": close({
+#Condition: close({
 	// The permit is active only after this time.
 	AllowAfter?: time.Time
 
@@ -66,17 +66,17 @@ _#defs: "/$defs/Properties/definitions/Condition": close({
 
 // The grant definition: which actions on which resources, optionally
 // constrained by time conditions.
-_#defs: "/$defs/Properties/definitions/Permit": close({
-	Actions!: _#defs."/$defs/Properties/definitions/ActionSet"
+#Permit: close({
+	Actions!: #ActionSet
 
 	// Optional time-bound conditions (at most two).
-	Conditions?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/Condition"]
-	Resources!:  _#defs."/$defs/Properties/definitions/ResourceSet"
+	Conditions?: list.MaxItems(2) & [...#Condition]
+	Resources!:  #ResourceSet
 })
 
 // The set of resources a support permit applies to. Exactly one of
 // AllResourcesInRegion or Resources must be provided.
-_#defs: "/$defs/Properties/definitions/ResourceSet": close({
+#ResourceSet: close({
 	// Applies to all resources in the region.
 	AllResourcesInRegion?: close({})
 
@@ -87,13 +87,13 @@ _#defs: "/$defs/Properties/definitions/ResourceSet": close({
 })
 
 // The signing key used by the permit. Exactly one key type must be provided.
-_#defs: "/$defs/Properties/definitions/SigningKeyInfo": close({
+#SigningKeyInfo: close({
 	// The ARN of the KMS key used to sign permit grants.
 	KmsKey!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/:_-]{1,512}$"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode characters in length.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$"
 

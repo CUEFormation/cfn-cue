@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	FarmId!:         =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
 	FleetId!:        =~"^fleet-[0-9a-f]{32}$" | fn.#StringExpression
-	HostProperties?: _#defs."/$defs/Properties/definitions/HostPropertiesRequest" | fn.#ObjectExpression
+	HostProperties?: #HostPropertiesRequest | fn.#ObjectExpression
 	Tags?: list.MaxItems(50) & [...close({
 		Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 		Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
@@ -25,13 +25,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/HostPropertiesRequest": close({
+#HostPropertiesRequest: close({
 	HostName?:    =~"^[a-zA-Z0-9_\\.\\-]{0,255}$" | fn.#StringExpression
-	IpAddresses?: _#defs."/$defs/Properties/definitions/IpAddresses"
+	IpAddresses?: #IpAddresses
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpAddresses": close({
+#IpAddresses: close({
 	IpV4Addresses?: [...=~"^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$" | fn.#StringExpression] | fn.#ListExpression
 	IpV6Addresses?: [...=~"^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$" | fn.#StringExpression] | fn.#ListExpression
 }) |

@@ -15,7 +15,7 @@ import (
 	// Arn of the Flow Alias
 	Arn?: strings.MaxRunes(2048) &
 	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:flow/[0-9a-zA-Z]{10}/alias/[0-9a-zA-Z]{10}$"
-	ConcurrencyConfiguration?: _#defs."/$defs/Properties/definitions/FlowAliasConcurrencyConfiguration"
+	ConcurrencyConfiguration?: #FlowAliasConcurrencyConfiguration
 
 	// Time Stamp.
 	CreatedAt?: time.Time
@@ -36,30 +36,28 @@ import (
 	Name!: =~"^([0-9a-zA-Z][_-]?){1,100}$"
 
 	// Routing configuration for a Flow alias.
-	RoutingConfiguration!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/FlowAliasRoutingConfigurationListItem"
-	]
-	Tags?: _#defs."/$defs/Properties/definitions/TagsMap"
+	RoutingConfiguration!: list.MaxItems(1) & list.MinItems(1) & [...#FlowAliasRoutingConfigurationListItem]
+	Tags?:                 #TagsMap
 
 	// Time Stamp.
 	UpdatedAt?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/ConcurrencyType": "Automatic" | "Manual"
+#ConcurrencyType: "Automatic" | "Manual"
 
-_#defs: "/$defs/Properties/definitions/FlowAliasConcurrencyConfiguration": close({
+#FlowAliasConcurrencyConfiguration: close({
 	// Number of nodes executed concurrently at a time
 	MaxConcurrency?: <=100 & >=1
-	Type!:           _#defs."/$defs/Properties/definitions/ConcurrencyType"
+	Type!:           #ConcurrencyType
 })
 
 // Details about the routing configuration for a Flow alias.
-_#defs: "/$defs/Properties/definitions/FlowAliasRoutingConfigurationListItem": close({
+#FlowAliasRoutingConfigurationListItem: close({
 	// Version.
 	FlowVersion?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]{0,4}[1-9][0-9]{0,4})$"
 })
 
 // A map of tag keys and values
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})

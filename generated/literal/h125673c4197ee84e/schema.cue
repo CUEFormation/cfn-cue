@@ -15,7 +15,7 @@ import (
 // refresh schedule and modify dashboard widgets.
 #Properties: close({
 	// The timestamp of the dashboard creation.
-	CreatedTimestamp?: _#defs."/$defs/Properties/definitions/Timestamp"
+	CreatedTimestamp?: #Timestamp
 
 	// The ARN of the dashboard.
 	DashboardArn?: =~"^[a-zA-Z0-9._/\\-:]+$"
@@ -26,11 +26,11 @@ import (
 	// Configures the automatic refresh schedule for the dashboard. Includes the
 	// frequency unit (DAYS or HOURS) and value, as well as the status (ENABLED or
 	// DISABLED) of the refresh schedule.
-	RefreshSchedule?: _#defs."/$defs/Properties/definitions/RefreshSchedule"
+	RefreshSchedule?: #RefreshSchedule
 
 	// The status of the dashboard. Values are CREATING, CREATED, UPDATING, UPDATED and DELETING.
 	Status?: "CREATING" | "CREATED" | "UPDATING" | "UPDATED" | "DELETING"
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:   [...#Tag]
 
 	// Indicates whether the dashboard is protected from termination.
 	TerminationProtectionEnabled?: bool
@@ -41,19 +41,19 @@ import (
 	// The timestamp showing when the dashboard was updated, if applicable.
 	// UpdatedTimestamp is always either the same or newer than the time shown in
 	// CreatedTimestamp.
-	UpdatedTimestamp?: _#defs."/$defs/Properties/definitions/Timestamp"
+	UpdatedTimestamp?: #Timestamp
 
 	// List of widgets on the dashboard
-	Widgets?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Widget"]
+	Widgets?: list.UniqueItems() & [...#Widget]
 })
 
 // The value of the QueryParameter. Possible values: $StartTime$, $EndTime$, $Period$.
-_#defs: "/$defs/Properties/definitions/QueryParameter": strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*"
+#QueryParameter: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*"
 
 // Configures the automatic refresh schedule for the dashboard. Includes the
 // frequency unit (DAYS or HOURS) and value, as well as the status (ENABLED or
 // DISABLED) of the refresh schedule.
-_#defs: "/$defs/Properties/definitions/RefreshSchedule": close({
+#RefreshSchedule: close({
 	Frequency?: close({
 		// The frequency unit. Supported values are HOURS and DAYS.
 		Unit!: "HOURS" | "DAYS"
@@ -70,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/RefreshSchedule": close({
 })
 
 // An arbitrary set of tags (key-value pairs) for this dashboard.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -84,12 +84,12 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Timestamp": string
+#Timestamp: string
 
 // The dashboard widget
-_#defs: "/$defs/Properties/definitions/Widget": close({
+#Widget: close({
 	// The placeholder keys in the QueryStatement. For example: $StartTime$, $EndTime$, $Period$.
-	QueryParameters?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/QueryParameter"]
+	QueryParameters?: list.MaxItems(10) & list.MinItems(1) & [...#QueryParameter]
 
 	// The SQL query statement on one or more event data stores.
 	QueryStatement!: strings.MaxRunes(10000) & strings.MinRunes(1) & =~"(?s).*"

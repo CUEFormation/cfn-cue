@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"list"
 )
 
@@ -13,16 +13,16 @@ import (
 // Resource Type definition for AWS::MPA::IdentitySource.
 #Properties: close({
 	CreationTime?:             time.Time
-	IdentitySourceArn?:        _#defs."/$defs/Properties/definitions/IdentitySourceArn"
-	IdentitySourceParameters!: _#defs."/$defs/Properties/definitions/IdentitySourceParameters"
+	IdentitySourceArn?:        #IdentitySourceArn
+	IdentitySourceParameters!: #IdentitySourceParameters
 	IdentitySourceType?:       string
 	Status?:                   string
 	StatusCode?:               string
 	StatusMessage?:            string
-	Tags?:                     _#defs."/$defs/Properties/definitions/Tags"
+	Tags?:                     #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/IamIdentityCenter": close({
+#IamIdentityCenter: close({
 	ApprovalPortalUrl?: string
 	InstanceArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -30,13 +30,11 @@ _#defs: "/$defs/Properties/definitions/IamIdentityCenter": close({
 	Region!: strings.MaxRunes(1000)
 })
 
-_#defs: "/$defs/Properties/definitions/IdentitySourceArn": string
+#IdentitySourceArn: string
 
-_#defs: "/$defs/Properties/definitions/IdentitySourceParameters": close(
-	{IamIdentityCenter!: _#defs."/$defs/Properties/definitions/IamIdentityCenter"},
-)
+#IdentitySourceParameters: close({IamIdentityCenter!: #IamIdentityCenter})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -50,4 +48,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+#Tags: list.UniqueItems() & [...#Tag]

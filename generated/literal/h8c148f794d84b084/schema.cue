@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,14 +21,14 @@ import (
 	// ``forward``, ``fixed-response``, or ``redirect``, and it must be the last
 	// action to be performed. If the rule is for an HTTPS listener, it can also
 	// optionally include an authentication action.
-	Actions!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action"]
+	Actions!: list.UniqueItems() & [...#Action]
 
 	// The conditions.
 	// The rule can optionally include up to one of each of the following
 	// conditions: ``http-request-method``, ``host-header``, ``path-pattern``, and
 	// ``source-ip``. A rule can also optionally include one or more of each of the
 	// following conditions: ``http-header`` and ``query-string``.
-	Conditions!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RuleCondition"]
+	Conditions!: list.UniqueItems() & [...#RuleCondition]
 	IsDefault?:  bool
 
 	// The Amazon Resource Name (ARN) of the listener.
@@ -42,35 +42,35 @@ import (
 	// update.
 	Priority!:   int & <=50000 & >=1
 	RuleArn?:    string
-	Tags?:       list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
-	Transforms?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Transform"]
+	Tags?:       list.MinItems(1) & [...#Tag]
+	Transforms?: list.UniqueItems() & [...#Transform]
 })
 
 // Specifies an action for a listener rule.
-_#defs: "/$defs/Properties/definitions/Action": close({
+#Action: close({
 	// [HTTPS listeners] Information for using Amazon Cognito to authenticate users.
 	// Specify only when ``Type`` is ``authenticate-cognito``.
-	AuthenticateCognitoConfig?: _#defs."/$defs/Properties/definitions/AuthenticateCognitoConfig"
+	AuthenticateCognitoConfig?: #AuthenticateCognitoConfig
 
 	// [HTTPS listeners] Information about an identity provider that is compliant
 	// with OpenID Connect (OIDC). Specify only when ``Type`` is
 	// ``authenticate-oidc``.
-	AuthenticateOidcConfig?: _#defs."/$defs/Properties/definitions/AuthenticateOidcConfig"
+	AuthenticateOidcConfig?: #AuthenticateOidcConfig
 
 	// [Application Load Balancer] Information for creating an action that returns a
 	// custom HTTP response. Specify only when ``Type`` is ``fixed-response``.
-	FixedResponseConfig?: _#defs."/$defs/Properties/definitions/FixedResponseConfig"
+	FixedResponseConfig?: #FixedResponseConfig
 
 	// Information for creating an action that distributes requests among multiple
 	// target groups. Specify only when ``Type`` is ``forward``.
 	// If you specify both ``ForwardConfig`` and ``TargetGroupArn``, you can specify
 	// only one target group using ``ForwardConfig`` and it must be the same target
 	// group specified in ``TargetGroupArn``.
-	ForwardConfig?: _#defs."/$defs/Properties/definitions/ForwardConfig"
+	ForwardConfig?: #ForwardConfig
 
 	// [HTTPS listeners] Information for validating JWT access tokens in client
 	// requests. Specify only when ``Type`` is ``jwt-validation``.
-	JwtValidationConfig?: _#defs."/$defs/Properties/definitions/JwtValidationConfig"
+	JwtValidationConfig?: #JwtValidationConfig
 
 	// The order for the action. This value is required for rules with multiple
 	// actions. The action with the lowest value for order is performed first.
@@ -78,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 
 	// [Application Load Balancer] Information for creating a redirect action.
 	// Specify only when ``Type`` is ``redirect``.
-	RedirectConfig?: _#defs."/$defs/Properties/definitions/RedirectConfig"
+	RedirectConfig?: #RedirectConfig
 
 	// The Amazon Resource Name (ARN) of the target group. Specify only when
 	// ``Type`` is ``forward`` and you want to route to a single target group. To
@@ -90,7 +90,7 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 })
 
 // Specifies information required when integrating with Amazon Cognito to authenticate users.
-_#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
+#AuthenticateCognitoConfig: close({
 	// The query parameters (up to 10) to include in the redirect request to the authorization endpoint.
 	AuthenticationRequestExtraParams?: close({
 
@@ -128,7 +128,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
 
 // Specifies information required using an identity provide (IdP) that is
 // compliant with OpenID Connect (OIDC) to authenticate users.
-_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": close({
+#AuthenticateOidcConfig: close({
 	// The query parameters (up to 10) to include in the redirect request to the authorization endpoint.
 	AuthenticationRequestExtraParams?: close({
 
@@ -184,7 +184,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": close({
 }) & matchN(>=1, [{ClientSecret!: _}, {UseExistingClientSecret!: _}])
 
 // Specifies information required when returning a custom HTTP response.
-_#defs: "/$defs/Properties/definitions/FixedResponseConfig": close({
+#FixedResponseConfig: close({
 	// The content type.
 	// Valid Values: text/plain | text/css | text/html | application/javascript | application/json
 	ContentType?: strings.MaxRunes(32) & strings.MinRunes(0)
@@ -201,18 +201,18 @@ _#defs: "/$defs/Properties/definitions/FixedResponseConfig": close({
 // If you specify both ``ForwardConfig`` and ``TargetGroupArn``, you can specify
 // only one target group using ``ForwardConfig`` and it must be the same target
 // group specified in ``TargetGroupArn``.
-_#defs: "/$defs/Properties/definitions/ForwardConfig": close({
+#ForwardConfig: close({
 	// Information about the target group stickiness for a rule.
-	TargetGroupStickinessConfig?: _#defs."/$defs/Properties/definitions/TargetGroupStickinessConfig"
+	TargetGroupStickinessConfig?: #TargetGroupStickinessConfig
 
 	// Information about how traffic will be distributed between multiple target
 	// groups in a forward rule.
-	TargetGroups?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupTuple"]
+	TargetGroups?: list.UniqueItems() & [...#TargetGroupTuple]
 })
 
 // Information about a host header condition.
-_#defs: "/$defs/Properties/definitions/HostHeaderConfig": close({
-	RegexValues?: _#defs."/$defs/Properties/definitions/ListOfStrings"
+#HostHeaderConfig: close({
+	RegexValues?: #ListOfStrings
 
 	// The host names. The maximum length of each string is 128 characters. The
 	// comparison is case insensitive. The following wildcard characters are
@@ -221,17 +221,17 @@ _#defs: "/$defs/Properties/definitions/HostHeaderConfig": close({
 	// only alphabetical characters after the final "." character.
 	// If you specify multiple strings, the condition is satisfied if one of the
 	// strings matches the host name.
-	Values?: _#defs."/$defs/Properties/definitions/ListOfStrings"
+	Values?: #ListOfStrings
 })
 
 // Information about an HTTP header condition.
 // There is a set of standard HTTP header fields. You can also define custom HTTP header fields.
-_#defs: "/$defs/Properties/definitions/HttpHeaderConfig": close({
+#HttpHeaderConfig: close({
 	// The name of the HTTP header field. The maximum size is 40 characters. The
 	// header name is case insensitive. The allowed characters are specified by RFC
 	// 7230. Wildcards are not supported.
 	HttpHeaderName?: string
-	RegexValues?:    _#defs."/$defs/Properties/definitions/ListOfStrings"
+	RegexValues?:    #ListOfStrings
 
 	// The strings to compare against the value of the HTTP header. The maximum
 	// length of each string is 128 characters. The comparison strings are case
@@ -242,7 +242,7 @@ _#defs: "/$defs/Properties/definitions/HttpHeaderConfig": close({
 	// If you specify multiple strings, the condition is satisfied if one of the
 	// strings matches the value of the HTTP header. To require that all of the
 	// strings are a match, create one condition per string.
-	Values?: _#defs."/$defs/Properties/definitions/ListOfStrings"
+	Values?: #ListOfStrings
 })
 
 // Information about an HTTP method condition.
@@ -250,7 +250,7 @@ _#defs: "/$defs/Properties/definitions/HttpHeaderConfig": close({
 // more information, see the [HTTP Method
 // Registry](https://docs.aws.amazon.com/https://www.iana.org/assignments/http-methods/http-methods.xhtml).
 // You can also define custom HTTP methods.
-_#defs: "/$defs/Properties/definitions/HttpRequestMethodConfig": close({
+#HttpRequestMethodConfig: close({
 	// The name of the request method. The maximum length is 40 characters. The
 	// allowed characters are A-Z, hyphen (-), and underscore (_). The comparison
 	// is case sensitive. Wildcards are not supported; therefore, the method name
@@ -259,11 +259,11 @@ _#defs: "/$defs/Properties/definitions/HttpRequestMethodConfig": close({
 	// strings matches the HTTP request method. We recommend that you route GET and
 	// HEAD requests in the same way, because the response to a HEAD request may be
 	// cached.
-	Values?: _#defs."/$defs/Properties/definitions/ListOfStrings"
+	Values?: #ListOfStrings
 })
 
 // Information about an additional claim to validate.
-_#defs: "/$defs/Properties/definitions/JwtValidationActionAdditionalClaim": close({
+#JwtValidationActionAdditionalClaim: close({
 	// The format of the claim value.
 	Format!: "single-string" | "space-separated-values" | "string-array"
 
@@ -277,19 +277,17 @@ _#defs: "/$defs/Properties/definitions/JwtValidationActionAdditionalClaim": clos
 	Values!: list.UniqueItems() & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/JwtValidationConfig": close({
-	AdditionalClaims?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/JwtValidationActionAdditionalClaim"
-	]
-	Issuer!:       string
-	JwksEndpoint!: string
+#JwtValidationConfig: close({
+	AdditionalClaims?: list.UniqueItems() & [...#JwtValidationActionAdditionalClaim]
+	Issuer!:           string
+	JwksEndpoint!:     string
 })
 
-_#defs: "/$defs/Properties/definitions/ListOfStrings": list.UniqueItems() & [...string]
+#ListOfStrings: list.UniqueItems() & [...string]
 
 // Information about a path pattern condition.
-_#defs: "/$defs/Properties/definitions/PathPatternConfig": close({
-	RegexValues?: _#defs."/$defs/Properties/definitions/ListOfStrings"
+#PathPatternConfig: close({
+	RegexValues?: #ListOfStrings
 
 	// The path patterns to compare against the request URL. The maximum size of
 	// each string is 128 characters. The comparison is case sensitive. The
@@ -298,7 +296,7 @@ _#defs: "/$defs/Properties/definitions/PathPatternConfig": close({
 	// If you specify multiple strings, the condition is satisfied if one of them
 	// matches the request URL. The path pattern is compared only to the path of
 	// the URL, not to its query string.
-	Values?: _#defs."/$defs/Properties/definitions/ListOfStrings" & list.MaxItems(5)
+	Values?: #ListOfStrings & list.MaxItems(5)
 })
 
 // Information about a query string condition.
@@ -307,7 +305,7 @@ _#defs: "/$defs/Properties/definitions/PathPatternConfig": close({
 // query string contains key/value pairs separated by '&' characters. The
 // allowed characters are specified by RFC 3986. Any character can be
 // percentage encoded.
-_#defs: "/$defs/Properties/definitions/QueryStringConfig": close({
+#QueryStringConfig: close({
 	// The key/value pairs or values to find in the query string. The maximum length
 	// of each string is 128 characters. The comparison is case insensitive. The
 	// following wildcard characters are supported: * (matches 0 or more
@@ -316,11 +314,11 @@ _#defs: "/$defs/Properties/definitions/QueryStringConfig": close({
 	// ``Values`` using a '\' character.
 	// If you specify multiple key/value pairs or values, the condition is satisfied
 	// if one of them is found in the query string.
-	Values?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/QueryStringKeyValue"]
+	Values?: list.UniqueItems() & [...#QueryStringKeyValue]
 })
 
 // Information about a key/value pair.
-_#defs: "/$defs/Properties/definitions/QueryStringKeyValue": close({
+#QueryStringKeyValue: close({
 	// The key. You can omit the key.
 	Key?: string
 
@@ -342,7 +340,7 @@ _#defs: "/$defs/Properties/definitions/QueryStringKeyValue": close({
 //
 // For example, you can change the path to "/new/#{path}", the hostname to
 // "example.#{host}", or the query to "#{query}&value=xyz".
-_#defs: "/$defs/Properties/definitions/RedirectConfig": close({
+#RedirectConfig: close({
 	// The hostname. This component is not percent-encoded. The hostname can contain #{host}.
 	Host?: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -369,7 +367,7 @@ _#defs: "/$defs/Properties/definitions/RedirectConfig": close({
 
 // Information about a rewrite transform. This transform matches a pattern and
 // replaces it with the specified string.
-_#defs: "/$defs/Properties/definitions/RewriteConfig": close({
+#RewriteConfig: close({
 	// The regular expression to match in the input string. The maximum length of
 	// the string is 1,024 characters.
 	Regex!: string
@@ -380,16 +378,12 @@ _#defs: "/$defs/Properties/definitions/RewriteConfig": close({
 	Replace!: string
 })
 
-_#defs: "/$defs/Properties/definitions/RewriteConfigList": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/RewriteConfig"
-]
+#RewriteConfigList: list.UniqueItems() & [...#RewriteConfig]
 
-_#defs: "/$defs/Properties/definitions/RewriteConfigObject": close(
-	{Rewrites!: _#defs."/$defs/Properties/definitions/RewriteConfigList"},
-)
+#RewriteConfigObject: close({Rewrites!: #RewriteConfigList})
 
 // Specifies a condition for a listener rule.
-_#defs: "/$defs/Properties/definitions/RuleCondition": close({
+#RuleCondition: close({
 	// The name of the field. The possible values are:
 	// + ``http-header`` – [ALB] Matches on an HTTP header field.
 	// + ``http-request-method`` – [ALB] Matches on the HTTP request method.
@@ -403,27 +397,27 @@ _#defs: "/$defs/Properties/definitions/RuleCondition": close({
 	Field?: strings.MaxRunes(64) & strings.MinRunes(0)
 
 	// Information for a host header condition. Specify only when ``Field`` is ``host-header``.
-	HostHeaderConfig?: _#defs."/$defs/Properties/definitions/HostHeaderConfig"
+	HostHeaderConfig?: #HostHeaderConfig
 
 	// Information for an HTTP header condition. Specify only when ``Field`` is ``http-header``.
-	HttpHeaderConfig?: _#defs."/$defs/Properties/definitions/HttpHeaderConfig"
+	HttpHeaderConfig?: #HttpHeaderConfig
 
 	// Information for an HTTP method condition. Specify only when ``Field`` is ``http-request-method``.
-	HttpRequestMethodConfig?: _#defs."/$defs/Properties/definitions/HttpRequestMethodConfig"
+	HttpRequestMethodConfig?: #HttpRequestMethodConfig
 
 	// Information for a path pattern condition. Specify only when ``Field`` is ``path-pattern``.
-	PathPatternConfig?: _#defs."/$defs/Properties/definitions/PathPatternConfig"
+	PathPatternConfig?: #PathPatternConfig
 
 	// Information for a query string condition. Specify only when ``Field`` is ``query-string``.
-	QueryStringConfig?: _#defs."/$defs/Properties/definitions/QueryStringConfig"
+	QueryStringConfig?: #QueryStringConfig
 
 	// The regular expressions to match against the condition field. The maximum
 	// length of each string is 128 characters. Specify only when ``Field`` is
 	// ``http-header``, ``host-header``, or ``path-pattern``.
-	RegexValues?: _#defs."/$defs/Properties/definitions/ListOfStrings"
+	RegexValues?: #ListOfStrings
 
 	// Information for a source IP condition. Specify only when ``Field`` is ``source-ip``.
-	SourceIpConfig?: _#defs."/$defs/Properties/definitions/SourceIpConfig"
+	SourceIpConfig?: #SourceIpConfig
 
 	// The condition value. Specify only when ``Field`` is ``host-header`` or
 	// ``path-pattern``. Alternatively, to specify multiple host names or multiple
@@ -446,7 +440,7 @@ _#defs: "/$defs/Properties/definitions/RuleCondition": close({
 	// + & (using &amp;)
 	// + * (matches 0 or more characters)
 	// + ? (matches exactly 1 character)
-	Values?: _#defs."/$defs/Properties/definitions/ListOfStrings"
+	Values?: #ListOfStrings
 })
 
 // Information about a source IP condition.
@@ -456,7 +450,7 @@ _#defs: "/$defs/Properties/definitions/RuleCondition": close({
 // For Application Load Balancers, use ``Values`` to specify CIDR ranges. For
 // Network Load Balancers, use ``IpAddressType`` to match on the IP address
 // type of the source traffic.
-_#defs: "/$defs/Properties/definitions/SourceIpConfig": close({
+#SourceIpConfig: close({
 	IpAddressType?: "ipv4" | "ipv6"
 
 	// The source IP addresses, in CIDR format. You can use both IPv4 and IPv6
@@ -468,7 +462,7 @@ _#defs: "/$defs/Properties/definitions/SourceIpConfig": close({
 })
 
 // Information about a tag.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -477,7 +471,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Information about the target group stickiness for a rule.
-_#defs: "/$defs/Properties/definitions/TargetGroupStickinessConfig": close({
+#TargetGroupStickinessConfig: close({
 	// [Application Load Balancers] The time period, in seconds, during which
 	// requests from a client should be routed to the same target group. The range
 	// is 1-604800 seconds (7 days). You must specify this value when enabling
@@ -490,7 +484,7 @@ _#defs: "/$defs/Properties/definitions/TargetGroupStickinessConfig": close({
 
 // Information about how traffic will be distributed between multiple target
 // groups in a forward rule.
-_#defs: "/$defs/Properties/definitions/TargetGroupTuple": close({
+#TargetGroupTuple: close({
 	// The Amazon Resource Name (ARN) of the target group.
 	TargetGroupArn?: string
 
@@ -498,10 +492,10 @@ _#defs: "/$defs/Properties/definitions/TargetGroupTuple": close({
 	Weight?: int
 })
 
-_#defs: "/$defs/Properties/definitions/Transform": close({
-	HostHeaderRewriteConfig?: _#defs."/$defs/Properties/definitions/RewriteConfigObject"
+#Transform: close({
+	HostHeaderRewriteConfig?: #RewriteConfigObject
 	Type!:                    "host-header-rewrite" | "url-rewrite"
-	UrlRewriteConfig?:        _#defs."/$defs/Properties/definitions/RewriteConfigObject"
+	UrlRewriteConfig?:        #RewriteConfigObject
 	if HostHeaderRewriteConfig != _|_ {
 		UrlRewriteConfig?: error(
 			"UrlRewriteConfig cannot be used with HostHeaderRewriteConfig; set exactly one of HostHeaderRewriteConfig, UrlRewriteConfig",

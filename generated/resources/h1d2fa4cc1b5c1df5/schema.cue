@@ -22,33 +22,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
 		...
 	} | fn.#ObjectExpression
-	AdvancedSecurityOptions?:    _#defs."/$defs/Properties/definitions/AdvancedSecurityOptionsInput"
-	CognitoOptions?:             _#defs."/$defs/Properties/definitions/CognitoOptions"
-	DomainEndpointOptions?:      _#defs."/$defs/Properties/definitions/DomainEndpointOptions"
+	AdvancedSecurityOptions?:    #AdvancedSecurityOptionsInput
+	CognitoOptions?:             #CognitoOptions
+	DomainEndpointOptions?:      #DomainEndpointOptions
 	DomainName?:                 string | fn.#StringExpression
-	EBSOptions?:                 _#defs."/$defs/Properties/definitions/EBSOptions"
-	ElasticsearchClusterConfig?: _#defs."/$defs/Properties/definitions/ElasticsearchClusterConfig"
+	EBSOptions?:                 #EBSOptions
+	ElasticsearchClusterConfig?: #ElasticsearchClusterConfig
 	ElasticsearchVersion?:       string | fn.#StringExpression
-	EncryptionAtRestOptions?:    _#defs."/$defs/Properties/definitions/EncryptionAtRestOptions"
+	EncryptionAtRestOptions?:    #EncryptionAtRestOptions
 	LogPublishingOptions?: {
-		{[=~"[a-zA-Z0-9]+"]: _#defs."/$defs/Properties/definitions/LogPublishingOption"}
+		{[=~"[a-zA-Z0-9]+"]: #LogPublishingOption}
 		...
 	} | fn.#ObjectExpression
-	NodeToNodeEncryptionOptions?: _#defs."/$defs/Properties/definitions/NodeToNodeEncryptionOptions"
-	SnapshotOptions?:             _#defs."/$defs/Properties/definitions/SnapshotOptions"
-	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VPCOptions?:                  _#defs."/$defs/Properties/definitions/VPCOptions"
+	NodeToNodeEncryptionOptions?: #NodeToNodeEncryptionOptions
+	SnapshotOptions?:             #SnapshotOptions
+	Tags?:                        [...#Tag] | fn.#ListExpression
+	VPCOptions?:                  #VPCOptions
 })
 
-_#defs: "/$defs/Properties/definitions/AdvancedSecurityOptionsInput": close({
+#AdvancedSecurityOptionsInput: close({
 	AnonymousAuthEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Enabled?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InternalUserDatabaseEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MasterUserOptions?:           _#defs."/$defs/Properties/definitions/MasterUserOptions"
+	MasterUserOptions?:           #MasterUserOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CognitoOptions": close({
+#CognitoOptions: close({
 	Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IdentityPoolId?: string | fn.#StringExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -57,12 +57,12 @@ _#defs: "/$defs/Properties/definitions/CognitoOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ColdStorageOptions": close(
+#ColdStorageOptions: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DomainEndpointOptions": close({
+#DomainEndpointOptions: close({
 	CustomEndpoint?:               string | fn.#StringExpression
 	CustomEndpointCertificateArn?: string | fn.#StringExpression
 	CustomEndpointEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -71,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/DomainEndpointOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EBSOptions": close({
+#EBSOptions: close({
 	EBSEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int |
 		{
@@ -105,8 +105,8 @@ _#defs: "/$defs/Properties/definitions/EBSOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ElasticsearchClusterConfig": close({
-	ColdStorageOptions?: _#defs."/$defs/Properties/definitions/ColdStorageOptions"
+#ElasticsearchClusterConfig: close({
+	ColdStorageOptions?: #ColdStorageOptions
 	DedicatedMasterCount?: int |
 		{
 			string &
@@ -154,12 +154,12 @@ _#defs: "/$defs/Properties/definitions/ElasticsearchClusterConfig": close({
 		fn.#NumberExpression
 	WarmEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	WarmType?:             string | fn.#StringExpression
-	ZoneAwarenessConfig?:  _#defs."/$defs/Properties/definitions/ZoneAwarenessConfig"
+	ZoneAwarenessConfig?:  #ZoneAwarenessConfig
 	ZoneAwarenessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionAtRestOptions": close({
+#EncryptionAtRestOptions: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
@@ -167,25 +167,25 @@ _#defs: "/$defs/Properties/definitions/EncryptionAtRestOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogPublishingOption": close({
+#LogPublishingOption: close({
 	CloudWatchLogsLogGroupArn?: string | fn.#StringExpression
 	Enabled?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MasterUserOptions": close({
+#MasterUserOptions: close({
 	MasterUserARN?:      string | fn.#StringExpression
 	MasterUserName?:     string | fn.#StringExpression
 	MasterUserPassword?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeToNodeEncryptionOptions": close(
+#NodeToNodeEncryptionOptions: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SnapshotOptions": close({
+#SnapshotOptions: close({
 	AutomatedSnapshotStartHour?: int |
 		{
 			string &
@@ -203,13 +203,13 @@ _#defs: "/$defs/Properties/definitions/SnapshotOptions": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VPCOptions": close({
+#VPCOptions: close({
 	SecurityGroupIds?: list.UniqueItems() & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -219,7 +219,7 @@ _#defs: "/$defs/Properties/definitions/VPCOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ZoneAwarenessConfig": close({
+#ZoneAwarenessConfig: close({
 	AvailabilityZoneCount?: int |
 		{
 			string &

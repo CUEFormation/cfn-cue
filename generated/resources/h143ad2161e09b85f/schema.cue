@@ -11,11 +11,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::MediaLive::InputSecurityGroup
 #Properties: close({
 	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-	WhitelistRules?: [..._#defs."/$defs/Properties/definitions/InputWhitelistRuleCidr"] | fn.#ListExpression
+	WhitelistRules?: [...#InputWhitelistRuleCidr] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/InputWhitelistRuleCidr": close({Cidr?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#InputWhitelistRuleCidr: close({Cidr?: string | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MediaLive::InputSecurityGroup"
 	Properties?: #Properties

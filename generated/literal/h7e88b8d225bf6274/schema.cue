@@ -25,7 +25,7 @@ import (
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/transfer-destination/[-a-zA-Z0-9]*$"
 
 	// Configuration settings for the quick connect.
-	QuickConnectConfig!: _#defs."/$defs/Properties/definitions/QuickConnectConfig"
+	QuickConnectConfig!: #QuickConnectConfig
 
 	// The type of quick connect. In the Amazon Connect console, when you create a
 	// quick connect, you are prompted to assign one of the following types: Agent
@@ -33,50 +33,46 @@ import (
 	QuickConnectType?: "PHONE_NUMBER" | "QUEUE" | "USER" | "FLOW"
 
 	// One or more tags.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag]
 })
 
 // The identifier of the contact flow.
-_#defs: "/$defs/Properties/definitions/ContactFlowArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$"
+#ContactFlowArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$"
 
 // The flow configuration. This is required only if QuickConnectType is FLOW.
-_#defs: "/$defs/Properties/definitions/FlowQuickConnectConfig": close(
-	{ContactFlowArn!: _#defs."/$defs/Properties/definitions/ContactFlowArn"},
-)
+#FlowQuickConnectConfig: close({ContactFlowArn!: #ContactFlowArn})
 
 // The phone number in E.164 format.
-_#defs: "/$defs/Properties/definitions/PhoneNumber": =~"^\\+[1-9]\\d{1,14}$"
+#PhoneNumber: =~"^\\+[1-9]\\d{1,14}$"
 
 // The phone configuration. This is required only if QuickConnectType is PHONE_NUMBER.
-_#defs: "/$defs/Properties/definitions/PhoneNumberQuickConnectConfig": close(
-	{PhoneNumber!: _#defs."/$defs/Properties/definitions/PhoneNumber"},
-)
+#PhoneNumberQuickConnectConfig: close({PhoneNumber!: #PhoneNumber})
 
 // The identifier for the queue.
-_#defs: "/$defs/Properties/definitions/QueueArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$"
+#QueueArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$"
 
 // The queue configuration. This is required only if QuickConnectType is QUEUE.
-_#defs: "/$defs/Properties/definitions/QueueQuickConnectConfig": close({
-	ContactFlowArn!: _#defs."/$defs/Properties/definitions/ContactFlowArn"
-	QueueArn!:       _#defs."/$defs/Properties/definitions/QueueArn"
+#QueueQuickConnectConfig: close({
+	ContactFlowArn!: #ContactFlowArn
+	QueueArn!:       #QueueArn
 })
 
 // Configuration settings for the quick connect.
-_#defs: "/$defs/Properties/definitions/QuickConnectConfig": close({
-	FlowConfig?:       _#defs."/$defs/Properties/definitions/FlowQuickConnectConfig"
-	PhoneConfig?:      _#defs."/$defs/Properties/definitions/PhoneNumberQuickConnectConfig"
-	QueueConfig?:      _#defs."/$defs/Properties/definitions/QueueQuickConnectConfig"
-	QuickConnectType!: _#defs."/$defs/Properties/definitions/QuickConnectType"
-	UserConfig?:       _#defs."/$defs/Properties/definitions/UserQuickConnectConfig"
+#QuickConnectConfig: close({
+	FlowConfig?:       #FlowQuickConnectConfig
+	PhoneConfig?:      #PhoneNumberQuickConnectConfig
+	QueueConfig?:      #QueueQuickConnectConfig
+	QuickConnectType!: #QuickConnectType
+	UserConfig?:       #UserQuickConnectConfig
 })
 
 // The type of quick connect. In the Amazon Connect console, when you create a
 // quick connect, you are prompted to assign one of the following types: Agent
 // (USER), External (PHONE_NUMBER), or Queue (QUEUE).
-_#defs: "/$defs/Properties/definitions/QuickConnectType": "PHONE_NUMBER" | "QUEUE" | "USER" | "FLOW"
+#QuickConnectType: "PHONE_NUMBER" | "QUEUE" | "USER" | "FLOW"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -91,10 +87,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The identifier of the user.
-_#defs: "/$defs/Properties/definitions/UserArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$"
+#UserArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$"
 
 // The user configuration. This is required only if QuickConnectType is USER.
-_#defs: "/$defs/Properties/definitions/UserQuickConnectConfig": close({
-	ContactFlowArn!: _#defs."/$defs/Properties/definitions/ContactFlowArn"
-	UserArn!:        _#defs."/$defs/Properties/definitions/UserArn"
+#UserQuickConnectConfig: close({
+	ContactFlowArn!: #ContactFlowArn
+	UserArn!:        #UserArn
 })

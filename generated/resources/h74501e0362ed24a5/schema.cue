@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -18,8 +18,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::WorkSpacesWeb::Portal Resource Type
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap"
-	AuthenticationType?:          _#defs."/$defs/Properties/definitions/AuthenticationType"
+	AdditionalEncryptionContext?: #EncryptionContextMap
+	AuthenticationType?:          #AuthenticationType
 	BrowserSettingsArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$" |
@@ -33,7 +33,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$" |
 	fn.#StringExpression
 	DisplayName?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	InstanceType?: _#defs."/$defs/Properties/definitions/InstanceType"
+	InstanceType?: #InstanceType
 	IpAccessSettingsArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$" |
@@ -67,7 +67,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	TrustStoreArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$" |
@@ -82,25 +82,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AuthenticationType": "Standard" | "IAM_Identity_Center" | fn.#StringExpression
+#AuthenticationType: "Standard" | "IAM_Identity_Center" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserType": "Chrome" | fn.#StringExpression
+#BrowserType: "Chrome" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
+#EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceType": "standard.regular" |
-	"standard.large" |
-	"standard.xlarge" |
-	fn.#StringExpression
+#InstanceType: "standard.regular" | "standard.large" | "standard.xlarge" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PortalStatus": "Incomplete" | "Pending" | "Active" | fn.#StringExpression
+#PortalStatus: "Incomplete" | "Pending" | "Active" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RendererType": "AppStream" | fn.#StringExpression
+#RendererType: "AppStream" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

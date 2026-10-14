@@ -19,9 +19,9 @@ import (
 
 	// The description of the event type.
 	Description?:    strings.MaxRunes(128) & strings.MinRunes(1)
-	EntityTypes!:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EntityType"]
-	EventVariables!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EventVariable"]
-	Labels!:         list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/Label"]
+	EntityTypes!:    list.MinItems(1) & [...#EntityType]
+	EventVariables!: list.MinItems(1) & [...#EventVariable]
+	Labels!:         list.MinItems(2) & [...#Label]
 
 	// The time when the event type was last updated.
 	LastUpdatedTime?: string
@@ -30,10 +30,10 @@ import (
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$"
 
 	// Tags associated with this event type.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/EntityType": close({
+#EntityType: close({
 	Arn?: string
 
 	// The time when the event type was created.
@@ -48,10 +48,10 @@ _#defs: "/$defs/Properties/definitions/EntityType": close({
 	Name?:            string
 
 	// Tags associated with this event type.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/EventVariable": close({
+#EventVariable: close({
 	Arn?: string
 
 	// The time when the event type was created.
@@ -69,7 +69,7 @@ _#defs: "/$defs/Properties/definitions/EventVariable": close({
 	Name?:            string
 
 	// Tags associated with this event type.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 	VariableType?: "AUTH_CODE" |
 		"AVS" |
 		"BILLING_ADDRESS_L1" |
@@ -105,7 +105,7 @@ _#defs: "/$defs/Properties/definitions/EventVariable": close({
 		"USERAGENT"
 })
 
-_#defs: "/$defs/Properties/definitions/Label": close({
+#Label: close({
 	Arn?: string
 
 	// The time when the event type was created.
@@ -120,10 +120,10 @@ _#defs: "/$defs/Properties/definitions/Label": close({
 	Name?:            string
 
 	// Tags associated with this event type.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -19,45 +19,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates an AWS Firewall Manager policy.
 #Properties: close({
 	DeleteAllPolicyResources?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExcludeMap?:               _#defs."/$defs/Properties/definitions/IEMap"
+	ExcludeMap?:               #IEMap
 	ExcludeResourceTags!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IncludeMap?:               _#defs."/$defs/Properties/definitions/IEMap"
+	IncludeMap?:               #IEMap
 	PolicyDescription?:        strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" | fn.#StringExpression
 	PolicyName!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" | fn.#StringExpression
-	RemediationEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResourceSetIds?:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Base62Id"] | fn.#ListExpression
+	RemediationEnabled!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ResourceSetIds?:             list.UniqueItems() & [...#Base62Id] | fn.#ListExpression
 	ResourceTagLogicalOperator?: "AND" | "OR" | fn.#StringExpression
-	ResourceTags?:     list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/ResourceTag"] | fn.#ListExpression
-	ResourceType?:     _#defs."/$defs/Properties/definitions/ResourceType"
-	ResourceTypeList?: [..._#defs."/$defs/Properties/definitions/ResourceType"] | fn.#ListExpression
-	ResourcesCleanUp?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SecurityServicePolicyData!: _#defs."/$defs/Properties/definitions/SecurityServicePolicyData"
-	Tags?:                      [..._#defs."/$defs/Properties/definitions/PolicyTag"] | fn.#ListExpression
+	ResourceTags?:               list.MaxItems(50) & [...#ResourceTag] | fn.#ListExpression
+	ResourceType?:               #ResourceType
+	ResourceTypeList?:           [...#ResourceType] | fn.#ListExpression
+	ResourcesCleanUp?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SecurityServicePolicyData!:  #SecurityServicePolicyData
+	Tags?:                       [...#PolicyTag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccountId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^([0-9]*)$" |
-fn.#StringExpression
+#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^([0-9]*)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Base62Id": strings.MaxRunes(22) & strings.MinRunes(22) & =~"^[a-z0-9A-Z]{22}$" |
-fn.#StringExpression
+#Base62Id: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^[a-z0-9A-Z]{22}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FirewallDeploymentModel": "DISTRIBUTED" | "CENTRALIZED" | fn.#StringExpression
+#FirewallDeploymentModel: "DISTRIBUTED" | "CENTRALIZED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IEMap": close({
-	ACCOUNT?: [..._#defs."/$defs/Properties/definitions/AccountId"] | fn.#ListExpression
-	ORGUNIT?: [..._#defs."/$defs/Properties/definitions/OrganizationalUnitId"] | fn.#ListExpression
+#IEMap: close({
+	ACCOUNT?: [...#AccountId] | fn.#ListExpression
+	ORGUNIT?: [...#OrganizationalUnitId] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedServiceData": strings.MaxRunes(30000) & strings.MinRunes(1) |
-fn.#StringExpression
+#ManagedServiceData: strings.MaxRunes(30000) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkAclCommonPolicy": close(
-	{NetworkAclEntrySet!: _#defs."/$defs/Properties/definitions/NetworkAclEntrySet"},
-) |
-	fn.#ObjectExpression
+#NetworkAclCommonPolicy: close({NetworkAclEntrySet!: #NetworkAclEntrySet}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkAclEntry": close({
+#NetworkAclEntry: close({
 	CidrBlock?: =~"^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$" |
 		fn.#StringExpression
 	Egress!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -146,11 +140,10 @@ _#defs: "/$defs/Properties/definitions/NetworkAclEntry": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkAclEntryList": [..._#defs."/$defs/Properties/definitions/NetworkAclEntry"] |
-	fn.#ListExpression
+#NetworkAclEntryList: [...#NetworkAclEntry] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkAclEntrySet": close({
-	FirstEntries?: _#defs."/$defs/Properties/definitions/NetworkAclEntryList"
+#NetworkAclEntrySet: close({
+	FirstEntries?: #NetworkAclEntryList
 	ForceRemediateForFirstEntries!: bool |
 		"true" |
 		"True" |
@@ -160,24 +153,19 @@ _#defs: "/$defs/Properties/definitions/NetworkAclEntrySet": close({
 		"FALSE" |
 		fn.#BooleanExpression
 	ForceRemediateForLastEntries!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LastEntries?:                  _#defs."/$defs/Properties/definitions/NetworkAclEntryList"
+	LastEntries?:                  #NetworkAclEntryList
 }) & matchN(>=1, [{FirstEntries!: _}, {LastEntries!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkFirewallPolicy": close(
-	{FirewallDeploymentModel!: _#defs."/$defs/Properties/definitions/FirewallDeploymentModel"},
-) |
-	fn.#ObjectExpression
+#NetworkFirewallPolicy: close({FirewallDeploymentModel!: #FirewallDeploymentModel}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OrganizationalUnitId": strings.MaxRunes(68) &
-strings.MinRunes(16) &
-=~"^(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" |
+#OrganizationalUnitId: strings.MaxRunes(68) & strings.MinRunes(16) & =~"^(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyOption": close({
-	NetworkAclCommonPolicy?:   _#defs."/$defs/Properties/definitions/NetworkAclCommonPolicy"
-	NetworkFirewallPolicy?:    _#defs."/$defs/Properties/definitions/NetworkFirewallPolicy"
-	ThirdPartyFirewallPolicy?: _#defs."/$defs/Properties/definitions/ThirdPartyFirewallPolicy"
+#PolicyOption: close({
+	NetworkAclCommonPolicy?:   #NetworkAclCommonPolicy
+	NetworkFirewallPolicy?:    #NetworkFirewallPolicy
+	ThirdPartyFirewallPolicy?: #ThirdPartyFirewallPolicy
 	if NetworkFirewallPolicy != _|_ {
 		ThirdPartyFirewallPolicy?: error(
 			"ThirdPartyFirewallPolicy cannot be used with NetworkFirewallPolicy; set exactly one of NetworkFirewallPolicy, ThirdPartyFirewallPolicy, NetworkAclCommonPolicy",
@@ -194,13 +182,13 @@ _#defs: "/$defs/Properties/definitions/PolicyOption": close({
 }) & matchN(>=1, [{NetworkFirewallPolicy!: _}, {ThirdPartyFirewallPolicy!: _}, {NetworkAclCommonPolicy!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyTag": close({
+#PolicyTag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & =~"^([^\\s]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyType": "WAF" |
+#PolicyType: "WAF" |
 	"WAFV2" |
 	"SHIELD_ADVANCED" |
 	"SECURITY_GROUPS_COMMON" |
@@ -213,29 +201,24 @@ _#defs: "/$defs/Properties/definitions/PolicyType": "WAF" |
 	"NETWORK_ACL_COMMON" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]*)$" |
-fn.#StringExpression
+#ResourceArn: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]*)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceType": strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" |
-fn.#StringExpression
+#ResourceType: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityServicePolicyData": close({
-	ManagedServiceData?: _#defs."/$defs/Properties/definitions/ManagedServiceData"
-	PolicyOption?:       _#defs."/$defs/Properties/definitions/PolicyOption"
-	Type!:               _#defs."/$defs/Properties/definitions/PolicyType"
+#SecurityServicePolicyData: close({
+	ManagedServiceData?: #ManagedServiceData
+	PolicyOption?:       #PolicyOption
+	Type!:               #PolicyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThirdPartyFirewallPolicy": close(
-	{FirewallDeploymentModel!: _#defs."/$defs/Properties/definitions/FirewallDeploymentModel"},
-) |
-	fn.#ObjectExpression
+#ThirdPartyFirewallPolicy: close({FirewallDeploymentModel!: #FirewallDeploymentModel}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::FMS::Policy"
 	Properties!: #Properties

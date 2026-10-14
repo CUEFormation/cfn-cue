@@ -7,14 +7,14 @@ package schema
 // Resource Type definition for AWS::WAFRegional::RateBasedRule
 #Properties: close({
 	Id?:              string
-	MatchPredicates?: [..._#defs."/$defs/Properties/definitions/Predicate"]
+	MatchPredicates?: [...#Predicate]
 	MetricName!:      string
 	Name!:            string
 	RateKey!:         string
 	RateLimit!:       int
 })
 
-_#defs: "/$defs/Properties/definitions/Predicate": close({
+#Predicate: close({
 	DataId!:  string
 	Negated!: bool
 	Type!:    string

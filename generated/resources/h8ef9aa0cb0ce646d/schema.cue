@@ -19,10 +19,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringObjectExpression
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+" | fn.#StringExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/Tags"
+	Tags?:        #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(50) & close({
+#Tags: struct.MaxFields(50) & close({
 
 	{[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
 fn.#ObjectExpression

@@ -12,7 +12,7 @@ import (
 // Use the AWS::IoT::CertificateProvider resource to declare an AWS IoT Certificate Provider.
 #Properties: close({
 	AccountDefaultForOperations!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/CertificateProviderOperation"
+		...#CertificateProviderOperation
 	]
 	Arn?:                     string
 	CertificateProviderName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+"
@@ -22,13 +22,13 @@ import (
 	=~"^[\\s\\S]*$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/CertificateProviderOperation": "CreateCertificateFromCsr"
+#CertificateProviderOperation: "CreateCertificateFromCsr"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

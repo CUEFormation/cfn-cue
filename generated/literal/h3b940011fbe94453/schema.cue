@@ -33,11 +33,11 @@ import (
 	Resources!: list.MaxItems(6) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Resource"]
 
 	// A tag to associate with the parameters for a resource set.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // A component for DNS/routing control readiness checks.
-_#defs: "/$defs/Properties/definitions/DNSTargetResource": close({
+#DNSTargetResource: close({
 	// The domain name that acts as an ingress point to a portion of the customer application.
 	DomainName?: string
 
@@ -50,17 +50,17 @@ _#defs: "/$defs/Properties/definitions/DNSTargetResource": close({
 
 	// The type of DNS record of the target resource.
 	RecordType?:     string
-	TargetResource?: _#defs."/$defs/Properties/definitions/TargetResource"
+	TargetResource?: #TargetResource
 })
 
 // The Network Load Balancer resource that a DNS target resource points to.
-_#defs: "/$defs/Properties/definitions/NLBResource": close({
+#NLBResource: close({
 	// A Network Load Balancer resource Amazon Resource Name (ARN).
 	Arn?: string
 })
 
 // The Route 53 resource that a DNS target resource record points to.
-_#defs: "/$defs/Properties/definitions/R53ResourceRecord": close({
+#R53ResourceRecord: close({
 	// The DNS target domain name.
 	DomainName?: string
 
@@ -68,11 +68,25 @@ _#defs: "/$defs/Properties/definitions/R53ResourceRecord": close({
 	RecordSetId?: string
 })
 
+#Tag: close({
+	Key!:   string
+	Value!: string
+})
+
+// The target resource that the Route 53 record points to.
+#TargetResource: close({
+	NLBResource?: #NLBResource
+	R53Resource?: #R53ResourceRecord
+	if NLBResource != _|_ {
+		R53Resource?: error("R53Resource cannot be used with NLBResource; set exactly one of NLBResource, R53Resource")
+	}
+}) & matchN(>=1, [{NLBResource!: _}, {R53Resource!: _}])
+
 // The resource element of a ResourceSet
 _#defs: "/$defs/Properties/definitions/Resource": close({
 	// The component identifier of the resource, generated when DNS target resource is used.
 	ComponentId?:       string
-	DnsTargetResource?: _#defs."/$defs/Properties/definitions/DNSTargetResource"
+	DnsTargetResource?: #DNSTargetResource
 
 	// A list of recovery group Amazon Resource Names (ARNs) and cell ARNs that this
 	// resource is contained within.
@@ -81,17 +95,3 @@ _#defs: "/$defs/Properties/definitions/Resource": close({
 	// The Amazon Resource Name (ARN) of the AWS resource.
 	ResourceArn?: string
 })
-
-_#defs: "/$defs/Properties/definitions/Tag": close({
-	Key!:   string
-	Value!: string
-})
-
-// The target resource that the Route 53 record points to.
-_#defs: "/$defs/Properties/definitions/TargetResource": close({
-	NLBResource?: _#defs."/$defs/Properties/definitions/NLBResource"
-	R53Resource?: _#defs."/$defs/Properties/definitions/R53ResourceRecord"
-	if NLBResource != _|_ {
-		R53Resource?: error("R53Resource cannot be used with NLBResource; set exactly one of NLBResource, R53Resource")
-	}
-}) & matchN(>=1, [{NLBResource!: _}, {R53Resource!: _}])

@@ -14,7 +14,7 @@ import (
 // Agent Profile, used to improve the quality of Well-Architected Agent
 // recommendations.
 #Properties: close({
-	ApplicationType?: _#defs."/$defs/Properties/definitions/ApplicationType"
+	ApplicationType?: #ApplicationType
 
 	// The synthetic Amazon Resource Name (ARN) of the Agent Context, composed of
 	// the parent profile ARN and the context id.
@@ -24,14 +24,14 @@ import (
 
 	// The free-form content of the Agent Context, supplied as an arbitrary JSON object.
 	Content!:     {...}
-	ContextType!: _#defs."/$defs/Properties/definitions/ContextType"
+	ContextType!: #ContextType
 
 	// The timestamp when the context was created.
 	CreatedAt?: time.Time & strings.MaxRunes(64) & strings.MinRunes(20)
 
 	// The identifier of the system or user that created this context.
 	CreatedBy?:   strings.MaxRunes(128) & strings.MinRunes(1)
-	Criticality?: _#defs."/$defs/Properties/definitions/Criticality"
+	Criticality?: #Criticality
 
 	// The service-generated unique identifier of the Agent Context.
 	Id?: strings.MaxRunes(36) &
@@ -58,15 +58,12 @@ import (
 // Type of the application described by this context. Mirrors the value stored
 // in `Content.applicationType` and is surfaced as a typed read-only attribute
 // by the service for discoverability.
-_#defs: "/$defs/Properties/definitions/ApplicationType": "SAS" | "DESKTOP_APPLICATION" | "OTHER"
+#ApplicationType: "SAS" | "DESKTOP_APPLICATION" | "OTHER"
 
 // The type of the Agent Context.
-_#defs: "/$defs/Properties/definitions/ContextType": "APPLICATION"
+#ContextType: "APPLICATION"
 
 // Business criticality of the application described by this context. Mirrors
 // the value stored in `Content.criticality` and is surfaced as a typed
 // read-only attribute by the service for discoverability.
-_#defs: "/$defs/Properties/definitions/Criticality": "MISSION_CRITICAL" |
-	"BUSINESS_CRITICAL" |
-	"NON_CRITICAL" |
-	"TEST_DEVELOPMENT"
+#Criticality: "MISSION_CRITICAL" | "BUSINESS_CRITICAL" | "NON_CRITICAL" | "TEST_DEVELOPMENT"

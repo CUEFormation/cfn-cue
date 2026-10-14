@@ -6,17 +6,17 @@ package schema
 
 // Resource Type definition for AWS::WAFRegional::WebACL
 #Properties: close({
-	DefaultAction!: _#defs."/$defs/Properties/definitions/Action"
+	DefaultAction!: #Action
 	Id?:            string
 	MetricName!:    string
 	Name!:          string
-	Rules?:         [..._#defs."/$defs/Properties/definitions/Rule"]
+	Rules?:         [...#Rule]
 })
 
-_#defs: "/$defs/Properties/definitions/Action": close({Type!: string})
+#Action: close({Type!: string})
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	Action!:   _#defs."/$defs/Properties/definitions/Action"
+#Rule: close({
+	Action!:   #Action
 	Priority!: int
 	RuleId!:   string
 })

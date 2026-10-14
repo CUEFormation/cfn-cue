@@ -17,14 +17,14 @@ import (
 	EnableCachingForHttp?:  bool
 	SigningDisabled?:       bool
 	Status?:                "ACTIVE" | "INACTIVE"
-	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                  list.UniqueItems() & [...#Tag]
 	TokenKeyName?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 	TokenSigningPublicKeys?: close({
 
 		{[=~"[a-zA-Z0-9:_-]+"]: strings.MaxRunes(5120)}})
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

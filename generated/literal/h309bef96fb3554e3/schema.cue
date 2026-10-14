@@ -3,66 +3,64 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // MatchingWorkflow defined in AWS Entity Resolution service
 #Properties: close({
-	CreatedAt?: _#defs."/$defs/Properties/definitions/CreatedAt"
+	CreatedAt?: #CreatedAt
 
 	// The description of the MatchingWorkflow
-	Description?:          _#defs."/$defs/Properties/definitions/Description"
-	IncrementalRunConfig?: _#defs."/$defs/Properties/definitions/IncrementalRunConfig"
-	InputSourceConfig!:  list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/InputSource"]
-	OutputSourceConfig!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/OutputSource"]
-	ResolutionTechniques!: _#defs."/$defs/Properties/definitions/ResolutionTechniques"
+	Description?:          #Description
+	IncrementalRunConfig?: #IncrementalRunConfig
+	InputSourceConfig!:    list.MaxItems(20) & list.MinItems(1) & [...#InputSource]
+	OutputSourceConfig!:   list.MaxItems(1) & list.MinItems(1) & [...#OutputSource]
+	ResolutionTechniques!: #ResolutionTechniques
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
-	Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	UpdatedAt?:   _#defs."/$defs/Properties/definitions/UpdatedAt"
-	WorkflowArn?: _#defs."/$defs/Properties/definitions/MatchingWorkflowArn"
+	Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
+	UpdatedAt?:   #UpdatedAt
+	WorkflowArn?: #MatchingWorkflowArn
 
 	// The name of the MatchingWorkflow
-	WorkflowName!: _#defs."/$defs/Properties/definitions/EntityName"
+	WorkflowName!: #EntityName
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeName": strings.MaxRunes(255) &
-strings.MinRunes(0) &
-=~"^[a-zA-Z_0-9- \\t]*$"
+#AttributeName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$"
 
 // The time of this MatchingWorkflow got created
-_#defs: "/$defs/Properties/definitions/CreatedAt": string
+#CreatedAt: string
 
 // The Amazon Resource Name (ARN) of the Customer Profiles domain
-_#defs: "/$defs/Properties/definitions/CustomerProfilesDomainArn": =~"^arn:(aws|aws-us-gov|aws-cn):profile:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(domains/[a-zA-Z_0-9-]{1,255})$"
+#CustomerProfilesDomainArn: =~"^arn:(aws|aws-us-gov|aws-cn):profile:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(domains/[a-zA-Z_0-9-]{1,255})$"
 
 // The Customer Profiles integration configuration for the output source
-_#defs: "/$defs/Properties/definitions/CustomerProfilesIntegrationConfig": close({
-	DomainArn!:     _#defs."/$defs/Properties/definitions/CustomerProfilesDomainArn"
-	ObjectTypeArn!: _#defs."/$defs/Properties/definitions/CustomerProfilesObjectTypeArn"
+#CustomerProfilesIntegrationConfig: close({
+	DomainArn!:     #CustomerProfilesDomainArn
+	ObjectTypeArn!: #CustomerProfilesObjectTypeArn
 })
 
 // The Amazon Resource Name (ARN) of the Customer Profiles object type
-_#defs: "/$defs/Properties/definitions/CustomerProfilesObjectTypeArn": =~"^arn:(aws|aws-us-gov|aws-cn):profile:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(domains/[a-zA-Z_0-9-]{1,255}/object-types/[a-zA-Z_0-9-]{1,255})$"
+#CustomerProfilesObjectTypeArn: =~"^arn:(aws|aws-us-gov|aws-cn):profile:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(domains/[a-zA-Z_0-9-]{1,255}/object-types/[a-zA-Z_0-9-]{1,255})$"
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(255) & strings.MinRunes(0)
+#Description: strings.MaxRunes(255) & strings.MinRunes(0)
 
-_#defs: "/$defs/Properties/definitions/EntityName": strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$"
+#EntityName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$"
 
-_#defs: "/$defs/Properties/definitions/IncrementalRunConfig": close({IncrementalRunType!: "IMMEDIATE"})
+#IncrementalRunConfig: close({IncrementalRunType!: "IMMEDIATE"})
 
-_#defs: "/$defs/Properties/definitions/InputSource": close({
+#InputSource: close({
 	ApplyNormalization?: bool
 
 	// An Glue table ARN for the input source table
 	InputSourceARN!: =~"arn:(aws|aws-us-gov|aws-cn):.*:.*:[0-9]+:.*$"
-	SchemaArn!:      _#defs."/$defs/Properties/definitions/SchemaMappingArn"
+	SchemaArn!:      #SchemaMappingArn
 })
 
-_#defs: "/$defs/Properties/definitions/IntermediateSourceConfiguration": close({
+#IntermediateSourceConfiguration: close({
 	// The s3 path that would be used to stage the intermediate data being generated
 	// during workflow execution.
 	IntermediateS3Path!: strings.MaxRunes(1024) &
@@ -70,36 +68,36 @@ _#defs: "/$defs/Properties/definitions/IntermediateSourceConfiguration": close({
 	=~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$"
 })
 
-_#defs: "/$defs/Properties/definitions/KMSArn": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+#KMSArn: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	=~"^arn:(aws|aws-us-gov|aws-cn):kms:.*:[0-9]+:.*$"
 
 // Configuration for matching behavior within rule condition properties
-_#defs: "/$defs/Properties/definitions/MatchingConfig": close({
+#MatchingConfig: close({
 	// Enables transitive matching to process records across all rule levels and
 	// connect unmatched records to existing match groups
 	EnableTransitiveMatching?: bool
 })
 
 // The default MatchingWorkflow arn
-_#defs: "/$defs/Properties/definitions/MatchingWorkflowArn": =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(matchingworkflow/.*)$"
+#MatchingWorkflowArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(matchingworkflow/.*)$"
 
-_#defs: "/$defs/Properties/definitions/OutputAttribute": close({
+#OutputAttribute: close({
 	Hashed?: bool
-	Name!:   _#defs."/$defs/Properties/definitions/AttributeName"
+	Name!:   #AttributeName
 })
 
-_#defs: "/$defs/Properties/definitions/OutputSource": close({
+#OutputSource: close({
 	ApplyNormalization?:                bool
-	CustomerProfilesIntegrationConfig?: _#defs."/$defs/Properties/definitions/CustomerProfilesIntegrationConfig"
-	KMSArn?:                            _#defs."/$defs/Properties/definitions/KMSArn"
-	Output!: list.MaxItems(750) & [...] & [..._#defs."/$defs/Properties/definitions/OutputAttribute"]
+	CustomerProfilesIntegrationConfig?: #CustomerProfilesIntegrationConfig
+	KMSArn?:                            #KMSArn
+	Output!:                            list.MaxItems(750) & [...] & [...#OutputAttribute]
 
 	// The S3 path to which Entity Resolution will write the output table
 	OutputS3Path?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^s3://([^/]+)/?(.*?([^/]+)/?)$"
 })
 
-_#defs: "/$defs/Properties/definitions/ProviderProperties": close({
-	IntermediateSourceConfiguration?: _#defs."/$defs/Properties/definitions/IntermediateSourceConfiguration"
+#ProviderProperties: close({
+	IntermediateSourceConfiguration?: #IntermediateSourceConfiguration
 
 	// Additional Provider configuration that would be required for the provider
 	// service. The Configuration must be in JSON string format
@@ -113,44 +111,44 @@ _#defs: "/$defs/Properties/definitions/ProviderProperties": close({
 	=~"^arn:(aws|aws-us-gov|aws-cn):(entityresolution):([a-z]{2}-[a-z]{1,10}-[0-9])::providerservice/([a-zA-Z0-9_-]{1,255})/([a-zA-Z0-9_-]{1,255})$"
 })
 
-_#defs: "/$defs/Properties/definitions/ResolutionTechniques": close({
+#ResolutionTechniques: close({
 	// Enables the workflow to use real-time matching. Can only be set on creation
 	// for RULE_MATCHING workflows that define RuleConditionProperties.
 	EnableRealTimeMatching?:  bool
-	ProviderProperties?:      _#defs."/$defs/Properties/definitions/ProviderProperties"
-	ResolutionType?:          _#defs."/$defs/Properties/definitions/ResolutionType"
-	RuleBasedProperties?:     _#defs."/$defs/Properties/definitions/RuleBasedProperties"
-	RuleConditionProperties?: _#defs."/$defs/Properties/definitions/RuleConditionProperties"
+	ProviderProperties?:      #ProviderProperties
+	ResolutionType?:          #ResolutionType
+	RuleBasedProperties?:     #RuleBasedProperties
+	RuleConditionProperties?: #RuleConditionProperties
 })
 
-_#defs: "/$defs/Properties/definitions/ResolutionType": "RULE_MATCHING" | "ML_MATCHING" | "PROVIDER"
+#ResolutionType: "RULE_MATCHING" | "ML_MATCHING" | "PROVIDER"
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	MatchingKeys!: list.MaxItems(15) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AttributeName"]
+#Rule: close({
+	MatchingKeys!: list.MaxItems(15) & list.MinItems(1) & [...#AttributeName]
 	RuleName!:     strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/RuleBasedProperties": close({
+#RuleBasedProperties: close({
 	AttributeMatchingModel!: "ONE_TO_ONE" | "MANY_TO_MANY"
 	MatchPurpose?:           "IDENTIFIER_GENERATION" | "INDEXING"
-	Rules!:                  list.MaxItems(25) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Rule"]
+	Rules!:                  list.MaxItems(25) & list.MinItems(1) & [...#Rule]
 })
 
-_#defs: "/$defs/Properties/definitions/RuleCondition": close({
+#RuleCondition: close({
 	Condition?: string
-	RuleName?:  _#defs."/$defs/Properties/definitions/AttributeName"
+	RuleName?:  #AttributeName
 })
 
-_#defs: "/$defs/Properties/definitions/RuleConditionProperties": close({
-	MatchingConfig?: _#defs."/$defs/Properties/definitions/MatchingConfig"
-	Rules!:          list.MaxItems(25) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RuleCondition"]
+#RuleConditionProperties: close({
+	MatchingConfig?: #MatchingConfig
+	Rules!:          list.MaxItems(25) & list.MinItems(1) & [...#RuleCondition]
 })
 
 // The SchemaMapping arn associated with the Schema
-_#defs: "/$defs/Properties/definitions/SchemaMappingArn": =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(schemamapping/.*)$"
+#SchemaMappingArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(schemamapping/.*)$"
 
 // A key-value pair to associate with a resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -165,4 +163,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The time of this MatchingWorkflow got last updated at
-_#defs: "/$defs/Properties/definitions/UpdatedAt": string
+#UpdatedAt: string

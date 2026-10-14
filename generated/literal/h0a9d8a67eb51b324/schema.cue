@@ -16,7 +16,7 @@ import (
 	CatalogId!: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// The connection properties used for this connection.
-	ConnectionInput!: _#defs."/$defs/Properties/definitions/ConnectionInput"
+	ConnectionInput!: #ConnectionInput
 
 	// The name of the connection.
 	Name?: string
@@ -25,12 +25,12 @@ import (
 	Tags?: {...}
 })
 
-_#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
+#AuthenticationConfiguration: close({
 	// A structure containing the authentication configuration in the CreateConnection request.
 	AuthenticationType!: "BASIC" | "CUSTOM" | "IAM" | "OAUTH2"
 
 	// For supplying basic auth credentials when not providing a SecretArn value
-	BasicAuthenticationCredentials?: _#defs."/$defs/Properties/definitions/BasicAuthenticationCredentials"
+	BasicAuthenticationCredentials?: #BasicAuthenticationCredentials
 
 	// A structure containing the authentication credentials in the CreateConnection request.
 	CustomAuthenticationCredentials?: {...}
@@ -39,13 +39,13 @@ _#defs: "/$defs/Properties/definitions/AuthenticationConfiguration": close({
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & =~"^$|arn:aws[a-z0-9-]*:kms:"
 
 	// A structure containing properties for OAuth2 in the CreateConnection request.
-	OAuth2Properties?: _#defs."/$defs/Properties/definitions/OAuth2Properties"
+	OAuth2Properties?: #OAuth2Properties
 
 	// The secret manager ARN to store credentials in the CreateConnection request.
 	SecretArn?: =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:secretsmanager:.*$"
 })
 
-_#defs: "/$defs/Properties/definitions/AuthenticationConfigurationInput": null | bool | number | string | [...] | {
+#AuthenticationConfigurationInput: null | bool | number | string | [...] | {
 	KmsKeyArn?: null |
 	bool |
 	number |
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticationConfigurationInput": null |
 }
 
 // A structure containing the authorization code used in the authentication configuration.
-_#defs: "/$defs/Properties/definitions/AuthorizationCodeProperties": close({
+#AuthorizationCodeProperties: close({
 	// The authorization code used in the authentication configuration.
 	AuthorizationCode?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^\\S+$"
 
@@ -66,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/AuthorizationCodeProperties": close({
 })
 
 // A structure containing the authentication credentials in the CreateConnection request.
-_#defs: "/$defs/Properties/definitions/BasicAuthenticationCredentials": close({
+#BasicAuthenticationCredentials: close({
 	// The password used in the authentication configuration.
 	Password?: strings.MaxRunes(512) & strings.MinRunes(0)
 
@@ -74,12 +74,12 @@ _#defs: "/$defs/Properties/definitions/BasicAuthenticationCredentials": close({
 	Username?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^\\S+$"
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionInput": close({
+#ConnectionInput: close({
 	// Connection properties specific to the Athena compute environment.
 	AthenaProperties?: {...}
 
 	// The authentication configuration used to connect to the connection.
-	AuthenticationConfiguration?: _#defs."/$defs/Properties/definitions/AuthenticationConfiguration"
+	AuthenticationConfiguration?: #AuthenticationConfiguration
 	ConnectionProperties?:        string | {...}
 
 	// The type of the connection that needs to be created.
@@ -186,7 +186,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionInput": close({
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// The physical connection requirements.
-	PhysicalConnectionRequirements?: _#defs."/$defs/Properties/definitions/PhysicalConnectionRequirements"
+	PhysicalConnectionRequirements?: #PhysicalConnectionRequirements
 
 	// Connection properties specific to the Python compute environment.
 	PythonProperties?: {...}
@@ -200,7 +200,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionInput": close({
 })
 
 // The OAuth2 client app used for the connection.
-_#defs: "/$defs/Properties/definitions/OAuth2ClientApplication": close({
+#OAuth2ClientApplication: close({
 	// The reference to the SaaS-side client app that is AWS managed.
 	AWSManagedClientApplicationReference?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^\\S+$"
 
@@ -209,7 +209,7 @@ _#defs: "/$defs/Properties/definitions/OAuth2ClientApplication": close({
 })
 
 // A structure containing the OAuth2 credentials used in the authentication configuration.
-_#defs: "/$defs/Properties/definitions/OAuth2Credentials": close({
+#OAuth2Credentials: close({
 	// The access token used in the authentication configuration.
 	AccessToken?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[\\x20-\\x7E]*$"
 
@@ -226,15 +226,15 @@ _#defs: "/$defs/Properties/definitions/OAuth2Credentials": close({
 })
 
 // A structure containing the authentication credentials in the CreateConnection request.
-_#defs: "/$defs/Properties/definitions/OAuth2Properties": close({
+#OAuth2Properties: close({
 	// The set of properties required for the the OAuth2 AUTHORIZATION_CODE grant type workflow.
-	AuthorizationCodeProperties?: _#defs."/$defs/Properties/definitions/AuthorizationCodeProperties"
+	AuthorizationCodeProperties?: #AuthorizationCodeProperties
 
 	// The OAuth2 client app used for the connection.
-	OAuth2ClientApplication?: _#defs."/$defs/Properties/definitions/OAuth2ClientApplication"
+	OAuth2ClientApplication?: #OAuth2ClientApplication
 
 	// A structure containing the OAuth2 credentials used in the authentication configuration.
-	OAuth2Credentials?: _#defs."/$defs/Properties/definitions/OAuth2Credentials"
+	OAuth2Credentials?: #OAuth2Credentials
 
 	// The grant type used in the authentication configuration.
 	OAuth2GrantType?: "AUTHORIZATION_CODE" | "CLIENT_CREDENTIALS" | "JWT_BEARER" | "REFRESH_TOKEN"
@@ -248,7 +248,7 @@ _#defs: "/$defs/Properties/definitions/OAuth2Properties": close({
 	TokenUrlParametersMap?: {...}
 })
 
-_#defs: "/$defs/Properties/definitions/PhysicalConnectionRequirements": close({
+#PhysicalConnectionRequirements: close({
 	// The availability zone where the connection is located.
 	AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1)
 

@@ -15,13 +15,13 @@ import "strings"
 	AvailabilityZones!: [...string]
 
 	// A list of the multiplex output destinations.
-	Destinations?: [..._#defs."/$defs/Properties/definitions/MultiplexOutputDestination"]
+	Destinations?: [...#MultiplexOutputDestination]
 
 	// The unique id of the multiplex.
 	Id?: string
 
 	// Configuration for a multiplex event.
-	MultiplexSettings!: _#defs."/$defs/Properties/definitions/MultiplexSettings"
+	MultiplexSettings!: #MultiplexSettings
 
 	// Name of multiplex.
 	Name!: string
@@ -42,11 +42,11 @@ import "strings"
 		"DELETED"
 
 	// A collection of key-value pairs.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tags"]
+	Tags?: [...#Tags]
 })
 
 // Multiplex MediaConnect output destination settings.
-_#defs: "/$defs/Properties/definitions/MultiplexOutputDestination": close({
+#MultiplexOutputDestination: close({
 	// Multiplex MediaConnect output destination settings.
 	MultiplexMediaConnectOutputDestinationSettings?: null |
 	bool |
@@ -60,7 +60,7 @@ _#defs: "/$defs/Properties/definitions/MultiplexOutputDestination": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/MultiplexSettings": close({
+#MultiplexSettings: close({
 	// Maximum video buffer delay in milliseconds.
 	MaximumVideoBufferDelayMilliseconds?: int & <=3000 & >=800
 
@@ -75,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/MultiplexSettings": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string
 	Value?: string
 })

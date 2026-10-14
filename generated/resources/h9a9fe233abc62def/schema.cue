@@ -17,14 +17,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::WAF::WebACL
 #Properties: close({
-	DefaultAction!: _#defs."/$defs/Properties/definitions/WafAction"
+	DefaultAction!: #WafAction
 	MetricName!:    string | fn.#StringExpression
 	Name!:          string | fn.#StringExpression
-	Rules?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ActivatedRule"] | fn.#ListExpression
+	Rules?:         list.UniqueItems() & [...#ActivatedRule] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ActivatedRule": close({
-	Action?: _#defs."/$defs/Properties/definitions/WafAction"
+#ActivatedRule: close({
+	Action?: #WafAction
 	Priority!: int |
 		{
 			string &
@@ -43,7 +43,7 @@ _#defs: "/$defs/Properties/definitions/ActivatedRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WafAction": close({Type!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#WafAction: close({Type!: string | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::WAF::WebACL"
 	Properties!: #Properties

@@ -8,45 +8,45 @@ package schema
 #Properties: close({
 	ApplicationName!:     string
 	Id?:                  string
-	ReferenceDataSource!: _#defs."/$defs/Properties/definitions/ReferenceDataSource"
+	ReferenceDataSource!: #ReferenceDataSource
 })
 
-_#defs: "/$defs/Properties/definitions/CSVMappingParameters": close({
+#CSVMappingParameters: close({
 	RecordColumnDelimiter!: string
 	RecordRowDelimiter!:    string
 })
 
-_#defs: "/$defs/Properties/definitions/JSONMappingParameters": close({RecordRowPath!: string})
+#JSONMappingParameters: close({RecordRowPath!: string})
 
-_#defs: "/$defs/Properties/definitions/MappingParameters": close({
-	CSVMappingParameters?:  _#defs."/$defs/Properties/definitions/CSVMappingParameters"
-	JSONMappingParameters?: _#defs."/$defs/Properties/definitions/JSONMappingParameters"
+#MappingParameters: close({
+	CSVMappingParameters?:  #CSVMappingParameters
+	JSONMappingParameters?: #JSONMappingParameters
 })
 
-_#defs: "/$defs/Properties/definitions/RecordColumn": close({
+#RecordColumn: close({
 	Mapping?: string
 	Name!:    string
 	SqlType!: string
 })
 
-_#defs: "/$defs/Properties/definitions/RecordFormat": close({
-	MappingParameters?: _#defs."/$defs/Properties/definitions/MappingParameters"
+#RecordFormat: close({
+	MappingParameters?: #MappingParameters
 	RecordFormatType!:  string
 })
 
-_#defs: "/$defs/Properties/definitions/ReferenceDataSource": close({
-	ReferenceSchema!:       _#defs."/$defs/Properties/definitions/ReferenceSchema"
-	S3ReferenceDataSource?: _#defs."/$defs/Properties/definitions/S3ReferenceDataSource"
+#ReferenceDataSource: close({
+	ReferenceSchema!:       #ReferenceSchema
+	S3ReferenceDataSource?: #S3ReferenceDataSource
 	TableName?:             string
 })
 
-_#defs: "/$defs/Properties/definitions/ReferenceSchema": close({
-	RecordColumns!:  [..._#defs."/$defs/Properties/definitions/RecordColumn"]
+#ReferenceSchema: close({
+	RecordColumns!:  [...#RecordColumn]
 	RecordEncoding?: string
-	RecordFormat!:   _#defs."/$defs/Properties/definitions/RecordFormat"
+	RecordFormat!:   #RecordFormat
 })
 
-_#defs: "/$defs/Properties/definitions/S3ReferenceDataSource": close({
+#S3ReferenceDataSource: close({
 	BucketARN!: string
 	FileKey!:   string
 })

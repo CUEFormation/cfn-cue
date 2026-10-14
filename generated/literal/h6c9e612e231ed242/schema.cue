@@ -6,9 +6,9 @@ package schema
 
 // Resource Type definition for AWS::Cognito::UserPoolRegionalConfigurationAttachment
 #Properties: close({
-	EmailConfiguration?: _#defs."/$defs/Properties/definitions/EmailConfiguration"
-	LambdaConfig?:       _#defs."/$defs/Properties/definitions/LambdaConfig"
-	SmsConfiguration?:   _#defs."/$defs/Properties/definitions/SmsConfiguration"
+	EmailConfiguration?: #EmailConfiguration
+	LambdaConfig?:       #LambdaConfig
+	SmsConfiguration?:   #SmsConfiguration
 
 	// The status of the replica. Set to ACTIVE or INACTIVE.
 	Status?:     string
@@ -18,17 +18,17 @@ package schema
 		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string}})
 })
 
-_#defs: "/$defs/Properties/definitions/CustomEmailSender": close({
+#CustomEmailSender: close({
 	LambdaArn?:     =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 	LambdaVersion?: string
 })
 
-_#defs: "/$defs/Properties/definitions/CustomSMSSender": close({
+#CustomSMSSender: close({
 	LambdaArn?:     =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 	LambdaVersion?: string
 })
 
-_#defs: "/$defs/Properties/definitions/EmailConfiguration": close({
+#EmailConfiguration: close({
 	ConfigurationSet?:    string
 	EmailSendingAccount?: string
 	From?:                string
@@ -36,7 +36,7 @@ _#defs: "/$defs/Properties/definitions/EmailConfiguration": close({
 	SourceArn?:           string
 })
 
-_#defs: "/$defs/Properties/definitions/EumsSmsConfiguration": close({
+#EumsSmsConfiguration: close({
 	CallerArn!:            string
 	ConfigurationSetName?: string
 	ExternalId?:           string
@@ -46,36 +46,36 @@ _#defs: "/$defs/Properties/definitions/EumsSmsConfiguration": close({
 	Region?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/InboundFederation": close({
+#InboundFederation: close({
 	LambdaArn?:     =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 	LambdaVersion?: string
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaConfig": close({
+#LambdaConfig: close({
 	CreateAuthChallenge?:         string
-	CustomEmailSender?:           _#defs."/$defs/Properties/definitions/CustomEmailSender"
+	CustomEmailSender?:           #CustomEmailSender
 	CustomMessage?:               string
-	CustomSMSSender?:             _#defs."/$defs/Properties/definitions/CustomSMSSender"
+	CustomSMSSender?:             #CustomSMSSender
 	DefineAuthChallenge?:         string
-	InboundFederation?:           _#defs."/$defs/Properties/definitions/InboundFederation"
+	InboundFederation?:           #InboundFederation
 	KMSKeyID?:                    string
 	PostAuthentication?:          string
 	PostConfirmation?:            string
 	PreAuthentication?:           string
 	PreSignUp?:                   string
 	PreTokenGeneration?:          string
-	PreTokenGenerationConfig?:    _#defs."/$defs/Properties/definitions/PreTokenGenerationConfig"
+	PreTokenGenerationConfig?:    #PreTokenGenerationConfig
 	UserMigration?:               string
 	VerifyAuthChallengeResponse?: string
 })
 
-_#defs: "/$defs/Properties/definitions/PreTokenGenerationConfig": close({
+#PreTokenGenerationConfig: close({
 	LambdaArn?:     =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
 	LambdaVersion?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SmsConfiguration": close({
-	EumsSms?:      _#defs."/$defs/Properties/definitions/EumsSmsConfiguration"
+#SmsConfiguration: close({
+	EumsSms?:      #EumsSmsConfiguration
 	ExternalId?:   string
 	SnsCallerArn?: string
 	SnsRegion?:    string

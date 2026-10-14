@@ -8,7 +8,7 @@ package schema
 #Properties: close({
 	Automatic?:                bool
 	ConfigRuleName!:           string
-	ExecutionControls?:        _#defs."/$defs/Properties/definitions/ExecutionControls"
+	ExecutionControls?:        #ExecutionControls
 	MaximumAutomaticAttempts?: int
 	Parameters?:               string | {...}
 	ResourceType?:             string
@@ -18,11 +18,9 @@ package schema
 	TargetVersion?:            string
 })
 
-_#defs: "/$defs/Properties/definitions/ExecutionControls": close(
-	{SsmControls?: _#defs."/$defs/Properties/definitions/SsmControls"},
-)
+#ExecutionControls: close({SsmControls?: #SsmControls})
 
-_#defs: "/$defs/Properties/definitions/SsmControls": close({
+#SsmControls: close({
 	ConcurrentExecutionRatePercentage?: int
 	ErrorPercentage?:                   int
 })

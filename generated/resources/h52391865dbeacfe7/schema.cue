@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -15,15 +15,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a monitor for specific network flows between local and remote
 // resources to monitor network performance for workloads.
 #Properties: close({
-	LocalResources!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MonitorLocalResource"] |
-		fn.#ListExpression
+	LocalResources!:  list.MinItems(1) & [...#MonitorLocalResource] | fn.#ListExpression
 	MonitorName!:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	RemoteResources?: [..._#defs."/$defs/Properties/definitions/MonitorRemoteResource"] | fn.#ListExpression
+	RemoteResources?: [...#MonitorRemoteResource] | fn.#ListExpression
 	ScopeArn?:        strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*$" | fn.#StringExpression
-	Tags?:            list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/MonitorLocalResource": close({
+#MonitorLocalResource: close({
 	Identifier!: string | fn.#StringExpression
 	Type!: "AWS::EC2::VPC" |
 		"AWS::AvailabilityZone" |
@@ -34,7 +33,7 @@ _#defs: "/$defs/Properties/definitions/MonitorLocalResource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MonitorRemoteResource": close({
+#MonitorRemoteResource: close({
 	Identifier!: string | fn.#StringExpression
 	Type!: "AWS::EC2::VPC" |
 		"AWS::AvailabilityZone" |
@@ -45,7 +44,7 @@ _#defs: "/$defs/Properties/definitions/MonitorRemoteResource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

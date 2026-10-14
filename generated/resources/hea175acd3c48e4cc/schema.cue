@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -20,31 +20,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
 	fn.#StringExpression
-	CapacityConfiguration?: _#defs."/$defs/Properties/definitions/IndexCapacityConfiguration"
+	CapacityConfiguration?: #IndexCapacityConfiguration
 	Description?:           strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	DisplayName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	DocumentAttributeConfigurations?: list.MaxItems(500) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DocumentAttributeConfiguration"
-	] |
+	DocumentAttributeConfigurations?: list.MaxItems(500) & list.MinItems(1) & [...#DocumentAttributeConfiguration] |
 		fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type?: _#defs."/$defs/Properties/definitions/IndexType"
+	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	Type?: #IndexType
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeType": "STRING" |
-	"STRING_LIST" |
-	"NUMBER" |
-	"DATE" |
-	fn.#StringExpression
+#AttributeType: "STRING" | "STRING_LIST" | "NUMBER" | "DATE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentAttributeConfiguration": close({
+#DocumentAttributeConfiguration: close({
 	Name?:   strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	Search?: _#defs."/$defs/Properties/definitions/Status"
-	Type?:   _#defs."/$defs/Properties/definitions/AttributeType"
+	Search?: #Status
+	Type?:   #AttributeType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IndexCapacityConfiguration": close({
+#IndexCapacityConfiguration: close({
 	Units?: >=1 |
 		{
 			string &
@@ -67,29 +61,21 @@ _#defs: "/$defs/Properties/definitions/IndexCapacityConfiguration": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IndexStatistics": close(
-	{TextDocumentStatistics?: _#defs."/$defs/Properties/definitions/TextDocumentStatistics"},
-) |
-	fn.#ObjectExpression
+#IndexStatistics: close({TextDocumentStatistics?: #TextDocumentStatistics}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IndexStatus": "CREATING" |
-	"ACTIVE" |
-	"DELETING" |
-	"FAILED" |
-	"UPDATING" |
-	fn.#StringExpression
+#IndexStatus: "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "UPDATING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IndexType": "ENTERPRISE" | "STARTER" | fn.#StringExpression
+#IndexType: "ENTERPRISE" | "STARTER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Status": "ENABLED" | "DISABLED" | fn.#StringExpression
+#Status: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TextDocumentStatistics": close({
+#TextDocumentStatistics: close({
 	IndexedTextBytes?: >=0 |
 		{
 			string &

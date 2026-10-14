@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -29,7 +29,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	ComputeCapacity?: _#defs."/$defs/Properties/definitions/ComputeCapacity"
+	ComputeCapacity?: #ComputeCapacity
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	DisableIMDSV1?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DisconnectTimeoutInSeconds?: int & <=360000 & >=60 |
@@ -49,7 +49,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	DisplayName?:                 strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	DomainJoinInfo?:              _#defs."/$defs/Properties/definitions/DomainJoinInfo"
+	DomainJoinInfo?:              #DomainJoinInfo
 	EnableDefaultInternetAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FleetType?:                   =~"^ALWAYS_ON$|^ON_DEMAND$|^ELASTIC$" | fn.#StringExpression
 	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -131,10 +131,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"WINDOWS_SERVER_2022" |
 		"WINDOWS_SERVER_2025" |
 		fn.#StringExpression
-	RootVolumeConfig?:        _#defs."/$defs/Properties/definitions/VolumeConfig"
-	SessionScriptS3Location?: _#defs."/$defs/Properties/definitions/S3Location"
+	RootVolumeConfig?:        #VolumeConfig
+	SessionScriptS3Location?: #S3Location
 	StreamView?:              "APP" | "DESKTOP" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	UsbDeviceFilterStrings?: [
 		...strings.MaxRunes(100) &
 		strings.MinRunes(0) &
@@ -142,10 +142,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
+	VpcConfig?: #VpcConfig
 })
 
-_#defs: "/$defs/Properties/definitions/ComputeCapacity": close({
+#ComputeCapacity: close({
 	DesiredInstances?: int |
 		{
 			string &
@@ -177,25 +177,25 @@ _#defs: "/$defs/Properties/definitions/ComputeCapacity": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DomainJoinInfo": close({
+#DomainJoinInfo: close({
 	DirectoryName?:                       string | fn.#StringExpression
 	OrganizationalUnitDistinguishedName?: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	S3Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	S3Key!:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & =~"^[\\S\\s]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VolumeConfig": close({
+#VolumeConfig: close({
 	VolumeSizeInGb?: int |
 		{
 			string &
@@ -213,7 +213,7 @@ _#defs: "/$defs/Properties/definitions/VolumeConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
 		fn.#StringExpression

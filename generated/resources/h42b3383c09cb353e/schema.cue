@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -14,10 +14,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Connect::ContactFlowModule.
 #Properties: close({
-	Content!:     strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
-	Description?: strings.MaxRunes(500) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
-	ExternalInvocationConfiguration?: close({Enabled?: _#defs."/$defs/Properties/definitions/Enabled"}) |
-		fn.#ObjectExpression
+	Content!:                         strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
+	Description?:                     strings.MaxRunes(500) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
+	ExternalInvocationConfiguration?: close({Enabled?: #Enabled}) | fn.#ObjectExpression
 	InstanceArn!: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
@@ -25,19 +24,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:     strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
 	Settings?: strings.MaxRunes(256000) | fn.#StringExpression
 	State?:    strings.MaxRunes(500) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:     list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Enabled": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#Enabled: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -19,8 +19,8 @@ import "strings"
 
 	// Role ARN.
 	RoleArn!:            =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	SchemaS3Location?:   _#defs."/$defs/Properties/definitions/S3Location"
-	SnapshotS3Location?: _#defs."/$defs/Properties/definitions/S3Location"
+	SchemaS3Location?:   #S3Location
+	SnapshotS3Location?: #S3Location
 	if SchemaS3Location != _|_ {
 		SnapshotS3Location?: error(
 			"SnapshotS3Location cannot be used with SchemaS3Location; set exactly one of SchemaS3Location, SnapshotS3Location",
@@ -28,7 +28,7 @@ import "strings"
 	}
 }) & matchN(>=1, [{SchemaS3Location!: _}, {SnapshotS3Location!: _}])
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// The Schema S3 bucket name.
 	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-zA-Z0-9_\\-]{3,63}$"
 

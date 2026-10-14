@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -19,21 +19,21 @@ import (
 
 	// LoRaWANDeviceProfile supports all LoRa specific attributes for service
 	// profile for CreateDeviceProfile operation
-	LoRaWAN?: _#defs."/$defs/Properties/definitions/LoRaWANDeviceProfile"
+	LoRaWAN?: #LoRaWANDeviceProfile
 
 	// Name of service profile
 	Name?: strings.MaxRunes(256) & strings.MinRunes(0)
 
 	// A list of key-value pairs that contain metadata for the device profile.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/FactoryPresetFreq": int & <=16700000 & >=1000000
+#FactoryPresetFreq: int & <=16700000 & >=1000000
 
-_#defs: "/$defs/Properties/definitions/LoRaWANDeviceProfile": close({
+#LoRaWANDeviceProfile: close({
 	ClassBTimeout?:          int & <=1000 & >=0
 	ClassCTimeout?:          int & <=1000 & >=0
-	FactoryPresetFreqsList?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/FactoryPresetFreq"]
+	FactoryPresetFreqsList?: list.MaxItems(20) & [...] & [...#FactoryPresetFreq]
 	MacVersion?:             strings.MaxRunes(64) & strings.MinRunes(0)
 	MaxDutyCycle?:           int & <=100 & >=0
 	MaxEirp?:                int & <=15 & >=0
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/LoRaWANDeviceProfile": close({
 	SupportsJoin?:           bool
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1)
 })

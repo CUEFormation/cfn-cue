@@ -50,4 +50,4 @@ package schema
 	Target?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ParameterConstraints": close({Required!: bool})
+#ParameterConstraints: close({Required!: bool})

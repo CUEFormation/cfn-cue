@@ -42,13 +42,13 @@ import "strings"
 	SnsTopicArns?: [...string]
 
 	// The tags to add to the configuration
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// Enables use of a user role requirement in your chat configuration
 	UserRoleRequired?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

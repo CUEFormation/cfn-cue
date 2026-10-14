@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -18,138 +18,126 @@ import (
 	Description?: strings.MaxRunes(512) & strings.MinRunes(1)
 
 	// Findings filter action.
-	FilterAction!: _#defs."/$defs/Properties/definitions/FilterAction"
+	FilterAction!: #FilterAction
 
 	// Findings filter criteria.
-	FilterCriteria!: _#defs."/$defs/Properties/definitions/FilterCriteria"
+	FilterCriteria!: #FilterCriteria
 
 	// Findings filter name.
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1)
-	Tags?: _#defs."/$defs/Properties/definitions/FilterTagMap"
+	Tags?: #FilterTagMap
 })
 
-_#defs: "/$defs/Properties/definitions/DateFilter": close({
-	EndInclusive?:   _#defs."/$defs/Properties/definitions/Timestamp"
-	StartInclusive?: _#defs."/$defs/Properties/definitions/Timestamp"
+#DateFilter: close({
+	EndInclusive?:   #Timestamp
+	StartInclusive?: #Timestamp
 })
 
-_#defs: "/$defs/Properties/definitions/DateFilterList": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/DateFilter"
-]
+#DateFilterList: list.MaxItems(10) & list.MinItems(1) & [...#DateFilter]
 
-_#defs: "/$defs/Properties/definitions/FilterAction": "NONE" | "SUPPRESS"
+#FilterAction: "NONE" | "SUPPRESS"
 
-_#defs: "/$defs/Properties/definitions/FilterCriteria": close({
-	AwsAccountId?:                   _#defs."/$defs/Properties/definitions/StringFilterList"
-	CodeVulnerabilityDetectorName?:  _#defs."/$defs/Properties/definitions/StringFilterList"
-	CodeVulnerabilityDetectorTags?:  _#defs."/$defs/Properties/definitions/StringFilterList"
-	CodeVulnerabilityFilePath?:      _#defs."/$defs/Properties/definitions/StringFilterList"
-	ComponentId?:                    _#defs."/$defs/Properties/definitions/StringFilterList"
-	ComponentType?:                  _#defs."/$defs/Properties/definitions/StringFilterList"
-	Ec2InstanceImageId?:             _#defs."/$defs/Properties/definitions/StringFilterList"
-	Ec2InstanceSubnetId?:            _#defs."/$defs/Properties/definitions/StringFilterList"
-	Ec2InstanceVpcId?:               _#defs."/$defs/Properties/definitions/StringFilterList"
-	EcrImageArchitecture?:           _#defs."/$defs/Properties/definitions/StringFilterList"
-	EcrImageHash?:                   _#defs."/$defs/Properties/definitions/StringFilterList"
-	EcrImagePushedAt?:               _#defs."/$defs/Properties/definitions/DateFilterList"
-	EcrImageRegistry?:               _#defs."/$defs/Properties/definitions/StringFilterList"
-	EcrImageRepositoryName?:         _#defs."/$defs/Properties/definitions/StringFilterList"
-	EcrImageTags?:                   _#defs."/$defs/Properties/definitions/StringFilterList"
-	EpssScore?:                      _#defs."/$defs/Properties/definitions/NumberFilterList"
-	ExploitAvailable?:               _#defs."/$defs/Properties/definitions/StringFilterList"
-	FindingArn?:                     _#defs."/$defs/Properties/definitions/StringFilterList"
-	FindingStatus?:                  _#defs."/$defs/Properties/definitions/StringFilterList"
-	FindingType?:                    _#defs."/$defs/Properties/definitions/StringFilterList"
-	FirstObservedAt?:                _#defs."/$defs/Properties/definitions/DateFilterList"
-	FixAvailable?:                   _#defs."/$defs/Properties/definitions/StringFilterList"
-	InspectorScore?:                 _#defs."/$defs/Properties/definitions/NumberFilterList"
-	LambdaFunctionExecutionRoleArn?: _#defs."/$defs/Properties/definitions/StringFilterList"
-	LambdaFunctionLastModifiedAt?:   _#defs."/$defs/Properties/definitions/DateFilterList"
-	LambdaFunctionLayers?:           _#defs."/$defs/Properties/definitions/StringFilterList"
-	LambdaFunctionName?:             _#defs."/$defs/Properties/definitions/StringFilterList"
-	LambdaFunctionRuntime?:          _#defs."/$defs/Properties/definitions/StringFilterList"
-	LastObservedAt?:                 _#defs."/$defs/Properties/definitions/DateFilterList"
-	NetworkProtocol?:                _#defs."/$defs/Properties/definitions/StringFilterList"
-	PortRange?:                      _#defs."/$defs/Properties/definitions/PortRangeFilterList"
-	RelatedVulnerabilities?:         _#defs."/$defs/Properties/definitions/StringFilterList"
-	ResourceId?:                     _#defs."/$defs/Properties/definitions/StringFilterList"
-	ResourceTags?:                   _#defs."/$defs/Properties/definitions/MapFilterList"
-	ResourceType?:                   _#defs."/$defs/Properties/definitions/StringFilterList"
-	Severity?:                       _#defs."/$defs/Properties/definitions/StringFilterList"
-	Title?:                          _#defs."/$defs/Properties/definitions/StringFilterList"
-	UpdatedAt?:                      _#defs."/$defs/Properties/definitions/DateFilterList"
-	VendorSeverity?:                 _#defs."/$defs/Properties/definitions/StringFilterList"
-	VulnerabilityId?:                _#defs."/$defs/Properties/definitions/StringFilterList"
-	VulnerabilitySource?:            _#defs."/$defs/Properties/definitions/StringFilterList"
-	VulnerablePackages?:             _#defs."/$defs/Properties/definitions/PackageFilterList"
+#FilterCriteria: close({
+	AwsAccountId?:                   #StringFilterList
+	CodeVulnerabilityDetectorName?:  #StringFilterList
+	CodeVulnerabilityDetectorTags?:  #StringFilterList
+	CodeVulnerabilityFilePath?:      #StringFilterList
+	ComponentId?:                    #StringFilterList
+	ComponentType?:                  #StringFilterList
+	Ec2InstanceImageId?:             #StringFilterList
+	Ec2InstanceSubnetId?:            #StringFilterList
+	Ec2InstanceVpcId?:               #StringFilterList
+	EcrImageArchitecture?:           #StringFilterList
+	EcrImageHash?:                   #StringFilterList
+	EcrImagePushedAt?:               #DateFilterList
+	EcrImageRegistry?:               #StringFilterList
+	EcrImageRepositoryName?:         #StringFilterList
+	EcrImageTags?:                   #StringFilterList
+	EpssScore?:                      #NumberFilterList
+	ExploitAvailable?:               #StringFilterList
+	FindingArn?:                     #StringFilterList
+	FindingStatus?:                  #StringFilterList
+	FindingType?:                    #StringFilterList
+	FirstObservedAt?:                #DateFilterList
+	FixAvailable?:                   #StringFilterList
+	InspectorScore?:                 #NumberFilterList
+	LambdaFunctionExecutionRoleArn?: #StringFilterList
+	LambdaFunctionLastModifiedAt?:   #DateFilterList
+	LambdaFunctionLayers?:           #StringFilterList
+	LambdaFunctionName?:             #StringFilterList
+	LambdaFunctionRuntime?:          #StringFilterList
+	LastObservedAt?:                 #DateFilterList
+	NetworkProtocol?:                #StringFilterList
+	PortRange?:                      #PortRangeFilterList
+	RelatedVulnerabilities?:         #StringFilterList
+	ResourceId?:                     #StringFilterList
+	ResourceTags?:                   #MapFilterList
+	ResourceType?:                   #StringFilterList
+	Severity?:                       #StringFilterList
+	Title?:                          #StringFilterList
+	UpdatedAt?:                      #DateFilterList
+	VendorSeverity?:                 #StringFilterList
+	VulnerabilityId?:                #StringFilterList
+	VulnerabilitySource?:            #StringFilterList
+	VulnerablePackages?:             #PackageFilterList
 })
 
-_#defs: "/$defs/Properties/definitions/FilterTagMap": close({
+#FilterTagMap: close({
 
 	{[=~"^.{2,127}$"]: =~"^.{1,255}$"}})
 
-_#defs: "/$defs/Properties/definitions/MapComparison": "EQUALS"
+#MapComparison: "EQUALS"
 
-_#defs: "/$defs/Properties/definitions/MapFilter": close({
-	Comparison!: _#defs."/$defs/Properties/definitions/MapComparison"
-	Key?:        _#defs."/$defs/Properties/definitions/MapKey"
-	Value?:      _#defs."/$defs/Properties/definitions/MapValue"
+#MapFilter: close({
+	Comparison!: #MapComparison
+	Key?:        #MapKey
+	Value?:      #MapValue
 })
 
-_#defs: "/$defs/Properties/definitions/MapFilterList": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/MapFilter"
-]
+#MapFilterList: list.MaxItems(10) & list.MinItems(1) & [...#MapFilter]
 
-_#defs: "/$defs/Properties/definitions/MapKey": strings.MaxRunes(128) & strings.MinRunes(1)
+#MapKey: strings.MaxRunes(128) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/MapValue": strings.MaxRunes(256) & strings.MinRunes(0)
+#MapValue: strings.MaxRunes(256) & strings.MinRunes(0)
 
-_#defs: "/$defs/Properties/definitions/NumberFilter": close({
+#NumberFilter: close({
 	LowerInclusive?: number
 	UpperInclusive?: number
 })
 
-_#defs: "/$defs/Properties/definitions/NumberFilterList": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/NumberFilter"
-]
+#NumberFilterList: list.MaxItems(10) & list.MinItems(1) & [...#NumberFilter]
 
-_#defs: "/$defs/Properties/definitions/PackageFilter": close({
-	Architecture?:         _#defs."/$defs/Properties/definitions/StringFilter"
-	Epoch?:                _#defs."/$defs/Properties/definitions/NumberFilter"
-	FilePath?:             _#defs."/$defs/Properties/definitions/StringFilter"
-	Name?:                 _#defs."/$defs/Properties/definitions/StringFilter"
-	Release?:              _#defs."/$defs/Properties/definitions/StringFilter"
-	SourceLambdaLayerArn?: _#defs."/$defs/Properties/definitions/StringFilter"
-	SourceLayerHash?:      _#defs."/$defs/Properties/definitions/StringFilter"
-	Version?:              _#defs."/$defs/Properties/definitions/StringFilter"
+#PackageFilter: close({
+	Architecture?:         #StringFilter
+	Epoch?:                #NumberFilter
+	FilePath?:             #StringFilter
+	Name?:                 #StringFilter
+	Release?:              #StringFilter
+	SourceLambdaLayerArn?: #StringFilter
+	SourceLayerHash?:      #StringFilter
+	Version?:              #StringFilter
 })
 
-_#defs: "/$defs/Properties/definitions/PackageFilterList": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/PackageFilter"
-]
+#PackageFilterList: list.MaxItems(10) & list.MinItems(1) & [...#PackageFilter]
 
-_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0
+#Port: int & <=65535 & >=0
 
-_#defs: "/$defs/Properties/definitions/PortRangeFilter": close({
-	BeginInclusive?: _#defs."/$defs/Properties/definitions/Port"
-	EndInclusive?:   _#defs."/$defs/Properties/definitions/Port"
+#PortRangeFilter: close({
+	BeginInclusive?: #Port
+	EndInclusive?:   #Port
 })
 
-_#defs: "/$defs/Properties/definitions/PortRangeFilterList": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/PortRangeFilter"
-]
+#PortRangeFilterList: list.MaxItems(10) & list.MinItems(1) & [...#PortRangeFilter]
 
-_#defs: "/$defs/Properties/definitions/StringComparison": "EQUALS" | "PREFIX" | "NOT_EQUALS"
+#StringComparison: "EQUALS" | "PREFIX" | "NOT_EQUALS"
 
-_#defs: "/$defs/Properties/definitions/StringFilter": close({
-	Comparison!: _#defs."/$defs/Properties/definitions/StringComparison"
-	Value!:      _#defs."/$defs/Properties/definitions/StringInput"
+#StringFilter: close({
+	Comparison!: #StringComparison
+	Value!:      #StringInput
 })
 
-_#defs: "/$defs/Properties/definitions/StringFilterList": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/StringFilter" & {...}
-]
+#StringFilterList: list.MaxItems(10) & list.MinItems(1) & [...#StringFilter & {...}]
 
-_#defs: "/$defs/Properties/definitions/StringInput": strings.MaxRunes(1024) & strings.MinRunes(1)
+#StringInput: strings.MaxRunes(1024) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/Timestamp": int
+#Timestamp: int

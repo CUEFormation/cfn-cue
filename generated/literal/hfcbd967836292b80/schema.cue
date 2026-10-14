@@ -14,9 +14,7 @@ import (
 // and manages a Network Security Manager template.
 #Properties: close({
 	// List of rules associated with this template.
-	AssociatedRuleList?: list.MaxItems(50) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AssociatedRule"
-	]
+	AssociatedRuleList?: list.MaxItems(50) & list.MinItems(1) & [...#AssociatedRule]
 
 	// The type of firewall.
 	FirewallType?: "WAF" | "NETWORK_FIREWALL" | "NETWORK_FIREWALL_V2" | "IGW_FIREWALL"
@@ -25,7 +23,7 @@ import (
 	Status?: "DRAFT" | "ACTIVE" | "DISABLED"
 
 	// The tags associated with the template.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The ARN of the template.
 	TemplateArn?: string
@@ -47,13 +45,13 @@ import (
 })
 
 // An association between a template and a rule.
-_#defs: "/$defs/Properties/definitions/AssociatedRule": close({
+#AssociatedRule: close({
 	// ARN of the associated rule.
 	RuleArn!: string
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

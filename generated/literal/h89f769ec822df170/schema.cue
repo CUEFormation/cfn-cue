@@ -9,128 +9,119 @@ import "struct"
 // AWS Ground Station config resource type for CloudFormation.
 #Properties: close({
 	Arn?:        =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
-	ConfigData!: _#defs."/$defs/Properties/definitions/ConfigData"
+	ConfigData!: #ConfigData
 	Id?:         string
 	Name!:       =~"^[ a-zA-Z0-9_:-]{1,256}$"
-	Tags?:       [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:       [...#Tag]
 	Type?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/AntennaDownlinkConfig": close(
-	{SpectrumConfig?: _#defs."/$defs/Properties/definitions/SpectrumConfig"},
-)
+#AntennaDownlinkConfig: close({SpectrumConfig?: #SpectrumConfig})
 
-_#defs: "/$defs/Properties/definitions/AntennaDownlinkDemodDecodeConfig": close({
-	DecodeConfig?:       _#defs."/$defs/Properties/definitions/DecodeConfig"
-	DemodulationConfig?: _#defs."/$defs/Properties/definitions/DemodulationConfig"
-	SpectrumConfig?:     _#defs."/$defs/Properties/definitions/SpectrumConfig"
+#AntennaDownlinkDemodDecodeConfig: close({
+	DecodeConfig?:       #DecodeConfig
+	DemodulationConfig?: #DemodulationConfig
+	SpectrumConfig?:     #SpectrumConfig
 })
 
-_#defs: "/$defs/Properties/definitions/AntennaUplinkConfig": close({
-	SpectrumConfig?:   _#defs."/$defs/Properties/definitions/UplinkSpectrumConfig"
-	TargetEirp?:       _#defs."/$defs/Properties/definitions/Eirp"
+#AntennaUplinkConfig: close({
+	SpectrumConfig?:   #UplinkSpectrumConfig
+	TargetEirp?:       #Eirp
 	TransmitDisabled?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/BandwidthUnits": "GHz" | "MHz" | "kHz"
+#BandwidthUnits: "GHz" | "MHz" | "kHz"
 
-_#defs: "/$defs/Properties/definitions/BucketArn": =~"^arn:aws[A-Za-z0-9-]{0,64}:s3:::[A-Za-z0-9-]{1,64}$"
+#BucketArn: =~"^arn:aws[A-Za-z0-9-]{0,64}:s3:::[A-Za-z0-9-]{1,64}$"
 
-_#defs: "/$defs/Properties/definitions/ConfigData": struct.MaxFields(1) & struct.MinFields(1) & close({
-	AntennaDownlinkConfig?:            _#defs."/$defs/Properties/definitions/AntennaDownlinkConfig"
-	AntennaDownlinkDemodDecodeConfig?: _#defs."/$defs/Properties/definitions/AntennaDownlinkDemodDecodeConfig"
-	AntennaUplinkConfig?:              _#defs."/$defs/Properties/definitions/AntennaUplinkConfig"
-	DataflowEndpointConfig?:           _#defs."/$defs/Properties/definitions/DataflowEndpointConfig"
-	S3RecordingConfig?:                _#defs."/$defs/Properties/definitions/S3RecordingConfig"
-	TelemetrySinkConfig?:              _#defs."/$defs/Properties/definitions/TelemetrySinkConfig"
-	TrackingConfig?:                   _#defs."/$defs/Properties/definitions/TrackingConfig"
-	UplinkEchoConfig?:                 _#defs."/$defs/Properties/definitions/UplinkEchoConfig"
+#ConfigData: struct.MaxFields(1) & struct.MinFields(1) & close({
+	AntennaDownlinkConfig?:            #AntennaDownlinkConfig
+	AntennaDownlinkDemodDecodeConfig?: #AntennaDownlinkDemodDecodeConfig
+	AntennaUplinkConfig?:              #AntennaUplinkConfig
+	DataflowEndpointConfig?:           #DataflowEndpointConfig
+	S3RecordingConfig?:                #S3RecordingConfig
+	TelemetrySinkConfig?:              #TelemetrySinkConfig
+	TrackingConfig?:                   #TrackingConfig
+	UplinkEchoConfig?:                 #UplinkEchoConfig
 })
 
-_#defs: "/$defs/Properties/definitions/DataflowEndpointConfig": close({
+#DataflowEndpointConfig: close({
 	DataflowEndpointName?:   string
 	DataflowEndpointRegion?: string
 })
 
-_#defs: "/$defs/Properties/definitions/DecodeConfig": close(
-	{UnvalidatedJSON?: _#defs."/$defs/Properties/definitions/JsonString"},
-)
+#DecodeConfig: close({UnvalidatedJSON?: #JsonString})
 
-_#defs: "/$defs/Properties/definitions/DemodulationConfig": close(
-	{UnvalidatedJSON?: _#defs."/$defs/Properties/definitions/JsonString"},
-)
+#DemodulationConfig: close({UnvalidatedJSON?: #JsonString})
 
-_#defs: "/$defs/Properties/definitions/Eirp": close({
-	Units?: _#defs."/$defs/Properties/definitions/EirpUnits"
+#Eirp: close({
+	Units?: #EirpUnits
 	Value?: number
 })
 
-_#defs: "/$defs/Properties/definitions/EirpUnits": "dBW"
+#EirpUnits: "dBW"
 
-_#defs: "/$defs/Properties/definitions/Frequency": close({
-	Units?: _#defs."/$defs/Properties/definitions/FrequencyUnits"
+#Frequency: close({
+	Units?: #FrequencyUnits
 	Value?: number
 })
 
-_#defs: "/$defs/Properties/definitions/FrequencyBandwidth": close({
-	Units?: _#defs."/$defs/Properties/definitions/BandwidthUnits"
+#FrequencyBandwidth: close({
+	Units?: #BandwidthUnits
 	Value?: number
 })
 
-_#defs: "/$defs/Properties/definitions/FrequencyUnits": "GHz" | "MHz" | "kHz"
+#FrequencyUnits: "GHz" | "MHz" | "kHz"
 
-_#defs: "/$defs/Properties/definitions/JsonString": string
+#JsonString: string
 
-_#defs: "/$defs/Properties/definitions/KinesisDataStreamArn": =~"^arn:[a-z0-9-.]{1,63}:kinesis:[-a-z0-9]{1,50}:[0-9]{12}:stream/[a-zA-Z0-9_.-]{1,128}$"
+#KinesisDataStreamArn: =~"^arn:[a-z0-9-.]{1,63}:kinesis:[-a-z0-9]{1,50}:[0-9]{12}:stream/[a-zA-Z0-9_.-]{1,128}$"
 
-_#defs: "/$defs/Properties/definitions/KinesisDataStreamData": close({
-	KinesisDataStreamArn!: _#defs."/$defs/Properties/definitions/KinesisDataStreamArn"
-	KinesisRoleArn!:       _#defs."/$defs/Properties/definitions/RoleArn"
+#KinesisDataStreamData: close({
+	KinesisDataStreamArn!: #KinesisDataStreamArn
+	KinesisRoleArn!:       #RoleArn
 })
 
-_#defs: "/$defs/Properties/definitions/Polarization": "LEFT_HAND" | "RIGHT_HAND" | "NONE"
+#Polarization: "LEFT_HAND" | "RIGHT_HAND" | "NONE"
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
-	=~"^arn:[^:\\n]+:iam::[^:\\n]+:role\\/.+$"
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:[^:\\n]+:iam::[^:\\n]+:role\\/.+$"
 
-_#defs: "/$defs/Properties/definitions/S3KeyPrefix": =~"^([a-zA-Z0-9_\\-=/]|\\{satellite_id\\}|\\{config\\-name}|\\{s3\\-config-id}|\\{year\\}|\\{month\\}|\\{day\\}){1,900}$"
+#S3KeyPrefix: =~"^([a-zA-Z0-9_\\-=/]|\\{satellite_id\\}|\\{config\\-name}|\\{s3\\-config-id}|\\{year\\}|\\{month\\}|\\{day\\}){1,900}$"
 
-_#defs: "/$defs/Properties/definitions/S3RecordingConfig": close({
-	BucketArn?: _#defs."/$defs/Properties/definitions/BucketArn"
-	Prefix?:    _#defs."/$defs/Properties/definitions/S3KeyPrefix"
-	RoleArn?:   _#defs."/$defs/Properties/definitions/RoleArn"
+#S3RecordingConfig: close({
+	BucketArn?: #BucketArn
+	Prefix?:    #S3KeyPrefix
+	RoleArn?:   #RoleArn
 })
 
-_#defs: "/$defs/Properties/definitions/SpectrumConfig": close({
-	Bandwidth?:       _#defs."/$defs/Properties/definitions/FrequencyBandwidth"
-	CenterFrequency?: _#defs."/$defs/Properties/definitions/Frequency"
-	Polarization?:    _#defs."/$defs/Properties/definitions/Polarization"
+#SpectrumConfig: close({
+	Bandwidth?:       #FrequencyBandwidth
+	CenterFrequency?: #Frequency
+	Polarization?:    #Polarization
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$"
 	Value?: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$"
 })
 
-_#defs: "/$defs/Properties/definitions/TelemetrySinkConfig": close({
-	TelemetrySinkData!: _#defs."/$defs/Properties/definitions/TelemetrySinkData"
-	TelemetrySinkType!: _#defs."/$defs/Properties/definitions/TelemetrySinkType"
+#TelemetrySinkConfig: close({
+	TelemetrySinkData!: #TelemetrySinkData
+	TelemetrySinkType!: #TelemetrySinkType
 })
 
-_#defs: "/$defs/Properties/definitions/TelemetrySinkData": close(
-	{KinesisDataStreamData?: _#defs."/$defs/Properties/definitions/KinesisDataStreamData"},
-) & matchN(>=1, [{KinesisDataStreamData!: _}])
+#TelemetrySinkData: close({KinesisDataStreamData?: #KinesisDataStreamData}) & matchN(>=1, [{KinesisDataStreamData!: _}])
 
-_#defs: "/$defs/Properties/definitions/TelemetrySinkType": "KINESIS_DATA_STREAM"
+#TelemetrySinkType: "KINESIS_DATA_STREAM"
 
-_#defs: "/$defs/Properties/definitions/TrackingConfig": close({Autotrack?: "REQUIRED" | "PREFERRED" | "REMOVED"})
+#TrackingConfig: close({Autotrack?: "REQUIRED" | "PREFERRED" | "REMOVED"})
 
-_#defs: "/$defs/Properties/definitions/UplinkEchoConfig": close({
+#UplinkEchoConfig: close({
 	AntennaUplinkConfigArn?: =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
 	Enabled?:                bool
 })
 
-_#defs: "/$defs/Properties/definitions/UplinkSpectrumConfig": close({
-	CenterFrequency?: _#defs."/$defs/Properties/definitions/Frequency"
-	Polarization?:    _#defs."/$defs/Properties/definitions/Polarization"
+#UplinkSpectrumConfig: close({
+	CenterFrequency?: #Frequency
+	Polarization?:    #Polarization
 })

@@ -41,7 +41,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PipelineDefinition!: fn.#Object & {...} & matchN(1, [close(
 		{PipelineDefinitionBody!: string | fn.#StringExpression},
 	), close(
-		{PipelineDefinitionS3Location!: _#defs."/$defs/Properties/definitions/S3Location"},
+		{PipelineDefinitionS3Location!: #S3Location},
 	)]) |
 	fn.#ObjectExpression
 	PipelineDescription?: strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
@@ -53,10 +53,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!:  string | fn.#StringExpression
 	ETag?:    string | fn.#StringExpression
 	Key!:     string | fn.#StringExpression
@@ -64,7 +64,7 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

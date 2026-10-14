@@ -11,12 +11,12 @@ import (
 
 // The AWS::Timestream::ScheduledQuery resource creates a Timestream Scheduled Query.
 #Properties: close({
-	Arn?:                       _#defs."/$defs/Properties/definitions/Arn"
-	ClientToken?:               _#defs."/$defs/Properties/definitions/ClientToken"
-	ErrorReportConfiguration!:  _#defs."/$defs/Properties/definitions/ErrorReportConfiguration"
-	KmsKeyId?:                  _#defs."/$defs/Properties/definitions/KmsKeyId"
-	NotificationConfiguration!: _#defs."/$defs/Properties/definitions/NotificationConfiguration"
-	QueryString!:               _#defs."/$defs/Properties/definitions/QueryString"
+	Arn?:                       #Arn
+	ClientToken?:               #ClientToken
+	ErrorReportConfiguration!:  #ErrorReportConfiguration
+	KmsKeyId?:                  #KmsKeyId
+	NotificationConfiguration!: #NotificationConfiguration
+	QueryString!:               #QueryString
 
 	// Configuration for error reporting. Error reports will be generated when a
 	// problem is encountered when writing the query results.
@@ -58,20 +58,18 @@ import (
 
 	// Configuration of target store where scheduled query results are written to.
 	SQTargetConfiguration?:          string
-	ScheduleConfiguration!:          _#defs."/$defs/Properties/definitions/ScheduleConfiguration"
-	ScheduledQueryExecutionRoleArn!: _#defs."/$defs/Properties/definitions/ScheduledQueryExecutionRoleArn"
-	ScheduledQueryName?:             _#defs."/$defs/Properties/definitions/ScheduledQueryName"
-	Tags?:                           _#defs."/$defs/Properties/definitions/Tags"
-	TargetConfiguration?:            _#defs."/$defs/Properties/definitions/TargetConfiguration"
+	ScheduleConfiguration!:          #ScheduleConfiguration
+	ScheduledQueryExecutionRoleArn!: #ScheduledQueryExecutionRoleArn
+	ScheduledQueryName?:             #ScheduledQueryName
+	Tags?:                           #Tags
+	TargetConfiguration?:            #TargetConfiguration
 })
 
 // Amazon Resource Name of the scheduled query that is generated upon creation.
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(1)
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(1)
 
 // Name of the S3 bucket under which error reports will be created.
-_#defs: "/$defs/Properties/definitions/BucketName": strings.MaxRunes(63) &
-strings.MinRunes(3) &
-=~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]"
+#BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]"
 
 // Using a ClientToken makes the call to CreateScheduledQuery idempotent, in
 // other words, making the same request repeatedly will produce the same
@@ -79,42 +77,40 @@ strings.MinRunes(3) &
 // effect as making a single request. If CreateScheduledQuery is called without
 // a ClientToken, the Query SDK generates a ClientToken on your behalf. After 8
 // hours, any request with the same ClientToken is treated as a new request.
-_#defs: "/$defs/Properties/definitions/ClientToken": strings.MaxRunes(128) & strings.MinRunes(32)
+#ClientToken: strings.MaxRunes(128) & strings.MinRunes(32)
 
 // Name of Timestream database to which the query result will be written.
-_#defs: "/$defs/Properties/definitions/DatabaseName": string
+#DatabaseName: string
 
 // This type is used to map column(s) from the query result to a dimension in the destination table.
-_#defs: "/$defs/Properties/definitions/DimensionMapping": close({
-	DimensionValueType!: _#defs."/$defs/Properties/definitions/DimensionValueType"
-	Name!:               _#defs."/$defs/Properties/definitions/DimensionMappingName"
+#DimensionMapping: close({
+	DimensionValueType!: #DimensionValueType
+	Name!:               #DimensionMappingName
 })
 
 // Column name from query result.
-_#defs: "/$defs/Properties/definitions/DimensionMappingName": string
+#DimensionMappingName: string
 
 // This is to allow mapping column(s) from the query result to the dimension in
 // the destination table.
-_#defs: "/$defs/Properties/definitions/DimensionMappings": [..._#defs."/$defs/Properties/definitions/DimensionMapping"]
+#DimensionMappings: [...#DimensionMapping]
 
 // Type for the dimension.
-_#defs: "/$defs/Properties/definitions/DimensionValueType": "VARCHAR"
+#DimensionValueType: "VARCHAR"
 
 // Encryption at rest options for the error reports. If no encryption option is
 // specified, Timestream will choose SSE_S3 as default.
-_#defs: "/$defs/Properties/definitions/EncryptionOption": "SSE_S3" | "SSE_KMS"
+#EncryptionOption: "SSE_S3" | "SSE_KMS"
 
 // Configuration for error reporting. Error reports will be generated when a
 // problem is encountered when writing the query results.
-_#defs: "/$defs/Properties/definitions/ErrorReportConfiguration": close(
-	{S3Configuration!: _#defs."/$defs/Properties/definitions/S3Configuration"},
-)
+#ErrorReportConfiguration: close({S3Configuration!: #S3Configuration})
 
 // The key name of the tag. You can specify a value that is 1 to 128 Unicode
 // characters in length and cannot be prefixed with aws:. You can use any of
 // the following characters: the set of Unicode letters, digits, whitespace, _,
 // ., /, =, +, and -.
-_#defs: "/$defs/Properties/definitions/Key": strings.MaxRunes(128) & strings.MinRunes(1)
+#Key: strings.MaxRunes(128) & strings.MinRunes(1)
 
 // The Amazon KMS key used to encrypt the scheduled query resource, at-rest. If
 // the Amazon KMS key is not specified, the scheduled query resource will be
@@ -123,88 +119,73 @@ _#defs: "/$defs/Properties/definitions/Key": strings.MaxRunes(128) & strings.Min
 // prefix the name with alias/. If ErrorReportConfiguration uses SSE_KMS as
 // encryption type, the same KmsKeyId is used to encrypt the error report at
 // rest.
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
-	string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+#KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 // Name of the measure name column from the query result.
-_#defs: "/$defs/Properties/definitions/MeasureNameColumn": string
+#MeasureNameColumn: string
 
 // MixedMeasureMappings are mappings that can be used to ingest data into a
 // mixture of narrow and multi measures in the derived table.
-_#defs: "/$defs/Properties/definitions/MixedMeasureMapping": close({
-	MeasureName?:                   _#defs."/$defs/Properties/definitions/MixedMeasureMappingMeasureName"
-	MeasureValueType!:              _#defs."/$defs/Properties/definitions/MixedMeasureMappingMeasureValueType"
-	MultiMeasureAttributeMappings?: _#defs."/$defs/Properties/definitions/MultiMeasureAttributeMappingList"
-	SourceColumn?:                  _#defs."/$defs/Properties/definitions/MixedMeasureMappingSourceColumn"
-	TargetMeasureName?:             _#defs."/$defs/Properties/definitions/MixedMeasureMappingTargetMeasureName"
+#MixedMeasureMapping: close({
+	MeasureName?:                   #MixedMeasureMappingMeasureName
+	MeasureValueType!:              #MixedMeasureMappingMeasureValueType
+	MultiMeasureAttributeMappings?: #MultiMeasureAttributeMappingList
+	SourceColumn?:                  #MixedMeasureMappingSourceColumn
+	TargetMeasureName?:             #MixedMeasureMappingTargetMeasureName
 })
 
 // Refers to the value of the measure name in a result row. This field is
 // required if MeasureNameColumn is provided.
-_#defs: "/$defs/Properties/definitions/MixedMeasureMappingMeasureName": string
+#MixedMeasureMappingMeasureName: string
 
 // Type of the value that is to be read from SourceColumn. If the mapping is for
 // MULTI, use MeasureValueType.MULTI.
-_#defs: "/$defs/Properties/definitions/MixedMeasureMappingMeasureValueType": "BIGINT" |
-	"BOOLEAN" |
-	"DOUBLE" |
-	"VARCHAR" |
-	"MULTI"
+#MixedMeasureMappingMeasureValueType: "BIGINT" | "BOOLEAN" | "DOUBLE" | "VARCHAR" | "MULTI"
 
 // This field refers to the source column from which the measure value is to be
 // read for result materialization.
-_#defs: "/$defs/Properties/definitions/MixedMeasureMappingSourceColumn": string
+#MixedMeasureMappingSourceColumn: string
 
 // Target measure name to be used. If not provided, the target measure name by
 // default would be MeasureName if provided, or SourceColumn otherwise.
-_#defs: "/$defs/Properties/definitions/MixedMeasureMappingTargetMeasureName": string
+#MixedMeasureMappingTargetMeasureName: string
 
 // Specifies how to map measures to multi-measure records.
-_#defs: "/$defs/Properties/definitions/MixedMeasureMappings": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/MixedMeasureMapping"
-]
+#MixedMeasureMappings: list.MinItems(1) & [...#MixedMeasureMapping]
 
 // An attribute mapping to be used for mapping query results to ingest data for
 // multi-measure attributes.
-_#defs: "/$defs/Properties/definitions/MultiMeasureAttributeMapping": close({
-	MeasureValueType!:                _#defs."/$defs/Properties/definitions/MultiMeasureAttributeMappingMeasureValueType"
-	SourceColumn!:                    _#defs."/$defs/Properties/definitions/MultiMeasureAttributeMappingSourceColumn"
-	TargetMultiMeasureAttributeName?: _#defs."/$defs/Properties/definitions/TargetMultiMeasureAttributeName"
+#MultiMeasureAttributeMapping: close({
+	MeasureValueType!:                #MultiMeasureAttributeMappingMeasureValueType
+	SourceColumn!:                    #MultiMeasureAttributeMappingSourceColumn
+	TargetMultiMeasureAttributeName?: #TargetMultiMeasureAttributeName
 })
 
 // Required. Attribute mappings to be used for mapping query results to ingest
 // data for multi-measure attributes.
-_#defs: "/$defs/Properties/definitions/MultiMeasureAttributeMappingList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/MultiMeasureAttributeMapping"
-]
+#MultiMeasureAttributeMappingList: list.MinItems(1) & [...#MultiMeasureAttributeMapping]
 
 // Value type of the measure value column to be read from the query result.
-_#defs: "/$defs/Properties/definitions/MultiMeasureAttributeMappingMeasureValueType": "BIGINT" |
-	"BOOLEAN" |
-	"DOUBLE" |
-	"VARCHAR" |
-	"TIMESTAMP"
+#MultiMeasureAttributeMappingMeasureValueType: "BIGINT" | "BOOLEAN" | "DOUBLE" | "VARCHAR" | "TIMESTAMP"
 
 // Source measure value column in the query result where the attribute value is to be read.
-_#defs: "/$defs/Properties/definitions/MultiMeasureAttributeMappingSourceColumn": string
+#MultiMeasureAttributeMappingSourceColumn: string
 
 // Only one of MixedMeasureMappings or MultiMeasureMappings is to be provided.
 // MultiMeasureMappings can be used to ingest data as multi measures in the
 // derived table.
-_#defs: "/$defs/Properties/definitions/MultiMeasureMappings": close({
-	MultiMeasureAttributeMappings!: _#defs."/$defs/Properties/definitions/MultiMeasureAttributeMappingList"
-	TargetMultiMeasureName?:        _#defs."/$defs/Properties/definitions/TargetMultiMeasureName"
+#MultiMeasureMappings: close({
+	MultiMeasureAttributeMappings!: #MultiMeasureAttributeMappingList
+	TargetMultiMeasureName?:        #TargetMultiMeasureName
 })
 
 // Notification configuration for the scheduled query. A notification is sent by
 // Timestream when a query run finishes, when the state is updated or when you
 // delete it.
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": close(
-	{SnsConfiguration!: _#defs."/$defs/Properties/definitions/SnsConfiguration"},
-)
+#NotificationConfiguration: close({SnsConfiguration!: #SnsConfiguration})
 
 // Prefix for error report keys.
-_#defs: "/$defs/Properties/definitions/ObjectKeyPrefix": strings.MaxRunes(896) &
+#ObjectKeyPrefix: strings.MaxRunes(896) &
 strings.MinRunes(1) &
 =~"[a-zA-Z0-9|!\\-_*'\\(\\)]([a-zA-Z0-9]|[!\\-_*'\\(\\)\\/.])+"
 
@@ -217,85 +198,77 @@ strings.MinRunes(1) &
 // instance of a scheduled query executing on 2021-12-01 00:00:00. For this
 // instance, the @scheduled_runtime parameter is initialized to the timestamp
 // 2021-12-01 00:00:00 when invoking the query.
-_#defs: "/$defs/Properties/definitions/QueryString": strings.MaxRunes(262144) & strings.MinRunes(1)
+#QueryString: strings.MaxRunes(262144) & strings.MinRunes(1)
 
 // Details on S3 location for error reports that result from running a query.
-_#defs: "/$defs/Properties/definitions/S3Configuration": close({
-	BucketName!:       _#defs."/$defs/Properties/definitions/BucketName"
-	EncryptionOption?: _#defs."/$defs/Properties/definitions/EncryptionOption"
-	ObjectKeyPrefix?:  _#defs."/$defs/Properties/definitions/ObjectKeyPrefix"
+#S3Configuration: close({
+	BucketName!:       #BucketName
+	EncryptionOption?: #EncryptionOption
+	ObjectKeyPrefix?:  #ObjectKeyPrefix
 })
 
 // Configuration for when the scheduled query is executed.
-_#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close(
-	{ScheduleExpression!: _#defs."/$defs/Properties/definitions/ScheduleExpression"},
-)
+#ScheduleConfiguration: close({ScheduleExpression!: #ScheduleExpression})
 
 // An expression that denotes when to trigger the scheduled query run. This can
 // be a cron expression or a rate expression.
-_#defs: "/$defs/Properties/definitions/ScheduleExpression": strings.MaxRunes(256) & strings.MinRunes(1)
+#ScheduleExpression: strings.MaxRunes(256) & strings.MinRunes(1)
 
 // The ARN for the IAM role that Timestream will assume when running the scheduled query.
-_#defs: "/$defs/Properties/definitions/ScheduledQueryExecutionRoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
+#ScheduledQueryExecutionRoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 // The name of the scheduled query. Scheduled query names must be unique within each Region.
-_#defs: "/$defs/Properties/definitions/ScheduledQueryName": strings.MaxRunes(64) &
-strings.MinRunes(1) &
-=~"[a-zA-Z0-9_.-]+"
+#ScheduledQueryName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.-]+"
 
 // SNS configuration for notification upon scheduled query execution.
-_#defs: "/$defs/Properties/definitions/SnsConfiguration": close(
-	{TopicArn!: _#defs."/$defs/Properties/definitions/TopicArn"},
-)
+#SnsConfiguration: close({TopicArn!: #TopicArn})
 
 // Name of Timestream table that the query result will be written to. The table
 // should be within the same database that is provided in Timestream
 // configuration.
-_#defs: "/$defs/Properties/definitions/TableName": string
+#TableName: string
 
 // A key-value pair to label the scheduled query.
-_#defs: "/$defs/Properties/definitions/Tag": close({
-	Key!:   _#defs."/$defs/Properties/definitions/Key"
-	Value!: _#defs."/$defs/Properties/definitions/Value"
+#Tag: close({
+	Key!:   #Key
+	Value!: #Value
 })
 
 // A list of key-value pairs to label the scheduled query.
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+#Tags: list.MaxItems(200) & [...#Tag]
 
 // Configuration of target store where scheduled query results are written to.
-_#defs: "/$defs/Properties/definitions/TargetConfiguration": close(
-	{TimestreamConfiguration!: _#defs."/$defs/Properties/definitions/TimestreamConfiguration"},
-)
+#TargetConfiguration: close({TimestreamConfiguration!: #TimestreamConfiguration})
 
 // Custom name to be used for attribute name in derived table. If not provided,
 // source column name would be used.
-_#defs: "/$defs/Properties/definitions/TargetMultiMeasureAttributeName": string
+#TargetMultiMeasureAttributeName: string
 
 // Name of the target multi-measure in the derived table. Required if
 // MeasureNameColumn is not provided. If MeasureNameColumn is provided then the
 // value from that column will be used as the multi-measure name.
-_#defs: "/$defs/Properties/definitions/TargetMultiMeasureName": string
+#TargetMultiMeasureName: string
 
 // Column from query result that should be used as the time column in
 // destination table. Column type for this should be TIMESTAMP.
-_#defs: "/$defs/Properties/definitions/TimeColumn": string
+#TimeColumn: string
 
 // Configuration needed to write data into the Timestream database and table.
-_#defs: "/$defs/Properties/definitions/TimestreamConfiguration": close({
-	DatabaseName!:         _#defs."/$defs/Properties/definitions/DatabaseName"
-	DimensionMappings!:    _#defs."/$defs/Properties/definitions/DimensionMappings"
-	MeasureNameColumn?:    _#defs."/$defs/Properties/definitions/MeasureNameColumn"
-	MixedMeasureMappings?: _#defs."/$defs/Properties/definitions/MixedMeasureMappings"
-	MultiMeasureMappings?: _#defs."/$defs/Properties/definitions/MultiMeasureMappings"
-	TableName!:            _#defs."/$defs/Properties/definitions/TableName"
-	TimeColumn!:           _#defs."/$defs/Properties/definitions/TimeColumn"
+#TimestreamConfiguration: close({
+	DatabaseName!:         #DatabaseName
+	DimensionMappings!:    #DimensionMappings
+	MeasureNameColumn?:    #MeasureNameColumn
+	MixedMeasureMappings?: #MixedMeasureMappings
+	MultiMeasureMappings?: #MultiMeasureMappings
+	TableName!:            #TableName
+	TimeColumn!:           #TimeColumn
 })
 
 // SNS topic ARN that the scheduled query status notifications will be sent to.
-_#defs: "/$defs/Properties/definitions/TopicArn": =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
+#TopicArn: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 // The value for the tag. You can specify a value that is 0 to 256 Unicode
 // characters in length and cannot be prefixed with aws:. You can use any of
 // the following characters: the set of Unicode letters, digits, whitespace, _,
 // ., /, =, +, and -.
-_#defs: "/$defs/Properties/definitions/Value": strings.MaxRunes(256) & strings.MinRunes(0)
+#Value: strings.MaxRunes(256) & strings.MinRunes(0)

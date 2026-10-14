@@ -55,7 +55,7 @@ import (
 		"UPDATE_FAILED"
 
 	// The tags used to organize, track, or control access for this resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The title of the content.
 	Title?: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -64,7 +64,7 @@ import (
 	UploadId?: strings.MaxRunes(1200) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

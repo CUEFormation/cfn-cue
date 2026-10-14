@@ -38,11 +38,11 @@ import (
 	RepositoryName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-za-z0-9_\\.-]+"
 
 	// Specifies the tags applied to a RepositoryLink.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, ,

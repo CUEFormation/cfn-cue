@@ -11,15 +11,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Describes an endpoint authorization for authorizing Redshift-managed VPC
 // endpoint access to a cluster across AWS accounts.
 #Properties: close({
-	Account!:           _#defs."/$defs/Properties/definitions/AwsAccount" | fn.#StringExpression
+	Account!:           #AwsAccount | fn.#StringExpression
 	ClusterIdentifier!: string | fn.#StringExpression
 	Force?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	VpcIds?:            [..._#defs."/$defs/Properties/definitions/VpcId"] | fn.#ListExpression
+	VpcIds?:            [...#VpcId] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AwsAccount": =~"^\\d{12}$" | fn.#StringExpression
+#AwsAccount: =~"^\\d{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VpcId": =~"^vpc-[A-Za-z0-9]{1,17}$" | fn.#StringExpression
+#VpcId: =~"^vpc-[A-Za-z0-9]{1,17}$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Redshift::EndpointAuthorization"
 	Properties!: #Properties

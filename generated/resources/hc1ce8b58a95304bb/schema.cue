@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(255) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
 	fn.#StringExpression
-	InferenceContainerConfig?: _#defs."/$defs/Properties/definitions/InferenceContainerConfig"
+	InferenceContainerConfig?: #InferenceContainerConfig
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -29,11 +29,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(20) &
 	=~"^arn:aws[-a-z]*:iam::[0-9]{12}:role/.+$" |
 	fn.#StringExpression
-	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TrainingContainerConfig?: _#defs."/$defs/Properties/definitions/ContainerConfig"
+	Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	TrainingContainerConfig?: #ContainerConfig
 })
 
-_#defs: "/$defs/Properties/definitions/ContainerConfig": close({
+#ContainerConfig: close({
 	Arguments?: list.MaxItems(100) & list.MinItems(1) & [
 		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 	] |
@@ -42,24 +42,23 @@ _#defs: "/$defs/Properties/definitions/ContainerConfig": close({
 		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	ImageUri!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	MetricDefinitions?: list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/MetricDefinition"] |
-		fn.#ListExpression
+	ImageUri!:          strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+	MetricDefinitions?: list.MaxItems(40) & [...] & [...#MetricDefinition] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceContainerConfig": close(
+#InferenceContainerConfig: close(
 	{ImageUri!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDefinition": close({
+#MetricDefinition: close({
 	Name!:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 	Regex!: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

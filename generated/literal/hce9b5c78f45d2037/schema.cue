@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,32 +12,32 @@ import (
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Properties: close({
 	ActionId?:        string
-	ActionThreshold!: _#defs."/$defs/Properties/definitions/ActionThreshold"
+	ActionThreshold!: #ActionThreshold
 	ActionType!:      "APPLY_IAM_POLICY" | "APPLY_SCP_POLICY" | "RUN_SSM_DOCUMENTS"
 	ApprovalModel?:   "AUTOMATIC" | "MANUAL"
 	BudgetName!:      strings.MaxRunes(100) & strings.MinRunes(1)
-	Definition!:      _#defs."/$defs/Properties/definitions/Definition"
+	Definition!:      #Definition
 	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(618) &
 	strings.MinRunes(32) &
 	=~"^arn:aws(-eusc|-cn|-us-gov|-iso|-iso-[a-z]{1})?:iam::\\d{12}:role(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}|\\x{002F})[\\w+=,.@-]+$"
 	NotificationType!: "ACTUAL" | "FORECASTED"
-	ResourceTags?:     list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceTag"]
-	Subscribers!:      list.MaxItems(11) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Subscriber"]
+	ResourceTags?:     list.MaxItems(200) & [...] & [...#ResourceTag]
+	Subscribers!:      list.MaxItems(11) & list.MinItems(1) & [...#Subscriber]
 })
 
-_#defs: "/$defs/Properties/definitions/ActionThreshold": close({
+#ActionThreshold: close({
 	Type!:  "PERCENTAGE" | "ABSOLUTE_VALUE"
 	Value!: number
 })
 
-_#defs: "/$defs/Properties/definitions/Definition": close({
-	IamActionDefinition?: _#defs."/$defs/Properties/definitions/IamActionDefinition"
-	ScpActionDefinition?: _#defs."/$defs/Properties/definitions/ScpActionDefinition"
-	SsmActionDefinition?: _#defs."/$defs/Properties/definitions/SsmActionDefinition"
+#Definition: close({
+	IamActionDefinition?: #IamActionDefinition
+	ScpActionDefinition?: #ScpActionDefinition
+	SsmActionDefinition?: #SsmActionDefinition
 })
 
-_#defs: "/$defs/Properties/definitions/IamActionDefinition": close({
+#IamActionDefinition: close({
 	Groups?: list.MaxItems(100) & list.MinItems(1) & [
 		...strings.MaxRunes(640) & strings.MinRunes(1) & =~"^([\\x{0021}-\\x{007F}]+\\x{002F})?[\\w+=,.@-]+$"
 	]
@@ -52,19 +52,19 @@ _#defs: "/$defs/Properties/definitions/IamActionDefinition": close({
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/ScpActionDefinition": close({
+#ScpActionDefinition: close({
 	PolicyId!: strings.MaxRunes(130) & strings.MinRunes(10) & =~"^p-[0-9a-zA-Z_]{8,128}$"
 	TargetIds!: list.MaxItems(100) & list.MinItems(1) & [
 		...strings.MaxRunes(68) & strings.MinRunes(12) & =~"^(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32}$)|(\\d{12})$"
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/SsmActionDefinition": close({
+#SsmActionDefinition: close({
 	InstanceIds!: list.MaxItems(100) & list.MinItems(1) & [
 		...strings.MaxRunes(63) & strings.MinRunes(1) & =~"^i-(\\w{8}|\\w{17})$|^[a-zA-Z]([\\w-]{0,61}\\w)?$"
 	]
@@ -72,7 +72,7 @@ _#defs: "/$defs/Properties/definitions/SsmActionDefinition": close({
 	Subtype!: "STOP_EC2_INSTANCES" | "STOP_RDS_INSTANCES"
 })
 
-_#defs: "/$defs/Properties/definitions/Subscriber": close({
+#Subscriber: close({
 	Address!: strings.MaxRunes(2147483647) & strings.MinRunes(1) & =~"^(.*[\\n\\r\\t\\f\\ ]?)*$"
 	Type!:    "SNS" | "EMAIL"
 })

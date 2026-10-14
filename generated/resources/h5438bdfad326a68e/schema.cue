@@ -20,69 +20,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Rules!:       list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Rule"] | fn.#ListExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Rules!:       list.MinItems(1) & [...#Rule] | fn.#ListExpression
+	Tags?:        [...#Tag] | fn.#ListExpression
 	TargetArn!:   strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ColumnSelector": close({
+#ColumnSelector: close({
 	Name?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Regex?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Disabled": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#Disabled: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/Expression": strings.MaxRunes(1024) &
-strings.MinRunes(4) &
-=~"^[><0-9A-Za-z_.,:)(!= ]+$" |
-fn.#StringExpression
+#Expression: strings.MaxRunes(1024) & strings.MinRunes(4) & =~"^[><0-9A-Za-z_.,:)(!= ]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	CheckExpression!: _#defs."/$defs/Properties/definitions/Expression"
-	ColumnSelectors?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ColumnSelector"] | fn.#ListExpression
-	Disabled?:        _#defs."/$defs/Properties/definitions/Disabled"
+#Rule: close({
+	CheckExpression!: #Expression
+	ColumnSelectors?: list.MinItems(1) & [...#ColumnSelector] | fn.#ListExpression
+	Disabled?:        #Disabled
 	Name!:            strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SubstitutionMap?: _#defs."/$defs/Properties/definitions/ValuesMap"
-	Threshold?:       _#defs."/$defs/Properties/definitions/Threshold"
+	SubstitutionMap?: #ValuesMap
+	Threshold?:       #Threshold
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubstitutionValue": close({
+#SubstitutionValue: close({
 	Value!:          strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	ValueReference!: strings.MaxRunes(128) & strings.MinRunes(2) & =~"^:[A-Za-z0-9_]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Threshold": close({
-	Type?:  _#defs."/$defs/Properties/definitions/ThresholdType"
-	Unit?:  _#defs."/$defs/Properties/definitions/ThresholdUnit"
-	Value!: _#defs."/$defs/Properties/definitions/ThresholdValue"
+#Threshold: close({
+	Type?:  #ThresholdType
+	Unit?:  #ThresholdUnit
+	Value!: #ThresholdValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ThresholdType": "GREATER_THAN_OR_EQUAL" |
-	"LESS_THAN_OR_EQUAL" |
-	"GREATER_THAN" |
-	"LESS_THAN" |
-	fn.#StringExpression
+#ThresholdType: "GREATER_THAN_OR_EQUAL" | "LESS_THAN_OR_EQUAL" | "GREATER_THAN" | "LESS_THAN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ThresholdUnit": "COUNT" | "PERCENTAGE" | fn.#StringExpression
+#ThresholdUnit: "COUNT" | "PERCENTAGE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ThresholdValue": >=0 |
+#ThresholdValue: >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -102,8 +88,7 @@ _#defs: "/$defs/Properties/definitions/ThresholdValue": >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/ValuesMap": [..._#defs."/$defs/Properties/definitions/SubstitutionValue"] |
-	fn.#ListExpression
+#ValuesMap: [...#SubstitutionValue] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DataBrew::Ruleset"
 	Properties!: #Properties

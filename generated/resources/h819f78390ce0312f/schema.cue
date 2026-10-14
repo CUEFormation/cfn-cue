@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -37,12 +37,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Command!:              _#defs."/$defs/Properties/definitions/JobCommand" | fn.#ObjectExpression
-	Connections?:          _#defs."/$defs/Properties/definitions/ConnectionsList" | fn.#ObjectExpression
+	Command!:              #JobCommand | fn.#ObjectExpression
+	Connections?:          #ConnectionsList | fn.#ObjectExpression
 	DefaultArguments?:     fn.#Object & {...} | string | fn.#StringObjectExpression
 	Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	ExecutionClass?:       "FLEX" | "STANDARD" | fn.#StringExpression
-	ExecutionProperty?:    _#defs."/$defs/Properties/definitions/ExecutionProperty" | fn.#ObjectExpression
+	ExecutionProperty?:    #ExecutionProperty | fn.#ObjectExpression
 	GlueVersion?:          strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
 	JobMode?:              "NOTEBOOK" | "SCRIPT" | "VISUAL" | fn.#StringExpression
 	JobRunQueuingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -88,7 +88,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	Name?:                    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	NonOverridableArguments?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	NotificationProperty?:    _#defs."/$defs/Properties/definitions/NotificationProperty" | fn.#ObjectExpression
+	NotificationProperty?:    #NotificationProperty | fn.#ObjectExpression
 	NumberOfWorkers?: int & >=0 |
 		{
 			string &
@@ -138,19 +138,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionsList": close({
+#ConnectionsList: close({
 	Connections?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultArguments": close({
+#DefaultArguments: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExecutionProperty": close({
+#ExecutionProperty: close({
 	MaxConcurrentRuns?: number |
 		{
 			string &
@@ -173,7 +173,7 @@ _#defs: "/$defs/Properties/definitions/ExecutionProperty": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JobCommand": close({
+#JobCommand: close({
 	Name?:           string | fn.#StringExpression
 	PythonVersion?:  =~"^([2-3]|3[.]9)$" | fn.#StringExpression
 	Runtime?:        strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
@@ -181,13 +181,13 @@ _#defs: "/$defs/Properties/definitions/JobCommand": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NonOverridableArguments": close({
+#NonOverridableArguments: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationProperty": close({
+#NotificationProperty: close({
 	NotifyDelayAfter?: int & >=1 |
 		{
 			string &

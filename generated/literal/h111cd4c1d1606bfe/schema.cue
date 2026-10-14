@@ -21,26 +21,26 @@ import (
 	LicenseAssetGroupArn?: strings.MaxRunes(2048)
 
 	// License asset group configurations.
-	LicenseAssetGroupConfigurations!: [..._#defs."/$defs/Properties/definitions/LicenseAssetGroupConfiguration"]
+	LicenseAssetGroupConfigurations!: [...#LicenseAssetGroupConfiguration]
 
 	// License asset group name.
 	Name!: strings.MaxRunes(128) & strings.MinRunes(0)
 
 	// License asset group properties.
-	Properties?: [..._#defs."/$defs/Properties/definitions/LicenseAssetGroupProperty"]
+	Properties?: [...#LicenseAssetGroupProperty]
 
 	// Tags to add to the license asset group.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/LicenseAssetGroupConfiguration": close({UsageDimension?: string})
+#LicenseAssetGroupConfiguration: close({UsageDimension?: string})
 
-_#defs: "/$defs/Properties/definitions/LicenseAssetGroupProperty": close({
+#LicenseAssetGroupProperty: close({
 	Key?:   string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

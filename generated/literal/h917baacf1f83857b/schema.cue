@@ -11,7 +11,7 @@ import (
 
 // An object representing an Amazon EKS cluster.
 #Properties: close({
-	AccessConfig?: _#defs."/$defs/Properties/definitions/AccessConfig"
+	AccessConfig?: #AccessConfig
 
 	// The ID of the certificate authority to activate as the cluster's signing CA.
 	// Setting or changing this value activates the specified CA (the previously
@@ -24,7 +24,7 @@ import (
 	// Set this value to false to avoid creating the default networking add-ons when
 	// the cluster is created.
 	BootstrapSelfManagedAddons?: bool
-	CertificateAuthority?:       _#defs."/$defs/Properties/definitions/CertificateAuthority"
+	CertificateAuthority?:       #CertificateAuthority
 
 	// The certificate-authority-data for your cluster.
 	CertificateAuthorityData?: string
@@ -33,12 +33,12 @@ import (
 	// Managed node groups use this security group for control plane to data plane
 	// communication.
 	ClusterSecurityGroupId?:    =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
-	ComputeConfig?:             _#defs."/$defs/Properties/definitions/ComputeConfig"
-	ControlPlaneScalingConfig?: _#defs."/$defs/Properties/definitions/ControlPlaneScalingConfig"
+	ComputeConfig?:             #ComputeConfig
+	ControlPlaneScalingConfig?: #ControlPlaneScalingConfig
 
 	// Set this value to true to enable deletion protection for the cluster.
 	DeletionProtection?: bool
-	EncryptionConfig?:   list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/EncryptionConfig"]
+	EncryptionConfig?:   list.MaxItems(1) & [...] & [...#EncryptionConfig]
 
 	// Amazon Resource Name (ARN) or alias of the customer master key (CMK).
 	EncryptionConfigKeyArn?: string
@@ -52,11 +52,11 @@ import (
 
 	// The unique ID given to your cluster.
 	Id?:                          string
-	KubeApiServerConfig?:         _#defs."/$defs/Properties/definitions/KubeApiServerConfig"
-	KubeControllerManagerConfig?: _#defs."/$defs/Properties/definitions/KubeControllerManagerConfig"
-	KubeSchedulerConfig?:         _#defs."/$defs/Properties/definitions/KubeSchedulerConfig"
-	KubernetesNetworkConfig?:     _#defs."/$defs/Properties/definitions/KubernetesNetworkConfig"
-	Logging?:                     _#defs."/$defs/Properties/definitions/Logging"
+	KubeApiServerConfig?:         #KubeApiServerConfig
+	KubeControllerManagerConfig?: #KubeControllerManagerConfig
+	KubeSchedulerConfig?:         #KubeSchedulerConfig
+	KubernetesNetworkConfig?:     #KubernetesNetworkConfig
+	Logging?:                     #Logging
 
 	// The unique name to give to your cluster.
 	Name?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*"
@@ -66,29 +66,29 @@ import (
 	// If you need to remove https:// from this output value, you can include the
 	// following code in your template.
 	OpenIdConnectIssuerUrl?: string
-	OutpostConfig?:          _#defs."/$defs/Properties/definitions/OutpostConfig"
-	RemoteNetworkConfig?:    _#defs."/$defs/Properties/definitions/RemoteNetworkConfig"
-	ResourcesVpcConfig!:     _#defs."/$defs/Properties/definitions/ResourcesVpcConfig"
+	OutpostConfig?:          #OutpostConfig
+	RemoteNetworkConfig?:    #RemoteNetworkConfig
+	ResourcesVpcConfig!:     #ResourcesVpcConfig
 
 	// The Amazon Resource Name (ARN) of the IAM role that provides permissions for
 	// the Kubernetes control plane to make calls to AWS API operations on your
 	// behalf.
 	RoleArn!:        =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	RollbackConfig?: _#defs."/$defs/Properties/definitions/RollbackConfig"
-	StorageConfig?:  _#defs."/$defs/Properties/definitions/StorageConfig"
+	RollbackConfig?: #RollbackConfig
+	StorageConfig?:  #StorageConfig
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	UpgradePolicy?: _#defs."/$defs/Properties/definitions/UpgradePolicy"
+	Tags?:          list.UniqueItems() & [...#Tag]
+	UpgradePolicy?: #UpgradePolicy
 
 	// The desired Kubernetes version for your cluster. If you don't specify a value
 	// here, the latest version available in Amazon EKS is used.
 	Version?:          =~"1\\.\\d\\d"
-	ZonalShiftConfig?: _#defs."/$defs/Properties/definitions/ZonalShiftConfig"
+	ZonalShiftConfig?: #ZonalShiftConfig
 })
 
 // An object representing the Access Config to use for the cluster.
-_#defs: "/$defs/Properties/definitions/AccessConfig": close({
+#AccessConfig: close({
 	// Specify the authentication mode that should be used to create your cluster.
 	AuthenticationMode?: "CONFIG_MAP" | "API_AND_CONFIG_MAP" | "API"
 
@@ -98,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/AccessConfig": close({
 })
 
 // Identifies the certificate authority currently signing certificates for the cluster.
-_#defs: "/$defs/Properties/definitions/ActiveCertificateAuthority": close({
+#ActiveCertificateAuthority: close({
 	// Indicates whether the active certificate authority was activated by EKS or by the customer.
 	ActivatedBy?: string
 
@@ -107,27 +107,25 @@ _#defs: "/$defs/Properties/definitions/ActiveCertificateAuthority": close({
 })
 
 // Todo: add description
-_#defs: "/$defs/Properties/definitions/BlockStorage": close({
+#BlockStorage: close({
 	// Todo: add description
 	Enabled?: bool
 })
 
 // The certificate authority information for the cluster, including the trust
 // bundle and the currently active signing certificate authority.
-_#defs: "/$defs/Properties/definitions/CertificateAuthority": close({
-	Active?: _#defs."/$defs/Properties/definitions/ActiveCertificateAuthority"
+#CertificateAuthority: close({
+	Active?: #ActiveCertificateAuthority
 
 	// The base64-encoded certificate-authority trust bundle for the cluster (all trusted CAs).
 	Data?: string
 })
 
 // The cluster control plane logging configuration for your cluster.
-_#defs: "/$defs/Properties/definitions/ClusterLogging": close(
-	{EnabledTypes?: _#defs."/$defs/Properties/definitions/EnabledTypes"},
-)
+#ClusterLogging: close({EnabledTypes?: #EnabledTypes})
 
 // Todo: add description
-_#defs: "/$defs/Properties/definitions/ComputeConfig": close({
+#ComputeConfig: close({
 	// Todo: add description
 	Enabled?: bool
 
@@ -140,7 +138,7 @@ _#defs: "/$defs/Properties/definitions/ComputeConfig": close({
 
 // The placement configuration for all the control plane instances of your local
 // Amazon EKS cluster on an AWS Outpost.
-_#defs: "/$defs/Properties/definitions/ControlPlanePlacement": close({
+#ControlPlanePlacement: close({
 	// The name of the placement group for the Kubernetes control plane instances.
 	// This setting can't be changed after cluster creation.
 	GroupName?: string
@@ -152,27 +150,27 @@ _#defs: "/$defs/Properties/definitions/ControlPlanePlacement": close({
 })
 
 // Configuration for provisioned control plane scaling.
-_#defs: "/$defs/Properties/definitions/ControlPlaneScalingConfig": close({
+#ControlPlaneScalingConfig: close({
 	// The scaling tier for the provisioned control plane.
 	Tier?: "standard" | "tier-xl" | "tier-2xl" | "tier-4xl" | "tier-8xl" | "tier-ultra"
 })
 
 // Set this value to true to enable deletion protection for the cluster.
-_#defs: "/$defs/Properties/definitions/DeletionProtection": bool
+#DeletionProtection: bool
 
 // Todo: add description
-_#defs: "/$defs/Properties/definitions/ElasticLoadBalancing": close({
+#ElasticLoadBalancing: close({
 	// Todo: add description
 	Enabled?: bool
 })
 
 // Enable control plane logs for your cluster, all log types will be disabled if the array is empty
-_#defs: "/$defs/Properties/definitions/EnabledTypes": [..._#defs."/$defs/Properties/definitions/LoggingTypeConfig"]
+#EnabledTypes: [...#LoggingTypeConfig]
 
 // The encryption configuration for the cluster
-_#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
+#EncryptionConfig: close({
 	// The encryption provider for the cluster.
-	Provider?: _#defs."/$defs/Properties/definitions/Provider"
+	Provider?: #Provider
 
 	// Specifies the resources to be encrypted. The only supported value is "secrets".
 	Resources?: [...string]
@@ -180,7 +178,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfig": close({
 
 // The placement configuration for the etcd instances of your local Amazon EKS
 // cluster on an AWS Outpost.
-_#defs: "/$defs/Properties/definitions/EtcdPlacement": close({
+#EtcdPlacement: close({
 	// Optional parameter to specify the placement group spread level for etcd
 	// instances. If not provided, EKS will deploy etcd instances without a
 	// placement group.
@@ -188,34 +186,31 @@ _#defs: "/$defs/Properties/definitions/EtcdPlacement": close({
 })
 
 // The horizontal pod autoscaler controller configuration.
-_#defs: "/$defs/Properties/definitions/HorizontalPodAutoscalerControllerConfig": close({
+#HorizontalPodAutoscalerControllerConfig: close({
 	// The interval between each sync of the horizontal pod autoscaler (e.g., 15s, 1m).
 	HorizontalPodAutoscalerSyncPeriod?: string
 })
 
 // The configuration for the Kubernetes API server on an Amazon EKS cluster.
-_#defs: "/$defs/Properties/definitions/KubeApiServerConfig": close({
+#KubeApiServerConfig: close({
 	// The duration that Kubernetes events are retained (e.g., 30m, 1h).
 	EventTtl?:             string
-	ServiceNodePortRange?: _#defs."/$defs/Properties/definitions/ServiceNodePortRange"
+	ServiceNodePortRange?: #ServiceNodePortRange
 })
 
 // The configuration for the Kubernetes controller manager on an Amazon EKS cluster.
-_#defs: "/$defs/Properties/definitions/KubeControllerManagerConfig": close({
-	HorizontalPodAutoscalerControllerConfig?:
-		_#defs."/$defs/Properties/definitions/HorizontalPodAutoscalerControllerConfig"
-	PodGcControllerConfig?: _#defs."/$defs/Properties/definitions/PodGcControllerConfig"
+#KubeControllerManagerConfig: close({
+	HorizontalPodAutoscalerControllerConfig?: #HorizontalPodAutoscalerControllerConfig
+	PodGcControllerConfig?:                   #PodGcControllerConfig
 })
 
 // The configuration for the Kubernetes scheduler on an Amazon EKS cluster.
-_#defs: "/$defs/Properties/definitions/KubeSchedulerConfig": close(
-	{NodeResourcesFit?: _#defs."/$defs/Properties/definitions/NodeResourcesFitConfig"},
-)
+#KubeSchedulerConfig: close({NodeResourcesFit?: #NodeResourcesFitConfig})
 
 // The Kubernetes network configuration for the cluster.
-_#defs: "/$defs/Properties/definitions/KubernetesNetworkConfig": close({
+#KubernetesNetworkConfig: close({
 	// Todo: add description
-	ElasticLoadBalancing?: _#defs."/$defs/Properties/definitions/ElasticLoadBalancing"
+	ElasticLoadBalancing?: #ElasticLoadBalancing
 
 	// Ipv4 or Ipv6. You can only specify ipv6 for 1.21 and later clusters that use
 	// version 1.10.1 or later of the Amazon VPC CNI add-on
@@ -235,24 +230,22 @@ _#defs: "/$defs/Properties/definitions/KubernetesNetworkConfig": close({
 // Enable exporting the Kubernetes control plane logs for your cluster to
 // CloudWatch Logs based on log types. By default, cluster control plane logs
 // aren't exported to CloudWatch Logs.
-_#defs: "/$defs/Properties/definitions/Logging": close({
+#Logging: close({
 	// The cluster control plane logging configuration for your cluster.
-	ClusterLogging?: _#defs."/$defs/Properties/definitions/ClusterLogging"
+	ClusterLogging?: #ClusterLogging
 })
 
 // Enabled Logging Type
-_#defs: "/$defs/Properties/definitions/LoggingTypeConfig": close({
+#LoggingTypeConfig: close({
 	// name of the log type
 	Type?: "api" | "audit" | "authenticator" | "controllerManager" | "scheduler"
 })
 
 // The NodeResourcesFit plugin configuration for the Kubernetes scheduler.
-_#defs: "/$defs/Properties/definitions/NodeResourcesFitConfig": close(
-	{ScoringStrategy?: _#defs."/$defs/Properties/definitions/ScoringStrategy"},
-)
+#NodeResourcesFitConfig: close({ScoringStrategy?: #ScoringStrategy})
 
 // An object representing the Outpost configuration to use for AWS EKS outpost cluster.
-_#defs: "/$defs/Properties/definitions/OutpostConfig": close({
+#OutpostConfig: close({
 	// The EC2 instance type for the Kubernetes control plane instances of your
 	// local Amazon EKS cluster on AWS Outposts. This instance type applies to all
 	// control plane instances and cannot be changed after cluster creation.
@@ -260,7 +253,7 @@ _#defs: "/$defs/Properties/definitions/OutpostConfig": close({
 
 	// An object representing the placement configuration for all the control plane
 	// instances of your local Amazon EKS cluster on an AWS Outpost.
-	ControlPlanePlacement?: _#defs."/$defs/Properties/definitions/ControlPlanePlacement"
+	ControlPlanePlacement?: #ControlPlanePlacement
 
 	// The EC2 instance type for etcd instances of your local Amazon EKS cluster on
 	// AWS Outposts. This instance type applies to all etcd instances and cannot be
@@ -269,7 +262,7 @@ _#defs: "/$defs/Properties/definitions/OutpostConfig": close({
 
 	// An object representing the placement configuration for the etcd instances of
 	// your local Amazon EKS cluster on an AWS Outpost.
-	EtcdPlacement?: _#defs."/$defs/Properties/definitions/EtcdPlacement"
+	EtcdPlacement?: #EtcdPlacement
 
 	// The ARN of the Outpost that you want to use for your local Amazon EKS cluster
 	// on Outposts. Only a single Outpost ARN is supported.
@@ -277,13 +270,13 @@ _#defs: "/$defs/Properties/definitions/OutpostConfig": close({
 })
 
 // The pod garbage collector controller configuration.
-_#defs: "/$defs/Properties/definitions/PodGcControllerConfig": close({
+#PodGcControllerConfig: close({
 	// The number of terminated pods that can exist before the terminated pod
 	// garbage collector starts deleting them.
 	TerminatedPodGcThreshold?: int & <=1000000 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/Provider": close({
+#Provider: close({
 	// Amazon Resource Name (ARN) or alias of the KMS key. The KMS key must be
 	// symmetric, created in the same region as the cluster, and if the KMS key was
 	// created in a different account, the user must have access to the KMS key.
@@ -292,38 +285,34 @@ _#defs: "/$defs/Properties/definitions/Provider": close({
 
 // Configuration fields for specifying on-premises node and pod CIDRs that are
 // external to the VPC passed during cluster creation.
-_#defs: "/$defs/Properties/definitions/RemoteNetworkConfig": close({
+#RemoteNetworkConfig: close({
 	// Network configuration of nodes run on-premises with EKS Hybrid Nodes.
-	RemoteNodeNetworks?: _#defs."/$defs/Properties/definitions/RemoteNodeNetworks"
+	RemoteNodeNetworks?: #RemoteNodeNetworks
 
 	// Network configuration of pods run on-premises with EKS Hybrid Nodes.
-	RemotePodNetworks?: _#defs."/$defs/Properties/definitions/RemotePodNetworks"
+	RemotePodNetworks?: #RemotePodNetworks
 })
 
 // Network configuration of nodes run on-premises with EKS Hybrid Nodes.
-_#defs: "/$defs/Properties/definitions/RemoteNodeNetwork": close({
+#RemoteNodeNetwork: close({
 	// Specifies the list of remote node CIDRs.
 	Cidrs!: [...string]
 })
 
 // Network configuration of nodes run on-premises with EKS Hybrid Nodes.
-_#defs: "/$defs/Properties/definitions/RemoteNodeNetworks": list.MaxItems(1) & [...] & [
-	..._#defs."/$defs/Properties/definitions/RemoteNodeNetwork"
-]
+#RemoteNodeNetworks: list.MaxItems(1) & [...] & [...#RemoteNodeNetwork]
 
 // Network configuration of pods run on-premises with EKS Hybrid Nodes.
-_#defs: "/$defs/Properties/definitions/RemotePodNetwork": close({
+#RemotePodNetwork: close({
 	// Specifies the list of remote pod CIDRs.
 	Cidrs!: [...string]
 })
 
 // Network configuration of pods run on-premises with EKS Hybrid Nodes.
-_#defs: "/$defs/Properties/definitions/RemotePodNetworks": list.MaxItems(1) & [...] & [
-	..._#defs."/$defs/Properties/definitions/RemotePodNetwork"
-]
+#RemotePodNetworks: list.MaxItems(1) & [...] & [...#RemotePodNetwork]
 
 // A resource weight entry for the scheduler scoring strategy.
-_#defs: "/$defs/Properties/definitions/ResourceWeight": close({
+#ResourceWeight: close({
 	// The name of the resource (for example, cpu or memory).
 	Name?: strings.MaxRunes(253) & strings.MinRunes(1)
 
@@ -332,7 +321,7 @@ _#defs: "/$defs/Properties/definitions/ResourceWeight": close({
 })
 
 // An object representing the VPC configuration to use for an Amazon EKS cluster.
-_#defs: "/$defs/Properties/definitions/ResourcesVpcConfig": close({
+#ResourcesVpcConfig: close({
 	// Specify the egress mode for the cluster control plane. If you set this to
 	// CUSTOMER_ROUTED, the control plane routes traffic through your VPC subnets
 	// instead of using AWS managed networking.
@@ -374,23 +363,23 @@ _#defs: "/$defs/Properties/definitions/ResourcesVpcConfig": close({
 })
 
 // The rollback configuration to use for the cluster version rollback.
-_#defs: "/$defs/Properties/definitions/RollbackConfig": close({
+#RollbackConfig: close({
 	// The timeout in minutes for the version rollback operation. If not specified,
 	// defaults to 720 minutes (12 hours).
 	TimeoutMinutes?: int & <=10080 & >=120
 })
 
 // The scoring strategy configuration for the NodeResourcesFit scheduler plugin.
-_#defs: "/$defs/Properties/definitions/ScoringStrategy": close({
+#ScoringStrategy: close({
 	// The resource weights used for scoring nodes.
-	Resources?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ResourceWeight"]
+	Resources?: list.MaxItems(100) & [...] & [...#ResourceWeight]
 
 	// The scoring strategy type (LeastAllocated or MostAllocated).
 	Type?: "LeastAllocated" | "MostAllocated"
 })
 
 // The port range for Kubernetes NodePort services.
-_#defs: "/$defs/Properties/definitions/ServiceNodePortRange": close({
+#ServiceNodePortRange: close({
 	// The maximum port number in the range.
 	MaxPort?: int
 
@@ -399,13 +388,13 @@ _#defs: "/$defs/Properties/definitions/ServiceNodePortRange": close({
 })
 
 // Todo: add description
-_#defs: "/$defs/Properties/definitions/StorageConfig": close({
+#StorageConfig: close({
 	// Todo: add description
-	BlockStorage?: _#defs."/$defs/Properties/definitions/BlockStorage"
+	BlockStorage?: #BlockStorage
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -420,13 +409,13 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // An object representing the Upgrade Policy to use for the cluster.
-_#defs: "/$defs/Properties/definitions/UpgradePolicy": close({
+#UpgradePolicy: close({
 	// Specify the support type for your cluster.
 	SupportType?: "STANDARD" | "EXTENDED"
 })
 
 // The current zonal shift configuration to use for the cluster.
-_#defs: "/$defs/Properties/definitions/ZonalShiftConfig": close({
+#ZonalShiftConfig: close({
 	// Set this value to true to enable zonal shift for the cluster.
 	Enabled?: bool
 })

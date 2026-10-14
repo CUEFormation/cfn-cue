@@ -3,208 +3,183 @@
 package schema
 
 import (
-	"time"
+	"struct"
 	"strings"
 	"list"
-	"struct"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BedrockAgentCore::Gateway Resource Type
 #Properties: close({
-	AuthorizerConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizerConfiguration"
-	AuthorizerType!:          _#defs."/$defs/Properties/definitions/AuthorizerType"
+	AuthorizerConfiguration?: #AuthorizerConfiguration
+	AuthorizerType!:          #AuthorizerType
 	CreatedAt?:               time.Time
 	Description?:             strings.MaxRunes(200) & strings.MinRunes(1)
-	ExceptionLevel?:          _#defs."/$defs/Properties/definitions/ExceptionLevel"
+	ExceptionLevel?:          #ExceptionLevel
 	GatewayArn?:
 		=~"^arn:aws(|-cn|-us-gov):bedrock-agentcore:[a-z0-9-]{1,20}:[0-9]{12}:gateway/([0-9a-z][-]?){1,48}-[a-z0-9]{10}$"
-	GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$"
-	GatewayUrl?:        strings.MaxRunes(1024) & strings.MinRunes(1)
-	InterceptorConfigurations?: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/GatewayInterceptorConfiguration"
-	]
+	GatewayIdentifier?:         =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$"
+	GatewayUrl?:                strings.MaxRunes(1024) & strings.MinRunes(1)
+	InterceptorConfigurations?: list.MaxItems(2) & list.MinItems(1) & [...#GatewayInterceptorConfiguration]
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$"
 	Name!:                      =~"^([0-9a-zA-Z][-]?){1,48}$"
-	PolicyEngineConfiguration?: _#defs."/$defs/Properties/definitions/GatewayPolicyEngineConfiguration"
-	ProtocolConfiguration?:     _#defs."/$defs/Properties/definitions/GatewayProtocolConfiguration"
-	ProtocolType?:              _#defs."/$defs/Properties/definitions/GatewayProtocolType"
+	PolicyEngineConfiguration?: #GatewayPolicyEngineConfiguration
+	ProtocolConfiguration?:     #GatewayProtocolConfiguration
+	ProtocolType?:              #GatewayProtocolType
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$"
-	Status?:           _#defs."/$defs/Properties/definitions/GatewayStatus"
+	Status?:           #GatewayStatus
 	StatusReasons?:    list.MaxItems(100) & [...strings.MaxRunes(2048)]
-	Tags?:             _#defs."/$defs/Properties/definitions/TagsMap"
+	Tags?:             #TagsMap
 	UpdatedAt?:        time.Time
-	WafConfiguration?: _#defs."/$defs/Properties/definitions/WafConfiguration"
+	WafConfiguration?: #WafConfiguration
 	WebAclArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-z0-9\\-]+:wafv2:[a-z0-9\\-]+:[0-9]{12}:regional/webacl/.+$"
-	WorkloadIdentityDetails?: _#defs."/$defs/Properties/definitions/WorkloadIdentityDetails"
+	WorkloadIdentityDetails?: #WorkloadIdentityDetails
 })
 
 // Maps an originalScope (from allowedScopes) to an advertisedScope
 // exposed in WWW-Authenticate / Protected Resource Metadata.
-_#defs: "/$defs/Properties/definitions/AdvertisedScopeMappingType": struct.MaxFields(50) & struct.MinFields(1) & close({
+#AdvertisedScopeMappingType: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"]: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"}})
 
-_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close(
-	{CustomJWTAuthorizer!: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration"},
-)
+#AuthorizerConfiguration: close({CustomJWTAuthorizer!: #CustomJWTAuthorizerConfiguration})
 
-_#defs: "/$defs/Properties/definitions/AuthorizerType": "CUSTOM_JWT" | "AWS_IAM" | "NONE" | "AUTHENTICATE_ONLY"
+#AuthorizerType: "CUSTOM_JWT" | "AWS_IAM" | "NONE" | "AUTHENTICATE_ONLY"
 
-_#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
-	ClaimMatchOperator!: _#defs."/$defs/Properties/definitions/ClaimMatchOperatorType"
-	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
+#AuthorizingClaimMatchValueType: close({
+	ClaimMatchOperator!: #ClaimMatchOperatorType
+	ClaimMatchValue!:    #ClaimMatchValueType
 })
 
-_#defs: "/$defs/Properties/definitions/ClaimMatchOperatorType": "EQUALS" | "CONTAINS" | "CONTAINS_ANY"
+#ClaimMatchOperatorType: "EQUALS" | "CONTAINS" | "CONTAINS_ANY"
 
-_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": matchN(1, [close(
+#ClaimMatchValueType: matchN(1, [close(
 	{MatchValueString!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$"},
 ), close({
 	MatchValueStringList!: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$"]
 })])
 
-_#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({
-	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType"
+#CustomClaimValidationType: close({
+	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
 	InboundTokenClaimName!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:-]+$"
-	InboundTokenClaimValueType!: _#defs."/$defs/Properties/definitions/InboundTokenClaimValueType"
+	InboundTokenClaimValueType!: #InboundTokenClaimValueType
 })
 
-_#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close({
-	AdvertisedScopeMapping?: _#defs."/$defs/Properties/definitions/AdvertisedScopeMappingType"
+#CustomJWTAuthorizerConfiguration: close({
+	AdvertisedScopeMapping?: #AdvertisedScopeMappingType
 	AllowedAudience?:        list.MinItems(1) & [...string]
 	AllowedClients?:         list.MinItems(1) & [...string]
 	AllowedScopes?: list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$"
 	]
-	CustomClaims?:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomClaimValidationType"]
+	CustomClaims?:    list.MinItems(1) & [...#CustomClaimValidationType]
 	DiscoveryUrl!:    =~"^.+/\\.well-known/openid-configuration$"
-	PrivateEndpoint?: _#defs."/$defs/Properties/definitions/PrivateEndpoint"
+	PrivateEndpoint?: #PrivateEndpoint
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointIpAddressType": "IPV4" | "IPV6"
+#EndpointIpAddressType: "IPV4" | "IPV6"
 
-_#defs: "/$defs/Properties/definitions/ExceptionLevel": "DEBUG"
+#ExceptionLevel: "DEBUG"
 
-_#defs: "/$defs/Properties/definitions/GatewayInterceptionPoint": "REQUEST" | "RESPONSE"
+#GatewayInterceptionPoint: "REQUEST" | "RESPONSE"
 
-_#defs: "/$defs/Properties/definitions/GatewayInterceptorConfiguration": close({
-	InputConfiguration?: _#defs."/$defs/Properties/definitions/InterceptorInputConfiguration"
-	InterceptionPoints!: list.MaxItems(2) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/GatewayInterceptionPoint"
-	]
-	Interceptor!: _#defs."/$defs/Properties/definitions/InterceptorConfiguration"
+#GatewayInterceptorConfiguration: close({
+	InputConfiguration?: #InterceptorInputConfiguration
+	InterceptionPoints!: list.MaxItems(2) & list.MinItems(1) & [...#GatewayInterceptionPoint]
+	Interceptor!:        #InterceptorConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/GatewayPolicyEngineConfiguration": close({
+#GatewayPolicyEngineConfiguration: close({
 	Arn!: strings.MaxRunes(170) &
 	strings.MinRunes(1) &
 	=~"^arn:aws:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:policy-engine\\/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9_]{10}$"
-	Mode!: _#defs."/$defs/Properties/definitions/GatewayPolicyEngineMode"
+	Mode!: #GatewayPolicyEngineMode
 })
 
-_#defs: "/$defs/Properties/definitions/GatewayPolicyEngineMode": "LOG_ONLY" | "ENFORCE"
+#GatewayPolicyEngineMode: "LOG_ONLY" | "ENFORCE"
 
-_#defs: "/$defs/Properties/definitions/GatewayProtocolConfiguration": close(
-	{Mcp!: _#defs."/$defs/Properties/definitions/MCPGatewayConfiguration"},
-)
+#GatewayProtocolConfiguration: close({Mcp!: #MCPGatewayConfiguration})
 
-_#defs: "/$defs/Properties/definitions/GatewayProtocolType": "MCP"
+#GatewayProtocolType: "MCP"
 
-_#defs: "/$defs/Properties/definitions/GatewayStatus": "CREATING" |
-	"UPDATING" |
-	"UPDATE_UNSUCCESSFUL" |
-	"DELETING" |
-	"READY" |
-	"FAILED"
+#GatewayStatus: "CREATING" | "UPDATING" | "UPDATE_UNSUCCESSFUL" | "DELETING" | "READY" | "FAILED"
 
-_#defs: "/$defs/Properties/definitions/InboundTokenClaimValueType": "STRING" | "STRING_ARRAY"
+#InboundTokenClaimValueType: "STRING" | "STRING_ARRAY"
 
-_#defs: "/$defs/Properties/definitions/InterceptorConfiguration": close(
-	{Lambda!: _#defs."/$defs/Properties/definitions/LambdaInterceptorConfiguration"},
-)
+#InterceptorConfiguration: close({Lambda!: #LambdaInterceptorConfiguration})
 
-_#defs: "/$defs/Properties/definitions/InterceptorInputConfiguration": close({
+#InterceptorInputConfiguration: close({
 	PassRequestHeaders!: bool
-	PayloadFilter?:      _#defs."/$defs/Properties/definitions/InterceptorPayloadFilter"
+	PayloadFilter?:      #InterceptorPayloadFilter
 })
 
-_#defs: "/$defs/Properties/definitions/InterceptorPayloadExclusion": "RESPONSE_BODY"
+#InterceptorPayloadExclusion: "RESPONSE_BODY"
 
-_#defs: "/$defs/Properties/definitions/InterceptorPayloadExclusionSelector": close(
-	{Field!: _#defs."/$defs/Properties/definitions/InterceptorPayloadExclusion"},
+#InterceptorPayloadExclusionSelector: close({Field!: #InterceptorPayloadExclusion})
+
+#InterceptorPayloadFilter: close(
+	{Exclude!: list.MaxItems(1) & list.MinItems(1) & [...#InterceptorPayloadExclusionSelector]},
 )
 
-_#defs: "/$defs/Properties/definitions/InterceptorPayloadFilter": close({
-	Exclude!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/InterceptorPayloadExclusionSelector"
-	]
-})
-
-_#defs: "/$defs/Properties/definitions/LambdaInterceptorConfiguration": close({
+#LambdaInterceptorConfiguration: close({
 	Arn!: strings.MaxRunes(170) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$"
 })
 
-_#defs: "/$defs/Properties/definitions/MCPGatewayConfiguration": close({
+#MCPGatewayConfiguration: close({
 	Instructions?:           strings.MaxRunes(2048) & strings.MinRunes(1)
-	SearchType?:             _#defs."/$defs/Properties/definitions/SearchType"
-	SessionConfiguration?:   _#defs."/$defs/Properties/definitions/SessionConfiguration"
-	StreamingConfiguration?: _#defs."/$defs/Properties/definitions/StreamingConfiguration"
+	SearchType?:             #SearchType
+	SessionConfiguration?:   #SessionConfiguration
+	StreamingConfiguration?: #StreamingConfiguration
 	SupportedVersions?:      [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
-	EndpointIpAddressType!: _#defs."/$defs/Properties/definitions/EndpointIpAddressType"
+#ManagedVpcResource: close({
+	EndpointIpAddressType!: #EndpointIpAddressType
 	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3)
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 	]
 	SubnetIds!:     [...=~"^subnet-[0-9a-zA-Z]{8,17}$"]
-	Tags?:          _#defs."/$defs/Properties/definitions/TagsMap"
+	Tags?:          #TagsMap
 	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 })
 
-_#defs: "/$defs/Properties/definitions/PrivateEndpoint": matchN(1, [close(
-	{SelfManagedLatticeResource!: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource"},
-), close(
-	{ManagedVpcResource!: _#defs."/$defs/Properties/definitions/ManagedVpcResource"},
-)])
+#PrivateEndpoint: matchN(1, [
+	close({SelfManagedLatticeResource!: #SelfManagedLatticeResource}), close({ManagedVpcResource!: #ManagedVpcResource}),
+])
 
-_#defs: "/$defs/Properties/definitions/SearchType": "SEMANTIC"
+#SearchType: "SEMANTIC"
 
-_#defs: "/$defs/Properties/definitions/SelfManagedLatticeResource": close({
+#SelfManagedLatticeResource: close({
 	ResourceConfigurationIdentifier!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((rcfg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}))$"
 })
 
-_#defs: "/$defs/Properties/definitions/SessionConfiguration": close({SessionTimeoutInSeconds?: <=28800 & >=900})
+#SessionConfiguration: close({SessionTimeoutInSeconds?: <=28800 & >=900})
 
-_#defs: "/$defs/Properties/definitions/StreamingConfiguration": close({EnableResponseStreaming?: bool})
+#StreamingConfiguration: close({EnableResponseStreaming?: bool})
 
-_#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & struct.MinFields(0) & close({
+#TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})
 
-_#defs: "/$defs/Properties/definitions/WafConfiguration": close(
-	{FailureMode?: _#defs."/$defs/Properties/definitions/WafFailureMode"},
-)
+#WafConfiguration: close({FailureMode?: #WafFailureMode})
 
-_#defs: "/$defs/Properties/definitions/WafFailureMode": "FAIL_CLOSE" | "FAIL_OPEN"
+#WafFailureMode: "FAIL_CLOSE" | "FAIL_OPEN"
 
-_#defs: "/$defs/Properties/definitions/WorkloadIdentityDetails": close(
-	{WorkloadIdentityArn!: strings.MaxRunes(1024) & strings.MinRunes(1)},
-)
+#WorkloadIdentityDetails: close({WorkloadIdentityArn!: strings.MaxRunes(1024) & strings.MinRunes(1)})

@@ -21,20 +21,18 @@ import (
 	// List of integration configurations with MediaTailor resources. The first item
 	// in the list is the default playback configuration used for the ad
 	// configuration.
-	MediaTailorPlaybackConfigurations!: list.MaxItems(3) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MediaTailorPlaybackConfiguration"
-	]
+	MediaTailorPlaybackConfigurations!: list.MaxItems(3) & list.MinItems(1) & [...#MediaTailorPlaybackConfiguration]
 
 	// Ad configuration name. The value does not need to be unique.
 	Name?:                  strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$"
-	PostRollConfiguration?: _#defs."/$defs/Properties/definitions/PostRollConfiguration"
+	PostRollConfiguration?: #PostRollConfiguration
 
 	// Tags attached to the resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Object specifying a configuration for integration with an AWS Elemental MediaTailor (EMT).
-_#defs: "/$defs/Properties/definitions/MediaTailorPlaybackConfiguration": close({
+#MediaTailorPlaybackConfiguration: close({
 	// ARN of the customer-created EMT PlaybackConfiguration resource in the same region and account.
 	PlaybackConfigurationArn?: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
@@ -42,7 +40,7 @@ _#defs: "/$defs/Properties/definitions/MediaTailorPlaybackConfiguration": close(
 })
 
 // Configuration for the post-roll ad break to use for this ad configuration.
-_#defs: "/$defs/Properties/definitions/PostRollConfiguration": close({
+#PostRollConfiguration: close({
 	// Duration of the post-roll ad break, in seconds.
 	DurationSeconds!: int & <=300 & >=1
 
@@ -51,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/PostRollConfiguration": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$"
 

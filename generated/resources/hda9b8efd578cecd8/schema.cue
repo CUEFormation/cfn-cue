@@ -111,7 +111,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		HostnameType?: string | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	if AvailabilityZone != _|_ {
@@ -125,7 +125,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}
 }) & matchN(>=1, [{CidrBlock!: _}, {Ipv4IpamPoolId!: _}, {Ipv6IpamPoolId!: _}, {Ipv6CidrBlock!: _}])
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

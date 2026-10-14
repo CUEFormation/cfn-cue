@@ -56,10 +56,10 @@ import (
 	=~"^arn:aws(-[^:]+)?:comprehend:[a-zA-Z0-9-]*:[0-9]{12}:entity-recognizer/[a-zA-Z0-9](-*[a-zA-Z0-9])*(/version/[a-zA-Z0-9](-*[a-zA-Z0-9])*)?$"
 
 	// Tags associated with the endpoint being created.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The initial part of a key-value pair that forms a tag associated with a given resource.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

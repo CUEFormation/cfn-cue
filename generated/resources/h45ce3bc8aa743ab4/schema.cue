@@ -14,25 +14,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::MediaPackage::PackagingGroup
 #Properties: close({
-	Authorization?:    _#defs."/$defs/Properties/definitions/Authorization" | fn.#ObjectExpression
-	EgressAccessLogs?: _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
+	Authorization?:    #Authorization | fn.#ObjectExpression
+	EgressAccessLogs?: #LogConfiguration | fn.#ObjectExpression
 	Id!:               strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Authorization": close({
+#Authorization: close({
 	CdnIdentifierSecret!: string | fn.#StringExpression
 	SecretsRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close(
-	{LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#LogConfiguration: close({LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

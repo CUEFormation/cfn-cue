@@ -57,15 +57,15 @@ import (
 	// Insights with enhanced
 	// observability](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cloudwatch-container-insights.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	ClusterSettings?: [..._#defs."/$defs/Properties/definitions/ClusterSettings"]
+	ClusterSettings?: [...#ClusterSettings]
 
 	// The execute command and managed storage configuration for the cluster.
-	Configuration?: _#defs."/$defs/Properties/definitions/ClusterConfiguration"
+	Configuration?: #ClusterConfiguration
 
 	// The default capacity provider strategy for the cluster. When services or
 	// tasks are run in the cluster with no launch type or capacity provider
 	// strategy specified, the default capacity provider strategy is used.
-	DefaultCapacityProviderStrategy?: [..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"]
+	DefaultCapacityProviderStrategy?: [...#CapacityProviderStrategyItem]
 
 	// Use this parameter to set a default Service Connect namespace. After you set
 	// a default Service Connect namespace, any new services with Service Connect
@@ -82,7 +82,7 @@ import (
 	// see [Service
 	// Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
-	ServiceConnectDefaults?: _#defs."/$defs/Properties/definitions/ServiceConnectDefaults"
+	ServiceConnectDefaults?: #ServiceConnectDefaults
 
 	// The metadata that you apply to the cluster to help you categorize and
 	// organize them. Each tag consists of a key and an optional value. You define
@@ -101,14 +101,14 @@ import (
 	// such as a prefix for either keys or values as it is reserved for AWS use.
 	// You cannot edit or delete tag keys or values with this prefix. Tags with
 	// this prefix do not count against your tags per resource limit.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // The ``CapacityProviderStrategyItem`` property specifies the details of the
 // default capacity provider strategy for the cluster. When services or tasks
 // are run in the cluster with no launch type or capacity provider strategy
 // specified, the default capacity provider strategy is used.
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
+#CapacityProviderStrategyItem: close({
 	// The *base* value designates how many tasks, at a minimum, to run on the
 	// specified capacity provider for each service. Only one capacity provider in
 	// a capacity provider strategy can have a *base* defined. If no value is
@@ -159,12 +159,12 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
 })
 
 // The execute command and managed storage configuration for the cluster.
-_#defs: "/$defs/Properties/definitions/ClusterConfiguration": close({
+#ClusterConfiguration: close({
 	// The details of the execute command configuration.
-	ExecuteCommandConfiguration?: _#defs."/$defs/Properties/definitions/ExecuteCommandConfiguration"
+	ExecuteCommandConfiguration?: #ExecuteCommandConfiguration
 
 	// The details of the managed storage configuration.
-	ManagedStorageConfiguration?: _#defs."/$defs/Properties/definitions/ManagedStorageConfiguration"
+	ManagedStorageConfiguration?: #ManagedStorageConfiguration
 })
 
 // The settings to use when creating a cluster. This parameter is used to turn
@@ -183,7 +183,7 @@ _#defs: "/$defs/Properties/definitions/ClusterConfiguration": close({
 // Insights with enhanced
 // observability](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cloudwatch-container-insights.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/ClusterSettings": close({
+#ClusterSettings: close({
 	// The name of the cluster setting. The value is ``containerInsights``.
 	Name?: string
 
@@ -201,14 +201,14 @@ _#defs: "/$defs/Properties/definitions/ClusterSettings": close({
 })
 
 // The details of the execute command configuration.
-_#defs: "/$defs/Properties/definitions/ExecuteCommandConfiguration": close({
+#ExecuteCommandConfiguration: close({
 	// Specify an KMSlong key ID to encrypt the data between the local client and the container.
 	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
 	// The log configuration for the results of the execute command actions. The
 	// logs can be sent to CloudWatch Logs or an Amazon S3 bucket. When
 	// ``logging=OVERRIDE`` is specified, a ``logConfiguration`` must be provided.
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/ExecuteCommandLogConfiguration"
+	LogConfiguration?: #ExecuteCommandLogConfiguration
 
 	// The log setting to use for redirecting logs for your execute command results.
 	// The following log settings are available.
@@ -225,7 +225,7 @@ _#defs: "/$defs/Properties/definitions/ExecuteCommandConfiguration": close({
 
 // The log configuration for the results of the execute command actions. The
 // logs can be sent to CloudWatch Logs or an Amazon S3 bucket.
-_#defs: "/$defs/Properties/definitions/ExecuteCommandLogConfiguration": close({
+#ExecuteCommandLogConfiguration: close({
 	// Determines whether to use encryption on the CloudWatch logs. If not
 	// specified, encryption will be off.
 	CloudWatchEncryptionEnabled?: bool
@@ -246,7 +246,7 @@ _#defs: "/$defs/Properties/definitions/ExecuteCommandLogConfiguration": close({
 })
 
 // The managed storage configuration for the cluster.
-_#defs: "/$defs/Properties/definitions/ManagedStorageConfiguration": close({
+#ManagedStorageConfiguration: close({
 	// Specify the KMSlong key ID for Fargate ephemeral storage.
 	// When you specify a ``fargateEphemeralStorageKmsKeyId``, AWS Fargate uses the
 	// key to encrypt data at rest in ephemeral storage. For more information about
@@ -284,7 +284,7 @@ _#defs: "/$defs/Properties/definitions/ManagedStorageConfiguration": close({
 // see [Service
 // Connect](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html)
 // in the *Amazon Elastic Container Service Developer Guide*.
-_#defs: "/$defs/Properties/definitions/ServiceConnectDefaults": close({
+#ServiceConnectDefaults: close({
 	// The namespace name or full Amazon Resource Name (ARN) of the CMAPlong
 	// namespace that's used when you create a service and don't specify a Service
 	// Connect configuration. The namespace name can include up to 1024 characters.
@@ -322,7 +322,7 @@ _#defs: "/$defs/Properties/definitions/ServiceConnectDefaults": close({
 // such as a prefix for either keys or values as it is reserved for AWS use.
 // You cannot edit or delete tag keys or values with this prefix. Tags with
 // this prefix do not count against your tags per resource limit.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// One part of a key-value pair that make up a tag. A ``key`` is a general label
 	// that acts like a category for more specific tag values.
 	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"

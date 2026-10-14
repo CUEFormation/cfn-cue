@@ -3,38 +3,36 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::ManagedLoginBranding
 #Properties: close({
-	Assets?:                   _#defs."/$defs/Properties/definitions/AssetList"
+	Assets?:                   #AssetList
 	ClientId?:                 strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$"
-	ManagedLoginBrandingId?:   _#defs."/$defs/Properties/definitions/ManagedLoginBrandingIdType"
+	ManagedLoginBrandingId?:   #ManagedLoginBrandingIdType
 	ReturnMergedResources?:    bool
 	Settings?:                 {...}
 	UseCognitoProvidedValues?: bool
 	UserPoolId!:               strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/AssetList": list.MaxItems(40) & [...] & [
-	..._#defs."/$defs/Properties/definitions/AssetType"
-]
+#AssetList: list.MaxItems(40) & [...] & [...#AssetType]
 
-_#defs: "/$defs/Properties/definitions/AssetType": close({
-	Bytes?:      _#defs."/$defs/Properties/definitions/BytesType"
-	Category!:   _#defs."/$defs/Properties/definitions/CategoryType"
-	ColorMode!:  _#defs."/$defs/Properties/definitions/ColorModeType"
-	Extension!:  _#defs."/$defs/Properties/definitions/ExtensionType"
-	ResourceId?: _#defs."/$defs/Properties/definitions/ResourceIdType"
+#AssetType: close({
+	Bytes?:      #BytesType
+	Category!:   #CategoryType
+	ColorMode!:  #ColorModeType
+	Extension!:  #ExtensionType
+	ResourceId?: #ResourceIdType
 })
 
-_#defs: "/$defs/Properties/definitions/BytesType": strings.MaxRunes(1000000)
+#BytesType: strings.MaxRunes(1000000)
 
-_#defs: "/$defs/Properties/definitions/CategoryType": "FAVICON_ICO" |
+#CategoryType: "FAVICON_ICO" |
 	"FAVICON_SVG" |
 	"EMAIL_GRAPHIC" |
 	"SMS_GRAPHIC" |
@@ -50,10 +48,10 @@ _#defs: "/$defs/Properties/definitions/CategoryType": "FAVICON_ICO" |
 	"FORM_LOGO" |
 	"IDP_BUTTON_ICON"
 
-_#defs: "/$defs/Properties/definitions/ColorModeType": "LIGHT" | "DARK" | "DYNAMIC"
+#ColorModeType: "LIGHT" | "DARK" | "DYNAMIC"
 
-_#defs: "/$defs/Properties/definitions/ExtensionType": "ICO" | "JPEG" | "PNG" | "SVG" | "WEBP"
+#ExtensionType: "ICO" | "JPEG" | "PNG" | "SVG" | "WEBP"
 
-_#defs: "/$defs/Properties/definitions/ManagedLoginBrandingIdType": =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+#ManagedLoginBrandingIdType: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
 
-_#defs: "/$defs/Properties/definitions/ResourceIdType": strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[\\w\\- ]+$"
+#ResourceIdType: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[\\w\\- ]+$"

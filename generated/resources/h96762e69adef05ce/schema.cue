@@ -10,12 +10,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::WAFRegional::ByteMatchSet
 #Properties: close({
-	ByteMatchTuples?: [..._#defs."/$defs/Properties/definitions/ByteMatchTuple"] | fn.#ListExpression
+	ByteMatchTuples?: [...#ByteMatchTuple] | fn.#ListExpression
 	Name!:            string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ByteMatchTuple": close({
-	FieldToMatch!:         _#defs."/$defs/Properties/definitions/FieldToMatch"
+#ByteMatchTuple: close({
+	FieldToMatch!:         #FieldToMatch
 	PositionalConstraint!: string | fn.#StringExpression
 	TargetString?:         string | fn.#StringExpression
 	TargetStringBase64?:   string | fn.#StringExpression
@@ -23,7 +23,7 @@ _#defs: "/$defs/Properties/definitions/ByteMatchTuple": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldToMatch": close({
+#FieldToMatch: close({
 	Data?: string | fn.#StringExpression
 	Type!: string | fn.#StringExpression
 }) |

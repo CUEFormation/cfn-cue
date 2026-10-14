@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"time"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,17 +13,17 @@ import (
 // Definition of AWS::QBusiness::WebExperience Resource Type
 #Properties: close({
 	ApplicationId!:                 strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$"
-	BrowserExtensionConfiguration?: _#defs."/$defs/Properties/definitions/BrowserExtensionConfiguration"
+	BrowserExtensionConfiguration?: #BrowserExtensionConfiguration
 	CreatedAt?:                     time.Time
-	CustomizationConfiguration?:    _#defs."/$defs/Properties/definitions/CustomizationConfiguration"
+	CustomizationConfiguration?:    #CustomizationConfiguration
 	DefaultEndpoint?:               strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$"
-	IdentityProviderConfiguration?: _#defs."/$defs/Properties/definitions/IdentityProviderConfiguration"
-	Origins?:                       list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Origin"]
+	IdentityProviderConfiguration?: #IdentityProviderConfiguration
+	Origins?:                       list.MaxItems(10) & [...] & [...#Origin]
 	RoleArn?:                       =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
-	SamplePromptsControlMode?:      _#defs."/$defs/Properties/definitions/WebExperienceSamplePromptsControlMode"
-	Status?:                        _#defs."/$defs/Properties/definitions/WebExperienceStatus"
+	SamplePromptsControlMode?:      #WebExperienceSamplePromptsControlMode
+	Status?:                        #WebExperienceStatus
 	Subtitle?:                      strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
-	Tags?:                          list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                          list.MaxItems(200) & [...] & [...#Tag]
 	Title?:                         strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
 	UpdatedAt?:                     time.Time
 	WebExperienceArn?:              strings.MaxRunes(1284) & strings.MinRunes(0)
@@ -31,49 +31,39 @@ import (
 	WelcomeMessage?:                strings.MaxRunes(300) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/BrowserExtension": "FIREFOX" | "CHROME"
+#BrowserExtension: "FIREFOX" | "CHROME"
 
-_#defs: "/$defs/Properties/definitions/BrowserExtensionConfiguration": close({
-	EnabledBrowserExtensions!: list.MaxItems(2) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/BrowserExtension"
-	]
-})
+#BrowserExtensionConfiguration: close(
+	{EnabledBrowserExtensions!: list.MaxItems(2) & list.UniqueItems() & [...] & [...#BrowserExtension]},
+)
 
-_#defs: "/$defs/Properties/definitions/CustomizationConfiguration": close({
+#CustomizationConfiguration: close({
 	CustomCSSUrl?: strings.MaxRunes(1284) & strings.MinRunes(0) & =~"^(https?://[a-zA-Z0-9-_.+%/]+\\.css)?$"
 	FaviconUrl?:   strings.MaxRunes(1284) & strings.MinRunes(0) & =~"^(https?://[a-zA-Z0-9-_.+%/]+\\.(svg|ico))?$"
 	FontUrl?: strings.MaxRunes(1284) & strings.MinRunes(0) & =~"^(https?://[a-zA-Z0-9-_.+%/]+\\.(ttf|woff|woff2|otf))?$"
 	LogoUrl?: strings.MaxRunes(1284) & strings.MinRunes(0) & =~"^(https?://[a-zA-Z0-9-_.+%/]+\\.(svg|png))?$"
 })
 
-_#defs: "/$defs/Properties/definitions/IdentityProviderConfiguration": matchN(1, [close(
-	{SamlConfiguration!: _#defs."/$defs/Properties/definitions/SamlProviderConfiguration"},
+#IdentityProviderConfiguration: matchN(1, [close(
+	{SamlConfiguration!: #SamlProviderConfiguration},
 ), close(
-	{OpenIDConnectConfiguration!: _#defs."/$defs/Properties/definitions/OpenIDConnectProviderConfiguration"},
+	{OpenIDConnectConfiguration!: #OpenIDConnectProviderConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/OpenIDConnectProviderConfiguration": close({
+#OpenIDConnectProviderConfiguration: close({
 	SecretsArn!:  strings.MaxRunes(1284) & strings.MinRunes(0)
 	SecretsRole!: strings.MaxRunes(1284) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Origin": strings.MaxRunes(64) &
-strings.MinRunes(1) &
-=~"^(http:\\/\\/|https:\\/\\/)[a-zA-Z0-9-_.]+(?::[0-9]{1,5})?$"
+#Origin: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(http:\\/\\/|https:\\/\\/)[a-zA-Z0-9-_.]+(?::[0-9]{1,5})?$"
 
-_#defs: "/$defs/Properties/definitions/SamlProviderConfiguration": close(
-	{AuthenticationUrl!: strings.MaxRunes(1284) & strings.MinRunes(1) & =~"^https://.*$"},
-)
+#SamlProviderConfiguration: close({AuthenticationUrl!: strings.MaxRunes(1284) & strings.MinRunes(1) & =~"^https://.*$"})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/WebExperienceSamplePromptsControlMode": "ENABLED" | "DISABLED"
+#WebExperienceSamplePromptsControlMode: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/WebExperienceStatus": "CREATING" |
-	"ACTIVE" |
-	"DELETING" |
-	"FAILED" |
-	"PENDING_AUTH_CONFIG"
+#WebExperienceStatus: "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "PENDING_AUTH_CONFIG"

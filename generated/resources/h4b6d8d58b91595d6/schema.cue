@@ -32,7 +32,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // An endpoint of type ``GatewayLoadBalancer`` provides private connectivity
 // between your VPC and virtual appliances from a service provider.
 #Properties: close({
-	DnsOptions?:               _#defs."/$defs/Properties/definitions/DnsOptionsSpecification" | fn.#ObjectExpression
+	DnsOptions?:               #DnsOptionsSpecification | fn.#ObjectExpression
 	IpAddressType?:            "ipv4" | "ipv6" | "dualstack" | "not-specified" | fn.#StringExpression
 	PolicyDocument?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	PrivateDnsEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -48,7 +48,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ServiceNetworkArn?: string | fn.#StringExpression
 	ServiceRegion?:     string | fn.#StringExpression
 	SubnetIds?:         list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:              [...#Tag] | fn.#ListExpression
 	VpcEndpointType?: "Interface" |
 		"Gateway" |
 		"GatewayLoadBalancer" |
@@ -60,7 +60,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DnsOptionsSpecification": close({
+#DnsOptionsSpecification: close({
 	DnsRecordIpType?: "ipv4" | "ipv6" | "dualstack" | "service-defined" | "not-specified" | fn.#StringExpression
 	PrivateDnsOnlyForInboundResolverEndpoint?: "OnlyInboundResolver" |
 		"AllResolvers" |
@@ -78,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/DnsOptionsSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

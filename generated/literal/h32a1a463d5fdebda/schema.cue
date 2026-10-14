@@ -13,7 +13,7 @@ import (
 #Properties: close({
 	// The ID of the associated Domain.
 	DomainId!:          strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$"
-	OwnershipSettings?: _#defs."/$defs/Properties/definitions/OwnershipSettings"
+	OwnershipSettings?: #OwnershipSettings
 
 	// The space Amazon Resource Name (ARN).
 	SpaceArn?:         strings.MaxRunes(256) & =~"arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:space/.*"
@@ -23,15 +23,15 @@ import (
 	SpaceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$"
 
 	// A collection of settings.
-	SpaceSettings?:        _#defs."/$defs/Properties/definitions/SpaceSettings"
-	SpaceSharingSettings?: _#defs."/$defs/Properties/definitions/SpaceSharingSettings"
+	SpaceSettings?:        #SpaceSettings
+	SpaceSharingSettings?: #SpaceSharingSettings
 
 	// A list of tags to apply to the space.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 	Url?:  strings.MaxRunes(1024)
 })
 
-_#defs: "/$defs/Properties/definitions/AppType": "JupyterServer" |
+#AppType: "JupyterServer" |
 	"KernelGateway" |
 	"TensorBoard" |
 	"RStudioServerPro" |
@@ -39,23 +39,21 @@ _#defs: "/$defs/Properties/definitions/AppType": "JupyterServer" |
 	"JupyterLab" |
 	"CodeEditor"
 
-_#defs: "/$defs/Properties/definitions/CodeRepository": close({
+#CodeRepository: close({
 	// A CodeRepository (valid URL) to be used within Jupyter's Git extension.
 	RepositoryUrl!: strings.MaxRunes(256)
 })
 
-_#defs: "/$defs/Properties/definitions/CustomFileSystem": close({
-	EFSFileSystem?:       _#defs."/$defs/Properties/definitions/EFSFileSystem"
-	FSxLustreFileSystem?: _#defs."/$defs/Properties/definitions/FSxLustreFileSystem"
-	S3FileSystem?:        _#defs."/$defs/Properties/definitions/S3FileSystem"
+#CustomFileSystem: close({
+	EFSFileSystem?:       #EFSFileSystem
+	FSxLustreFileSystem?: #FSxLustreFileSystem
+	S3FileSystem?:        #S3FileSystem
 })
 
-_#defs: "/$defs/Properties/definitions/CustomFileSystems": list.MaxItems(1) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/CustomFileSystem"
-]
+#CustomFileSystems: list.MaxItems(1) & list.UniqueItems() & [...] & [...#CustomFileSystem]
 
 // A custom SageMaker image.
-_#defs: "/$defs/Properties/definitions/CustomImage": close({
+#CustomImage: close({
 	// The Name of the AppImageConfig.
 	AppImageConfigName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}"
 
@@ -66,53 +64,43 @@ _#defs: "/$defs/Properties/definitions/CustomImage": close({
 	ImageVersionNumber?: int & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/EFSFileSystem": close(
-	{FileSystemId!: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$"},
-)
+#EFSFileSystem: close({FileSystemId!: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$"})
 
 // Properties related to the space's Amazon Elastic Block Store volume.
-_#defs: "/$defs/Properties/definitions/EbsStorageSettings": close({
+#EbsStorageSettings: close({
 	// Size of the Amazon EBS volume in Gb
-	EbsVolumeSizeInGb!: _#defs."/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb"
+	EbsVolumeSizeInGb!: #SpaceEbsVolumeSizeInGb
 })
 
-_#defs: "/$defs/Properties/definitions/FSxLustreFileSystem": close(
-	{FileSystemId!: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$"},
-)
+#FSxLustreFileSystem: close({FileSystemId!: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$"})
 
 // The JupyterServer app settings.
-_#defs: "/$defs/Properties/definitions/JupyterServerAppSettings": close({
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
+#JupyterServerAppSettings: close({
+	DefaultResourceSpec?: #ResourceSpec
 
 	// A list of LifecycleConfigArns available for use with JupyterServer apps.
-	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
-	]
+	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn]
 })
 
 // The kernel gateway app settings.
-_#defs: "/$defs/Properties/definitions/KernelGatewayAppSettings": close({
+#KernelGatewayAppSettings: close({
 	// A list of custom SageMaker images that are configured to run as a KernelGateway app.
-	CustomImages?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/CustomImage"]
+	CustomImages?: list.MaxItems(30) & [...] & [...#CustomImage]
 
 	// The default instance type and the Amazon Resource Name (ARN) of the default
 	// SageMaker image used by the KernelGateway app.
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
+	DefaultResourceSpec?: #ResourceSpec
 
 	// A list of LifecycleConfigArns available for use with KernelGateway apps.
-	LifecycleConfigArns?: list.MaxItems(30) & [...] & [
-		..._#defs."/$defs/Properties/definitions/StudioLifecycleConfigArn"
-	]
+	LifecycleConfigArns?: list.MaxItems(30) & [...] & [...#StudioLifecycleConfigArn]
 })
 
-_#defs: "/$defs/Properties/definitions/OwnershipSettings": close(
-	{OwnerUserProfileName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}"},
-)
+#OwnershipSettings: close({OwnerUserProfileName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}"})
 
 // The flag to enable/disable remote access for a space.
-_#defs: "/$defs/Properties/definitions/RemoteAccess": "ENABLED" | "DISABLED"
+#RemoteAccess: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/ResourceSpec": close({
+#ResourceSpec: close({
 	// The instance type that the image version runs on.
 	InstanceType?: "system" |
 		"ml.t3.micro" |
@@ -194,76 +182,68 @@ _#defs: "/$defs/Properties/definitions/ResourceSpec": close({
 	=~"^arn:aws(-[\\w]+)*:sagemaker:.+:[0-9]{12}:image-version/[a-z0-9]([-.]?[a-z0-9])*/[0-9]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/S3FileSystem": close(
-	{S3Uri?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(s3)://([^/]+)/?(.*)"},
-)
+#S3FileSystem: close({S3Uri?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(s3)://([^/]+)/?(.*)"})
 
-_#defs: "/$defs/Properties/definitions/SpaceAppLifecycleManagement": close(
-	{IdleSettings?: _#defs."/$defs/Properties/definitions/SpaceIdleSettings"},
-)
+#SpaceAppLifecycleManagement: close({IdleSettings?: #SpaceIdleSettings})
 
 // The CodeEditor app settings.
-_#defs: "/$defs/Properties/definitions/SpaceCodeEditorAppSettings": close(
-	{DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"},
-)
+#SpaceCodeEditorAppSettings: close({DefaultResourceSpec?: #ResourceSpec})
 
-_#defs: "/$defs/Properties/definitions/SpaceEbsVolumeSizeInGb": int & <=16384 & >=5
+#SpaceEbsVolumeSizeInGb: int & <=16384 & >=5
 
-_#defs: "/$defs/Properties/definitions/SpaceIdleSettings": close({
+#SpaceIdleSettings: close({
 	// The space idle timeout value set in minutes
 	IdleTimeoutInMinutes?: int & <=525600 & >=60
 })
 
 // The JupyterServer app settings.
-_#defs: "/$defs/Properties/definitions/SpaceJupyterLabAppSettings": close({
+#SpaceJupyterLabAppSettings: close({
 	// A list of CodeRepositories available for use with JupyterLab apps.
-	CodeRepositories?:    list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/CodeRepository"]
-	DefaultResourceSpec?: _#defs."/$defs/Properties/definitions/ResourceSpec"
+	CodeRepositories?:    list.MaxItems(30) & [...] & [...#CodeRepository]
+	DefaultResourceSpec?: #ResourceSpec
 })
 
 // The flag to enable/disable creation of space managed resources.
-_#defs: "/$defs/Properties/definitions/SpaceManagedResources": "ENABLED" | "DISABLED"
+#SpaceManagedResources: "ENABLED" | "DISABLED"
 
 // A collection of settings that apply to spaces of Amazon SageMaker Studio.
 // These settings are specified when the CreateSpace API is called.
-_#defs: "/$defs/Properties/definitions/SpaceSettings": close({
-	AppType?: _#defs."/$defs/Properties/definitions/AppType"
+#SpaceSettings: close({
+	AppType?: #AppType
 
 	// The CodeEditor app settings.
-	CodeEditorAppSettings?: _#defs."/$defs/Properties/definitions/SpaceCodeEditorAppSettings"
-	CustomFileSystems?:     _#defs."/$defs/Properties/definitions/CustomFileSystems"
+	CodeEditorAppSettings?: #SpaceCodeEditorAppSettings
+	CustomFileSystems?:     #CustomFileSystems
 
 	// The JupyterLab app settings.
-	JupyterLabAppSettings?: _#defs."/$defs/Properties/definitions/SpaceJupyterLabAppSettings"
+	JupyterLabAppSettings?: #SpaceJupyterLabAppSettings
 
 	// The Jupyter server's app settings.
-	JupyterServerAppSettings?: _#defs."/$defs/Properties/definitions/JupyterServerAppSettings"
+	JupyterServerAppSettings?: #JupyterServerAppSettings
 
 	// The kernel gateway app settings.
-	KernelGatewayAppSettings?: _#defs."/$defs/Properties/definitions/KernelGatewayAppSettings"
+	KernelGatewayAppSettings?: #KernelGatewayAppSettings
 
 	// This is a flag used to indicate if remote access is enabled.
-	RemoteAccess?: _#defs."/$defs/Properties/definitions/RemoteAccess"
+	RemoteAccess?: #RemoteAccess
 
 	// This is a flag used to indicate if space managed resources needs to be created.
-	SpaceManagedResources?: _#defs."/$defs/Properties/definitions/SpaceManagedResources"
+	SpaceManagedResources?: #SpaceManagedResources
 
 	// Default storage settings for a space.
-	SpaceStorageSettings?: _#defs."/$defs/Properties/definitions/SpaceStorageSettings"
+	SpaceStorageSettings?: #SpaceStorageSettings
 })
 
-_#defs: "/$defs/Properties/definitions/SpaceSharingSettings": close({SharingType!: "Private" | "Shared"})
+#SpaceSharingSettings: close({SharingType!: "Private" | "Shared"})
 
-_#defs: "/$defs/Properties/definitions/SpaceStorageSettings": close(
-	{EbsStorageSettings?: _#defs."/$defs/Properties/definitions/EbsStorageSettings"},
-)
+#SpaceStorageSettings: close({EbsStorageSettings?: #EbsStorageSettings})
 
 // The Amazon Resource Name (ARN) of the Lifecycle Configuration to attach to the Resource.
-_#defs: "/$defs/Properties/definitions/StudioLifecycleConfigArn": strings.MaxRunes(256) &
+#StudioLifecycleConfigArn: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

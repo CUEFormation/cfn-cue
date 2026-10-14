@@ -14,13 +14,13 @@ import (
 	// Amazon Resource Name (ARN) of the OIDC provider
 	Arn?:            strings.MaxRunes(2048) & strings.MinRunes(20)
 	ClientIdList?:   [...strings.MaxRunes(255) & strings.MinRunes(1)]
-	Tags?:           list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:           list.MaxItems(50) & [...] & [...#Tag]
 	ThumbprintList?: list.MaxItems(5) & [...strings.MaxRunes(40) & strings.MinRunes(40) & =~"[0-9A-Fa-f]{40}"]
 	Url?:            strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

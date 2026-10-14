@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,26 +14,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Connect::IntegrationAssociation
 #Properties: close({
-	InstanceId!:            _#defs."/$defs/Properties/definitions/InstanceId"
-	IntegrationArn!:        _#defs."/$defs/Properties/definitions/IntegrationArn"
-	IntegrationType!:       _#defs."/$defs/Properties/definitions/IntegrationType"
-	SourceApplicationName?: _#defs."/$defs/Properties/definitions/SourceApplicationName"
-	SourceApplicationUrl?:  _#defs."/$defs/Properties/definitions/SourceApplicationUrl"
-	SourceType?:            _#defs."/$defs/Properties/definitions/SourceType"
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	InstanceId!:            #InstanceId
+	IntegrationArn!:        #IntegrationArn
+	IntegrationType!:       #IntegrationType
+	SourceApplicationName?: #SourceApplicationName
+	SourceApplicationUrl?:  #SourceApplicationUrl
+	SourceType?:            #SourceType
+	Tags?:                  list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceId": strings.MaxRunes(100) &
+#InstanceId: strings.MaxRunes(100) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IntegrationArn": strings.MaxRunes(140) & strings.MinRunes(1) |
-fn.#StringExpression
+#IntegrationArn: strings.MaxRunes(140) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IntegrationAssociationId": string | fn.#StringExpression
+#IntegrationAssociationId: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IntegrationType": "LEX_BOT" |
+#IntegrationType: "LEX_BOT" |
 	"LAMBDA_FUNCTION" |
 	"APPLICATION" |
 	"CASES_DOMAIN" |
@@ -47,17 +46,13 @@ _#defs: "/$defs/Properties/definitions/IntegrationType": "LEX_BOT" |
 	"EVENT" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SourceApplicationName": strings.MaxRunes(100) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9_ -]+$" |
-fn.#StringExpression
+#SourceApplicationName: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_ -]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SourceApplicationUrl": strings.MaxRunes(2000) & strings.MinRunes(1) |
-fn.#StringExpression
+#SourceApplicationUrl: strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SourceType": "SALESFORCE" | "ZENDESK" | "CASES" | fn.#StringExpression
+#SourceType: "SALESFORCE" | "ZENDESK" | "CASES" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

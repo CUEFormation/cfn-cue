@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,16 +12,16 @@ import (
 // Resource Type definition for AWS::Synthetics::Canary
 #Properties: close({
 	// Provide artifact configuration
-	ArtifactConfig?: _#defs."/$defs/Properties/definitions/ArtifactConfig"
+	ArtifactConfig?: #ArtifactConfig
 
 	// Provide the s3 bucket output location for test results
 	ArtifactS3Location!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^(s3|S3)://"
 
 	// List of browser configurations for the canary
-	BrowserConfigs?: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/BrowserConfig"]
+	BrowserConfigs?: list.MaxItems(2) & list.MinItems(1) & [...#BrowserConfig]
 
 	// Provide the canary script source
-	Code!: _#defs."/$defs/Properties/definitions/Code"
+	Code!: #Code
 
 	// Deletes associated lambda resources created by Synthetics if set to True. Default is False
 	DeleteLambdaResourcesOnCanaryDeletion?: bool
@@ -57,21 +57,19 @@ import (
 	ProvisionedResourceCleanup?: "AUTOMATIC" | "OFF"
 
 	// List of replica locations for multi-location canary execution
-	Replicas?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Replica"]
+	Replicas?: list.MaxItems(50) & list.MinItems(1) & [...#Replica]
 
 	// List of resources which canary tags should be replicated to.
-	ResourcesToReplicateTags?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ResourceToTag"
-	]
+	ResourcesToReplicateTags?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ResourceToTag]
 
 	// Provide canary run configuration
-	RunConfig?: _#defs."/$defs/Properties/definitions/RunConfig"
+	RunConfig?: #RunConfig
 
 	// Runtime version of Synthetics Library
 	RuntimeVersion!: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// Frequency to run your canaries
-	Schedule!: _#defs."/$defs/Properties/definitions/Schedule"
+	Schedule!: #Schedule
 
 	// Runs canary if set to True. Default is False
 	StartCanaryAfterCreation?: bool
@@ -81,24 +79,24 @@ import (
 
 	// Retention period of successful canary runs represented in number of days
 	SuccessRetentionPeriod?: int
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                   [...#Tag]
 
 	// Provide VPC Configuration if enabled.
-	VPCConfig?: _#defs."/$defs/Properties/definitions/VPCConfig"
+	VPCConfig?: #VPCConfig
 
 	// Visual reference configuration for visual testing
-	VisualReference?: _#defs."/$defs/Properties/definitions/VisualReference"
+	VisualReference?: #VisualReference
 
 	// List of visual references for the canary
-	VisualReferences?: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/VisualReference"]
+	VisualReferences?: list.MaxItems(2) & list.MinItems(1) & [...#VisualReference]
 })
 
-_#defs: "/$defs/Properties/definitions/ArtifactConfig": close({
+#ArtifactConfig: close({
 	// Encryption configuration for uploading artifacts to S3
-	S3Encryption?: _#defs."/$defs/Properties/definitions/S3Encryption"
+	S3Encryption?: #S3Encryption
 })
 
-_#defs: "/$defs/Properties/definitions/BaseScreenshot": {
+#BaseScreenshot: {
 	// List of coordinates of rectangles to be ignored during visual testing
 	IgnoreCoordinates?: [...string]
 
@@ -107,13 +105,11 @@ _#defs: "/$defs/Properties/definitions/BaseScreenshot": {
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/BrowserConfig": close(
-	{BrowserType!: _#defs."/$defs/Properties/definitions/BrowserType"},
-)
+#BrowserConfig: close({BrowserType!: #BrowserType})
 
-_#defs: "/$defs/Properties/definitions/BrowserType": "CHROME" | "FIREFOX"
+#BrowserType: "CHROME" | "FIREFOX"
 
-_#defs: "/$defs/Properties/definitions/Code": matchN(>=1, [{
+#Code: matchN(>=1, [{
 	Handler!:  _
 	S3Bucket!: _
 	S3Key!:    _
@@ -143,7 +139,7 @@ _#defs: "/$defs/Properties/definitions/Code": matchN(>=1, [{
 	]
 
 	// List of Lambda layers to attach to the canary
-	Dependencies?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/Dependency"]
+	Dependencies?: list.MaxItems(1) & [...] & [...#Dependency]
 	Handler?: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^(([0-9a-zA-Z_-]+(\\/|\\.))*[0-9A-Za-z_\\\\-]+(\\.|::)[A-Za-z_][A-Za-z0-9_]*)?$"
@@ -154,7 +150,7 @@ _#defs: "/$defs/Properties/definitions/Code": matchN(>=1, [{
 	SourceLocationArn?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Dependency": close({
+#Dependency: close({
 	// ARN of the Lambda layer
 	Reference!: strings.MaxRunes(140) &
 	strings.MinRunes(1) &
@@ -165,7 +161,7 @@ _#defs: "/$defs/Properties/definitions/Dependency": close({
 })
 
 // Configuration and status for a replica location in a multi-location canary
-_#defs: "/$defs/Properties/definitions/Replica": close({
+#Replica: close({
 	// State of the replica canary (CREATING, READY, RUNNING, etc.)
 	CanaryState?: string
 
@@ -180,33 +176,33 @@ _#defs: "/$defs/Properties/definitions/Replica": close({
 	Location!: string
 
 	// Replication status for this replica
-	ReplicationStatus?: _#defs."/$defs/Properties/definitions/ReplicaReplicationStatus"
+	ReplicationStatus?: #ReplicaReplicationStatus
 
 	// Resources to replicate tags to for this replica (e.g., lambda-function)
-	ResourcesToReplicateTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ResourceToTag"]
+	ResourcesToReplicateTags?: list.UniqueItems() & [...#ResourceToTag]
 
 	// Tags to apply to this replica canary and optionally its Lambda function
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// VPC configuration for this replica location
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VPCConfig"
+	VpcConfig?: #VPCConfig
 })
 
 // Replication status details
-_#defs: "/$defs/Properties/definitions/ReplicaReplicationStatus": close({
+#ReplicaReplicationStatus: close({
 	// Replication state: InProgress, InSync, or Inconsistent
 	State?: string
 })
 
 // Specifies which resources canary tags should be replicated to.
-_#defs: "/$defs/Properties/definitions/ResourceToTag": "lambda-function"
+#ResourceToTag: "lambda-function"
 
-_#defs: "/$defs/Properties/definitions/RetryConfig": close({
+#RetryConfig: close({
 	// maximum times the canary will be retried upon the scheduled run failure
 	MaxRetries!: int & <=2 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/RunConfig": close({
+#RunConfig: close({
 	// Enable active tracing if set to true
 	ActiveTracing?: bool
 
@@ -225,7 +221,7 @@ _#defs: "/$defs/Properties/definitions/RunConfig": close({
 	TimeoutInSeconds?: int & <=840 & >=3
 })
 
-_#defs: "/$defs/Properties/definitions/S3Encryption": close({
+#S3Encryption: close({
 	// Encryption mode for encrypting artifacts when uploading to S3. Valid values: SSE_S3 and SSE_KMS.
 	EncryptionMode?: "SSE_KMS" | "SSE_S3"
 
@@ -237,16 +233,16 @@ _#defs: "/$defs/Properties/definitions/S3Encryption": close({
 	=~"^arn:(aws[a-zA-Z-]*)?:kms:[a-z]{2,4}(-[a-z]{2,4})?-[a-z]+-\\d{1}:\\d{12}:key/[\\w\\-\\/]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Schedule": close({
+#Schedule: close({
 	DurationInSeconds?: string
 	Expression!:        strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// Provide canary auto retry configuration
-	RetryConfig?: _#defs."/$defs/Properties/definitions/RetryConfig"
+	RetryConfig?: #RetryConfig
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -260,7 +256,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/VPCConfig": close({
+#VPCConfig: close({
 	// Allow outbound IPv6 traffic on VPC canaries that are connected to dual-stack
 	// subnets if set to true
 	Ipv6AllowedForDualStack?: bool
@@ -269,11 +265,11 @@ _#defs: "/$defs/Properties/definitions/VPCConfig": close({
 	VpcId?:                   =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/VisualReference": close({
+#VisualReference: close({
 	// Canary run id to be used as base reference for visual testing
 	BaseCanaryRunId!: string
 
 	// List of screenshots used as base reference for visual testing
-	BaseScreenshots?: [..._#defs."/$defs/Properties/definitions/BaseScreenshot"]
-	BrowserType?:     _#defs."/$defs/Properties/definitions/BrowserType"
+	BaseScreenshots?: [...#BaseScreenshot]
+	BrowserType?:     #BrowserType
 })

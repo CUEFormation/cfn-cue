@@ -24,10 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
 	fn.#StringExpression
 	Parameters!: close({
-		BudgetParameters?: list.MaxItems(2) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/BudgetParameter"
-		] |
-			fn.#ListExpression
+		BudgetParameters?: list.MaxItems(2) & list.MinItems(1) & [...#BudgetParameter] | fn.#ListExpression
 		Epsilon?: int & <=20 & >=1 |
 			{
 				string &
@@ -68,10 +65,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression
 	PrivacyBudgetType!: "DIFFERENTIAL_PRIVACY" | "ACCESS_BUDGET" | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:              [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/BudgetParameter": close({
+#BudgetParameter: close({
 	AutoRefresh?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	Budget!: int & >=0 |
 		{
@@ -92,7 +89,7 @@ _#defs: "/$defs/Properties/definitions/BudgetParameter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -55,9 +55,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"TWITTER" |
 		"WEB_CRAWLER" |
 		fn.#StringExpression
-	IdentityProviderVpcConnectionProperties?:
-		_#defs."/$defs/Properties/definitions/IdentityProviderVpcConnectionProperties"
-	Name!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	IdentityProviderVpcConnectionProperties?: #IdentityProviderVpcConnectionProperties
+	Name!:                                    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	OAuthAuthorizationEndpointUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$" |
 	fn.#StringExpression
 	OAuthClientApplicationId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^/][^\\x{0000}-\\x{001f}]*" |
@@ -66,15 +65,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	OAuthScopes?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" | fn.#StringExpression
 	OAuthTokenEndpointUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IdentityProviderVpcConnectionProperties": close(
-	{VpcConnectionArn!: string | fn.#StringExpression},
-) |
+#IdentityProviderVpcConnectionProperties: close({VpcConnectionArn!: string | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

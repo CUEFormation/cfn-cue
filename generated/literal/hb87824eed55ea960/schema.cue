@@ -4,8 +4,8 @@ package schema
 
 import (
 	"strings"
-	"struct"
 	"list"
+	"struct"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,11 +14,11 @@ import (
 #Properties: close({
 	Components?: close({
 
-		{[=~".+"]: _#defs."/$defs/Properties/definitions/ComponentDeploymentSpecification"}})
+		{[=~".+"]: #ComponentDeploymentSpecification}})
 	DeploymentId?:        =~".+"
 	DeploymentName?:      strings.MaxRunes(256) & strings.MinRunes(1)
-	DeploymentPolicies?:  _#defs."/$defs/Properties/definitions/DeploymentPolicies"
-	IotJobConfiguration?: _#defs."/$defs/Properties/definitions/DeploymentIoTJobConfiguration"
+	DeploymentPolicies?:  #DeploymentPolicies
+	IotJobConfiguration?: #DeploymentIoTJobConfiguration
 	ParentTargetArn?:     =~"arn:[^:]*:iot:[^:]*:[0-9]+:thinggroup/.+"
 	Tags?: struct.MaxFields(200) & close({
 
@@ -26,79 +26,71 @@ import (
 	TargetArn!: =~"arn:[^:]*:iot:[^:]*:[0-9]+:(thing|thinggroup)/.+"
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentConfigurationUpdate": close({
+#ComponentConfigurationUpdate: close({
 	Merge?: strings.MaxRunes(10485760) & strings.MinRunes(1)
 	Reset?: [...strings.MaxRunes(256) & strings.MinRunes(0)]
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentDeploymentSpecification": close({
+#ComponentDeploymentSpecification: close({
 	ComponentVersion?:    strings.MaxRunes(64) & strings.MinRunes(1)
-	ConfigurationUpdate?: _#defs."/$defs/Properties/definitions/ComponentConfigurationUpdate"
-	RunWith?:             _#defs."/$defs/Properties/definitions/ComponentRunWith"
+	ConfigurationUpdate?: #ComponentConfigurationUpdate
+	RunWith?:             #ComponentRunWith
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentRunWith": close({
+#ComponentRunWith: close({
 	PosixUser?:            strings.MinRunes(1)
-	SystemResourceLimits?: _#defs."/$defs/Properties/definitions/SystemResourceLimits"
+	SystemResourceLimits?: #SystemResourceLimits
 	WindowsUser?:          strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/DeploymentComponentUpdatePolicy": close({
+#DeploymentComponentUpdatePolicy: close({
 	Action?:           "NOTIFY_COMPONENTS" | "SKIP_NOTIFY_COMPONENTS"
 	TimeoutInSeconds?: int & <=2147483647 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/DeploymentConfigurationValidationPolicy": close(
-	{TimeoutInSeconds?: int & <=2147483647 & >=1},
-)
+#DeploymentConfigurationValidationPolicy: close({TimeoutInSeconds?: int & <=2147483647 & >=1})
 
-_#defs: "/$defs/Properties/definitions/DeploymentIoTJobConfiguration": close({
-	AbortConfig?:                _#defs."/$defs/Properties/definitions/IoTJobAbortConfig"
-	JobExecutionsRolloutConfig?: _#defs."/$defs/Properties/definitions/IoTJobExecutionsRolloutConfig"
-	TimeoutConfig?:              _#defs."/$defs/Properties/definitions/IoTJobTimeoutConfig"
+#DeploymentIoTJobConfiguration: close({
+	AbortConfig?:                #IoTJobAbortConfig
+	JobExecutionsRolloutConfig?: #IoTJobExecutionsRolloutConfig
+	TimeoutConfig?:              #IoTJobTimeoutConfig
 })
 
-_#defs: "/$defs/Properties/definitions/DeploymentPolicies": close({
-	ComponentUpdatePolicy?:         _#defs."/$defs/Properties/definitions/DeploymentComponentUpdatePolicy"
-	ConfigurationValidationPolicy?: _#defs."/$defs/Properties/definitions/DeploymentConfigurationValidationPolicy"
+#DeploymentPolicies: close({
+	ComponentUpdatePolicy?:         #DeploymentComponentUpdatePolicy
+	ConfigurationValidationPolicy?: #DeploymentConfigurationValidationPolicy
 	FailureHandlingPolicy?:         "ROLLBACK" | "DO_NOTHING"
 })
 
-_#defs: "/$defs/Properties/definitions/IoTJobAbortConfig": close(
-	{CriteriaList!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/IoTJobAbortCriteria"]},
-)
+#IoTJobAbortConfig: close({CriteriaList!: list.MinItems(1) & [...#IoTJobAbortCriteria]})
 
-_#defs: "/$defs/Properties/definitions/IoTJobAbortCriteria": close({
+#IoTJobAbortCriteria: close({
 	Action!:                    "CANCEL"
 	FailureType!:               "FAILED" | "REJECTED" | "TIMED_OUT" | "ALL"
 	MinNumberOfExecutedThings!: int & <=2147483647 & >=1
 	ThresholdPercentage!:       <=100 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/IoTJobExecutionsRolloutConfig": close({
-	ExponentialRate?:  _#defs."/$defs/Properties/definitions/IoTJobExponentialRolloutRate"
+#IoTJobExecutionsRolloutConfig: close({
+	ExponentialRate?:  #IoTJobExponentialRolloutRate
 	MaximumPerMinute?: int & <=1000 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/IoTJobExponentialRolloutRate": close({
+#IoTJobExponentialRolloutRate: close({
 	BaseRatePerMinute!:    int & <=1000 & >=1
 	IncrementFactor!:      <=5 & >=1
-	RateIncreaseCriteria!: _#defs."/$defs/Properties/definitions/IoTJobRateIncreaseCriteria"
+	RateIncreaseCriteria!: #IoTJobRateIncreaseCriteria
 })
 
-_#defs: "/$defs/Properties/definitions/IoTJobRateIncreaseCriteria": matchN(1, [close(
-	{NumberOfNotifiedThings?: _#defs."/$defs/Properties/definitions/NumberOfThings"},
-), close(
-	{NumberOfSucceededThings?: _#defs."/$defs/Properties/definitions/NumberOfThings"},
-)])
+#IoTJobRateIncreaseCriteria: matchN(1, [
+	close({NumberOfNotifiedThings?: #NumberOfThings}), close({NumberOfSucceededThings?: #NumberOfThings}),
+])
 
-_#defs: "/$defs/Properties/definitions/IoTJobTimeoutConfig": close(
-	{InProgressTimeoutInMinutes?: int & <=2147483647 & >=0},
-)
+#IoTJobTimeoutConfig: close({InProgressTimeoutInMinutes?: int & <=2147483647 & >=0})
 
-_#defs: "/$defs/Properties/definitions/NumberOfThings": int & <=2147483647 & >=1
+#NumberOfThings: int & <=2147483647 & >=1
 
-_#defs: "/$defs/Properties/definitions/SystemResourceLimits": close({
+#SystemResourceLimits: close({
 	Cpus?:   >=0
 	Memory?: int & <=9223372036854772000 & >=0
 })

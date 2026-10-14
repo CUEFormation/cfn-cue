@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -57,7 +57,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	MaintenanceSchedule?: _#defs."/$defs/Properties/definitions/MaintenanceSchedule" | fn.#ObjectExpression
+	MaintenanceSchedule?: #MaintenanceSchedule | fn.#ObjectExpression
 	Name?: strings.MaxRunes(40) & strings.MinRunes(3) & =~"^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
 	fn.#StringExpression
 	NetworkType?:  "IPV4" | "DUAL" | fn.#StringExpression
@@ -80,9 +80,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	Username?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Tags?:               list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	Username?:           strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	VpcSecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -91,7 +90,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	VpcSubnetIds?: list.MaxItems(3) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/MaintenanceSchedule": close({
+#MaintenanceSchedule: close({
 	PreferredMaintenanceWindow!: strings.MaxRunes(19) &
 	strings.MinRunes(0) &
 	=~"^$|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun):([01]\\d|2[0-3]):[0-5]\\d-(Mon|Tue|Wed|Thu|Fri|Sat|Sun):([01]\\d|2[0-3]):[0-5]\\d$" |
@@ -101,7 +100,7 @@ _#defs: "/$defs/Properties/definitions/MaintenanceSchedule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

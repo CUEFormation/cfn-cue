@@ -22,17 +22,17 @@ import (
 	// Latest modified timestamp in UNIX epoch time format
 	LastModifiedTime?: int
 	Name!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+"
-	PricingRuleArns?:  list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/PricingRuleArn"]
+	PricingRuleArns?:  list.MaxItems(30) & [...] & [...#PricingRuleArn]
 
 	// Number of associated pricing rules
 	Size?: int
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Pricing Rule ARN
-_#defs: "/$defs/Properties/definitions/PricingRuleArn": =~"arn:aws(-cn)?:billingconductor::[0-9]{12}:pricingrule/[a-zA-Z0-9]{10}"
+#PricingRuleArn: =~"arn:aws(-cn)?:billingconductor::[0-9]{12}:pricingrule/[a-zA-Z0-9]{10}"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

@@ -34,11 +34,11 @@ import (
 	Path?: =~"^(o-[a-z0-9]{10,32}/r-[0-9a-z]{4,32}(/ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})*(/\\d{12})*)/"
 
 	// A list of tags that you want to attach to the newly created OU.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // A custom key-value pair associated with a resource within your organization.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key identifier, or name, of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

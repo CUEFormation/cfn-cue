@@ -34,23 +34,23 @@ import (
 
 	// A description of the account association.
 	Description?:          strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$"
-	GeneralAuthorization?: _#defs."/$defs/Properties/definitions/GeneralAuthorization"
+	GeneralAuthorization?: #GeneralAuthorization
 
 	// The name of the account association.
 	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$"
 
 	// A set of key/value pairs that are used to manage the account association.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // The General Authorization reference by authorization material name.
-_#defs: "/$defs/Properties/definitions/GeneralAuthorization": close({
+#GeneralAuthorization: close({
 	// The name of the authorization material.
 	AuthMaterialName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9=_+/-]+$"
 })
 
 // A key-value pair to associate with the account association.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

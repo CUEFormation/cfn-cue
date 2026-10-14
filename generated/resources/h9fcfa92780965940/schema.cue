@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,40 +18,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Private certificate authority.
 #Properties: close({
-	CsrExtensions?: _#defs."/$defs/Properties/definitions/CsrExtensions" | fn.#ObjectExpression
+	CsrExtensions?: #CsrExtensions | fn.#ObjectExpression
 	KeyAlgorithm!:  string | fn.#StringExpression
 	KeyStorageSecurityStandard?: "CCPC_LEVEL_1_OR_HIGHER" |
 		"FIPS_140_2_LEVEL_2_OR_HIGHER" |
 		"FIPS_140_2_LEVEL_3_OR_HIGHER" |
 		fn.#StringExpression
-	RevocationConfiguration?: _#defs."/$defs/Properties/definitions/RevocationConfiguration" | fn.#ObjectExpression
+	RevocationConfiguration?: #RevocationConfiguration | fn.#ObjectExpression
 	SigningAlgorithm!:        string | fn.#StringExpression
-	Subject!:                 _#defs."/$defs/Properties/definitions/Subject" | fn.#ObjectExpression
-	Tags?:      list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!:      string | fn.#StringExpression
-	UsageMode?: "GENERAL_PURPOSE" | "SHORT_LIVED_CERTIFICATE" | fn.#StringExpression
+	Subject!:                 #Subject | fn.#ObjectExpression
+	Tags?:                    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	Type!:                    string | fn.#StringExpression
+	UsageMode?:               "GENERAL_PURPOSE" | "SHORT_LIVED_CERTIFICATE" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessDescription": close({
-	AccessLocation!: _#defs."/$defs/Properties/definitions/GeneralName"
-	AccessMethod!:   _#defs."/$defs/Properties/definitions/AccessMethod"
+#AccessDescription: close({
+	AccessLocation!: #GeneralName
+	AccessMethod!:   #AccessMethod
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessMethod": close({
-	AccessMethodType?:       _#defs."/$defs/Properties/definitions/AccessMethodType"
-	CustomObjectIdentifier?: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier"
+#AccessMethod: close({
+	AccessMethodType?:       #AccessMethodType
+	CustomObjectIdentifier?: #CustomObjectIdentifier
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessMethodType": string | fn.#StringExpression
+#AccessMethodType: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
+#Arn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CrlConfiguration": close({
-	CrlDistributionPointExtensionConfiguration?:
-		_#defs."/$defs/Properties/definitions/CrlDistributionPointExtensionConfiguration"
-	CrlType?: "COMPLETE" | "PARTITIONED" | fn.#StringExpression
+#CrlConfiguration: close({
+	CrlDistributionPointExtensionConfiguration?: #CrlDistributionPointExtensionConfiguration
+	CrlType?:                                    "COMPLETE" | "PARTITIONED" | fn.#StringExpression
 	CustomCname?: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^[-a-zA-Z0-9;/?:@&=+$,%_.!~*()']*$" |
 	fn.#StringExpression
 	CustomPath?: strings.MaxRunes(253) &
@@ -80,51 +79,50 @@ _#defs: "/$defs/Properties/definitions/CrlConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CrlDistributionPointExtensionConfiguration": close(
+#CrlDistributionPointExtensionConfiguration: close(
 	{OmitExtension!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CsrExtensions": close({
-	KeyUsage?:                 _#defs."/$defs/Properties/definitions/KeyUsage"
-	SubjectInformationAccess?: _#defs."/$defs/Properties/definitions/SubjectInformationAccess"
+#CsrExtensions: close({
+	KeyUsage?:                 #KeyUsage
+	SubjectInformationAccess?: #SubjectInformationAccess
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomAttribute": close({
-	ObjectIdentifier!: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier"
+#CustomAttribute: close({
+	ObjectIdentifier!: #CustomObjectIdentifier
 	Value!:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomAttributeList": [..._#defs."/$defs/Properties/definitions/CustomAttribute"] |
-	fn.#ListExpression
+#CustomAttributeList: [...#CustomAttribute] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CustomObjectIdentifier": string | fn.#StringExpression
+#CustomObjectIdentifier: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DnsName": string | fn.#StringExpression
+#DnsName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EdiPartyName": close({
+#EdiPartyName: close({
 	NameAssigner?: string | fn.#StringExpression
 	PartyName!:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeneralName": close({
-	DirectoryName?:             _#defs."/$defs/Properties/definitions/Subject"
-	DnsName?:                   _#defs."/$defs/Properties/definitions/DnsName"
-	EdiPartyName?:              _#defs."/$defs/Properties/definitions/EdiPartyName"
-	IpAddress?:                 _#defs."/$defs/Properties/definitions/IpAddress"
-	OtherName?:                 _#defs."/$defs/Properties/definitions/OtherName"
-	RegisteredId?:              _#defs."/$defs/Properties/definitions/CustomObjectIdentifier"
-	Rfc822Name?:                _#defs."/$defs/Properties/definitions/Rfc822Name"
-	UniformResourceIdentifier?: _#defs."/$defs/Properties/definitions/UniformResourceIdentifier"
+#GeneralName: close({
+	DirectoryName?:             #Subject
+	DnsName?:                   #DnsName
+	EdiPartyName?:              #EdiPartyName
+	IpAddress?:                 #IpAddress
+	OtherName?:                 #OtherName
+	RegisteredId?:              #CustomObjectIdentifier
+	Rfc822Name?:                #Rfc822Name
+	UniformResourceIdentifier?: #UniformResourceIdentifier
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpAddress": string | fn.#StringExpression
+#IpAddress: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KeyUsage": close({
+#KeyUsage: close({
 	CRLSign?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DataEncipherment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DecipherOnly?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -137,31 +135,31 @@ _#defs: "/$defs/Properties/definitions/KeyUsage": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OcspConfiguration": close({
+#OcspConfiguration: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OcspCustomCname?: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^[-a-zA-Z0-9;/?:@&=+$,%_.!~*()']*$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OtherName": close({
-	TypeId!: _#defs."/$defs/Properties/definitions/CustomObjectIdentifier"
+#OtherName: close({
+	TypeId!: #CustomObjectIdentifier
 	Value!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RevocationConfiguration": close({
-	CrlConfiguration?:  _#defs."/$defs/Properties/definitions/CrlConfiguration"
-	OcspConfiguration?: _#defs."/$defs/Properties/definitions/OcspConfiguration"
+#RevocationConfiguration: close({
+	CrlConfiguration?:  #CrlConfiguration
+	OcspConfiguration?: #OcspConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Rfc822Name": string | fn.#StringExpression
+#Rfc822Name: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Subject": close({
+#Subject: close({
 	CommonName?:                 string | fn.#StringExpression
 	Country?:                    string | fn.#StringExpression
-	CustomAttributes?:           _#defs."/$defs/Properties/definitions/CustomAttributeList"
+	CustomAttributes?:           #CustomAttributeList
 	DistinguishedNameQualifier?: string | fn.#StringExpression
 	GenerationQualifier?:        string | fn.#StringExpression
 	GivenName?:                  string | fn.#StringExpression
@@ -177,18 +175,15 @@ _#defs: "/$defs/Properties/definitions/Subject": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubjectInformationAccess": [
-	..._#defs."/$defs/Properties/definitions/AccessDescription"
-] |
-	fn.#ListExpression
+#SubjectInformationAccess: [...#AccessDescription] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UniformResourceIdentifier": string | fn.#StringExpression
+#UniformResourceIdentifier: string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ACMPCA::CertificateAuthority"
 	Properties!: #Properties

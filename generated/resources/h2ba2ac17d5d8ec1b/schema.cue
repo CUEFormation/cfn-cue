@@ -16,36 +16,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
 	fn.#StringExpression
-	Configuration!: _#defs."/$defs/Properties/definitions/RetrieverConfiguration"
+	Configuration!: #RetrieverConfiguration
 	DisplayName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
 	fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Type!: _#defs."/$defs/Properties/definitions/RetrieverType"
+	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	Type!: #RetrieverType
 })
 
-_#defs: "/$defs/Properties/definitions/KendraIndexConfiguration": close(
+#KendraIndexConfiguration: close(
 	{IndexId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NativeIndexConfiguration": close(
+#NativeIndexConfiguration: close(
 	{IndexId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetrieverConfiguration": matchN(1, [close(
-	{NativeIndexConfiguration!: _#defs."/$defs/Properties/definitions/NativeIndexConfiguration"},
+#RetrieverConfiguration: matchN(1, [close(
+	{NativeIndexConfiguration!: #NativeIndexConfiguration},
 ), close(
-	{KendraIndexConfiguration!: _#defs."/$defs/Properties/definitions/KendraIndexConfiguration"},
+	{KendraIndexConfiguration!: #KendraIndexConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RetrieverStatus": "CREATING" | "ACTIVE" | "FAILED" | fn.#StringExpression
+#RetrieverStatus: "CREATING" | "ACTIVE" | "FAILED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RetrieverType": "NATIVE_INDEX" | "KENDRA_INDEX" | fn.#StringExpression
+#RetrieverType: "NATIVE_INDEX" | "KENDRA_INDEX" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

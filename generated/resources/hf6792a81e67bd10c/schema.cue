@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -34,10 +34,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	CustomerContactsToSendToOCI?: [..._#defs."/$defs/Properties/definitions/CustomerContact"] | fn.#ListExpression
+	CustomerContactsToSendToOCI?: [...#CustomerContact] | fn.#ListExpression
 	DatabaseServerType?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" | fn.#StringExpression
 	DisplayName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	MaintenanceWindow?:  _#defs."/$defs/Properties/definitions/MaintenanceWindow" | fn.#ObjectExpression
+	MaintenanceWindow?:  #MaintenanceWindow | fn.#ObjectExpression
 	Shape?:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" | fn.#StringExpression
 	StorageCount?: int |
 		{
@@ -54,13 +54,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	StorageServerType?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" | fn.#StringExpression
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:              [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CustomerContact": close({Email?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#CustomerContact: close({Email?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
+#MaintenanceWindow: close({
 	CustomActionTimeoutInMins?: int & <=120 & >=15 |
 		{
 			string &
@@ -157,7 +156,7 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 	"time"
 )
 
@@ -20,22 +20,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::LicenseManager::License
 #Properties: close({
 	Beneficiary!:              string | fn.#StringExpression
-	ConsumptionConfiguration!: _#defs."/$defs/Properties/definitions/ConsumptionConfiguration"
-	Entitlements!:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Entitlement"] | fn.#ListExpression
-	HomeRegion!:      string | fn.#StringExpression
-	Issuer!:          _#defs."/$defs/Properties/definitions/IssuerData"
-	LicenseMetadata?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Metadata"] | fn.#ListExpression
-	LicenseName!:     string | fn.#StringExpression
-	ProductName!:     string | fn.#StringExpression
-	ProductSKU!:      strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Status?:          _#defs."/$defs/Properties/definitions/LicenseStatus"
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Validity!:        _#defs."/$defs/Properties/definitions/ValidityDateFormat"
+	ConsumptionConfiguration!: #ConsumptionConfiguration
+	Entitlements!:             list.UniqueItems() & [...#Entitlement] | fn.#ListExpression
+	HomeRegion!:               string | fn.#StringExpression
+	Issuer!:                   #IssuerData
+	LicenseMetadata?:          list.UniqueItems() & [...#Metadata] | fn.#ListExpression
+	LicenseName!:              string | fn.#StringExpression
+	ProductName!:              string | fn.#StringExpression
+	ProductSKU!:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Status?:                   #LicenseStatus
+	Tags?:                     [...#Tag] | fn.#ListExpression
+	Validity!:                 #ValidityDateFormat
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BorrowConfiguration": close({
+#BorrowConfiguration: close({
 	AllowEarlyCheckIn!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxTimeToLiveInMinutes!: int |
 		{
@@ -54,14 +54,14 @@ _#defs: "/$defs/Properties/definitions/BorrowConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConsumptionConfiguration": close({
-	BorrowConfiguration?:      _#defs."/$defs/Properties/definitions/BorrowConfiguration"
-	ProvisionalConfiguration?: _#defs."/$defs/Properties/definitions/ProvisionalConfiguration"
+#ConsumptionConfiguration: close({
+	BorrowConfiguration?:      #BorrowConfiguration
+	ProvisionalConfiguration?: #ProvisionalConfiguration
 	RenewType?:                "Monthly" | "None" | "Weekly" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Entitlement": close({
+#Entitlement: close({
 	AllowCheckIn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxCount?: int |
 		{
@@ -111,21 +111,21 @@ _#defs: "/$defs/Properties/definitions/Entitlement": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IssuerData": close({
+#IssuerData: close({
 	Name!:    string | fn.#StringExpression
 	SignKey?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LicenseStatus": string | fn.#StringExpression
+#LicenseStatus: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Metadata": close({
+#Metadata: close({
 	Name!:  string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisionalConfiguration": close({
+#ProvisionalConfiguration: close({
 	MaxTimeToLiveInMinutes!: int |
 		{
 			string &
@@ -143,13 +143,13 @@ _#defs: "/$defs/Properties/definitions/ProvisionalConfiguration": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ValidityDateFormat": close({
+#ValidityDateFormat: close({
 	Begin!: time.Time &
 	strings.MaxRunes(50) &
 	strings.MinRunes(0) &

@@ -15,10 +15,10 @@ import (
 	ComputationModelArn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:/_\\.]+$"
 
 	// The configuration for the computation model.
-	ComputationModelConfiguration!: _#defs."/$defs/Properties/definitions/ComputationModelConfiguration"
+	ComputationModelConfiguration!: #ComputationModelConfiguration
 
 	// The data binding for the computation model.
-	ComputationModelDataBinding!: _#defs."/$defs/Properties/definitions/ComputationModelDataBinding"
+	ComputationModelDataBinding!: #ComputationModelDataBinding
 
 	// A description about the computation model.
 	ComputationModelDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$"
@@ -32,10 +32,10 @@ import (
 	ComputationModelName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AnomalyDetectionComputationModelConfiguration": close({
+#AnomalyDetectionComputationModelConfiguration: close({
 	// Input properties for anomaly detection.
 	InputProperties!: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^\\$\\{[a-z][a-z0-9_]*\\}$"
 
@@ -43,7 +43,7 @@ _#defs: "/$defs/Properties/definitions/AnomalyDetectionComputationModelConfigura
 	ResultProperty!: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^\\$\\{[a-z][a-z0-9_]*\\}$"
 })
 
-_#defs: "/$defs/Properties/definitions/AssetModelPropertyBindingValue": close({
+#AssetModelPropertyBindingValue: close({
 	// The ID of the asset model.
 	AssetModelId!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/AssetModelPropertyBindingValue": close({
 	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 })
 
-_#defs: "/$defs/Properties/definitions/AssetPropertyBindingValue": close({
+#AssetPropertyBindingValue: close({
 	// The ID of the asset.
 	AssetId!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
@@ -67,27 +67,27 @@ _#defs: "/$defs/Properties/definitions/AssetPropertyBindingValue": close({
 	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 })
 
-_#defs: "/$defs/Properties/definitions/ComputationModelConfiguration": close({
+#ComputationModelConfiguration: close({
 	// Contains configuration for anomaly detection computation model.
-	AnomalyDetection?: _#defs."/$defs/Properties/definitions/AnomalyDetectionComputationModelConfiguration"
+	AnomalyDetection?: #AnomalyDetectionComputationModelConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/ComputationModelDataBinding": close({
+#ComputationModelDataBinding: close({
 
-	{[=~"^[a-z][a-z0-9_]{0,63}$"]: _#defs."/$defs/Properties/definitions/ComputationModelDataBindingValue"}})
+	{[=~"^[a-z][a-z0-9_]{0,63}$"]: #ComputationModelDataBindingValue}})
 
-_#defs: "/$defs/Properties/definitions/ComputationModelDataBindingValue": close({
+#ComputationModelDataBindingValue: close({
 	// Defines an asset model property binding.
-	AssetModelProperty?: _#defs."/$defs/Properties/definitions/AssetModelPropertyBindingValue"
+	AssetModelProperty?: #AssetModelPropertyBindingValue
 
 	// Defines an asset property binding.
-	AssetProperty?: _#defs."/$defs/Properties/definitions/AssetPropertyBindingValue"
+	AssetProperty?: #AssetPropertyBindingValue
 
 	// Defines a list of computation model binding values.
-	List?: [..._#defs."/$defs/Properties/definitions/ComputationModelDataBindingValue"]
+	List?: [...#ComputationModelDataBindingValue]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

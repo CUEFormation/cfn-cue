@@ -8,16 +8,16 @@ package schema
 #Properties: close({
 	AccessLoggingEnabled?: bool
 	ContainerName!:        string
-	CorsPolicy?:           [..._#defs."/$defs/Properties/definitions/CorsRule"]
+	CorsPolicy?:           [...#CorsRule]
 	Endpoint?:             string
 	Id?:                   string
 	LifecyclePolicy?:      string
-	MetricPolicy?:         _#defs."/$defs/Properties/definitions/MetricPolicy"
+	MetricPolicy?:         #MetricPolicy
 	Policy?:               string
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                 [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/CorsRule": close({
+#CorsRule: close({
 	AllowedHeaders?: [...string]
 	AllowedMethods?: [...string]
 	AllowedOrigins?: [...string]
@@ -25,17 +25,17 @@ _#defs: "/$defs/Properties/definitions/CorsRule": close({
 	MaxAgeSeconds?:  int
 })
 
-_#defs: "/$defs/Properties/definitions/MetricPolicy": close({
+#MetricPolicy: close({
 	ContainerLevelMetrics!: string
-	MetricPolicyRules?:     [..._#defs."/$defs/Properties/definitions/MetricPolicyRule"]
+	MetricPolicyRules?:     [...#MetricPolicyRule]
 })
 
-_#defs: "/$defs/Properties/definitions/MetricPolicyRule": close({
+#MetricPolicyRule: close({
 	ObjectGroup!:     string
 	ObjectGroupName!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

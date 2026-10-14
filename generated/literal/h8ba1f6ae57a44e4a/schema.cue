@@ -13,7 +13,7 @@ import "strings"
 
 	// The composite asset models that are part of this asset model. Composite asset
 	// models are asset models that contain specific properties.
-	AssetModelCompositeModels?: [..._#defs."/$defs/Properties/definitions/AssetModelCompositeModel"]
+	AssetModelCompositeModels?: [...#AssetModelCompositeModel]
 
 	// A description for the asset model.
 	AssetModelDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
@@ -24,7 +24,7 @@ import "strings"
 	// The hierarchy definitions of the asset model. Each hierarchy specifies an
 	// asset model whose assets can be children of any other assets created from
 	// this asset model. You can specify up to 10 hierarchies per asset model.
-	AssetModelHierarchies?: [..._#defs."/$defs/Properties/definitions/AssetModelHierarchy"]
+	AssetModelHierarchies?: [...#AssetModelHierarchy]
 
 	// The ID of the asset model.
 	AssetModelId?: strings.MaxRunes(36) &
@@ -36,29 +36,27 @@ import "strings"
 
 	// The property definitions of the asset model. You can specify up to 200
 	// properties per asset model.
-	AssetModelProperties?: [..._#defs."/$defs/Properties/definitions/AssetModelProperty"]
+	AssetModelProperties?: [...#AssetModelProperty]
 
 	// The type of the asset model (ASSET_MODEL OR COMPONENT_MODEL or INTERFACE)
 	AssetModelType?: "ASSET_MODEL" | "COMPONENT_MODEL" | "INTERFACE"
 
 	// a list of asset model and interface relationships
-	EnforcedAssetModelInterfaceRelationships?: [
-		..._#defs."/$defs/Properties/definitions/EnforcedAssetModelInterfaceRelationship"
-	]
+	EnforcedAssetModelInterfaceRelationships?: [...#EnforcedAssetModelInterfaceRelationship]
 
 	// A list of key-value pairs that contain metadata for the asset model.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // Contains a composite model definition in an asset model. This composite model
 // definition is applied to all assets created from the asset model.
-_#defs: "/$defs/Properties/definitions/AssetModelCompositeModel": close({
+#AssetModelCompositeModel: close({
 	// The component model ID for which the composite model is composed of
 	ComposedAssetModelId?: string
 
 	// The property definitions of the asset model. You can specify up to 200
 	// properties per asset model.
-	CompositeModelProperties?: [..._#defs."/$defs/Properties/definitions/AssetModelProperty"]
+	CompositeModelProperties?: [...#AssetModelProperty]
 
 	// A description for the asset composite model.
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
@@ -87,7 +85,7 @@ _#defs: "/$defs/Properties/definitions/AssetModelCompositeModel": close({
 })
 
 // Contains information about an asset model hierarchy.
-_#defs: "/$defs/Properties/definitions/AssetModelHierarchy": close({
+#AssetModelHierarchy: close({
 	// The ID of the asset model. All assets in this hierarchy must be instances of
 	// the child AssetModelId asset model.
 	ChildAssetModelId!: strings.MaxRunes(139) & strings.MinRunes(13)
@@ -108,12 +106,12 @@ _#defs: "/$defs/Properties/definitions/AssetModelHierarchy": close({
 })
 
 // Contains information about an asset model property.
-_#defs: "/$defs/Properties/definitions/AssetModelProperty": close({
+#AssetModelProperty: close({
 	// The data type of the asset model property.
-	DataType!: _#defs."/$defs/Properties/definitions/DataType"
+	DataType!: #DataType
 
 	// The data type of the structure for this property.
-	DataTypeSpec?: _#defs."/$defs/Properties/definitions/DataTypeSpec"
+	DataTypeSpec?: #DataTypeSpec
 
 	// The External ID of the Asset Model Property
 	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+"
@@ -130,20 +128,20 @@ _#defs: "/$defs/Properties/definitions/AssetModelProperty": close({
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
 
 	// The property type
-	Type!: _#defs."/$defs/Properties/definitions/PropertyType"
+	Type!: #PropertyType
 
 	// The unit of the asset model property, such as Newtons or RPM.
 	Unit?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Attribute": close({DefaultValue?: =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"})
+#Attribute: close({DefaultValue?: =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"})
 
-_#defs: "/$defs/Properties/definitions/DataType": "STRING" | "INTEGER" | "DOUBLE" | "BOOLEAN" | "STRUCT"
+#DataType: "STRING" | "INTEGER" | "DOUBLE" | "BOOLEAN" | "STRUCT"
 
-_#defs: "/$defs/Properties/definitions/DataTypeSpec": "AWS/ALARM_STATE" & (strings.MaxRunes(256) & strings.MinRunes(1))
+#DataTypeSpec: "AWS/ALARM_STATE" & (strings.MaxRunes(256) & strings.MinRunes(1))
 
 // Contains information about enforced interface property and asset model property
-_#defs: "/$defs/Properties/definitions/EnforcedAssetModelInterfacePropertyMapping": close({
+#EnforcedAssetModelInterfacePropertyMapping: close({
 	// The external ID of the enforced asset model property
 	AssetModelPropertyExternalId?: string
 
@@ -155,86 +153,84 @@ _#defs: "/$defs/Properties/definitions/EnforcedAssetModelInterfacePropertyMappin
 })
 
 // Contains information about enforced interface hierarchy and asset model hierarchy
-_#defs: "/$defs/Properties/definitions/EnforcedAssetModelInterfaceRelationship": close({
+#EnforcedAssetModelInterfaceRelationship: close({
 	// The ID of the interface that is enforced to the asset model
 	InterfaceAssetModelId?: string
 
 	// Contains information about enforced interface property and asset model property
-	PropertyMappings?: [..._#defs."/$defs/Properties/definitions/EnforcedAssetModelInterfacePropertyMapping"]
+	PropertyMappings?: [...#EnforcedAssetModelInterfacePropertyMapping]
 })
 
-_#defs: "/$defs/Properties/definitions/ExpressionVariable": close({
+#ExpressionVariable: close({
 	// The friendly name of the variable to be used in the expression.
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$"
 
 	// The variable that identifies an asset property from which to use values.
-	Value!: _#defs."/$defs/Properties/definitions/VariableValue"
+	Value!: #VariableValue
 })
 
 // The time interval for the tumbling window.
-_#defs: "/$defs/Properties/definitions/Interval": strings.MaxRunes(23) & strings.MinRunes(2)
+#Interval: strings.MaxRunes(23) & strings.MinRunes(2)
 
-_#defs: "/$defs/Properties/definitions/Metric": close({
+#Metric: close({
 	// The mathematical expression that defines the metric aggregation function. You
 	// can specify up to 10 functions per expression.
 	Expression!: strings.MaxRunes(1024) & strings.MinRunes(0)
 
 	// The list of variables used in the expression.
-	Variables!: [..._#defs."/$defs/Properties/definitions/ExpressionVariable"]
+	Variables!: [...#ExpressionVariable]
 
 	// The window (time interval) over which AWS IoT SiteWise computes the metric's
 	// aggregation expression
-	Window!: _#defs."/$defs/Properties/definitions/MetricWindow"
+	Window!: #MetricWindow
 })
 
 // Contains a time interval window used for data aggregate computations (for
 // example, average, sum, count, and so on).
-_#defs: "/$defs/Properties/definitions/MetricWindow": close(
-	{Tumbling?: _#defs."/$defs/Properties/definitions/TumblingWindow"},
-)
+#MetricWindow: close({Tumbling?: #TumblingWindow})
 
 // The shift or reference point on timeline for the contiguous time intervals.
-_#defs: "/$defs/Properties/definitions/Offset": strings.MaxRunes(25) & strings.MinRunes(2)
+#Offset: strings.MaxRunes(25) & strings.MinRunes(2)
 
 // The definition for property path which is used to reference properties in transforms/metrics
-_#defs: "/$defs/Properties/definitions/PropertyPathDefinition": close({
+#PropertyPathDefinition: close({
 	// The name of the property
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
 })
 
 // Contains a property type, which can be one of attribute, measurement, metric, or transform.
-_#defs: "/$defs/Properties/definitions/PropertyType": close({
-	Attribute?: _#defs."/$defs/Properties/definitions/Attribute"
-	Metric?:    _#defs."/$defs/Properties/definitions/Metric"
-	Transform?: _#defs."/$defs/Properties/definitions/Transform"
-	TypeName!:  _#defs."/$defs/Properties/definitions/TypeName"
+#PropertyType: close({
+	Attribute?: #Attribute
+	Metric?:    #Metric
+	Transform?: #Transform
+	TypeName!:  #TypeName
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Transform": close({
+#Transform: close({
 	// The mathematical expression that defines the transformation function. You can
 	// specify up to 10 functions per expression.
 	Expression!: strings.MaxRunes(1024) & strings.MinRunes(0)
 
 	// The list of variables used in the expression.
-	Variables!: [..._#defs."/$defs/Properties/definitions/ExpressionVariable"]
+	Variables!: [...#ExpressionVariable]
 })
 
 // Contains a tumbling window, which is a repeating fixed-sized,
 // non-overlapping, and contiguous time interval. This window is used in metric
 // and aggregation computations.
-_#defs: "/$defs/Properties/definitions/TumblingWindow": close({
-	Interval!: _#defs."/$defs/Properties/definitions/Interval"
-	Offset?:   _#defs."/$defs/Properties/definitions/Offset"
+#TumblingWindow: close({
+	Interval!: #Interval
+	Offset?:   #Offset
 })
 
-_#defs: "/$defs/Properties/definitions/TypeName": "Measurement" | "Attribute" | "Transform" | "Metric"
+#TypeName: "Measurement" | "Attribute" | "Transform" | "Metric"
 
-_#defs: "/$defs/Properties/definitions/VariableValue": close({
+#VariableValue: close({
 	// The External ID of the hierarchy that is trying to be referenced
 	HierarchyExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+"
 
@@ -254,5 +250,5 @@ _#defs: "/$defs/Properties/definitions/VariableValue": close({
 	PropertyLogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+"
 
 	// The path of the property that is trying to be referenced
-	PropertyPath?: [..._#defs."/$defs/Properties/definitions/PropertyPathDefinition"]
+	PropertyPath?: [...#PropertyPathDefinition]
 })

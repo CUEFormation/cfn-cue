@@ -7,7 +7,7 @@ import "strings"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApplicationSignals::Discovery
-#Properties: close({AccountId?: _#defs."/$defs/Properties/definitions/AccountId"})
+#Properties: close({AccountId?: #AccountId})
 
 // The identifier for the specified AWS account.
-_#defs: "/$defs/Properties/definitions/AccountId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
+#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"

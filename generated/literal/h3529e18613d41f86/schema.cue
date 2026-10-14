@@ -12,11 +12,11 @@ import (
 // Resource Type definition for AWS::SageMaker::EndpointConfig
 #Properties: close({
 	// Specifies configuration for how an endpoint performs asynchronous inference.
-	AsyncInferenceConfig?: _#defs."/$defs/Properties/definitions/AsyncInferenceConfig"
+	AsyncInferenceConfig?: #AsyncInferenceConfig
 
 	// Specifies how to capture endpoint data for model monitor. The data capture
 	// configuration applies to all production variants hosted at the endpoint.
-	DataCaptureConfig?: _#defs."/$defs/Properties/definitions/DataCaptureConfig"
+	DataCaptureConfig?: #DataCaptureConfig
 
 	// Sets whether all model containers deployed to the endpoint are isolated. If
 	// they are, no inbound or outbound network calls can be made to or from the
@@ -37,7 +37,7 @@ import (
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
 	// A parameter to activate explainers.
-	ExplainerConfig?: _#defs."/$defs/Properties/definitions/ExplainerConfig"
+	ExplainerConfig?: #ExplainerConfig
 
 	// The Amazon Resource Name (ARN) of an AWS Key Management Service key that
 	// Amazon SageMaker uses to encrypt data on the storage volume attached to the
@@ -50,34 +50,30 @@ import (
 	// Specifies the metrics that the endpoint publishes to Amazon CloudWatch, the
 	// frequency of publication, and whether to enable enhanced or detailed
 	// observability metrics.
-	MetricsConfig?: _#defs."/$defs/Properties/definitions/MetricsConfig"
+	MetricsConfig?: #MetricsConfig
 
 	// A list of ProductionVariant objects, one for each model that you want to host at this endpoint.
-	ProductionVariants!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ProductionVariant"
-	]
+	ProductionVariants!: list.MaxItems(10) & list.MinItems(1) & [...#ProductionVariant]
 
 	// Array of ProductionVariant objects. There is one for each model that you want
 	// to host at this endpoint in shadow mode with production traffic replicated
 	// from the model specified on ProductionVariants. If you use this field, you
 	// can only specify one variant for ProductionVariants and one variant for
 	// ShadowProductionVariants.
-	ShadowProductionVariants?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ProductionVariant"
-	]
+	ShadowProductionVariants?: list.MaxItems(10) & list.MinItems(1) & [...#ProductionVariant]
 
 	// A list of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// Specifies an Amazon Virtual Private Cloud (VPC) that your SageMaker jobs,
 	// hosted models, and compute resources have access to. You can control access
 	// to and from your resources by configuring a VPC.
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
+	VpcConfig?: #VpcConfig
 })
 
 // Configures the behavior of the client used by SageMaker to interact with the
 // model container during asynchronous inference.
-_#defs: "/$defs/Properties/definitions/AsyncInferenceClientConfig": close({
+#AsyncInferenceClientConfig: close({
 	// The maximum number of concurrent requests sent by the SageMaker client to the
 	// model container. If no value is provided, SageMaker will choose an optimal
 	// value for you.
@@ -85,17 +81,17 @@ _#defs: "/$defs/Properties/definitions/AsyncInferenceClientConfig": close({
 })
 
 // Specifies configuration for how an endpoint performs asynchronous inference.
-_#defs: "/$defs/Properties/definitions/AsyncInferenceConfig": close({
+#AsyncInferenceConfig: close({
 	// Configures the behavior of the client used by SageMaker to interact with the
 	// model container during asynchronous inference.
-	ClientConfig?: _#defs."/$defs/Properties/definitions/AsyncInferenceClientConfig"
+	ClientConfig?: #AsyncInferenceClientConfig
 
 	// Specifies the configuration for asynchronous inference invocation outputs.
-	OutputConfig!: _#defs."/$defs/Properties/definitions/AsyncInferenceOutputConfig"
+	OutputConfig!: #AsyncInferenceOutputConfig
 })
 
 // Specifies the configuration for notifications of inference results for asynchronous inference.
-_#defs: "/$defs/Properties/definitions/AsyncInferenceNotificationConfig": close({
+#AsyncInferenceNotificationConfig: close({
 	// Amazon SNS topic to post a notification to when an inference fails. If no
 	// topic is provided, no notification is sent on failure.
 	ErrorTopic?: strings.MaxRunes(2048) &
@@ -115,7 +111,7 @@ _#defs: "/$defs/Properties/definitions/AsyncInferenceNotificationConfig": close(
 })
 
 // Specifies the configuration for asynchronous inference invocation outputs.
-_#defs: "/$defs/Properties/definitions/AsyncInferenceOutputConfig": close({
+#AsyncInferenceOutputConfig: close({
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt the asynchronous inference output in Amazon S3.
 	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
@@ -124,7 +120,7 @@ _#defs: "/$defs/Properties/definitions/AsyncInferenceOutputConfig": close({
 	=~"^[a-zA-Z0-9:/_-]*$"
 
 	// Specifies the configuration for notifications of inference results for asynchronous inference.
-	NotificationConfig?: _#defs."/$defs/Properties/definitions/AsyncInferenceNotificationConfig"
+	NotificationConfig?: #AsyncInferenceNotificationConfig
 
 	// The Amazon S3 location to upload failure inference responses to.
 	S3FailurePath?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$"
@@ -135,7 +131,7 @@ _#defs: "/$defs/Properties/definitions/AsyncInferenceOutputConfig": close({
 
 // Settings for the capacity reservation for the compute instances that
 // SageMaker AI reserves for an endpoint.
-_#defs: "/$defs/Properties/definitions/CapacityReservationConfig": close({
+#CapacityReservationConfig: close({
 	// Options that you can choose for the capacity reservation.
 	CapacityReservationPreference?: =~"capacity-reservations-only"
 
@@ -147,7 +143,7 @@ _#defs: "/$defs/Properties/definitions/CapacityReservationConfig": close({
 })
 
 // Specifies the JSON and CSV content types of the data that the endpoint captures.
-_#defs: "/$defs/Properties/definitions/CaptureContentTypeHeader": close({
+#CaptureContentTypeHeader: close({
 	// A list of the CSV content types of the data that the endpoint captures. For
 	// the endpoint to capture the data, you must also specify the content type
 	// when you invoke the endpoint.
@@ -168,26 +164,26 @@ _#defs: "/$defs/Properties/definitions/CaptureContentTypeHeader": close({
 })
 
 // Specifies whether the endpoint captures input data or output data.
-_#defs: "/$defs/Properties/definitions/CaptureOption": close({
+#CaptureOption: close({
 	// Specifies whether the endpoint captures input data or output data.
 	CaptureMode!: "Input" | "InputAndOutput" | "Output"
 })
 
 // The configuration parameters for the SageMaker Clarify explainer.
-_#defs: "/$defs/Properties/definitions/ClarifyExplainerConfig": close({
+#ClarifyExplainerConfig: close({
 	// A JMESPath boolean expression used to filter which records to explain.
 	// Explanations are activated by default.
 	EnableExplanations?: strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// The inference configuration parameter for the model container.
-	InferenceConfig?: _#defs."/$defs/Properties/definitions/ClarifyInferenceConfig"
+	InferenceConfig?: #ClarifyInferenceConfig
 
 	// The configuration for SHAP analysis.
-	ShapConfig!: _#defs."/$defs/Properties/definitions/ClarifyShapConfig"
+	ShapConfig!: #ClarifyShapConfig
 })
 
 // The inference configuration parameter for the model container.
-_#defs: "/$defs/Properties/definitions/ClarifyInferenceConfig": close({
+#ClarifyInferenceConfig: close({
 	// A template string used to format a JSON record into an acceptable model container input.
 	ContentTemplate?: strings.MaxRunes(64) & strings.MinRunes(1)
 
@@ -239,7 +235,7 @@ _#defs: "/$defs/Properties/definitions/ClarifyInferenceConfig": close({
 
 // The configuration for the SHAP baseline (also called the background or
 // reference dataset) of the Kernal SHAP algorithm.
-_#defs: "/$defs/Properties/definitions/ClarifyShapBaselineConfig": close({
+#ClarifyShapBaselineConfig: close({
 	// The MIME type of the baseline data. Choose from 'text/csv' or
 	// 'application/jsonlines'. Defaults to 'text/csv'.
 	MimeType?: strings.MaxRunes(255) &
@@ -258,7 +254,7 @@ _#defs: "/$defs/Properties/definitions/ClarifyShapBaselineConfig": close({
 })
 
 // The configuration for SHAP analysis using SageMaker Clarify Explainer.
-_#defs: "/$defs/Properties/definitions/ClarifyShapConfig": close({
+#ClarifyShapConfig: close({
 	// The number of samples to be used for analysis by the Kernal SHAP algorithm.
 	NumberOfSamples?: int & >=1
 
@@ -268,12 +264,12 @@ _#defs: "/$defs/Properties/definitions/ClarifyShapConfig": close({
 	Seed?: int
 
 	// The configuration for the SHAP baseline of the Kernal SHAP algorithm.
-	ShapBaselineConfig!: _#defs."/$defs/Properties/definitions/ClarifyShapBaselineConfig"
+	ShapBaselineConfig!: #ClarifyShapBaselineConfig
 
 	// A parameter that indicates if text features are treated as text and
 	// explanations are provided for individual units of text. Required for natural
 	// language processing (NLP) explainability only.
-	TextConfig?: _#defs."/$defs/Properties/definitions/ClarifyTextConfig"
+	TextConfig?: #ClarifyTextConfig
 
 	// A Boolean toggle to indicate if you want to use the logit function (true) or
 	// log-odds units (false) for model predictions. Defaults to false.
@@ -283,7 +279,7 @@ _#defs: "/$defs/Properties/definitions/ClarifyShapConfig": close({
 // A parameter used to configure the SageMaker Clarify explainer to treat text
 // features as text so that explanations are provided for individual units of
 // text. Required only for natural language processing (NLP) explainability.
-_#defs: "/$defs/Properties/definitions/ClarifyTextConfig": close({
+#ClarifyTextConfig: close({
 	// The unit of granularity for the analysis of text features. For example, if
 	// the unit is 'token', then each token (like a word in English) of the text is
 	// treated as a feature. SHAP values are computed for each unit/feature.
@@ -297,7 +293,7 @@ _#defs: "/$defs/Properties/definitions/ClarifyTextConfig": close({
 
 // Specifies where SageMaker writes core dumps from the model container when the
 // process crashes, and how it encrypts them.
-_#defs: "/$defs/Properties/definitions/CoreDumpConfig": close({
+#CoreDumpConfig: close({
 	// The Amazon S3 bucket to send the core dump to.
 	DestinationS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$"
 
@@ -313,13 +309,13 @@ _#defs: "/$defs/Properties/definitions/CoreDumpConfig": close({
 
 // Specifies how to capture endpoint data for model monitor. The data capture
 // configuration applies to all production variants hosted at the endpoint.
-_#defs: "/$defs/Properties/definitions/DataCaptureConfig": close({
+#DataCaptureConfig: close({
 	// A list of the JSON and CSV content type that the endpoint captures.
-	CaptureContentTypeHeader?: _#defs."/$defs/Properties/definitions/CaptureContentTypeHeader"
+	CaptureContentTypeHeader?: #CaptureContentTypeHeader
 
 	// Specifies whether the endpoint captures input data to your model, output data
 	// from your model, or both.
-	CaptureOptions!: list.MaxItems(32) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CaptureOption"]
+	CaptureOptions!: list.MaxItems(32) & list.MinItems(1) & [...#CaptureOption]
 
 	// The S3 bucket where model monitor stores captured data.
 	DestinationS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$"
@@ -339,17 +335,17 @@ _#defs: "/$defs/Properties/definitions/DataCaptureConfig": close({
 })
 
 // A parameter to activate explainers.
-_#defs: "/$defs/Properties/definitions/ExplainerConfig": close({
+#ExplainerConfig: close({
 	// A member of ExplainerConfig that contains configuration parameters for the
 	// SageMaker Clarify explainer.
-	ClarifyExplainerConfig?: _#defs."/$defs/Properties/definitions/ClarifyExplainerConfig"
+	ClarifyExplainerConfig?: #ClarifyExplainerConfig
 })
 
 // Specifies an instance type and its priority for a heterogeneous endpoint. Use
 // instance pools to configure a production variant with multiple instance
 // types, enabling the endpoint to provision instances across different types
 // based on priority.
-_#defs: "/$defs/Properties/definitions/InstancePool": close({
+#InstancePool: close({
 	// The ML compute instance type for the instance pool.
 	InstanceType!: "ml.c4.2xlarge" |
 		"ml.c4.4xlarge" |
@@ -643,7 +639,7 @@ _#defs: "/$defs/Properties/definitions/InstancePool": close({
 
 // Settings that control the range in the number of instances that the endpoint
 // provisions as it scales up or down to accommodate traffic.
-_#defs: "/$defs/Properties/definitions/ManagedInstanceScaling": close({
+#ManagedInstanceScaling: close({
 	// The maximum number of instances that the endpoint can provision when it
 	// scales up to accommodate an increase in traffic.
 	MaxInstanceCount?: int & >=1
@@ -653,7 +649,7 @@ _#defs: "/$defs/Properties/definitions/ManagedInstanceScaling": close({
 	MinInstanceCount?: int & >=0
 
 	// Configures the scale-in behavior for managed instance scaling.
-	ScaleInPolicy?: _#defs."/$defs/Properties/definitions/ScaleInPolicy"
+	ScaleInPolicy?: #ScaleInPolicy
 
 	// Indicates whether managed instance scaling is enabled.
 	Status?: ("DISABLED" | "ENABLED") & (strings.MaxRunes(10) & strings.MinRunes(1))
@@ -662,7 +658,7 @@ _#defs: "/$defs/Properties/definitions/ManagedInstanceScaling": close({
 // Specifies the metrics that the endpoint publishes to Amazon CloudWatch, the
 // frequency of publication, and whether to enable enhanced or detailed
 // observability metrics.
-_#defs: "/$defs/Properties/definitions/MetricsConfig": close({
+#MetricsConfig: close({
 	// Specifies whether to enable detailed observability for the endpoint. When set
 	// to true, the endpoint publishes container-level inference metrics, per-GPU
 	// metrics, per-instance host metrics, and inference component placement
@@ -683,7 +679,7 @@ _#defs: "/$defs/Properties/definitions/MetricsConfig": close({
 // The configuration for prefix-aware routing on a SageMaker real-time inference
 // endpoint. Specify PrefixLength and ConcurrencyThreshold to control routing
 // behavior.
-_#defs: "/$defs/Properties/definitions/PrefixAwareRoutingConfig": close({
+#PrefixAwareRoutingConfig: close({
 	// The maximum number of in-flight requests on the target instance before the
 	// endpoint routes to another instance. Required when RoutingStrategy is
 	// PREFIX_AWARE. Valid values are 1 to 1024.
@@ -695,17 +691,17 @@ _#defs: "/$defs/Properties/definitions/PrefixAwareRoutingConfig": close({
 })
 
 // Specifies a model that you want to host and the resources to deploy for hosting it.
-_#defs: "/$defs/Properties/definitions/ProductionVariant": close({
+#ProductionVariant: close({
 	// Settings for the capacity reservation for the compute instances that
 	// SageMaker AI reserves for an endpoint.
-	CapacityReservationConfig?: _#defs."/$defs/Properties/definitions/CapacityReservationConfig"
+	CapacityReservationConfig?: #CapacityReservationConfig
 
 	// The timeout value, in seconds, for your inference container to pass health
 	// check by SageMaker Hosting.
 	ContainerStartupHealthCheckTimeoutInSeconds?: int & <=3600 & >=60
 
 	// Specifies configuration for a core dump from the model container when the process crashes.
-	CoreDumpConfig?: _#defs."/$defs/Properties/definitions/CoreDumpConfig"
+	CoreDumpConfig?: #CoreDumpConfig
 
 	// You can use this parameter to turn on native AWS Systems Manager (SSM) access
 	// for a production variant behind an endpoint. By default, SSM access is
@@ -736,7 +732,7 @@ _#defs: "/$defs/Properties/definitions/ProductionVariant": close({
 	// specifies an instance type and its priority for provisioning. Use instance
 	// pools to configure heterogeneous endpoints that deploy models across
 	// multiple instance types.
-	InstancePools?: list.MaxItems(5) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/InstancePool"]
+	InstancePools?: list.MaxItems(5) & list.MinItems(1) & [...#InstancePool]
 
 	// The ML compute instance type.
 	InstanceType?: "ml.c4.2xlarge" |
@@ -1016,7 +1012,7 @@ _#defs: "/$defs/Properties/definitions/ProductionVariant": close({
 		"ml.trn1.32xlarge" |
 		"ml.trn1n.32xlarge" |
 		"ml.trn2.48xlarge"
-	ManagedInstanceScaling?: _#defs."/$defs/Properties/definitions/ManagedInstanceScaling"
+	ManagedInstanceScaling?: #ManagedInstanceScaling
 
 	// The timeout value, in seconds, to download and extract the model that you
 	// want to host from Amazon S3 to the individual inference instance associated
@@ -1029,11 +1025,11 @@ _#defs: "/$defs/Properties/definitions/ProductionVariant": close({
 
 	// Settings that control how the endpoint routes incoming traffic to the
 	// instances that the endpoint hosts.
-	RoutingConfig?: _#defs."/$defs/Properties/definitions/RoutingConfig"
+	RoutingConfig?: #RoutingConfig
 
 	// The serverless configuration for an endpoint. Specifies a serverless endpoint
 	// configuration instead of an instance-based endpoint configuration.
-	ServerlessConfig?: _#defs."/$defs/Properties/definitions/ServerlessConfig"
+	ServerlessConfig?: #ServerlessConfig
 
 	// The timeout value, in seconds, for provisioning instances for the production
 	// variant. When SageMaker encounters an insufficient capacity error while
@@ -1054,17 +1050,17 @@ _#defs: "/$defs/Properties/definitions/ProductionVariant": close({
 
 // Settings that control how the endpoint routes incoming traffic to the
 // instances that the endpoint hosts.
-_#defs: "/$defs/Properties/definitions/RoutingConfig": close({
+#RoutingConfig: close({
 	// The configuration for prefix-aware routing. Specify this property only when
 	// you set RoutingStrategy to PREFIX_AWARE.
-	PrefixAwareRoutingConfig?: _#defs."/$defs/Properties/definitions/PrefixAwareRoutingConfig"
+	PrefixAwareRoutingConfig?: #PrefixAwareRoutingConfig
 
 	// Sets how the endpoint routes incoming traffic.
 	RoutingStrategy?: ("LEAST_OUTSTANDING_REQUESTS" | "PREFIX_AWARE" | "RANDOM") & (strings.MaxRunes(63) & strings.MinRunes(1))
 })
 
 // Specifies how the endpoint releases instances when managed instance scaling scales in.
-_#defs: "/$defs/Properties/definitions/ScaleInPolicy": close({
+#ScaleInPolicy: close({
 	// The cooldown period, in minutes, after the last endpoint operation before the
 	// endpoint evaluates consolidation scale-in opportunities. Valid values are 5
 	// to 1440. The default is 20.
@@ -1082,7 +1078,7 @@ _#defs: "/$defs/Properties/definitions/ScaleInPolicy": close({
 })
 
 // Specifies the serverless configuration for an endpoint variant.
-_#defs: "/$defs/Properties/definitions/ServerlessConfig": close({
+#ServerlessConfig: close({
 	// The maximum number of concurrent invocations your serverless endpoint can process.
 	MaxConcurrency!: int & <=200 & >=1
 
@@ -1097,7 +1093,7 @@ _#defs: "/$defs/Properties/definitions/ServerlessConfig": close({
 
 // A tag object that consists of a key and an optional value, used to manage
 // metadata for SageMaker AWS resources.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key. Tag keys must be unique per resource.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -1108,7 +1104,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // Specifies an Amazon Virtual Private Cloud (VPC) that your SageMaker jobs,
 // hosted models, and compute resources have access to. You can control access
 // to and from your resources by configuring a VPC.
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	// The VPC security group IDs, in the form sg-xxxxxxxx. Specify the security
 	// groups for the VPC that is specified in the Subnets field.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [

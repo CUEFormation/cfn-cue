@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -26,12 +26,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	ProfileDescription?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
 	ProfileName!:        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Source?:             _#defs."/$defs/Properties/definitions/Source"
+	Source?:             #Source
 	SourceFormat!:       "CCDA" | "CSV" | fn.#StringExpression
-	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ExistingVersionedProfileSource": close({
+#ExistingVersionedProfileSource: close({
 	ProfileId!: string | fn.#StringExpression
 	Version!: int |
 		{
@@ -50,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/ExistingVersionedProfileSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProfileMappingSource": close({
+#ProfileMappingSource: close({
 	ProfileMapping!: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
@@ -58,19 +58,16 @@ _#defs: "/$defs/Properties/definitions/ProfileMappingSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Source": close({
-	ExistingVersionedProfileId?: _#defs."/$defs/Properties/definitions/ExistingVersionedProfileSource"
-	ProfileMapping?:             _#defs."/$defs/Properties/definitions/ProfileMappingSource"
-	StarterProfile?:             _#defs."/$defs/Properties/definitions/StarterProfileSource"
+#Source: close({
+	ExistingVersionedProfileId?: #ExistingVersionedProfileSource
+	ProfileMapping?:             #ProfileMappingSource
+	StarterProfile?:             #StarterProfileSource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StarterProfileSource": close(
-	{StarterProfileName!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#StarterProfileSource: close({StarterProfileName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

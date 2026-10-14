@@ -18,20 +18,20 @@ import (
 	DnsViewId!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$"
 	ExpiresAt?:        string
 	GlobalResolverId?: strings.MaxRunes(64) & strings.MinRunes(1)
-	Name?:             _#defs."/$defs/Properties/definitions/ResourceName"
-	Status?:           _#defs."/$defs/Properties/definitions/TokenStatus"
-	Tags?:             list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Name?:             #ResourceName
+	Status?:           #TokenStatus
+	Tags?:             list.MaxItems(50) & [...#Tag]
 	UpdatedAt?:        string
-	Value?:            _#defs."/$defs/Properties/definitions/AccessToken"
+	Value?:            #AccessToken
 })
 
-_#defs: "/$defs/Properties/definitions/AccessToken": strings.MaxRunes(100) & strings.MinRunes(0)
+#AccessToken: strings.MaxRunes(100) & strings.MinRunes(0)
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(64) & strings.MinRunes(1)
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TokenStatus": "CREATING" | "OPERATIONAL" | "DELETING"
+#TokenStatus: "CREATING" | "OPERATIONAL" | "DELETING"

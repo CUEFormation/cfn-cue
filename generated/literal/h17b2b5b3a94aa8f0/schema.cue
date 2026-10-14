@@ -14,42 +14,40 @@ import (
 	CreatedDate?:            string
 	Destination?:            string
 	DestinationArn?:         string
-	DestinationIp?:          _#defs."/$defs/Properties/definitions/IpAddress"
-	DestinationPort?:        _#defs."/$defs/Properties/definitions/Port"
-	FilterAtDestination?:    _#defs."/$defs/Properties/definitions/PathFilter"
-	FilterAtSource?:         _#defs."/$defs/Properties/definitions/PathFilter"
+	DestinationIp?:          #IpAddress
+	DestinationPort?:        #Port
+	FilterAtDestination?:    #PathFilter
+	FilterAtSource?:         #PathFilter
 	NetworkInsightsPathArn?: string
 	NetworkInsightsPathId?:  string
-	Protocol!:               _#defs."/$defs/Properties/definitions/Protocol"
+	Protocol!:               #Protocol
 	Source!:                 string
 	SourceArn?:              string
-	SourceIp?:               _#defs."/$defs/Properties/definitions/IpAddress"
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag"]
+	SourceIp?:               #IpAddress
+	Tags?:                   [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/FilterPortRange": close({
+#FilterPortRange: close({
 	FromPort?: int & <=65535 & >=0
 	ToPort?:   int & <=65535 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/IpAddress": strings.MaxRunes(15) &
-strings.MinRunes(0) &
-=~"^([0-9]{1,3}.){3}[0-9]{1,3}$"
+#IpAddress: strings.MaxRunes(15) & strings.MinRunes(0) & =~"^([0-9]{1,3}.){3}[0-9]{1,3}$"
 
-_#defs: "/$defs/Properties/definitions/PathFilter": close({
-	DestinationAddress?:   _#defs."/$defs/Properties/definitions/IpAddress"
-	DestinationPortRange?: _#defs."/$defs/Properties/definitions/FilterPortRange"
-	SourceAddress?:        _#defs."/$defs/Properties/definitions/IpAddress"
-	SourcePortRange?:      _#defs."/$defs/Properties/definitions/FilterPortRange"
+#PathFilter: close({
+	DestinationAddress?:   #IpAddress
+	DestinationPortRange?: #FilterPortRange
+	SourceAddress?:        #IpAddress
+	SourcePortRange?:      #FilterPortRange
 })
 
-_#defs: "/$defs/Properties/definitions/Port": int & <=65535 & >=0
+#Port: int & <=65535 & >=0
 
-_#defs: "/$defs/Properties/definitions/Protocol": "tcp" | "udp"
+#Protocol: "tcp" | "udp"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+#Tags: list.UniqueItems() & [...#Tag]

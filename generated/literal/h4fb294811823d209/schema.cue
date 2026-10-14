@@ -16,12 +16,12 @@ import (
 
 		{[=~"[a-zA-Z0-9]+"]: bool | int | string | [...] | {...}}})
 	StackId?:          string
-	Tags?:             list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:             list.MaxItems(50) & [...#Tag]
 	TemplateURL!:      strings.MaxRunes(1024) & strings.MinRunes(1)
 	TimeoutInMinutes?: int & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

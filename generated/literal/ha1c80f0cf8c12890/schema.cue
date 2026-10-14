@@ -35,7 +35,7 @@ import (
 	FailureThreshold?: int
 
 	// The source/destination network paths used for the health check.
-	HealthCheckPaths?: [..._#defs."/$defs/Properties/definitions/HealthCheckPath"]
+	HealthCheckPaths?: [...#HealthCheckPath]
 
 	// Seconds to wait after instance launch before beginning health checks.
 	InitializationGracePeriodSeconds?: int & <=600 & >=-1
@@ -65,28 +65,28 @@ import (
 	SuccessThreshold?: int
 
 	// Tags to apply to the application status check.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The timeout, in seconds, for each health check probe.
 	Timeout?: int
 })
 
-_#defs: "/$defs/Properties/definitions/HealthCheckPath": close({
-	Destinations?: [..._#defs."/$defs/Properties/definitions/HealthCheckPathDestination"]
-	Source?:       _#defs."/$defs/Properties/definitions/HealthCheckPathSource"
+#HealthCheckPath: close({
+	Destinations?: [...#HealthCheckPathDestination]
+	Source?:       #HealthCheckPathSource
 })
 
-_#defs: "/$defs/Properties/definitions/HealthCheckPathDestination": close({
+#HealthCheckPathDestination: close({
 	SecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 	SubnetId?:        string
 })
 
-_#defs: "/$defs/Properties/definitions/HealthCheckPathSource": close({
+#HealthCheckPathSource: close({
 	SecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
 	SubnetId?:        string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

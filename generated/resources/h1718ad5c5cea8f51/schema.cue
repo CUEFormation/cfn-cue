@@ -21,25 +21,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CatalogId!:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	DatabaseName!:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	OpenTableFormatInput?: _#defs."/$defs/Properties/definitions/OpenTableFormatInput" | fn.#ObjectExpression
-	TableInput?:           _#defs."/$defs/Properties/definitions/TableInput" | fn.#ObjectExpression
+	OpenTableFormatInput?: #OpenTableFormatInput | fn.#ObjectExpression
+	TableInput?:           #TableInput | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Column": close({
+#Column: close({
 	Comment?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Type?:    strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergInput": close({
-	IcebergTableInput?: _#defs."/$defs/Properties/definitions/IcebergTableInput" | fn.#ObjectExpression
-	MetadataOperation?: _#defs."/$defs/Properties/definitions/MetadataOperation" | fn.#StringExpression
+#IcebergInput: close({
+	IcebergTableInput?: #IcebergTableInput | fn.#ObjectExpression
+	MetadataOperation?: #MetadataOperation | fn.#StringExpression
 	Version?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergPartitionField": close({
+#IcebergPartitionField: close({
 	FieldId?: int |
 		{
 			string &
@@ -73,8 +73,8 @@ _#defs: "/$defs/Properties/definitions/IcebergPartitionField": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergPartitionSpec": close({
-	Fields!: [..._#defs."/$defs/Properties/definitions/IcebergPartitionField"] | fn.#ListExpression
+#IcebergPartitionSpec: close({
+	Fields!: [...#IcebergPartitionField] | fn.#ListExpression
 	SpecId?: int |
 		{
 			string &
@@ -92,8 +92,8 @@ _#defs: "/$defs/Properties/definitions/IcebergPartitionSpec": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergSchema": close({
-	Fields!: [..._#defs."/$defs/Properties/definitions/IcebergStructField"] | fn.#ListExpression
+#IcebergSchema: close({
+	Fields!: [...#IcebergStructField] | fn.#ListExpression
 	IdentifierFieldIds?: [
 		...int |
 			{
@@ -131,7 +131,7 @@ _#defs: "/$defs/Properties/definitions/IcebergSchema": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergSortField": close({
+#IcebergSortField: close({
 	Direction!: string | fn.#StringExpression
 	NullOrder!: string | fn.#StringExpression
 	SourceId!: int |
@@ -152,8 +152,8 @@ _#defs: "/$defs/Properties/definitions/IcebergSortField": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergSortOrder": close({
-	Fields!: [..._#defs."/$defs/Properties/definitions/IcebergSortField"] | fn.#ListExpression
+#IcebergSortOrder: close({
+	Fields!: [...#IcebergSortField] | fn.#ListExpression
 	OrderId!: int |
 		{
 			string &
@@ -171,7 +171,7 @@ _#defs: "/$defs/Properties/definitions/IcebergSortOrder": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergStructField": close({
+#IcebergStructField: close({
 	Doc?: string | fn.#StringExpression
 	Id!: int |
 		{
@@ -193,26 +193,23 @@ _#defs: "/$defs/Properties/definitions/IcebergStructField": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergTableInput": close({
+#IcebergTableInput: close({
 	Location!:      string | fn.#StringExpression
-	PartitionSpec?: _#defs."/$defs/Properties/definitions/IcebergPartitionSpec" | fn.#ObjectExpression
+	PartitionSpec?: #IcebergPartitionSpec | fn.#ObjectExpression
 	Properties?: close({
 
 		{[=~"^.+$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Schema!:     _#defs."/$defs/Properties/definitions/IcebergSchema" | fn.#ObjectExpression
-	WriteOrder?: _#defs."/$defs/Properties/definitions/IcebergSortOrder" | fn.#ObjectExpression
+	Schema!:     #IcebergSchema | fn.#ObjectExpression
+	WriteOrder?: #IcebergSortOrder | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataOperation": "CREATE" | fn.#StringExpression
+#MetadataOperation: "CREATE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OpenTableFormatInput": close(
-	{IcebergInput?: _#defs."/$defs/Properties/definitions/IcebergInput" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#OpenTableFormatInput: close({IcebergInput?: #IcebergInput | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Order": close({
+#Order: close({
 	Column!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	SortOrder!: int & <=1 & >=0 |
 		{
@@ -233,7 +230,7 @@ _#defs: "/$defs/Properties/definitions/Order": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaId": close({
+#SchemaId: close({
 	RegistryName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$#.]+$" | fn.#StringExpression
 	SchemaArn?: strings.MaxRunes(10240) & strings.MinRunes(1) & =~"^arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:" |
 	fn.#StringExpression
@@ -241,8 +238,8 @@ _#defs: "/$defs/Properties/definitions/SchemaId": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaReference": close({
-	SchemaId?: _#defs."/$defs/Properties/definitions/SchemaId" | fn.#ObjectExpression
+#SchemaReference: close({
+	SchemaId?: #SchemaId | fn.#ObjectExpression
 	SchemaVersionId?: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
@@ -266,23 +263,23 @@ _#defs: "/$defs/Properties/definitions/SchemaReference": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SerdeInfo": close({
+#SerdeInfo: close({
 	Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	SerializationLibrary?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SkewedInfo": close({
+#SkewedInfo: close({
 	SkewedColumnNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	SkewedColumnValueLocationMaps?: fn.#Object & {...} | string | fn.#StringObjectExpression
 	SkewedColumnValues?:            [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageDescriptor": close({
+#StorageDescriptor: close({
 	BucketColumns?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Columns?:       [..._#defs."/$defs/Properties/definitions/Column"] | fn.#ListExpression
+	Columns?:       [...#Column] | fn.#ListExpression
 	Compressed?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InputFormat?:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Location?:      strings.MaxRunes(2056) & strings.MinRunes(0) | fn.#StringExpression
@@ -300,17 +297,17 @@ _#defs: "/$defs/Properties/definitions/StorageDescriptor": close({
 				)
 		} |
 		fn.#NumberExpression
-	OutputFormat?:    strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Parameters?:      fn.#Object & {...} | string | fn.#StringObjectExpression
-	SchemaReference?: _#defs."/$defs/Properties/definitions/SchemaReference" | fn.#ObjectExpression
-	SerdeInfo?:       _#defs."/$defs/Properties/definitions/SerdeInfo" | fn.#ObjectExpression
-	SkewedInfo?:      _#defs."/$defs/Properties/definitions/SkewedInfo" | fn.#ObjectExpression
-	SortColumns?:     [..._#defs."/$defs/Properties/definitions/Order" | fn.#ObjectExpression] | fn.#ListExpression
+	OutputFormat?:           strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	Parameters?:             fn.#Object & {...} | string | fn.#StringObjectExpression
+	SchemaReference?:        #SchemaReference | fn.#ObjectExpression
+	SerdeInfo?:              #SerdeInfo | fn.#ObjectExpression
+	SkewedInfo?:             #SkewedInfo | fn.#ObjectExpression
+	SortColumns?:            [...#Order | fn.#ObjectExpression] | fn.#ListExpression
 	StoredAsSubDirectories?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableIdentifier": close({
+#TableIdentifier: close({
 	CatalogId?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	DatabaseName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Name?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
@@ -318,12 +315,12 @@ _#defs: "/$defs/Properties/definitions/TableIdentifier": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TableInput": close({
+#TableInput: close({
 	Description?:   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 	Name?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Owner?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Parameters?:    fn.#Object & {...} | string | fn.#StringObjectExpression
-	PartitionKeys?: [..._#defs."/$defs/Properties/definitions/Column"] | fn.#ListExpression
+	PartitionKeys?: [...#Column] | fn.#ListExpression
 	Retention?: int & >=0 |
 		{
 			string &
@@ -339,29 +336,26 @@ _#defs: "/$defs/Properties/definitions/TableInput": close({
 				)
 		} |
 		fn.#NumberExpression
-	StorageDescriptor?: _#defs."/$defs/Properties/definitions/StorageDescriptor" | fn.#ObjectExpression
+	StorageDescriptor?: #StorageDescriptor | fn.#ObjectExpression
 	TableType?: ("EXTERNAL_TABLE" | "VIRTUAL_VIEW") & (strings.MaxRunes(255) & strings.MinRunes(0)) |
 	fn.#StringExpression
-	TargetTable?:      _#defs."/$defs/Properties/definitions/TableIdentifier" | fn.#ObjectExpression
-	ViewDefinition?:   _#defs."/$defs/Properties/definitions/ViewDefinition" | fn.#ObjectExpression
+	TargetTable?:      #TableIdentifier | fn.#ObjectExpression
+	ViewDefinition?:   #ViewDefinition | fn.#ObjectExpression
 	ViewExpandedText?: strings.MaxRunes(409600) & strings.MinRunes(0) | fn.#StringExpression
 	ViewOriginalText?: strings.MaxRunes(409600) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ViewDefinition": close({
-	Definer?:     strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	IsProtected?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Representations?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ViewRepresentation"
-	] |
-		fn.#ListExpression
+#ViewDefinition: close({
+	Definer?:         strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	IsProtected?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Representations?: list.MaxItems(10) & list.MinItems(1) & [...#ViewRepresentation] | fn.#ListExpression
 	SubObjects?: list.MaxItems(10) & [...] & [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ViewRepresentation": close({
+#ViewRepresentation: close({
 	Dialect?:              "ATHENA" | "REDSHIFT" | "SPARK" | fn.#StringExpression
 	DialectVersion?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	ValidationConnection?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression

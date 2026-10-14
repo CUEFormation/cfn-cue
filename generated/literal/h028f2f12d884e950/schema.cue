@@ -12,18 +12,18 @@ import (
 // Definition of AWS::Wisdom::QuickResponse Resource Type.
 #Properties: close({
 	// The Amazon Connect contact channels this quick response applies to.
-	Channels?: [..._#defs."/$defs/Properties/definitions/ChannelType"]
-	Content!:  _#defs."/$defs/Properties/definitions/QuickResponseContentProvider"
+	Channels?: [...#ChannelType]
+	Content!:  #QuickResponseContentProvider
 
 	// The media type of the quick response content.
 	// - Use application/x.quickresponse;format=plain for quick response written in plain text.
 	// - Use application/x.quickresponse;format=markdown for quick response written in richtext.
 	ContentType?: =~"^(application/x\\.quickresponse;format=(plain|markdown))$"
-	Contents?:    _#defs."/$defs/Properties/definitions/QuickResponseContents"
+	Contents?:    #QuickResponseContents
 
 	// The description of the quick response.
 	Description?:           strings.MaxRunes(255) & strings.MinRunes(1)
-	GroupingConfiguration?: _#defs."/$defs/Properties/definitions/GroupingConfiguration"
+	GroupingConfiguration?: #GroupingConfiguration
 
 	// Whether the quick response is active.
 	IsActive?: bool
@@ -49,40 +49,40 @@ import (
 
 	// The shortcut key of the quick response. The value should be unique across the knowledge base.
 	ShortcutKey?: strings.MaxRunes(100) & strings.MinRunes(1)
-	Status?:      _#defs."/$defs/Properties/definitions/Status"
+	Status?:      #Status
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ChannelType": ("Chat" | "Email") & (strings.MaxRunes(10) & strings.MinRunes(1))
+#ChannelType: ("Chat" | "Email") & (strings.MaxRunes(10) & strings.MinRunes(1))
 
 // The configuration information of the user groups that the quick response is accessible to.
-_#defs: "/$defs/Properties/definitions/GroupingConfiguration": close({
+#GroupingConfiguration: close({
 	// The criteria used for grouping Amazon Q in Connect users.
 	Criteria!: strings.MaxRunes(100) & strings.MinRunes(1)
 
 	// The list of values that define different groups of Amazon Q in Connect users.
-	Values!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupingValue"]
+	Values!: list.UniqueItems() & [...#GroupingValue]
 })
 
 // The value that define the group of Amazon Q in Connect users.
-_#defs: "/$defs/Properties/definitions/GroupingValue": strings.MaxRunes(2048) & strings.MinRunes(1)
+#GroupingValue: strings.MaxRunes(2048) & strings.MinRunes(1)
 
 // The container of quick response content.
-_#defs: "/$defs/Properties/definitions/QuickResponseContentProvider": close({
+#QuickResponseContentProvider: close({
 	// The content of the quick response.
 	Content?: strings.MaxRunes(4000) & strings.MinRunes(1)
 })
 
 // The content of the quick response stored in different media types.
-_#defs: "/$defs/Properties/definitions/QuickResponseContents": close({
-	Markdown?:  _#defs."/$defs/Properties/definitions/QuickResponseContentProvider"
-	PlainText?: _#defs."/$defs/Properties/definitions/QuickResponseContentProvider"
+#QuickResponseContents: close({
+	Markdown?:  #QuickResponseContentProvider
+	PlainText?: #QuickResponseContentProvider
 })
 
 // The status of the quick response data.
-_#defs: "/$defs/Properties/definitions/Status": "CREATE_IN_PROGRESS" |
+#Status: "CREATE_IN_PROGRESS" |
 	"CREATE_FAILED" |
 	"CREATED" |
 	"DELETE_IN_PROGRESS" |
@@ -92,7 +92,7 @@ _#defs: "/$defs/Properties/definitions/Status": "CREATE_IN_PROGRESS" |
 	"UPDATE_FAILED"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

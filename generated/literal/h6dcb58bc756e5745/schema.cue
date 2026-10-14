@@ -30,7 +30,7 @@ import (
 
 	// A description of the deployment.
 	Description?:                strings.MaxRunes(1024) & strings.MinRunes(0)
-	DynamicExtensionParameters?: [..._#defs."/$defs/Properties/definitions/DynamicExtensionParameters"]
+	DynamicExtensionParameters?: [...#DynamicExtensionParameters]
 
 	// The environment ID.
 	EnvironmentId!: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -43,10 +43,10 @@ import (
 	State?: "BAKING" | "VALIDATING" | "DEPLOYING" | "COMPLETE" | "ROLLING_BACK" | "ROLLED_BACK" | "REVERTED"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/DynamicExtensionParameters": close({
+#DynamicExtensionParameters: close({
 	ExtensionReference?: string
 	ParameterName?:      string
 	ParameterValue?:     string
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/DynamicExtensionParameters": close({
 // Metadata to assign to the deployment. Tags help organize and categorize your
 // AWS AppConfig resources. Each tag consists of a key and an optional value,
 // both of which you define.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key-value string map. The valid character set is [a-zA-Z1-9+-=._:/]. The
 	// tag key can be up to 128 characters and must not start with aws:.
 	Key?: string

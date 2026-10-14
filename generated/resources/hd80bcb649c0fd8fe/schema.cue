@@ -21,7 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+$" |
 	fn.#StringExpression
-	InputDataConfig!: _#defs."/$defs/Properties/definitions/EntityRecognizerInputDataConfig" | fn.#ObjectExpression
+	InputDataConfig!: #EntityRecognizerInputDataConfig | fn.#ObjectExpression
 	LanguageCode!: "en" |
 		"es" |
 		"fr" |
@@ -42,13 +42,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	RecognizerName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 	fn.#StringExpression
-	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	VersionName?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
 	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^\\p{ASCII}+$" | fn.#StringExpression
-	VpcConfig?:      _#defs."/$defs/Properties/definitions/VpcConfig" | fn.#ObjectExpression
+	VpcConfig?:      #VpcConfig | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AugmentedManifestsListItem": close({
+#AugmentedManifestsListItem: close({
 	AnnotationDataS3Uri?: strings.MaxRunes(1024) &
 	strings.MinRunes(0) &
 	=~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" |
@@ -68,7 +68,7 @@ _#defs: "/$defs/Properties/definitions/AugmentedManifestsListItem": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityRecognizerAnnotations": close({
+#EntityRecognizerAnnotations: close({
 	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" |
 	fn.#StringExpression
 	TestS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" |
@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/EntityRecognizerAnnotations": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityRecognizerDocuments": close({
+#EntityRecognizerDocuments: close({
 	InputFormat?: "ONE_DOC_PER_FILE" | "ONE_DOC_PER_LINE" | fn.#StringExpression
 	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" |
 	fn.#StringExpression
@@ -85,34 +85,32 @@ _#defs: "/$defs/Properties/definitions/EntityRecognizerDocuments": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityRecognizerEntityList": close({
+#EntityRecognizerEntityList: close({
 	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityRecognizerInputDataConfig": close({
-	Annotations?:        _#defs."/$defs/Properties/definitions/EntityRecognizerAnnotations" | fn.#ObjectExpression
-	AugmentedManifests?: [..._#defs."/$defs/Properties/definitions/AugmentedManifestsListItem"] | fn.#ListExpression
+#EntityRecognizerInputDataConfig: close({
+	Annotations?:        #EntityRecognizerAnnotations | fn.#ObjectExpression
+	AugmentedManifests?: [...#AugmentedManifestsListItem] | fn.#ListExpression
 	DataFormat?:         "COMPREHEND_CSV" | "AUGMENTED_MANIFEST" | fn.#StringExpression
-	Documents?:          _#defs."/$defs/Properties/definitions/EntityRecognizerDocuments" | fn.#ObjectExpression
-	EntityList?:         _#defs."/$defs/Properties/definitions/EntityRecognizerEntityList" | fn.#ObjectExpression
-	EntityTypes!:        [..._#defs."/$defs/Properties/definitions/EntityTypesListItem"] | fn.#ListExpression
+	Documents?:          #EntityRecognizerDocuments | fn.#ObjectExpression
+	EntityList?:         #EntityRecognizerEntityList | fn.#ObjectExpression
+	EntityTypes!:        [...#EntityTypesListItem] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EntityTypesListItem": close(
-	{Type!: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression},
-) |
+#EntityTypesListItem: close({Type!: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(32) &

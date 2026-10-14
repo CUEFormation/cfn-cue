@@ -15,10 +15,10 @@ import (
 	Arn?: strings.MaxRunes(2048) & strings.MinRunes(1)
 
 	// The creation time of the Data Table
-	CreatedTime?: _#defs."/$defs/Properties/definitions/Timestamp"
+	CreatedTime?: #Timestamp
 
 	// The description of the Data Table.
-	Description?: _#defs."/$defs/Properties/definitions/Description"
+	Description?: #Description
 
 	// The identifier of the Amazon Connect instance.
 	InstanceArn!: strings.MaxRunes(100) &
@@ -29,7 +29,7 @@ import (
 	LastModifiedRegion?: =~"[a-z]{2}(-[a-z]+){1,2}(-[0-9])?"
 
 	// Last modified time.
-	LastModifiedTime?: _#defs."/$defs/Properties/definitions/Timestamp"
+	LastModifiedTime?: #Timestamp
 
 	// The lock version of the Data Table
 	LockVersion?: close({
@@ -44,7 +44,7 @@ import (
 	Status!: "PUBLISHED"
 
 	// One or more tags.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The time zone of the Data Table
 	TimeZone!: string
@@ -54,7 +54,7 @@ import (
 })
 
 // The description of the Data Table.
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(250) &
+#Description: strings.MaxRunes(250) &
 strings.MinRunes(0) &
 =~"""
 	^[\\P{C}\r
@@ -62,7 +62,7 @@ strings.MinRunes(0) &
 	"""
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -77,4 +77,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // A epoch time stamp field used for data table operations.
-_#defs: "/$defs/Properties/definitions/Timestamp": number
+#Timestamp: number

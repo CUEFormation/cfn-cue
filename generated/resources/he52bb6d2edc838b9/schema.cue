@@ -13,31 +13,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::RAM::ResourceShare
 #Properties: close({
-	AllowExternalPrincipals?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:                    string | fn.#StringExpression
-	PermissionArns?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	Principals?:              [...string | fn.#StringExpression] | fn.#ListExpression
-	ResourceArns?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	ResourceShareConfiguration?: _#defs."/$defs/Properties/definitions/ResourceShareConfiguration" |
-		fn.#ObjectExpression
-	Sources?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	AllowExternalPrincipals?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Name!:                       string | fn.#StringExpression
+	PermissionArns?:             [...string | fn.#StringExpression] | fn.#ListExpression
+	Principals?:                 [...string | fn.#StringExpression] | fn.#ListExpression
+	ResourceArns?:               [...string | fn.#StringExpression] | fn.#ListExpression
+	ResourceShareConfiguration?: #ResourceShareConfiguration | fn.#ObjectExpression
+	Sources?:                    [...string | fn.#StringExpression] | fn.#ListExpression
+	Tags?:                       list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/PermissionArnTemplateParameters": close({
-	PermissionArn!: string | fn.#StringExpression
-	PermissionTemplateParameters?: [..._#defs."/$defs/Properties/definitions/PermissionTemplateParameter"] |
-		fn.#ListExpression
+#PermissionArnTemplateParameters: close({
+	PermissionArn!:                string | fn.#StringExpression
+	PermissionTemplateParameters?: [...#PermissionTemplateParameter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PermissionTemplateParameter": close({
+#PermissionTemplateParameter: close({
 	Name!:   string | fn.#StringExpression
 	Values!: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceShareConfiguration": close({
+#ResourceShareConfiguration: close({
 	ExclusiveAccountAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RetainSharingOnAccountLeaveOrganization?: bool |
 		"true" |
@@ -50,7 +48,7 @@ _#defs: "/$defs/Properties/definitions/ResourceShareConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

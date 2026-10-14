@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,13 +18,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::AppStream::ImageBuilder
 #Properties: close({
-	AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AccessEndpoint"] |
-		fn.#ListExpression
+	AccessEndpoints?:             list.MaxItems(4) & list.MinItems(1) & [...#AccessEndpoint] | fn.#ListExpression
 	AppstreamAgentVersion?:       strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	Description?:                 strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	DisableIMDSV1?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DisplayName?:                 strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	DomainJoinInfo?:              _#defs."/$defs/Properties/definitions/DomainJoinInfo"
+	DomainJoinInfo?:              #DomainJoinInfo
 	EnableDefaultInternetAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
@@ -32,32 +31,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ImageName?:            strings.MinRunes(1) | fn.#StringExpression
 	InstanceType!:         strings.MinRunes(1) | fn.#StringExpression
 	Name!:                 strings.MinRunes(1) | fn.#StringExpression
-	RootVolumeConfig?:     _#defs."/$defs/Properties/definitions/VolumeConfig"
+	RootVolumeConfig?:     #VolumeConfig
 	SoftwaresToInstall?:   [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	SoftwaresToUninstall?: [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcConfig?:            _#defs."/$defs/Properties/definitions/VpcConfig"
+	Tags?:                 [...#Tag] | fn.#ListExpression
+	VpcConfig?:            #VpcConfig
 }) & matchN(>=1, [{ImageName!: _}, {ImageArn!: _}])
 
-_#defs: "/$defs/Properties/definitions/AccessEndpoint": close({
+#AccessEndpoint: close({
 	EndpointType!: "STREAMING" | fn.#StringExpression
 	VpceId!:       strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DomainJoinInfo": close({
+#DomainJoinInfo: close({
 	DirectoryName?:                       string | fn.#StringExpression
 	OrganizationalUnitDistinguishedName?: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VolumeConfig": close({
+#VolumeConfig: close({
 	VolumeSizeInGb?: int |
 		{
 			string &
@@ -75,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/VolumeConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
 		fn.#StringExpression

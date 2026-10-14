@@ -53,7 +53,7 @@ import (
 	Provider?: string
 
 	// The configuration of the subscription target.
-	SubscriptionTargetConfig!: [..._#defs."/$defs/Properties/definitions/SubscriptionTargetForm"]
+	SubscriptionTargetConfig!: [...#SubscriptionTargetForm]
 
 	// The type of the subscription target.
 	Type!: string
@@ -66,7 +66,7 @@ import (
 })
 
 // The details of the subscription target configuration.
-_#defs: "/$defs/Properties/definitions/SubscriptionTargetForm": close({
+#SubscriptionTargetForm: close({
 	// The content of the subscription target configuration.
 	Content!: string
 

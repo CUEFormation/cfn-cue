@@ -15,7 +15,7 @@ import (
 	AccessEntryArn?: string
 
 	// An array of access policies that are associated with the access entry.
-	AccessPolicies?: list.MaxItems(20) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AccessPolicy"]
+	AccessPolicies?: list.MaxItems(20) & list.UniqueItems() & [...#AccessPolicy]
 
 	// The cluster that the access entry is created for.
 	ClusterName!: strings.MinRunes(1)
@@ -27,7 +27,7 @@ import (
 	PrincipalArn!: strings.MinRunes(1)
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The node type to associate with the access entry.
 	Type?: string
@@ -37,15 +37,15 @@ import (
 })
 
 // An access policy to associate with the current access entry.
-_#defs: "/$defs/Properties/definitions/AccessPolicy": close({
-	AccessScope!: _#defs."/$defs/Properties/definitions/AccessScope"
+#AccessPolicy: close({
+	AccessScope!: #AccessScope
 
 	// The ARN of the access policy to add to the access entry.
 	PolicyArn!: string
 })
 
 // The access scope of the access policy.
-_#defs: "/$defs/Properties/definitions/AccessScope": close({
+#AccessScope: close({
 	// The namespaces to associate with the access scope. Only specify if Type is set to 'namespace'.
 	Namespaces?: list.UniqueItems() & [...string]
 
@@ -54,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/AccessScope": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

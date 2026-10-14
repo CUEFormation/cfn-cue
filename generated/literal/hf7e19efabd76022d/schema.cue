@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,13 +12,13 @@ import (
 // Resource Type definition for AWS::S3Express::DirectoryBucket.
 #Properties: close({
 	// Returns the Amazon Resource Name (ARN) of the specified bucket.
-	Arn?: _#defs."/$defs/Properties/definitions/Arn"
+	Arn?: #Arn
 
 	// Returns the code for the Availability Zone or Local Zone where the directory
 	// bucket was created. An example for the code of an Availability Zone is
 	// 'us-east-1f'.
 	AvailabilityZoneName?: string
-	BucketEncryption?:     _#defs."/$defs/Properties/definitions/BucketEncryption"
+	BucketEncryption?:     #BucketEncryption
 
 	// Specifies a name for the bucket. The bucket name must contain only lowercase
 	// letters, numbers, and hyphens (-). A directory bucket name must be unique in
@@ -34,10 +34,10 @@ import (
 	DataRedundancy!: "SingleAvailabilityZone" | "SingleLocalZone"
 
 	// The inventory configuration for an Amazon S3 Express bucket.
-	InventoryConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InventoryConfiguration"]
+	InventoryConfigurations?: list.UniqueItems() & [...#InventoryConfiguration]
 
 	// Lifecycle rules that define how Amazon S3 Express manages objects during their lifetime.
-	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration"
+	LifecycleConfiguration?: #LifecycleConfiguration
 
 	// Specifies the Zone ID of the Availability Zone or Local Zone where the
 	// directory bucket will be created. An example Availability Zone ID value is
@@ -45,32 +45,30 @@ import (
 	LocationName!: string
 
 	// Specifies the metrics configurations for the Amazon S3 Express bucket.
-	MetricsConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricsConfiguration"]
-	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	MetricsConfigurations?: list.UniqueItems() & [...#MetricsConfiguration]
+	Tags?:                  list.UniqueItems() & [...#Tag]
 })
 
 // Specifies the days since the initiation of an incomplete multipart upload
 // that Amazon S3 will wait before permanently removing all parts of the
 // upload.
-_#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
+#AbortIncompleteMultipartUpload: close({
 	// Specifies the number of days after which Amazon S3 aborts an incomplete multipart upload.
 	DaysAfterInitiation!: int & >=0
 })
 
 // The Amazon Resource Name (ARN) of the specified bucket.
-_#defs: "/$defs/Properties/definitions/Arn": string
+#Arn: string
 
 // Specifies default encryption for a bucket using server-side encryption with
 // Amazon S3 managed keys (SSE-S3) or AWS KMS keys (SSE-KMS).
-_#defs: "/$defs/Properties/definitions/BucketEncryption": close({
+#BucketEncryption: close({
 	// Specifies the default server-side-encryption configuration.
-	ServerSideEncryptionConfiguration!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ServerSideEncryptionRule"
-	]
+	ServerSideEncryptionConfiguration!: list.UniqueItems() & [...#ServerSideEncryptionRule]
 })
 
 // Specifies information about where to publish inventory reports for an Amazon S3 Express bucket.
-_#defs: "/$defs/Properties/definitions/Destination": close({
+#Destination: close({
 	// The account ID that owns the destination S3 bucket.
 	BucketAccountId?: string
 
@@ -85,8 +83,8 @@ _#defs: "/$defs/Properties/definitions/Destination": close({
 })
 
 // Specifies an inventory configuration for an Amazon S3 Express bucket
-_#defs: "/$defs/Properties/definitions/InventoryConfiguration": close({
-	Destination!: _#defs."/$defs/Properties/definitions/Destination"
+#InventoryConfiguration: close({
+	Destination!: #Destination
 
 	// Specifies whether the inventory is enabled or disabled.
 	Enabled!: bool
@@ -117,14 +115,14 @@ _#defs: "/$defs/Properties/definitions/InventoryConfiguration": close({
 	ScheduleFrequency!: "Daily" | "Weekly"
 })
 
-_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
+#LifecycleConfiguration: close({
 	// A lifecycle rule for individual objects in an Amazon S3 Express bucket.
-	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Rule"]
+	Rules!: list.UniqueItems() & [...#Rule]
 })
 
 // Specifies a metrics configuration for the CloudWatch request metrics from an
 // Amazon S3 Express bucket.
-_#defs: "/$defs/Properties/definitions/MetricsConfiguration": close({
+#MetricsConfiguration: close({
 	// The access point ARN used when evaluating a metrics filter.
 	AccessPointArn?: string
 
@@ -137,8 +135,8 @@ _#defs: "/$defs/Properties/definitions/MetricsConfiguration": close({
 
 // You must specify at least one of the following properties:
 // AbortIncompleteMultipartUpload, or ExpirationInDays.
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	AbortIncompleteMultipartUpload?: _#defs."/$defs/Properties/definitions/AbortIncompleteMultipartUpload"
+#Rule: close({
+	AbortIncompleteMultipartUpload?: #AbortIncompleteMultipartUpload
 	ExpirationInDays?:               int
 	Id?:                             strings.MaxRunes(255)
 	ObjectSizeGreaterThan?:          strings.MaxRunes(20) & =~"[0-9]+"
@@ -150,7 +148,7 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 // Specifies the default server-side encryption to apply to new objects in the
 // bucket. If a PUT Object request doesn't specify any server-side encryption,
 // this default encryption will be applied.
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionByDefault": close({
+#ServerSideEncryptionByDefault: close({
 	// AWS Key Management Service (KMS) customer managed key ID to use for the
 	// default encryption. This parameter is allowed only if SSEAlgorithm is set to
 	// aws:kms. You can specify this parameter with the key ID or the Amazon
@@ -160,17 +158,17 @@ _#defs: "/$defs/Properties/definitions/ServerSideEncryptionByDefault": close({
 })
 
 // Specifies the default server-side encryption configuration.
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionRule": close({
+#ServerSideEncryptionRule: close({
 	// Specifies whether Amazon S3 should use an S3 Bucket Key with server-side
 	// encryption using KMS (SSE-KMS) for new objects in the bucket. Existing
 	// objects are not affected. Amazon S3 Express One Zone uses an S3 Bucket Key
 	// with SSE-KMS and S3 Bucket Key cannot be disabled. It's only allowed to set
 	// the BucketKeyEnabled element to true.
 	BucketKeyEnabled?:              bool
-	ServerSideEncryptionByDefault?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionByDefault"
+	ServerSideEncryptionByDefault?: #ServerSideEncryptionByDefault
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$"
 })

@@ -33,7 +33,7 @@ import (
 	DnsEntries?:        [...string]
 
 	// Describes the DNS options for an endpoint.
-	DnsOptions?: _#defs."/$defs/Properties/definitions/DnsOptionsSpecification"
+	DnsOptions?: #DnsOptionsSpecification
 	Id?:         string
 
 	// The supported IP address types.
@@ -98,7 +98,7 @@ import (
 	SubnetIds?: list.UniqueItems() & [...string]
 
 	// The tags to associate with the endpoint.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The type of endpoint.
 	// Default: Gateway
@@ -109,7 +109,7 @@ import (
 })
 
 // Describes the DNS options for an endpoint.
-_#defs: "/$defs/Properties/definitions/DnsOptionsSpecification": close({
+#DnsOptionsSpecification: close({
 	// The DNS records created for the endpoint.
 	DnsRecordIpType?: "ipv4" | "ipv6" | "dualstack" | "service-defined" | "not-specified"
 
@@ -136,7 +136,7 @@ _#defs: "/$defs/Properties/definitions/DnsOptionsSpecification": close({
 })
 
 // Describes a tag.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	// Constraints: Tag keys are case-sensitive and accept a maximum of 127 Unicode
 	// characters. May not begin with ``aws:``.

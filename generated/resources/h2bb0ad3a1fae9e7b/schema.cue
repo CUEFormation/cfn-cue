@@ -23,13 +23,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
 	fn.#StringExpression
-	FunctionScalingConfig?: _#defs."/$defs/Properties/definitions/FunctionScalingConfig" | fn.#ObjectExpression
-	ProvisionedConcurrencyConfig?: _#defs."/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration" |
-		fn.#ObjectExpression
-	RuntimePolicy?: _#defs."/$defs/Properties/definitions/RuntimePolicy" | fn.#ObjectExpression
+	FunctionScalingConfig?:        #FunctionScalingConfig | fn.#ObjectExpression
+	ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration | fn.#ObjectExpression
+	RuntimePolicy?:                #RuntimePolicy | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FunctionScalingConfig": close({
+#FunctionScalingConfig: close({
 	MaxExecutionEnvironments?: int & <=15000 & >=0 |
 		{
 			string &
@@ -65,7 +64,7 @@ _#defs: "/$defs/Properties/definitions/FunctionScalingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration": close({
+#ProvisionedConcurrencyConfiguration: close({
 	ProvisionedConcurrentExecutions!: int |
 		{
 			string &
@@ -83,7 +82,7 @@ _#defs: "/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration": clo
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuntimePolicy": close({
+#RuntimePolicy: close({
 	RuntimeVersionArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(26) &
 	=~"^arn:(aws[a-zA-Z-]*):lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}::runtime:.+$" |

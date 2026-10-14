@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -12,44 +12,44 @@ import (
 // Resource type definition for AWS::NetworkFirewall::Firewall
 #Properties: close({
 	AvailabilityZoneChangeProtection?: bool
-	AvailabilityZoneMappings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AvailabilityZoneMapping"]
-	DeleteProtection?:         bool
-	Description?:              strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$"
+	AvailabilityZoneMappings?:         list.UniqueItems() & [...#AvailabilityZoneMapping]
+	DeleteProtection?:                 bool
+	Description?:                      strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$"
 
 	// The types of analysis to enable for the firewall. Can be TLS_SNI, HTTP_HOST, or both.
-	EnabledAnalysisTypes?: [..._#defs."/$defs/Properties/definitions/EnabledAnalysisType"]
-	EndpointIds?:          [..._#defs."/$defs/Properties/definitions/EndpointId"]
-	FirewallArn?:          _#defs."/$defs/Properties/definitions/ResourceArn"
+	EnabledAnalysisTypes?: [...#EnabledAnalysisType]
+	EndpointIds?:          [...#EndpointId]
+	FirewallArn?:          #ResourceArn
 	FirewallId?:   strings.MaxRunes(36) & strings.MinRunes(36) & =~"^([0-9a-f]{8})-([0-9a-f]{4}-){3}([0-9a-f]{12})$"
 	FirewallName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
-	FirewallPolicyArn!:              _#defs."/$defs/Properties/definitions/ResourceArn"
+	FirewallPolicyArn!:              #ResourceArn
 	FirewallPolicyChangeProtection?: bool
 	SubnetChangeProtection?:         bool
-	SubnetMappings?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetMapping"]
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TransitGatewayAttachmentId?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^tgw-attach-[0-9a-z]+$"
-	TransitGatewayId?:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^tgw-[0-9a-z]+$"
+	SubnetMappings?:                 list.UniqueItems() & [...#SubnetMapping]
+	Tags?:                           list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag]
+	TransitGatewayAttachmentId?:     strings.MaxRunes(128) & strings.MinRunes(1) & =~"^tgw-attach-[0-9a-z]+$"
+	TransitGatewayId?:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^tgw-[0-9a-z]+$"
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 	strings.MaxRunes(128) &
 	strings.MinRunes(1) &
 	=~"^vpc-[0-9a-f]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/AvailabilityZoneMapping": close({
+#AvailabilityZoneMapping: close({
 	// A AvailabilityZone
 	AvailabilityZone!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\S+$"
 })
 
 // An analysis type.
-_#defs: "/$defs/Properties/definitions/EnabledAnalysisType": "TLS_SNI" | "HTTP_HOST"
+#EnabledAnalysisType: "TLS_SNI" | "HTTP_HOST"
 
 // An endpoint Id.
-_#defs: "/$defs/Properties/definitions/EndpointId": string
+#EndpointId: string
 
 // A resource ARN.
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$"
+#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$"
 
-_#defs: "/$defs/Properties/definitions/SubnetMapping": close({
+#SubnetMapping: close({
 	// A IPAddressType
 	IPAddressType?: "DUALSTACK" | "IPV4" | "IPV6"
 
@@ -57,7 +57,7 @@ _#defs: "/$defs/Properties/definitions/SubnetMapping": close({
 	SubnetId!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0)
 })

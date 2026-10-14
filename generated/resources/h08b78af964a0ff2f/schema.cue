@@ -21,10 +21,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^d-[0-9a-f]{10}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
 	fn.#StringExpression
-	MemberId!: _#defs."/$defs/Properties/definitions/MemberId" | fn.#ObjectExpression
+	MemberId!: #MemberId | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/MemberId": close({
+#MemberId: close({
 	UserId!: strings.MaxRunes(47) &
 	strings.MinRunes(1) &
 	=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" |

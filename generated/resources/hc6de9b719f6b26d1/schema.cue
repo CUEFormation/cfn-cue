@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Associates a VPC with a service network.
 #Properties: close({
-	DnsOptions?:        _#defs."/$defs/Properties/definitions/DnsOptions"
+	DnsOptions?:        #DnsOptions
 	PrivateDnsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SecurityGroupIds?: list.UniqueItems() & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -28,13 +28,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(20) &
 	=~"^((sn-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetwork/sn-[0-9a-z]{17}))$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	VpcIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(5) & =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DnsOptions": close({
+#DnsOptions: close({
 	PrivateDnsPreference?: "VERIFIED_DOMAINS_ONLY" |
 		"ALL_DOMAINS" |
 		"VERIFIED_DOMAINS_AND_SPECIFIED_DOMAINS" |
@@ -47,7 +46,7 @@ _#defs: "/$defs/Properties/definitions/DnsOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

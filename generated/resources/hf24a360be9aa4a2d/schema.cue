@@ -20,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CutoffBehavior?: "CANCEL_TASK" | "CONTINUE_TASK" | fn.#StringExpression
 	Description?:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	LoggingInfo?:    _#defs."/$defs/Properties/definitions/LoggingInfo" | fn.#ObjectExpression
+	LoggingInfo?:    #LoggingInfo | fn.#ObjectExpression
 	MaxConcurrency?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]*|[1-9][0-9]%|[1-9]%|100%)$" |
 	fn.#StringExpression
 	MaxErrors?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]*|[0]|[1-9][0-9]%|[0-9]%|100%)$" |
@@ -43,47 +43,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	Targets?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Target"] | fn.#ListExpression
-	TaskArn!: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	TaskInvocationParameters?: _#defs."/$defs/Properties/definitions/TaskInvocationParameters" | fn.#ObjectExpression
+	Targets?:                  list.MaxItems(5) & [...] & [...#Target] | fn.#ListExpression
+	TaskArn!:                  strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+	TaskInvocationParameters?: #TaskInvocationParameters | fn.#ObjectExpression
 	TaskParameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	TaskType!:                 "AUTOMATION" | "LAMBDA" | "RUN_COMMAND" | "STEP_FUNCTIONS" | fn.#StringExpression
 	WindowId!: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^mw-[0-9a-f]{17}$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchOutputConfig": close({
+#CloudWatchOutputConfig: close({
 	CloudWatchLogGroupName?:  string | fn.#StringExpression
 	CloudWatchOutputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingInfo": close({
+#LoggingInfo: close({
 	Region!:   string | fn.#StringExpression
 	S3Bucket!: string | fn.#StringExpression
 	S3Prefix?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindowAutomationParameters": close({
+#MaintenanceWindowAutomationParameters: close({
 	DocumentVersion?: string | fn.#StringExpression
 	Parameters?:      fn.#Object & {...} | string | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindowLambdaParameters": close({
+#MaintenanceWindowLambdaParameters: close({
 	ClientContext?: string | fn.#StringExpression
 	Payload?:       string | fn.#StringExpression
 	Qualifier?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindowRunCommandParameters": close({
-	CloudWatchOutputConfig?: _#defs."/$defs/Properties/definitions/CloudWatchOutputConfig"
+#MaintenanceWindowRunCommandParameters: close({
+	CloudWatchOutputConfig?: #CloudWatchOutputConfig
 	Comment?:                string | fn.#StringExpression
 	DocumentHash?:           string | fn.#StringExpression
 	DocumentHashType?:       string | fn.#StringExpression
 	DocumentVersion?:        string | fn.#StringExpression
-	NotificationConfig?:     _#defs."/$defs/Properties/definitions/NotificationConfig"
+	NotificationConfig?:     #NotificationConfig
 	OutputS3BucketName?:     string | fn.#StringExpression
 	OutputS3KeyPrefix?:      string | fn.#StringExpression
 	Parameters?:             fn.#Object & {...} | string | fn.#StringObjectExpression
@@ -106,22 +106,22 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindowRunCommandParameters": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindowStepFunctionsParameters": close({
+#MaintenanceWindowStepFunctionsParameters: close({
 	Input?: string | fn.#StringExpression
 	Name?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationConfig": close({
+#NotificationConfig: close({
 	NotificationArn!:    string | fn.#StringExpression
 	NotificationEvents?: [...string | fn.#StringExpression] | fn.#ListExpression
 	NotificationType?:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterValues": [...string | fn.#StringExpression] | fn.#ListExpression
+#ParameterValues: [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Target": close({
+#Target: close({
 	Key!: strings.MaxRunes(163) &
 	strings.MinRunes(1) &
 	=~"^[\\p{L}\\p{Z}\\p{N}_.:/=\\-@]*$|resource-groups:ResourceTypeFilters|resource-groups:Name$" |
@@ -130,12 +130,11 @@ _#defs: "/$defs/Properties/definitions/Target": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaskInvocationParameters": close({
-	MaintenanceWindowAutomationParameters?: _#defs."/$defs/Properties/definitions/MaintenanceWindowAutomationParameters"
-	MaintenanceWindowLambdaParameters?:     _#defs."/$defs/Properties/definitions/MaintenanceWindowLambdaParameters"
-	MaintenanceWindowRunCommandParameters?: _#defs."/$defs/Properties/definitions/MaintenanceWindowRunCommandParameters"
-	MaintenanceWindowStepFunctionsParameters?:
-		_#defs."/$defs/Properties/definitions/MaintenanceWindowStepFunctionsParameters"
+#TaskInvocationParameters: close({
+	MaintenanceWindowAutomationParameters?:    #MaintenanceWindowAutomationParameters
+	MaintenanceWindowLambdaParameters?:        #MaintenanceWindowLambdaParameters
+	MaintenanceWindowRunCommandParameters?:    #MaintenanceWindowRunCommandParameters
+	MaintenanceWindowStepFunctionsParameters?: #MaintenanceWindowStepFunctionsParameters
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

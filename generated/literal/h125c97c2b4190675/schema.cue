@@ -16,15 +16,13 @@ import (
 
 	// A list of MemberDefinition objects that contains objects that identify the
 	// workers that make up the work team.
-	MemberDefinitions!: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MemberDefinition"
-	]
+	MemberDefinitions!: list.MaxItems(10) & list.MinItems(1) & [...#MemberDefinition]
 
 	// Configures SNS notifications of available or expiring work items for work teams.
-	NotificationConfiguration?: _#defs."/$defs/Properties/definitions/NotificationConfiguration"
+	NotificationConfiguration?: #NotificationConfiguration
 
 	// An array of key-value pairs.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The name of the Workforce
 	WorkforceName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9\\-]){0,62}$"
@@ -37,7 +35,7 @@ import (
 })
 
 // The Amazon Cognito user group that is part of the work team.
-_#defs: "/$defs/Properties/definitions/CognitoMemberDefinition": close({
+#CognitoMemberDefinition: close({
 	// An identifier for an application client. You must create the app client ID using Amazon Cognito.
 	CognitoClientId!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -50,29 +48,29 @@ _#defs: "/$defs/Properties/definitions/CognitoMemberDefinition": close({
 })
 
 // Defines an Amazon Cognito or your own OIDC IdP user group that is part of a work team.
-_#defs: "/$defs/Properties/definitions/MemberDefinition": close({
+#MemberDefinition: close({
 	// The Amazon Cognito user group that is part of the work team
-	CognitoMemberDefinition?: _#defs."/$defs/Properties/definitions/CognitoMemberDefinition"
+	CognitoMemberDefinition?: #CognitoMemberDefinition
 
 	// A list user groups that exist in your OIDC Identity Provider (IdP).
-	OidcMemberDefinition?: _#defs."/$defs/Properties/definitions/OidcMemberDefinition"
+	OidcMemberDefinition?: #OidcMemberDefinition
 })
 
 // Configures SNS notifications of available or expiring work items for work teams.
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
+#NotificationConfiguration: close({
 	// The Amazon Resource Name (ARN) of the Amazon SNS topic to which notifications
 	// should be published.
 	NotificationTopicArn!: =~"^arn:aws[a-z\\-]*:sns:[a-z0-9\\-]*:[0-9]{12}:[a-zA-Z0-9_.-]*$"
 })
 
 // A list of user groups that exist in your OIDC Identity Provider (IdP).
-_#defs: "/$defs/Properties/definitions/OidcMemberDefinition": close({
+#OidcMemberDefinition: close({
 	// A list of OIDC group names whose members will be part of this workteam
 	OidcGroups!: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(63) & strings.MinRunes(1)]
 })
 
 // An array of key-value pairs.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

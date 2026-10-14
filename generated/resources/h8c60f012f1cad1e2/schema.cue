@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,28 +15,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // An environment created within the EVS service
 #Properties: close({
 	ConnectivityInfo?: close({
-		PrivateRouteServerPeerings!: list.MaxItems(2) & list.MinItems(2) & [
-			..._#defs."/$defs/Properties/definitions/RouteServerPeering"
-		] |
-			fn.#ListExpression
+		PrivateRouteServerPeerings!: list.MaxItems(2) & list.MinItems(2) & [...#RouteServerPeering] | fn.#ListExpression
 	}) |
 		fn.#ObjectExpression
 	EnvironmentName?: =~"^[a-zA-Z0-9_-]{1,100}$" | fn.#StringExpression
-	Hosts?: list.MaxItems(4) & list.MinItems(4) & [..._#defs."/$defs/Properties/definitions/HostInfoForCreate"] |
-		fn.#ListExpression
+	Hosts?:           list.MaxItems(4) & list.MinItems(4) & [...#HostInfoForCreate] | fn.#ListExpression
 	InitialVlans?: close({
-		EdgeVTep!:        _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		ExpansionVlan1!:  _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		ExpansionVlan2!:  _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		Hcx!:             _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		HcxNetworkAclId?: _#defs."/$defs/Properties/definitions/NetworkAclId"
+		EdgeVTep!:        #InitialVlanInfo
+		ExpansionVlan1!:  #InitialVlanInfo
+		ExpansionVlan2!:  #InitialVlanInfo
+		Hcx!:             #InitialVlanInfo
+		HcxNetworkAclId?: #NetworkAclId
 		IsHcxPublic?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		NsxUpLink!:       _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		VMotion!:         _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		VSan!:            _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		VTep!:            _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		VmManagement!:    _#defs."/$defs/Properties/definitions/InitialVlanInfo"
-		VmkManagement!:   _#defs."/$defs/Properties/definitions/InitialVlanInfo"
+		NsxUpLink!:       #InitialVlanInfo
+		VMotion!:         #InitialVlanInfo
+		VSan!:            #InitialVlanInfo
+		VTep!:            #InitialVlanInfo
+		VmManagement!:    #InitialVlanInfo
+		VmkManagement!:   #InitialVlanInfo
 	}) |
 	fn.#ObjectExpression
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -49,26 +45,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	ServiceAccessSecurityGroups?: close({
-		SecurityGroups?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/SecurityGroupId"] |
-			fn.#ListExpression
-	}) |
+	ServiceAccessSecurityGroups?: close(
+		{SecurityGroups?: list.MaxItems(2) & [...#SecurityGroupId] | fn.#ListExpression},
+	) |
 		fn.#ObjectExpression
 	ServiceAccessSubnetId!: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[a-f0-9]{8}([a-f0-9]{9})?$" |
 	fn.#StringExpression
 	SiteId?:        string | fn.#StringExpression
-	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	TermsAccepted!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VcfHostnames?: close({
-		CloudBuilder!: _#defs."/$defs/Properties/definitions/HostName"
-		Nsx!:          _#defs."/$defs/Properties/definitions/HostName"
-		NsxEdge1!:     _#defs."/$defs/Properties/definitions/HostName"
-		NsxEdge2!:     _#defs."/$defs/Properties/definitions/HostName"
-		NsxManager1!:  _#defs."/$defs/Properties/definitions/HostName"
-		NsxManager2!:  _#defs."/$defs/Properties/definitions/HostName"
-		NsxManager3!:  _#defs."/$defs/Properties/definitions/HostName"
-		SddcManager!:  _#defs."/$defs/Properties/definitions/HostName"
-		VCenter!:      _#defs."/$defs/Properties/definitions/HostName"
+		CloudBuilder!: #HostName
+		Nsx!:          #HostName
+		NsxEdge1!:     #HostName
+		NsxEdge2!:     #HostName
+		NsxManager1!:  #HostName
+		NsxManager2!:  #HostName
+		NsxManager3!:  #HostName
+		SddcManager!:  #HostName
+		VCenter!:      #HostName
 	}) |
 	fn.#ObjectExpression
 	VcfVersion!: "VCF-5.2.1" | "VCF-5.2.2" | "SELF_DEPLOYED" | fn.#StringExpression
@@ -79,23 +74,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Check": close({
+#Check: close({
 	ImpairedSince?: string | fn.#StringExpression
-	Result!:        _#defs."/$defs/Properties/definitions/CheckResult"
+	Result!:        #CheckResult
 	Type!:          "KEY_REUSE" | "KEY_COVERAGE" | "REACHABILITY" | "VCF_VERSION" | "HOST_COUNT" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CheckResult": "PASSED" | "FAILED" | "UNKNOWN" | fn.#StringExpression
+#CheckResult: "PASSED" | "FAILED" | "UNKNOWN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentState": "CREATING" |
-	"CREATED" |
-	"DELETING" |
-	"DELETED" |
-	"CREATE_FAILED" |
-	fn.#StringExpression
+#EnvironmentState: "CREATING" | "CREATED" | "DELETING" | "DELETED" | "CREATE_FAILED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HostInfoForCreate": close({
+#HostInfoForCreate: close({
 	PlacementGroupId?: _
 	if PlacementGroupId != _|_ {
 		matchN(1, [
@@ -109,7 +99,7 @@ _#defs: "/$defs/Properties/definitions/HostInfoForCreate": close({
 	{}
 	DedicatedHostId?: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^h-[a-f0-9]{8}([a-f0-9]{9})?$" |
 	fn.#StringExpression
-	HostName!:     _#defs."/$defs/Properties/definitions/HostName"
+	HostName!:     #HostName
 	InstanceType!: "i4i.metal" | "i7i.metal-24xl" | "i7i.metal-48xl" | fn.#StringExpression
 	KeyName!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 	"PlacementGroupId"?: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^pg-[a-f0-9]{8}([a-f0-9]{9})?$" |
@@ -117,38 +107,33 @@ _#defs: "/$defs/Properties/definitions/HostInfoForCreate": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HostName": =~"^([a-zA-Z0-9\\-]*)$" | fn.#StringExpression
+#HostName: =~"^([a-zA-Z0-9\\-]*)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InitialVlanInfo": close({
+#InitialVlanInfo: close({
 	Cidr!: =~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2][0-9]|[0-9])$" |
 		fn.#StringExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkAclId": strings.MaxRunes(21) &
-strings.MinRunes(4) &
-=~"^acl-[a-zA-Z0-9_-]+$" |
-fn.#StringExpression
+#NetworkAclId: strings.MaxRunes(21) & strings.MinRunes(4) & =~"^acl-[a-zA-Z0-9_-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouteServerPeering": strings.MaxRunes(21) & strings.MinRunes(3) |
-fn.#StringExpression
+#RouteServerPeering: strings.MaxRunes(21) & strings.MinRunes(3) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Secret": close({SecretArn?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Secret: close({SecretArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(25) &
 strings.MinRunes(3) &
 =~"^sg-[0-9a-zA-Z]*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": string | fn.#StringExpression
+#Timestamp: string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EVS::Environment"
 	Properties!: #Properties

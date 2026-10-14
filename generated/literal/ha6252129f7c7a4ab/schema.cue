@@ -11,8 +11,8 @@ import (
 
 // resource definition
 #Properties: close({
-	Artifact?:          _#defs."/$defs/Properties/definitions/PackageVersionArtifact"
-	Attributes?:        _#defs."/$defs/Properties/definitions/ResourceAttributes"
+	Artifact?:          #PackageVersionArtifact
+	Attributes?:        #ResourceAttributes
 	Description?:       strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[^\\p{C}]+$"
 	ErrorReason?:       string
 	PackageName!:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$"
@@ -20,28 +20,26 @@ import (
 
 	// The inline json job document associated with a software package version
 	Recipe?:               strings.MaxRunes(3072) & strings.MinRunes(0)
-	Sbom?:                 _#defs."/$defs/Properties/definitions/Sbom"
-	SbomValidationStatus?: _#defs."/$defs/Properties/definitions/SbomValidationStatus"
-	Status?:               _#defs."/$defs/Properties/definitions/PackageVersionStatus"
+	Sbom?:                 #Sbom
+	SbomValidationStatus?: #SbomValidationStatus
+	Status?:               #PackageVersionStatus
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?:        list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 	VersionName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.]+$"
 })
 
 // The artifact location of the package version
-_#defs: "/$defs/Properties/definitions/PackageVersionArtifact": close(
-	{S3Location!: _#defs."/$defs/Properties/definitions/S3Location"},
-)
+#PackageVersionArtifact: close({S3Location!: #S3Location})
 
-_#defs: "/$defs/Properties/definitions/PackageVersionStatus": "DRAFT" | "PUBLISHED" | "DEPRECATED"
+#PackageVersionStatus: "DRAFT" | "PUBLISHED" | "DEPRECATED"
 
-_#defs: "/$defs/Properties/definitions/ResourceAttributes": close({
+#ResourceAttributes: close({
 
 	{[=~"^[a-zA-Z0-9:_-]+$"]: strings.MinRunes(1) & =~"^[^\\p{C}]+$"}})
 
 // The Amazon S3 location
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// The S3 bucket
 	Bucket!: strings.MinRunes(1)
 
@@ -53,13 +51,13 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 })
 
 // The sbom zip archive location of the package version
-_#defs: "/$defs/Properties/definitions/Sbom": close({S3Location!: _#defs."/$defs/Properties/definitions/S3Location"})
+#Sbom: close({S3Location!: #S3Location})
 
 // The validation status of the Sbom file
-_#defs: "/$defs/Properties/definitions/SbomValidationStatus": "IN_PROGRESS" | "FAILED" | "SUCCEEDED" | ""
+#SbomValidationStatus: "IN_PROGRESS" | "FAILED" | "SUCCEEDED" | ""
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

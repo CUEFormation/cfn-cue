@@ -21,13 +21,13 @@ import "strings"
 	Name!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"[A-Za-z0-9_.-]+"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The Amazon Resource Name (ARN) of the workload identity.
 	WorkloadIdentityArn?: strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

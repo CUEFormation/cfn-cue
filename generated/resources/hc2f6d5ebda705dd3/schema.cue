@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,45 +15,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Properties: close({
 	SuiteDefinitionConfiguration!: close({
-		DevicePermissionRoleArn!:  _#defs."/$defs/Properties/definitions/DevicePermissionRoleArn"
-		Devices?:                  _#defs."/$defs/Properties/definitions/Devices"
-		IntendedForQualification?: _#defs."/$defs/Properties/definitions/IntendedForQualification"
-		RootGroup!:                _#defs."/$defs/Properties/definitions/RootGroup"
-		SuiteDefinitionName?:      _#defs."/$defs/Properties/definitions/SuiteDefinitionName"
+		DevicePermissionRoleArn!:  #DevicePermissionRoleArn
+		Devices?:                  #Devices
+		IntendedForQualification?: #IntendedForQualification
+		RootGroup!:                #RootGroup
+		SuiteDefinitionName?:      #SuiteDefinitionName
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DevicePermissionRoleArn": strings.MaxRunes(2048) & strings.MinRunes(20) |
-fn.#StringExpression
+#DevicePermissionRoleArn: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DeviceUnderTest": close({
+#DeviceUnderTest: close({
 	CertificateArn?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 	ThingArn?:       strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Devices": list.MaxItems(2) & [...] & [
-	..._#defs."/$defs/Properties/definitions/DeviceUnderTest"
-] |
-	fn.#ListExpression
+#Devices: list.MaxItems(2) & [...] & [...#DeviceUnderTest] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/IntendedForQualification": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#IntendedForQualification: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/RootGroup": strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#RootGroup: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SuiteDefinitionName": strings.MaxRunes(256) & strings.MinRunes(1) |
-fn.#StringExpression
+#SuiteDefinitionName: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

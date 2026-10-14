@@ -18,12 +18,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS:AppIntegrations::Application
 #Properties: close({
-	ApplicationConfig?: _#defs."/$defs/Properties/definitions/ApplicationConfig" | fn.#ObjectExpression
-	ApplicationSourceConfig!: close({ExternalUrlConfig!: _#defs."/$defs/Properties/definitions/ExternalUrlConfig"}) |
-		fn.#ObjectExpression
-	ApplicationType?: "STANDARD" | "SERVICE" | "MCP_SERVER" | fn.#StringExpression
-	Description?:     strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	IframeConfig?:    _#defs."/$defs/Properties/definitions/IframeConfig" | fn.#ObjectExpression
+	ApplicationConfig?:       #ApplicationConfig | fn.#ObjectExpression
+	ApplicationSourceConfig!: close({ExternalUrlConfig!: #ExternalUrlConfig}) | fn.#ObjectExpression
+	ApplicationType?:         "STANDARD" | "SERVICE" | "MCP_SERVER" | fn.#StringExpression
+	Description?:             strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+	IframeConfig?:            #IframeConfig | fn.#ObjectExpression
 	InitializationTimeout?: int & <=600000 & >=1 |
 		{
 			string &
@@ -40,37 +39,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	IsService?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\/\\._ \\-]+$" | fn.#StringExpression
-	Namespace!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
-	Permissions?: list.MaxItems(150) & [...] & [..._#defs."/$defs/Properties/definitions/Permissions"] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	IsService?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\/\\._ \\-]+$" | fn.#StringExpression
+	Namespace!:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
+	Permissions?: list.MaxItems(150) & [...] & [...#Permissions] | fn.#ListExpression
+	Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationConfig": close(
-	{ContactHandling?: _#defs."/$defs/Properties/definitions/ContactHandling"},
-) |
-	fn.#ObjectExpression
+#ApplicationConfig: close({ContactHandling?: #ContactHandling}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApprovedOrigins": strings.MaxRunes(1000) &
-strings.MinRunes(1) &
-=~"^\\w+\\:\\/\\/.*$" |
-fn.#StringExpression
+#ApprovedOrigins: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\w+\\:\\/\\/.*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ContactHandling": close(
-	{Scope!: "CROSS_CONTACTS" | "PER_CONTACT" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#ContactHandling: close({Scope!: "CROSS_CONTACTS" | "PER_CONTACT" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExternalUrlConfig": close({
-	AccessUrl!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\w+\\:\\/\\/.*$" | fn.#StringExpression
-	ApprovedOrigins?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/ApprovedOrigins"] |
-		fn.#ListExpression
+#ExternalUrlConfig: close({
+	AccessUrl!:       strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\w+\\:\\/\\/.*$" | fn.#StringExpression
+	ApprovedOrigins?: list.MaxItems(50) & [...] & [...#ApprovedOrigins] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IframeConfig": close({
+#IframeConfig: close({
 	Allow?: list.MaxItems(25) & [...] & [
 		...strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z-]+$" | fn.#StringExpression
 	] |
@@ -82,12 +70,9 @@ _#defs: "/$defs/Properties/definitions/IframeConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Permissions": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\/\\._\\-\\*]+$" |
-fn.#StringExpression
+#Permissions: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\/\\._\\-\\*]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

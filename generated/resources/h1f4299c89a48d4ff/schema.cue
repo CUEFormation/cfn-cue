@@ -20,13 +20,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AllocationStrategy?:    string | fn.#StringExpression
 	EndDate?:               string | fn.#StringExpression
 	InstanceMatchCriteria?: "open" | fn.#StringExpression
-	InstanceTypeSpecifications?: list.MaxItems(50) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/InstanceTypeSpecification"
-	] |
+	InstanceTypeSpecifications?: list.MaxItems(50) & list.UniqueItems() & [...#InstanceTypeSpecification] |
 		fn.#ListExpression
 	NoRemoveEndDate?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RemoveEndDate?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/TagSpecification"] | fn.#ListExpression
+	TagSpecifications?: [...#TagSpecification] | fn.#ListExpression
 	Tenancy?:           "default" | fn.#StringExpression
 	TotalTargetCapacity?: int & <=25000 & >=1 |
 		{
@@ -46,7 +44,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceTypeSpecification": close({
+#InstanceTypeSpecification: close({
 	AvailabilityZone?:   string | fn.#StringExpression
 	AvailabilityZoneId?: string | fn.#StringExpression
 	EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -109,13 +107,13 @@ _#defs: "/$defs/Properties/definitions/InstanceTypeSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagSpecification": close({
+#TagSpecification: close({
 	ResourceType?: "application-status-check" |
 		"capacity-block" |
 		"capacity-manager-data-export" |
@@ -229,7 +227,7 @@ _#defs: "/$defs/Properties/definitions/TagSpecification": close({
 		"vpn-connection-device-type" |
 		"vpn-gateway" |
 		fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

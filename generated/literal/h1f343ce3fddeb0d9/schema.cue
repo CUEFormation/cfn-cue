@@ -9,7 +9,7 @@ import "list"
 // Resource Type definition for AWS::ElasticLoadBalancingV2::TrustStoreRevocation
 #Properties: close({
 	// The attributes required to create a trust store revocation.
-	RevocationContents?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RevocationContent"]
+	RevocationContents?: list.UniqueItems() & [...#RevocationContent]
 
 	// The ID associated with the revocation.
 	RevocationId?: int
@@ -18,19 +18,19 @@ import "list"
 	TrustStoreArn?: string
 
 	// The data associated with a trust store revocation
-	TrustStoreRevocations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TrustStoreRevocation"]
+	TrustStoreRevocations?: list.UniqueItems() & [...#TrustStoreRevocation]
 })
 
-_#defs: "/$defs/Properties/definitions/RevocationContent": close({
+#RevocationContent: close({
 	RevocationType?:  "CRL"
 	S3Bucket?:        string
 	S3Key?:           string
 	S3ObjectVersion?: string
 })
 
-_#defs: "/$defs/Properties/definitions/RevocationId": string
+#RevocationId: string
 
-_#defs: "/$defs/Properties/definitions/TrustStoreRevocation": close({
+#TrustStoreRevocation: close({
 	NumberOfRevokedEntries?: int
 	RevocationId?:           string
 	RevocationType?:         string

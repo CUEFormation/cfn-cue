@@ -54,21 +54,20 @@ import (
 		"TRINO" |
 		"TWITTER" |
 		"WEB_CRAWLER"
-	IdentityProviderVpcConnectionProperties?:
-		_#defs."/$defs/Properties/definitions/IdentityProviderVpcConnectionProperties"
-	LastUpdatedTime?:               time.Time
-	Name!:                          strings.MaxRunes(2048) & strings.MinRunes(1)
-	OAuthAuthorizationEndpointUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$"
+	IdentityProviderVpcConnectionProperties?: #IdentityProviderVpcConnectionProperties
+	LastUpdatedTime?:                         time.Time
+	Name!:                                    strings.MaxRunes(2048) & strings.MinRunes(1)
+	OAuthAuthorizationEndpointUrl?:           strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$"
 	OAuthClientApplicationId!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^/][^\\x{0000}-\\x{001f}]*"
 	OAuthClientAuthenticationType!: "TOKEN"
 	OAuthScopes?:                   strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$"
 	OAuthTokenEndpointUrl!:         strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$"
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                          list.MaxItems(200) & list.MinItems(1) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/IdentityProviderVpcConnectionProperties": close({VpcConnectionArn!: string})
+#IdentityProviderVpcConnectionProperties: close({VpcConnectionArn!: string})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

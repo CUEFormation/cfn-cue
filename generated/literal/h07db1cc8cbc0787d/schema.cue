@@ -11,26 +11,22 @@ import (
 
 // Resource Type definition for AWS::ApplicationSignals::GroupingConfiguration
 #Properties: close({
-	AccountId?:                    _#defs."/$defs/Properties/definitions/AccountId"
-	GroupingAttributeDefinitions!: _#defs."/$defs/Properties/definitions/GroupingAttributeDefinitions"
-	UpdatedAt?:                    _#defs."/$defs/Properties/definitions/Timestamp"
+	AccountId?:                    #AccountId
+	GroupingAttributeDefinitions!: #GroupingAttributeDefinitions
+	UpdatedAt?:                    #Timestamp
 })
 
 // The identifier for the specified AWS account.
-_#defs: "/$defs/Properties/definitions/AccountId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
+#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
 
-_#defs: "/$defs/Properties/definitions/GroupingAttributeDefinition": close({
-	DefaultGroupingValue?: _#defs."/$defs/Properties/definitions/GroupingString"
-	GroupingName!:         _#defs."/$defs/Properties/definitions/GroupingString"
-	GroupingSourceKeys!:   list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/GroupingString"]
+#GroupingAttributeDefinition: close({
+	DefaultGroupingValue?: #GroupingString
+	GroupingName!:         #GroupingString
+	GroupingSourceKeys!:   list.MinItems(1) & [...#GroupingString]
 })
 
-_#defs: "/$defs/Properties/definitions/GroupingAttributeDefinitions": [
-	..._#defs."/$defs/Properties/definitions/GroupingAttributeDefinition"
-]
+#GroupingAttributeDefinitions: [...#GroupingAttributeDefinition]
 
-_#defs: "/$defs/Properties/definitions/GroupingString": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\s+\\-=\\._:/@]*$"
+#GroupingString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+\\-=\\._:/@]*$"
 
-_#defs: "/$defs/Properties/definitions/Timestamp": string
+#Timestamp: string

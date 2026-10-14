@@ -15,18 +15,18 @@ import "strings"
 
 	// The name of the Automation document to execute
 	AutomationDocument!:   strings.MaxRunes(500) & strings.MinRunes(1) & =~"^\\S+$"
-	AutomationParameters!: _#defs."/$defs/Properties/definitions/AutomationParameters"
+	AutomationParameters!: #AutomationParameters
 
 	// A unique identifier used for generating a unique logical ID for the custom resource
 	ResourceKey!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
-	Tags?:        _#defs."/$defs/Properties/definitions/TagsMap"
+	Tags?:        #TagsMap
 })
 
 // Parameters to be passed to the Automation Document
-_#defs: "/$defs/Properties/definitions/AutomationParameters": close({
+#AutomationParameters: close({
 
 	{[=~"^[a-zA-Z0-9_]+$"]: [...string]}})
 
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[A-Za-z0-9 +=@_\\/:.-]+$"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9 +=@_\\/:.-]+$"}})

@@ -42,16 +42,16 @@ import (
 	Id?: strings.MaxRunes(256)
 
 	// FUOTA task LoRaWAN
-	LoRaWAN!: _#defs."/$defs/Properties/definitions/LoRaWAN"
+	LoRaWAN!: #LoRaWAN
 
 	// Name of FUOTA task
 	Name?: strings.MaxRunes(256) & strings.MinRunes(0)
 
 	// A list of key-value pairs that contain metadata for the FUOTA task.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/LoRaWAN": close({
+#LoRaWAN: close({
 	// FUOTA task LoRaWAN RF region
 	RfRegion!: ("AS923-1" |
 		"AS923-2" |
@@ -71,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/LoRaWAN": close({
 	StartTime?: strings.MaxRunes(64)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })

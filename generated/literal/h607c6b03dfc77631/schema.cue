@@ -11,29 +11,28 @@ import (
 
 // Definition of AWS::Backup::RestoreTestingPlan Resource Type
 #Properties: close({
-	RecoveryPointSelection!:     _#defs."/$defs/Properties/definitions/RestoreTestingRecoveryPointSelection"
+	RecoveryPointSelection!:     #RestoreTestingRecoveryPointSelection
 	RestoreTestingPlanArn?:      string
 	RestoreTestingPlanName!:     string
 	ScheduleExpression!:         string
 	ScheduleExpressionTimezone?: string
 	StartWindowHours?:           int
-	Tags?:                       list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                       list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/RestoreTestingRecoveryPointSelection": close({
-	Algorithm!:           _#defs."/$defs/Properties/definitions/RestoreTestingRecoveryPointSelectionAlgorithm"
+#RestoreTestingRecoveryPointSelection: close({
+	Algorithm!:           #RestoreTestingRecoveryPointSelectionAlgorithm
 	ExcludeVaults?:       [...string]
 	IncludeVaults!:       [...string]
-	RecoveryPointTypes!:  [..._#defs."/$defs/Properties/definitions/RestoreTestingRecoveryPointType"]
+	RecoveryPointTypes!:  [...#RestoreTestingRecoveryPointType]
 	SelectionWindowDays?: int
 })
 
-_#defs: "/$defs/Properties/definitions/RestoreTestingRecoveryPointSelectionAlgorithm": "LATEST_WITHIN_WINDOW" |
-	"RANDOM_WITHIN_WINDOW"
+#RestoreTestingRecoveryPointSelectionAlgorithm: "LATEST_WITHIN_WINDOW" | "RANDOM_WITHIN_WINDOW"
 
-_#defs: "/$defs/Properties/definitions/RestoreTestingRecoveryPointType": "SNAPSHOT" | "CONTINUOUS"
+#RestoreTestingRecoveryPointType: "SNAPSHOT" | "CONTINUOUS"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

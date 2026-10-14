@@ -13,10 +13,10 @@ import (
 #Properties: close({
 	// The aggregation field to perform aggregation and metric emission
 	AggregationField?: strings.MinRunes(1)
-	AggregationType?:  _#defs."/$defs/Properties/definitions/AggregationType"
+	AggregationType?:  #AggregationType
 
 	// The creation date of a fleet metric
-	CreationDate?: _#defs."/$defs/Properties/definitions/iso8601UTC"
+	CreationDate?: #iso8601UTC
 
 	// The description of a fleet metric
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0)
@@ -25,7 +25,7 @@ import (
 	IndexName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$"
 
 	// The last modified date of a fleet metric
-	LastModifiedDate?: _#defs."/$defs/Properties/definitions/iso8601UTC"
+	LastModifiedDate?: #iso8601UTC
 
 	// The Amazon Resource Number (ARN) of a fleet metric metric
 	MetricArn?: string
@@ -43,7 +43,7 @@ import (
 	QueryVersion?: string
 
 	// An array of key-value pairs to apply to this resource
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The unit of data points emitted by a fleet metric
 	Unit?: "Bits" |
@@ -79,7 +79,7 @@ import (
 })
 
 // Aggregation types supported by Fleet Indexing
-_#defs: "/$defs/Properties/definitions/AggregationType": close({
+#AggregationType: close({
 	// Fleet Indexing aggregation type names such as Statistics, Percentiles and Cardinality
 	Name!: "Cardinality" | "Percentiles" | "Statistics"
 
@@ -88,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/AggregationType": close({
 })
 
 // A key-value pair to associate with a resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -97,4 +97,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The datetime value in ISO 8601 format. The timezone is always UTC. (YYYY-MM-DDThh:mm:ss.sssZ)
-_#defs: "/$defs/Properties/definitions/iso8601UTC": =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$"
+#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$"

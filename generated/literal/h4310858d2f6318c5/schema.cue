@@ -30,66 +30,66 @@ import (
 	LastUpdateTime?: time.Time
 
 	// Rules define a Call Analytics category.
-	Rules!: list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Rule"]
+	Rules!: list.MaxItems(20) & list.MinItems(1) & [...#Rule]
 
 	// Tags associated with the Call Analytics category.
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AbsoluteTimeRange": close({
+#AbsoluteTimeRange: close({
 	EndTime?:   int & <=14400000 & >=0
 	First?:     int & <=14400000 & >=0
 	Last?:      int & <=14400000 & >=0
 	StartTime?: int & <=14400000 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/InterruptionFilter": close({
-	AbsoluteTimeRange?: _#defs."/$defs/Properties/definitions/AbsoluteTimeRange"
+#InterruptionFilter: close({
+	AbsoluteTimeRange?: #AbsoluteTimeRange
 	Negate?:            bool
 	ParticipantRole?:   "AGENT" | "CUSTOMER"
-	RelativeTimeRange?: _#defs."/$defs/Properties/definitions/RelativeTimeRange"
+	RelativeTimeRange?: #RelativeTimeRange
 	Threshold?:         int & <=14400000 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/NonTalkTimeFilter": close({
-	AbsoluteTimeRange?: _#defs."/$defs/Properties/definitions/AbsoluteTimeRange"
+#NonTalkTimeFilter: close({
+	AbsoluteTimeRange?: #AbsoluteTimeRange
 	Negate?:            bool
-	RelativeTimeRange?: _#defs."/$defs/Properties/definitions/RelativeTimeRange"
+	RelativeTimeRange?: #RelativeTimeRange
 	Threshold?:         int & <=14400000 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/RelativeTimeRange": close({
+#RelativeTimeRange: close({
 	EndPercentage?:   int & <=100 & >=0
 	First?:           int & <=100 & >=0
 	Last?:            int & <=100 & >=0
 	StartPercentage?: int & <=100 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
-	InterruptionFilter?: _#defs."/$defs/Properties/definitions/InterruptionFilter"
-	NonTalkTimeFilter?:  _#defs."/$defs/Properties/definitions/NonTalkTimeFilter"
-	SentimentFilter?:    _#defs."/$defs/Properties/definitions/SentimentFilter"
-	TranscriptFilter?:   _#defs."/$defs/Properties/definitions/TranscriptFilter"
+#Rule: close({
+	InterruptionFilter?: #InterruptionFilter
+	NonTalkTimeFilter?:  #NonTalkTimeFilter
+	SentimentFilter?:    #SentimentFilter
+	TranscriptFilter?:   #TranscriptFilter
 })
 
-_#defs: "/$defs/Properties/definitions/SentimentFilter": close({
-	AbsoluteTimeRange?: _#defs."/$defs/Properties/definitions/AbsoluteTimeRange"
+#SentimentFilter: close({
+	AbsoluteTimeRange?: #AbsoluteTimeRange
 	Negate?:            bool
 	ParticipantRole?:   "AGENT" | "CUSTOMER"
-	RelativeTimeRange?: _#defs."/$defs/Properties/definitions/RelativeTimeRange"
+	RelativeTimeRange?: #RelativeTimeRange
 	Sentiments!:        list.MaxItems(1) & list.MinItems(1) & [..."POSITIVE" | "NEGATIVE" | "NEUTRAL" | "MIXED"]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TranscriptFilter": close({
-	AbsoluteTimeRange?:    _#defs."/$defs/Properties/definitions/AbsoluteTimeRange"
+#TranscriptFilter: close({
+	AbsoluteTimeRange?:    #AbsoluteTimeRange
 	Negate?:               bool
 	ParticipantRole?:      "AGENT" | "CUSTOMER"
-	RelativeTimeRange?:    _#defs."/$defs/Properties/definitions/RelativeTimeRange"
+	RelativeTimeRange?:    #RelativeTimeRange
 	Targets!:              list.MinItems(1) & [...strings.MaxRunes(2000) & strings.MinRunes(1)]
 	TranscriptFilterType!: "EXACT"
 })

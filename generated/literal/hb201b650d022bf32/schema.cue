@@ -16,30 +16,28 @@ import (
 	Arn?: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^arn:aws[-a-z]*:ivs:[a-z0-9-]+:[0-9]+:recording-configuration/[a-zA-Z0-9-]+$"
-	DestinationConfiguration!: _#defs."/$defs/Properties/definitions/DestinationConfiguration"
+	DestinationConfiguration!: #DestinationConfiguration
 
 	// Recording Configuration Name.
 	Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$"
 
 	// Recording Reconnect Window Seconds. (0 means disabled)
 	RecordingReconnectWindowSeconds?: int & <=300 & >=0
-	RenditionConfiguration?:          _#defs."/$defs/Properties/definitions/RenditionConfiguration"
+	RenditionConfiguration?:          #RenditionConfiguration
 
 	// Recording Configuration State.
 	State?: "CREATING" | "CREATE_FAILED" | "ACTIVE"
 
 	// A list of key-value pairs that contain metadata for the asset model.
-	Tags?:                   list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	ThumbnailConfiguration?: _#defs."/$defs/Properties/definitions/ThumbnailConfiguration"
+	Tags?:                   list.MaxItems(50) & list.UniqueItems() & [...#Tag]
+	ThumbnailConfiguration?: #ThumbnailConfiguration
 })
 
 // Recording Destination Configuration.
-_#defs: "/$defs/Properties/definitions/DestinationConfiguration": close(
-	{S3?: _#defs."/$defs/Properties/definitions/S3DestinationConfiguration"},
-)
+#DestinationConfiguration: close({S3?: #S3DestinationConfiguration})
 
 // Rendition Configuration describes which renditions should be recorded for a stream.
-_#defs: "/$defs/Properties/definitions/RenditionConfiguration": close({
+#RenditionConfiguration: close({
 	// Resolution Selection indicates which set of renditions are recorded for a stream.
 	RenditionSelection?: "ALL" | "NONE" | "CUSTOM"
 
@@ -48,11 +46,9 @@ _#defs: "/$defs/Properties/definitions/RenditionConfiguration": close({
 })
 
 // Recording S3 Destination Configuration.
-_#defs: "/$defs/Properties/definitions/S3DestinationConfiguration": close(
-	{BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9-.]+$"},
-)
+#S3DestinationConfiguration: close({BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9-.]+$"})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -67,7 +63,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Recording Thumbnail Configuration.
-_#defs: "/$defs/Properties/definitions/ThumbnailConfiguration": close({
+#ThumbnailConfiguration: close({
 	// Thumbnail Recording Mode, which determines whether thumbnails are recorded at
 	// an interval or are disabled.
 	RecordingMode?: "INTERVAL" | "DISABLED"

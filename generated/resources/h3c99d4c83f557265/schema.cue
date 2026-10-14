@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -19,18 +19,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::IoTAnalytics::Channel
 #Properties: close({
 	ChannelName?:     strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ChannelStorage?:  _#defs."/$defs/Properties/definitions/ChannelStorage"
-	RetentionPeriod?: _#defs."/$defs/Properties/definitions/RetentionPeriod"
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ChannelStorage?:  #ChannelStorage
+	RetentionPeriod?: #RetentionPeriod
+	Tags?:            list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ChannelStorage": close({
-	CustomerManagedS3?: _#defs."/$defs/Properties/definitions/CustomerManagedS3"
-	ServiceManagedS3?:  _#defs."/$defs/Properties/definitions/ServiceManagedS3"
+#ChannelStorage: close({
+	CustomerManagedS3?: #CustomerManagedS3
+	ServiceManagedS3?:  #ServiceManagedS3
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomerManagedS3": close({
+#CustomerManagedS3: close({
 	Bucket!:    strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.\\-_]*$" | fn.#StringExpression
 	KeyPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/{}:-]*/$" | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
@@ -38,7 +38,7 @@ _#defs: "/$defs/Properties/definitions/CustomerManagedS3": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
+#RetentionPeriod: close({
 	NumberOfDays?: int & <=2147483647 & >=1 |
 		{
 			string &
@@ -59,9 +59,9 @@ _#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceManagedS3": fn.#Object & {...} | string | fn.#StringObjectExpression
+#ServiceManagedS3: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

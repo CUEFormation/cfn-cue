@@ -16,18 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ObservabilityConfigurationName?: strings.MaxRunes(32) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,31}" |
 	fn.#StringExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TraceConfiguration?: _#defs."/$defs/Properties/definitions/TraceConfiguration" | fn.#ObjectExpression
+	Tags?:               [...#Tag] | fn.#ListExpression
+	TraceConfiguration?: #TraceConfiguration | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TraceConfiguration": close({Vendor!: "AWSXRAY" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#TraceConfiguration: close({Vendor!: "AWSXRAY" | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::AppRunner::ObservabilityConfiguration"
 	Properties?: #Properties

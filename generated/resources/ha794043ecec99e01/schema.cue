@@ -17,10 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DomainName!: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" |
 	fn.#StringExpression
 	PermissionsPolicyDocument?: fn.#Object & {...} | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\P{C}+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\P{C}*$" | fn.#StringExpression
 }) |

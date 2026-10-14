@@ -24,20 +24,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?$" |
 	fn.#StringExpression
 	Properties?: _#defs."/$defs/Properties/definitions/Properties" | fn.#ObjectExpression
-	Tags?:       list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:       list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Properties": close(
-	{DnsProperties?: _#defs."/$defs/Properties/definitions/PublicDnsPropertiesMutable"},
-) |
-	fn.#ObjectExpression
+#PublicDnsPropertiesMutable: close({SOA?: #SOA}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PublicDnsPropertiesMutable": close(
-	{SOA?: _#defs."/$defs/Properties/definitions/SOA"},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/SOA": close({
+#SOA: close({
 	TTL?: <=2147483647 & >=0 |
 		{
 			string &
@@ -61,11 +53,14 @@ _#defs: "/$defs/Properties/definitions/SOA": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
+
+_#defs: "/$defs/Properties/definitions/Properties": close({DnsProperties?: #PublicDnsPropertiesMutable}) |
+	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ServiceDiscovery::PublicDnsNamespace"
 	Properties!: #Properties

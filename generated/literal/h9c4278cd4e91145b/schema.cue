@@ -29,17 +29,17 @@ import (
 
 	// The maximum number of messages per second that can be sent to the room.
 	MaximumMessageRatePerSecond?: int & <=10 & >=1
-	MessageReviewHandler?:        _#defs."/$defs/Properties/definitions/MessageReviewHandler"
+	MessageReviewHandler?:        #MessageReviewHandler
 
 	// The name of the room. The value does not need to be unique.
 	Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Configuration information for optional review of messages.
-_#defs: "/$defs/Properties/definitions/MessageReviewHandler": close({
+#MessageReviewHandler: close({
 	// Specifies the fallback behavior if the handler does not return a valid
 	// response, encounters an error, or times out.
 	FallbackResult?: "ALLOW" | "DENY"
@@ -49,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/MessageReviewHandler": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

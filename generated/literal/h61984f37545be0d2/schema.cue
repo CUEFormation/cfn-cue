@@ -12,56 +12,52 @@ import (
 
 // Resource Type definition for AWS::MWAAServerless::Workflow resource
 #Properties: close({
-	Code?:                    _#defs."/$defs/Properties/definitions/Code"
-	CodeSnapshottedAt?:       _#defs."/$defs/Properties/definitions/Timestamp"
-	CreatedAt?:               _#defs."/$defs/Properties/definitions/Timestamp"
-	DefinitionS3Location!:    _#defs."/$defs/Properties/definitions/S3Location"
-	Description?:             _#defs."/$defs/Properties/definitions/Description"
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	LoggingConfiguration?:    _#defs."/$defs/Properties/definitions/LoggingConfiguration"
-	ModifiedAt?:              _#defs."/$defs/Properties/definitions/Timestamp"
-	Name?:                    _#defs."/$defs/Properties/definitions/Name"
-	NetworkConfiguration?:    _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-	RoleArn!:                 _#defs."/$defs/Properties/definitions/RoleArn"
-	ScheduleConfiguration?:   _#defs."/$defs/Properties/definitions/ScheduleConfiguration"
-	Tags?:                    _#defs."/$defs/Properties/definitions/Tags"
-	TriggerMode?:             _#defs."/$defs/Properties/definitions/TriggerMode"
-	WorkflowArn?:             _#defs."/$defs/Properties/definitions/Arn"
-	WorkflowStatus?:          _#defs."/$defs/Properties/definitions/WorkflowStatus"
-	WorkflowVersion?:         _#defs."/$defs/Properties/definitions/WorkflowVersion"
+	Code?:                    #Code
+	CodeSnapshottedAt?:       #Timestamp
+	CreatedAt?:               #Timestamp
+	DefinitionS3Location!:    #S3Location
+	Description?:             #Description
+	EncryptionConfiguration?: #EncryptionConfiguration
+	LoggingConfiguration?:    #LoggingConfiguration
+	ModifiedAt?:              #Timestamp
+	Name?:                    #Name
+	NetworkConfiguration?:    #NetworkConfiguration
+	RoleArn!:                 #RoleArn
+	ScheduleConfiguration?:   #ScheduleConfiguration
+	Tags?:                    #Tags
+	TriggerMode?:             #TriggerMode
+	WorkflowArn?:             #Arn
+	WorkflowStatus?:          #WorkflowStatus
+	WorkflowVersion?:         #WorkflowVersion
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
+#Arn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(?:-(?:cn|us-gov|iso|iso-b|iso-e|iso-f))?:airflow-serverless:([a-z]{2}-(?:[a-z]+-)+[0-9]{1}):([0-9]{12}):workflow/([a-zA-Z0-9][a-zA-Z0-9\\.\\-_]{0,254}-[a-zA-Z0-9]{10})$"
 
 // The location of code artifacts in Amazon S3 for the workflow. Modeled as a
 // single-member container so it stays extensible to future artifact types
 // (e.g. OCI images).
-_#defs: "/$defs/Properties/definitions/Code": close(
-	{S3Location?: _#defs."/$defs/Properties/definitions/CodeS3Location"},
-)
+#Code: close({S3Location?: #CodeS3Location})
 
-_#defs: "/$defs/Properties/definitions/CodeS3Location": close({
+#CodeS3Location: close({
 	Bucket!:    strings.MaxRunes(63) & strings.MinRunes(3)
 	ObjectKey!: strings.MaxRunes(1024) & strings.MinRunes(1)
 	VersionId?: strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$"
+#Description: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$"
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 	Type!:     "AWS_MANAGED_KEY" | "CUSTOMER_MANAGED_KEY"
 })
 
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close({LogGroupName!: strings.MinRunes(1)})
+#LoggingConfiguration: close({LogGroupName!: strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9]+[a-zA-Z0-9\\.\\-_]*$"
+#Name: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+[a-zA-Z0-9\\.\\-_]*$"
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
+#NetworkConfiguration: close({
 	SecurityGroupIds?: [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(255) &
@@ -71,30 +67,28 @@ _#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
 	SubnetIds?: [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[a-z0-9]*$"]
 })
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(?:-(?:cn|us-gov|iso|iso-b|iso-e|iso-f))?:iam::[0-9]{12}:role(/[a-zA-Z0-9+=,.@_-]{1,512})*?/[a-zA-Z0-9+=,.@_-]{1,64}$"
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!:    strings.MinRunes(1)
 	ObjectKey!: strings.MinRunes(1)
 	VersionId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close({CronExpression?: string})
+#ScheduleConfiguration: close({CronExpression?: string})
 
 // A map of key-value pairs to be applied as tags
-_#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(50) & close({
+#Tags: struct.MaxFields(50) & close({
 
 	{[=~"^[\\w\\d+\\-\\.\\:/@]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0)}})
 
-_#defs: "/$defs/Properties/definitions/Timestamp": time.Time
+#Timestamp: time.Time
 
-_#defs: "/$defs/Properties/definitions/TriggerMode": strings.MaxRunes(255) & strings.MinRunes(1)
+#TriggerMode: strings.MaxRunes(255) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/WorkflowStatus": "READY" | "DELETING"
+#WorkflowStatus: "READY" | "DELETING"
 
-_#defs: "/$defs/Properties/definitions/WorkflowVersion": strings.MaxRunes(32) &
-strings.MinRunes(32) &
-=~"^[a-z0-9]{32}$"
+#WorkflowVersion: strings.MaxRunes(32) & strings.MinRunes(32) & =~"^[a-z0-9]{32}$"

@@ -34,7 +34,7 @@ import (
 	=~"^([\\p{L}\\p{N}_.:\\/=+\\-@()']+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@()']*)$"
 
 	// One or more tags.
-	Tags?:     list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:     list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 	Template!: string | {...}
 
 	// The Amazon Resource Name (ARN) of the view.
@@ -50,7 +50,7 @@ import (
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode characters
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

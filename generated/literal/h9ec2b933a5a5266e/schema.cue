@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,19 +13,19 @@ import (
 #Properties: close({
 	// The ARN of the alias.
 	Arn?:                  strings.MaxRunes(2048) & strings.MinRunes(1)
-	DeploymentPreference?: _#defs."/$defs/Properties/definitions/DeploymentPreference"
+	DeploymentPreference?: #DeploymentPreference
 
 	// An optional description of the alias.
 	Description?: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// The alias name.
 	Name?:                 strings.MaxRunes(80) & strings.MinRunes(1)
-	RoutingConfiguration?: _#defs."/$defs/Properties/definitions/RoutingConfiguration"
+	RoutingConfiguration?: #RoutingConfiguration
 	StateMachineArn?:      strings.MaxRunes(2048) & strings.MinRunes(1)
 }) & matchN(>=1, [{RoutingConfiguration!: _}, {DeploymentPreference!: _}])
 
 // The settings to enable gradual state machine deployments.
-_#defs: "/$defs/Properties/definitions/DeploymentPreference": close({
+#DeploymentPreference: close({
 	// A list of CloudWatch alarm names that will be monitored during the
 	// deployment. The deployment will fail and rollback if any alarms go into
 	// ALARM state.
@@ -46,11 +46,9 @@ _#defs: "/$defs/Properties/definitions/DeploymentPreference": close({
 
 // The routing configuration of the alias. One or two versions can be mapped to
 // an alias to split StartExecution requests of the same state machine.
-_#defs: "/$defs/Properties/definitions/RoutingConfiguration": list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/RoutingConfigurationVersion"
-]
+#RoutingConfiguration: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#RoutingConfigurationVersion]
 
-_#defs: "/$defs/Properties/definitions/RoutingConfigurationVersion": close({
+#RoutingConfigurationVersion: close({
 	// The Amazon Resource Name (ARN) that identifies one or two state machine
 	// versions defined in the routing configuration.
 	StateMachineVersionArn!: strings.MaxRunes(2048) & strings.MinRunes(1)

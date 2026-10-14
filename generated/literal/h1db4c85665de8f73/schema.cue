@@ -14,29 +14,29 @@ import "list"
 	NetworkLoadBalancerArns?:     [...string]
 	PayerResponsibility?:         string
 	PrivateDnsName?:              string
-	PrivateDnsNameConfiguration?: _#defs."/$defs/Properties/definitions/PrivateDnsNameConfiguration"
+	PrivateDnsNameConfiguration?: #PrivateDnsNameConfiguration
 	ServiceId?:                   string
 
 	// Specify which Ip Address types are supported for VPC endpoint service.
-	SupportedIpAddressTypes?: [..._#defs."/$defs/Properties/definitions/IpAddressType"]
+	SupportedIpAddressTypes?: [...#IpAddressType]
 
 	// The Regions from which service consumers can access the service.
 	SupportedRegions?: list.UniqueItems() & [...string]
 
 	// The tags to add to the VPC endpoint service.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/IpAddressType": "ipv4" | "ipv6"
+#IpAddressType: "ipv4" | "ipv6"
 
-_#defs: "/$defs/Properties/definitions/PrivateDnsNameConfiguration": close({
+#PrivateDnsNameConfiguration: close({
 	Name?:  string
 	State?: string
 	Type?:  string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

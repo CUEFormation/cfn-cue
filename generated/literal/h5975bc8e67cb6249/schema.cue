@@ -11,13 +11,13 @@ import "strings"
 	Arn?:      string
 	Entries?:  strings.MaxRunes(40960)
 	Id?:       strings.MaxRunes(19) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$"
-	Language!: _#defs."/$defs/Properties/definitions/DictionaryLanguage"
+	Language!: #DictionaryLanguage
 	Name!:     =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$"
-	Tags?:     _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?:     #TagMap
 })
 
-_#defs: "/$defs/Properties/definitions/DictionaryLanguage": "eng" | "fra" | "ita" | "deu" | "spa" | "por"
+#DictionaryLanguage: "eng" | "fra" | "ita" | "deu" | "spa" | "por"
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256)}})

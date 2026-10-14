@@ -14,12 +14,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::VerifiedPermissions::IdentitySource Resource Type
 #Properties: close({
-	Configuration!:       _#defs."/$defs/Properties/definitions/IdentitySourceConfiguration"
+	Configuration!:       #IdentitySourceConfiguration
 	PolicyStoreId!:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
 	PrincipalEntityType?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CognitoGroupConfiguration": close({
+#CognitoGroupConfiguration: close({
 	GroupEntityType!: strings.MaxRunes(200) &
 	strings.MinRunes(1) &
 	=~"^([_a-zA-Z][_a-zA-Z0-9]*::)*[_a-zA-Z][_a-zA-Z0-9]*$" |
@@ -27,12 +27,12 @@ _#defs: "/$defs/Properties/definitions/CognitoGroupConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CognitoUserPoolConfiguration": close({
+#CognitoUserPoolConfiguration: close({
 	ClientIds?: list.MaxItems(1000) & [...] & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	GroupConfiguration?: _#defs."/$defs/Properties/definitions/CognitoGroupConfiguration"
+	GroupConfiguration?: #CognitoGroupConfiguration
 	UserPoolArn!: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-zA-Z0-9-]+:cognito-idp:(([a-zA-Z0-9-]+:\\d{12}:userpool/[\\w-]+_[0-9a-zA-Z]+))$" |
@@ -40,20 +40,20 @@ _#defs: "/$defs/Properties/definitions/CognitoUserPoolConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdentitySourceConfiguration": matchN(1, [close(
-	{CognitoUserPoolConfiguration!: _#defs."/$defs/Properties/definitions/CognitoUserPoolConfiguration"},
+#IdentitySourceConfiguration: matchN(1, [close(
+	{CognitoUserPoolConfiguration!: #CognitoUserPoolConfiguration},
 ), close(
-	{OpenIdConnectConfiguration!: _#defs."/$defs/Properties/definitions/OpenIdConnectConfiguration"},
+	{OpenIdConnectConfiguration!: #OpenIdConnectConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/IdentitySourceDetails": close({
+#IdentitySourceDetails: close({
 	ClientIds?: list.MaxItems(1000) & [...] & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
 	DiscoveryUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" | fn.#StringExpression
-	OpenIdIssuer?: _#defs."/$defs/Properties/definitions/OpenIdIssuer"
+	OpenIdIssuer?: #OpenIdIssuer
 	UserPoolArn?: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-zA-Z0-9-]+:cognito-idp:(([a-zA-Z0-9-]+:\\d{12}:userpool/[\\w-]+_[0-9a-zA-Z]+))$" |
@@ -61,7 +61,7 @@ _#defs: "/$defs/Properties/definitions/IdentitySourceDetails": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenIdConnectAccessTokenConfiguration": close({
+#OpenIdConnectAccessTokenConfiguration: close({
 	Audiences?: list.MaxItems(255) & list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	] |
@@ -70,15 +70,15 @@ _#defs: "/$defs/Properties/definitions/OpenIdConnectAccessTokenConfiguration": c
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenIdConnectConfiguration": close({
+#OpenIdConnectConfiguration: close({
 	EntityIdPrefix?:     strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	GroupConfiguration?: _#defs."/$defs/Properties/definitions/OpenIdConnectGroupConfiguration"
+	GroupConfiguration?: #OpenIdConnectGroupConfiguration
 	Issuer!:             strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" | fn.#StringExpression
-	TokenSelection!:     _#defs."/$defs/Properties/definitions/OpenIdConnectTokenSelection"
+	TokenSelection!:     #OpenIdConnectTokenSelection
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenIdConnectGroupConfiguration": close({
+#OpenIdConnectGroupConfiguration: close({
 	GroupClaim!: strings.MinRunes(1) | fn.#StringExpression
 	GroupEntityType!: strings.MaxRunes(200) &
 	strings.MinRunes(1) &
@@ -87,7 +87,7 @@ _#defs: "/$defs/Properties/definitions/OpenIdConnectGroupConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenIdConnectIdentityTokenConfiguration": close({
+#OpenIdConnectIdentityTokenConfiguration: close({
 	ClientIds?: list.MaxItems(1000) & [...] & [
 		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 	] |
@@ -96,14 +96,14 @@ _#defs: "/$defs/Properties/definitions/OpenIdConnectIdentityTokenConfiguration":
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenIdConnectTokenSelection": matchN(1, [close(
-	{AccessTokenOnly!: _#defs."/$defs/Properties/definitions/OpenIdConnectAccessTokenConfiguration"},
+#OpenIdConnectTokenSelection: matchN(1, [close(
+	{AccessTokenOnly!: #OpenIdConnectAccessTokenConfiguration},
 ), close(
-	{IdentityTokenOnly!: _#defs."/$defs/Properties/definitions/OpenIdConnectIdentityTokenConfiguration"},
+	{IdentityTokenOnly!: #OpenIdConnectIdentityTokenConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/OpenIdIssuer": "COGNITO" | fn.#StringExpression
+#OpenIdIssuer: "COGNITO" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::VerifiedPermissions::IdentitySource"
 	Properties!: #Properties

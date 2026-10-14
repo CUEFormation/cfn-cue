@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -27,11 +27,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 	GrantName?:  string | fn.#StringExpression
 	HomeRegion?: string | fn.#StringExpression
-	LicenseArn?: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	Principals?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Arn"
-	] |
-		fn.#ListExpression
+	LicenseArn?: #Arn | fn.#StringExpression
+	Principals?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#Arn] | fn.#ListExpression
 	Status?: "ACTIVE" |
 		"DELETED" |
 		"DISABLED" |
@@ -42,12 +39,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"REJECTED" |
 		"WORKFLOW_COMPLETED" |
 		fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

@@ -36,10 +36,10 @@ import (
 
 	// The harness version that the endpoint is currently serving.
 	LiveVersion?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,4})$"
-	Status?:      _#defs."/$defs/Properties/definitions/HarnessEndpointStatus"
+	Status?:      #HarnessEndpointStatus
 
 	// Tags to apply to the harness endpoint resource.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The harness version that the endpoint points to and serves invocations from.
 	TargetVersion?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,4})$"
@@ -48,7 +48,7 @@ import (
 	UpdatedAt?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/HarnessEndpointStatus": "CREATING" |
+#HarnessEndpointStatus: "CREATING" |
 	"CREATE_FAILED" |
 	"UPDATING" |
 	"UPDATE_FAILED" |
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/HarnessEndpointStatus": "CREATING" |
 	"DELETING" |
 	"DELETE_FAILED"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$"
 })

@@ -10,13 +10,13 @@ package schema
 	CreationTime?: string
 
 	// The Connect attachment options.
-	Options!: _#defs."/$defs/Properties/definitions/TransitGatewayConnectOptions"
+	Options!: #TransitGatewayConnectOptions
 
 	// The state of the attachment.
 	State?: string
 
 	// The tags for the attachment.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The ID of the Connect attachment.
 	TransitGatewayAttachmentId?: string
@@ -28,7 +28,7 @@ package schema
 	TransportTransitGatewayAttachmentId!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag. Constraints: Tag keys are case-sensitive and accept a
 	// maximum of 127 Unicode characters. May not begin with aws:.
 	Key?: string
@@ -38,7 +38,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayConnectOptions": close({
+#TransitGatewayConnectOptions: close({
 	// The tunnel protocol.
 	Protocol?: "gre"
 })

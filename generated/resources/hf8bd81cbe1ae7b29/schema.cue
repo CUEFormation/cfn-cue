@@ -19,18 +19,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::GameLiftStreams::StreamGroup Resource Type
 #Properties: close({
-	DefaultApplication?: _#defs."/$defs/Properties/definitions/DefaultApplication"
+	DefaultApplication?: #DefaultApplication
 	Description!: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.!+@/][a-zA-Z0-9-_.!+@/ ]*$" |
 	fn.#StringExpression
-	LocationConfigurations!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/LocationConfiguration"
-	] |
+	LocationConfigurations!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...#LocationConfiguration] |
 		fn.#ListExpression
-	StreamClass!: _#defs."/$defs/Properties/definitions/StreamClass"
-	Tags?:        _#defs."/$defs/Properties/definitions/Tags"
+	StreamClass!: #StreamClass
+	Tags?:        #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/DefaultApplication": close({
+#DefaultApplication: close({
 	Arn?: strings.MaxRunes(128) &
 	strings.MinRunes(1) &
 	=~"""
@@ -43,7 +41,7 @@ _#defs: "/$defs/Properties/definitions/DefaultApplication": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LocationConfiguration": close({
+#LocationConfiguration: close({
 	AlwaysOnCapacity?: int & >=0 |
 		{
 			string &
@@ -105,18 +103,18 @@ _#defs: "/$defs/Properties/definitions/LocationConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	VpcTransitConfiguration?: _#defs."/$defs/Properties/definitions/VpcTransitConfiguration"
+	VpcTransitConfiguration?: #VpcTransitConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamClass": strings.MaxRunes(20) & strings.MinRunes(1) | fn.#StringExpression
+#StreamClass: strings.MaxRunes(20) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(50) & struct.MinFields(1) & close({
+#Tags: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcTransitConfiguration": close({
+#VpcTransitConfiguration: close({
 	Ipv4CidrBlocks!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
 		...=~"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])/([0-9]|[1-2][0-9]|3[0-2])$" |
 			fn.#StringExpression

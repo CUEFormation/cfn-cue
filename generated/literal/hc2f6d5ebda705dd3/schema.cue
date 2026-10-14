@@ -14,11 +14,11 @@ import (
 	// The Amazon Resource name for the suite definition.
 	SuiteDefinitionArn?: strings.MaxRunes(2048) & strings.MinRunes(20)
 	SuiteDefinitionConfiguration!: close({
-		DevicePermissionRoleArn!:  _#defs."/$defs/Properties/definitions/DevicePermissionRoleArn"
-		Devices?:                  _#defs."/$defs/Properties/definitions/Devices"
-		IntendedForQualification?: _#defs."/$defs/Properties/definitions/IntendedForQualification"
-		RootGroup!:                _#defs."/$defs/Properties/definitions/RootGroup"
-		SuiteDefinitionName?:      _#defs."/$defs/Properties/definitions/SuiteDefinitionName"
+		DevicePermissionRoleArn!:  #DevicePermissionRoleArn
+		Devices?:                  #Devices
+		IntendedForQualification?: #IntendedForQualification
+		RootGroup!:                #RootGroup
+		SuiteDefinitionName?:      #SuiteDefinitionName
 	})
 
 	// The unique identifier for the suite definition.
@@ -28,33 +28,31 @@ import (
 	SuiteDefinitionVersion?: strings.MaxRunes(255) & strings.MinRunes(2)
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The device permission role arn of the test suite.
-_#defs: "/$defs/Properties/definitions/DevicePermissionRoleArn": strings.MaxRunes(2048) & strings.MinRunes(20)
+#DevicePermissionRoleArn: strings.MaxRunes(2048) & strings.MinRunes(20)
 
-_#defs: "/$defs/Properties/definitions/DeviceUnderTest": close({
+#DeviceUnderTest: close({
 	CertificateArn?: strings.MaxRunes(2048) & strings.MinRunes(20)
 	ThingArn?:       strings.MaxRunes(2048) & strings.MinRunes(20)
 })
 
 // The devices being tested in the test suite
-_#defs: "/$defs/Properties/definitions/Devices": list.MaxItems(2) & [...] & [
-	..._#defs."/$defs/Properties/definitions/DeviceUnderTest"
-]
+#Devices: list.MaxItems(2) & [...] & [...#DeviceUnderTest]
 
 // Whether the tests are intended for qualification in a suite.
-_#defs: "/$defs/Properties/definitions/IntendedForQualification": bool
+#IntendedForQualification: bool
 
 // The root group of the test suite.
-_#defs: "/$defs/Properties/definitions/RootGroup": strings.MaxRunes(2048) & strings.MinRunes(1)
+#RootGroup: strings.MaxRunes(2048) & strings.MinRunes(1)
 
 // The Name of the suite definition.
-_#defs: "/$defs/Properties/definitions/SuiteDefinitionName": strings.MaxRunes(256) & strings.MinRunes(1)
+#SuiteDefinitionName: strings.MaxRunes(256) & strings.MinRunes(1)
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -22,14 +22,14 @@ import (
 	// **[Default policies only]** Specifies how often the policy should run and
 	// create snapshots or AMIs. The creation frequency can range from 1 to 7 days.
 	CreateInterval?:         int & >=1
-	CrossRegionCopyTargets?: _#defs."/$defs/Properties/definitions/CrossRegionCopyTargets"
+	CrossRegionCopyTargets?: #CrossRegionCopyTargets
 
 	// **[Default policies only]** Specify the type of default policy to create.
 	DefaultPolicy?: "INSTANCE" | "VOLUME"
 
 	// A description of the lifecycle policy. The characters ^[0-9A-Za-z _-]+$ are supported.
 	Description?: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$"
-	Exclusions?:  _#defs."/$defs/Properties/definitions/Exclusions"
+	Exclusions?:  #Exclusions
 
 	// The Amazon Resource Name (ARN) of the IAM role used to run the operations
 	// specified by the lifecycle policy.
@@ -42,7 +42,7 @@ import (
 	// for the policy if the source volume or instance is deleted, or if the policy
 	// enters the error, disabled, or deleted state.
 	ExtendDeletion?: bool
-	PolicyDetails?:  _#defs."/$defs/Properties/definitions/PolicyDetails"
+	PolicyDetails?:  #PolicyDetails
 
 	// The identifier of the lifecycle policy.
 	PolicyId?: string
@@ -57,33 +57,29 @@ import (
 	State?: string
 
 	// The tags to apply to the lifecycle policy during creation.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Action": close({
+#Action: close({
 	// The rule for copying shared snapshots across Regions.
-	CrossRegionCopy!: list.MaxItems(3) & [...] & [..._#defs."/$defs/Properties/definitions/CrossRegionCopyAction"]
+	CrossRegionCopy!: list.MaxItems(3) & [...] & [...#CrossRegionCopyAction]
 
 	// A descriptive name for the action.
 	Name!: strings.MaxRunes(120) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$"
 })
 
 // Information about the retention period for the snapshot archiving rule.
-_#defs: "/$defs/Properties/definitions/ArchiveRetainRule": close(
-	{RetentionArchiveTier!: _#defs."/$defs/Properties/definitions/RetentionArchiveTier"},
-)
+#ArchiveRetainRule: close({RetentionArchiveTier!: #RetentionArchiveTier})
 
 // **[Custom snapshot policies that target volumes only]** The snapshot
 // archiving rule for the schedule. When you specify an archiving rule,
 // snapshots are automatically moved from the standard tier to the archive tier
 // once the schedule's retention threshold is met. Snapshots are then retained
 // in the archive tier for the archive retention period that you specify.
-_#defs: "/$defs/Properties/definitions/ArchiveRule": close(
-	{RetainRule!: _#defs."/$defs/Properties/definitions/ArchiveRetainRule"},
-)
+#ArchiveRule: close({RetainRule!: #ArchiveRetainRule})
 
 // The creation rule.
-_#defs: "/$defs/Properties/definitions/CreateRule": close({
+#CreateRule: close({
 	// The schedule, as a Cron expression. The schedule interval must be between 1 hour and 1 year.
 	CronExpression?: strings.MaxRunes(106) & strings.MinRunes(17) & =~"^cron\\([^\\n]{11,100}\\)$"
 
@@ -112,7 +108,7 @@ _#defs: "/$defs/Properties/definitions/CreateRule": close({
 	// This is useful for creating application-consistent snapshots, or for
 	// performing specific administrative tasks before or after Amazon Data
 	// Lifecycle Manager initiates snapshot creation.
-	Scripts?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/Script"]
+	Scripts?: list.MaxItems(1) & [...] & [...#Script]
 
 	// The time, in UTC, to start the operation. The supported format is hh:mm.
 	//
@@ -124,9 +120,9 @@ _#defs: "/$defs/Properties/definitions/CreateRule": close({
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/CrossRegionCopyAction": close({
-	EncryptionConfiguration!: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	RetainRule?:              _#defs."/$defs/Properties/definitions/CrossRegionCopyRetainRule"
+#CrossRegionCopyAction: close({
+	EncryptionConfiguration!: #EncryptionConfiguration
+	RetainRule?:              #CrossRegionCopyRetainRule
 
 	// The target Region.
 	Target!: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\w:\\-\\/\\*]+$"
@@ -134,7 +130,7 @@ _#defs: "/$defs/Properties/definitions/CrossRegionCopyAction": close({
 
 // **[Custom AMI policies only]** The AMI deprecation rule for cross-Region AMI
 // copies created by the rule.
-_#defs: "/$defs/Properties/definitions/CrossRegionCopyDeprecateRule": close({
+#CrossRegionCopyDeprecateRule: close({
 	// The period after which to deprecate the cross-Region AMI copies. The period
 	// must be less than or equal to the cross-Region AMI copy retention period,
 	// and it can't be greater than 10 years. This is equivalent to 120 months, 520
@@ -149,7 +145,7 @@ _#defs: "/$defs/Properties/definitions/CrossRegionCopyDeprecateRule": close({
 
 // The retention rule that indicates how long the cross-Region snapshot or AMI
 // copies are to be retained in the destination Region.
-_#defs: "/$defs/Properties/definitions/CrossRegionCopyRetainRule": close({
+#CrossRegionCopyRetainRule: close({
 	// The amount of time to retain a cross-Region snapshot or AMI copy. The maximum
 	// is 100 years. This is equivalent to 1200 months, 5200 weeks, or 36500 days.
 	Interval!: int & >=1
@@ -160,7 +156,7 @@ _#defs: "/$defs/Properties/definitions/CrossRegionCopyRetainRule": close({
 	IntervalUnit!: "DAYS" | "MONTHS" | "WEEKS" | "YEARS"
 })
 
-_#defs: "/$defs/Properties/definitions/CrossRegionCopyRule": close({
+#CrossRegionCopyRule: close({
 	// The Amazon Resource Name (ARN) of the AWS KMS key to use for EBS encryption.
 	// If this parameter is not specified, the default KMS key for the account is
 	// used.
@@ -171,14 +167,14 @@ _#defs: "/$defs/Properties/definitions/CrossRegionCopyRule": close({
 	// Indicates whether to copy all user-defined tags from the source snapshot or
 	// AMI to the cross-Region copy.
 	CopyTags?:      bool
-	DeprecateRule?: _#defs."/$defs/Properties/definitions/CrossRegionCopyDeprecateRule"
+	DeprecateRule?: #CrossRegionCopyDeprecateRule
 
 	// To encrypt a copy of an unencrypted snapshot if encryption by default is not
 	// enabled, enable encryption using this parameter. Copies of encrypted
 	// snapshots are encrypted, even if this parameter is `false` or if encryption
 	// by default is not enabled.
 	Encrypted!:  bool
-	RetainRule?: _#defs."/$defs/Properties/definitions/CrossRegionCopyRetainRule"
+	RetainRule?: #CrossRegionCopyRetainRule
 
 	// **[Custom snapshot policies only]** The target Region or the Amazon Resource
 	// Name (ARN) of the target Outpost for the snapshot copies.
@@ -189,7 +185,7 @@ _#defs: "/$defs/Properties/definitions/CrossRegionCopyRule": close({
 	TargetRegion?: strings.MaxRunes(16) & strings.MinRunes(0) & =~"^([a-z]+-){2,3}\\d$"
 })
 
-_#defs: "/$defs/Properties/definitions/CrossRegionCopyTarget": close({
+#CrossRegionCopyTarget: close({
 	// The target Region, for example `us-east-1`.
 	TargetRegion?: strings.MaxRunes(16) & strings.MinRunes(0) & =~"^([a-z]+-){2,3}\\d$"
 })
@@ -197,12 +193,10 @@ _#defs: "/$defs/Properties/definitions/CrossRegionCopyTarget": close({
 // **[Default policies only]** Specifies destination Regions for snapshot or AMI
 // copies. You can specify up to 3 destination Regions. If you do not want to
 // create cross-Region copies, omit this parameter.
-_#defs: "/$defs/Properties/definitions/CrossRegionCopyTargets": list.MaxItems(3) & [...] & [
-	..._#defs."/$defs/Properties/definitions/CrossRegionCopyTarget"
-]
+#CrossRegionCopyTargets: list.MaxItems(3) & [...] & [...#CrossRegionCopyTarget]
 
 // **[Custom AMI policies only]** The AMI deprecation rule for the schedule.
-_#defs: "/$defs/Properties/definitions/DeprecateRule": close({
+#DeprecateRule: close({
 	// If the schedule has a count-based retention rule, this parameter specifies
 	// the number of oldest AMIs to deprecate. The count must be less than or equal
 	// to the schedule's retention count, and it can't be greater than 1000.
@@ -220,7 +214,7 @@ _#defs: "/$defs/Properties/definitions/DeprecateRule": close({
 })
 
 // The encryption settings for the copied snapshot.
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	// The Amazon Resource Name (ARN) of the AWS KMS key to use for EBS encryption.
 	// If this parameter is not specified, the default KMS key for the account is
 	// used.
@@ -236,7 +230,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 })
 
 // Information about the event.
-_#defs: "/$defs/Properties/definitions/EventParameters": close({
+#EventParameters: close({
 	// The snapshot description that can trigger the policy. The description pattern
 	// is specified using a regular expression. The policy runs only if a snapshot
 	// with a description that matches the specified pattern is shared with your
@@ -253,8 +247,8 @@ _#defs: "/$defs/Properties/definitions/EventParameters": close({
 })
 
 // **[Event-based policies only]** The event that activates the event-based policy.
-_#defs: "/$defs/Properties/definitions/EventSource": close({
-	Parameters?: _#defs."/$defs/Properties/definitions/EventParameters"
+#EventSource: close({
+	Parameters?: #EventParameters
 
 	// The source of the event. Currently only managed Amazon EventBridge events are supported.
 	Type!: "MANAGED_CWE"
@@ -262,13 +256,13 @@ _#defs: "/$defs/Properties/definitions/EventSource": close({
 
 // **[Default policies for EBS snapshots only]** Specifies the volume types to
 // exclude. Volumes of the specified types will not be targeted by the policy.
-_#defs: "/$defs/Properties/definitions/ExcludeVolumeTypesList": list.MaxItems(6) & [...] & [...string]
+#ExcludeVolumeTypesList: list.MaxItems(6) & [...] & [...string]
 
 // **[Default policies only]** Specifies exclusion parameters for volumes or
 // instances for which you do not want to create snapshots or AMIs. The policy
 // will not create snapshots or AMIs for target resources that match any of the
 // specified exclusion parameters.
-_#defs: "/$defs/Properties/definitions/Exclusions": close({
+#Exclusions: close({
 	// **[Default policies for EBS snapshots only]** Indicates whether to exclude
 	// volumes that are attached to instances as the boot volume. If you exclude
 	// boot volumes, only volumes attached as data (non-boot) volumes will be
@@ -277,12 +271,12 @@ _#defs: "/$defs/Properties/definitions/Exclusions": close({
 
 	// **[Default policies for EBS-backed AMIs only]** Specifies whether to exclude
 	// volumes that have specific tags.
-	ExcludeTags?:        list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	ExcludeVolumeTypes?: _#defs."/$defs/Properties/definitions/ExcludeVolumeTypesList"
+	ExcludeTags?:        list.MaxItems(50) & [...] & [...#Tag]
+	ExcludeVolumeTypes?: #ExcludeVolumeTypesList
 })
 
 // **[Custom snapshot policies only]** The rule for enabling fast snapshot restore.
-_#defs: "/$defs/Properties/definitions/FastRestoreRule": close({
+#FastRestoreRule: close({
 	// The Availability Zone IDs in which to enable fast snapshot restore.
 	AvailabilityZoneIds?: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(16) & strings.MinRunes(0) & =~"^[a-z]{3,4}\\d-az\\d+$"
@@ -306,7 +300,7 @@ _#defs: "/$defs/Properties/definitions/FastRestoreRule": close({
 
 // **[Custom snapshot and AMI policies only]** A set of optional parameters for
 // snapshot and AMI lifecycle policies.
-_#defs: "/$defs/Properties/definitions/Parameters": close({
+#Parameters: close({
 	// **[Custom snapshot policies that target instances only]** Indicates whether
 	// to exclude the root volume from multi-volume snapshot sets. The default is
 	// `false`. If you specify `true`, then the root volumes attached to targeted
@@ -320,7 +314,7 @@ _#defs: "/$defs/Properties/definitions/Parameters": close({
 	// specify tags for this parameter, then data volumes with the specified tags
 	// that are attached to targeted instances will be excluded from the
 	// multi-volume snapshot sets created by the policy.
-	ExcludeDataVolumeTags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	ExcludeDataVolumeTags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// **[Custom AMI policies only]** Indicates whether targeted instances are
 	// rebooted when the lifecycle policy runs. `true` indicates that targeted
@@ -332,10 +326,10 @@ _#defs: "/$defs/Properties/definitions/Parameters": close({
 })
 
 // The configuration details of the lifecycle policy.
-_#defs: "/$defs/Properties/definitions/PolicyDetails": close({
+#PolicyDetails: close({
 	// **[Event-based policies only]** The actions to be performed when the
 	// event-based policy is activated. You can specify only one action per policy.
-	Actions?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Action"]
+	Actions?: list.MaxItems(1) & list.MinItems(1) & [...#Action]
 
 	// **[Default policies only]** Indicates whether the policy should copy tags
 	// from the source resource to the snapshot or AMI. If you do not specify a
@@ -350,9 +344,9 @@ _#defs: "/$defs/Properties/definitions/PolicyDetails": close({
 	//
 	// Default: 1
 	CreateInterval?:         int & >=1
-	CrossRegionCopyTargets?: _#defs."/$defs/Properties/definitions/CrossRegionCopyTargets"
-	EventSource?:            _#defs."/$defs/Properties/definitions/EventSource"
-	Exclusions?:             _#defs."/$defs/Properties/definitions/Exclusions"
+	CrossRegionCopyTargets?: #CrossRegionCopyTargets
+	EventSource?:            #EventSource
+	Exclusions?:             #Exclusions
 
 	// **[Default policies only]** Defines the snapshot or AMI retention behavior
 	// for the policy if the source volume or instance is deleted, or if the policy
@@ -360,7 +354,7 @@ _#defs: "/$defs/Properties/definitions/PolicyDetails": close({
 	//
 	// Default: `false`
 	ExtendDeletion?: bool
-	Parameters?:     _#defs."/$defs/Properties/definitions/Parameters"
+	Parameters?:     #Parameters
 
 	// The type of policy to create. Specify one of the following:
 	//
@@ -409,15 +403,15 @@ _#defs: "/$defs/Properties/definitions/PolicyDetails": close({
 	// **[Custom snapshot and AMI policies only]** The schedules of policy-defined
 	// actions for snapshot and AMI lifecycle policies. A policy can have up to
 	// four schedules -- one mandatory schedule and up to three optional schedules.
-	Schedules?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Schedule"]
+	Schedules?: list.MaxItems(4) & list.MinItems(1) & [...#Schedule]
 
 	// **[Custom snapshot and AMI policies only]** The single tag that identifies
 	// targeted resources for this policy.
-	TargetTags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	TargetTags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 })
 
 // The retention rule for snapshots or AMIs created by the policy.
-_#defs: "/$defs/Properties/definitions/RetainRule": close({
+#RetainRule: close({
 	// The number of snapshots to retain for each volume, up to a maximum of 1000.
 	// For example if you want to retain a maximum of three snapshots, specify `3`.
 	// When the fourth snapshot is created, the oldest retained snapshot is
@@ -437,7 +431,7 @@ _#defs: "/$defs/Properties/definitions/RetainRule": close({
 })
 
 // Information about retention period in the Amazon EBS Snapshots Archive.
-_#defs: "/$defs/Properties/definitions/RetentionArchiveTier": close({
+#RetentionArchiveTier: close({
 	// The maximum number of snapshots to retain in the archive storage tier for
 	// each volume. The count must ensure that each snapshot remains in the archive
 	// tier for at least 90 days.
@@ -453,28 +447,28 @@ _#defs: "/$defs/Properties/definitions/RetentionArchiveTier": close({
 	IntervalUnit?: "DAYS" | "MONTHS" | "WEEKS" | "YEARS"
 })
 
-_#defs: "/$defs/Properties/definitions/Schedule": close({
-	ArchiveRule?: _#defs."/$defs/Properties/definitions/ArchiveRule"
+#Schedule: close({
+	ArchiveRule?: #ArchiveRule
 
 	// Copy all user-defined tags on a source volume to snapshots of the volume created by this policy.
 	CopyTags?:   bool
-	CreateRule?: _#defs."/$defs/Properties/definitions/CreateRule"
+	CreateRule?: #CreateRule
 
 	// Specifies a rule for copying snapshots or AMIs across Regions.
-	CrossRegionCopyRules?: list.MaxItems(3) & [...] & [..._#defs."/$defs/Properties/definitions/CrossRegionCopyRule"]
-	DeprecateRule?:        _#defs."/$defs/Properties/definitions/DeprecateRule"
-	FastRestoreRule?:      _#defs."/$defs/Properties/definitions/FastRestoreRule"
+	CrossRegionCopyRules?: list.MaxItems(3) & [...] & [...#CrossRegionCopyRule]
+	DeprecateRule?:        #DeprecateRule
+	FastRestoreRule?:      #FastRestoreRule
 
 	// The name of the schedule.
 	Name?:       strings.MaxRunes(120) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$"
-	RetainRule?: _#defs."/$defs/Properties/definitions/RetainRule"
+	RetainRule?: #RetainRule
 
 	// **[Custom snapshot policies only]** The rule for sharing snapshots with other AWS accounts.
-	ShareRules?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/ShareRule"]
+	ShareRules?: list.MaxItems(1) & [...] & [...#ShareRule]
 
 	// The tags to apply to policy-created resources. These user-defined tags are in
 	// addition to the AWS-added lifecycle tags.
-	TagsToAdd?: list.MaxItems(45) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	TagsToAdd?: list.MaxItems(45) & [...] & [...#Tag]
 
 	// **[AMI policies and snapshot policies that target instances only]** A
 	// collection of key/value pairs with values determined dynamically when the
@@ -482,10 +476,10 @@ _#defs: "/$defs/Properties/definitions/Schedule": close({
 	// in one of the two following formats: `$(instance-id)` or `$(timestamp)`.
 	// Variable tags are only valid for EBS Snapshot Management -- Instance
 	// policies.
-	VariableTags?: list.MaxItems(45) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	VariableTags?: list.MaxItems(45) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Script": close({
+#Script: close({
 	// Indicates whether Amazon Data Lifecycle Manager should default to
 	// crash-consistent snapshots if the pre script fails.
 	//
@@ -552,7 +546,7 @@ _#defs: "/$defs/Properties/definitions/Script": close({
 	Stages?: list.MaxItems(2) & list.MinItems(1) & [..."POST" | "PRE"]
 })
 
-_#defs: "/$defs/Properties/definitions/ShareRule": close({
+#ShareRule: close({
 	// The IDs of the AWS accounts with which to share the snapshots.
 	TargetAccounts?: list.MinItems(1) & [...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"]
 
@@ -564,7 +558,7 @@ _#defs: "/$defs/Properties/definitions/ShareRule": close({
 	UnshareIntervalUnit?: "DAYS" | "MONTHS" | "WEEKS" | "YEARS"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(500) & strings.MinRunes(0)
 

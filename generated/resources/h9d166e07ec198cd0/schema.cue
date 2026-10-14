@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AdditionalInfo?:      string | fn.#StringExpression
 	Affinity?:            "default" | "host" | fn.#StringExpression
 	AvailabilityZone?:    string | fn.#StringExpression
-	BlockDeviceMappings?: [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"] | fn.#ListExpression
+	BlockDeviceMappings?: [...#BlockDeviceMapping] | fn.#ListExpression
 	CpuOptions?: close({
 		CoreCount?: int |
 			{
@@ -53,12 +53,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
-	CreditSpecification?:      close({CPUCredits?: string | fn.#StringExpression}) | fn.#ObjectExpression
-	DisableApiTermination?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EbsOptimized?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ElasticGpuSpecifications?: [..._#defs."/$defs/Properties/definitions/ElasticGpuSpecification"] | fn.#ListExpression
-	ElasticInferenceAccelerators?: [..._#defs."/$defs/Properties/definitions/ElasticInferenceAccelerator"] |
-		fn.#ListExpression
+	CreditSpecification?:          close({CPUCredits?: string | fn.#StringExpression}) | fn.#ObjectExpression
+	DisableApiTermination?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EbsOptimized?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ElasticGpuSpecifications?:     [...#ElasticGpuSpecification] | fn.#ListExpression
+	ElasticInferenceAccelerators?: [...#ElasticInferenceAccelerator] | fn.#ListExpression
 	EnclaveOptions?: close(
 		{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 	) |
@@ -88,19 +87,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Ipv6Addresses?: [..._#defs."/$defs/Properties/definitions/InstanceIpv6Address"] | fn.#ListExpression
-	KernelId?:      string | fn.#StringExpression
-	KeyName?:       string | fn.#StringExpression
-	LaunchTemplate?: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification" & fn.#Object & {...} |
-	fn.#ObjectExpression
-	LicenseSpecifications?: [..._#defs."/$defs/Properties/definitions/LicenseSpecification"] | fn.#ListExpression
-	MetadataOptions?: _#defs."/$defs/Properties/definitions/MetadataOptions" & fn.#Object & {...} | fn.#ObjectExpression
-	Monitoring?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NetworkInterfaces?:  [..._#defs."/$defs/Properties/definitions/NetworkInterface"] | fn.#ListExpression
-	PlacementGroupName?: string | fn.#StringExpression
-	PrivateDnsNameOptions?: _#defs."/$defs/Properties/definitions/PrivateDnsNameOptions" & fn.#Object & {...} |
-	fn.#ObjectExpression
-	PrivateIpAddress?: string | fn.#StringExpression
+	Ipv6Addresses?:         [...#InstanceIpv6Address] | fn.#ListExpression
+	KernelId?:              string | fn.#StringExpression
+	KeyName?:               string | fn.#StringExpression
+	LaunchTemplate?:        #LaunchTemplateSpecification & fn.#Object & {...} | fn.#ObjectExpression
+	LicenseSpecifications?: [...#LicenseSpecification] | fn.#ListExpression
+	MetadataOptions?:       #MetadataOptions & fn.#Object & {...} | fn.#ObjectExpression
+	Monitoring?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	NetworkInterfaces?:     [...#NetworkInterface] | fn.#ListExpression
+	PlacementGroupName?:    string | fn.#StringExpression
+	PrivateDnsNameOptions?: #PrivateDnsNameOptions & fn.#Object & {...} | fn.#ObjectExpression
+	PrivateIpAddress?:      string | fn.#StringExpression
 	PropagateTagsToVolumeOnCreation?: bool |
 		"true" |
 		"True" |
@@ -118,26 +115,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 	SecurityGroups?:  [...string | fn.#StringExpression] | fn.#ListExpression
 	SourceDestCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SsmAssociations?: [..._#defs."/$defs/Properties/definitions/SsmAssociation"] | fn.#ListExpression
+	SsmAssociations?: [...#SsmAssociation] | fn.#ListExpression
 	SubnetId?:        string | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            [...#Tag] | fn.#ListExpression
 	Tenancy?:         string | fn.#StringExpression
 	UserData?:        string | fn.#StringExpression
-	Volumes?:         [..._#defs."/$defs/Properties/definitions/Volume"] | fn.#ListExpression
+	Volumes?:         [...#Volume] | fn.#ListExpression
 	if NetworkInterfaces != _|_ {
 		SubnetId?: error("SubnetId cannot be used with NetworkInterfaces")
 	}
 })
 
-_#defs: "/$defs/Properties/definitions/AssociationParameter": close({
+#AssociationParameter: close({
 	Key!:   string | fn.#StringExpression
 	Value!: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
+#BlockDeviceMapping: close({
 	DeviceName!:  string | fn.#StringExpression
-	Ebs?:         _#defs."/$defs/Properties/definitions/Ebs" | fn.#ObjectExpression
+	Ebs?:         #Ebs | fn.#ObjectExpression
 	NoDevice?:    close({}) | fn.#ObjectExpression
 	VirtualName?: string | fn.#StringExpression
 	if VirtualName != _|_ {
@@ -150,7 +147,7 @@ _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 }) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ebs": close({
+#Ebs: close({
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Encrypted?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int |
@@ -189,10 +186,9 @@ _#defs: "/$defs/Properties/definitions/Ebs": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ElasticGpuSpecification": close({Type!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#ElasticGpuSpecification: close({Type!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ElasticInferenceAccelerator": close({
+#ElasticInferenceAccelerator: close({
 	Count?: int & >=0 |
 		{
 			string &
@@ -212,21 +208,20 @@ _#defs: "/$defs/Properties/definitions/ElasticInferenceAccelerator": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnaSrdSpecification": close({
+#EnaSrdSpecification: close({
 	EnaSrdEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnaSrdUdpSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdUdpSpecification"
+	EnaSrdUdpSpecification?: #EnaSrdUdpSpecification
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnaSrdUdpSpecification": close(
+#EnaSrdUdpSpecification: close(
 	{EnaSrdUdpEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceIpv6Address": close({Ipv6Address!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#InstanceIpv6Address: close({Ipv6Address!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": matchN(1, [{
+#LaunchTemplateSpecification: matchN(1, [{
 	LaunchTemplateName!: _
 	Version!:            _
 	...
@@ -241,12 +236,9 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": matchN(1, [
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LicenseSpecification": close(
-	{LicenseConfigurationArn!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#LicenseSpecification: close({LicenseConfigurationArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataOptions": close({
+#MetadataOptions: close({
 	HttpEndpoint?:     "disabled" | "enabled" | fn.#StringExpression
 	HttpProtocolIpv6?: "disabled" | "enabled" | fn.#StringExpression
 	HttpPutResponseHopLimit?: int & <=64 & >=1 |
@@ -270,13 +262,13 @@ _#defs: "/$defs/Properties/definitions/MetadataOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkInterface": close({
+#NetworkInterface: close({
 	AssociateCarrierIpAddress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AssociatePublicIpAddress?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DeleteOnTermination?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Description?:               string | fn.#StringExpression
 	DeviceIndex!:               string | fn.#StringExpression
-	EnaSrdSpecification?:       _#defs."/$defs/Properties/definitions/EnaSrdSpecification"
+	EnaSrdSpecification?:       #EnaSrdSpecification
 	GroupSet?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -296,10 +288,10 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 				)
 		} |
 		fn.#NumberExpression
-	Ipv6Addresses?:      [..._#defs."/$defs/Properties/definitions/InstanceIpv6Address"] | fn.#ListExpression
+	Ipv6Addresses?:      [...#InstanceIpv6Address] | fn.#ListExpression
 	NetworkInterfaceId?: string | fn.#StringExpression
 	PrivateIpAddress?:   string | fn.#StringExpression
-	PrivateIpAddresses?: [..._#defs."/$defs/Properties/definitions/PrivateIpAddressSpecification"] | fn.#ListExpression
+	PrivateIpAddresses?: [...#PrivateIpAddressSpecification] | fn.#ListExpression
 	SecondaryPrivateIpAddressCount?: int |
 		{
 			string &
@@ -324,7 +316,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateDnsNameOptions": close({
+#PrivateDnsNameOptions: close({
 	EnableResourceNameDnsAAAARecord?: bool |
 		"true" |
 		"True" |
@@ -338,31 +330,31 @@ _#defs: "/$defs/Properties/definitions/PrivateDnsNameOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateIpAddressSpecification": close({
+#PrivateIpAddressSpecification: close({
 	Primary!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PrivateIpAddress!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SsmAssociation": close({
-	AssociationParameters?: [..._#defs."/$defs/Properties/definitions/AssociationParameter"] | fn.#ListExpression
+#SsmAssociation: close({
+	AssociationParameters?: [...#AssociationParameter] | fn.#ListExpression
 	DocumentName!:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/State": close({
+#State: close({
 	Code?: string | fn.#StringExpression
 	Name?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Volume": close({
+#Volume: close({
 	Device!:   string | fn.#StringExpression
 	VolumeId!: string | fn.#StringExpression
 }) |

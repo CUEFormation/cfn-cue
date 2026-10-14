@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -18,51 +18,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Registers a package version.
 #Properties: close({
 	MarkLatest?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	OwnerAccount?:              _#defs."/$defs/Properties/definitions/PackageOwnerAccount" | fn.#StringExpression
-	PackageId!:                 _#defs."/$defs/Properties/definitions/NodePackageId" | fn.#StringExpression
-	PackageVersion!:            _#defs."/$defs/Properties/definitions/NodePackageVersion" | fn.#StringExpression
-	PatchVersion!:              _#defs."/$defs/Properties/definitions/NodePackagePatchVersion" | fn.#StringExpression
-	UpdatedLatestPatchVersion?: _#defs."/$defs/Properties/definitions/NodePackagePatchVersion" | fn.#StringExpression
+	OwnerAccount?:              #PackageOwnerAccount | fn.#StringExpression
+	PackageId!:                 #NodePackageId | fn.#StringExpression
+	PackageVersion!:            #NodePackageVersion | fn.#StringExpression
+	PatchVersion!:              #NodePackagePatchVersion | fn.#StringExpression
+	UpdatedLatestPatchVersion?: #NodePackagePatchVersion | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/NodePackageArn": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
+#NodePackageArn: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NodePackageId": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_\\/]+$" |
-fn.#StringExpression
+#NodePackageId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_\\/]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NodePackageName": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_]+$" |
-fn.#StringExpression
+#NodePackageName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NodePackagePatchVersion": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-z0-9]+$" |
-fn.#StringExpression
+#NodePackagePatchVersion: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NodePackageVersion": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^([0-9]+)\\.([0-9]+)$" |
-fn.#StringExpression
+#NodePackageVersion: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([0-9]+)\\.([0-9]+)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PackageOwnerAccount": strings.MaxRunes(12) &
-strings.MinRunes(1) &
-=~"^[0-9a-z\\_]+$" |
-fn.#StringExpression
+#PackageOwnerAccount: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9a-z\\_]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PackageVersionStatus": "REGISTER_PENDING" |
-	"REGISTER_COMPLETED" |
-	"FAILED" |
-	"DELETING" |
-	fn.#StringExpression
+#PackageVersionStatus: "REGISTER_PENDING" | "REGISTER_COMPLETED" | "FAILED" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PackageVersionStatusDescription": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
+#PackageVersionStatusDescription: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TimeStamp": int |
+#TimeStamp: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,19 +15,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a custom framework in AWS Audit Manager.
 #Properties: close({
 	ComplianceType?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
-	ControlSets!:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ControlSet"] | fn.#ListExpression
+	ControlSets!:    list.MinItems(1) & [...#ControlSet] | fn.#ListExpression
 	Description?:    strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
 	Name!:           strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\]*$" | fn.#StringExpression
-	Tags?:           list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:           list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ControlSet": close({
-	Controls!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ControlSetControl"] | fn.#ListExpression
+#ControlSet: close({
+	Controls!: list.MinItems(1) & [...#ControlSetControl] | fn.#ListExpression
 	Name!:     strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\_]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ControlSetControl": close({
+#ControlSetControl: close({
 	Id!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
@@ -35,7 +35,7 @@ _#defs: "/$defs/Properties/definitions/ControlSetControl": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

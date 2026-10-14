@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A zero-ETL integration with Amazon Redshift.
 #Properties: close({
-	AdditionalEncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContextMap" | fn.#ObjectExpression
+	AdditionalEncryptionContext?: #EncryptionContextMap | fn.#ObjectExpression
 	DataFilter?: strings.MaxRunes(25600) & strings.MinRunes(1) & =~"[a-zA-Z0-9_ \"\\\\\\-$,*.:?+\\/]*" |
 	fn.#StringExpression
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
@@ -27,25 +27,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-z\\-]*:rds(-[a-z]*)?:[a-z0-9\\-]*:[0-9]*:(cluster|db):[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	TargetArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionContextMap": close({
+#EncryptionContextMap: close({
 
 	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::RDS::Integration"
 	Properties!: #Properties

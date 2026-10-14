@@ -15,10 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?:        #TagMap
 })
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression

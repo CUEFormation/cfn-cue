@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -20,115 +20,92 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // permissions on principal-resource pair are revoked via the
 // LFlong``RevokePermissions`` API operation.
 #Properties: close({
-	Catalog?:                    _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	Permissions!:                _#defs."/$defs/Properties/definitions/PermissionList" | fn.#ListExpression
-	PermissionsWithGrantOption!: _#defs."/$defs/Properties/definitions/PermissionList" | fn.#ListExpression
-	Principal!:                  _#defs."/$defs/Properties/definitions/DataLakePrincipal" | fn.#ObjectExpression
+	Catalog?:                    #CatalogIdString | fn.#StringExpression
+	Permissions!:                #PermissionList | fn.#ListExpression
+	PermissionsWithGrantOption!: #PermissionList | fn.#ListExpression
+	Principal!:                  #DataLakePrincipal | fn.#ObjectExpression
 	Resource!:                   _#defs."/$defs/Properties/definitions/Resource" | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CatalogIdString": strings.MaxRunes(255) & strings.MinRunes(12) |
-fn.#StringExpression
+#CatalogIdString: strings.MaxRunes(255) & strings.MinRunes(12) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CatalogResource": string | fn.#StringExpression
+#CatalogResource: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ColumnNames": [..._#defs."/$defs/Properties/definitions/NameString"] |
-	fn.#ListExpression
+#ColumnNames: [...#NameString] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ColumnWildcard": close(
-	{ExcludedColumnNames?: _#defs."/$defs/Properties/definitions/ColumnNames" | fn.#ListExpression},
-) |
+#ColumnWildcard: close({ExcludedColumnNames?: #ColumnNames | fn.#ListExpression}) | fn.#ObjectExpression
+
+#DataCellsFilterResource: close({
+	DatabaseName!:   #NameString | fn.#StringExpression
+	Name!:           #NameString | fn.#StringExpression
+	TableCatalogId!: #CatalogIdString | fn.#StringExpression
+	TableName!:      #NameString | fn.#StringExpression
+}) |
+fn.#ObjectExpression
+
+#DataLakePrincipal: close({DataLakePrincipalIdentifier?: #DataLakePrincipalString | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataCellsFilterResource": close({
-	DatabaseName!:   _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	Name!:           _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	TableCatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	TableName!:      _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
+#DataLakePrincipalList: [...#DataLakePrincipal] | fn.#ListExpression
+
+#DataLakePrincipalString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+
+#DataLocationResource: close({
+	CatalogId!:   #CatalogIdString | fn.#StringExpression
+	ResourceArn!: #ResourceArnString | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataLakePrincipal": close({
-	DataLakePrincipalIdentifier?: _#defs."/$defs/Properties/definitions/DataLakePrincipalString" | fn.#StringExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/DataLakePrincipalList": [
-	..._#defs."/$defs/Properties/definitions/DataLakePrincipal"
-] |
-	fn.#ListExpression
-
-_#defs: "/$defs/Properties/definitions/DataLakePrincipalString": strings.MaxRunes(255) & strings.MinRunes(1) |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/DataLocationResource": close({
-	CatalogId!:   _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	ResourceArn!: _#defs."/$defs/Properties/definitions/ResourceArnString" | fn.#StringExpression
+#DatabaseResource: close({
+	CatalogId!: #CatalogIdString | fn.#StringExpression
+	Name!:      #NameString | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatabaseResource": close({
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	Name!:      _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
+#Expression: list.MaxItems(5) & list.MinItems(1) & [...#LFTag] | fn.#ListExpression
+
+#IAMRoleArn: =~"arn:*:iam::[0-9]*:role/.*" | fn.#StringExpression
+
+#LFTag: close({
+	TagKey?:    #LFTagKey | fn.#StringExpression
+	TagValues?: #TagValueList | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Expression": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTag"
-] |
-	fn.#ListExpression
+#LFTagKey: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IAMRoleArn": =~"arn:*:iam::[0-9]*:role/.*" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/LFTag": close({
-	TagKey?:    _#defs."/$defs/Properties/definitions/LFTagKey" | fn.#StringExpression
-	TagValues?: _#defs."/$defs/Properties/definitions/TagValueList" | fn.#ListExpression
+#LFTagKeyResource: close({
+	CatalogId!: #CatalogIdString | fn.#StringExpression
+	TagKey!:    #NameString | fn.#StringExpression
+	TagValues!: #TagValueList | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagKey": strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/LFTagKeyResource": close({
-	CatalogId!: _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	TagKey!:    _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	TagValues!: _#defs."/$defs/Properties/definitions/TagValueList" | fn.#ListExpression
+#LFTagPair: close({
+	CatalogId?: #CatalogIdString
+	TagKey!:    #LFTagKey
+	TagValues!: #TagValueList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagPair": close({
-	CatalogId?: _#defs."/$defs/Properties/definitions/CatalogIdString"
-	TagKey!:    _#defs."/$defs/Properties/definitions/LFTagKey"
-	TagValues!: _#defs."/$defs/Properties/definitions/TagValueList"
+#LFTagPolicyResource: close({
+	CatalogId!:    #CatalogIdString | fn.#StringExpression
+	Expression!:   #Expression | fn.#ListExpression
+	ResourceType!: #ResourceType | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagPolicyResource": close({
-	CatalogId!:    _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	Expression!:   _#defs."/$defs/Properties/definitions/Expression" | fn.#ListExpression
-	ResourceType!: _#defs."/$defs/Properties/definitions/ResourceType" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
+#LFTagValue: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagValue": strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+#LFTagsList: [...#LFTagPair] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagsList": [..._#defs."/$defs/Properties/definitions/LFTagPair"] |
-	fn.#ListExpression
+#NameString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NameString": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#NullableBoolean: null | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/NullableBoolean": null |
-	bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#PathString: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PathString": string | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/Permission": "ALL" |
+#Permission: "ALL" |
 	"SELECT" |
 	"ALTER" |
 	"DROP" |
@@ -143,65 +120,58 @@ _#defs: "/$defs/Properties/definitions/Permission": "ALL" |
 	"GRANT_WITH_LF_TAG_EXPRESSION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PermissionList": [..._#defs."/$defs/Properties/definitions/Permission"] |
-	fn.#ListExpression
+#PermissionList: [...#Permission] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PrincipalPermissions": close({
-	DataLakePrincipal?: _#defs."/$defs/Properties/definitions/DataLakePrincipal"
-	PermissionList?:    _#defs."/$defs/Properties/definitions/PermissionList"
+#PrincipalPermissions: close({
+	DataLakePrincipal?: #DataLakePrincipal
+	PermissionList?:    #PermissionList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrincipalPermissionsList": [
-	..._#defs."/$defs/Properties/definitions/PrincipalPermissions"
-] |
-	fn.#ListExpression
+#PrincipalPermissionsList: [...#PrincipalPermissions] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PrincipalResourcePair": close({
-	Principal!: _#defs."/$defs/Properties/definitions/DataLakePrincipal"
+#PrincipalResourcePair: close({
+	Principal!: #DataLakePrincipal
 	Resource!:  _#defs."/$defs/Properties/definitions/Resource"
 }) |
 fn.#ObjectExpression
 
+#ResourceArnString: string | fn.#StringExpression
+
+#ResourceType: "DATABASE" | "TABLE" | fn.#StringExpression
+
+#TableResource: close({
+	CatalogId!:     #CatalogIdString | fn.#StringExpression
+	DatabaseName!:  #NameString | fn.#StringExpression
+	Name?:          #NameString | fn.#StringExpression
+	TableWildcard?: #TableWildcard | fn.#StringObjectExpression
+}) |
+fn.#ObjectExpression
+
+#TableWildcard: fn.#Object & {...} | string | fn.#StringObjectExpression
+
+#TableWithColumnsResource: close({
+	CatalogId!:      #CatalogIdString | fn.#StringExpression
+	ColumnNames?:    #ColumnNames | fn.#ListExpression
+	ColumnWildcard?: #ColumnWildcard | fn.#ObjectExpression
+	DatabaseName!:   #NameString | fn.#StringExpression
+	Name!:           #NameString | fn.#StringExpression
+}) |
+fn.#ObjectExpression
+
+#TagValueList: list.MaxItems(50) & list.MinItems(1) & [...#LFTagValue] | fn.#ListExpression
+
 _#defs: "/$defs/Properties/definitions/Resource": close({
-	Catalog?:          _#defs."/$defs/Properties/definitions/CatalogResource" | fn.#StringExpression
-	DataCellsFilter?:  _#defs."/$defs/Properties/definitions/DataCellsFilterResource" | fn.#ObjectExpression
-	DataLocation?:     _#defs."/$defs/Properties/definitions/DataLocationResource" | fn.#ObjectExpression
-	Database?:         _#defs."/$defs/Properties/definitions/DatabaseResource" | fn.#ObjectExpression
-	LFTag?:            _#defs."/$defs/Properties/definitions/LFTagKeyResource" | fn.#ObjectExpression
-	LFTagPolicy?:      _#defs."/$defs/Properties/definitions/LFTagPolicyResource" | fn.#ObjectExpression
-	Table?:            _#defs."/$defs/Properties/definitions/TableResource" | fn.#ObjectExpression
-	TableWithColumns?: _#defs."/$defs/Properties/definitions/TableWithColumnsResource" | fn.#ObjectExpression
+	Catalog?:          #CatalogResource | fn.#StringExpression
+	DataCellsFilter?:  #DataCellsFilterResource | fn.#ObjectExpression
+	DataLocation?:     #DataLocationResource | fn.#ObjectExpression
+	Database?:         #DatabaseResource | fn.#ObjectExpression
+	LFTag?:            #LFTagKeyResource | fn.#ObjectExpression
+	LFTagPolicy?:      #LFTagPolicyResource | fn.#ObjectExpression
+	Table?:            #TableResource | fn.#ObjectExpression
+	TableWithColumns?: #TableWithColumnsResource | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/ResourceArnString": string | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/ResourceType": "DATABASE" | "TABLE" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/TableResource": close({
-	CatalogId!:     _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	DatabaseName!:  _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	Name?:          _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	TableWildcard?: _#defs."/$defs/Properties/definitions/TableWildcard" | fn.#StringObjectExpression
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/TableWildcard": fn.#Object & {...} | string | fn.#StringObjectExpression
-
-_#defs: "/$defs/Properties/definitions/TableWithColumnsResource": close({
-	CatalogId!:      _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	ColumnNames?:    _#defs."/$defs/Properties/definitions/ColumnNames" | fn.#ListExpression
-	ColumnWildcard?: _#defs."/$defs/Properties/definitions/ColumnWildcard" | fn.#ObjectExpression
-	DatabaseName!:   _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-	Name!:           _#defs."/$defs/Properties/definitions/NameString" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/TagValueList": list.MaxItems(50) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTagValue"
-] |
-	fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::LakeFormation::PrincipalPermissions"
 	Properties!: #Properties

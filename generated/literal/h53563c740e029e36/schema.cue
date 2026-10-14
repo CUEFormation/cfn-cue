@@ -11,62 +11,58 @@ import (
 
 // The scanning configuration for a private registry.
 #Properties: close({
-	RegistryId?: _#defs."/$defs/Properties/definitions/RegistryId"
+	RegistryId?: #RegistryId
 
 	// The scanning rules associated with the registry.
-	Rules!: _#defs."/$defs/Properties/definitions/ScanningRules"
+	Rules!: #ScanningRules
 
 	// The type of scanning configured for the registry.
-	ScanType!: _#defs."/$defs/Properties/definitions/ScanType"
+	ScanType!: #ScanType
 })
 
 // The filter to use when scanning.
-_#defs: "/$defs/Properties/definitions/Filter": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-z0-9*](?:[._\\-/a-z0-9*]?[a-z0-9*]+)*$"
+#Filter: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9*](?:[._\\-/a-z0-9*]?[a-z0-9*]+)*$"
 
 // The type associated with the filter.
-_#defs: "/$defs/Properties/definitions/FilterType": "WILDCARD"
+#FilterType: "WILDCARD"
 
 // The registry id.
-_#defs: "/$defs/Properties/definitions/RegistryId": =~"^[0-9]{12}$"
+#RegistryId: =~"^[0-9]{12}$"
 
 // The filter settings used with image replication. Specifying a repository
 // filter to a replication rule provides a method for controlling which
 // repositories in a private registry are replicated. If no filters are added,
 // the contents of all repositories are replicated.
-_#defs: "/$defs/Properties/definitions/RepositoryFilter": close({
+#RepositoryFilter: close({
 	// The filter to use when scanning.
-	Filter!: _#defs."/$defs/Properties/definitions/Filter"
+	Filter!: #Filter
 
 	// The type associated with the filter.
-	FilterType!: _#defs."/$defs/Properties/definitions/FilterType"
+	FilterType!: #FilterType
 })
 
 // The frequency that scans are performed.
-_#defs: "/$defs/Properties/definitions/ScanFrequency": "SCAN_ON_PUSH" | "CONTINUOUS_SCAN"
+#ScanFrequency: "SCAN_ON_PUSH" | "CONTINUOUS_SCAN"
 
 // The type of scanning configured for the registry.
-_#defs: "/$defs/Properties/definitions/ScanType": "BASIC" | "ENHANCED"
+#ScanType: "BASIC" | "ENHANCED"
 
 // The scanning rules associated with the registry.
-_#defs: "/$defs/Properties/definitions/ScanningRule": close({
+#ScanningRule: close({
 	// The details of a scanning repository filter. For more information on how to
 	// use filters, see [Using
 	// filters](https://docs.aws.amazon.com/AmazonECR/latest/userguide/image-scanning.html#image-scanning-filters)
 	// in the *Amazon Elastic Container Registry User Guide*.
-	RepositoryFilters!: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/RepositoryFilter"]
+	RepositoryFilters!: list.MaxItems(100) & [...] & [...#RepositoryFilter]
 
 	// The frequency that scans are performed at for a private registry. When the
 	// ``ENHANCED`` scan type is specified, the supported scan frequencies are
 	// ``CONTINUOUS_SCAN`` and ``SCAN_ON_PUSH``. When the ``BASIC`` scan type is
 	// specified, the ``SCAN_ON_PUSH`` scan frequency is supported. If scan on push
 	// is not specified, then the ``MANUAL`` scan frequency is set by default.
-	ScanFrequency!: _#defs."/$defs/Properties/definitions/ScanFrequency"
+	ScanFrequency!: #ScanFrequency
 })
 
 // The scanning rules associated with the registry. A registry scanning
 // configuration may contain a maximum of 2 rules.
-_#defs: "/$defs/Properties/definitions/ScanningRules": list.MaxItems(2) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ScanningRule"
-]
+#ScanningRules: list.MaxItems(2) & [...] & [...#ScanningRule]

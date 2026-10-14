@@ -48,13 +48,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	SubnetIds!: list.UniqueItems() & [...strings.MaxRunes(200) & strings.MinRunes(5) | fn.#StringExpression] |
 	fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	VpcIdentifier!: strings.MaxRunes(50) & strings.MinRunes(5) & =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

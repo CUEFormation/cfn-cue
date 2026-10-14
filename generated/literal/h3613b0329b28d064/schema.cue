@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,7 +13,7 @@ import (
 #Properties: close({
 	Arn?: strings.MaxRunes(256)
 	ConfiguredTableAssociationAnalysisRules?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRule"
+		...#ConfiguredTableAssociationAnalysisRule
 	]
 	ConfiguredTableAssociationIdentifier?: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
@@ -33,57 +33,51 @@ import (
 	=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$"
 
 	// An arbitrary set of tags (key-value pairs) for this cleanrooms collaboration.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AllowedAdditionalAnalyses": list.MaxItems(25) & [...] & [
-	..._#defs."/$defs/Properties/definitions/AllowedAdditionalAnalysis"
-]
+#AllowedAdditionalAnalyses: list.MaxItems(25) & [...] & [...#AllowedAdditionalAnalysis]
 
-_#defs: "/$defs/Properties/definitions/AllowedAdditionalAnalysis": strings.MaxRunes(256)
+#AllowedAdditionalAnalysis: strings.MaxRunes(256)
 
-_#defs: "/$defs/Properties/definitions/AllowedResultReceiver": strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+"
+#AllowedResultReceiver: strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+"
 
-_#defs: "/$defs/Properties/definitions/AllowedResultReceivers": [...] & [
-	..._#defs."/$defs/Properties/definitions/AllowedResultReceiver"
-]
+#AllowedResultReceivers: [...] & [...#AllowedResultReceiver]
 
-_#defs: "/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRule": close({
-	Policy!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRulePolicy"
-	Type!:   _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleType"
+#ConfiguredTableAssociationAnalysisRule: close({
+	Policy!: #ConfiguredTableAssociationAnalysisRulePolicy
+	Type!:   #ConfiguredTableAssociationAnalysisRuleType
 })
 
-_#defs: "/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleAggregation": close({
-	AllowedAdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AllowedAdditionalAnalyses"
-	AllowedResultReceivers?:    _#defs."/$defs/Properties/definitions/AllowedResultReceivers"
+#ConfiguredTableAssociationAnalysisRuleAggregation: close({
+	AllowedAdditionalAnalyses?: #AllowedAdditionalAnalyses
+	AllowedResultReceivers?:    #AllowedResultReceivers
 })
 
-_#defs: "/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleCustom": close({
-	AllowedAdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AllowedAdditionalAnalyses"
-	AllowedResultReceivers?:    _#defs."/$defs/Properties/definitions/AllowedResultReceivers"
+#ConfiguredTableAssociationAnalysisRuleCustom: close({
+	AllowedAdditionalAnalyses?: #AllowedAdditionalAnalyses
+	AllowedResultReceivers?:    #AllowedResultReceivers
 })
 
-_#defs: "/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleList": close({
-	AllowedAdditionalAnalyses?: _#defs."/$defs/Properties/definitions/AllowedAdditionalAnalyses"
-	AllowedResultReceivers?:    _#defs."/$defs/Properties/definitions/AllowedResultReceivers"
+#ConfiguredTableAssociationAnalysisRuleList: close({
+	AllowedAdditionalAnalyses?: #AllowedAdditionalAnalyses
+	AllowedResultReceivers?:    #AllowedResultReceivers
 })
 
 // V1
-_#defs: "/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRulePolicy": close(
-	{V1!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRulePolicyV1"},
-)
+#ConfiguredTableAssociationAnalysisRulePolicy: close({V1!: #ConfiguredTableAssociationAnalysisRulePolicyV1})
 
-_#defs: "/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRulePolicyV1": matchN(1, [close(
-	{List!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleList"},
+#ConfiguredTableAssociationAnalysisRulePolicyV1: matchN(1, [close(
+	{List!: #ConfiguredTableAssociationAnalysisRuleList},
 ), close(
-	{Aggregation!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleAggregation"},
+	{Aggregation!: #ConfiguredTableAssociationAnalysisRuleAggregation},
 ), close(
-	{Custom!: _#defs."/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleCustom"},
+	{Custom!: #ConfiguredTableAssociationAnalysisRuleCustom},
 )])
 
-_#defs: "/$defs/Properties/definitions/ConfiguredTableAssociationAnalysisRuleType": "AGGREGATION" | "LIST" | "CUSTOM"
+#ConfiguredTableAssociationAnalysisRuleType: "AGGREGATION" | "LIST" | "CUSTOM"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

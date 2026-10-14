@@ -15,21 +15,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::ControlTower::LandingZone Resource Type
 #Properties: close({
 	Manifest!:         fn.#Object & {...} | string | fn.#StringObjectExpression
-	RemediationTypes?: _#defs."/$defs/Properties/definitions/RemediationTypes"
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	RemediationTypes?: #RemediationTypes
+	Tags?:             [...#Tag] | fn.#ListExpression
 	Version!:          strings.MaxRunes(10) & strings.MinRunes(3) & =~"\\d+.\\d+" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/LandingZoneDriftStatus": "DRIFTED" | "IN_SYNC" | fn.#StringExpression
+#LandingZoneDriftStatus: "DRIFTED" | "IN_SYNC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LandingZoneStatus": "ACTIVE" | "PROCESSING" | "FAILED" | fn.#StringExpression
+#LandingZoneStatus: "ACTIVE" | "PROCESSING" | "FAILED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RemediationTypes": list.MaxItems(1) & list.MinItems(1) & [
-	..."INHERITANCE_DRIFT" | fn.#StringExpression
-] |
+#RemediationTypes: list.MaxItems(1) & list.MinItems(1) & [..."INHERITANCE_DRIFT" | fn.#StringExpression] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

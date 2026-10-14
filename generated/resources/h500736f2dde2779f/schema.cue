@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -19,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::Route53::HealthCheck.
 #Properties: close({
 	HealthCheckConfig!: close({
-		AlarmIdentifier?: _#defs."/$defs/Properties/definitions/AlarmIdentifier"
+		AlarmIdentifier?: #AlarmIdentifier
 		ChildHealthChecks?: list.MaxItems(256) & [...] & [
 			...strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 		] |
@@ -131,11 +131,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	HealthCheckTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/HealthCheckTag"] |
-		fn.#ListExpression
+	HealthCheckTags?: list.UniqueItems() & [...#HealthCheckTag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AlarmIdentifier": close({
+#AlarmIdentifier: close({
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Region!: "af-south-1" |
 		"ap-east-1" |
@@ -187,7 +186,7 @@ _#defs: "/$defs/Properties/definitions/AlarmIdentifier": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckTag": close({
+#HealthCheckTag: close({
 	Key!:   strings.MaxRunes(128) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |

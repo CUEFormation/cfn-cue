@@ -20,7 +20,7 @@ import (
 	// The intended configuration (ID and revision) to be set when creating or updating.
 	// This property is write-only so that applications of a
 	// ConfigurationAssociation do not cause drift.
-	Configuration?: _#defs."/$defs/Properties/definitions/ConfigurationId"
+	Configuration?: #ConfigurationId
 
 	// The ID of the current actual configuration.
 	ConfigurationId?: string
@@ -44,7 +44,7 @@ import (
 			=~"^[Ss][Ii][Nn][Gg][Ll][Ee]_[Ii][Nn][Ss][Tt][Aa][Nn][Cc][Ee]$" |
 			=~"^[Aa][Cc][Tt][Ii][Vv][Ee]_[Ss][Tt][Aa][Nn][Dd][Bb][Yy][__][Mm][Uu][Ll][Tt][Ii]_[Aa][Zz]$" |
 			=~"^[Cc][Ll][Uu][Ss][Tt][Ee][Rr]_[Mm][Uu][Ll][Tt][Ii][__][Aa][Zz]$")
-	EncryptionOptions?: _#defs."/$defs/Properties/definitions/EncryptionOptions"
+	EncryptionOptions?: #EncryptionOptions
 	EngineType!: =~"(?i)^(?:activemq|rabbitmq)$" &
 		("ACTIVEMQ" | "RABBITMQ" | =~"^[Aa][Cc][Tt][Ii][Vv][Ee][Mm][Qq]$" | =~"^[Rr][Aa][Bb][Bb][Ii][Tt][Mm][Qq]$")
 
@@ -56,9 +56,9 @@ import (
 	HostInstanceType!:           string
 	Id?:                         string
 	IpAddresses?:                [...string]
-	LdapServerMetadata?:         _#defs."/$defs/Properties/definitions/LdapServerMetadata"
-	Logs?:                       _#defs."/$defs/Properties/definitions/LogList"
-	MaintenanceWindowStartTime?: _#defs."/$defs/Properties/definitions/MaintenanceWindow"
+	LdapServerMetadata?:         #LdapServerMetadata
+	Logs?:                       #LogList
+	MaintenanceWindowStartTime?: #MaintenanceWindow
 	MqttEndpoints?:              [...string]
 	OpenWireEndpoints?:          [...string]
 	PubliclyAccessible!:         bool
@@ -72,7 +72,7 @@ import (
 	StorageSize?: int
 	StorageType?: =~"(?i)^(?:EBS|EFS)$" & ("EBS" | "EFS" | =~"^[Ee]([Bb]|[Ff])[Ss]$")
 	SubnetIds?:   [...string]
-	Tags?:        [..._#defs."/$defs/Properties/definitions/TagsEntry"]
+	Tags?:        [...#TagsEntry]
 
 	// Users to configure on the broker.
 	// For RabbitMQ, this should be one user, created when the broker is created,
@@ -80,16 +80,16 @@ import (
 	// For ActiveMQ, changes to anything but Password are detected and will trigger an update,
 	// but changes to Password cannot be detected so updates to Password may not
 	// take effect unless there is some other change.
-	Users?:        [..._#defs."/$defs/Properties/definitions/User"]
+	Users?:        [...#User]
 	WssEndpoints?: [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigurationId": close({
+#ConfigurationId: close({
 	Id!:       string
 	Revision!: int
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionOptions": close({
+#EncryptionOptions: close({
 	// The customer master key (CMK) to use for the A KMS (KMS).
 	// This key is used to encrypt your data at rest. If not provided, Amazon MQ
 	// will use a default CMK to encrypt your data.
@@ -99,7 +99,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionOptions": close({
 	UseAwsOwnedKey!: bool
 })
 
-_#defs: "/$defs/Properties/definitions/LdapServerMetadata": close({
+#LdapServerMetadata: close({
 	Hosts!:                  [...string]
 	RoleBase!:               string
 	RoleName?:               string
@@ -113,12 +113,12 @@ _#defs: "/$defs/Properties/definitions/LdapServerMetadata": close({
 	UserSearchSubtree?:      bool
 })
 
-_#defs: "/$defs/Properties/definitions/LogList": close({
+#LogList: close({
 	Audit?:   bool
 	General?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
+#MaintenanceWindow: close({
 	// _Allowed Values_: <code>MONDAY</code> | <code>TUESDAY</code> |
 	// <code>WEDNESDAY</code> | <code>THURSDAY</code> | <code>FRIDAY</code> |
 	// <code>SATURDAY</code> | <code>SUNDAY</code>
@@ -148,12 +148,12 @@ _#defs: "/$defs/Properties/definitions/MaintenanceWindow": close({
 	TimeZone!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TagsEntry": close({
+#TagsEntry: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/User": close({
+#User: close({
 	ConsoleAccess?:   bool
 	Groups?:          list.MaxItems(20) & [...=~"^[A-Za-z0-9._~-]{2,100}$"]
 	Password!:        strings.MinRunes(12) & =~"^[^,:=]+$"

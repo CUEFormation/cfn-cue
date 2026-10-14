@@ -21,10 +21,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SourceIds?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	SourceType?:       string | fn.#StringExpression
 	SubscriptionName?: strings.MaxRunes(255) | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:             [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

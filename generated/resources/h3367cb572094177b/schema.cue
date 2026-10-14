@@ -13,14 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::S3Tables::Namespace
 #Properties: close({
-	Namespace!:      _#defs."/$defs/Properties/definitions/Namespace"
-	TableBucketARN!: _#defs."/$defs/Properties/definitions/TableBucketARN"
+	Namespace!:      #Namespace
+	TableBucketARN!: #TableBucketARN
 })
 
-_#defs: "/$defs/Properties/definitions/Namespace": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#Namespace: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TableBucketARN": =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" |
-	fn.#StringExpression
+#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::S3Tables::Namespace"
 	Properties!: #Properties

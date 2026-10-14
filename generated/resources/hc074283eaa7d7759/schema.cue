@@ -16,10 +16,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EngineType!:             =~"(?i)^(?:activemq|rabbitmq)$" | fn.#StringExpression
 	EngineVersion?:          string | fn.#StringExpression
 	Name!:                   string | fn.#StringExpression
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/TagsEntry"] | fn.#ListExpression
+	Tags?:                   [...#TagsEntry] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/TagsEntry": close({
+#TagsEntry: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

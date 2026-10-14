@@ -16,31 +16,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // to define the resources that Network Flow Monitor monitors for network
 // performance.
 #Properties: close({
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Targets!: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TargetResource"] |
-		fn.#ListExpression
+	Tags?:    list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+	Targets!: list.MaxItems(100) & list.MinItems(1) & [...#TargetResource] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetId": close(
-	{AccountId!: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9]{12}$" | fn.#StringExpression},
-) |
+#TargetId: close({AccountId!: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9]{12}$" | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetIdentifier": close({
-	TargetId!:   _#defs."/$defs/Properties/definitions/TargetId"
+#TargetIdentifier: close({
+	TargetId!:   #TargetId
 	TargetType!: "ACCOUNT" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetResource": close({
+#TargetResource: close({
 	Region!:           string | fn.#StringExpression
-	TargetIdentifier!: _#defs."/$defs/Properties/definitions/TargetIdentifier"
+	TargetIdentifier!: #TargetIdentifier
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -32,73 +32,71 @@ import (
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$"
 
 	// The media items for the workspace
-	Media?: list.MaxItems(4) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MediaItem"]
+	Media?: list.MaxItems(4) & list.UniqueItems() & [...#MediaItem]
 
 	// The name of the workspace.
 	Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*"
 
 	// The pages associated with the workspace
-	Pages?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/WorkspacePage"]
+	Pages?: list.UniqueItems() & [...#WorkspacePage]
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The theme configuration for the workspace
-	Theme?: _#defs."/$defs/Properties/definitions/WorkspaceTheme"
+	Theme?: #WorkspaceTheme
 
 	// The title of the workspace
 	Title?: strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[\\P{C}]*$"
 
 	// The visibility of the workspace. Will always be set to ASSIGNED oninitial creation.
-	Visibility?: _#defs."/$defs/Properties/definitions/Visibility"
+	Visibility?: #Visibility
 })
 
-_#defs: "/$defs/Properties/definitions/FontFamily": close(
-	{Default?: _#defs."/$defs/Properties/definitions/WorkspaceFontFamily"},
-)
+#FontFamily: close({Default?: #WorkspaceFontFamily})
 
-_#defs: "/$defs/Properties/definitions/MediaItem": close({
+#MediaItem: close({
 	Source?: strings.MaxRunes(533333) & strings.MinRunes(1) & =~".*\\S.*"
-	Type!:   _#defs."/$defs/Properties/definitions/MediaType"
+	Type!:   #MediaType
 })
 
 // The type of media
-_#defs: "/$defs/Properties/definitions/MediaType": "IMAGE_LOGO_LIGHT_FAVICON" |
+#MediaType: "IMAGE_LOGO_LIGHT_FAVICON" |
 	"IMAGE_LOGO_DARK_FAVICON" |
 	"IMAGE_LOGO_LIGHT_HORIZONTAL" |
 	"IMAGE_LOGO_DARK_HORIZONTAL"
 
-_#defs: "/$defs/Properties/definitions/PaletteCanvas": close({
-	ActiveBackground?:    _#defs."/$defs/Properties/definitions/ThemeString"
-	ContainerBackground?: _#defs."/$defs/Properties/definitions/ThemeString"
-	PageBackground?:      _#defs."/$defs/Properties/definitions/ThemeString"
+#PaletteCanvas: close({
+	ActiveBackground?:    #ThemeString
+	ContainerBackground?: #ThemeString
+	PageBackground?:      #ThemeString
 })
 
-_#defs: "/$defs/Properties/definitions/PaletteHeader": close({
-	Background?:          _#defs."/$defs/Properties/definitions/ThemeString"
+#PaletteHeader: close({
+	Background?:          #ThemeString
 	InvertActionsColors?: bool
-	Text?:                _#defs."/$defs/Properties/definitions/ThemeString"
-	TextHover?:           _#defs."/$defs/Properties/definitions/ThemeString"
+	Text?:                #ThemeString
+	TextHover?:           #ThemeString
 })
 
-_#defs: "/$defs/Properties/definitions/PaletteNavigation": close({
-	Background?:           _#defs."/$defs/Properties/definitions/ThemeString"
+#PaletteNavigation: close({
+	Background?:           #ThemeString
 	InvertActionsColors?:  bool
-	Text?:                 _#defs."/$defs/Properties/definitions/ThemeString"
-	TextActive?:           _#defs."/$defs/Properties/definitions/ThemeString"
-	TextBackgroundActive?: _#defs."/$defs/Properties/definitions/ThemeString"
-	TextBackgroundHover?:  _#defs."/$defs/Properties/definitions/ThemeString"
-	TextHover?:            _#defs."/$defs/Properties/definitions/ThemeString"
+	Text?:                 #ThemeString
+	TextActive?:           #ThemeString
+	TextBackgroundActive?: #ThemeString
+	TextBackgroundHover?:  #ThemeString
+	TextHover?:            #ThemeString
 })
 
-_#defs: "/$defs/Properties/definitions/PalettePrimary": close({
-	Active?:       _#defs."/$defs/Properties/definitions/ThemeString"
-	ContrastText?: _#defs."/$defs/Properties/definitions/ThemeString"
-	Default?:      _#defs."/$defs/Properties/definitions/ThemeString"
+#PalettePrimary: close({
+	Active?:       #ThemeString
+	ContrastText?: #ThemeString
+	Default?:      #ThemeString
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -112,21 +110,16 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/ThemeImageLink": strings.MaxRunes(254) & strings.MinRunes(1) & =~".*\\S.*"
+#ThemeImageLink: strings.MaxRunes(254) & strings.MinRunes(1) & =~".*\\S.*"
 
-_#defs: "/$defs/Properties/definitions/ThemeString": strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*"
+#ThemeString: strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*"
 
 // The visibility of the Connect workspace
-_#defs: "/$defs/Properties/definitions/Visibility": "ALL" | "ASSIGNED" | "NONE"
+#Visibility: "ALL" | "ASSIGNED" | "NONE"
 
-_#defs: "/$defs/Properties/definitions/WorkspaceFontFamily": "ARIAL" |
-	"COURIER_NEW" |
-	"GEORGIA" |
-	"TIMES_NEW_ROMAN" |
-	"TREBUCHET" |
-	"VERDANA"
+#WorkspaceFontFamily: "ARIAL" | "COURIER_NEW" | "GEORGIA" | "TIMES_NEW_ROMAN" | "TREBUCHET" | "VERDANA"
 
-_#defs: "/$defs/Properties/definitions/WorkspacePage": close({
+#WorkspacePage: close({
 	// The input data for the page.
 	InputData?: strings.MaxRunes(4096) & strings.MinRunes(0)
 
@@ -141,23 +134,21 @@ _#defs: "/$defs/Properties/definitions/WorkspacePage": close({
 })
 
 // The theme configuration for the Connect workspace
-_#defs: "/$defs/Properties/definitions/WorkspaceTheme": close({
-	Dark?:  _#defs."/$defs/Properties/definitions/WorkspaceThemeConfig"
-	Light?: _#defs."/$defs/Properties/definitions/WorkspaceThemeConfig"
+#WorkspaceTheme: close({
+	Dark?:  #WorkspaceThemeConfig
+	Light?: #WorkspaceThemeConfig
 })
 
-_#defs: "/$defs/Properties/definitions/WorkspaceThemeConfig": close({
-	Palette?:    _#defs."/$defs/Properties/definitions/WorkspaceThemePalette"
-	Typography?: _#defs."/$defs/Properties/definitions/WorkspaceThemeTypography"
+#WorkspaceThemeConfig: close({
+	Palette?:    #WorkspaceThemePalette
+	Typography?: #WorkspaceThemeTypography
 })
 
-_#defs: "/$defs/Properties/definitions/WorkspaceThemePalette": close({
-	Canvas?:     _#defs."/$defs/Properties/definitions/PaletteCanvas"
-	Header?:     _#defs."/$defs/Properties/definitions/PaletteHeader"
-	Navigation?: _#defs."/$defs/Properties/definitions/PaletteNavigation"
-	Primary?:    _#defs."/$defs/Properties/definitions/PalettePrimary"
+#WorkspaceThemePalette: close({
+	Canvas?:     #PaletteCanvas
+	Header?:     #PaletteHeader
+	Navigation?: #PaletteNavigation
+	Primary?:    #PalettePrimary
 })
 
-_#defs: "/$defs/Properties/definitions/WorkspaceThemeTypography": close(
-	{FontFamily?: _#defs."/$defs/Properties/definitions/FontFamily"},
-)
+#WorkspaceThemeTypography: close({FontFamily?: #FontFamily})

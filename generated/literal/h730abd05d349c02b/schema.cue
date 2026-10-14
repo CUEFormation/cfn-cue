@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,7 +13,7 @@ import (
 #Properties: close({
 	// The member who can query can provide this placeholder for a literal data
 	// value in an analysis template
-	AnalysisParameters?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/AnalysisParameter"]
+	AnalysisParameters?: list.MaxItems(50) & [...] & [...#AnalysisParameter]
 	AnalysisTemplateIdentifier?: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
@@ -24,23 +24,23 @@ import (
 	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 	Description?: strings.MaxRunes(255) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$"
-	ErrorMessageConfiguration?: _#defs."/$defs/Properties/definitions/ErrorMessageConfiguration"
+	ErrorMessageConfiguration?: #ErrorMessageConfiguration
 	Format!:                    "SQL" | "PYSPARK_1_0"
 	MembershipArn?:             strings.MaxRunes(100)
 	MembershipIdentifier!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 	Name!:                    strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$"
-	Schema?:                  _#defs."/$defs/Properties/definitions/AnalysisSchema"
-	Source!:                  _#defs."/$defs/Properties/definitions/AnalysisSource"
-	SourceMetadata?:          _#defs."/$defs/Properties/definitions/AnalysisSourceMetadata"
-	SyntheticDataParameters?: _#defs."/$defs/Properties/definitions/SyntheticDataParameters"
+	Schema?:                  #AnalysisSchema
+	Source!:                  #AnalysisSource
+	SourceMetadata?:          #AnalysisSourceMetadata
+	SyntheticDataParameters?: #SyntheticDataParameters
 
 	// An arbitrary set of tags (key-value pairs) for this cleanrooms analysis template.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisParameter": close({
+#AnalysisParameter: close({
 	DefaultValue?: strings.MaxRunes(1000) & strings.MinRunes(0)
 	Name!:         strings.MaxRunes(100) & strings.MinRunes(1) & =~"[0-9a-zA-Z_]+"
 	Type!: "SMALLINT" |
@@ -73,74 +73,59 @@ _#defs: "/$defs/Properties/definitions/AnalysisParameter": close({
 		"TINYINT"
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisSchema": close(
-	{ReferencedTables!: _#defs."/$defs/Properties/definitions/ReferencedTables"},
-)
+#AnalysisSchema: close({ReferencedTables!: #ReferencedTables})
 
-_#defs: "/$defs/Properties/definitions/AnalysisSource": matchN(1, [close(
-	{Text!: strings.MaxRunes(90000) & strings.MinRunes(0)},
-), close(
-	{Artifacts!: _#defs."/$defs/Properties/definitions/AnalysisTemplateArtifacts"},
-)])
+#AnalysisSource: matchN(1, [
+	close({Text!: strings.MaxRunes(90000) & strings.MinRunes(0)}), close({Artifacts!: #AnalysisTemplateArtifacts}),
+])
 
-_#defs: "/$defs/Properties/definitions/AnalysisSourceMetadata": close(
-	{Artifacts!: _#defs."/$defs/Properties/definitions/AnalysisTemplateArtifactMetadata"},
-)
+#AnalysisSourceMetadata: close({Artifacts!: #AnalysisTemplateArtifactMetadata})
 
-_#defs: "/$defs/Properties/definitions/AnalysisTemplateArtifact": close(
-	{Location!: _#defs."/$defs/Properties/definitions/S3Location"},
-)
+#AnalysisTemplateArtifact: close({Location!: #S3Location})
 
-_#defs: "/$defs/Properties/definitions/AnalysisTemplateArtifactMetadata": close({
-	AdditionalArtifactHashes?: [..._#defs."/$defs/Properties/definitions/Hash"]
-	EntryPointHash!:           _#defs."/$defs/Properties/definitions/Hash"
+#AnalysisTemplateArtifactMetadata: close({
+	AdditionalArtifactHashes?: [...#Hash]
+	EntryPointHash!:           #Hash
 })
 
-_#defs: "/$defs/Properties/definitions/AnalysisTemplateArtifacts": close({
-	AdditionalArtifacts?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AnalysisTemplateArtifact"
-	]
-	EntryPoint!: _#defs."/$defs/Properties/definitions/AnalysisTemplateArtifact"
-	RoleArn!:    =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(512) & strings.MinRunes(32))
+#AnalysisTemplateArtifacts: close({
+	AdditionalArtifacts?: list.MaxItems(1) & list.MinItems(1) & [...#AnalysisTemplateArtifact]
+	EntryPoint!:          #AnalysisTemplateArtifact
+	RoleArn!:             =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(512) & strings.MinRunes(32))
 })
 
-_#defs: "/$defs/Properties/definitions/ColumnClassificationDetails": close({
-	ColumnMapping!: list.MaxItems(1000) & list.MinItems(5) & [
-		..._#defs."/$defs/Properties/definitions/SyntheticDataColumnProperties"
-	]
-})
+#ColumnClassificationDetails: close(
+	{ColumnMapping!: list.MaxItems(1000) & list.MinItems(5) & [...#SyntheticDataColumnProperties]},
+)
 
-_#defs: "/$defs/Properties/definitions/ErrorMessageConfiguration": close({Type!: "DETAILED"})
+#ErrorMessageConfiguration: close({Type!: "DETAILED"})
 
-_#defs: "/$defs/Properties/definitions/Hash": close({Sha256?: string})
+#Hash: close({Sha256?: string})
 
-_#defs: "/$defs/Properties/definitions/MLSyntheticDataParameters": close({
-	ColumnClassification!:              _#defs."/$defs/Properties/definitions/ColumnClassificationDetails"
+#MLSyntheticDataParameters: close({
+	ColumnClassification!:              #ColumnClassificationDetails
 	Epsilon!:                           <=10 & >=0.0001
 	MaxMembershipInferenceAttackScore!: <=1 & >=0.5
 })
 
-_#defs: "/$defs/Properties/definitions/ReferencedTables": [...] & [..._#defs."/$defs/Properties/definitions/TableName"]
+#ReferencedTables: [...] & [...#TableName]
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3)
 	Key!:    string
 })
 
-_#defs: "/$defs/Properties/definitions/SyntheticDataColumnProperties": close({
+#SyntheticDataColumnProperties: close({
 	ColumnName!:        strings.MaxRunes(128) & =~"^[a-z0-9_](([a-z0-9_]+-)*([a-z0-9_]+))?$"
 	ColumnType!:        "CATEGORICAL" | "NUMERICAL"
 	IsPredictiveValue!: bool
 })
 
-_#defs: "/$defs/Properties/definitions/SyntheticDataParameters": close(
-	{MlSyntheticDataParameters!: _#defs."/$defs/Properties/definitions/MLSyntheticDataParameters"},
-)
+#SyntheticDataParameters: close({MlSyntheticDataParameters!: #MLSyntheticDataParameters})
 
-_#defs: "/$defs/Properties/definitions/TableName": strings.MaxRunes(128) &
-=~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$"
+#TableName: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

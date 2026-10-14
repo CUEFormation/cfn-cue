@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -19,46 +19,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AIWorkloadConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9](-*[a-z0-9]){0,62}$" |
 	fn.#StringExpression
-	AIWorkloadConfigs?: _#defs."/$defs/Properties/definitions/AIWorkloadConfigs" | fn.#ObjectExpression
-	DatasetConfig?:     _#defs."/$defs/Properties/definitions/AIDatasetConfig" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	AIWorkloadConfigs?: #AIWorkloadConfigs | fn.#ObjectExpression
+	DatasetConfig?:     #AIDatasetConfig | fn.#ObjectExpression
+	Tags?:              list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AIDatasetConfig": close(
-	{InputDataConfig!: [..._#defs."/$defs/Properties/definitions/AIWorkloadInputDataConfig"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#AIDatasetConfig: close({InputDataConfig!: [...#AIWorkloadInputDataConfig] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AIWorkloadConfigs": close(
-	{WorkloadSpec!: _#defs."/$defs/Properties/definitions/WorkloadSpec" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#AIWorkloadConfigs: close({WorkloadSpec!: #WorkloadSpec | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AIWorkloadDataSource": close(
-	{S3DataSource?: _#defs."/$defs/Properties/definitions/AIWorkloadS3DataSource" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#AIWorkloadDataSource: close({S3DataSource?: #AIWorkloadS3DataSource | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AIWorkloadInputDataConfig": close({
+#AIWorkloadInputDataConfig: close({
 	ChannelName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\.\\-_]+$" | fn.#StringExpression
-	DataSource!:  _#defs."/$defs/Properties/definitions/AIWorkloadDataSource" | fn.#ObjectExpression
+	DataSource!:  #AIWorkloadDataSource | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AIWorkloadS3DataSource": close(
+#AIWorkloadS3DataSource: close(
 	{S3Uri!: strings.MaxRunes(1024) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkloadSpec": close({Inline!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#WorkloadSpec: close({Inline!: string | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SageMaker::AIWorkloadConfig"
 	Properties!: #Properties

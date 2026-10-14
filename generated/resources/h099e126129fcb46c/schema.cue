@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -23,46 +23,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // supply.
 #Properties: close({
 	Description?:     strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	EvaluatorConfig!: _#defs."/$defs/Properties/definitions/EvaluatorConfig" | fn.#ObjectExpression
+	EvaluatorConfig!: #EvaluatorConfig | fn.#ObjectExpression
 	EvaluatorName!:   =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]+:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
 	fn.#StringExpression
-	Level!: _#defs."/$defs/Properties/definitions/EvaluatorLevel" | fn.#StringExpression
-	Tags?:  list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Level!: #EvaluatorLevel | fn.#StringExpression
+	Tags?:  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/BedrockEvaluatorModelConfig": close({
+#BedrockEvaluatorModelConfig: close({
 	AdditionalModelRequestFields?: fn.#Object & {...} | fn.#ObjectExpression
-	InferenceConfig?:              _#defs."/$defs/Properties/definitions/InferenceConfiguration"
+	InferenceConfig?:              #InferenceConfiguration
 	ModelId!:                      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CategoricalScaleDefinition": close({
+#CategoricalScaleDefinition: close({
 	Definition!: string | fn.#StringExpression
 	Label!:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeBasedEvaluatorConfig": close(
-	{LambdaConfig!: _#defs."/$defs/Properties/definitions/LambdaEvaluatorConfig"},
-) |
-	fn.#ObjectExpression
+#CodeBasedEvaluatorConfig: close({LambdaConfig!: #LambdaEvaluatorConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DerivedEvaluatorConfig": close({
+#DerivedEvaluatorConfig: close({
 	BaseEvaluatorId!: =~"^(Builtin\\.[a-zA-Z0-9._-]+|ThirdParty\\.[a-zA-Z0-9._-]+|[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10})$" |
 		fn.#StringExpression
-	ModelConfig!: _#defs."/$defs/Properties/definitions/EvaluatorModelConfig"
+	ModelConfig!: #EvaluatorModelConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluatorConfig": close({
-	CodeBased?:   _#defs."/$defs/Properties/definitions/CodeBasedEvaluatorConfig"
-	Derived?:     _#defs."/$defs/Properties/definitions/DerivedEvaluatorConfig"
-	LlmAsAJudge?: _#defs."/$defs/Properties/definitions/LlmAsAJudgeEvaluatorConfig"
+#EvaluatorConfig: close({
+	CodeBased?:   #CodeBasedEvaluatorConfig
+	Derived?:     #DerivedEvaluatorConfig
+	LlmAsAJudge?: #LlmAsAJudgeEvaluatorConfig
 	if LlmAsAJudge != _|_ {
 		CodeBased?: error(
 			"CodeBased cannot be used with LlmAsAJudge; set exactly one of LlmAsAJudge, CodeBased, Derived",
@@ -75,11 +72,11 @@ _#defs: "/$defs/Properties/definitions/EvaluatorConfig": close({
 }) & matchN(>=1, [{LlmAsAJudge!: _}, {CodeBased!: _}, {Derived!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluatorLevel": "TOOL_CALL" | "TRACE" | "SESSION" | fn.#StringExpression
+#EvaluatorLevel: "TOOL_CALL" | "TRACE" | "SESSION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluatorModelConfig": close({
-	BedrockEvaluatorModelConfig?:   _#defs."/$defs/Properties/definitions/BedrockEvaluatorModelConfig"
-	ResponsesEvaluatorModelConfig?: _#defs."/$defs/Properties/definitions/OpenResponsesEvaluatorModelConfig"
+#EvaluatorModelConfig: close({
+	BedrockEvaluatorModelConfig?:   #BedrockEvaluatorModelConfig
+	ResponsesEvaluatorModelConfig?: #OpenResponsesEvaluatorModelConfig
 	if BedrockEvaluatorModelConfig != _|_ {
 		ResponsesEvaluatorModelConfig?: error(
 			"ResponsesEvaluatorModelConfig cannot be used with BedrockEvaluatorModelConfig; set exactly one of BedrockEvaluatorModelConfig, ResponsesEvaluatorModelConfig",
@@ -88,7 +85,7 @@ _#defs: "/$defs/Properties/definitions/EvaluatorModelConfig": close({
 }) & matchN(>=1, [{BedrockEvaluatorModelConfig!: _}, {ResponsesEvaluatorModelConfig!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluatorStatus": "ACTIVE" |
+#EvaluatorStatus: "ACTIVE" |
 	"CREATING" |
 	"CREATE_FAILED" |
 	"UPDATING" |
@@ -96,14 +93,9 @@ _#defs: "/$defs/Properties/definitions/EvaluatorStatus": "ACTIVE" |
 	"DELETING" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluatorType": "Builtin" |
-	"ThirdParty" |
-	"Custom" |
-	"CustomCode" |
-	"CustomDerived" |
-	fn.#StringExpression
+#EvaluatorType: "Builtin" | "ThirdParty" | "Custom" | "CustomCode" | "CustomDerived" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InferenceConfiguration": close({
+#InferenceConfiguration: close({
 	MaxTokens?: int & >=1 |
 		{
 			string &
@@ -162,7 +154,7 @@ _#defs: "/$defs/Properties/definitions/InferenceConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaEvaluatorConfig": close({
+#LambdaEvaluatorConfig: close({
 	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
 		fn.#StringExpression
@@ -185,14 +177,14 @@ _#defs: "/$defs/Properties/definitions/LambdaEvaluatorConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LlmAsAJudgeEvaluatorConfig": close({
+#LlmAsAJudgeEvaluatorConfig: close({
 	Instructions!: string | fn.#StringExpression
-	ModelConfig!:  _#defs."/$defs/Properties/definitions/EvaluatorModelConfig"
-	RatingScale!:  _#defs."/$defs/Properties/definitions/RatingScale"
+	ModelConfig!:  #EvaluatorModelConfig
+	RatingScale!:  #RatingScale
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NumericalScaleDefinition": close({
+#NumericalScaleDefinition: close({
 	Definition!: string | fn.#StringExpression
 	Label!:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: >=0 |
@@ -217,7 +209,7 @@ _#defs: "/$defs/Properties/definitions/NumericalScaleDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenResponsesEvaluatorModelConfig": close({
+#OpenResponsesEvaluatorModelConfig: close({
 	MaxOutputTokens?: int & >=1 |
 		{
 			string &
@@ -234,7 +226,7 @@ _#defs: "/$defs/Properties/definitions/OpenResponsesEvaluatorModelConfig": close
 		} |
 		fn.#NumberExpression
 	ModelId!:   string | fn.#StringExpression
-	Reasoning?: _#defs."/$defs/Properties/definitions/ReasoningConfiguration"
+	Reasoning?: #ReasoningConfiguration
 	Temperature?: <=2 & >=0 |
 		{
 			string &
@@ -278,23 +270,21 @@ _#defs: "/$defs/Properties/definitions/OpenResponsesEvaluatorModelConfig": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Provider": "AWS" | "DeepEval" | "AutoEval" | "Custom" | fn.#StringExpression
+#Provider: "AWS" | "DeepEval" | "AutoEval" | "Custom" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RatingScale": close({
-	Categorical?: [..._#defs."/$defs/Properties/definitions/CategoricalScaleDefinition"] | fn.#ListExpression
-	Numerical?:   [..._#defs."/$defs/Properties/definitions/NumericalScaleDefinition"] | fn.#ListExpression
+#RatingScale: close({
+	Categorical?: [...#CategoricalScaleDefinition] | fn.#ListExpression
+	Numerical?:   [...#NumericalScaleDefinition] | fn.#ListExpression
 	if Numerical != _|_ {
 		Categorical?: error("Categorical cannot be used with Numerical; set exactly one of Numerical, Categorical")
 	}
 }) & matchN(>=1, [{Numerical!: _}, {Categorical!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReasoningConfiguration": close(
-	{Effort?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#ReasoningConfiguration: close({Effort?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -16,16 +16,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ParentGroupName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
 	QueryString?:     strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	ThingGroupName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
+	Tags?:            list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	ThingGroupName?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
 	ThingGroupProperties?: close({
-		AttributePayload?:      _#defs."/$defs/Properties/definitions/AttributePayload"
+		AttributePayload?:      #AttributePayload
 		ThingGroupDescription?: strings.MaxRunes(2028) & strings.MinRunes(0) | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AttributePayload": close({
+#AttributePayload: close({
 	Attributes?: close({
 
 		{[=~"[a-zA-Z0-9_.,@/:#-]+"]: string | fn.#StringExpression}}) |
@@ -33,7 +33,7 @@ _#defs: "/$defs/Properties/definitions/AttributePayload": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

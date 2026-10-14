@@ -13,36 +13,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::VerifiedPermissions::Policy Resource Type
 #Properties: close({
-	Definition!:    _#defs."/$defs/Properties/definitions/PolicyDefinition"
+	Definition!:    #PolicyDefinition
 	Name?:          strings.MaxRunes(150) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-/_]*$" | fn.#StringExpression
 	PolicyStoreId!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EntityIdentifier": close({
+#EntityIdentifier: close({
 	EntityId!:   strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 	EntityType!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinition": matchN(1, [close(
-	{Static!: _#defs."/$defs/Properties/definitions/StaticPolicyDefinition"},
-), close(
-	{TemplateLinked!: _#defs."/$defs/Properties/definitions/TemplateLinkedPolicyDefinition"},
-)]) |
+#PolicyDefinition: matchN(1, [
+	close({Static!: #StaticPolicyDefinition}), close({TemplateLinked!: #TemplateLinkedPolicyDefinition}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyType": "STATIC" | "TEMPLATE_LINKED" | fn.#StringExpression
+#PolicyType: "STATIC" | "TEMPLATE_LINKED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StaticPolicyDefinition": close({
+#StaticPolicyDefinition: close({
 	Description?: strings.MaxRunes(150) & strings.MinRunes(0) | fn.#StringExpression
 	Statement!:   strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TemplateLinkedPolicyDefinition": close({
+#TemplateLinkedPolicyDefinition: close({
 	PolicyTemplateId!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
-	Principal?:        _#defs."/$defs/Properties/definitions/EntityIdentifier"
-	Resource?:         _#defs."/$defs/Properties/definitions/EntityIdentifier"
+	Principal?:        #EntityIdentifier
+	Resource?:         #EntityIdentifier
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,13 +15,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // robots and can receive deployments.
 #Properties: close({
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\-]{1,255}$" | fn.#StringExpression
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Tags?: #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" |
-	fn.#StringExpression
+#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
 fn.#ObjectExpression

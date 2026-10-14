@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SageMaker::Cluster
 #Properties: close({
-	AutoScaling?: _#defs."/$defs/Properties/definitions/ClusterAutoScalingConfig"
+	AutoScaling?: #ClusterAutoScalingConfig
 	ClusterName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
 	fn.#StringExpression
 	ClusterRole?: strings.MaxRunes(2048) &
@@ -27,14 +27,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	InstanceGroups?: list.MaxItems(100) & list.MinItems(1) & [...close({
 		AutoPatchConfig?: close({
-			DeploymentConfig?: _#defs."/$defs/Properties/definitions/DeploymentConfig"
+			DeploymentConfig?: #DeploymentConfig
 			PatchSchedule?:    close({}) | fn.#ObjectExpression
 			PatchingStrategy!: "WhenIdle" | "WhenAllIdle" | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		CapacityRequirements?: _#defs."/$defs/Properties/definitions/ClusterCapacityRequirements"
-		ExecutionRole!:        _#defs."/$defs/Properties/definitions/ExecutionRole"
-		ImageId?:              _#defs."/$defs/Properties/definitions/ImageId"
+		CapacityRequirements?: #ClusterCapacityRequirements
+		ExecutionRole!:        #ExecutionRole
+		ImageId?:              #ImageId
 		InstanceCount!: int & <=6758 & >=0 |
 			{
 				string &
@@ -53,12 +53,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		InstanceGroupName!:      _#defs."/$defs/Properties/definitions/InstanceGroupName"
-		InstanceRequirements?:   _#defs."/$defs/Properties/definitions/InstanceRequirements"
-		InstanceStorageConfigs?: _#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfigs"
-		InstanceType?:           _#defs."/$defs/Properties/definitions/InstanceType"
-		KubernetesConfig?:       _#defs."/$defs/Properties/definitions/ClusterKubernetesConfig"
-		LifeCycleConfig?:        _#defs."/$defs/Properties/definitions/ClusterLifeCycleConfig"
+		InstanceGroupName!:      #InstanceGroupName
+		InstanceRequirements?:   #InstanceRequirements
+		InstanceStorageConfigs?: #ClusterInstanceStorageConfigs
+		InstanceType?:           #InstanceType
+		KubernetesConfig?:       #ClusterKubernetesConfig
+		LifeCycleConfig?:        #ClusterLifeCycleConfig
 		MinInstanceCount?: int & <=6758 & >=0 |
 			{
 				string &
@@ -77,11 +77,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		NetworkInterface?:        _#defs."/$defs/Properties/definitions/ClusterNetworkInterface"
-		OnStartDeepHealthChecks?: _#defs."/$defs/Properties/definitions/OnStartDeepHealthChecks"
-		OverrideVpcConfig?:       _#defs."/$defs/Properties/definitions/VpcConfig"
-		ScheduledUpdateConfig?:   _#defs."/$defs/Properties/definitions/ScheduledUpdateConfig"
-		SlurmConfig?:             _#defs."/$defs/Properties/definitions/ClusterSlurmConfig"
+		NetworkInterface?:        #ClusterNetworkInterface
+		OnStartDeepHealthChecks?: #OnStartDeepHealthChecks
+		OverrideVpcConfig?:       #VpcConfig
+		ScheduledUpdateConfig?:   #ScheduledUpdateConfig
+		SlurmConfig?:             #ClusterSlurmConfig
 		ThreadsPerCore?: int & <=2 & >=1 |
 			{
 				string &
@@ -109,10 +109,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	NodeProvisioningMode?: "Continuous" | fn.#StringExpression
 	NodeRecovery?:         "Automatic" | "None" | fn.#StringExpression
-	Orchestrator?:         _#defs."/$defs/Properties/definitions/Orchestrator"
+	Orchestrator?:         #Orchestrator
 	RestrictedInstanceGroups?: list.MaxItems(100) & list.MinItems(1) & [...close({
-		EnvironmentConfig?: _#defs."/$defs/Properties/definitions/EnvironmentConfig"
-		ExecutionRole!:     _#defs."/$defs/Properties/definitions/ExecutionRole"
+		EnvironmentConfig?: #EnvironmentConfig
+		ExecutionRole!:     #ExecutionRole
 		InstanceCount!: int & <=6758 & >=0 |
 			{
 				string &
@@ -131,11 +131,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		InstanceGroupName!:       _#defs."/$defs/Properties/definitions/InstanceGroupName"
-		InstanceStorageConfigs?:  _#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfigs"
-		InstanceType!:            _#defs."/$defs/Properties/definitions/InstanceType"
-		OnStartDeepHealthChecks?: _#defs."/$defs/Properties/definitions/OnStartDeepHealthChecks"
-		OverrideVpcConfig?:       _#defs."/$defs/Properties/definitions/VpcConfig"
+		InstanceGroupName!:       #InstanceGroupName
+		InstanceStorageConfigs?:  #ClusterInstanceStorageConfigs
+		InstanceType!:            #InstanceType
+		OnStartDeepHealthChecks?: #OnStartDeepHealthChecks
+		OverrideVpcConfig?:       #VpcConfig
 		ThreadsPerCore?: int & <=2 & >=1 |
 			{
 				string &
@@ -161,31 +161,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	RestrictedInstanceGroupsConfig?: _#defs."/$defs/Properties/definitions/RestrictedInstanceGroupsConfig"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	TieredStorageConfig?: _#defs."/$defs/Properties/definitions/TieredStorageConfig"
-	VpcConfig?:           _#defs."/$defs/Properties/definitions/VpcConfig"
+	RestrictedInstanceGroupsConfig?: #RestrictedInstanceGroupsConfig
+	Tags?:                           list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	TieredStorageConfig?:            #TieredStorageConfig
+	VpcConfig?:                      #VpcConfig
 })
 
-_#defs: "/$defs/Properties/definitions/AlarmDetails": close(
-	{AlarmName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#AlarmDetails: close({AlarmName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoPatchConfig": close({
-	DeploymentConfig?: _#defs."/$defs/Properties/definitions/DeploymentConfig"
-	PatchSchedule?:    _#defs."/$defs/Properties/definitions/PatchSchedule"
+#AutoPatchConfig: close({
+	DeploymentConfig?: #DeploymentConfig
+	PatchSchedule?:    #PatchSchedule
 	PatchingStrategy!: "WhenIdle" | "WhenAllIdle" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoRollbackConfiguration": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AlarmDetails"
-] |
-	fn.#ListExpression
+#AutoRollbackConfiguration: list.MaxItems(10) & list.MinItems(1) & [...#AlarmDetails] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CapacitySizeConfig": close({
+#CapacitySizeConfig: close({
 	Type!: =~"INSTANCE_COUNT|CAPACITY_PERCENTAGE" | fn.#StringExpression
 	Value!: int & >=1 |
 		{
@@ -205,7 +199,7 @@ _#defs: "/$defs/Properties/definitions/CapacitySizeConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterAccountingDatabase": close({
+#ClusterAccountingDatabase: close({
 	Endpoint!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Name?:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9$_]+$" | fn.#StringExpression
 	Port?: int & <=65535 & >=1 |
@@ -228,19 +222,19 @@ _#defs: "/$defs/Properties/definitions/ClusterAccountingDatabase": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterAutoScalingConfig": close({
+#ClusterAutoScalingConfig: close({
 	AutoScalerType?: "Karpenter" | fn.#StringExpression
 	Mode!:           "Enable" | "Disable" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterCapacityRequirements": close({
-	OnDemand?: _#defs."/$defs/Properties/definitions/ClusterOnDemandOptions"
-	Spot?:     _#defs."/$defs/Properties/definitions/ClusterSpotOptions"
+#ClusterCapacityRequirements: close({
+	OnDemand?: #ClusterOnDemandOptions
+	Spot?:     #ClusterSpotOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterEbsVolumeConfig": close({
+#ClusterEbsVolumeConfig: close({
 	RootVolume?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$" | fn.#StringExpression
 	VolumeSizeInGB?: int & <=16384 & >=1 |
@@ -262,7 +256,7 @@ _#defs: "/$defs/Properties/definitions/ClusterEbsVolumeConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterFsxLustreConfig": close({
+#ClusterFsxLustreConfig: close({
 	DnsName!: strings.MaxRunes(275) & strings.MinRunes(16) & =~"^((fs|fc)i?-[0-9a-f]{8,}\\..{4,253})$" |
 	fn.#StringExpression
 	MountName!: strings.MaxRunes(8) & strings.MinRunes(1) & =~"^([A-Za-z0-9_-]{1,8})$" | fn.#StringExpression
@@ -270,16 +264,16 @@ _#defs: "/$defs/Properties/definitions/ClusterFsxLustreConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterFsxOpenZfsConfig": close({
+#ClusterFsxOpenZfsConfig: close({
 	DnsName!: strings.MaxRunes(275) & strings.MinRunes(16) & =~"^((fs|fc)i?-[0-9a-f]{8,}\\..{4,253})$" |
 	fn.#StringExpression
 	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterInstanceGroup": close({
-	AutoPatchConfig?:      _#defs."/$defs/Properties/definitions/AutoPatchConfig"
-	CapacityRequirements?: _#defs."/$defs/Properties/definitions/ClusterCapacityRequirements"
+#ClusterInstanceGroup: close({
+	AutoPatchConfig?:      #AutoPatchConfig
+	CapacityRequirements?: #ClusterCapacityRequirements
 	CurrentCount?: int & >=0 |
 		{
 			string &
@@ -295,8 +289,8 @@ _#defs: "/$defs/Properties/definitions/ClusterInstanceGroup": close({
 				)
 		} |
 		fn.#NumberExpression
-	ExecutionRole!: _#defs."/$defs/Properties/definitions/ExecutionRole"
-	ImageId?:       _#defs."/$defs/Properties/definitions/ImageId"
+	ExecutionRole!: #ExecutionRole
+	ImageId?:       #ImageId
 	InstanceCount!: int & <=6758 & >=0 |
 		{
 			string &
@@ -313,12 +307,12 @@ _#defs: "/$defs/Properties/definitions/ClusterInstanceGroup": close({
 				)
 		} |
 		fn.#NumberExpression
-	InstanceGroupName!:      _#defs."/$defs/Properties/definitions/InstanceGroupName"
-	InstanceRequirements?:   _#defs."/$defs/Properties/definitions/InstanceRequirements"
-	InstanceStorageConfigs?: _#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfigs"
-	InstanceType?:           _#defs."/$defs/Properties/definitions/InstanceType"
-	KubernetesConfig?:       _#defs."/$defs/Properties/definitions/ClusterKubernetesConfig"
-	LifeCycleConfig?:        _#defs."/$defs/Properties/definitions/ClusterLifeCycleConfig"
+	InstanceGroupName!:      #InstanceGroupName
+	InstanceRequirements?:   #InstanceRequirements
+	InstanceStorageConfigs?: #ClusterInstanceStorageConfigs
+	InstanceType?:           #InstanceType
+	KubernetesConfig?:       #ClusterKubernetesConfig
+	LifeCycleConfig?:        #ClusterLifeCycleConfig
 	MinInstanceCount?: int & <=6758 & >=0 |
 		{
 			string &
@@ -335,11 +329,11 @@ _#defs: "/$defs/Properties/definitions/ClusterInstanceGroup": close({
 				)
 		} |
 		fn.#NumberExpression
-	NetworkInterface?:        _#defs."/$defs/Properties/definitions/ClusterNetworkInterface"
-	OnStartDeepHealthChecks?: _#defs."/$defs/Properties/definitions/OnStartDeepHealthChecks"
-	OverrideVpcConfig?:       _#defs."/$defs/Properties/definitions/VpcConfig"
-	ScheduledUpdateConfig?:   _#defs."/$defs/Properties/definitions/ScheduledUpdateConfig"
-	SlurmConfig?:             _#defs."/$defs/Properties/definitions/ClusterSlurmConfig"
+	NetworkInterface?:        #ClusterNetworkInterface
+	OnStartDeepHealthChecks?: #OnStartDeepHealthChecks
+	OverrideVpcConfig?:       #VpcConfig
+	ScheduledUpdateConfig?:   #ScheduledUpdateConfig
+	SlurmConfig?:             #ClusterSlurmConfig
 	ThreadsPerCore?: int & <=2 & >=1 |
 		{
 			string &
@@ -363,37 +357,31 @@ _#defs: "/$defs/Properties/definitions/ClusterInstanceGroup": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterInstanceGroupsList": list.MaxItems(100) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ClusterInstanceGroup"
-] |
-	fn.#ListExpression
+#ClusterInstanceGroupsList: list.MaxItems(100) & list.MinItems(1) & [...#ClusterInstanceGroup] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterInstanceStorageConfig": fn.#Object & {...} & matchN(1, [close(
-	{EbsVolumeConfig?: _#defs."/$defs/Properties/definitions/ClusterEbsVolumeConfig"},
+#ClusterInstanceStorageConfig: fn.#Object & {...} & matchN(1, [close(
+	{EbsVolumeConfig?: #ClusterEbsVolumeConfig},
 ), close(
-	{FsxLustreConfig?: _#defs."/$defs/Properties/definitions/ClusterFsxLustreConfig"},
+	{FsxLustreConfig?: #ClusterFsxLustreConfig},
 ), close(
-	{FsxOpenZfsConfig?: _#defs."/$defs/Properties/definitions/ClusterFsxOpenZfsConfig"},
+	{FsxOpenZfsConfig?: #ClusterFsxOpenZfsConfig},
 )]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterInstanceStorageConfigs": list.MaxItems(4) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfig"
-] |
-	fn.#ListExpression
+#ClusterInstanceStorageConfigs: list.MaxItems(4) & [...] & [...#ClusterInstanceStorageConfig] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterKubernetesConfig": close({
-	Labels?: _#defs."/$defs/Properties/definitions/ClusterKubernetesLabels"
-	Taints?: _#defs."/$defs/Properties/definitions/ClusterKubernetesTaints"
+#ClusterKubernetesConfig: close({
+	Labels?: #ClusterKubernetesLabels
+	Taints?: #ClusterKubernetesTaints
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterKubernetesLabels": close({
+#ClusterKubernetesLabels: close({
 
 	{[=~"^.+$"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterKubernetesTaint": close({
+#ClusterKubernetesTaint: close({
 	Effect!: "NoSchedule" | "PreferNoSchedule" | "NoExecute" | fn.#StringExpression
 	Key!: strings.MaxRunes(317) &
 	strings.MinRunes(1) &
@@ -404,37 +392,28 @@ _#defs: "/$defs/Properties/definitions/ClusterKubernetesTaint": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterKubernetesTaints": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ClusterKubernetesTaint"
-] |
-	fn.#ListExpression
+#ClusterKubernetesTaints: list.MaxItems(50) & [...] & [...#ClusterKubernetesTaint] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterLifeCycleConfig": close({
+#ClusterLifeCycleConfig: close({
 	OnCreate?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]+$" | fn.#StringExpression
 	OnInitComplete?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]+$" | fn.#StringExpression
 	SourceS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterNetworkInterface": close(
-	{InterfaceType!: "efa" | "efa-only" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#ClusterNetworkInterface: close({InterfaceType!: "efa" | "efa-only" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterOnDemandOptions": close({}) | fn.#ObjectExpression
+#ClusterOnDemandOptions: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterOrchestratorEksConfig": close(
-	{ClusterArn!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#ClusterOrchestratorEksConfig: close({ClusterArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterOrchestratorSlurmConfig": close({
-	AccountingDatabase?:  _#defs."/$defs/Properties/definitions/ClusterAccountingDatabase"
+#ClusterOrchestratorSlurmConfig: close({
+	AccountingDatabase?:  #ClusterAccountingDatabase
 	SlurmConfigStrategy?: "Overwrite" | "Managed" | "Merge" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterRestrictedInstanceGroup": close({
+#ClusterRestrictedInstanceGroup: close({
 	CurrentCount?: int & >=0 |
 		{
 			string &
@@ -450,8 +429,8 @@ _#defs: "/$defs/Properties/definitions/ClusterRestrictedInstanceGroup": close({
 				)
 		} |
 		fn.#NumberExpression
-	EnvironmentConfig?: _#defs."/$defs/Properties/definitions/EnvironmentConfig"
-	ExecutionRole!:     _#defs."/$defs/Properties/definitions/ExecutionRole"
+	EnvironmentConfig?: #EnvironmentConfig
+	ExecutionRole!:     #ExecutionRole
 	InstanceCount!: int & <=6758 & >=0 |
 		{
 			string &
@@ -468,11 +447,11 @@ _#defs: "/$defs/Properties/definitions/ClusterRestrictedInstanceGroup": close({
 				)
 		} |
 		fn.#NumberExpression
-	InstanceGroupName!:       _#defs."/$defs/Properties/definitions/InstanceGroupName"
-	InstanceStorageConfigs?:  _#defs."/$defs/Properties/definitions/ClusterInstanceStorageConfigs"
-	InstanceType!:            _#defs."/$defs/Properties/definitions/InstanceType"
-	OnStartDeepHealthChecks?: _#defs."/$defs/Properties/definitions/OnStartDeepHealthChecks"
-	OverrideVpcConfig?:       _#defs."/$defs/Properties/definitions/VpcConfig"
+	InstanceGroupName!:       #InstanceGroupName
+	InstanceStorageConfigs?:  #ClusterInstanceStorageConfigs
+	InstanceType!:            #InstanceType
+	OnStartDeepHealthChecks?: #OnStartDeepHealthChecks
+	OverrideVpcConfig?:       #VpcConfig
 	ThreadsPerCore?: int & <=2 & >=1 |
 		{
 			string &
@@ -496,12 +475,10 @@ _#defs: "/$defs/Properties/definitions/ClusterRestrictedInstanceGroup": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterRestrictedInstanceGroupsList": list.MaxItems(100) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/ClusterRestrictedInstanceGroup"
-] |
+#ClusterRestrictedInstanceGroupsList: list.MaxItems(100) & list.MinItems(1) & [...#ClusterRestrictedInstanceGroup] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterSlurmConfig": close({
+#ClusterSlurmConfig: close({
 	NodeType!: "Controller" | "Login" | "Compute" | fn.#StringExpression
 	PartitionNames?: list.MaxItems(1) & [...] & [
 		...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
@@ -510,15 +487,13 @@ _#defs: "/$defs/Properties/definitions/ClusterSlurmConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterSpotOptions": close({}) | fn.#ObjectExpression
+#ClusterSpotOptions: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeepHealthCheckType": "InstanceStress" |
-	"InstanceConnectivity" |
-	fn.#StringExpression
+#DeepHealthCheckType: "InstanceStress" | "InstanceConnectivity" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentConfig": close({
-	AutoRollbackConfiguration?: _#defs."/$defs/Properties/definitions/AutoRollbackConfiguration"
-	RollingUpdatePolicy?:       _#defs."/$defs/Properties/definitions/RollingUpdatePolicy"
+#DeploymentConfig: close({
+	AutoRollbackConfiguration?: #AutoRollbackConfiguration
+	RollingUpdatePolicy?:       #RollingUpdatePolicy
 	WaitIntervalInSeconds?: int & <=3600 & >=0 |
 		{
 			string &
@@ -538,17 +513,14 @@ _#defs: "/$defs/Properties/definitions/DeploymentConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentConfig": close(
-	{FSxLustreConfig?: _#defs."/$defs/Properties/definitions/FSxLustreConfig"},
-) |
-	fn.#ObjectExpression
+#EnvironmentConfig: close({FSxLustreConfig?: #FSxLustreConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExecutionRole": strings.MaxRunes(2048) &
+#ExecutionRole: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FSxLustreConfig": close({
+#FSxLustreConfig: close({
 	PerUnitStorageThroughput!: int & <=1000 & >=125 |
 		{
 			string &
@@ -584,53 +556,41 @@ _#defs: "/$defs/Properties/definitions/FSxLustreConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageId": =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#ImageId: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(21) &
 strings.MinRunes(7) &
 =~"^ami-[0-9a-fA-F]{8,17}|default$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceGroupName": strings.MaxRunes(63) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+#InstanceGroupName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
-	InstanceTypes!: list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/InstanceType"] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/InstanceType": string | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/OnStartDeepHealthChecks": list.MaxItems(3) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/DeepHealthCheckType"
-] |
-	fn.#ListExpression
-
-_#defs: "/$defs/Properties/definitions/Orchestrator": fn.#Object & {...} & matchN(1, [close(
-	{Eks?: _#defs."/$defs/Properties/definitions/ClusterOrchestratorEksConfig"},
-), close(
-	{Slurm?: _#defs."/$defs/Properties/definitions/ClusterOrchestratorSlurmConfig"},
-)]) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/PatchSchedule": close({NextPatchDate?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/RestrictedInstanceGroupsConfig": close(
-	{SharedEnvironmentConfig!: _#defs."/$defs/Properties/definitions/SharedEnvironmentConfig"},
+#InstanceRequirements: close(
+	{InstanceTypes!: list.MaxItems(20) & list.MinItems(1) & [...#InstanceType] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RollingUpdatePolicy": close({
-	MaximumBatchSize!:         _#defs."/$defs/Properties/definitions/CapacitySizeConfig"
-	RollbackMaximumBatchSize?: _#defs."/$defs/Properties/definitions/CapacitySizeConfig"
+#InstanceType: string | fn.#StringExpression
+
+#OnStartDeepHealthChecks: list.MaxItems(3) & list.MinItems(1) & [...#DeepHealthCheckType] | fn.#ListExpression
+
+#Orchestrator: fn.#Object & {...} & matchN(1, [
+	close({Eks?: #ClusterOrchestratorEksConfig}), close({Slurm?: #ClusterOrchestratorSlurmConfig}),
+]) |
+fn.#ObjectExpression
+
+#PatchSchedule: close({NextPatchDate?: string | fn.#StringExpression}) | fn.#ObjectExpression
+
+#RestrictedInstanceGroupsConfig: close({SharedEnvironmentConfig!: #SharedEnvironmentConfig}) | fn.#ObjectExpression
+
+#RollingUpdatePolicy: close({
+	MaximumBatchSize!:         #CapacitySizeConfig
+	RollbackMaximumBatchSize?: #CapacitySizeConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduledUpdateConfig": close({
-	DeploymentConfig?: _#defs."/$defs/Properties/definitions/DeploymentConfig"
+#ScheduledUpdateConfig: close({
+	DeploymentConfig?: #DeploymentConfig
 	ScheduleExpression!: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"cron\\((?:[0-5][0-9]|[0-9]|) (?:[01][0-9]|2[0-3]|[0-9]) (?:[1-9]|0[1-9]|[12][0-9]|3[01]|\\?) (?:[1-9]|0[1-9]|1[0-2]|\\*|\\*/(?:[1-9]|1[0-2])|) (?:MON|TUE|WED|THU|FRI|SAT|SUN|[1-7]|\\?|L|(?:[1-7]#[1-5])|(?:[1-7]L)) (?:20[2-9][0-9]|\\*|)\\)" |
@@ -638,19 +598,19 @@ _#defs: "/$defs/Properties/definitions/ScheduledUpdateConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SharedEnvironmentConfig": close({
-	FSxLustreConfig?:         _#defs."/$defs/Properties/definitions/FSxLustreConfig"
+#SharedEnvironmentConfig: close({
+	FSxLustreConfig?:         #FSxLustreConfig
 	FSxLustreDeletionPolicy!: "Keep" | "DeleteIfNotUsed" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TieredStorageConfig": close({
+#TieredStorageConfig: close({
 	InstanceMemoryAllocationPercentage?: int & <=100 & >=0 |
 		{
 			string &
@@ -671,7 +631,7 @@ _#defs: "/$defs/Properties/definitions/TieredStorageConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(32) &

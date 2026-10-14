@@ -8,9 +8,9 @@ import "strings"
 
 // Resource Type definition for AWS::Connect::DataTableAttribute
 #Properties: close({
-	AttributeId?:  _#defs."/$defs/Properties/definitions/AttributeId"
+	AttributeId?:  #AttributeId
 	DataTableArn!: strings.MaxRunes(2048) & strings.MinRunes(1)
-	Description?:  _#defs."/$defs/Properties/definitions/Description"
+	Description?:  #Description
 	InstanceArn!: strings.MaxRunes(100) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$"
@@ -29,26 +29,26 @@ import "strings"
 		})
 		ExclusiveMaximum?: number
 		ExclusiveMinimum?: number
-		MaxLength?:        _#defs."/$defs/Properties/definitions/LengthBoundary"
-		MaxValues?:        _#defs."/$defs/Properties/definitions/ValueBoundary"
+		MaxLength?:        #LengthBoundary
+		MaxValues?:        #ValueBoundary
 		Maximum?:          number
-		MinLength?:        _#defs."/$defs/Properties/definitions/LengthBoundary"
-		MinValues?:        _#defs."/$defs/Properties/definitions/ValueBoundary"
+		MinLength?:        #LengthBoundary
+		MinValues?:        #ValueBoundary
 		Minimum?:          number
 		MultipleOf?:       >=0
 	})
 	ValueType!: "TEXT" | "NUMBER" | "BOOLEAN" | "TEXT_LIST" | "NUMBER_LIST"
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeId": strings.MaxRunes(256) & strings.MinRunes(1)
+#AttributeId: strings.MaxRunes(256) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(250) &
+#Description: strings.MaxRunes(250) &
 strings.MinRunes(0) &
 =~"""
 	^[\\P{C}\r
 	\t]+$
 	"""
 
-_#defs: "/$defs/Properties/definitions/LengthBoundary": <1000 & int & <=1000 & >=0
+#LengthBoundary: <1000 & int & <=1000 & >=0
 
-_#defs: "/$defs/Properties/definitions/ValueBoundary": <100 & int & <=100 & >=0
+#ValueBoundary: <100 & int & <=100 & >=0

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -19,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Transfer::WebApp
 #Properties: close({
 	AccessEndpoint?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	EndpointDetails?: _#defs."/$defs/Properties/definitions/EndpointDetails"
+	EndpointDetails?: #EndpointDetails
 	IdentityProviderDetails!: close({
 		InstanceArn?: strings.MaxRunes(1224) &
 		strings.MinRunes(10) &
@@ -29,16 +29,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	WebAppCustomization?:  _#defs."/$defs/Properties/definitions/WebAppCustomization"
-	WebAppEndpointPolicy?: _#defs."/$defs/Properties/definitions/WebAppEndpointPolicy"
-	WebAppUnits?:          _#defs."/$defs/Properties/definitions/WebAppUnits"
+	Tags?:                 list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	WebAppCustomization?:  #WebAppCustomization
+	WebAppEndpointPolicy?: #WebAppEndpointPolicy
+	WebAppUnits?:          #WebAppUnits
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointDetails": close({Vpc?: _#defs."/$defs/Properties/definitions/Vpc"}) |
-	fn.#ObjectExpression
+#EndpointDetails: close({Vpc?: #Vpc}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdentityProviderDetails": close({
+#IdentityProviderDetails: close({
 	ApplicationArn?: strings.MaxRunes(1224) &
 	strings.MinRunes(10) &
 	=~"^arn:[\\w-]+:sso::\\d{12}:application/(sso)?ins-[a-zA-Z0-9-.]{16}/apl-[a-zA-Z0-9]{16}$" |
@@ -52,13 +51,13 @@ _#defs: "/$defs/Properties/definitions/IdentityProviderDetails": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Vpc": close({
+#Vpc: close({
 	IpAddressType?: "IPV4" | "DUALSTACK" | fn.#StringExpression
 	SecurityGroupIds?: list.MaxItems(10) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -80,16 +79,16 @@ _#defs: "/$defs/Properties/definitions/Vpc": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebAppCustomization": close({
+#WebAppCustomization: close({
 	FaviconFile?: strings.MaxRunes(20960) & strings.MinRunes(1) | fn.#StringExpression
 	LogoFile?:    strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
 	Title?:       strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebAppEndpointPolicy": "STANDARD" | "FIPS" | fn.#StringExpression
+#WebAppEndpointPolicy: "STANDARD" | "FIPS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WebAppUnits": close({
+#WebAppUnits: close({
 	Provisioned!: int & >=1 |
 		{
 			string &

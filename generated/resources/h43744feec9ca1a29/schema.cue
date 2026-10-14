@@ -19,17 +19,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ConnectorDestinationId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" | fn.#StringExpression
 	Description?:            strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	GeneralAuthorization?:   _#defs."/$defs/Properties/definitions/GeneralAuthorization"
+	GeneralAuthorization?:   #GeneralAuthorization
 	Name?:                   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/GeneralAuthorization": close(
+#GeneralAuthorization: close(
 	{AuthMaterialName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9=_+/-]+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

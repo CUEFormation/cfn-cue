@@ -56,7 +56,7 @@ import (
 
 	// Contains settings for vulnerability scans that Amazon Inspector runs against
 	// the test instance during image creation.
-	ImageScanningConfiguration?: _#defs."/$defs/Properties/definitions/ImageScanningConfiguration"
+	ImageScanningConfiguration?: #ImageScanningConfiguration
 
 	// The tags to be applied to images created by this pipeline.
 	ImageTags?: close({
@@ -64,7 +64,7 @@ import (
 		{[=~".{1,}"]: string}})
 
 	// The image tests configuration of the image pipeline.
-	ImageTestsConfiguration?: _#defs."/$defs/Properties/definitions/ImageTestsConfiguration"
+	ImageTestsConfiguration?: #ImageTestsConfiguration
 
 	// The Amazon Resource Name (ARN) of the infrastructure configuration associated
 	// with this image pipeline.
@@ -72,13 +72,13 @@ import (
 		=~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):infrastructure-configuration/[a-z0-9-_]+$"
 
 	// The logging configuration settings for the image pipeline.
-	LoggingConfiguration?: _#defs."/$defs/Properties/definitions/PipelineLoggingConfiguration"
+	LoggingConfiguration?: #PipelineLoggingConfiguration
 
 	// The name of the image pipeline.
 	Name?: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$"
 
 	// The schedule of the image pipeline.
-	Schedule?: _#defs."/$defs/Properties/definitions/Schedule"
+	Schedule?: #Schedule
 
 	// The status of the image pipeline.
 	Status?: "DISABLED" | "ENABLED"
@@ -89,18 +89,18 @@ import (
 		{[=~".{1,}"]: string}})
 
 	// Workflows to define the image build process
-	Workflows?: [..._#defs."/$defs/Properties/definitions/WorkflowConfiguration"]
+	Workflows?: [...#WorkflowConfiguration]
 })
 
 // The auto-disable policy configuration for the image pipeline.
-_#defs: "/$defs/Properties/definitions/AutoDisablePolicy": close({
+#AutoDisablePolicy: close({
 	// The number of consecutive failures after which the pipeline should be automatically disabled.
 	FailureCount!: int & <=10 & >=1
 })
 
 // Settings for Image Builder to configure the ECR repository and output
 // container images that are scanned.
-_#defs: "/$defs/Properties/definitions/EcrConfiguration": close({
+#EcrConfiguration: close({
 	// Tags for Image Builder to apply the output container image that is scanned.
 	// Tags can help you identify and manage your scanned images.
 	ContainerTags?: [...strings.MaxRunes(1024) & strings.MinRunes(1)]
@@ -117,9 +117,9 @@ _#defs: "/$defs/Properties/definitions/EcrConfiguration": close({
 // Determines if tests should run after building the image. Image Builder
 // defaults to enable tests to run following the image build, before image
 // distribution.
-_#defs: "/$defs/Properties/definitions/ImageScanningConfiguration": close({
+#ImageScanningConfiguration: close({
 	// Contains ECR settings for vulnerability scans.
-	EcrConfiguration?: _#defs."/$defs/Properties/definitions/EcrConfiguration"
+	EcrConfiguration?: #EcrConfiguration
 
 	// This sets whether Image Builder keeps a snapshot of the vulnerability scans
 	// that Amazon Inspector runs against the test instance when you create a new
@@ -128,7 +128,7 @@ _#defs: "/$defs/Properties/definitions/ImageScanningConfiguration": close({
 })
 
 // Image tests configuration.
-_#defs: "/$defs/Properties/definitions/ImageTestsConfiguration": close({
+#ImageTestsConfiguration: close({
 	// Defines if tests should be executed when building this image.
 	ImageTestsEnabled?: bool
 
@@ -137,7 +137,7 @@ _#defs: "/$defs/Properties/definitions/ImageTestsConfiguration": close({
 })
 
 // The logging configuration settings for the image pipeline.
-_#defs: "/$defs/Properties/definitions/PipelineLoggingConfiguration": close({
+#PipelineLoggingConfiguration: close({
 	// The name of the log group for image build logs.
 	ImageLogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_/\\.]{1,512}$"
 
@@ -146,9 +146,9 @@ _#defs: "/$defs/Properties/definitions/PipelineLoggingConfiguration": close({
 })
 
 // The schedule of the image pipeline.
-_#defs: "/$defs/Properties/definitions/Schedule": close({
+#Schedule: close({
 	// The auto-disable policy for the image pipeline.
-	AutoDisablePolicy?: _#defs."/$defs/Properties/definitions/AutoDisablePolicy"
+	AutoDisablePolicy?: #AutoDisablePolicy
 
 	// The condition configures when the pipeline should trigger a new image build.
 	PipelineExecutionStartCondition?: "EXPRESSION_MATCH_ONLY" | "EXPRESSION_MATCH_AND_DEPENDENCY_UPDATES_AVAILABLE"
@@ -164,7 +164,7 @@ _#defs: "/$defs/Properties/definitions/Schedule": close({
 })
 
 // The workflow configuration of the image
-_#defs: "/$defs/Properties/definitions/WorkflowConfiguration": close({
+#WorkflowConfiguration: close({
 	// Define execution decision in case of workflow failure
 	OnFailure?: "CONTINUE" | "ABORT"
 
@@ -172,7 +172,7 @@ _#defs: "/$defs/Properties/definitions/WorkflowConfiguration": close({
 	ParallelGroup?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9-_+#]{0,99}$"
 
 	// The parameters associated with the workflow
-	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/WorkflowParameter"]
+	Parameters?: list.MinItems(1) & [...#WorkflowParameter]
 
 	// The Amazon Resource Name (ARN) of the workflow
 	WorkflowArn?:
@@ -180,10 +180,10 @@ _#defs: "/$defs/Properties/definitions/WorkflowConfiguration": close({
 })
 
 // A parameter associated with the workflow
-_#defs: "/$defs/Properties/definitions/WorkflowParameter": close({
+#WorkflowParameter: close({
 	Name?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\x00]+$"
-	Value?: [..._#defs."/$defs/Properties/definitions/WorkflowParameterValue"]
+	Value?: [...#WorkflowParameterValue]
 })
 
 // The value associated with the workflow parameter
-_#defs: "/$defs/Properties/definitions/WorkflowParameterValue": strings.MinRunes(0) & =~"^[^\\x00]*$"
+#WorkflowParameterValue: strings.MinRunes(0) & =~"^[^\\x00]*$"

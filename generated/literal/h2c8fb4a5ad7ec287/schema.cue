@@ -32,15 +32,15 @@ import (
 	State?: string
 
 	// The tags applied to the event window.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The time ranges of the event window. Exactly one of TimeRanges or
 	// CronExpression must be specified.
-	TimeRanges?: [..._#defs."/$defs/Properties/definitions/TimeRange"]
+	TimeRanges?: [...#TimeRange]
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -49,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // A time range during which an AWS-initiated maintenance event may occur.
-_#defs: "/$defs/Properties/definitions/TimeRange": close({
+#TimeRange: close({
 	// The hour when the time range ends.
 	EndHour?: int & <=23 & >=0
 

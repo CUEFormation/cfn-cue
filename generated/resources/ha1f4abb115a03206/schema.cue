@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,50 +14,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::IoTSiteWise::Gateway
 #Properties: close({
-	GatewayCapabilitySummaries?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/GatewayCapabilitySummary"
-	] |
-		fn.#ListExpression
+	GatewayCapabilitySummaries?: list.UniqueItems() & [...#GatewayCapabilitySummary] | fn.#ListExpression
 	GatewayName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	fn.#StringExpression
-	GatewayPlatform!: _#defs."/$defs/Properties/definitions/GatewayPlatform" | fn.#ObjectExpression
+	GatewayPlatform!: #GatewayPlatform | fn.#ObjectExpression
 	GatewayVersion?:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CapabilityConfiguration": string | fn.#StringExpression
+#CapabilityConfiguration: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapabilityNamespace": string | fn.#StringExpression
+#CapabilityNamespace: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayCapabilitySummary": close({
-	CapabilityConfiguration?: _#defs."/$defs/Properties/definitions/CapabilityConfiguration"
-	CapabilityNamespace!:     _#defs."/$defs/Properties/definitions/CapabilityNamespace"
+#GatewayCapabilitySummary: close({
+	CapabilityConfiguration?: #CapabilityConfiguration
+	CapabilityNamespace!:     #CapabilityNamespace
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayPlatform": close({
-	GreengrassV2?: _#defs."/$defs/Properties/definitions/GreengrassV2" | fn.#ObjectExpression
-	SiemensIE?:    _#defs."/$defs/Properties/definitions/SiemensIE" | fn.#ObjectExpression
+#GatewayPlatform: close({
+	GreengrassV2?: #GreengrassV2 | fn.#ObjectExpression
+	SiemensIE?:    #SiemensIE | fn.#ObjectExpression
 	if GreengrassV2 != _|_ {
 		SiemensIE?: error("SiemensIE cannot be used with GreengrassV2; set exactly one of GreengrassV2, SiemensIE")
 	}
 }) & matchN(>=1, [{GreengrassV2!: _}, {SiemensIE!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayVersion": string | fn.#StringExpression
+#GatewayVersion: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/GreengrassV2": close({
+#GreengrassV2: close({
 	CoreDeviceOperatingSystem?: "LINUX_AARCH64" | "LINUX_AMD64" | "WINDOWS_AMD64" | fn.#StringExpression
 	CoreDeviceThingName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SiemensIE": close(
+#SiemensIE: close(
 	{IotCoreThingName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

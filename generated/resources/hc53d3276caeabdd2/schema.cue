@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Batch::ConsumableResource
 #Properties: close({
 	ConsumableResourceName?: =~"" | fn.#StringExpression
-	ResourceType!:           _#defs."/$defs/Properties/definitions/ResourceType"
+	ResourceType!:           #ResourceType
 	Tags?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
@@ -36,9 +36,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": string | fn.#StringExpression
+#ResourceArn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceType": "REPLENISHABLE" | "NON_REPLENISHABLE" | fn.#StringExpression
+#ResourceType: "REPLENISHABLE" | "NON_REPLENISHABLE" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Batch::ConsumableResource"
 	Properties!: #Properties

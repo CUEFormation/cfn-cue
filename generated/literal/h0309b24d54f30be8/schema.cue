@@ -14,18 +14,18 @@ import "strings"
 	Description?:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\s\\.\\!\\*\\#\\@\\']+$"
 	EnvironmentIdentifier?: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)"
 	Name?:                  strings.MaxRunes(63) & strings.MinRunes(3)
-	NetworkFabricType?:     _#defs."/$defs/Properties/definitions/NetworkFabricType"
+	NetworkFabricType?:     #NetworkFabricType
 
 	// Metadata that you can assign to help organize the frameworks that you create.
 	// Each tag is a key-value pair.
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:             [...#Tag]
 	TransitGatewayId?: strings.MaxRunes(21) & strings.MinRunes(21) & =~"^tgw-[-a-f0-9]{17}$"
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkFabricType": "TRANSIT_GATEWAY" | "NONE"
+#NetworkFabricType: "TRANSIT_GATEWAY" | "NONE"
 
 // A label for tagging Environment resource
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string used to identify this tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

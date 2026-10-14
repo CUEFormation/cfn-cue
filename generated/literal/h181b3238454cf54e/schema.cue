@@ -32,13 +32,13 @@ import (
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1)
 
 	// The health status of the scheduled report at its last refresh time.
-	HealthStatus?: _#defs."/$defs/Properties/definitions/HealthStatus"
+	HealthStatus?: #HealthStatus
 
 	// The name of the scheduled report.
 	Name!: strings.MaxRunes(50) & strings.MinRunes(2)
 
 	// The schedule configuration that defines when and how often the report is generated.
-	ScheduleConfig!: _#defs."/$defs/Properties/definitions/ScheduleConfig"
+	ScheduleConfig!: #ScheduleConfig
 
 	// The ARN of the IAM role that the scheduled report uses to execute. AWS
 	// Billing and Cost Management Dashboards assumes this IAM role while executing
@@ -49,13 +49,13 @@ import (
 	=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@_/-]+$"
 
 	// The tags applied to the scheduled report.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 
 	// The timestamp when the scheduled report was last modified.
 	UpdatedAt?: time.Time
 
 	// The date range override applied to widgets in the scheduled report.
-	WidgetDateRangeOverride?: _#defs."/$defs/Properties/definitions/DateTimeRange"
+	WidgetDateRangeOverride?: #DateTimeRange
 
 	// The list of widget identifiers included in the scheduled report. If not
 	// specified, all widgets in the dashboard are included.
@@ -63,40 +63,40 @@ import (
 })
 
 // An absolute or relative date range.
-_#defs: "/$defs/Properties/definitions/DateTimeRange": close({
+#DateTimeRange: close({
 	// The end of the range.
-	EndTime!: _#defs."/$defs/Properties/definitions/DateTimeValue"
+	EndTime!: #DateTimeValue
 
 	// The start of the range.
-	StartTime!: _#defs."/$defs/Properties/definitions/DateTimeValue"
+	StartTime!: #DateTimeValue
 })
 
 // Whether a date value is absolute or relative.
-_#defs: "/$defs/Properties/definitions/DateTimeType": "ABSOLUTE" | "RELATIVE"
+#DateTimeType: "ABSOLUTE" | "RELATIVE"
 
 // A date expressed either as an absolute instant or as an offset from now.
-_#defs: "/$defs/Properties/definitions/DateTimeValue": close({
+#DateTimeValue: close({
 	// Whether Value is an absolute date or a duration relative to now.
-	Type!: _#defs."/$defs/Properties/definitions/DateTimeType"
+	Type!: #DateTimeType
 
 	// The date, or an ISO 8601 duration when Type is RELATIVE.
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$"
 })
 
 // The health of the scheduled report as of its last refresh.
-_#defs: "/$defs/Properties/definitions/HealthStatus": close({
+#HealthStatus: close({
 	// The time at which the health status was last refreshed.
 	LastRefreshedAt?: time.Time
 
 	// Whether the scheduled report is healthy.
-	StatusCode!: _#defs."/$defs/Properties/definitions/HealthStatusCode"
+	StatusCode!: #HealthStatusCode
 })
 
 // The health status of a scheduled report.
-_#defs: "/$defs/Properties/definitions/HealthStatusCode": "HEALTHY" | "UNHEALTHY"
+#HealthStatusCode: "HEALTHY" | "UNHEALTHY"
 
 // Defines when and how often a scheduled report runs.
-_#defs: "/$defs/Properties/definitions/ScheduleConfig": close({
+#ScheduleConfig: close({
 	// The schedule expression that specifies when to trigger the scheduled report
 	// run. This value must be a cron expression consisting of six fields separated
 	// by white spaces: cron(minutes hours day_of_month month day_of_week year).
@@ -106,17 +106,17 @@ _#defs: "/$defs/Properties/definitions/ScheduleConfig": close({
 	ScheduleExpressionTimeZone?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$"
 
 	// The time period during which the schedule is active.
-	SchedulePeriod?: _#defs."/$defs/Properties/definitions/SchedulePeriod"
+	SchedulePeriod?: #SchedulePeriod
 
 	// The state of the schedule. ENABLED means the scheduled report runs according
 	// to its schedule expression. DISABLED means the scheduled report is paused
 	// and will not run until re-enabled.
-	State?: _#defs."/$defs/Properties/definitions/ScheduleState"
+	State?: #ScheduleState
 })
 
 // The window during which the schedule is active. When omitted the service
 // defaults it. EndTime must be within three years of the time of the request.
-_#defs: "/$defs/Properties/definitions/SchedulePeriod": close({
+#SchedulePeriod: close({
 	// The time at which the schedule stops being active.
 	EndTime?: time.Time
 
@@ -125,10 +125,10 @@ _#defs: "/$defs/Properties/definitions/SchedulePeriod": close({
 })
 
 // Whether the schedule is active.
-_#defs: "/$defs/Properties/definitions/ScheduleState": "ENABLED" | "DISABLED"
+#ScheduleState: "ENABLED" | "DISABLED"
 
 // A key-value pair applied to the scheduled report.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]*$"
 

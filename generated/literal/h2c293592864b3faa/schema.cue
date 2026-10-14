@@ -18,7 +18,7 @@ import (
 		// The code configuration for the revision.
 		CodeConfig!: close({
 			// The Amazon S3 location of the deployment artifact.
-			S3Object!: _#defs."/$defs/Properties/definitions/S3Object"
+			S3Object!: #S3Object
 		})
 
 		// The runtime configuration for the revision.
@@ -82,7 +82,7 @@ import (
 		// The telemetry configuration.
 		TelemetryConfig?: close({
 			// The logging configuration for the web function.
-			LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig"
+			LoggingConfig?: #LoggingConfig
 		})
 
 		// The function timeout in seconds.
@@ -97,7 +97,7 @@ import (
 })
 
 // The logging configuration.
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+#LoggingConfig: close({
 	// The application log level.
 	ApplicationLogLevel?: "TRACE" | "DEBUG" | "INFO" | "WARN" | "ERROR" | "FATAL"
 
@@ -109,7 +109,7 @@ _#defs: "/$defs/Properties/definitions/LoggingConfig": close({
 })
 
 // The S3 location of the function code.
-_#defs: "/$defs/Properties/definitions/S3Object": close({
+#S3Object: close({
 	// The S3 bucket name.
 	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^([a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9])$"
 

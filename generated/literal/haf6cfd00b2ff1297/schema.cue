@@ -21,10 +21,10 @@ package schema
 	ParameterGroupName?:            string
 	PreferredMaintenanceWindow?:    string
 	ReplicationFactor!:             int
-	SSESpecification?:              _#defs."/$defs/Properties/definitions/SSESpecification"
+	SSESpecification?:              #SSESpecification
 	SecurityGroupIds?:              [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetGroupName?:               string
 	Tags?:                          string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/SSESpecification": close({SSEEnabled?: bool})
+#SSESpecification: close({SSEEnabled?: bool})

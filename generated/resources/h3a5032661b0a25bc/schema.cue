@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"time"
 	"strings"
 	"list"
 )
@@ -17,28 +17,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ExpiresAt?: time.Time | fn.#StringExpression
 	Name!:      strings.MaxRunes(64) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	RateType?:  _#defs."/$defs/Properties/definitions/WorkloadEstimateRateType" | fn.#StringExpression
-	Tags?:      list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	RateType?:  #WorkloadEstimateRateType | fn.#StringExpression
+	Tags?:      list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CurrencyCode": "USD" | fn.#StringExpression
+#CurrencyCode: "USD" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkloadEstimateRateType": "BEFORE_DISCOUNTS" |
+#WorkloadEstimateRateType: "BEFORE_DISCOUNTS" |
 	"AFTER_DISCOUNTS" |
 	"AFTER_DISCOUNTS_AND_COMMITMENTS" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WorkloadEstimateStatus": "UPDATING" |
-	"VALID" |
-	"INVALID" |
-	"ACTION_NEEDED" |
-	fn.#StringExpression
+#WorkloadEstimateStatus: "UPDATING" | "VALID" | "INVALID" | "ACTION_NEEDED" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::BcmPricingCalculator::WorkloadEstimate"
 	Properties!: #Properties

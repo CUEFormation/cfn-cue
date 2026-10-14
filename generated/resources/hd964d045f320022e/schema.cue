@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -27,11 +27,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
-	SchedulerConfig!: _#defs."/$defs/Properties/definitions/SchedulerConfig"
-	Tags?:            list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	SchedulerConfig!: #SchedulerConfig
+	Tags?:            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/PriorityClass": close({
+#PriorityClass: close({
 	Name!: =~"^[a-z0-9]([-a-z0-9]*[a-z0-9]){0,39}?$" | fn.#StringExpression
 	Weight!: int & <=100 & >=0 |
 		{
@@ -52,15 +52,14 @@ _#defs: "/$defs/Properties/definitions/PriorityClass": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchedulerConfig": close({
+#SchedulerConfig: close({
 	FairShare?:           "Enabled" | "Disabled" | fn.#StringExpression
 	IdleResourceSharing?: "Enabled" | "Disabled" | fn.#StringExpression
-	PriorityClasses?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/PriorityClass"] |
-		fn.#ListExpression
+	PriorityClasses?:     list.MaxItems(10) & [...] & [...#PriorityClass] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

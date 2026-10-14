@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -22,12 +22,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
 	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Processors!: list.MaxItems(3) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Processor"] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Processors!:     list.MaxItems(3) & list.MinItems(1) & [...#Processor] | fn.#ListExpression
+	Tags?:           list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/LambdaConfiguration": close({
+#LambdaConfiguration: close({
 	InvocationType!: "ASYNC" | fn.#StringExpression
 	ResourceArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(15) &
@@ -36,8 +35,8 @@ _#defs: "/$defs/Properties/definitions/LambdaConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Processor": close({
-	Configuration!: _#defs."/$defs/Properties/definitions/ProcessorConfiguration"
+#Processor: close({
+	Configuration!: #ProcessorConfiguration
 	ExecutionOrder!: int & <=3 & >=1 |
 		{
 			string &
@@ -59,12 +58,9 @@ _#defs: "/$defs/Properties/definitions/Processor": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProcessorConfiguration": close(
-	{Lambda!: _#defs."/$defs/Properties/definitions/LambdaConfiguration"},
-) |
-	fn.#ObjectExpression
+#ProcessorConfiguration: close({Lambda!: #LambdaConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

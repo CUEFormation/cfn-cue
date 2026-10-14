@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::DataSync::LocationFSxONTAP.
 #Properties: close({
 	Protocol?: close({
-		NFS?: _#defs."/$defs/Properties/definitions/NFS"
+		NFS?: #NFS
 		SMB?: close({
 			CmkSecretConfig?: close({
 				KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -25,12 +25,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
-			CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig"
+			CustomSecretConfig?: #CustomSecretConfig
 			Domain?: strings.MaxRunes(253) &
 			strings.MinRunes(0) &
 			=~"^([A-Za-z0-9]+[A-Za-z0-9-.]*)*[A-Za-z0-9-]*[A-Za-z0-9]$" |
 			fn.#StringExpression
-			MountOptions!: _#defs."/$defs/Properties/definitions/SmbMountOptions"
+			MountOptions!: #SmbMountOptions
 			Password?:     strings.MaxRunes(104) & =~"^.{0,104}$" | fn.#StringExpression
 			User!:         strings.MaxRunes(104) & =~"^[^\\x5B\\x5D\\\\/:;|=,+*?]{1,104}$" | fn.#StringExpression
 		}) |
@@ -50,11 +50,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
+#CmkSecretConfig: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -67,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
+#CustomSecretConfig: close({
 	SecretAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -80,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedSecretConfig": close({
+#ManagedSecretConfig: close({
 	SecretArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" |
@@ -88,40 +87,32 @@ _#defs: "/$defs/Properties/definitions/ManagedSecretConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NFS": close(
-	{MountOptions!: _#defs."/$defs/Properties/definitions/NfsMountOptions"},
-) |
+#NFS: close({MountOptions!: #NfsMountOptions}) | fn.#ObjectExpression
+
+#NfsMountOptions: close({Version?: "AUTOMATIC" | "NFS3" | "NFS4_0" | "NFS4_1" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NfsMountOptions": close(
-	{Version?: "AUTOMATIC" | "NFS3" | "NFS4_0" | "NFS4_1" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/Protocol": close({
-	NFS?: _#defs."/$defs/Properties/definitions/NFS"
-	SMB?: _#defs."/$defs/Properties/definitions/SMB"
+#Protocol: close({
+	NFS?: #NFS
+	SMB?: #SMB
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SMB": close({
-	CmkSecretConfig?:    _#defs."/$defs/Properties/definitions/CmkSecretConfig"
-	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig"
+#SMB: close({
+	CmkSecretConfig?:    #CmkSecretConfig
+	CustomSecretConfig?: #CustomSecretConfig
 	Domain?: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^([A-Za-z0-9]+[A-Za-z0-9-.]*)*[A-Za-z0-9-]*[A-Za-z0-9]$" |
 	fn.#StringExpression
-	ManagedSecretConfig?: _#defs."/$defs/Properties/definitions/ManagedSecretConfig"
-	MountOptions!:        _#defs."/$defs/Properties/definitions/SmbMountOptions"
+	ManagedSecretConfig?: #ManagedSecretConfig
+	MountOptions!:        #SmbMountOptions
 	Password?:            strings.MaxRunes(104) & =~"^.{0,104}$" | fn.#StringExpression
 	User!:                strings.MaxRunes(104) & =~"^[^\\x5B\\x5D\\\\/:;|=,+*?]{1,104}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SmbMountOptions": close(
-	{Version?: "AUTOMATIC" | "SMB2" | "SMB3" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#SmbMountOptions: close({Version?: "AUTOMATIC" | "SMB2" | "SMB3" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
 }) |

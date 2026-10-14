@@ -21,20 +21,20 @@ import (
 
 	// The unique identifier of the Cases domain.
 	DomainId?:     strings.MaxRunes(500) & strings.MinRunes(1)
-	DomainStatus?: _#defs."/$defs/Properties/definitions/DomainStatus"
+	DomainStatus?: #DomainStatus
 
 	// The name for your Cases domain. It must be unique for your AWS account.
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$"
 
 	// The tags that you attach to this domain.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // The current status of the Cases domain. Indicates whether the domain is
 // Active, CreationInProgress, or CreationFailed.
-_#defs: "/$defs/Properties/definitions/DomainStatus": "Active" | "CreationInProgress" | "CreationFailed"
+#DomainStatus: "Active" | "CreationInProgress" | "CreationFailed"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

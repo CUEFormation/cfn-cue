@@ -19,9 +19,7 @@ import (
 	CreatedTimestamp?: time.Time
 
 	// List of endpoints (Lambda ARNs) specified for the SIP media application.
-	Endpoints!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/SipMediaApplicationEndpoint"
-	]
+	Endpoints!: list.MaxItems(1) & list.MinItems(1) & [...#SipMediaApplicationEndpoint]
 
 	// The name of the SIP media application.
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _.-]+$"
@@ -33,13 +31,13 @@ import (
 	SipMediaApplicationId?: string
 
 	// Tags assigned to the SIP media application.
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 
 	// The time at which the SIP media application was updated.
 	UpdatedTimestamp?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/SipMediaApplicationEndpoint": close({
+#SipMediaApplicationEndpoint: close({
 	// Valid Amazon Resource Name (ARN) of the Lambda function.
 	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(10000) &
@@ -47,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/SipMediaApplicationEndpoint": close({
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z]{2}((-gov)|(-iso(b?)))?-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9-_]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

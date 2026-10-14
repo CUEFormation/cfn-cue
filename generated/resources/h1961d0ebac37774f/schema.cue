@@ -4,9 +4,9 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"time"
 	"strings"
 	"list"
-	"time"
 )
 
 import cfnScalarStrings "strings"
@@ -142,7 +142,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AllocatedStorage?:         =~"^[0-9]*$" | fn.#StringExpression
 	AllowMajorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ApplyImmediately?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AssociatedRoles?:          [..._#defs."/$defs/Properties/definitions/DBInstanceRole"] | fn.#ListExpression
+	AssociatedRoles?:          [...#DBInstanceRole] | fn.#ListExpression
 	AutoMinorVersionUpgrade?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AutomaticBackupReplicationKmsKeyId?: string | fn.#StringExpression
 	AutomaticBackupReplicationRegion?:   string | fn.#StringExpression
@@ -311,7 +311,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Port?:                       =~"^\\d*$" | fn.#StringExpression
 	PreferredBackupWindow?:      string | fn.#StringExpression
 	PreferredMaintenanceWindow?: string | fn.#StringExpression
-	ProcessorFeatures?:          [..._#defs."/$defs/Properties/definitions/ProcessorFeature"] | fn.#ListExpression
+	ProcessorFeatures?:          [...#ProcessorFeature] | fn.#ListExpression
 	PromotionTier?: int & <=15 & >=0 |
 		{
 			string &
@@ -352,7 +352,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	StorageType?:                 string | fn.#StringExpression
-	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                        [...#Tag] | fn.#ListExpression
 	TdeCredentialArn?:            string | fn.#StringExpression
 	TdeCredentialPassword?:       string | fn.#StringExpression
 	Timezone?:                    string | fn.#StringExpression
@@ -367,7 +367,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalStorageVolume": close({
+#AdditionalStorageVolume: close({
 	AllocatedStorage?: =~"^[0-9]*$" | fn.#StringExpression
 	Iops?: int |
 		{
@@ -431,20 +431,20 @@ _#defs: "/$defs/Properties/definitions/AdditionalStorageVolume": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CertificateDetails": close({
+#CertificateDetails: close({
 	CAIdentifier?: string | fn.#StringExpression
 	ValidTill?:    time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DBInstanceRole": close({
+#DBInstanceRole: close({
 	FeatureName!: string | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DBInstanceStatusInfo": close({
+#DBInstanceStatusInfo: close({
 	Message?:    string | fn.#StringExpression
 	Normal?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Status?:     string | fn.#StringExpression
@@ -452,14 +452,14 @@ _#defs: "/$defs/Properties/definitions/DBInstanceStatusInfo": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	Address?:      string | fn.#StringExpression
 	HostedZoneId?: string | fn.#StringExpression
 	Port?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MasterUserSecret": close({
+#MasterUserSecret: close({
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
@@ -467,13 +467,13 @@ _#defs: "/$defs/Properties/definitions/MasterUserSecret": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProcessorFeature": close({
+#ProcessorFeature: close({
 	Name?:  "coreCount" | "threadsPerCore" | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

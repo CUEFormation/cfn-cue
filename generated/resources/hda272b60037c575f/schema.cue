@@ -18,10 +18,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 	fn.#ListExpression
 	Name!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"[A-Za-z0-9_.-]+" | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -10,23 +10,23 @@ import "list"
 // hosts Access Grants and their associated locations
 #Properties: close({
 	// The Amazon Resource Name (ARN) of the specified Access Grants instance.
-	AccessGrantsInstanceArn?: _#defs."/$defs/Properties/definitions/AccessGrantsInstanceArn"
+	AccessGrantsInstanceArn?: #AccessGrantsInstanceArn
 
 	// A unique identifier for the specified access grants instance.
 	AccessGrantsInstanceId?: string
 
 	// The Amazon Resource Name (ARN) of the specified AWS Identity Center.
-	IdentityCenterArn?: _#defs."/$defs/Properties/definitions/IdentityCenterArn"
-	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	IdentityCenterArn?: #IdentityCenterArn
+	Tags?:              list.UniqueItems() & [...#Tag]
 })
 
 // The Amazon Resource Name (ARN) of the specified Access Grants instance.
-_#defs: "/$defs/Properties/definitions/AccessGrantsInstanceArn": string
+#AccessGrantsInstanceArn: string
 
 // The Amazon Resource Name (ARN) of the specified AWS Identity Center.
-_#defs: "/$defs/Properties/definitions/IdentityCenterArn": string
+#IdentityCenterArn: string
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

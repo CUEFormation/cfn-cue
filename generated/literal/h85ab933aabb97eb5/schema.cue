@@ -16,8 +16,7 @@ import (
 // and Network Load Balancers by association with protected Amazon EC2 Elastic
 // IP addresses.
 #Properties: close({
-	ApplicationLayerAutomaticResponseConfiguration?:
-		_#defs."/$defs/Properties/definitions/ApplicationLayerAutomaticResponseConfiguration"
+	ApplicationLayerAutomaticResponseConfiguration?: #ApplicationLayerAutomaticResponseConfiguration
 
 	// The Amazon Resource Names (ARNs) of the health check to associate with the protection.
 	HealthCheckArns?: list.MaxItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(1)]
@@ -35,14 +34,14 @@ import (
 	ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws"
 
 	// One or more tag key-value pairs for the Protection object.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
 // The automatic application layer DDoS mitigation settings for a Protection.
 // This configuration determines whether Shield Advanced automatically manages
 // rules in the web ACL in order to respond to application layer events that
 // Shield Advanced determines to be DDoS attacks.
-_#defs: "/$defs/Properties/definitions/ApplicationLayerAutomaticResponseConfiguration": close({
+#ApplicationLayerAutomaticResponseConfiguration: close({
 	// Specifies the action setting that Shield Advanced should use in the AWS WAF
 	// rules that it creates on behalf of the protected resource in response to
 	// DDoS attacks. You specify this as part of the configuration for the
@@ -74,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/ApplicationLayerAutomaticResponseConfigur
 // the tag key to "customer" and the value to the customer name or ID. You can
 // specify one or more tags to add to each AWS resource, up to 50 tags for a
 // resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Part of the key:value pair that defines a tag. You can use a tag key to
 	// describe a category of information, such as "customer." Tag keys are
 	// case-sensitive.

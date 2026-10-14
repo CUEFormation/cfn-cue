@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -22,7 +22,7 @@ import (
 	]
 
 	// Arn of the grant.
-	GrantArn?: _#defs."/$defs/Properties/definitions/Arn"
+	GrantArn?: #Arn
 
 	// Name for the created Grant.
 	GrantName?: string
@@ -31,10 +31,8 @@ import (
 	HomeRegion?: string
 
 	// License Arn for the grant.
-	LicenseArn?: _#defs."/$defs/Properties/definitions/Arn"
-	Principals?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Arn"
-	]
+	LicenseArn?: #Arn
+	Principals?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#Arn]
 	Status?: "ACTIVE" |
 		"DELETED" |
 		"DISABLED" |
@@ -46,16 +44,16 @@ import (
 		"WORKFLOW_COMPLETED"
 
 	// A list of tags to attach.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The version of the grant.
 	Version?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(0)
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(0)
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: string
 

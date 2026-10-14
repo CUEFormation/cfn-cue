@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -23,18 +23,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CrawlerSecurityConfiguration?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	DatabaseName?:                 string | fn.#StringExpression
 	Description?:                  strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	LakeFormationConfiguration?:   _#defs."/$defs/Properties/definitions/LakeFormationConfiguration"
+	LakeFormationConfiguration?:   #LakeFormationConfiguration
 	Name?:                         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	RecrawlPolicy?:                _#defs."/$defs/Properties/definitions/RecrawlPolicy"
+	RecrawlPolicy?:                #RecrawlPolicy
 	Role!:                         string | fn.#StringExpression
-	Schedule?:                     _#defs."/$defs/Properties/definitions/Schedule"
-	SchemaChangePolicy?:           _#defs."/$defs/Properties/definitions/SchemaChangePolicy"
+	Schedule?:                     #Schedule
+	SchemaChangePolicy?:           #SchemaChangePolicy
 	TablePrefix?:                  strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Tags?:                         fn.#Object & {...} | string | fn.#StringObjectExpression
-	Targets!:                      _#defs."/$defs/Properties/definitions/Targets"
+	Targets!:                      #Targets
 })
 
-_#defs: "/$defs/Properties/definitions/CatalogTarget": close({
+#CatalogTarget: close({
 	ConnectionName?:   string | fn.#StringExpression
 	DatabaseName?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	DlqEventQueueArn?: string | fn.#StringExpression
@@ -44,7 +44,7 @@ _#defs: "/$defs/Properties/definitions/CatalogTarget": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeltaTarget": close({
+#DeltaTarget: close({
 	ConnectionName?:         string | fn.#StringExpression
 	CreateNativeDeltaTable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DeltaTables?:            [...string | fn.#StringExpression] | fn.#ListExpression
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/DeltaTarget": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DynamoDBTarget": close({
+#DynamoDBTarget: close({
 	Path?:    string | fn.#StringExpression
 	ScanAll?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ScanRate?: number |
@@ -77,7 +77,7 @@ _#defs: "/$defs/Properties/definitions/DynamoDBTarget": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HudiTarget": close({
+#HudiTarget: close({
 	ConnectionName?: string | fn.#StringExpression
 	Exclusions?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	MaximumTraversalDepth?: int |
@@ -98,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/HudiTarget": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IcebergTarget": close({
+#IcebergTarget: close({
 	ConnectionName?: string | fn.#StringExpression
 	Exclusions?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	MaximumTraversalDepth?: int |
@@ -119,7 +119,7 @@ _#defs: "/$defs/Properties/definitions/IcebergTarget": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JdbcTarget": close({
+#JdbcTarget: close({
 	ConnectionName?:           string | fn.#StringExpression
 	EnableAdditionalMetadata?: [..."COMMENTS" | "RAWTYPES" | fn.#StringExpression] | fn.#ListExpression
 	Exclusions?:               [...string | fn.#StringExpression] | fn.#ListExpression
@@ -127,24 +127,24 @@ _#defs: "/$defs/Properties/definitions/JdbcTarget": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LakeFormationConfiguration": close({
+#LakeFormationConfiguration: close({
 	AccountId?:                   strings.MaxRunes(12) & strings.MinRunes(0) | fn.#StringExpression
 	UseLakeFormationCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MongoDBTarget": close({
+#MongoDBTarget: close({
 	ConnectionName?: string | fn.#StringExpression
 	Path?:           string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecrawlPolicy": close(
+#RecrawlPolicy: close(
 	{RecrawlBehavior?: "CRAWL_EVENT_MODE" | "CRAWL_EVERYTHING" | "CRAWL_NEW_FOLDERS_ONLY" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Target": close({
+#S3Target: close({
 	ConnectionName?:   string | fn.#StringExpression
 	DlqEventQueueArn?: string | fn.#StringExpression
 	EventQueueArn?:    string | fn.#StringExpression
@@ -167,24 +167,23 @@ _#defs: "/$defs/Properties/definitions/S3Target": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Schedule": close({ScheduleExpression?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Schedule: close({ScheduleExpression?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaChangePolicy": close({
+#SchemaChangePolicy: close({
 	DeleteBehavior?: "DELETE_FROM_DATABASE" | "DEPRECATE_IN_DATABASE" | "LOG" | fn.#StringExpression
 	UpdateBehavior?: "LOG" | "UPDATE_IN_DATABASE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Targets": close({
-	CatalogTargets?:  [..._#defs."/$defs/Properties/definitions/CatalogTarget"] | fn.#ListExpression
-	DeltaTargets?:    [..._#defs."/$defs/Properties/definitions/DeltaTarget"] | fn.#ListExpression
-	DynamoDBTargets?: [..._#defs."/$defs/Properties/definitions/DynamoDBTarget"] | fn.#ListExpression
-	HudiTargets?:     [..._#defs."/$defs/Properties/definitions/HudiTarget"] | fn.#ListExpression
-	IcebergTargets?:  [..._#defs."/$defs/Properties/definitions/IcebergTarget"] | fn.#ListExpression
-	JdbcTargets?:     [..._#defs."/$defs/Properties/definitions/JdbcTarget"] | fn.#ListExpression
-	MongoDBTargets?:  [..._#defs."/$defs/Properties/definitions/MongoDBTarget"] | fn.#ListExpression
-	S3Targets?:       [..._#defs."/$defs/Properties/definitions/S3Target"] | fn.#ListExpression
+#Targets: close({
+	CatalogTargets?:  [...#CatalogTarget] | fn.#ListExpression
+	DeltaTargets?:    [...#DeltaTarget] | fn.#ListExpression
+	DynamoDBTargets?: [...#DynamoDBTarget] | fn.#ListExpression
+	HudiTargets?:     [...#HudiTarget] | fn.#ListExpression
+	IcebergTargets?:  [...#IcebergTarget] | fn.#ListExpression
+	JdbcTargets?:     [...#JdbcTarget] | fn.#ListExpression
+	MongoDBTargets?:  [...#MongoDBTarget] | fn.#ListExpression
+	S3Targets?:       [...#S3Target] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -13,26 +13,26 @@ import (
 #Properties: close({
 	Arn?:          =~"^arn:aws:notifications-contacts::[0-9]{12}:emailcontact/[a-z0-9]{27}$"
 	EmailAddress!: strings.MaxRunes(254) & strings.MinRunes(6) & =~"^(.+)@(.+)$"
-	EmailContact?: _#defs."/$defs/Properties/definitions/EmailContact"
+	EmailContact?: #EmailContact
 	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w-.~]+"
-	Tags?:         _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?:         #TagMap
 })
 
-_#defs: "/$defs/Properties/definitions/EmailContact": close({
+#EmailContact: close({
 	Address!:      strings.MaxRunes(254) & strings.MinRunes(6) & =~"^(.+)@(.+)$"
 	Arn!:          =~"^arn:aws:notifications-contacts::[0-9]{12}:emailcontact/[a-z0-9]{27}$"
 	CreationTime!: time.Time
 	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w-.~]+"
-	Status!:       _#defs."/$defs/Properties/definitions/EmailContactStatus"
+	Status!:       #EmailContactStatus
 	UpdateTime!:   time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/EmailContactStatus": "inactive" | "active"
+#EmailContactStatus: "inactive" | "active"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
 // A list of tags that are attached to the role.
-_#defs: "/$defs/Properties/definitions/TagMap": [..._#defs."/$defs/Properties/definitions/Tag"]
+#TagMap: [...#Tag]

@@ -31,7 +31,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }]) & close({
 	ContainerRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):container-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
 		fn.#StringExpression
-	DeletionSettings?: _#defs."/$defs/Properties/definitions/DeletionSettings" | fn.#ObjectExpression
+	DeletionSettings?: #DeletionSettings | fn.#ObjectExpression
 	DistributionConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):distribution-configuration/[a-z0-9-_]+$" |
 		fn.#StringExpression
 	EnhancedImageMetadataEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -39,7 +39,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	ImagePipelineExecutionSettings?: _#defs."/$defs/Properties/definitions/ImagePipelineExecutionSettings" &
+	ImagePipelineExecutionSettings?: #ImagePipelineExecutionSettings &
 	(null | bool | number | string | [...] | {
 		ImagePipelineExecutionSettings?: _
 		if ImagePipelineExecutionSettings != _|_ {
@@ -88,46 +88,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 	ImageRecipeArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):image-recipe/[a-z0-9-_]+/(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
 		fn.#StringExpression
-	ImageScanningConfiguration?: _#defs."/$defs/Properties/definitions/ImageScanningConfiguration" |
-		fn.#ObjectExpression
-	ImageTestsConfiguration?: _#defs."/$defs/Properties/definitions/ImageTestsConfiguration" | fn.#ObjectExpression
+	ImageScanningConfiguration?: #ImageScanningConfiguration | fn.#ObjectExpression
+	ImageTestsConfiguration?:    #ImageTestsConfiguration | fn.#ObjectExpression
 	InfrastructureConfigurationArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws):infrastructure-configuration/[a-z0-9-_]+$" |
 		fn.#StringExpression
-	LoggingConfiguration?: _#defs."/$defs/Properties/definitions/ImageLoggingConfiguration" | fn.#ObjectExpression
+	LoggingConfiguration?: #ImageLoggingConfiguration | fn.#ObjectExpression
 	Tags?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Workflows?: [..._#defs."/$defs/Properties/definitions/WorkflowConfiguration"] | fn.#ListExpression
+	Workflows?: [...#WorkflowConfiguration] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DeletionSettings": close({ExecutionRole!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#DeletionSettings: close({ExecutionRole!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcrConfiguration": close({
+#EcrConfiguration: close({
 	ContainerTags?:  [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	RepositoryName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageLoggingConfiguration": close({
+#ImageLoggingConfiguration: close({
 	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_/\\.]{1,512}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImagePipelineExecutionSettings": close({
+#ImagePipelineExecutionSettings: close({
 	DeploymentId?: string | fn.#StringExpression
 	OnUpdate?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageScanningConfiguration": close({
-	EcrConfiguration?:     _#defs."/$defs/Properties/definitions/EcrConfiguration" | fn.#ObjectExpression
+#ImageScanningConfiguration: close({
+	EcrConfiguration?:     #EcrConfiguration | fn.#ObjectExpression
 	ImageScanningEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageTestsConfiguration": close({
+#ImageTestsConfiguration: close({
 	ImageTestsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TimeoutMinutes?: int & <=1440 & >=60 |
 		{
@@ -148,7 +146,7 @@ _#defs: "/$defs/Properties/definitions/ImageTestsConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LatestVersion": close({
+#LatestVersion: close({
 	Arn?:   string | fn.#StringExpression
 	Major?: string | fn.#StringExpression
 	Minor?: string | fn.#StringExpression
@@ -156,24 +154,23 @@ _#defs: "/$defs/Properties/definitions/LatestVersion": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowConfiguration": close({
+#WorkflowConfiguration: close({
 	OnFailure?: "CONTINUE" | "ABORT" | fn.#StringExpression
 	ParallelGroup?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9-_+#]{0,99}$" |
 	fn.#StringExpression
-	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/WorkflowParameter"] | fn.#ListExpression
+	Parameters?: list.MinItems(1) & [...#WorkflowParameter] | fn.#ListExpression
 	WorkflowArn?: =~"^arn:aws(?:-[a-z]+)*:imagebuilder:[a-z]{2,}(?:-[a-z]+)+-[0-9]+:(?:[0-9]{12}|aws(?:-[a-z-]+)?):workflow/(build|test|distribution)/[a-z0-9-_]+/(?:(?:([0-9]+|x)\\.([0-9]+|x)\\.([0-9]+|x))|(?:[0-9]+\\.[0-9]+\\.[0-9]+/[0-9]+))$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowParameter": close({
+#WorkflowParameter: close({
 	Name?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
-	Value?: [..._#defs."/$defs/Properties/definitions/WorkflowParameterValue"] | fn.#ListExpression
+	Value?: [...#WorkflowParameterValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowParameterValue": strings.MinRunes(0) & =~"^[^\\x00]*$" |
-fn.#StringExpression
+#WorkflowParameterValue: strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ImageBuilder::Image"
 	Properties?: #Properties

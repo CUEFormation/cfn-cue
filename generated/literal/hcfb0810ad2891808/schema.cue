@@ -41,14 +41,14 @@ import (
 
 	// The size of the directory.
 	Size!: "Large" | "Small"
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// VPC settings of the Simple AD directory server in AWS.
-	VpcSettings!: _#defs."/$defs/Properties/definitions/VpcSettings"
+	VpcSettings!: #VpcSettings
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/VpcSettings": close({
+#VpcSettings: close({
 	// The identifiers of the subnets for the directory servers. The two subnets
 	// must be in different Availability Zones. AWS Directory Service specifies a
 	// directory server and a DNS server in each of these subnets.

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -29,19 +29,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	FilterName?:                strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]{1,512}" | fn.#StringExpression
 	FilterPattern!:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]{1,512}" | fn.#StringExpression
-	MetricTransformations!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MetricTransformation"
-	] |
-		fn.#ListExpression
+	MetricTransformations!: list.MaxItems(1) & list.MinItems(1) & [...#MetricTransformation] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Dimension": close({
+#Dimension: close({
 	Key!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricTransformation": close({
+#MetricTransformation: close({
 	DefaultValue?: number |
 		{
 			string &
@@ -61,10 +58,7 @@ _#defs: "/$defs/Properties/definitions/MetricTransformation": close({
 				)
 		} |
 		fn.#NumberExpression
-	Dimensions?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Dimension"
-	] |
-		fn.#ListExpression
+	Dimensions?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [...#Dimension] | fn.#ListExpression
 	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	MetricNamespace!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z\\.\\-_\\/#]{1,256}" |
 	fn.#StringExpression

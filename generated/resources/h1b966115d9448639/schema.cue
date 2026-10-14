@@ -16,30 +16,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::Location::PlaceIndex Resource Type
 #Properties: close({
 	DataSource!:              string | fn.#StringExpression
-	DataSourceConfiguration?: _#defs."/$defs/Properties/definitions/DataSourceConfiguration"
+	DataSourceConfiguration?: #DataSourceConfiguration
 	Description?:             strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
 	IndexName!:               strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
-	PricingPlan?:             _#defs."/$defs/Properties/definitions/PricingPlan"
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	PricingPlan?:             #PricingPlan
+	Tags?:                    list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DataSourceConfiguration": close(
-	{IntendedUse?: _#defs."/$defs/Properties/definitions/IntendedUse"},
-) |
-	fn.#ObjectExpression
+#DataSourceConfiguration: close({IntendedUse?: #IntendedUse}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntendedUse": "SingleUse" | "Storage" | fn.#StringExpression
+#IntendedUse: "SingleUse" | "Storage" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PricingPlan": "RequestBasedUsage" | fn.#StringExpression
+#PricingPlan: "RequestBasedUsage" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(50) & close({
+#TagMap: struct.MaxFields(50) & close({
 
 	{[=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$"]: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
@@ -47,7 +43,7 @@ _#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(50) & close({
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/iso8601UTC": =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
+#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
 	fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Location::PlaceIndex"

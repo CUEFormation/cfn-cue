@@ -18,12 +18,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		string) & strings.MaxRunes(2048) |
 	fn.#StringExpression
 	Name!:                 strings.MaxRunes(120) & strings.MinRunes(1) | fn.#StringExpression
-	SecurityRequirements?: [..._#defs."/$defs/Properties/definitions/SecurityRequirement"] | fn.#ListExpression
+	SecurityRequirements?: [...#SecurityRequirement] | fn.#ListExpression
 	Status?:               "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                 [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/SecurityRequirement": close({
+#SecurityRequirement: close({
 	Description!: strings.MaxRunes(500) | fn.#StringExpression
 	Domain!:      strings.MaxRunes(10000) | fn.#StringExpression
 	Evaluation!:  strings.MaxRunes(10000) | fn.#StringExpression
@@ -32,7 +32,7 @@ _#defs: "/$defs/Properties/definitions/SecurityRequirement": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

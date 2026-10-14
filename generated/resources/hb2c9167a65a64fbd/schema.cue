@@ -18,10 +18,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DBSubnetGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z][0-9a-zA-Z-:._ ]*" |
 	fn.#StringExpression
 	SubnetIds!: list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:      [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

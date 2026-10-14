@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,8 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::ImageBuilder::ImageRecipe
 #Properties: close({
-	AdditionalInstanceConfiguration?: _#defs."/$defs/Properties/definitions/AdditionalInstanceConfiguration" |
-		fn.#ObjectExpression
+	AdditionalInstanceConfiguration?: #AdditionalInstanceConfiguration | fn.#ObjectExpression
 	AmiTags?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
@@ -31,12 +30,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	BlockDeviceMappings?: [..._#defs."/$defs/Properties/definitions/InstanceBlockDeviceMapping"] | fn.#ListExpression
-	Components?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComponentConfiguration"] |
-		fn.#ListExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:        =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-	ParentImage!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	BlockDeviceMappings?: [...#InstanceBlockDeviceMapping] | fn.#ListExpression
+	Components?:          list.MinItems(1) & [...#ComponentConfiguration] | fn.#ListExpression
+	Description?:         strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Name!:                =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+	ParentImage!:         strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Tags?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
@@ -45,8 +43,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	WorkingDirectory?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalInstanceConfiguration": close({
-	SystemsManagerAgent?: _#defs."/$defs/Properties/definitions/SystemsManagerAgent" | fn.#ObjectExpression
+#AdditionalInstanceConfiguration: close({
+	SystemsManagerAgent?: #SystemsManagerAgent | fn.#ObjectExpression
 	UserDataOverride?: strings.MaxRunes(21847) &
 	strings.MinRunes(1) &
 	=~"^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$" |
@@ -54,20 +52,20 @@ _#defs: "/$defs/Properties/definitions/AdditionalInstanceConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComponentConfiguration": close({
+#ComponentConfiguration: close({
 	ComponentArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws(?:-[a-z-]+)?|third-party):component/[a-z0-9-_]+/(?:(?:([0-9]+|x)\\.([0-9]+|x)\\.([0-9]+|x))|(?:[0-9]+\\.[0-9]+\\.[0-9]+/[0-9]+))$" |
 		fn.#StringExpression
-	Parameters?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ComponentParameter"] | fn.#ListExpression
+	Parameters?: list.MinItems(1) & [...#ComponentParameter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComponentParameter": close({
+#ComponentParameter: close({
 	Name!:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
 	Value!: [...strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EbsInstanceBlockDeviceSpecification": close({
+#EbsInstanceBlockDeviceSpecification: close({
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Encrypted?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int & <=64000 & >=100 |
@@ -126,15 +124,15 @@ _#defs: "/$defs/Properties/definitions/EbsInstanceBlockDeviceSpecification": clo
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceBlockDeviceMapping": close({
+#InstanceBlockDeviceMapping: close({
 	DeviceName?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Ebs?:         _#defs."/$defs/Properties/definitions/EbsInstanceBlockDeviceSpecification" | fn.#ObjectExpression
+	Ebs?:         #EbsInstanceBlockDeviceSpecification | fn.#ObjectExpression
 	NoDevice?:    strings.MaxRunes(0) & strings.MinRunes(0) | fn.#StringExpression
 	VirtualName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LatestVersion": close({
+#LatestVersion: close({
 	Arn?:   string | fn.#StringExpression
 	Major?: string | fn.#StringExpression
 	Minor?: string | fn.#StringExpression
@@ -142,7 +140,7 @@ _#defs: "/$defs/Properties/definitions/LatestVersion": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SystemsManagerAgent": close(
+#SystemsManagerAgent: close(
 	{UninstallAfterBuild?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression

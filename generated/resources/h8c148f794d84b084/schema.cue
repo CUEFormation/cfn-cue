@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -23,8 +23,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Balancers](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-limits.html)
 // in the *User Guide for Application Load Balancers*.
 #Properties: close({
-	Actions!:     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action"] | fn.#ListExpression
-	Conditions!:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RuleCondition"] | fn.#ListExpression
+	Actions!:     list.UniqueItems() & [...#Action] | fn.#ListExpression
+	Conditions!:  list.UniqueItems() & [...#RuleCondition] | fn.#ListExpression
 	ListenerArn?: string | fn.#StringExpression
 	Priority!: int & <=50000 & >=1 |
 		{
@@ -42,16 +42,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?:       list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Transforms?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Transform"] | fn.#ListExpression
+	Tags?:       list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	Transforms?: list.UniqueItems() & [...#Transform] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Action": close({
-	AuthenticateCognitoConfig?: _#defs."/$defs/Properties/definitions/AuthenticateCognitoConfig" | fn.#ObjectExpression
-	AuthenticateOidcConfig?:    _#defs."/$defs/Properties/definitions/AuthenticateOidcConfig" | fn.#ObjectExpression
-	FixedResponseConfig?:       _#defs."/$defs/Properties/definitions/FixedResponseConfig" | fn.#ObjectExpression
-	ForwardConfig?:             _#defs."/$defs/Properties/definitions/ForwardConfig" | fn.#ObjectExpression
-	JwtValidationConfig?:       _#defs."/$defs/Properties/definitions/JwtValidationConfig" | fn.#ObjectExpression
+#Action: close({
+	AuthenticateCognitoConfig?: #AuthenticateCognitoConfig | fn.#ObjectExpression
+	AuthenticateOidcConfig?:    #AuthenticateOidcConfig | fn.#ObjectExpression
+	FixedResponseConfig?:       #FixedResponseConfig | fn.#ObjectExpression
+	ForwardConfig?:             #ForwardConfig | fn.#ObjectExpression
+	JwtValidationConfig?:       #JwtValidationConfig | fn.#ObjectExpression
 	Order?: int & <=50000 & >=1 |
 		{
 			string &
@@ -68,7 +68,7 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 				)
 		} |
 		fn.#NumberExpression
-	RedirectConfig?: _#defs."/$defs/Properties/definitions/RedirectConfig" | fn.#ObjectExpression
+	RedirectConfig?: #RedirectConfig | fn.#ObjectExpression
 	TargetGroupArn?: string | fn.#StringExpression
 	Type!: "authenticate-cognito" |
 		"authenticate-oidc" |
@@ -80,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
+#AuthenticateCognitoConfig: close({
 	AuthenticationRequestExtraParams?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
@@ -108,7 +108,7 @@ _#defs: "/$defs/Properties/definitions/AuthenticateCognitoConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": close({
+#AuthenticateOidcConfig: close({
 	AuthenticationRequestExtraParams?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
@@ -140,79 +140,66 @@ _#defs: "/$defs/Properties/definitions/AuthenticateOidcConfig": close({
 }) & matchN(>=1, [{ClientSecret!: _}, {UseExistingClientSecret!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FixedResponseConfig": close({
+#FixedResponseConfig: close({
 	ContentType?: strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
 	MessageBody?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	StatusCode!:  =~"^(2|4|5)\\d\\d$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ForwardConfig": close({
-	TargetGroupStickinessConfig?: _#defs."/$defs/Properties/definitions/TargetGroupStickinessConfig" |
-		fn.#ObjectExpression
-	TargetGroups?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroupTuple"] |
-		fn.#ListExpression
+#ForwardConfig: close({
+	TargetGroupStickinessConfig?: #TargetGroupStickinessConfig | fn.#ObjectExpression
+	TargetGroups?:                list.UniqueItems() & [...#TargetGroupTuple] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HostHeaderConfig": close({
-	RegexValues?: _#defs."/$defs/Properties/definitions/ListOfStrings" | fn.#ListExpression
-	Values?:      _#defs."/$defs/Properties/definitions/ListOfStrings" | fn.#ListExpression
+#HostHeaderConfig: close({
+	RegexValues?: #ListOfStrings | fn.#ListExpression
+	Values?:      #ListOfStrings | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpHeaderConfig": close({
+#HttpHeaderConfig: close({
 	HttpHeaderName?: string | fn.#StringExpression
-	RegexValues?:    _#defs."/$defs/Properties/definitions/ListOfStrings" | fn.#ListExpression
-	Values?:         _#defs."/$defs/Properties/definitions/ListOfStrings" | fn.#ListExpression
+	RegexValues?:    #ListOfStrings | fn.#ListExpression
+	Values?:         #ListOfStrings | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpRequestMethodConfig": close(
-	{Values?: _#defs."/$defs/Properties/definitions/ListOfStrings" | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#HttpRequestMethodConfig: close({Values?: #ListOfStrings | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JwtValidationActionAdditionalClaim": close({
+#JwtValidationActionAdditionalClaim: close({
 	Format!: "single-string" | "space-separated-values" | "string-array" | fn.#StringExpression
 	Name!:   string | fn.#StringExpression
 	Values!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JwtValidationConfig": close({
-	AdditionalClaims?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/JwtValidationActionAdditionalClaim"
-	] |
-		fn.#ListExpression
-	Issuer!:       string | fn.#StringExpression
-	JwksEndpoint!: string | fn.#StringExpression
+#JwtValidationConfig: close({
+	AdditionalClaims?: list.UniqueItems() & [...#JwtValidationActionAdditionalClaim] | fn.#ListExpression
+	Issuer!:           string | fn.#StringExpression
+	JwksEndpoint!:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ListOfStrings": list.UniqueItems() & [...string | fn.#StringExpression] |
-	fn.#ListExpression
+#ListOfStrings: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/PathPatternConfig": close({
-	RegexValues?: _#defs."/$defs/Properties/definitions/ListOfStrings" | fn.#ListExpression
-	Values?: _#defs."/$defs/Properties/definitions/ListOfStrings" &
-	(null | bool | number | string | list.MaxItems(5) | {...}) |
-	fn.#ListExpression
+#PathPatternConfig: close({
+	RegexValues?: #ListOfStrings | fn.#ListExpression
+	Values?:      #ListOfStrings & (null | bool | number | string | list.MaxItems(5) | {...}) | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryStringConfig": close(
-	{Values?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/QueryStringKeyValue"] | fn.#ListExpression},
-) |
+#QueryStringConfig: close({Values?: list.UniqueItems() & [...#QueryStringKeyValue] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryStringKeyValue": close({
+#QueryStringKeyValue: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedirectConfig": close({
+#RedirectConfig: close({
 	Host?:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Path?:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Port?:       string | fn.#StringExpression
@@ -222,48 +209,42 @@ _#defs: "/$defs/Properties/definitions/RedirectConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RewriteConfig": close({
+#RewriteConfig: close({
 	Regex!:   string | fn.#StringExpression
 	Replace!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RewriteConfigList": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/RewriteConfig"
-] |
-	fn.#ListExpression
+#RewriteConfigList: list.UniqueItems() & [...#RewriteConfig] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/RewriteConfigObject": close(
-	{Rewrites!: _#defs."/$defs/Properties/definitions/RewriteConfigList" | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#RewriteConfigObject: close({Rewrites!: #RewriteConfigList | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleCondition": close({
+#RuleCondition: close({
 	Field?:                   strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	HostHeaderConfig?:        _#defs."/$defs/Properties/definitions/HostHeaderConfig" | fn.#ObjectExpression
-	HttpHeaderConfig?:        _#defs."/$defs/Properties/definitions/HttpHeaderConfig" | fn.#ObjectExpression
-	HttpRequestMethodConfig?: _#defs."/$defs/Properties/definitions/HttpRequestMethodConfig" | fn.#ObjectExpression
-	PathPatternConfig?:       _#defs."/$defs/Properties/definitions/PathPatternConfig" | fn.#ObjectExpression
-	QueryStringConfig?:       _#defs."/$defs/Properties/definitions/QueryStringConfig" | fn.#ObjectExpression
-	RegexValues?:             _#defs."/$defs/Properties/definitions/ListOfStrings" | fn.#ListExpression
-	SourceIpConfig?:          _#defs."/$defs/Properties/definitions/SourceIpConfig" | fn.#ObjectExpression
-	Values?:                  _#defs."/$defs/Properties/definitions/ListOfStrings" | fn.#ListExpression
+	HostHeaderConfig?:        #HostHeaderConfig | fn.#ObjectExpression
+	HttpHeaderConfig?:        #HttpHeaderConfig | fn.#ObjectExpression
+	HttpRequestMethodConfig?: #HttpRequestMethodConfig | fn.#ObjectExpression
+	PathPatternConfig?:       #PathPatternConfig | fn.#ObjectExpression
+	QueryStringConfig?:       #QueryStringConfig | fn.#ObjectExpression
+	RegexValues?:             #ListOfStrings | fn.#ListExpression
+	SourceIpConfig?:          #SourceIpConfig | fn.#ObjectExpression
+	Values?:                  #ListOfStrings | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceIpConfig": close({
+#SourceIpConfig: close({
 	IpAddressType?: "ipv4" | "ipv6" | fn.#StringExpression
 	Values?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetGroupStickinessConfig": close({
+#TargetGroupStickinessConfig: close({
 	DurationSeconds?: int |
 		{
 			string &
@@ -282,7 +263,7 @@ _#defs: "/$defs/Properties/definitions/TargetGroupStickinessConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetGroupTuple": close({
+#TargetGroupTuple: close({
 	TargetGroupArn?: string | fn.#StringExpression
 	Weight?: int |
 		{
@@ -301,10 +282,10 @@ _#defs: "/$defs/Properties/definitions/TargetGroupTuple": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Transform": close({
-	HostHeaderRewriteConfig?: _#defs."/$defs/Properties/definitions/RewriteConfigObject" | fn.#ObjectExpression
+#Transform: close({
+	HostHeaderRewriteConfig?: #RewriteConfigObject | fn.#ObjectExpression
 	Type!:                    "host-header-rewrite" | "url-rewrite" | fn.#StringExpression
-	UrlRewriteConfig?:        _#defs."/$defs/Properties/definitions/RewriteConfigObject" | fn.#ObjectExpression
+	UrlRewriteConfig?:        #RewriteConfigObject | fn.#ObjectExpression
 	if HostHeaderRewriteConfig != _|_ {
 		UrlRewriteConfig?: error(
 			"UrlRewriteConfig cannot be used with HostHeaderRewriteConfig; set exactly one of HostHeaderRewriteConfig, UrlRewriteConfig",

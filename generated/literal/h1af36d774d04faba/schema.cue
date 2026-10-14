@@ -28,10 +28,10 @@ import (
 	IpamPrefixListResolverId?: string
 
 	// Rules define the business logic for selecting CIDRs from IPAM.
-	Rules?: [..._#defs."/$defs/Properties/definitions/IpamPrefixListResolverRule"]
+	Rules?: [...#IpamPrefixListResolverRule]
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // CIDR selection rules define the business logic for selecting CIDRs from IPAM.
@@ -39,13 +39,13 @@ import (
 // multiple conditions, the CIDR has to match every condition of that rule. You
 // can create a prefix list resolver without rules, but you'll need to add at
 // least one rule before it can actually automate your prefix list updates.
-_#defs: "/$defs/Properties/definitions/IpamPrefixListResolverRule": close({
+#IpamPrefixListResolverRule: close({
 	// Two of the rule types allow you to add conditions to the rules. (1) For IPAM
 	// Pool CIDR rules, you can specify an ipamPoolId; if not specified, the rule
 	// will apply to all IPAM Pool CIDRs in the scope. (2) For IPAM Resource CIDR
 	// rules, you can specify resourceId, resourceOwner, resourceRegion, cidr, or
 	// resourceTag.
-	Conditions?: [..._#defs."/$defs/Properties/definitions/IpamPrefixListResolverRuleCondition"]
+	Conditions?: [...#IpamPrefixListResolverRuleCondition]
 
 	// This rule will only match resources that are in this IPAM Scope.
 	IpamScopeId?: string
@@ -71,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/IpamPrefixListResolverRule": close({
 // will apply to all IPAM Pool CIDRs in the scope. (2) For IPAM Resource CIDR
 // rules, you can specify resourceId, resourceOwner, resourceRegion, cidr, or
 // resourceTag.
-_#defs: "/$defs/Properties/definitions/IpamPrefixListResolverRuleCondition": matchN(1, [{
+#IpamPrefixListResolverRuleCondition: matchN(1, [{
 	Operation!:  _
 	IpamPoolId!: _
 	...
@@ -117,11 +117,11 @@ _#defs: "/$defs/Properties/definitions/IpamPrefixListResolverRuleCondition": mat
 	ResourceRegion?: string
 
 	// Condition for the IPAM Resource CIDR rule type. Resource Tag (like dev-vpc-1).
-	ResourceTag?: _#defs."/$defs/Properties/definitions/Tag"
+	ResourceTag?: #Tag
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

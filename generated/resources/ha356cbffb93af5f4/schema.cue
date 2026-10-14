@@ -18,32 +18,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The ``AWS::ApiGateway::Stage`` resource creates a stage for a deployment.
 #Properties: close({
-	AccessLogSetting?:     _#defs."/$defs/Properties/definitions/AccessLogSetting" | fn.#ObjectExpression
+	AccessLogSetting?:     #AccessLogSetting | fn.#ObjectExpression
 	CacheClusterEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CacheClusterSize?:     string | fn.#StringExpression
-	CanarySetting?:        _#defs."/$defs/Properties/definitions/CanarySetting" | fn.#ObjectExpression
+	CanarySetting?:        #CanarySetting | fn.#ObjectExpression
 	ClientCertificateId?:  string | fn.#StringExpression
 	DeploymentId?:         string | fn.#StringExpression
 	Description?:          string | fn.#StringExpression
 	DocumentationVersion?: string | fn.#StringExpression
-	MethodSettings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MethodSetting"] | fn.#ListExpression
-	RestApiId!:      string | fn.#StringExpression
-	StageName?:      string | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TracingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	MethodSettings?:       list.UniqueItems() & [...#MethodSetting] | fn.#ListExpression
+	RestApiId!:            string | fn.#StringExpression
+	StageName?:            string | fn.#StringExpression
+	Tags?:                 [...#Tag] | fn.#ListExpression
+	TracingEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Variables?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessLogSetting": close({
+#AccessLogSetting: close({
 	DestinationArn?: string | fn.#StringExpression
 	Format?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CanarySetting": close({
+#CanarySetting: close({
 	DeploymentId?: string | fn.#StringExpression
 	PercentTraffic?: <=100 & >=0 |
 		{
@@ -73,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/CanarySetting": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MethodSetting": close({
+#MethodSetting: close({
 	CacheDataEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CacheTtlInSeconds?: int |
 		{
@@ -132,7 +132,7 @@ _#defs: "/$defs/Properties/definitions/MethodSetting": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

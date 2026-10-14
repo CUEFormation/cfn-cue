@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -40,10 +40,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AssetHierarchy": close({
+#AssetHierarchy: close({
 	ChildAssetId!: string | fn.#StringExpression
 	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
 	fn.#StringExpression
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/AssetHierarchy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssetProperty": close({
+#AssetProperty: close({
 	Alias?: string | fn.#StringExpression
 	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
 	fn.#StringExpression
@@ -71,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/AssetProperty": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

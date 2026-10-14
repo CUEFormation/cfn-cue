@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -20,16 +20,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // links Amazon IVS resources to AWS Elemental MediaTailor playback
 // configurations, enabling server-side ad insertion for a channel.
 #Properties: close({
-	MediaTailorPlaybackConfigurations!: list.MaxItems(3) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MediaTailorPlaybackConfiguration"
-	] |
+	MediaTailorPlaybackConfigurations!: list.MaxItems(3) & list.MinItems(1) & [...#MediaTailorPlaybackConfiguration] |
 		fn.#ListExpression
 	Name?:                  strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-	PostRollConfiguration?: _#defs."/$defs/Properties/definitions/PostRollConfiguration"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	PostRollConfiguration?: #PostRollConfiguration
+	Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/MediaTailorPlaybackConfiguration": close({
+#MediaTailorPlaybackConfiguration: close({
 	PlaybackConfigurationArn?: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^arn:aws:mediatailor:[a-z0-9-]+:[0-9]+:playbackConfiguration/[a-zA-Z0-9-]+$" |
@@ -37,7 +35,7 @@ _#defs: "/$defs/Properties/definitions/MediaTailorPlaybackConfiguration": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PostRollConfiguration": close({
+#PostRollConfiguration: close({
 	DurationSeconds!: int & <=300 & >=1 |
 		{
 			string &
@@ -58,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/PostRollConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

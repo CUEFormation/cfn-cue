@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -52,29 +52,23 @@ import (
 	// are automatically imported from the linked data repository to the file
 	// system or automatically exported from the file system to the data
 	// repository.
-	S3?: _#defs."/$defs/Properties/definitions/S3"
+	S3?: #S3
 
 	// A list of Tag values, with a maximum of 50 elements.
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 })
 
 // Specifies the type of updated objects (new, changed, deleted) that will be
 // automatically exported from your file system to the linked S3 bucket.
-_#defs: "/$defs/Properties/definitions/AutoExportPolicy": close(
-	{Events!: _#defs."/$defs/Properties/definitions/EventTypes"},
-)
+#AutoExportPolicy: close({Events!: #EventTypes})
 
 // Specifies the type of updated objects (new, changed, deleted) that will be
 // automatically imported from the linked S3 bucket to your file system.
-_#defs: "/$defs/Properties/definitions/AutoImportPolicy": close(
-	{Events!: _#defs."/$defs/Properties/definitions/EventTypes"},
-)
+#AutoImportPolicy: close({Events!: #EventTypes})
 
-_#defs: "/$defs/Properties/definitions/EventType": "NEW" | "CHANGED" | "DELETED"
+#EventType: "NEW" | "CHANGED" | "DELETED"
 
-_#defs: "/$defs/Properties/definitions/EventTypes": list.MaxItems(3) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/EventType"
-]
+#EventTypes: list.MaxItems(3) & list.UniqueItems() & [...] & [...#EventType]
 
 // The configuration for an Amazon S3 data repository linked to an Amazon FSx
 // Lustre file system with a data repository association. The configuration
@@ -82,13 +76,13 @@ _#defs: "/$defs/Properties/definitions/EventTypes": list.MaxItems(3) & list.Uniq
 // are automatically imported from the linked data repository to the file
 // system or automatically exported from the file system to the data
 // repository.
-_#defs: "/$defs/Properties/definitions/S3": close({
-	AutoExportPolicy?: _#defs."/$defs/Properties/definitions/AutoExportPolicy"
-	AutoImportPolicy?: _#defs."/$defs/Properties/definitions/AutoImportPolicy"
+#S3: close({
+	AutoExportPolicy?: #AutoExportPolicy
+	AutoImportPolicy?: #AutoImportPolicy
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,7 +13,7 @@ import (
 #Properties: close({
 	// The ARN of this SLO.
 	Arn?:                    =~"^arn:[^:]*:application-signals:[^:]*:[^:]*:slo\\/[0-9A-Za-z][-._0-9A-Za-z ]{0,126}[0-9A-Za-z]$"
-	BurnRateConfigurations?: _#defs."/$defs/Properties/definitions/BurnRateConfigurations"
+	BurnRateConfigurations?: #BurnRateConfigurations
 
 	// Epoch time in seconds of the time that this SLO was created
 	CreatedTime?: int & >=946684800
@@ -23,17 +23,17 @@ import (
 
 	// Displays whether this is a period-based SLO or a request-based SLO.
 	EvaluationType?:   "PeriodBased" | "RequestBased"
-	ExclusionWindows?: _#defs."/$defs/Properties/definitions/ExclusionWindows"
-	Goal?:             _#defs."/$defs/Properties/definitions/Goal"
+	ExclusionWindows?: #ExclusionWindows
+	Goal?:             #Goal
 
 	// Epoch time in seconds of the time that this SLO was most recently updated
 	LastUpdatedTime?: int & >=946684800
 
 	// The name of this SLO.
 	Name!:            =~"^[0-9A-Za-z][-._0-9A-Za-z ]{0,126}[0-9A-Za-z]$"
-	RequestBasedSli?: _#defs."/$defs/Properties/definitions/RequestBasedSli"
-	Sli?:             _#defs."/$defs/Properties/definitions/Sli"
-	Tags?:            _#defs."/$defs/Properties/definitions/Tags"
+	RequestBasedSli?: #RequestBasedSli
+	Sli?:             #Sli
+	Tags?:            #Tags
 })
 
 // This object defines the length of the look-back window used to calculate one
@@ -43,7 +43,7 @@ import (
 // For example, if you specify 60 as the number of minutes in the look-back
 // window, the burn rate is calculated as the following:
 // burn rate = error rate over the look-back window / (1 - attainment goal percentage)
-_#defs: "/$defs/Properties/definitions/BurnRateConfiguration": close({
+#BurnRateConfiguration: close({
 	// The number of minutes to use as the look-back window.
 	LookBackWindowMinutes!: int & <=10080 & >=1
 })
@@ -52,15 +52,13 @@ _#defs: "/$defs/Properties/definitions/BurnRateConfiguration": close({
 // calculate one burn rate metric for this SLO. The burn rate measures how fast
 // the service is consuming the error budget, relative to the attainment goal
 // of the SLO.
-_#defs: "/$defs/Properties/definitions/BurnRateConfigurations": list.MaxItems(10) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/BurnRateConfiguration"
-]
+#BurnRateConfigurations: list.MaxItems(10) & list.UniqueItems() & [...] & [...#BurnRateConfiguration]
 
 // If the interval for this service level objective is a calendar interval, this
 // structure contains the interval specifications.
-_#defs: "/$defs/Properties/definitions/CalendarInterval": close({
-	Duration!:     _#defs."/$defs/Properties/definitions/Duration"
-	DurationUnit!: _#defs."/$defs/Properties/definitions/DurationUnit"
+#CalendarInterval: close({
+	Duration!:     #Duration
+	DurationUnit!: #DurationUnit
 
 	// Epoch time in seconds you want the first interval to start. Be sure to choose
 	// a time that configures the intervals the way that you want. For example, if
@@ -70,20 +68,18 @@ _#defs: "/$defs/Properties/definitions/CalendarInterval": close({
 	StartTime!: int & >=946684800
 })
 
-_#defs: "/$defs/Properties/definitions/CompositeSliComponent": close({OperationName!: string})
+#CompositeSliComponent: close({OperationName!: string})
 
-_#defs: "/$defs/Properties/definitions/CompositeSliComponents": list.MaxItems(20) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/CompositeSliComponent"
-]
+#CompositeSliComponents: list.MaxItems(20) & list.MinItems(2) & [...#CompositeSliComponent]
 
-_#defs: "/$defs/Properties/definitions/CompositeSliConfig": close({
-	CompositeSliComponents?: _#defs."/$defs/Properties/definitions/CompositeSliComponents"
-	SelectionConfig!:        _#defs."/$defs/Properties/definitions/SelectionConfig"
+#CompositeSliConfig: close({
+	CompositeSliComponents?: #CompositeSliComponents
+	SelectionConfig!:        #SelectionConfig
 })
 
 // Configuration for identifying a dependency and its operation
-_#defs: "/$defs/Properties/definitions/DependencyConfig": close({
-	DependencyKeyAttributes!: _#defs."/$defs/Properties/definitions/DependencyKeyAttributes"
+#DependencyConfig: close({
+	DependencyKeyAttributes!: #DependencyKeyAttributes
 
 	// When the SLO monitors a specific operation of the dependency, this field
 	// specifies the name of that operation in the dependency.
@@ -92,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/DependencyConfig": close({
 
 // If this SLO is related to a metric collected by Application Signals, you must
 // use this field to specify which dependency the SLO metric is related to.
-_#defs: "/$defs/Properties/definitions/DependencyKeyAttributes": null |
+#DependencyKeyAttributes: null |
 bool |
 number |
 string |
@@ -107,7 +103,7 @@ close({
 // new variation of that metric. For example, many Amazon EC2 metrics publish
 // `InstanceId` as a dimension name, and the actual instance ID as the value
 // for that dimension. You can assign up to 30 dimensions to a metric.
-_#defs: "/$defs/Properties/definitions/Dimension": close({
+#Dimension: close({
 	// The name of the dimension. Dimension names must contain only ASCII
 	// characters, must include at least one non-whitespace character, and cannot
 	// start with a colon (:). ASCII control characters are not supported as part
@@ -123,35 +119,33 @@ _#defs: "/$defs/Properties/definitions/Dimension": close({
 // Specifies the duration of each interval. For example, if `Duration` is 1 and
 // `DurationUnit` is `MONTH`, each interval is one month, aligned with the
 // calendar.
-_#defs: "/$defs/Properties/definitions/Duration": int & >=1
+#Duration: int & >=1
 
 // Specifies the interval unit.
-_#defs: "/$defs/Properties/definitions/DurationUnit": "MINUTE" | "HOUR" | "DAY" | "MONTH"
+#DurationUnit: "MINUTE" | "HOUR" | "DAY" | "MONTH"
 
 // This object defines a time exclusion window for this SLO. The time exclusion
 // window is used to exclude breaching data points from affecting attainment
 // rate, error budget, and burn rate metrics.
-_#defs: "/$defs/Properties/definitions/ExclusionWindow": close({
+#ExclusionWindow: close({
 	// An optional reason for scheduling this time exclusion window. Default is 'No reason'.
 	Reason?:         strings.MaxRunes(1024) & strings.MinRunes(1)
-	RecurrenceRule?: _#defs."/$defs/Properties/definitions/RecurrenceRule"
+	RecurrenceRule?: #RecurrenceRule
 
 	// The time you want the exclusion window to start at. Note that time exclusion
 	// windows can only be scheduled in the future, not the past.
 	StartTime?: string
-	Window!:    _#defs."/$defs/Properties/definitions/Window"
+	Window!:    #Window
 })
 
 // Each object in this array defines a time exclusion window for this SLO. The
 // time exclusion window is used to exclude breaching data points from
 // affecting attainment rate, error budget, and burn rate metrics.
-_#defs: "/$defs/Properties/definitions/ExclusionWindows": list.MaxItems(10) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/ExclusionWindow"
-]
+#ExclusionWindows: list.MaxItems(10) & list.UniqueItems() & [...] & [...#ExclusionWindow]
 
 // A structure that contains the attributes that determine the goal of the SLO.
 // This includes the time period for evaluation and the attainment threshold.
-_#defs: "/$defs/Properties/definitions/Goal": close({
+#Goal: close({
 	// The threshold that determines if the goal is being met. An attainment goal is
 	// the ratio of good periods that meet the threshold requirements to the total
 	// periods within the interval. For example, an attainment goal of 99.9% means
@@ -159,7 +153,7 @@ _#defs: "/$defs/Properties/definitions/Goal": close({
 	// healthy state.
 	// If you omit this parameter, 99 is used to represent 99% as the attainment goal.
 	AttainmentGoal?: number
-	Interval?:       _#defs."/$defs/Properties/definitions/Interval"
+	Interval?:       #Interval
 
 	// The percentage of remaining budget over total budget that you want to get
 	// warnings for. If you omit this parameter, the default of 50.0 is used.
@@ -169,14 +163,14 @@ _#defs: "/$defs/Properties/definitions/Goal": close({
 // The time period used to evaluate the SLO. It can be either a calendar
 // interval or rolling interval.
 // If you omit this parameter, a rolling interval of 7 days is used.
-_#defs: "/$defs/Properties/definitions/Interval": close({
-	CalendarInterval?: _#defs."/$defs/Properties/definitions/CalendarInterval"
-	RollingInterval?:  _#defs."/$defs/Properties/definitions/RollingInterval"
+#Interval: close({
+	CalendarInterval?: #CalendarInterval
+	RollingInterval?:  #RollingInterval
 })
 
 // This is a string-to-string map that contains information about the type of
 // object that this SLO is related to.
-_#defs: "/$defs/Properties/definitions/KeyAttributes": null |
+#KeyAttributes: null |
 bool |
 number |
 string |
@@ -187,9 +181,9 @@ close({
 
 // This structure defines the metric used for a service level indicator,
 // including the metric name, namespace, and dimensions.
-_#defs: "/$defs/Properties/definitions/Metric": close({
+#Metric: close({
 	// An array of one or more dimensions to use to define the metric that you want to use.
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/Dimension"]
+	Dimensions?: [...#Dimension]
 
 	// The name of the metric to use.
 	MetricName?: string
@@ -201,7 +195,7 @@ _#defs: "/$defs/Properties/definitions/Metric": close({
 // If this SLO monitors a CloudWatch metric or the result of a CloudWatch metric
 // math expression, this structure includes the information about that metric
 // or expression.
-_#defs: "/$defs/Properties/definitions/MetricDataQueries": [..._#defs."/$defs/Properties/definitions/MetricDataQuery"]
+#MetricDataQueries: [...#MetricDataQuery]
 
 // Use this structure to define a metric or metric math expression that you want
 // to use as for a service level objective.
@@ -214,7 +208,7 @@ _#defs: "/$defs/Properties/definitions/MetricDataQueries": [..._#defs."/$defs/Pr
 // to perform a math expression. Of those Expression structures, exactly one
 // must have true as the value for `ReturnData`. The result of this expression
 // used for the SLO.
-_#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
+#MetricDataQuery: close({
 	// The ID of the account where the metrics are located, if this is a cross-account alarm.
 	AccountId?: string
 
@@ -227,23 +221,23 @@ _#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
 	// A metric to be used directly for the SLO, or to be used in the math
 	// expression that will be used for the SLO. Within one MetricDataQuery, you
 	// must specify either Expression or MetricStat but not both.
-	MetricStat?: _#defs."/$defs/Properties/definitions/MetricStat"
+	MetricStat?: #MetricStat
 
 	// This option indicates whether to return the timestamps and raw data values of this metric.
 	ReturnData?: bool
 })
 
 // The name of the metric for non-Application Signals services
-_#defs: "/$defs/Properties/definitions/MetricName": strings.MaxRunes(255) & strings.MinRunes(1)
+#MetricName: strings.MaxRunes(255) & strings.MinRunes(1)
 
 // Configuration for identifying the source of metrics for non-Application Signals services
-_#defs: "/$defs/Properties/definitions/MetricSource": close({
-	MetricSourceAttributes?:    _#defs."/$defs/Properties/definitions/MetricSourceAttributes"
-	MetricSourceKeyAttributes!: _#defs."/$defs/Properties/definitions/MetricSourceKeyAttributes"
+#MetricSource: close({
+	MetricSourceAttributes?:    #MetricSourceAttributes
+	MetricSourceKeyAttributes!: #MetricSourceKeyAttributes
 })
 
 // Optional additional attributes for the metric source
-_#defs: "/$defs/Properties/definitions/MetricSourceAttributes": null |
+#MetricSourceAttributes: null |
 bool |
 number |
 string |
@@ -253,7 +247,7 @@ close({
 	{[=~"^.+$"]: string}})
 
 // Required attributes that identify the metric source
-_#defs: "/$defs/Properties/definitions/MetricSourceKeyAttributes": null |
+#MetricSourceKeyAttributes: null |
 bool |
 number |
 string |
@@ -265,8 +259,8 @@ close({
 // A metric to be used directly for the SLO, or to be used in the math
 // expression that will be used for the SLO. Within one MetricDataQuery object,
 // you must specify either Expression or MetricStat but not both.
-_#defs: "/$defs/Properties/definitions/MetricStat": close({
-	Metric!: _#defs."/$defs/Properties/definitions/Metric"
+#MetricStat: close({
+	Metric!: #Metric
 
 	// The granularity, in seconds, to be used for the metric.
 	Period!: int
@@ -289,48 +283,48 @@ _#defs: "/$defs/Properties/definitions/MetricStat": close({
 // defined in `TotalRequestCountMetric` is divided by the number found for
 // `MonitoredRequestCountMetric` to determine the percentage of successful
 // requests that this SLO tracks.
-_#defs: "/$defs/Properties/definitions/MonitoredRequestCountMetric": close({
+#MonitoredRequestCountMetric: close({
 	// If you want to count "bad requests" to determine the percentage of successful
 	// requests for this request-based SLO, specify the metric to use as "bad
 	// requests" in this structure.
-	BadCountMetric?: _#defs."/$defs/Properties/definitions/MetricDataQueries"
+	BadCountMetric?: #MetricDataQueries
 
 	// If you want to count "good requests" to determine the percentage of
 	// successful requests for this request-based SLO, specify the metric to use as
 	// "good requests" in this structure.
-	GoodCountMetric?: _#defs."/$defs/Properties/definitions/MetricDataQueries"
+	GoodCountMetric?: #MetricDataQueries
 })
 
 // This object defines how often to repeat a time exclusion window.
-_#defs: "/$defs/Properties/definitions/RecurrenceRule": close({
+#RecurrenceRule: close({
 	// A cron or rate expression denoting how often to repeat this exclusion window.
 	Expression!: strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
 // This structure contains information about the performance metric that a
 // request-based SLO monitors.
-_#defs: "/$defs/Properties/definitions/RequestBasedSli": close({
+#RequestBasedSli: close({
 	// The arithmetic operation used when comparing the specified metric to the threshold.
 	ComparisonOperator?: "GreaterThanOrEqualTo" | "LessThanOrEqualTo" | "LessThan" | "GreaterThan"
 
 	// The value that the SLI metric is compared to.
 	MetricThreshold?:       number
-	RequestBasedSliMetric!: _#defs."/$defs/Properties/definitions/RequestBasedSliMetric"
+	RequestBasedSliMetric!: #RequestBasedSliMetric
 })
 
 // This structure contains the information about the metric that is used for a request-based SLO.
-_#defs: "/$defs/Properties/definitions/RequestBasedSliMetric": close({
-	CompositeSliConfig?: _#defs."/$defs/Properties/definitions/CompositeSliConfig"
-	DependencyConfig?:   _#defs."/$defs/Properties/definitions/DependencyConfig"
-	KeyAttributes?:      _#defs."/$defs/Properties/definitions/KeyAttributes"
-	MetricName?:         _#defs."/$defs/Properties/definitions/MetricName"
-	MetricSource?:       _#defs."/$defs/Properties/definitions/MetricSource"
+#RequestBasedSliMetric: close({
+	CompositeSliConfig?: #CompositeSliConfig
+	DependencyConfig?:   #DependencyConfig
+	KeyAttributes?:      #KeyAttributes
+	MetricName?:         #MetricName
+	MetricSource?:       #MetricSource
 
 	// If the SLO monitors either the LATENCY or AVAILABILITY metric that
 	// Application Signals collects, this field displays which of those metrics is
 	// used.
 	MetricType?:                  "LATENCY" | "AVAILABILITY"
-	MonitoredRequestCountMetric?: _#defs."/$defs/Properties/definitions/MonitoredRequestCountMetric"
+	MonitoredRequestCountMetric?: #MonitoredRequestCountMetric
 
 	// If the SLO monitors a specific operation of the service, this field displays that operation name.
 	OperationName?: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -339,40 +333,40 @@ _#defs: "/$defs/Properties/definitions/RequestBasedSliMetric": close({
 	// for a request-based SLO. The number observed for this metric is divided by
 	// the number of "good requests" or "bad requests" that is observed for the
 	// metric defined in `MonitoredRequestCountMetric`.
-	TotalRequestCountMetric?: _#defs."/$defs/Properties/definitions/MetricDataQueries"
+	TotalRequestCountMetric?: #MetricDataQueries
 })
 
 // If the interval is a calendar interval, this structure contains the interval specifications.
-_#defs: "/$defs/Properties/definitions/RollingInterval": close({
-	Duration!:     _#defs."/$defs/Properties/definitions/Duration"
-	DurationUnit!: _#defs."/$defs/Properties/definitions/DurationUnit"
+#RollingInterval: close({
+	Duration!:     #Duration
+	DurationUnit!: #DurationUnit
 })
 
-_#defs: "/$defs/Properties/definitions/SelectionConfig": close({
+#SelectionConfig: close({
 	Pattern?: =~"^.+$"
-	Type!:    _#defs."/$defs/Properties/definitions/SelectionType"
+	Type!:    #SelectionType
 })
 
-_#defs: "/$defs/Properties/definitions/SelectionType": "EXPLICIT" | "PREFIX" | "REGEX"
+#SelectionType: "EXPLICIT" | "PREFIX" | "REGEX"
 
 // This structure contains information about the performance metric that an SLO monitors.
-_#defs: "/$defs/Properties/definitions/Sli": close({
+#Sli: close({
 	// The arithmetic operation used when comparing the specified metric to the threshold.
 	ComparisonOperator!: "GreaterThanOrEqualTo" | "LessThanOrEqualTo" | "LessThan" | "GreaterThan"
 
 	// The value that the SLI metric is compared to.
 	MetricThreshold!: number
-	SliMetric!:       _#defs."/$defs/Properties/definitions/SliMetric"
+	SliMetric!:       #SliMetric
 })
 
 // A structure that contains information about the metric that the SLO monitors.
-_#defs: "/$defs/Properties/definitions/SliMetric": close({
-	CompositeSliConfig?: _#defs."/$defs/Properties/definitions/CompositeSliConfig"
-	DependencyConfig?:   _#defs."/$defs/Properties/definitions/DependencyConfig"
-	KeyAttributes?:      _#defs."/$defs/Properties/definitions/KeyAttributes"
-	MetricDataQueries?:  _#defs."/$defs/Properties/definitions/MetricDataQueries"
-	MetricName?:         _#defs."/$defs/Properties/definitions/MetricName"
-	MetricSource?:       _#defs."/$defs/Properties/definitions/MetricSource"
+#SliMetric: close({
+	CompositeSliConfig?: #CompositeSliConfig
+	DependencyConfig?:   #DependencyConfig
+	KeyAttributes?:      #KeyAttributes
+	MetricDataQueries?:  #MetricDataQueries
+	MetricName?:         #MetricName
+	MetricSource?:       #MetricSource
 
 	// If the SLO monitors either the LATENCY or AVAILABILITY metric that
 	// Application Signals collects, this field displays which of those metrics is
@@ -393,7 +387,7 @@ _#defs: "/$defs/Properties/definitions/SliMetric": close({
 	Statistic?: strings.MaxRunes(20) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string that you can use to assign a value. The combination of tag keys and
 	// values can help you organize and categorize your resources.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
@@ -403,12 +397,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The list of tag keys and values associated with the resource you specified
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag]
 
 // This object defines the length of time an exclusion window should span.
-_#defs: "/$defs/Properties/definitions/Window": close({
-	Duration!:     _#defs."/$defs/Properties/definitions/Duration"
-	DurationUnit!: _#defs."/$defs/Properties/definitions/DurationUnit"
+#Window: close({
+	Duration!:     #Duration
+	DurationUnit!: #DurationUnit
 })

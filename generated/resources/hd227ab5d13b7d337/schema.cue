@@ -15,19 +15,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::SageMaker::HumanTaskUi
 #Properties: close({
 	HumanTaskUiName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9](-*[a-z0-9])*$" | fn.#StringExpression
-	Tags?:            list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UiTemplate?:      _#defs."/$defs/Properties/definitions/UiTemplate" | fn.#ObjectExpression
+	Tags?:            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	UiTemplate?:      #UiTemplate | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UiTemplate": close(
-	{Content!: strings.MaxRunes(128000) & strings.MinRunes(1) & =~"^[\\S\\s]+$" | fn.#StringExpression},
-) |
+#UiTemplate: close({Content!: strings.MaxRunes(128000) & strings.MinRunes(1) & =~"^[\\S\\s]+$" | fn.#StringExpression}) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SageMaker::HumanTaskUi"

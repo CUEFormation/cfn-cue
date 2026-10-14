@@ -14,11 +14,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // This schema provides construct and validation rules for AWS-XRay
 // TransactionSearchConfig resource parameters.
-#Properties: close({IndexingPercentage?: _#defs."/$defs/Properties/definitions/IndexingPercentage"})
+#Properties: close({IndexingPercentage?: #IndexingPercentage})
 
-_#defs: "/$defs/Properties/definitions/AccountId": =~"^\\d{12}$" | fn.#StringExpression
+#AccountId: =~"^\\d{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IndexingPercentage": <=100 & >=0 |
+#IndexingPercentage: <=100 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &

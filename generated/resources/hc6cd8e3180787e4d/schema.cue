@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -19,20 +19,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::IoTAnalytics::Datastore
 #Properties: close({
 	DatastoreName?:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-	DatastorePartitions?:     _#defs."/$defs/Properties/definitions/DatastorePartitions"
-	DatastoreStorage?:        _#defs."/$defs/Properties/definitions/DatastoreStorage"
-	FileFormatConfiguration?: _#defs."/$defs/Properties/definitions/FileFormatConfiguration"
-	RetentionPeriod?:         _#defs."/$defs/Properties/definitions/RetentionPeriod"
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	DatastorePartitions?:     #DatastorePartitions
+	DatastoreStorage?:        #DatastoreStorage
+	FileFormatConfiguration?: #FileFormatConfiguration
+	RetentionPeriod?:         #RetentionPeriod
+	Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Column": close({
+#Column: close({
 	Name!: string | fn.#StringExpression
 	Type!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomerManagedS3": close({
+#CustomerManagedS3: close({
 	Bucket!:    strings.MaxRunes(255) & strings.MinRunes(3) & =~"[a-zA-Z0-9.\\-_]*" | fn.#StringExpression
 	KeyPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9!_.*'()/{}:-]*/" | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
@@ -40,53 +40,43 @@ _#defs: "/$defs/Properties/definitions/CustomerManagedS3": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomerManagedS3Storage": close({
+#CustomerManagedS3Storage: close({
 	Bucket!:    strings.MaxRunes(255) & strings.MinRunes(3) & =~"[a-zA-Z0-9.\\-_]*" | fn.#StringExpression
 	KeyPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9!_.*'()/{}:-]*/" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatastorePartition": close({
-	Partition?:          _#defs."/$defs/Properties/definitions/Partition"
-	TimestampPartition?: _#defs."/$defs/Properties/definitions/TimestampPartition"
+#DatastorePartition: close({
+	Partition?:          #Partition
+	TimestampPartition?: #TimestampPartition
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatastorePartitions": close({
-	Partitions?: list.MaxItems(25) & [...] & [..._#defs."/$defs/Properties/definitions/DatastorePartition"] |
-		fn.#ListExpression
-}) |
+#DatastorePartitions: close({Partitions?: list.MaxItems(25) & [...] & [...#DatastorePartition] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatastoreStorage": close({
-	CustomerManagedS3?:            _#defs."/$defs/Properties/definitions/CustomerManagedS3"
-	IotSiteWiseMultiLayerStorage?: _#defs."/$defs/Properties/definitions/IotSiteWiseMultiLayerStorage"
-	ServiceManagedS3?:             _#defs."/$defs/Properties/definitions/ServiceManagedS3"
+#DatastoreStorage: close({
+	CustomerManagedS3?:            #CustomerManagedS3
+	IotSiteWiseMultiLayerStorage?: #IotSiteWiseMultiLayerStorage
+	ServiceManagedS3?:             #ServiceManagedS3
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FileFormatConfiguration": close({
-	JsonConfiguration?:    _#defs."/$defs/Properties/definitions/JsonConfiguration"
-	ParquetConfiguration?: _#defs."/$defs/Properties/definitions/ParquetConfiguration"
+#FileFormatConfiguration: close({
+	JsonConfiguration?:    #JsonConfiguration
+	ParquetConfiguration?: #ParquetConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IotSiteWiseMultiLayerStorage": close(
-	{CustomerManagedS3Storage?: _#defs."/$defs/Properties/definitions/CustomerManagedS3Storage"},
-) |
-	fn.#ObjectExpression
+#IotSiteWiseMultiLayerStorage: close({CustomerManagedS3Storage?: #CustomerManagedS3Storage}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JsonConfiguration": fn.#Object & {...} | string | fn.#StringObjectExpression
+#JsonConfiguration: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParquetConfiguration": close(
-	{SchemaDefinition?: _#defs."/$defs/Properties/definitions/SchemaDefinition"},
-) |
-	fn.#ObjectExpression
+#ParquetConfiguration: close({SchemaDefinition?: #SchemaDefinition}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Partition": close({AttributeName!: =~"[a-zA-Z0-9_]+" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Partition: close({AttributeName!: =~"[a-zA-Z0-9_]+" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
+#RetentionPeriod: close({
 	NumberOfDays?: int & <=2147483647 & >=1 |
 		{
 			string &
@@ -107,21 +97,18 @@ _#defs: "/$defs/Properties/definitions/RetentionPeriod": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaDefinition": close({
-	Columns?: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Column"] |
-		fn.#ListExpression
-}) |
+#SchemaDefinition: close({Columns?: list.MaxItems(100) & list.MinItems(1) & [...#Column] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceManagedS3": fn.#Object & {...} | string | fn.#StringObjectExpression
+#ServiceManagedS3: fn.#Object & {...} | string | fn.#StringObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimestampPartition": close({
+#TimestampPartition: close({
 	AttributeName!:   =~"[a-zA-Z0-9_]+" | fn.#StringExpression
 	TimestampFormat?: =~"[a-zA-Z0-9\\s\\[\\]_,.'/:-]*" | fn.#StringExpression
 }) |

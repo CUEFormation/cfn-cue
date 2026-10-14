@@ -14,18 +14,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::AutoScalingPlans::ScalingPlan
 #Properties: close({
-	ApplicationSource!:   _#defs."/$defs/Properties/definitions/ApplicationSource"
-	ScalingInstructions!: [..._#defs."/$defs/Properties/definitions/ScalingInstruction"] | fn.#ListExpression
+	ApplicationSource!:   #ApplicationSource
+	ScalingInstructions!: [...#ScalingInstruction] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationSource": close({
+#ApplicationSource: close({
 	CloudFormationStackARN?: string | fn.#StringExpression
-	TagFilters?:             [..._#defs."/$defs/Properties/definitions/TagFilter"] | fn.#ListExpression
+	TagFilters?:             [...#TagFilter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomizedLoadMetricSpecification": close({
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/MetricDimension"] | fn.#ListExpression
+#CustomizedLoadMetricSpecification: close({
+	Dimensions?: [...#MetricDimension] | fn.#ListExpression
 	MetricName!: string | fn.#StringExpression
 	Namespace!:  string | fn.#StringExpression
 	Statistic!:  string | fn.#StringExpression
@@ -33,8 +33,8 @@ _#defs: "/$defs/Properties/definitions/CustomizedLoadMetricSpecification": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomizedScalingMetricSpecification": close({
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/MetricDimension"] | fn.#ListExpression
+#CustomizedScalingMetricSpecification: close({
+	Dimensions?: [...#MetricDimension] | fn.#ListExpression
 	MetricName!: string | fn.#StringExpression
 	Namespace!:  string | fn.#StringExpression
 	Statistic!:  string | fn.#StringExpression
@@ -42,26 +42,26 @@ _#defs: "/$defs/Properties/definitions/CustomizedScalingMetricSpecification": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDimension": close({
+#MetricDimension: close({
 	Name!:  string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredefinedLoadMetricSpecification": close({
+#PredefinedLoadMetricSpecification: close({
 	PredefinedLoadMetricType!: string | fn.#StringExpression
 	ResourceLabel?:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PredefinedScalingMetricSpecification": close({
+#PredefinedScalingMetricSpecification: close({
 	PredefinedScalingMetricType!: string | fn.#StringExpression
 	ResourceLabel?:               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingInstruction": close({
-	CustomizedLoadMetricSpecification?: _#defs."/$defs/Properties/definitions/CustomizedLoadMetricSpecification"
+#ScalingInstruction: close({
+	CustomizedLoadMetricSpecification?: #CustomizedLoadMetricSpecification
 	DisableDynamicScaling?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxCapacity!: int |
 		{
@@ -91,7 +91,7 @@ _#defs: "/$defs/Properties/definitions/ScalingInstruction": close({
 				)
 		} |
 		fn.#NumberExpression
-	PredefinedLoadMetricSpecification?:    _#defs."/$defs/Properties/definitions/PredefinedLoadMetricSpecification"
+	PredefinedLoadMetricSpecification?:    #PredefinedLoadMetricSpecification
 	PredictiveScalingMaxCapacityBehavior?: string | fn.#StringExpression
 	PredictiveScalingMaxCapacityBuffer?: int |
 		{
@@ -125,20 +125,19 @@ _#defs: "/$defs/Properties/definitions/ScalingInstruction": close({
 				)
 		} |
 		fn.#NumberExpression
-	ServiceNamespace!: string | fn.#StringExpression
-	TargetTrackingConfigurations!: [..._#defs."/$defs/Properties/definitions/TargetTrackingConfiguration"] |
-		fn.#ListExpression
+	ServiceNamespace!:             string | fn.#StringExpression
+	TargetTrackingConfigurations!: [...#TargetTrackingConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagFilter": close({
+#TagFilter: close({
 	Key!:    string | fn.#StringExpression
 	Values?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingConfiguration": close({
-	CustomizedScalingMetricSpecification?: _#defs."/$defs/Properties/definitions/CustomizedScalingMetricSpecification"
+#TargetTrackingConfiguration: close({
+	CustomizedScalingMetricSpecification?: #CustomizedScalingMetricSpecification
 	DisableScaleIn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EstimatedInstanceWarmup?: int |
 		{
@@ -154,7 +153,7 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	PredefinedScalingMetricSpecification?: _#defs."/$defs/Properties/definitions/PredefinedScalingMetricSpecification"
+	PredefinedScalingMetricSpecification?: #PredefinedScalingMetricSpecification
 	ScaleInCooldown?: int |
 		{
 			string &

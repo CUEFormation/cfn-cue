@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"struct"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"struct"
 	"list"
 )
 
@@ -16,8 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Events::Connection.
 #Properties: close({
 	AuthParameters?: struct.MaxFields(2) & struct.MinFields(1) & (close({
-		ApiKeyAuthParameters?: _#defs."/$defs/Properties/definitions/ApiKeyAuthParameters"
-		BasicAuthParameters?:  _#defs."/$defs/Properties/definitions/BasicAuthParameters"
+		ApiKeyAuthParameters?: #ApiKeyAuthParameters
+		BasicAuthParameters?:  #BasicAuthParameters
 		ConnectivityParameters?: close({
 			ResourceParameters!: close({
 				ResourceConfigurationArn!: strings.MaxRunes(2048) &
@@ -27,8 +27,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		InvocationHttpParameters?: _#defs."/$defs/Properties/definitions/ConnectionHttpParameters"
-		OAuthParameters?:          _#defs."/$defs/Properties/definitions/OAuthParameters"
+		InvocationHttpParameters?: #ConnectionHttpParameters
+		OAuthParameters?:          #OAuthParameters
 		if BasicAuthParameters != _|_ {
 			OAuthParameters?: error(
 				"OAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
@@ -59,7 +59,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name?:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ApiKeyAuthParameters": close({
+#ApiKeyAuthParameters: close({
 	ApiKeyName!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" |
@@ -71,12 +71,12 @@ _#defs: "/$defs/Properties/definitions/ApiKeyAuthParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AuthParameters": struct.MaxFields(2) & struct.MinFields(1) & (close({
-	ApiKeyAuthParameters?:     _#defs."/$defs/Properties/definitions/ApiKeyAuthParameters"
-	BasicAuthParameters?:      _#defs."/$defs/Properties/definitions/BasicAuthParameters"
-	ConnectivityParameters?:   _#defs."/$defs/Properties/definitions/ConnectivityParameters"
-	InvocationHttpParameters?: _#defs."/$defs/Properties/definitions/ConnectionHttpParameters"
-	OAuthParameters?:          _#defs."/$defs/Properties/definitions/OAuthParameters"
+#AuthParameters: struct.MaxFields(2) & struct.MinFields(1) & (close({
+	ApiKeyAuthParameters?:     #ApiKeyAuthParameters
+	BasicAuthParameters?:      #BasicAuthParameters
+	ConnectivityParameters?:   #ConnectivityParameters
+	InvocationHttpParameters?: #ConnectionHttpParameters
+	OAuthParameters?:          #OAuthParameters
 	if BasicAuthParameters != _|_ {
 		OAuthParameters?: error(
 			"OAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
@@ -93,7 +93,7 @@ _#defs: "/$defs/Properties/definitions/AuthParameters": struct.MaxFields(2) & st
 }) & matchN(>=1, [{BasicAuthParameters!: _}, {OAuthParameters!: _}, {ApiKeyAuthParameters!: _}])) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BasicAuthParameters": close({
+#BasicAuthParameters: close({
 	Password!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" |
@@ -105,7 +105,7 @@ _#defs: "/$defs/Properties/definitions/BasicAuthParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientParameters": close({
+#ClientParameters: close({
 	ClientID!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" |
@@ -117,33 +117,27 @@ _#defs: "/$defs/Properties/definitions/ClientParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectionHttpParameters": close({
-	BodyParameters?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Parameter"] |
-		fn.#ListExpression
-	HeaderParameters?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Parameter"] |
-		fn.#ListExpression
-	QueryStringParameters?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/Parameter"] |
-		fn.#ListExpression
+#ConnectionHttpParameters: close({
+	BodyParameters?:        list.MaxItems(100) & [...] & [...#Parameter] | fn.#ListExpression
+	HeaderParameters?:      list.MaxItems(100) & [...] & [...#Parameter] | fn.#ListExpression
+	QueryStringParameters?: list.MaxItems(100) & [...] & [...#Parameter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConnectivityParameters": close(
-	{ResourceParameters!: _#defs."/$defs/Properties/definitions/ResourceParameters"},
-) |
-	fn.#ObjectExpression
+#ConnectivityParameters: close({ResourceParameters!: #ResourceParameters}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OAuthParameters": close({
+#OAuthParameters: close({
 	AuthorizationEndpoint!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^((%[0-9A-Fa-f]{2}|[-()_.!~*';/?:@\\x26=+$,A-Za-z0-9])+)([).!';/?:,])?$" |
 	fn.#StringExpression
-	ClientParameters!:    _#defs."/$defs/Properties/definitions/ClientParameters"
+	ClientParameters!:    #ClientParameters
 	HttpMethod!:          "GET" | "POST" | "PUT" | fn.#StringExpression
-	OAuthHttpParameters?: _#defs."/$defs/Properties/definitions/ConnectionHttpParameters"
+	OAuthHttpParameters?: #ConnectionHttpParameters
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Parameter": close({
+#Parameter: close({
 	IsValueSecret?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Key!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[!#$%&'*+-.^_`|~0-9a-zA-Z]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[ \\t]*[\\x20-\\x7E]+([ \\t]+[\\x20-\\x7E]+)*[ \\t]*$" |
@@ -151,7 +145,7 @@ _#defs: "/$defs/Properties/definitions/Parameter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceParameters": close({
+#ResourceParameters: close({
 	ResourceAssociationArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetworkresourceassociation/snra-[0-9a-z]{17}$" |

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,18 +16,18 @@ import (
 
 	// Stage ARN is automatically generated on creation and assigned as the unique identifier.
 	Arn?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^arn:aws[-a-z]*:ivs:[a-z0-9-]+:[0-9]+:stage/[a-zA-Z0-9-]+$"
-	AutoParticipantRecordingConfiguration?: _#defs."/$defs/Properties/definitions/AutoParticipantRecordingConfiguration"
+	AutoParticipantRecordingConfiguration?: #AutoParticipantRecordingConfiguration
 
 	// Stage name
 	Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Configuration object for individual participant recording, to attach to the new stage.
-_#defs: "/$defs/Properties/definitions/AutoParticipantRecordingConfiguration": close({
-	HlsConfiguration?: _#defs."/$defs/Properties/definitions/HlsConfiguration"
+#AutoParticipantRecordingConfiguration: close({
+	HlsConfiguration?: #HlsConfiguration
 
 	// Types of media to be recorded. Default: AUDIO_VIDEO.
 	MediaTypes?: list.MaxItems(1) & list.UniqueItems() & [...] & [..."AUDIO_VIDEO" | "AUDIO_ONLY"]
@@ -41,24 +41,22 @@ _#defs: "/$defs/Properties/definitions/AutoParticipantRecordingConfiguration": c
 	StorageConfigurationArn!: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^$|^arn:aws:ivs:[a-z0-9-]+:[0-9]+:storage-configuration/[a-zA-Z0-9-]+$"
-	ThumbnailConfiguration?: _#defs."/$defs/Properties/definitions/ThumbnailConfiguration"
+	ThumbnailConfiguration?: #ThumbnailConfiguration
 })
 
 // HLS configuration object for individual participant recording.
-_#defs: "/$defs/Properties/definitions/HlsConfiguration": close(
-	{ParticipantRecordingHlsConfiguration?: _#defs."/$defs/Properties/definitions/ParticipantRecordingHlsConfiguration"},
-)
+#HlsConfiguration: close({ParticipantRecordingHlsConfiguration?: #ParticipantRecordingHlsConfiguration})
 
 // An object representing a configuration of participant HLS recordings for
 // individual participant recording.
-_#defs: "/$defs/Properties/definitions/ParticipantRecordingHlsConfiguration": close({
+#ParticipantRecordingHlsConfiguration: close({
 	// Defines the target duration for recorded segments generated when recording a
 	// stage participant. Segments may have durations longer than the specified
 	// value when needed to ensure each segment begins with a keyframe. Default: 6.
 	TargetSegmentDurationSeconds?: int & <=10 & >=2
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -75,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // A complex type that allows you to enable/disable the recording of thumbnails
 // for individual participant recording and modify the interval at which
 // thumbnails are generated for the live session.
-_#defs: "/$defs/Properties/definitions/ThumbnailConfiguration": close({
+#ThumbnailConfiguration: close({
 	// An object representing a configuration of thumbnails for recorded video from
 	// an individual participant.
 	ParticipantThumbnailConfiguration?: close({

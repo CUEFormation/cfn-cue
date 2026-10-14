@@ -48,8 +48,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EbsEncryption!:               "DEFAULT" | "CUSTOM" | "NONE" | fn.#StringExpression
 	EbsEncryptionKeyArn?:         strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
 	InternetProtocol?:            "IPV4" | "IPV6" | fn.#StringExpression
-	PitPolicy!: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/PITPolicyRule"] |
-		fn.#ListExpression
+	PitPolicy!:                   list.MaxItems(10) & list.MinItems(1) & [...#PITPolicyRule] | fn.#ListExpression
 	ReplicationServerInstanceType?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	ReplicationServersSecurityGroupsIDs!: list.MaxItems(32) & [...] & [
 		...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^sg-[0-9a-fA-F]{8,}$" | fn.#StringExpression
@@ -61,7 +60,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		{[=~"^.{0,256}$"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	UseDedicatedReplicationServer?: bool |
 		"true" |
 		"True" |
@@ -72,7 +71,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#BooleanExpression
 })
 
-_#defs: "/$defs/Properties/definitions/PITPolicyRule": close({
+#PITPolicyRule: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Interval!: int & >=1 |
 		{
@@ -123,7 +122,7 @@ _#defs: "/$defs/Properties/definitions/PITPolicyRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

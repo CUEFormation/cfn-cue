@@ -20,10 +20,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
-	LustreConfiguration?:  _#defs."/$defs/Properties/definitions/LustreConfiguration"
+	LustreConfiguration?:  #LustreConfiguration
 	NetworkType?:          string | fn.#StringExpression
-	OntapConfiguration?:   _#defs."/$defs/Properties/definitions/OntapConfiguration"
-	OpenZFSConfiguration?: _#defs."/$defs/Properties/definitions/OpenZFSConfiguration"
+	OntapConfiguration?:   #OntapConfiguration
+	OpenZFSConfiguration?: #OpenZFSConfiguration
 	SecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -45,24 +45,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	StorageType?:          string | fn.#StringExpression
 	SubnetIds!:            [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	WindowsConfiguration?: _#defs."/$defs/Properties/definitions/WindowsConfiguration"
+	Tags?:                 [...#Tag] | fn.#ListExpression
+	WindowsConfiguration?: #WindowsConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/AuditLogConfiguration": close({
+#AuditLogConfiguration: close({
 	AuditLogDestination?:          string | fn.#StringExpression
 	FileAccessAuditLogLevel!:      string | fn.#StringExpression
 	FileShareAccessAuditLogLevel!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClientConfigurations": close({
+#ClientConfigurations: close({
 	Clients?: string | fn.#StringExpression
 	Options?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataReadCacheConfiguration": close({
+#DataReadCacheConfiguration: close({
 	SizeGiB?: int |
 		{
 			string &
@@ -81,7 +81,7 @@ _#defs: "/$defs/Properties/definitions/DataReadCacheConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DiskIopsConfiguration": close({
+#DiskIopsConfiguration: close({
 	Iops?: int |
 		{
 			string &
@@ -100,19 +100,19 @@ _#defs: "/$defs/Properties/definitions/DiskIopsConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FsrmConfiguration": close({
+#FsrmConfiguration: close({
 	EventLogDestination?: string | fn.#StringExpression
 	FsrmServiceEnabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	Destination?: string | fn.#StringExpression
 	Level!:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LustreConfiguration": close({
+#LustreConfiguration: close({
 	AutoImportPolicy?: string | fn.#StringExpression
 	AutomaticBackupRetentionDays?: int |
 		{
@@ -131,7 +131,7 @@ _#defs: "/$defs/Properties/definitions/LustreConfiguration": close({
 	CopyTagsToBackups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DailyAutomaticBackupStartTime?: string | fn.#StringExpression
 	DataCompressionType?:           string | fn.#StringExpression
-	DataReadCacheConfiguration?:    _#defs."/$defs/Properties/definitions/DataReadCacheConfiguration"
+	DataReadCacheConfiguration?:    #DataReadCacheConfiguration
 	DeploymentType?:                string | fn.#StringExpression
 	DriveCacheType?:                string | fn.#StringExpression
 	EfaEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -151,8 +151,8 @@ _#defs: "/$defs/Properties/definitions/LustreConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	LogConfiguration?:      _#defs."/$defs/Properties/definitions/LogConfiguration"
-	MetadataConfiguration?: _#defs."/$defs/Properties/definitions/MetadataConfiguration"
+	LogConfiguration?:      #LogConfiguration
+	MetadataConfiguration?: #MetadataConfiguration
 	PerUnitStorageThroughput?: int |
 		{
 			string &
@@ -185,7 +185,7 @@ _#defs: "/$defs/Properties/definitions/LustreConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataConfiguration": close({
+#MetadataConfiguration: close({
 	Iops?: int |
 		{
 			string &
@@ -204,12 +204,9 @@ _#defs: "/$defs/Properties/definitions/MetadataConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NfsExports": close(
-	{ClientConfigurations?: [..._#defs."/$defs/Properties/definitions/ClientConfigurations"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#NfsExports: close({ClientConfigurations?: [...#ClientConfigurations] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OntapConfiguration": close({
+#OntapConfiguration: close({
 	AutomaticBackupRetentionDays?: int |
 		{
 			string &
@@ -226,7 +223,7 @@ _#defs: "/$defs/Properties/definitions/OntapConfiguration": close({
 		fn.#NumberExpression
 	DailyAutomaticBackupStartTime?: string | fn.#StringExpression
 	DeploymentType!:                string | fn.#StringExpression
-	DiskIopsConfiguration?:         _#defs."/$defs/Properties/definitions/DiskIopsConfiguration"
+	DiskIopsConfiguration?:         #DiskIopsConfiguration
 	EndpointIpAddressRange?:        string | fn.#StringExpression
 	EndpointIpv6AddressRange?:      string | fn.#StringExpression
 	FsxAdminPassword?:              string | fn.#StringExpression
@@ -278,7 +275,7 @@ _#defs: "/$defs/Properties/definitions/OntapConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenZFSConfiguration": close({
+#OpenZFSConfiguration: close({
 	AutomaticBackupRetentionDays?: int |
 		{
 			string &
@@ -297,13 +294,13 @@ _#defs: "/$defs/Properties/definitions/OpenZFSConfiguration": close({
 	CopyTagsToVolumes?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DailyAutomaticBackupStartTime?: string | fn.#StringExpression
 	DeploymentType!:                string | fn.#StringExpression
-	DiskIopsConfiguration?:         _#defs."/$defs/Properties/definitions/DiskIopsConfiguration"
+	DiskIopsConfiguration?:         #DiskIopsConfiguration
 	EndpointIpAddressRange?:        string | fn.#StringExpression
 	EndpointIpv6AddressRange?:      string | fn.#StringExpression
 	Options?:                       [...string | fn.#StringExpression] | fn.#ListExpression
 	PreferredSubnetId?:             string | fn.#StringExpression
-	ReadCacheConfiguration?:        _#defs."/$defs/Properties/definitions/ReadCacheConfiguration"
-	RootVolumeConfiguration?:       _#defs."/$defs/Properties/definitions/RootVolumeConfiguration"
+	ReadCacheConfiguration?:        #ReadCacheConfiguration
+	RootVolumeConfiguration?:       #RootVolumeConfiguration
 	RouteTableIds?:                 [...string | fn.#StringExpression] | fn.#ListExpression
 	ThroughputCapacity?: int |
 		{
@@ -323,7 +320,7 @@ _#defs: "/$defs/Properties/definitions/OpenZFSConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReadCacheConfiguration": close({
+#ReadCacheConfiguration: close({
 	SizeGiB?: int |
 		{
 			string &
@@ -342,10 +339,10 @@ _#defs: "/$defs/Properties/definitions/ReadCacheConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RootVolumeConfiguration": close({
+#RootVolumeConfiguration: close({
 	CopyTagsToSnapshots?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DataCompressionType?: string | fn.#StringExpression
-	NfsExports?:          [..._#defs."/$defs/Properties/definitions/NfsExports"] | fn.#ListExpression
+	NfsExports?:          [...#NfsExports] | fn.#ListExpression
 	ReadOnly?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RecordSizeKiB?: int |
 		{
@@ -361,11 +358,11 @@ _#defs: "/$defs/Properties/definitions/RootVolumeConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	UserAndGroupQuotas?: [..._#defs."/$defs/Properties/definitions/UserAndGroupQuotas"] | fn.#ListExpression
+	UserAndGroupQuotas?: [...#UserAndGroupQuotas] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration": close({
+#SelfManagedActiveDirectoryConfiguration: close({
 	DnsIps?:                              [...string | fn.#StringExpression] | fn.#ListExpression
 	DomainJoinServiceAccountSecret?:      string | fn.#StringExpression
 	DomainName?:                          string | fn.#StringExpression
@@ -376,13 +373,13 @@ _#defs: "/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration":
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserAndGroupQuotas": close({
+#UserAndGroupQuotas: close({
 	Id?: int |
 		{
 			string &
@@ -415,10 +412,10 @@ _#defs: "/$defs/Properties/definitions/UserAndGroupQuotas": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WindowsConfiguration": close({
+#WindowsConfiguration: close({
 	ActiveDirectoryId?:     string | fn.#StringExpression
 	Aliases?:               [...string | fn.#StringExpression] | fn.#ListExpression
-	AuditLogConfiguration?: _#defs."/$defs/Properties/definitions/AuditLogConfiguration"
+	AuditLogConfiguration?: #AuditLogConfiguration
 	AutomaticBackupRetentionDays?: int |
 		{
 			string &
@@ -434,13 +431,12 @@ _#defs: "/$defs/Properties/definitions/WindowsConfiguration": close({
 		} |
 		fn.#NumberExpression
 	CopyTagsToBackups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DailyAutomaticBackupStartTime?: string | fn.#StringExpression
-	DeploymentType?:                string | fn.#StringExpression
-	DiskIopsConfiguration?:         _#defs."/$defs/Properties/definitions/DiskIopsConfiguration"
-	FsrmConfiguration?:             _#defs."/$defs/Properties/definitions/FsrmConfiguration"
-	PreferredSubnetId?:             string | fn.#StringExpression
-	SelfManagedActiveDirectoryConfiguration?:
-		_#defs."/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration"
+	DailyAutomaticBackupStartTime?:           string | fn.#StringExpression
+	DeploymentType?:                          string | fn.#StringExpression
+	DiskIopsConfiguration?:                   #DiskIopsConfiguration
+	FsrmConfiguration?:                       #FsrmConfiguration
+	PreferredSubnetId?:                       string | fn.#StringExpression
+	SelfManagedActiveDirectoryConfiguration?: #SelfManagedActiveDirectoryConfiguration
 	ThroughputCapacity!: int |
 		{
 			string &

@@ -14,12 +14,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-documenting-api-content-representation.html)
 // in the *API Gateway Developer Guide*.
 #Properties: close({
-	Location!:   _#defs."/$defs/Properties/definitions/Location" | fn.#ObjectExpression
+	Location!:   #Location | fn.#ObjectExpression
 	Properties!: string | fn.#StringExpression
 	RestApiId!:  string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Location": close({
+#Location: close({
 	Method?:     string | fn.#StringExpression
 	Name?:       string | fn.#StringExpression
 	Path?:       string | fn.#StringExpression

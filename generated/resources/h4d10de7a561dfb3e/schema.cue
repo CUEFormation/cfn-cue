@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -23,10 +23,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	PolicyDocument?: fn.#Object & {...} |
 	strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
 	fn.#StringObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CoreNetworkEdge": close({
+#CoreNetworkEdge: close({
 	Asn?: number |
 		{
 			string &
@@ -51,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/CoreNetworkEdge": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CoreNetworkNetworkFunctionGroup": close({
+#CoreNetworkNetworkFunctionGroup: close({
 	EdgeLocations?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Name?:          string | fn.#StringExpression
 	Segments?: close({
@@ -62,14 +62,14 @@ _#defs: "/$defs/Properties/definitions/CoreNetworkNetworkFunctionGroup": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CoreNetworkSegment": close({
+#CoreNetworkSegment: close({
 	EdgeLocations?:  [...string | fn.#StringExpression] | fn.#ListExpression
 	Name?:           string | fn.#StringExpression
 	SharedSegments?: [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |

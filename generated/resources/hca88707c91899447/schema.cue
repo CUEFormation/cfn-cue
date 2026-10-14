@@ -23,32 +23,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // CloudFront sends a request when it can't find an object in its cache that
 // matches the request. If you want to send values to the origin and also
 // include them in the cache key, use ``CachePolicy``.
-#Properties: close({
-	OriginRequestPolicyConfig!: _#defs."/$defs/Properties/definitions/OriginRequestPolicyConfig" | fn.#ObjectExpression
-})
+#Properties: close({OriginRequestPolicyConfig!: #OriginRequestPolicyConfig | fn.#ObjectExpression})
 
-_#defs: "/$defs/Properties/definitions/CookiesConfig": close({
+#CookiesConfig: close({
 	CookieBehavior!: =~"^(none|whitelist|all|allExcept)$" | fn.#StringExpression
 	Cookies?:        [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HeadersConfig": close({
+#HeadersConfig: close({
 	HeaderBehavior!: =~"^(none|whitelist|allViewer|allViewerAndWhitelistCloudFront|allExcept)$" | fn.#StringExpression
 	Headers?:        [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OriginRequestPolicyConfig": close({
+#OriginRequestPolicyConfig: close({
 	Comment?:            string | fn.#StringExpression
-	CookiesConfig!:      _#defs."/$defs/Properties/definitions/CookiesConfig" | fn.#ObjectExpression
-	HeadersConfig!:      _#defs."/$defs/Properties/definitions/HeadersConfig" | fn.#ObjectExpression
+	CookiesConfig!:      #CookiesConfig | fn.#ObjectExpression
+	HeadersConfig!:      #HeadersConfig | fn.#ObjectExpression
 	Name!:               string | fn.#StringExpression
-	QueryStringsConfig!: _#defs."/$defs/Properties/definitions/QueryStringsConfig" | fn.#ObjectExpression
+	QueryStringsConfig!: #QueryStringsConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryStringsConfig": close({
+#QueryStringsConfig: close({
 	QueryStringBehavior!: =~"^(none|whitelist|all|allExcept)$" | fn.#StringExpression
 	QueryStrings?:        [...string | fn.#StringExpression] | fn.#ListExpression
 }) |

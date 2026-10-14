@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -49,18 +49,18 @@ import (
 #Properties: close({
 	// A complex type that contains an optional comment.
 	// If you don't want to specify a comment, omit the ``HostedZoneConfig`` and ``Comment`` elements.
-	HostedZoneConfig?: _#defs."/$defs/Properties/definitions/HostedZoneConfig"
+	HostedZoneConfig?: #HostedZoneConfig
 
 	// The features configuration for the hosted zone, including accelerated
 	// recovery settings and status information.
-	HostedZoneFeatures?: _#defs."/$defs/Properties/definitions/HostedZoneFeatures"
+	HostedZoneFeatures?: #HostedZoneFeatures
 
 	// Adds, edits, or deletes tags for a health check or a hosted zone.
 	// For information about using tags for cost allocation, see [Using Cost
 	// Allocation
 	// Tags](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
 	// in the *User Guide*.
-	HostedZoneTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/HostedZoneTag"]
+	HostedZoneTags?: list.UniqueItems() & [...#HostedZoneTag]
 	Id?:             string
 
 	// The name of the domain. Specify a fully qualified domain name, for example,
@@ -149,29 +149,29 @@ import (
 	// want Route 53 to stop sending query logs to CloudWatch Logs, delete the
 	// query logging configuration. For more information, see
 	// DeleteQueryLoggingConfig.
-	QueryLoggingConfig?: _#defs."/$defs/Properties/definitions/QueryLoggingConfig"
+	QueryLoggingConfig?: #QueryLoggingConfig
 
 	// *Private hosted zones:* A complex type that contains information about the
 	// VPCs that are associated with the specified hosted zone.
 	// For public hosted zones, omit ``VPCs``, ``VPCId``, and ``VPCRegion``.
-	VPCs?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VPC"]
+	VPCs?: list.UniqueItems() & [...#VPC]
 })
 
 // A complex type that contains an optional comment about your hosted zone. If
 // you don't want to specify a comment, omit both the ``HostedZoneConfig`` and
 // ``Comment`` elements.
-_#defs: "/$defs/Properties/definitions/HostedZoneConfig": close({
+#HostedZoneConfig: close({
 	// Any comments that you want to include about the hosted zone.
 	Comment?: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
 // Represents the features configuration for a hosted zone, including the status
 // of various features and any associated failure reasons.
-_#defs: "/$defs/Properties/definitions/HostedZoneFeatures": close({EnableAcceleratedRecovery?: bool})
+#HostedZoneFeatures: close({EnableAcceleratedRecovery?: bool})
 
 // A complex type that contains information about a tag that you want to add or
 // edit for the specified health check or hosted zone.
-_#defs: "/$defs/Properties/definitions/HostedZoneTag": close({
+#HostedZoneTag: close({
 	// The value of ``Key`` depends on the operation that you want to perform:
 	// + *Add a tag to a health check or hosted zone*: ``Key`` is the name that you
 	// want to give the new tag.
@@ -190,7 +190,7 @@ _#defs: "/$defs/Properties/definitions/HostedZoneTag": close({
 })
 
 // A complex type that contains information about a configuration for DNS query logging.
-_#defs: "/$defs/Properties/definitions/QueryLoggingConfig": close({
+#QueryLoggingConfig: close({
 	// The Amazon Resource Name (ARN) of the CloudWatch Logs log group that Amazon
 	// Route 53 is publishing logs to.
 	CloudWatchLogsLogGroupArn!: string
@@ -200,7 +200,7 @@ _#defs: "/$defs/Properties/definitions/QueryLoggingConfig": close({
 // an Amazon VPC. Route 53 Resolver uses the records in the private hosted zone
 // to route traffic in that VPC.
 // For public hosted zones, omit ``VPCs``, ``VPCId``, and ``VPCRegion``.
-_#defs: "/$defs/Properties/definitions/VPC": close({
+#VPC: close({
 	// *Private hosted zones only:* The ID of an Amazon VPC.
 	// For public hosted zones, omit ``VPCs``, ``VPCId``, and ``VPCRegion``.
 	VPCId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"

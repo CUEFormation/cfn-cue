@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"struct"
 	"list"
 )
@@ -25,25 +25,25 @@ import (
 	// The input artifacts for the component.
 	InputArtifacts?: struct.MaxFields(60) & close({
 
-		{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TrialComponentArtifact"}})
+		{[=~".{1,128}"]: #TrialComponentArtifact}})
 
 	// When the trial component was last modified.
 	LastModifiedTime?: time.Time
 
 	// The Amazon Resource Name (ARN) of the lineage group.
 	LineageGroupArn?:    strings.MaxRunes(256)
-	MetadataProperties?: _#defs."/$defs/Properties/definitions/MetadataProperties"
+	MetadataProperties?: #MetadataProperties
 
 	// The output artifacts for the component.
 	OutputArtifacts?: struct.MaxFields(60) & close({
 
-		{[=~".{1,128}"]: _#defs."/$defs/Properties/definitions/TrialComponentArtifact"}})
+		{[=~".{1,128}"]: #TrialComponentArtifact}})
 
 	// The hyperparameters for the component.
 	Parameters?: struct.MaxFields(300) & close({
 
-		{[=~".{1,320}"]: _#defs."/$defs/Properties/definitions/TrialComponentParameterValue"}})
-	Status?: _#defs."/$defs/Properties/definitions/TrialComponentStatus"
+		{[=~".{1,320}"]: #TrialComponentParameterValue}})
+	Status?: #TrialComponentStatus
 
 	// A list of tags to associate with the trial component.
 	Tags?: list.MaxItems(50) & [...] & [...close({
@@ -63,7 +63,7 @@ import (
 })
 
 // Metadata properties of the tracking entity, trial, or trial component.
-_#defs: "/$defs/Properties/definitions/MetadataProperties": close({
+#MetadataProperties: close({
 	// The commit ID.
 	CommitId?: strings.MaxRunes(1024) & strings.MinRunes(0)
 
@@ -78,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/MetadataProperties": close({
 })
 
 // Represents an input or output artifact of a trial component.
-_#defs: "/$defs/Properties/definitions/TrialComponentArtifact": close({
+#TrialComponentArtifact: close({
 	// The media type of the artifact.
 	MediaType?: strings.MaxRunes(64) & =~"^[-\\w]+\\/[-\\w+]+$"
 
@@ -87,7 +87,7 @@ _#defs: "/$defs/Properties/definitions/TrialComponentArtifact": close({
 })
 
 // The value of a hyperparameter. Only one of StringValue or NumberValue can be specified.
-_#defs: "/$defs/Properties/definitions/TrialComponentParameterValue": close({
+#TrialComponentParameterValue: close({
 	// The numeric value of a numeric hyperparameter.
 	NumberValue?: number
 
@@ -96,7 +96,7 @@ _#defs: "/$defs/Properties/definitions/TrialComponentParameterValue": close({
 })
 
 // The status of the trial component.
-_#defs: "/$defs/Properties/definitions/TrialComponentStatus": close({
+#TrialComponentStatus: close({
 	// If the component failed, a message describing why.
 	Message?: strings.MaxRunes(1024) & strings.MinRunes(0)
 

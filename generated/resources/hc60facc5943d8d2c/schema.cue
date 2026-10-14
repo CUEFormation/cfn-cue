@@ -54,25 +54,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	LicenseRules?:           [...string | fn.#StringExpression] | fn.#ListExpression
 	Name!:                   string | fn.#StringExpression
-	ProductInformationList?: [..._#defs."/$defs/Properties/definitions/ProductInformation"] | fn.#ListExpression
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ProductInformationList?: [...#ProductInformation] | fn.#ListExpression
+	Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ProductInformation": close({
-	ProductInformationFilterList!: [..._#defs."/$defs/Properties/definitions/ProductInformationFilter"] |
-		fn.#ListExpression
-	ResourceType!: string | fn.#StringExpression
+#ProductInformation: close({
+	ProductInformationFilterList!: [...#ProductInformationFilter] | fn.#ListExpression
+	ResourceType!:                 string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProductInformationFilter": close({
+#ProductInformationFilter: close({
 	ProductInformationFilterComparator!: string | fn.#StringExpression
 	ProductInformationFilterName!:       string | fn.#StringExpression
 	ProductInformationFilterValue?:      [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

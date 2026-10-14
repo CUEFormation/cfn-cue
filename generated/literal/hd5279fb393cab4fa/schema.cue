@@ -11,49 +11,47 @@ import (
 
 // Creates an application instance and deploys it to a device.
 #Properties: close({
-	ApplicationInstanceId?: _#defs."/$defs/Properties/definitions/ApplicationInstanceId"
+	ApplicationInstanceId?: #ApplicationInstanceId
 
 	// The ID of an application instance to replace with the new instance.
-	ApplicationInstanceIdToReplace?: _#defs."/$defs/Properties/definitions/ApplicationInstanceId"
-	Arn?:                            _#defs."/$defs/Properties/definitions/ApplicationInstanceArn"
-	CreatedTime?:                    _#defs."/$defs/Properties/definitions/Timestamp"
+	ApplicationInstanceIdToReplace?: #ApplicationInstanceId
+	Arn?:                            #ApplicationInstanceArn
+	CreatedTime?:                    #Timestamp
 
 	// The device's ID.
-	DefaultRuntimeContextDevice!:     _#defs."/$defs/Properties/definitions/DefaultRuntimeContextDevice"
-	DefaultRuntimeContextDeviceName?: _#defs."/$defs/Properties/definitions/DeviceName"
+	DefaultRuntimeContextDevice!:     #DefaultRuntimeContextDevice
+	DefaultRuntimeContextDeviceName?: #DeviceName
 
 	// A description for the application instance.
-	Description?:     _#defs."/$defs/Properties/definitions/Description"
-	HealthStatus?:    _#defs."/$defs/Properties/definitions/ApplicationInstanceHealthStatus"
-	LastUpdatedTime?: _#defs."/$defs/Properties/definitions/Timestamp"
+	Description?:     #Description
+	HealthStatus?:    #ApplicationInstanceHealthStatus
+	LastUpdatedTime?: #Timestamp
 
 	// Setting overrides for the application manifest.
-	ManifestOverridesPayload?: _#defs."/$defs/Properties/definitions/ManifestOverridesPayload"
+	ManifestOverridesPayload?: #ManifestOverridesPayload
 
 	// The application's manifest document.
-	ManifestPayload!: _#defs."/$defs/Properties/definitions/ManifestPayload"
+	ManifestPayload!: #ManifestPayload
 
 	// A name for the application instance.
-	Name?: _#defs."/$defs/Properties/definitions/Name"
+	Name?: #Name
 
 	// The ARN of a runtime role for the application instance.
-	RuntimeRoleArn?:    _#defs."/$defs/Properties/definitions/RuntimeRoleArn"
-	Status?:            _#defs."/$defs/Properties/definitions/ApplicationInstanceStatus"
-	StatusDescription?: _#defs."/$defs/Properties/definitions/ApplicationInstanceStatusDescription"
+	RuntimeRoleArn?:    #RuntimeRoleArn
+	Status?:            #ApplicationInstanceStatus
+	StatusDescription?: #ApplicationInstanceStatusDescription
 
 	// Tags for the application instance.
-	Tags?: _#defs."/$defs/Properties/definitions/TagList"
+	Tags?: #TagList
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationInstanceArn": strings.MaxRunes(255) & strings.MinRunes(1)
+#ApplicationInstanceArn: strings.MaxRunes(255) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/ApplicationInstanceHealthStatus": "RUNNING" | "ERROR" | "NOT_AVAILABLE"
+#ApplicationInstanceHealthStatus: "RUNNING" | "ERROR" | "NOT_AVAILABLE"
 
-_#defs: "/$defs/Properties/definitions/ApplicationInstanceId": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_]+$"
+#ApplicationInstanceId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$"
 
-_#defs: "/$defs/Properties/definitions/ApplicationInstanceStatus": "DEPLOYMENT_PENDING" |
+#ApplicationInstanceStatus: "DEPLOYMENT_PENDING" |
 	"DEPLOYMENT_REQUESTED" |
 	"DEPLOYMENT_IN_PROGRESS" |
 	"DEPLOYMENT_ERROR" |
@@ -64,63 +62,57 @@ _#defs: "/$defs/Properties/definitions/ApplicationInstanceStatus": "DEPLOYMENT_P
 	"REMOVAL_FAILED" |
 	"REMOVAL_SUCCEEDED"
 
-_#defs: "/$defs/Properties/definitions/ApplicationInstanceStatusDescription": strings.MaxRunes(255) & strings.MinRunes(1)
+#ApplicationInstanceStatusDescription: strings.MaxRunes(255) & strings.MinRunes(1)
 
-_#defs: "/$defs/Properties/definitions/DefaultRuntimeContextDevice": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_]+$"
+#DefaultRuntimeContextDevice: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$"
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$"
+#Description: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$"
 
-_#defs: "/$defs/Properties/definitions/DeviceId": strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$"
+#DeviceId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$"
 
-_#defs: "/$defs/Properties/definitions/DeviceName": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\-\\_]+$"
+#DeviceName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$"
 
 // Parameter overrides for an application instance. This is a JSON document that
 // has a single key (``PayloadData``) where the value is an escaped string
 // representation of the overrides document.
-_#defs: "/$defs/Properties/definitions/ManifestOverridesPayload": close({
+#ManifestOverridesPayload: close({
 	// The overrides document.
-	PayloadData?: _#defs."/$defs/Properties/definitions/ManifestOverridesPayloadData"
+	PayloadData?: #ManifestOverridesPayloadData
 })
 
-_#defs: "/$defs/Properties/definitions/ManifestOverridesPayloadData": strings.MaxRunes(51200) &
-strings.MinRunes(0) &
-=~"^.+$"
+#ManifestOverridesPayloadData: strings.MaxRunes(51200) & strings.MinRunes(0) & =~"^.+$"
 
 // A application verion's manifest file. This is a JSON document that has a
 // single key (``PayloadData``) where the value is an escaped string
 // representation of the application manifest (``graph.json``). This file is
 // located in the ``graphs`` folder in your application source.
-_#defs: "/$defs/Properties/definitions/ManifestPayload": close({
+#ManifestPayload: close({
 	// The application manifest.
-	PayloadData?: _#defs."/$defs/Properties/definitions/ManifestPayloadData"
+	PayloadData?: #ManifestPayloadData
 })
 
-_#defs: "/$defs/Properties/definitions/ManifestPayloadData": strings.MaxRunes(51200) & strings.MinRunes(1) & =~"^.+$"
+#ManifestPayloadData: strings.MaxRunes(51200) & strings.MinRunes(1) & =~"^.+$"
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$"
+#Name: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$"
 
-_#defs: "/$defs/Properties/definitions/RuntimeRoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#RuntimeRoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(255) &
 strings.MinRunes(1) &
 =~"^arn:[a-z0-9][-.a-z0-9]{0,62}:iam::[0-9]{12}:role/.+$"
 
-_#defs: "/$defs/Properties/definitions/StatusFilter": "DEPLOYMENT_SUCCEEDED" |
+#StatusFilter: "DEPLOYMENT_SUCCEEDED" |
 	"DEPLOYMENT_ERROR" |
 	"REMOVAL_SUCCEEDED" |
 	"REMOVAL_FAILED" |
 	"PROCESSING_DEPLOYMENT" |
 	"PROCESSING_REMOVAL"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$"
 })
 
 // List of tags
-_#defs: "/$defs/Properties/definitions/TagList": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+#TagList: list.UniqueItems() & [...#Tag]
 
-_#defs: "/$defs/Properties/definitions/Timestamp": int
+#Timestamp: int

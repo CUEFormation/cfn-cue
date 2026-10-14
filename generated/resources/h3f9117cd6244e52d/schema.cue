@@ -21,25 +21,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	ClaimCertificate?: string | fn.#StringExpression
 	Name?:             strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
-	ProvisioningType!: _#defs."/$defs/Properties/definitions/ProvisioningType"
-	Tags?:             _#defs."/$defs/Properties/definitions/TagsMap"
+	ProvisioningType!: #ProvisioningType
+	Tags?:             #TagsMap
 })
 
-_#defs: "/$defs/Properties/definitions/ProvisioningType": "FLEET_PROVISIONING" | "JITR" | fn.#StringExpression
+#ProvisioningType: "FLEET_PROVISIONING" | "JITR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Status": "CREATE_IN_PROGRESS" |
+#Status: "CREATE_IN_PROGRESS" |
 	"CREATE_FAILED" |
 	"CREATED" |
 	"DELETE_IN_PROGRESS" |
 	"DELETE_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & struct.MinFields(0) & close({
+#TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
+#Unit: close({}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::IoTManagedIntegrations::ProvisioningProfile"
 	Properties!: #Properties

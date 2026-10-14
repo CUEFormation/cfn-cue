@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AuthMode!:          "SSO" | "IAM" | fn.#StringExpression
 	DefaultS3Location!: strings.MaxRunes(10280) & strings.MinRunes(6) & =~"^s3://.*" | fn.#StringExpression
 	Description?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	EncryptionKeyArn?:  _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
+	EncryptionKeyArn?:  #Arn | fn.#StringExpression
 	EngineSecurityGroupId!: strings.MaxRunes(256) & strings.MinRunes(4) & =~"^sg-[a-zA-Z0-9\\-._]+$" |
 	fn.#StringExpression
 	IdcInstanceArn?:    strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
@@ -28,9 +28,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	IdpRelayStateParameterName?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:                       strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
-	ServiceRole!:                _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	SubnetIds!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
-	Tags?:      _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	ServiceRole!:                #Arn | fn.#StringExpression
+	SubnetIds!:                  list.MinItems(1) & [...#SubnetId] | fn.#ListExpression
+	Tags?:                       #Tags | fn.#ListExpression
 	TrustedIdentityPropagationEnabled?: bool |
 		"true" |
 		"True" |
@@ -39,7 +39,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	UserRole?: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
+	UserRole?: #Arn | fn.#StringExpression
 	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(256) &
 	strings.MinRunes(0) &
@@ -49,21 +49,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(10280) &
+#Arn: strings.MaxRunes(10280) &
 strings.MinRunes(0) &
 =~"^arn:aws(-(cn|us-gov|iso-f|iso-e))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SubnetId": string | fn.#StringExpression
+#SubnetId: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z+-=._:/]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
+#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EMR::Studio"
 	Properties!: #Properties

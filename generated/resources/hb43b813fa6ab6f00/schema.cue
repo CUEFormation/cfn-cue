@@ -49,7 +49,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 	VpcEncryptionControl?: close({
 		EgressOnlyInternetGatewayExclusion?: "enable" | "disable" | fn.#StringExpression
 		ElasticFileSystemExclusion?:         "enable" | "disable" | fn.#StringExpression
@@ -69,24 +69,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}
 }) & matchN(>=1, [{CidrBlock!: _}, {Ipv4IpamPoolId!: _}])
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcEncryptionControl": close({
+#VpcEncryptionControl: close({
 	EgressOnlyInternetGatewayExclusion?: "enable" | "disable" | fn.#StringExpression
 	ElasticFileSystemExclusion?:         "enable" | "disable" | fn.#StringExpression
 	InternetGatewayExclusion?:           "enable" | "disable" | fn.#StringExpression
 	LambdaExclusion?:                    "enable" | "disable" | fn.#StringExpression
 	Mode?:                               "monitor" | "enforce" | fn.#StringExpression
 	NatGatewayExclusion?:                "enable" | "disable" | fn.#StringExpression
-	ResourceExclusions?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusions" | fn.#ObjectExpression
-	State?:              string | fn.#StringExpression
-	StateMessage?:       string | fn.#StringExpression
-	VirtualPrivateGatewayExclusion?: "enable" | "disable" | fn.#StringExpression
-	VpcEncryptionControlId?:         string | fn.#StringExpression
+	ResourceExclusions?:                 #VpcEncryptionControlExclusions | fn.#ObjectExpression
+	State?:                              string | fn.#StringExpression
+	StateMessage?:                       string | fn.#StringExpression
+	VirtualPrivateGatewayExclusion?:     "enable" | "disable" | fn.#StringExpression
+	VpcEncryptionControlId?:             string | fn.#StringExpression
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	VpcLatticeExclusion?: "enable" | "disable" | fn.#StringExpression
@@ -94,22 +94,21 @@ _#defs: "/$defs/Properties/definitions/VpcEncryptionControl": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcEncryptionControlExclusion": close({
+#VpcEncryptionControlExclusion: close({
 	State?:        string | fn.#StringExpression
 	StateMessage?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcEncryptionControlExclusions": close({
-	EgressOnlyInternetGateway?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" |
-		fn.#ObjectExpression
-	ElasticFileSystem?:     _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	InternetGateway?:       _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	Lambda?:                _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	NatGateway?:            _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	VirtualPrivateGateway?: _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	VpcLattice?:            _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
-	VpcPeering?:            _#defs."/$defs/Properties/definitions/VpcEncryptionControlExclusion" | fn.#ObjectExpression
+#VpcEncryptionControlExclusions: close({
+	EgressOnlyInternetGateway?: #VpcEncryptionControlExclusion | fn.#ObjectExpression
+	ElasticFileSystem?:         #VpcEncryptionControlExclusion | fn.#ObjectExpression
+	InternetGateway?:           #VpcEncryptionControlExclusion | fn.#ObjectExpression
+	Lambda?:                    #VpcEncryptionControlExclusion | fn.#ObjectExpression
+	NatGateway?:                #VpcEncryptionControlExclusion | fn.#ObjectExpression
+	VirtualPrivateGateway?:     #VpcEncryptionControlExclusion | fn.#ObjectExpression
+	VpcLattice?:                #VpcEncryptionControlExclusion | fn.#ObjectExpression
+	VpcPeering?:                #VpcEncryptionControlExclusion | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

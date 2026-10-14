@@ -12,18 +12,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DkimSigningEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FeedbackForwardingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MailFromAttributes?:        _#defs."/$defs/Properties/definitions/MailFromAttributes"
+	MailFromAttributes?:        #MailFromAttributes
 	Name!:                      string | fn.#StringExpression
-	Tags?:                      [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
+	Tags?:                      [...#Tags] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/MailFromAttributes": close({
+#MailFromAttributes: close({
 	BehaviorOnMxFailure?: string | fn.#StringExpression
 	MailFromDomain?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |

@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -25,25 +25,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"AGENTCORE_EVALUATION_SIMULATED_V1" |
 		"GENERIC_EVALUATION_PREDEFINED_V1" |
 		fn.#StringExpression
-	Source?: _#defs."/$defs/Properties/definitions/DataSourceType"
-	Tags?:   list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Source?: #DataSourceType
+	Tags?:   list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DataSourceType": close({
-	InlineExamples?: _#defs."/$defs/Properties/definitions/InlineExamplesSource"
-	S3Source?:       _#defs."/$defs/Properties/definitions/S3Source"
+#DataSourceType: close({
+	InlineExamples?: #InlineExamplesSource
+	S3Source?:       #S3Source
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InlineExamplesSource": close({
+#InlineExamplesSource: close({
 	Examples!: list.MaxItems(1000) & list.MinItems(1) & [...fn.#Object & {...} | fn.#ObjectExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Source": close({S3Uri!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#S3Source: close({S3Uri!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

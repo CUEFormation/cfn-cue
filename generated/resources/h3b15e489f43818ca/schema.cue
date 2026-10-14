@@ -20,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CoreNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^core-network-([0-9a-f]{8,17})$" |
 	fn.#StringExpression
-	Options?:            _#defs."/$defs/Properties/definitions/VpcOptions" | fn.#ObjectExpression
+	Options?:            #VpcOptions | fn.#ObjectExpression
 	RoutingPolicyLabel?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	SubnetArns!: [
 		...strings.MaxRunes(500) &
@@ -29,14 +29,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	VpcArn!: strings.MaxRunes(500) &
 	strings.MinRunes(0) &
 	=~"^arn:[^:]{1,63}:ec2:[^:]{0,63}:[^:]{0,63}:vpc\\/vpc-[0-9a-f]{8,17}$" |
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ProposedNetworkFunctionGroupChange": close({
+#ProposedNetworkFunctionGroupChange: close({
 	AttachmentPolicyRuleNumber?: int |
 		{
 			string &
@@ -52,11 +52,11 @@ _#defs: "/$defs/Properties/definitions/ProposedNetworkFunctionGroupChange": clos
 		} |
 		fn.#NumberExpression
 	NetworkFunctionGroupName?: string | fn.#StringExpression
-	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProposedSegmentChange": close({
+#ProposedSegmentChange: close({
 	AttachmentPolicyRuleNumber?: int |
 		{
 			string &
@@ -72,17 +72,17 @@ _#defs: "/$defs/Properties/definitions/ProposedSegmentChange": close({
 		} |
 		fn.#NumberExpression
 	SegmentName?: string | fn.#StringExpression
-	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcOptions": close({
+#VpcOptions: close({
 	ApplianceModeSupport?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DnsSupport?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Ipv6Support?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

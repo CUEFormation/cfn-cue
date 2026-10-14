@@ -87,7 +87,7 @@ package schema
 	// The ``JWTConfiguration`` property specifies the configuration of a JWT
 	// authorizer. Required for the ``JWT`` authorizer type. Supported only for
 	// HTTP APIs.
-	JwtConfiguration?: _#defs."/$defs/Properties/definitions/JWTConfiguration"
+	JwtConfiguration?: #JWTConfiguration
 
 	// The name of the authorizer.
 	Name!: string
@@ -96,7 +96,7 @@ package schema
 // The ``JWTConfiguration`` property specifies the configuration of a JWT
 // authorizer. Required for the ``JWT`` authorizer type. Supported only for
 // HTTP APIs.
-_#defs: "/$defs/Properties/definitions/JWTConfiguration": close({
+#JWTConfiguration: close({
 	// A list of the intended recipients of the JWT. A valid JWT must provide an
 	// ``aud`` that matches at least one entry in this list. See [RFC
 	// 7519](https://docs.aws.amazon.com/https://tools.ietf.org/html/rfc7519#section-4.1.3).

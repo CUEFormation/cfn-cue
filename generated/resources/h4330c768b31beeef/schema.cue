@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,15 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // only one Cases domain.
 #Properties: close({
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DomainStatus": "Active" |
-	"CreationInProgress" |
-	"CreationFailed" |
-	fn.#StringExpression
+#DomainStatus: "Active" | "CreationInProgress" | "CreationFailed" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

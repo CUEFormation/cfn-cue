@@ -17,13 +17,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DesiredDeliveryMediums?: [...string | fn.#StringExpression] | fn.#ListExpression
 	ForceAliasCreation?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MessageAction?:          string | fn.#StringExpression
-	UserAttributes?:         [..._#defs."/$defs/Properties/definitions/AttributeType"] | fn.#ListExpression
+	UserAttributes?:         [...#AttributeType] | fn.#ListExpression
 	UserPoolId!:             string | fn.#StringExpression
 	Username?:               string | fn.#StringExpression
-	ValidationData?:         [..._#defs."/$defs/Properties/definitions/AttributeType"] | fn.#ListExpression
+	ValidationData?:         [...#AttributeType] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeType": close({
+#AttributeType: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |

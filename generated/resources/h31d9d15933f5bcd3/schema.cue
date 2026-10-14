@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,10 +14,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::Route53Resolver::ResolverEndpoint
 #Properties: close({
-	Direction!:    =~"(?i)^(?:inbound|inbound_delegation|outbound)$" | fn.#StringExpression
-	Dns64Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IpAddresses!: list.MaxItems(20) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/IpAddressRequest"] |
-		fn.#ListExpression
+	Direction!:                 =~"(?i)^(?:inbound|inbound_delegation|outbound)$" | fn.#StringExpression
+	Dns64Enabled?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IpAddresses!:               list.MaxItems(20) & list.MinItems(2) & [...#IpAddressRequest] | fn.#ListExpression
 	Ipv6InternetAccessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name?:                      strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 	OutpostArn?: strings.MaxRunes(255) &
@@ -34,7 +33,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	TargetNameServerMetricsEnabled?: bool |
 		"true" |
 		"True" |
@@ -45,14 +44,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#BooleanExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IpAddressRequest": close({
+#IpAddressRequest: close({
 	Ip?:       strings.MaxRunes(36) & strings.MinRunes(7) | fn.#StringExpression
 	Ipv6?:     strings.MaxRunes(39) & strings.MinRunes(7) | fn.#StringExpression
 	SubnetId!: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

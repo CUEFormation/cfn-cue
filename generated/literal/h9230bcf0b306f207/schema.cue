@@ -10,13 +10,13 @@ package schema
 #Properties: close({
 	ClientCertificateId?: string
 	Description?:         string
-	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                [...#Tag]
 })
 
 // An array of key-value pairs to apply to this resource.
 // For more information, see
 // [Tag](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string you can use to assign a value. The combination of tag keys and
 	// values can help you organize and categorize your resources.
 	Key!: string

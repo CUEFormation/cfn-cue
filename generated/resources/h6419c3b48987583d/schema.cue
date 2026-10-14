@@ -15,20 +15,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::MediaPackage::Channel
 #Properties: close({
 	Description?:      string | fn.#StringExpression
-	EgressAccessLogs?: _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
+	EgressAccessLogs?: #LogConfiguration | fn.#ObjectExpression
 	HlsIngest?: close({ingestEndpoints?: [...close({}) | fn.#ObjectExpression] | fn.#ListExpression}) |
 		fn.#ObjectExpression
 	Id!:                strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	IngressAccessLogs?: _#defs."/$defs/Properties/definitions/LogConfiguration" | fn.#ObjectExpression
-	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	IngressAccessLogs?: #LogConfiguration | fn.#ObjectExpression
+	Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/HlsIngest": close(
-	{ingestEndpoints?: [..._#defs."/$defs/Properties/definitions/IngestEndpoint"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#HlsIngest: close({ingestEndpoints?: [...#IngestEndpoint] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IngestEndpoint": close({
+#IngestEndpoint: close({
 	Id?:       string | fn.#StringExpression
 	Password?: string | fn.#StringExpression
 	Url?:      string | fn.#StringExpression
@@ -36,12 +33,10 @@ _#defs: "/$defs/Properties/definitions/IngestEndpoint": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close(
-	{LogGroupName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#LogConfiguration: close({LogGroupName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

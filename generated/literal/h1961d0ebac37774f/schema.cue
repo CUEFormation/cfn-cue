@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"time"
 	"strings"
 	"list"
-	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -79,7 +79,7 @@ import (
 #Properties: close({
 	// The additional storage volumes associated with the DB instance. RDS supports
 	// additional storage volumes for RDS for Oracle and RDS for SQL Server.
-	AdditionalStorageVolumes?: [..._#defs."/$defs/Properties/definitions/AdditionalStorageVolume"]
+	AdditionalStorageVolumes?: [...#AdditionalStorageVolume]
 
 	// The amount of storage in gibibytes (GiB) to be initially allocated for the database instance.
 	// If any value is set in the ``Iops`` parameter, ``AllocatedStorage`` must be
@@ -158,7 +158,7 @@ import (
 	// The IAMlong (IAM) roles associated with the DB instance.
 	// *Amazon Aurora*
 	// Not applicable. The associated roles are managed by the DB cluster.
-	AssociatedRoles?: [..._#defs."/$defs/Properties/definitions/DBInstanceRole"]
+	AssociatedRoles?: [...#DBInstanceRole]
 
 	// A value that indicates whether minor engine upgrades are applied
 	// automatically to the DB instance during the maintenance window. By default,
@@ -232,7 +232,7 @@ import (
 	// cluster](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/UsingWithRDS.SSL.html)
 	// in the *Amazon Aurora User Guide*.
 	CACertificateIdentifier?: string
-	CertificateDetails?:      _#defs."/$defs/Properties/definitions/CertificateDetails"
+	CertificateDetails?:      #CertificateDetails
 
 	// Specifies whether the DB instance is restarted when you rotate your SSL/TLS certificate.
 	// By default, the DB instance is restarted when you rotate your SSL/TLS
@@ -600,7 +600,7 @@ import (
 	// in the *Amazon RDS User Guide*.
 	// This setting doesn't apply to RDS Custom DB instances.
 	EnablePerformanceInsights?: bool
-	Endpoint?:                  _#defs."/$defs/Properties/definitions/Endpoint"
+	Endpoint?:                  #Endpoint
 
 	// The name of the database engine to use for this DB instance. Not every
 	// database engine is available in every AWS Region.
@@ -763,7 +763,7 @@ import (
 	// model, AWS CloudFormation replaces the underlying DB instance. This will
 	// incur some interruptions to database availability.
 	LicenseModel?:     string
-	ListenerEndpoint?: _#defs."/$defs/Properties/definitions/Endpoint"
+	ListenerEndpoint?: #Endpoint
 
 	// Specifies whether to manage the master user password with AWS Secrets Manager.
 	// For more information, see [Password management with Secrets
@@ -807,7 +807,7 @@ import (
 	// For more information, see [Password management with Secrets
 	// Manager](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-secrets-manager.html)
 	// in the *Amazon RDS User Guide.*
-	MasterUserSecret?: _#defs."/$defs/Properties/definitions/MasterUserSecret"
+	MasterUserSecret?: #MasterUserSecret
 
 	// The master user name for the DB instance.
 	// If you specify the ``SourceDBInstanceIdentifier`` or ``DBSnapshotIdentifier``
@@ -1030,7 +1030,7 @@ import (
 	// The number of CPU cores and the number of threads per core for the DB
 	// instance class of the DB instance.
 	// This setting doesn't apply to Amazon Aurora or RDS Custom DB instances.
-	ProcessorFeatures?: [..._#defs."/$defs/Properties/definitions/ProcessorFeature"]
+	ProcessorFeatures?: [...#ProcessorFeature]
 
 	// The order of priority in which an Aurora Replica is promoted to the primary
 	// instance after a failure of the existing primary instance. For more
@@ -1144,7 +1144,7 @@ import (
 
 	// The ID of the region that contains the source DB instance for the read replica.
 	SourceRegion?: string
-	StatusInfos?:  [..._#defs."/$defs/Properties/definitions/DBInstanceStatusInfo"]
+	StatusInfos?:  [...#DBInstanceStatusInfo]
 
 	// A value that indicates whether the DB instance is encrypted. By default, it isn't encrypted.
 	// If you specify the ``KmsKeyId`` property, then you must enable encryption.
@@ -1177,7 +1177,7 @@ import (
 	StorageType?: string
 
 	// Tags to assign to the DB instance.
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                  [...#Tag]
 	TdeCredentialArn?:      string
 	TdeCredentialPassword?: string
 
@@ -1242,7 +1242,7 @@ import (
 // Contains details about an additional storage volume for a DB instance. RDS
 // support additional storage volumes for RDS for Oracle and RDS for SQL
 // Server.
-_#defs: "/$defs/Properties/definitions/AdditionalStorageVolume": close({
+#AdditionalStorageVolume: close({
 	// The amount of storage allocated for the additional storage volume, in
 	// gibibytes (GiB). The minimum is 20 GiB. The maximum is 65,536 GiB (64 TiB).
 	AllocatedStorage?: =~"^[0-9]*$"
@@ -1277,7 +1277,7 @@ _#defs: "/$defs/Properties/definitions/AdditionalStorageVolume": close({
 // a DB
 // cluster](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/UsingWithRDS.SSL.html)
 // in the *Amazon Aurora User Guide*.
-_#defs: "/$defs/Properties/definitions/CertificateDetails": close({
+#CertificateDetails: close({
 	// The CA identifier of the CA certificate used for the DB instance's server certificate.
 	CAIdentifier?: string
 
@@ -1287,7 +1287,7 @@ _#defs: "/$defs/Properties/definitions/CertificateDetails": close({
 
 // Information about an AWS Identity and Access Management (IAM) role that is
 // associated with a DB instance.
-_#defs: "/$defs/Properties/definitions/DBInstanceRole": close({
+#DBInstanceRole: close({
 	// The name of the feature associated with the AWS Identity and Access
 	// Management (IAM) role. IAM roles that are associated with a DB instance
 	// grant permission for the DB instance to access other AWS services on your
@@ -1302,7 +1302,7 @@ _#defs: "/$defs/Properties/definitions/DBInstanceRole": close({
 })
 
 // Provides a list of status information for a DB instance.
-_#defs: "/$defs/Properties/definitions/DBInstanceStatusInfo": close({
+#DBInstanceStatusInfo: close({
 	// Details of the error if there is an error for the instance. If the instance
 	// isn't in an error state, this value is blank.
 	Message?: string
@@ -1328,7 +1328,7 @@ _#defs: "/$defs/Properties/definitions/DBInstanceStatusInfo": close({
 //
 // For the data structure that represents Amazon Aurora DB cluster endpoints,
 // see ``DBClusterEndpoint``.
-_#defs: "/$defs/Properties/definitions/Endpoint": close({
+#Endpoint: close({
 	// Specifies the DNS address of the DB instance.
 	Address?: string
 
@@ -1346,7 +1346,7 @@ _#defs: "/$defs/Properties/definitions/Endpoint": close({
 // in the *Amazon RDS User Guide* and [Password management with Secrets
 // Manager](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/rds-secrets-manager.html)
 // in the *Amazon Aurora User Guide.*
-_#defs: "/$defs/Properties/definitions/MasterUserSecret": close({
+#MasterUserSecret: close({
 	// The AWS KMS key identifier that is used to encrypt the secret.
 	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 
@@ -1358,7 +1358,7 @@ _#defs: "/$defs/Properties/definitions/MasterUserSecret": close({
 })
 
 // The ``ProcessorFeature`` property type specifies the processor features of a DB instance class.
-_#defs: "/$defs/Properties/definitions/ProcessorFeature": close({
+#ProcessorFeature: close({
 	// The name of the processor feature. Valid names are ``coreCount`` and ``threadsPerCore``.
 	Name?: "coreCount" | "threadsPerCore"
 
@@ -1372,7 +1372,7 @@ _#defs: "/$defs/Properties/definitions/ProcessorFeature": close({
 // in the *Amazon RDS User Guide* or [Tagging Amazon Aurora and Amazon RDS
 // resources](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_Tagging.html)
 // in the *Amazon Aurora User Guide*.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A key is the required name of the tag. The string value can be from 1 to 128
 	// Unicode characters in length and can't be prefixed with ``aws:`` or
 	// ``rds:``. The string can only contain only the set of Unicode letters,

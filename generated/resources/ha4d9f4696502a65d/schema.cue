@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
+	"list"
 	"time"
 )
 
@@ -19,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::MPA::ApprovalTeam.
 #Properties: close({
-	ApprovalStrategy!: _#defs."/$defs/Properties/definitions/ApprovalStrategy"
+	ApprovalStrategy!: #ApprovalStrategy
 	Approvers!: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...close({
 		PrimaryIdentityId!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 		PrimaryIdentitySourceArn!: strings.MaxRunes(1000) | fn.#StringExpression
@@ -28,28 +28,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	Description!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:        strings.MaxRunes(64) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
-	Policies!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Policy"
-	] |
-		fn.#ListExpression
-	Tags?: _#defs."/$defs/Properties/definitions/Tags"
+	Policies!:    list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#Policy] | fn.#ListExpression
+	Tags?:        #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/ApprovalStrategy": close(
-	{MofN!: _#defs."/$defs/Properties/definitions/MofNApprovalStrategy"},
-) |
-	fn.#ObjectExpression
+#ApprovalStrategy: close({MofN!: #MofNApprovalStrategy}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Approver": close({
+#Approver: close({
 	ApproverId?:               string | fn.#StringExpression
 	PrimaryIdentityId!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	PrimaryIdentitySourceArn!: strings.MaxRunes(1000) | fn.#StringExpression
 	PrimaryIdentityStatus?:    string | fn.#StringExpression
-	ResponseTime?:             _#defs."/$defs/Properties/definitions/Timestamp"
+	ResponseTime?:             #Timestamp
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MofNApprovalStrategy": close({
+#MofNApprovalStrategy: close({
 	MinApprovalsRequired!: int |
 		{
 			string &
@@ -67,7 +61,7 @@ _#defs: "/$defs/Properties/definitions/MofNApprovalStrategy": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Policy": null |
+#Policy: null |
 bool |
 number |
 string |
@@ -75,16 +69,15 @@ string |
 close({PolicyArn!: strings.MaxRunes(1224) | fn.#StringExpression}) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
+#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": time.Time | fn.#StringExpression
+#Timestamp: time.Time | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MPA::ApprovalTeam"
 	Properties!: #Properties

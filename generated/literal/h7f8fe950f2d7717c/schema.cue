@@ -33,10 +33,10 @@ import (
 
 	// Tags applied to the customization. QuickSight rejects any key prefixed aws:
 	// or quicksight:, so CloudFormation system tags are not propagated.
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

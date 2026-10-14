@@ -69,8 +69,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 		InstanceRole?:             string | fn.#StringExpression
 		InstanceTypes?:            [...string | fn.#StringExpression] | fn.#ListExpression
-		LaunchTemplate?:           _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification"
-		ManagedInstancesProvider?: _#defs."/$defs/Properties/definitions/ManagedInstancesProvider"
+		LaunchTemplate?:           #LaunchTemplateSpecification
+		ManagedInstancesProvider?: #ManagedInstancesProvider
 		MaxvCpus!: int |
 			{
 				string &
@@ -104,7 +104,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		PlacementGroup?: string | fn.#StringExpression
-		ScalingPolicy?:  _#defs."/$defs/Properties/definitions/ComputeScalingPolicy"
+		ScalingPolicy?:  #ComputeScalingPolicy
 		SecurityGroupIds?: [
 			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 				fn.#StringExpression
@@ -128,7 +128,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression
 	Context?:     string | fn.#StringExpression
-	EcsSettings?: _#defs."/$defs/Properties/definitions/EcsSettings"
+	EcsSettings?: #EcsSettings
 	EksConfiguration?: close({
 		AccessEntry?: close({DesiredState?: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$" | fn.#StringExpression}) |
 			fn.#ObjectExpression
@@ -158,16 +158,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	UpdatePolicy?: _#defs."/$defs/Properties/definitions/UpdatePolicy"
+	UpdatePolicy?: #UpdatePolicy
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityReservations": close({
+#CapacityReservations: close({
 	ReservationGroupArn?:   string | fn.#StringExpression
 	ReservationPreference?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComputeResources": close({
+#ComputeResources: close({
 	AllocationStrategy?: =~"(?i)^(?:best_fit|best_fit_progressive|best_fit_progressive_ordered|spot_capacity_optimized|spot_capacity_optimized_prioritized|spot_price_capacity_optimized)$" |
 		fn.#StringExpression
 	BidPercentage?: int |
@@ -202,14 +202,14 @@ _#defs: "/$defs/Properties/definitions/ComputeResources": close({
 				)
 		} |
 		fn.#NumberExpression
-	Ec2Configuration?: [..._#defs."/$defs/Properties/definitions/Ec2ConfigurationObject"] | fn.#ListExpression
+	Ec2Configuration?: [...#Ec2ConfigurationObject] | fn.#ListExpression
 	Ec2KeyPair?:       string | fn.#StringExpression
 	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	InstanceRole?:             string | fn.#StringExpression
 	InstanceTypes?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	LaunchTemplate?:           _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification"
-	ManagedInstancesProvider?: _#defs."/$defs/Properties/definitions/ManagedInstancesProvider"
+	LaunchTemplate?:           #LaunchTemplateSpecification
+	ManagedInstancesProvider?: #ManagedInstancesProvider
 	MaxvCpus!: int |
 		{
 			string &
@@ -239,7 +239,7 @@ _#defs: "/$defs/Properties/definitions/ComputeResources": close({
 		} |
 		fn.#NumberExpression
 	PlacementGroup?: string | fn.#StringExpression
-	ScalingPolicy?:  _#defs."/$defs/Properties/definitions/ComputeScalingPolicy"
+	ScalingPolicy?:  #ComputeScalingPolicy
 	SecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -256,7 +256,7 @@ _#defs: "/$defs/Properties/definitions/ComputeResources": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComputeScalingPolicy": close({
+#ComputeScalingPolicy: close({
 	MinScaleDownDelayMinutes?: int |
 		{
 			string &
@@ -274,7 +274,7 @@ _#defs: "/$defs/Properties/definitions/ComputeScalingPolicy": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ec2ConfigurationObject": close({
+#Ec2ConfigurationObject: close({
 	BatchImageStatus?:       string | fn.#StringExpression
 	ImageIdOverride?:        string | fn.#StringExpression
 	ImageKubernetesVersion?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -282,25 +282,23 @@ _#defs: "/$defs/Properties/definitions/Ec2ConfigurationObject": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcsSettings": close(
-	{ContainerInsights?: =~"(?i)^(?:disabled|enabled|enhanced)$" | fn.#StringExpression},
-) |
+#EcsSettings: close({ContainerInsights?: =~"(?i)^(?:disabled|enabled|enhanced)$" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksAccessEntry": close({
+#EksAccessEntry: close({
 	DesiredState?: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$" | fn.#StringExpression
 	Status?:       =~"(?i)^(?:active|inactive)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EksConfiguration": close({
-	AccessEntry?:         _#defs."/$defs/Properties/definitions/EksAccessEntry"
+#EksConfiguration: close({
+	AccessEntry?:         #EksAccessEntry
 	EksClusterArn!:       string | fn.#StringExpression
 	KubernetesNamespace!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InfrastructureOptimization": close({
+#InfrastructureOptimization: close({
 	ScaleInAfter?: int |
 		{
 			string &
@@ -318,9 +316,9 @@ _#defs: "/$defs/Properties/definitions/InfrastructureOptimization": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceLaunchTemplate": close({
+#InstanceLaunchTemplate: close({
 	CapacityOptionType?:    "ON_DEMAND" | "SPOT" | "RESERVED" | fn.#StringExpression
-	CapacityReservations?:  _#defs."/$defs/Properties/definitions/CapacityReservations"
+	CapacityReservations?:  #CapacityReservations
 	Ec2InstanceProfileArn!: string | fn.#StringExpression
 	FipsEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InstanceMetadataTagsPropagation?: bool |
@@ -331,29 +329,27 @@ _#defs: "/$defs/Properties/definitions/InstanceLaunchTemplate": close({
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	InstanceRequirements?:      _#defs."/$defs/Properties/definitions/InstanceRequirements"
-	LocalStorageConfiguration?: _#defs."/$defs/Properties/definitions/ManagedInstancesLocalStorageConfiguration"
+	InstanceRequirements?:      #InstanceRequirements
+	LocalStorageConfiguration?: #ManagedInstancesLocalStorageConfiguration
 	Monitoring?:                string | fn.#StringExpression
-	NetworkConfiguration!:      _#defs."/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration"
-	StorageConfiguration?:      _#defs."/$defs/Properties/definitions/ManagedInstancesStorageConfiguration"
+	NetworkConfiguration!:      #ManagedInstancesNetworkConfiguration
+	StorageConfiguration?:      #ManagedInstancesStorageConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close(
-	{AllowedInstanceTypes?: [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
+#InstanceRequirements: close({AllowedInstanceTypes?: [...string | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": close({
+#LaunchTemplateSpecification: close({
 	LaunchTemplateId?:   string | fn.#StringExpression
 	LaunchTemplateName?: string | fn.#StringExpression
-	Overrides?:    [..._#defs."/$defs/Properties/definitions/LaunchTemplateSpecificationOverride"] | fn.#ListExpression
-	UserdataType?: =~"(?i)^(?:eks_bootstrap_sh|eks_nodeadm)$" | fn.#StringExpression
-	Version?:      string | fn.#StringExpression
+	Overrides?:          [...#LaunchTemplateSpecificationOverride] | fn.#ListExpression
+	UserdataType?:       =~"(?i)^(?:eks_bootstrap_sh|eks_nodeadm)$" | fn.#StringExpression
+	Version?:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecificationOverride": close({
+#LaunchTemplateSpecificationOverride: close({
 	LaunchTemplateId?:    string | fn.#StringExpression
 	LaunchTemplateName?:  string | fn.#StringExpression
 	TargetInstanceTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -362,12 +358,12 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateSpecificationOverride": clo
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesLocalStorageConfiguration": close(
+#ManagedInstancesLocalStorageConfiguration: close(
 	{UseLocalStorage?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration": close({
+#ManagedInstancesNetworkConfiguration: close({
 	SecurityGroups!: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -377,16 +373,16 @@ _#defs: "/$defs/Properties/definitions/ManagedInstancesNetworkConfiguration": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesProvider": close({
-	InfrastructureOptimization?: _#defs."/$defs/Properties/definitions/InfrastructureOptimization"
+#ManagedInstancesProvider: close({
+	InfrastructureOptimization?: #InfrastructureOptimization
 	InfrastructureRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	InstanceLaunchTemplate!: _#defs."/$defs/Properties/definitions/InstanceLaunchTemplate"
+	InstanceLaunchTemplate!: #InstanceLaunchTemplate
 	PropagateTags?:          "CAPACITY_PROVIDER" | "NONE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedInstancesStorageConfiguration": close({
+#ManagedInstancesStorageConfiguration: close({
 	StorageSizeGiB?: int |
 		{
 			string &
@@ -404,7 +400,7 @@ _#defs: "/$defs/Properties/definitions/ManagedInstancesStorageConfiguration": cl
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdatePolicy": close({
+#UpdatePolicy: close({
 	JobExecutionTimeoutMinutes?: int |
 		{
 			string &

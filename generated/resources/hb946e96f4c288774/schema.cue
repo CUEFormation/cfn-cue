@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -18,17 +18,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::ApplicationSignals::ServiceLevelObjective
 #Properties: close({
-	BurnRateConfigurations?: _#defs."/$defs/Properties/definitions/BurnRateConfigurations"
+	BurnRateConfigurations?: #BurnRateConfigurations
 	Description?:            strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	ExclusionWindows?:       _#defs."/$defs/Properties/definitions/ExclusionWindows"
-	Goal?:                   _#defs."/$defs/Properties/definitions/Goal"
+	ExclusionWindows?:       #ExclusionWindows
+	Goal?:                   #Goal
 	Name!:                   =~"^[0-9A-Za-z][-._0-9A-Za-z ]{0,126}[0-9A-Za-z]$" | fn.#StringExpression
-	RequestBasedSli?:        _#defs."/$defs/Properties/definitions/RequestBasedSli"
-	Sli?:                    _#defs."/$defs/Properties/definitions/Sli"
-	Tags?:                   _#defs."/$defs/Properties/definitions/Tags"
+	RequestBasedSli?:        #RequestBasedSli
+	Sli?:                    #Sli
+	Tags?:                   #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/BurnRateConfiguration": close({
+#BurnRateConfiguration: close({
 	LookBackWindowMinutes!: int & <=10080 & >=1 |
 		{
 			string &
@@ -48,14 +48,12 @@ _#defs: "/$defs/Properties/definitions/BurnRateConfiguration": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BurnRateConfigurations": list.MaxItems(10) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/BurnRateConfiguration"
-] |
+#BurnRateConfigurations: list.MaxItems(10) & list.UniqueItems() & [...] & [...#BurnRateConfiguration] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CalendarInterval": close({
-	Duration!:     _#defs."/$defs/Properties/definitions/Duration"
-	DurationUnit!: _#defs."/$defs/Properties/definitions/DurationUnit"
+#CalendarInterval: close({
+	Duration!:     #Duration
+	DurationUnit!: #DurationUnit
 	StartTime!: int & >=946684800 |
 		{
 			string &
@@ -74,27 +72,23 @@ _#defs: "/$defs/Properties/definitions/CalendarInterval": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CompositeSliComponent": close({OperationName!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#CompositeSliComponent: close({OperationName!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CompositeSliComponents": list.MaxItems(20) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/CompositeSliComponent"
-] |
-	fn.#ListExpression
+#CompositeSliComponents: list.MaxItems(20) & list.MinItems(2) & [...#CompositeSliComponent] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CompositeSliConfig": close({
-	CompositeSliComponents?: _#defs."/$defs/Properties/definitions/CompositeSliComponents"
-	SelectionConfig!:        _#defs."/$defs/Properties/definitions/SelectionConfig"
+#CompositeSliConfig: close({
+	CompositeSliComponents?: #CompositeSliComponents
+	SelectionConfig!:        #SelectionConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DependencyConfig": close({
-	DependencyKeyAttributes!: _#defs."/$defs/Properties/definitions/DependencyKeyAttributes"
+#DependencyConfig: close({
+	DependencyKeyAttributes!: #DependencyKeyAttributes
 	DependencyOperationName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DependencyKeyAttributes": null |
+#DependencyKeyAttributes: null |
 bool |
 number |
 string |
@@ -104,13 +98,13 @@ close({
 	{[=~"^.+$"]: string | fn.#StringExpression}}) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Dimension": close({
+#Dimension: close({
 	Name!:  string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Duration": int & >=1 |
+#Duration: int & >=1 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -126,22 +120,19 @@ _#defs: "/$defs/Properties/definitions/Duration": int & >=1 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/DurationUnit": "MINUTE" | "HOUR" | "DAY" | "MONTH" | fn.#StringExpression
+#DurationUnit: "MINUTE" | "HOUR" | "DAY" | "MONTH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ExclusionWindow": close({
+#ExclusionWindow: close({
 	Reason?:         strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	RecurrenceRule?: _#defs."/$defs/Properties/definitions/RecurrenceRule"
+	RecurrenceRule?: #RecurrenceRule
 	StartTime?:      string | fn.#StringExpression
-	Window!:         _#defs."/$defs/Properties/definitions/Window"
+	Window!:         #Window
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExclusionWindows": list.MaxItems(10) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/ExclusionWindow"
-] |
-	fn.#ListExpression
+#ExclusionWindows: list.MaxItems(10) & list.UniqueItems() & [...] & [...#ExclusionWindow] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Goal": close({
+#Goal: close({
 	AttainmentGoal?: number |
 		{
 			string &
@@ -161,7 +152,7 @@ _#defs: "/$defs/Properties/definitions/Goal": close({
 				)
 		} |
 		fn.#NumberExpression
-	Interval?: _#defs."/$defs/Properties/definitions/Interval"
+	Interval?: #Interval
 	WarningThreshold?: number |
 		{
 			string &
@@ -184,13 +175,13 @@ _#defs: "/$defs/Properties/definitions/Goal": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Interval": close({
-	CalendarInterval?: _#defs."/$defs/Properties/definitions/CalendarInterval"
-	RollingInterval?:  _#defs."/$defs/Properties/definitions/RollingInterval"
+#Interval: close({
+	CalendarInterval?: #CalendarInterval
+	RollingInterval?:  #RollingInterval
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KeyAttributes": null |
+#KeyAttributes: null |
 bool |
 number |
 string |
@@ -200,34 +191,33 @@ close({
 	{[=~"^.+$"]: string | fn.#StringExpression}}) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Metric": close({
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/Dimension"] | fn.#ListExpression
+#Metric: close({
+	Dimensions?: [...#Dimension] | fn.#ListExpression
 	MetricName?: string | fn.#StringExpression
 	Namespace?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDataQueries": [..._#defs."/$defs/Properties/definitions/MetricDataQuery"] |
-	fn.#ListExpression
+#MetricDataQueries: [...#MetricDataQuery] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
+#MetricDataQuery: close({
 	AccountId?:  string | fn.#StringExpression
 	Expression?: string | fn.#StringExpression
 	Id!:         string | fn.#StringExpression
-	MetricStat?: _#defs."/$defs/Properties/definitions/MetricStat" | fn.#ObjectExpression
+	MetricStat?: #MetricStat | fn.#ObjectExpression
 	ReturnData?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricName": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#MetricName: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MetricSource": close({
-	MetricSourceAttributes?:    _#defs."/$defs/Properties/definitions/MetricSourceAttributes"
-	MetricSourceKeyAttributes!: _#defs."/$defs/Properties/definitions/MetricSourceKeyAttributes"
+#MetricSource: close({
+	MetricSourceAttributes?:    #MetricSourceAttributes
+	MetricSourceKeyAttributes!: #MetricSourceKeyAttributes
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricSourceAttributes": null |
+#MetricSourceAttributes: null |
 bool |
 number |
 string |
@@ -237,7 +227,7 @@ close({
 	{[=~"^.+$"]: string | fn.#StringExpression}}) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/MetricSourceKeyAttributes": null |
+#MetricSourceKeyAttributes: null |
 bool |
 number |
 string |
@@ -247,8 +237,8 @@ close({
 	{[=~"^.+$"]: string | fn.#StringExpression}}) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/MetricStat": close({
-	Metric!: _#defs."/$defs/Properties/definitions/Metric"
+#MetricStat: close({
+	Metric!: #Metric
 	Period!: int |
 		{
 			string &
@@ -268,18 +258,16 @@ _#defs: "/$defs/Properties/definitions/MetricStat": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MonitoredRequestCountMetric": close({
-	BadCountMetric?:  _#defs."/$defs/Properties/definitions/MetricDataQueries" | fn.#ListExpression
-	GoodCountMetric?: _#defs."/$defs/Properties/definitions/MetricDataQueries" | fn.#ListExpression
+#MonitoredRequestCountMetric: close({
+	BadCountMetric?:  #MetricDataQueries | fn.#ListExpression
+	GoodCountMetric?: #MetricDataQueries | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecurrenceRule": close(
-	{Expression!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#RecurrenceRule: close({Expression!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RequestBasedSli": close({
+#RequestBasedSli: close({
 	ComparisonOperator?: "GreaterThanOrEqualTo" |
 		"LessThanOrEqualTo" |
 		"LessThan" |
@@ -304,38 +292,38 @@ _#defs: "/$defs/Properties/definitions/RequestBasedSli": close({
 				)
 		} |
 		fn.#NumberExpression
-	RequestBasedSliMetric!: _#defs."/$defs/Properties/definitions/RequestBasedSliMetric"
+	RequestBasedSliMetric!: #RequestBasedSliMetric
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RequestBasedSliMetric": close({
-	CompositeSliConfig?:          _#defs."/$defs/Properties/definitions/CompositeSliConfig"
-	DependencyConfig?:            _#defs."/$defs/Properties/definitions/DependencyConfig"
-	KeyAttributes?:               _#defs."/$defs/Properties/definitions/KeyAttributes"
-	MetricName?:                  _#defs."/$defs/Properties/definitions/MetricName"
-	MetricSource?:                _#defs."/$defs/Properties/definitions/MetricSource"
+#RequestBasedSliMetric: close({
+	CompositeSliConfig?:          #CompositeSliConfig
+	DependencyConfig?:            #DependencyConfig
+	KeyAttributes?:               #KeyAttributes
+	MetricName?:                  #MetricName
+	MetricSource?:                #MetricSource
 	MetricType?:                  "LATENCY" | "AVAILABILITY" | fn.#StringExpression
-	MonitoredRequestCountMetric?: _#defs."/$defs/Properties/definitions/MonitoredRequestCountMetric"
+	MonitoredRequestCountMetric?: #MonitoredRequestCountMetric
 	OperationName?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TotalRequestCountMetric?:     _#defs."/$defs/Properties/definitions/MetricDataQueries" | fn.#ListExpression
+	TotalRequestCountMetric?:     #MetricDataQueries | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RollingInterval": close({
-	Duration!:     _#defs."/$defs/Properties/definitions/Duration"
-	DurationUnit!: _#defs."/$defs/Properties/definitions/DurationUnit"
+#RollingInterval: close({
+	Duration!:     #Duration
+	DurationUnit!: #DurationUnit
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelectionConfig": close({
+#SelectionConfig: close({
 	Pattern?: =~"^.+$" | fn.#StringExpression
-	Type!:    _#defs."/$defs/Properties/definitions/SelectionType"
+	Type!:    #SelectionType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelectionType": "EXPLICIT" | "PREFIX" | "REGEX" | fn.#StringExpression
+#SelectionType: "EXPLICIT" | "PREFIX" | "REGEX" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Sli": close({
+#Sli: close({
 	ComparisonOperator!: "GreaterThanOrEqualTo" |
 		"LessThanOrEqualTo" |
 		"LessThan" |
@@ -360,17 +348,17 @@ _#defs: "/$defs/Properties/definitions/Sli": close({
 				)
 		} |
 		fn.#NumberExpression
-	SliMetric!: _#defs."/$defs/Properties/definitions/SliMetric"
+	SliMetric!: #SliMetric
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SliMetric": close({
-	CompositeSliConfig?: _#defs."/$defs/Properties/definitions/CompositeSliConfig"
-	DependencyConfig?:   _#defs."/$defs/Properties/definitions/DependencyConfig"
-	KeyAttributes?:      _#defs."/$defs/Properties/definitions/KeyAttributes"
-	MetricDataQueries?:  _#defs."/$defs/Properties/definitions/MetricDataQueries"
-	MetricName?:         _#defs."/$defs/Properties/definitions/MetricName"
-	MetricSource?:       _#defs."/$defs/Properties/definitions/MetricSource"
+#SliMetric: close({
+	CompositeSliConfig?: #CompositeSliConfig
+	DependencyConfig?:   #DependencyConfig
+	KeyAttributes?:      #KeyAttributes
+	MetricDataQueries?:  #MetricDataQueries
+	MetricName?:         #MetricName
+	MetricSource?:       #MetricSource
 	MetricType?:         "LATENCY" | "AVAILABILITY" | fn.#StringExpression
 	OperationName?:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	PeriodSeconds?: int & <=900 & >=60 |
@@ -393,20 +381,17 @@ _#defs: "/$defs/Properties/definitions/SliMetric": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Window": close({
-	Duration!:     _#defs."/$defs/Properties/definitions/Duration"
-	DurationUnit!: _#defs."/$defs/Properties/definitions/DurationUnit"
+#Window: close({
+	Duration!:     #Duration
+	DurationUnit!: #DurationUnit
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

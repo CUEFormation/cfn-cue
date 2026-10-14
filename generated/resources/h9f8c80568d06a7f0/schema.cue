@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -20,17 +20,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	DataMigrationIdentifier?:    strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
 	DataMigrationName?:          strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	DataMigrationSettings?:      _#defs."/$defs/Properties/definitions/DataMigrationSettings" | fn.#ObjectExpression
+	DataMigrationSettings?:      #DataMigrationSettings | fn.#ObjectExpression
 	DataMigrationType!:          "full-load" | "cdc" | "full-load-and-cdc" | fn.#StringExpression
 	MigrationProjectIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	ServiceAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(300) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	SourceDataSettings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SourceDataSettings"] |
-		fn.#ListExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	SourceDataSettings?: list.UniqueItems() & [...#SourceDataSettings] | fn.#ListExpression
+	Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DataMigrationSettings": close({
+#DataMigrationSettings: close({
 	CloudwatchLogsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NumberOfJobs?: int & <=50 & >=1 |
 		{
@@ -52,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/DataMigrationSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceDataSettings": close({
+#SourceDataSettings: close({
 	CDCStartPosition?: strings.MaxRunes(40) | fn.#StringExpression
 	CDCStartTime?:     strings.MaxRunes(40) | fn.#StringExpression
 	CDCStopTime?:      strings.MaxRunes(40) | fn.#StringExpression
@@ -60,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/SourceDataSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -35,10 +35,10 @@ package schema
 	Revision?: string
 
 	// Create tags when creating the configuration.
-	Tags?: [..._#defs."/$defs/Properties/definitions/TagsEntry"]
+	Tags?: [...#TagsEntry]
 })
 
-_#defs: "/$defs/Properties/definitions/TagsEntry": close({
+#TagsEntry: close({
 	Key!:   string
 	Value!: string
 })

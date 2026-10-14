@@ -7,7 +7,7 @@ package schema
 // Resource Type definition for AWS::SecretsManager::RotationSchedule
 #Properties: close({
 	// The list of metadata needed to successfully rotate a managed external secret.
-	ExternalSecretRotationMetadata?: [..._#defs."/$defs/Properties/definitions/ExternalSecretRotationMetadataItem"]
+	ExternalSecretRotationMetadata?: [...#ExternalSecretRotationMetadataItem]
 
 	// The ARN of the IAM role that is used by Secrets Manager to rotate a managed external secret.
 	ExternalSecretRotationRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
@@ -15,7 +15,7 @@ package schema
 	// Creates a new Lambda rotation function based on one of the Secrets Manager
 	// rotation function templates. To use a rotation function that already exists,
 	// specify RotationLambdaARN instead.
-	HostedRotationLambda?: _#defs."/$defs/Properties/definitions/HostedRotationLambda"
+	HostedRotationLambda?: #HostedRotationLambda
 
 	// The ARN of the secret.
 	Id?: string
@@ -29,7 +29,7 @@ package schema
 	RotationLambdaARN?: string
 
 	// A structure that defines the rotation configuration for this secret.
-	RotationRules?: _#defs."/$defs/Properties/definitions/RotationRules"
+	RotationRules?: #RotationRules
 
 	// The ARN or name of the secret to rotate.
 	SecretId!: string
@@ -37,7 +37,7 @@ package schema
 
 // The metadata needed to successfully rotate a managed external secret. Each
 // metadata item is a key and value pair of strings in a JSON text string.
-_#defs: "/$defs/Properties/definitions/ExternalSecretRotationMetadataItem": close({
+#ExternalSecretRotationMetadataItem: close({
 	// The key name of the metadata item. You can specify a value that's 1 to 256 characters in length.
 	Key!: string
 
@@ -45,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/ExternalSecretRotationMetadataItem": clos
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/HostedRotationLambda": close({
+#HostedRotationLambda: close({
 	// A string of the characters that you don't want in the password.
 	ExcludeCharacters?: string
 
@@ -103,7 +103,7 @@ _#defs: "/$defs/Properties/definitions/HostedRotationLambda": close({
 	VpcSubnetIds?: string
 })
 
-_#defs: "/$defs/Properties/definitions/RotationRules": close({
+#RotationRules: close({
 	// The number of days between automatic scheduled rotations of the secret. You
 	// can use this value to check that your secret meets your compliance
 	// guidelines for how often secrets must be rotated.

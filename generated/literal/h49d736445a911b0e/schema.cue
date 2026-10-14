@@ -52,19 +52,19 @@ import (
 	// Per-region endpoint status and configuration.
 	RegionalEndpoints?: close({
 
-		{[=~"^([a-z]{2,}-){2,}[0-9]$"]: _#defs."/$defs/Properties/definitions/RegionalEndpoint"}})
+		{[=~"^([a-z]{2,}-){2,}[0-9]$"]: #RegionalEndpoint}})
 
 	// The list of AWS Regions for the endpoint.
 	Regions?: list.UniqueItems() & [...strings.MaxRunes(50) & strings.MinRunes(1) & =~"^([a-z]{2,}-){2,}[0-9]$"]
 
 	// List of revision routing entries. 1 or 2 entries. With 1 entry, weight must
 	// be 100. With 2 entries, weights must sum to 100.
-	RevisionWeights?: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RevisionWeight"]
+	RevisionWeights?: list.MaxItems(2) & list.MinItems(1) & [...#RevisionWeight]
 
 	// The scaling configuration for the endpoint. Optionally constrains how many
 	// concurrent execution environments the endpoint can use, in addition to your
 	// account's vCPU quota.
-	ScalingConfig?: _#defs."/$defs/Properties/definitions/ScalingConfig"
+	ScalingConfig?: #ScalingConfig
 
 	// The current state of the endpoint.
 	State?: "Pending" | "Active" | "Failed" | "Deleting"
@@ -75,7 +75,7 @@ import (
 	// The throttling configuration for the endpoint. Optionally constrains the
 	// request rate that the endpoint accepts, in addition to your account's rate
 	// limit quota.
-	ThrottleConfig?: _#defs."/$defs/Properties/definitions/ThrottleConfig"
+	ThrottleConfig?: #ThrottleConfig
 
 	// The status of the last update operation.
 	UpdateStatus?: "InProgress" | "Successful" | "Failed"
@@ -88,7 +88,7 @@ import (
 })
 
 // Per-region endpoint information.
-_#defs: "/$defs/Properties/definitions/RegionalEndpoint": close({
+#RegionalEndpoint: close({
 	// The authentication type for the endpoint.
 	AuthType?: "ApplicationManaged" | "IamAuth"
 
@@ -96,10 +96,10 @@ _#defs: "/$defs/Properties/definitions/RegionalEndpoint": close({
 	DomainName?: string
 
 	// The revision weights for the endpoint.
-	RevisionWeights?: [..._#defs."/$defs/Properties/definitions/RevisionWeight"]
+	RevisionWeights?: [...#RevisionWeight]
 
 	// The scaling configuration for the endpoint.
-	ScalingConfig?: _#defs."/$defs/Properties/definitions/ScalingConfig"
+	ScalingConfig?: #ScalingConfig
 
 	// The current state of the endpoint.
 	State?: "Pending" | "Active" | "Failed" | "Deleting"
@@ -108,7 +108,7 @@ _#defs: "/$defs/Properties/definitions/RegionalEndpoint": close({
 	StateReason?: string
 
 	// The throttling configuration for the endpoint.
-	ThrottleConfig?: _#defs."/$defs/Properties/definitions/ThrottleConfig"
+	ThrottleConfig?: #ThrottleConfig
 
 	// The status of the most recent update to the endpoint.
 	UpdateStatus?: "InProgress" | "Successful" | "Failed"
@@ -118,7 +118,7 @@ _#defs: "/$defs/Properties/definitions/RegionalEndpoint": close({
 })
 
 // A revision routing entry.
-_#defs: "/$defs/Properties/definitions/RevisionWeight": close({
+#RevisionWeight: close({
 	// The revision identifier.
 	RevisionId!: strings.MaxRunes(256) & strings.MinRunes(1)
 
@@ -129,7 +129,7 @@ _#defs: "/$defs/Properties/definitions/RevisionWeight": close({
 // The scaling configuration for the endpoint. Optionally constrains how many
 // concurrent execution environments the endpoint can use, in addition to your
 // account's vCPU quota.
-_#defs: "/$defs/Properties/definitions/ScalingConfig": close({
+#ScalingConfig: close({
 	// The maximum number of concurrent execution environments for the endpoint.
 	// This optional limit further constrains the endpoint's scaling. When omitted,
 	// the endpoint's scaling is limited only by your account's vCPU quota.
@@ -139,7 +139,7 @@ _#defs: "/$defs/Properties/definitions/ScalingConfig": close({
 // The throttling configuration for the endpoint. Optionally constrains the
 // request rate that the endpoint accepts, in addition to your account's rate
 // limit quota.
-_#defs: "/$defs/Properties/definitions/ThrottleConfig": close({
+#ThrottleConfig: close({
 	// The maximum request rate per second for the endpoint, up to a maximum of
 	// 10000. This optional limit further constrains the endpoint's request rate.
 	// When omitted, the endpoint's request rate is limited only by your account's

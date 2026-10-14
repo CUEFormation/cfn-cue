@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 	"struct"
 )
 
@@ -19,10 +19,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::BedrockAgentCore::GatewayRule
 #Properties: close({
-	Actions!: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Action"] |
-		fn.#ListExpression
-	Conditions?:  list.MaxItems(2) & [...] & [..._#defs."/$defs/Properties/definitions/Condition"] | fn.#ListExpression
-	Description?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Actions!:           list.MaxItems(2) & list.MinItems(1) & [...#Action] | fn.#ListExpression
+	Conditions?:        list.MaxItems(2) & [...] & [...#Condition] | fn.#ListExpression
+	Description?:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
 	Priority!: <=1000000 & >=1 |
 		{
@@ -46,49 +45,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Action": matchN(1, [close(
-	{ConfigurationBundle!: _#defs."/$defs/Properties/definitions/ConfigurationBundleAction"},
-), close(
-	{RouteToTarget!: _#defs."/$defs/Properties/definitions/RouteToTargetAction"},
-)]) |
+#Action: matchN(1, [
+	close({ConfigurationBundle!: #ConfigurationBundleAction}), close({RouteToTarget!: #RouteToTargetAction}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Condition": matchN(1, [close(
-	{MatchPrincipals!: _#defs."/$defs/Properties/definitions/MatchPrincipals"},
-), close(
-	{MatchPaths!: _#defs."/$defs/Properties/definitions/MatchPaths"},
-)]) |
+#Condition: matchN(1, [close({MatchPrincipals!: #MatchPrincipals}), close({MatchPaths!: #MatchPaths})]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationBundleAction": matchN(1, [close(
-	{StaticOverride!: _#defs."/$defs/Properties/definitions/StaticOverride"},
-), close(
-	{WeightedOverride!: _#defs."/$defs/Properties/definitions/WeightedOverride"},
-)]) |
+#ConfigurationBundleAction: matchN(1, [
+	close({StaticOverride!: #StaticOverride}), close({WeightedOverride!: #WeightedOverride}),
+]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationBundleReference": close({
+#ConfigurationBundleReference: close({
 	BundleArn!: =~"^arn:aws[a-zA-Z-]*:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:configuration-bundle/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
 		fn.#StringExpression
 	BundleVersion!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GatewayRuleStatus": "CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETING" |
-	fn.#StringExpression
+#GatewayRuleStatus: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IamPrincipal": close({
+#IamPrincipal: close({
 	Arn!: strings.MaxRunes(2048) &
 	=~"^(arn:aws[a-zA-Z-]*:iam::(\\d{12}|\\*):(user|role)/[\\w+=,.@*?/-]+|arn:aws[a-zA-Z-]*:sts::(\\d{12}|\\*):assumed-role/[\\w+=,.@*?/-]+)$" |
 	fn.#StringExpression
-	Operator?: _#defs."/$defs/Properties/definitions/PrincipalMatchOperator"
+	Operator?: #PrincipalMatchOperator
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchPaths": close({
+#MatchPaths: close({
 	AnyOf!: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(512) & =~"^/[\\w\\-.]+/\\*$" | fn.#StringExpression
 	] |
@@ -96,44 +83,32 @@ _#defs: "/$defs/Properties/definitions/MatchPaths": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchPrincipalEntry": close(
-	{IamPrincipal!: _#defs."/$defs/Properties/definitions/IamPrincipal"},
-) |
-	fn.#ValueExpression
+#MatchPrincipalEntry: close({IamPrincipal!: #IamPrincipal}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/MatchPrincipals": close({
-	AnyOf!: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/MatchPrincipalEntry"] |
-		fn.#ListExpression
-}) |
+#MatchPrincipals: close(
+	{AnyOf!: list.MaxItems(100) & list.MinItems(1) & [...#MatchPrincipalEntry] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrincipalMatchOperator": "StringEquals" | "StringLike" | fn.#StringExpression
+#PrincipalMatchOperator: "StringEquals" | "StringLike" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RouteToTargetAction": matchN(1, [close(
-	{StaticRoute!: _#defs."/$defs/Properties/definitions/StaticRoute"},
-), close(
-	{WeightedRoute!: _#defs."/$defs/Properties/definitions/WeightedRoute"},
-)]) |
+#RouteToTargetAction: matchN(1, [close({StaticRoute!: #StaticRoute}), close({WeightedRoute!: #WeightedRoute})]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/StaticOverride": close({
+#StaticOverride: close({
 	BundleArn!: =~"^arn:aws[a-zA-Z-]*:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:configuration-bundle/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
 		fn.#StringExpression
 	BundleVersion!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StaticRoute": close(
-	{TargetName!: =~"^([0-9a-zA-Z][-]?){1,100}$" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#StaticRoute: close({TargetName!: =~"^([0-9a-zA-Z][-]?){1,100}$" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SystemManagedBlock": close({ManagedBy!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#SystemManagedBlock: close({ManagedBy!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrafficSplitEntry": close({
+#TargetTrafficSplitEntry: close({
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Metadata?:    _#defs."/$defs/Properties/definitions/TrafficSplitMetadataMap"
+	Metadata?:    #TrafficSplitMetadataMap
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9-]{0,62}[a-zA-Z0-9])?$" |
 	fn.#StringExpression
 	TargetName!: =~"^([0-9a-zA-Z][-]?){1,100}$" | fn.#StringExpression
@@ -160,10 +135,10 @@ _#defs: "/$defs/Properties/definitions/TargetTrafficSplitEntry": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficSplitEntry": close({
-	ConfigurationBundle!: _#defs."/$defs/Properties/definitions/ConfigurationBundleReference"
+#TrafficSplitEntry: close({
+	ConfigurationBundle!: #ConfigurationBundleReference
 	Description?:         strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Metadata?:            _#defs."/$defs/Properties/definitions/TrafficSplitMetadataMap"
+	Metadata?:            #TrafficSplitMetadataMap
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9-]{0,62}[a-zA-Z0-9])?$" |
 	fn.#StringExpression
 	Weight!: <=99 & >=1 |
@@ -189,23 +164,19 @@ _#defs: "/$defs/Properties/definitions/TrafficSplitEntry": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficSplitMetadataMap": struct.MaxFields(25) & close({
+#TrafficSplitMetadataMap: struct.MaxFields(25) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WeightedOverride": close({
-	TrafficSplit!: list.MaxItems(2) & list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/TrafficSplitEntry"] |
-		fn.#ListExpression
-}) |
+#WeightedOverride: close(
+	{TrafficSplit!: list.MaxItems(2) & list.MinItems(2) & [...#TrafficSplitEntry] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WeightedRoute": close({
-	TrafficSplit!: list.MaxItems(2) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/TargetTrafficSplitEntry"
-	] |
-		fn.#ListExpression
-}) |
+#WeightedRoute: close(
+	{TrafficSplit!: list.MaxItems(2) & list.MinItems(2) & [...#TargetTrafficSplitEntry] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::BedrockAgentCore::GatewayRule"

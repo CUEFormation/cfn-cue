@@ -62,10 +62,10 @@ import (
 	QueryResultsToEvaluate!: int & >=1
 
 	// The scheduled query configuration for the log alarm.
-	ScheduledQueryConfiguration!: _#defs."/$defs/Properties/definitions/ScheduledQueryConfiguration"
+	ScheduledQueryConfiguration!: #ScheduledQueryConfiguration
 
 	// A list of key-value pairs to associate with the log alarm.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The value to compare against the results of the scheduled query evaluation.
 	Threshold!: number
@@ -77,11 +77,11 @@ import (
 	// The warm-up configuration for the alarm. During the warm-up period, the alarm
 	// stays in INSUFFICIENT_DATA and doesn't perform alarm actions. For more
 	// information, see Alarm warm-up periods in the Amazon CloudWatch User Guide.
-	WarmUpConfiguration?: _#defs."/$defs/Properties/definitions/WarmUpConfiguration"
+	WarmUpConfiguration?: #WarmUpConfiguration
 })
 
 // The schedule configuration for the scheduled query.
-_#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close({
+#ScheduleConfiguration: close({
 	// The number of seconds into the past to end the query window. Must be a
 	// non-negative value and cannot exceed 2592000 seconds (30 days).
 	EndTimeOffset?: int & <=2592000 & >=0
@@ -95,7 +95,7 @@ _#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close({
 })
 
 // The scheduled query configuration for the log alarm.
-_#defs: "/$defs/Properties/definitions/ScheduledQueryConfiguration": close({
+#ScheduledQueryConfiguration: close({
 	// The aggregation expression for the scheduled query, e.g. count(*) or avg(latency) by host.
 	AggregationExpression!: strings.MaxRunes(2048) & strings.MinRunes(1)
 
@@ -106,19 +106,19 @@ _#defs: "/$defs/Properties/definitions/ScheduledQueryConfiguration": close({
 	QueryString!: strings.MaxRunes(10000) & strings.MinRunes(0)
 
 	// The schedule configuration.
-	ScheduleConfiguration!: _#defs."/$defs/Properties/definitions/ScheduleConfiguration"
+	ScheduleConfiguration!: #ScheduleConfiguration
 
 	// The ARN of the IAM role that grants permissions to execute the scheduled query.
 	ScheduledQueryRoleARN!:
 		=~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1024) & strings.MinRunes(1))
 
 	// A list of key-value pairs to associate with the scheduled query that backs the log alarm.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Metadata that you can assign to a log alarm. Tags can help you organize and
 // categorize your resources.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A unique identifier for the tag. The combination of tag keys and values can
 	// help you organize and categorize your resources.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
@@ -132,7 +132,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // from missing data while a new resource or service starts up. During the
 // warm-up period, the alarm stays in INSUFFICIENT_DATA and doesn't perform
 // alarm actions.
-_#defs: "/$defs/Properties/definitions/WarmUpConfiguration": close({
+#WarmUpConfiguration: close({
 	// Specifies whether the alarm waits for the full warm-up period before it
 	// starts evaluating. If true, the alarm waits the entire
 	// WarmUpPeriodDurationInMinutes before it starts evaluating, even if metric

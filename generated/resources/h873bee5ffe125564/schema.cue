@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"time"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -47,11 +47,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	Preferences?: _#defs."/$defs/Properties/definitions/Preferences"
-	Tags?:        list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Preferences?: #Preferences
+	Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IamAuthConfiguration": close({
+#IamAuthConfiguration: close({
 	CreatedAt?: time.Time | fn.#StringExpression
 	OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
@@ -59,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/IamAuthConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdcAuthConfiguration": close({
+#IdcAuthConfiguration: close({
 	CreatedAt?:         time.Time | fn.#StringExpression
 	IdcApplicationArn?: string | fn.#StringExpression
 	IdcInstanceArn!:    string | fn.#StringExpression
@@ -69,7 +69,7 @@ _#defs: "/$defs/Properties/definitions/IdcAuthConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdpAuthConfiguration": close({
+#IdpAuthConfiguration: close({
 	ClientId!:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 	ClientSecret!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	CreatedAt?:    time.Time | fn.#StringExpression
@@ -82,19 +82,19 @@ _#defs: "/$defs/Properties/definitions/IdpAuthConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OperatorApp": close({
-	Iam?: _#defs."/$defs/Properties/definitions/IamAuthConfiguration"
-	Idc?: _#defs."/$defs/Properties/definitions/IdcAuthConfiguration"
-	Idp?: _#defs."/$defs/Properties/definitions/IdpAuthConfiguration"
+#OperatorApp: close({
+	Iam?: #IamAuthConfiguration
+	Idc?: #IdcAuthConfiguration
+	Idp?: #IdpAuthConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Preferences": close(
+#Preferences: close(
 	{ElevatedActionsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

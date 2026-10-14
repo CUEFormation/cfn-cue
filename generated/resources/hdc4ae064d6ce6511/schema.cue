@@ -24,8 +24,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ApiKeySelectionExpression?: string | fn.#StringExpression
 	BasePath?:                  string | fn.#StringExpression
 	Body?:                      fn.#Object & {...} | string | fn.#StringObjectExpression
-	BodyS3Location?:            _#defs."/$defs/Properties/definitions/BodyS3Location" | fn.#ObjectExpression
-	CorsConfiguration?:         _#defs."/$defs/Properties/definitions/Cors" | fn.#ObjectExpression
+	BodyS3Location?:            #BodyS3Location | fn.#ObjectExpression
+	CorsConfiguration?:         #Cors | fn.#ObjectExpression
 	CredentialsArn?:            string | fn.#StringExpression
 	Description?:               string | fn.#StringExpression
 	DisableExecuteApiEndpoint?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -44,7 +44,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Version?: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/BodyS3Location": close({
+#BodyS3Location: close({
 	Bucket?:  string | fn.#StringExpression
 	Etag?:    string | fn.#StringExpression
 	Key?:     string | fn.#StringExpression
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/BodyS3Location": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Cors": close({
+#Cors: close({
 	AllowCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AllowHeaders?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowMethods?:     [...string | fn.#StringExpression] | fn.#ListExpression

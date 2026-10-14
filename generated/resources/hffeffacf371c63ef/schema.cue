@@ -17,23 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::MediaPackage::PackagingConfiguration
 #Properties: close({
-	CmafPackage?:      _#defs."/$defs/Properties/definitions/CmafPackage" | fn.#ObjectExpression
-	DashPackage?:      _#defs."/$defs/Properties/definitions/DashPackage" | fn.#ObjectExpression
-	HlsPackage?:       _#defs."/$defs/Properties/definitions/HlsPackage" | fn.#ObjectExpression
+	CmafPackage?:      #CmafPackage | fn.#ObjectExpression
+	DashPackage?:      #DashPackage | fn.#ObjectExpression
+	HlsPackage?:       #HlsPackage | fn.#ObjectExpression
 	Id!:               string | fn.#StringExpression
-	MssPackage?:       _#defs."/$defs/Properties/definitions/MssPackage" | fn.#ObjectExpression
+	MssPackage?:       #MssPackage | fn.#ObjectExpression
 	PackagingGroupId!: string | fn.#StringExpression
-	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CmafEncryption": close(
-	{SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"},
-) |
-	fn.#ObjectExpression
+#CmafEncryption: close({SpekeKeyProvider!: #SpekeKeyProvider}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CmafPackage": close({
-	Encryption?:   _#defs."/$defs/Properties/definitions/CmafEncryption"
-	HlsManifests!: [..._#defs."/$defs/Properties/definitions/HlsManifest"] | fn.#ListExpression
+#CmafPackage: close({
+	Encryption?:   #CmafEncryption
+	HlsManifests!: [...#HlsManifest] | fn.#ListExpression
 	IncludeEncoderConfigurationInSegments?: bool |
 		"true" |
 		"True" |
@@ -42,18 +39,15 @@ _#defs: "/$defs/Properties/definitions/CmafPackage": close({
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	SegmentDurationSeconds?: _#defs."/$defs/Properties/definitions/SegmentDurationSeconds"
+	SegmentDurationSeconds?: #SegmentDurationSeconds
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashEncryption": close(
-	{SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"},
-) |
-	fn.#ObjectExpression
+#DashEncryption: close({SpekeKeyProvider!: #SpekeKeyProvider}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashManifest": close({
+#DashManifest: close({
 	ManifestLayout?: "FULL" | "COMPACT" | fn.#StringExpression
-	ManifestName?:   _#defs."/$defs/Properties/definitions/ManifestName"
+	ManifestName?:   #ManifestName
 	MinBufferTimeSeconds?: int |
 		{
 			string &
@@ -70,13 +64,13 @@ _#defs: "/$defs/Properties/definitions/DashManifest": close({
 		fn.#NumberExpression
 	Profile?:           "NONE" | "HBBTV_1_5" | fn.#StringExpression
 	ScteMarkersSource?: "SEGMENTS" | "MANIFEST" | fn.#StringExpression
-	StreamSelection?:   _#defs."/$defs/Properties/definitions/StreamSelection"
+	StreamSelection?:   #StreamSelection
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DashPackage": close({
-	DashManifests!: [..._#defs."/$defs/Properties/definitions/DashManifest"] | fn.#ListExpression
-	Encryption?:    _#defs."/$defs/Properties/definitions/DashEncryption"
+#DashPackage: close({
+	DashManifests!: [...#DashManifest] | fn.#ListExpression
+	Encryption?:    #DashEncryption
 	IncludeEncoderConfigurationInSegments?: bool |
 		"true" |
 		"True" |
@@ -87,7 +81,7 @@ _#defs: "/$defs/Properties/definitions/DashPackage": close({
 		fn.#BooleanExpression
 	IncludeIframeOnlyStream?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PeriodTriggers?:          [..."ADS" | fn.#StringExpression] | fn.#ListExpression
-	SegmentDurationSeconds?:  _#defs."/$defs/Properties/definitions/SegmentDurationSeconds"
+	SegmentDurationSeconds?:  #SegmentDurationSeconds
 	SegmentTemplateFormat?: "NUMBER_WITH_TIMELINE" |
 		"TIME_WITH_TIMELINE" |
 		"NUMBER_WITH_DURATION" |
@@ -95,7 +89,7 @@ _#defs: "/$defs/Properties/definitions/DashPackage": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionContractConfiguration": close({
+#EncryptionContractConfiguration: close({
 	PresetSpeke20Audio!: "PRESET-AUDIO-1" |
 		"PRESET-AUDIO-2" |
 		"PRESET-AUDIO-3" |
@@ -116,17 +110,17 @@ _#defs: "/$defs/Properties/definitions/EncryptionContractConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HlsEncryption": close({
+#HlsEncryption: close({
 	ConstantInitializationVector?: string | fn.#StringExpression
 	EncryptionMethod?:             "AES_128" | "SAMPLE_AES" | fn.#StringExpression
-	SpekeKeyProvider!:             _#defs."/$defs/Properties/definitions/SpekeKeyProvider"
+	SpekeKeyProvider!:             #SpekeKeyProvider
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HlsManifest": close({
+#HlsManifest: close({
 	AdMarkers?:               "NONE" | "SCTE35_ENHANCED" | "PASSTHROUGH" | fn.#StringExpression
 	IncludeIframeOnlyStream?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ManifestName?:            _#defs."/$defs/Properties/definitions/ManifestName"
+	ManifestName?:            #ManifestName
 	ProgramDateTimeIntervalSeconds?: int |
 		{
 			string &
@@ -142,43 +136,40 @@ _#defs: "/$defs/Properties/definitions/HlsManifest": close({
 		} |
 		fn.#NumberExpression
 	RepeatExtXKey?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	StreamSelection?: _#defs."/$defs/Properties/definitions/StreamSelection"
+	StreamSelection?: #StreamSelection
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HlsPackage": close({
-	Encryption?:             _#defs."/$defs/Properties/definitions/HlsEncryption"
-	HlsManifests!:           [..._#defs."/$defs/Properties/definitions/HlsManifest"] | fn.#ListExpression
+#HlsPackage: close({
+	Encryption?:             #HlsEncryption
+	HlsManifests!:           [...#HlsManifest] | fn.#ListExpression
 	IncludeDvbSubtitles?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SegmentDurationSeconds?: _#defs."/$defs/Properties/definitions/SegmentDurationSeconds"
+	SegmentDurationSeconds?: #SegmentDurationSeconds
 	UseAudioRenditionGroup?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManifestName": string | fn.#StringExpression
+#ManifestName: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MssEncryption": close(
-	{SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"},
-) |
-	fn.#ObjectExpression
+#MssEncryption: close({SpekeKeyProvider!: #SpekeKeyProvider}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MssManifest": close({
-	ManifestName?:    _#defs."/$defs/Properties/definitions/ManifestName"
-	StreamSelection?: _#defs."/$defs/Properties/definitions/StreamSelection"
+#MssManifest: close({
+	ManifestName?:    #ManifestName
+	StreamSelection?: #StreamSelection
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MssPackage": close({
-	Encryption?:             _#defs."/$defs/Properties/definitions/MssEncryption"
-	MssManifests!:           [..._#defs."/$defs/Properties/definitions/MssManifest"] | fn.#ListExpression
-	SegmentDurationSeconds?: _#defs."/$defs/Properties/definitions/SegmentDurationSeconds"
+#MssPackage: close({
+	Encryption?:             #MssEncryption
+	MssManifests!:           [...#MssManifest] | fn.#ListExpression
+	SegmentDurationSeconds?: #SegmentDurationSeconds
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SegmentDurationSeconds": int |
+#SegmentDurationSeconds: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -192,15 +183,15 @@ _#defs: "/$defs/Properties/definitions/SegmentDurationSeconds": int |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
-	EncryptionContractConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionContractConfiguration"
-	RoleArn!:                         _#defs."/$defs/Properties/definitions/RoleArn"
+#SpekeKeyProvider: close({
+	EncryptionContractConfiguration?: #EncryptionContractConfiguration
+	RoleArn!:                         #RoleArn
 	SystemIds!:                       [...string | fn.#StringExpression] | fn.#ListExpression
 	Url!:                             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamSelection": close({
+#StreamSelection: close({
 	MaxVideoBitsPerSecond?: int |
 		{
 			string &
@@ -233,7 +224,7 @@ _#defs: "/$defs/Properties/definitions/StreamSelection": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

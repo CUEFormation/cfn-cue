@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -27,14 +27,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^([a-z,A-Z,0-9,. _\\-:/()#,@[\\]+=&;\\{\\}!$*])*$" |
 	fn.#StringExpression
 	GroupName?:             string | fn.#StringExpression
-	"SecurityGroupEgress"?: [..._#defs."/$defs/Properties/definitions/Egress"] | fn.#ListExpression
-	SecurityGroupIngress?:  [..._#defs."/$defs/Properties/definitions/Ingress"] | fn.#ListExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	"SecurityGroupEgress"?: [...#Egress] | fn.#ListExpression
+	SecurityGroupIngress?:  [...#Ingress] | fn.#ListExpression
+	Tags?:                  [...#Tag] | fn.#ListExpression
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Egress": close({
+#Egress: close({
 	CidrIp?:                  string | fn.#StringExpression
 	CidrIpv6?:                string | fn.#StringExpression
 	Description?:             string | fn.#StringExpression
@@ -99,7 +99,7 @@ _#defs: "/$defs/Properties/definitions/Egress": close({
 }) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationSecurityGroupId!: _}, {DestinationPrefixListId!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ingress": close({
+#Ingress: close({
 	CidrIp?:      string | fn.#StringExpression
 	CidrIpv6?:    string | fn.#StringExpression
 	Description?: string | fn.#StringExpression
@@ -183,7 +183,7 @@ _#defs: "/$defs/Properties/definitions/Ingress": close({
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

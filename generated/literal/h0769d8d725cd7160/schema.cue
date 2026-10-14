@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"time"
+	"struct"
 	"strings"
 	"list"
-	"struct"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -27,42 +27,42 @@ import (
 	]
 
 	// Rule entries mapping dimension values to rate configurations.
-	Entries!:           list.MaxItems(1000) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LimitEntry"]
+	Entries!:           list.MaxItems(1000) & list.MinItems(1) & [...#LimitEntry]
 	GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$"
 
 	// Limit identifier. Optional on Create (system-generates if not provided by customer).
 	// Always present in responses.
 	RateLimitId?: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_\\.]{0,62}[a-zA-Z0-9]$"
-	Status?:      _#defs."/$defs/Properties/definitions/GatewayRateLimitStatus"
+	Status?:      #GatewayRateLimitStatus
 	UpdatedAt?:   time.Time
 })
 
 // Map of dimension name to dimension value for a rule entry
-_#defs: "/$defs/Properties/definitions/Dimensions": struct.MaxFields(10) & struct.MinFields(1) & close({
+#Dimensions: struct.MaxFields(10) & struct.MinFields(1) & close({
 
 	{[=~"^(targetName|toolName|qualifiedModelId|\\$\\.context\\.iam\\.principal|\\$\\.context\\.iam\\.sourceIdentity|\\$\\.context\\.jwt\\.[a-zA-Z_][a-zA-Z0-9_\\-\\.]{0,61}[a-zA-Z0-9_])$"]: strings.MaxRunes(256) & strings.MinRunes(1)}})
 
 // Status of a gateway limit
-_#defs: "/$defs/Properties/definitions/GatewayRateLimitStatus": "CREATING" | "ACTIVE" | "UPDATING" | "DELETING"
+#GatewayRateLimitStatus: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING"
 
 // A single rule entry within a limit, mapping dimension values to rate configurations
-_#defs: "/$defs/Properties/definitions/LimitEntry": close({
+#LimitEntry: close({
 	// Connection rate limits (per second only). Limited to 1 entry for now. — P2
-	Connections?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RateConfig"]
-	Dimensions!:  _#defs."/$defs/Properties/definitions/Dimensions"
+	Connections?: list.MaxItems(1) & list.MinItems(1) & [...#RateConfig]
+	Dimensions!:  #Dimensions
 
 	// Request rate limits (RPS or RPM). Limited to 1 entry for now.
-	Requests?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RateConfig"]
+	Requests?: list.MaxItems(1) & list.MinItems(1) & [...#RateConfig]
 
 	// Token rate limits (TPM). Limited to 1 entry for now. — P1
-	Tokens?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RateConfig"]
+	Tokens?: list.MaxItems(1) & list.MinItems(1) & [...#RateConfig]
 })
 
 // Time period for rate limiting
-_#defs: "/$defs/Properties/definitions/Period": "second" | "minute"
+#Period: "second" | "minute"
 
 // Rate configuration for a metric (requests or tokens)
-_#defs: "/$defs/Properties/definitions/RateConfig": close({
-	Period!: _#defs."/$defs/Properties/definitions/Period"
+#RateConfig: close({
+	Period!: #Period
 	Rate!:   <=10000000 & >=0
 })

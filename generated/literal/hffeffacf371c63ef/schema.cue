@@ -12,38 +12,36 @@ import "list"
 	Arn?: string
 
 	// A CMAF packaging configuration.
-	CmafPackage?: _#defs."/$defs/Properties/definitions/CmafPackage"
+	CmafPackage?: #CmafPackage
 
 	// A Dynamic Adaptive Streaming over HTTP (DASH) packaging configuration.
-	DashPackage?: _#defs."/$defs/Properties/definitions/DashPackage"
+	DashPackage?: #DashPackage
 
 	// An HTTP Live Streaming (HLS) packaging configuration.
-	HlsPackage?: _#defs."/$defs/Properties/definitions/HlsPackage"
+	HlsPackage?: #HlsPackage
 
 	// The ID of the PackagingConfiguration.
 	Id!: string
 
 	// A Microsoft Smooth Streaming (MSS) PackagingConfiguration.
-	MssPackage?: _#defs."/$defs/Properties/definitions/MssPackage"
+	MssPackage?: #MssPackage
 
 	// The ID of a PackagingGroup.
 	PackagingGroupId!: string
 
 	// A collection of tags associated with a resource
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // A CMAF encryption configuration.
-_#defs: "/$defs/Properties/definitions/CmafEncryption": close(
-	{SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"},
-)
+#CmafEncryption: close({SpekeKeyProvider!: #SpekeKeyProvider})
 
 // A CMAF packaging configuration.
-_#defs: "/$defs/Properties/definitions/CmafPackage": close({
-	Encryption?: _#defs."/$defs/Properties/definitions/CmafEncryption"
+#CmafPackage: close({
+	Encryption?: #CmafEncryption
 
 	// A list of HLS manifest configurations.
-	HlsManifests!: [..._#defs."/$defs/Properties/definitions/HlsManifest"]
+	HlsManifests!: [...#HlsManifest]
 
 	// When includeEncoderConfigurationInSegments is set to true, MediaPackage
 	// places your encoder's Sequence Parameter Set (SPS), Picture Parameter Set
@@ -51,22 +49,20 @@ _#defs: "/$defs/Properties/definitions/CmafPackage": close({
 	// of in the init fragment. This lets you use different SPS/PPS/VPS settings
 	// for your assets during content playback.
 	IncludeEncoderConfigurationInSegments?: bool
-	SegmentDurationSeconds?:                _#defs."/$defs/Properties/definitions/SegmentDurationSeconds"
+	SegmentDurationSeconds?:                #SegmentDurationSeconds
 })
 
 // A Dynamic Adaptive Streaming over HTTP (DASH) encryption configuration.
-_#defs: "/$defs/Properties/definitions/DashEncryption": close(
-	{SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"},
-)
+#DashEncryption: close({SpekeKeyProvider!: #SpekeKeyProvider})
 
 // A DASH manifest configuration.
-_#defs: "/$defs/Properties/definitions/DashManifest": close({
+#DashManifest: close({
 	// Determines the position of some tags in the Media Presentation Description
 	// (MPD). When set to FULL, elements like SegmentTemplate and ContentProtection
 	// are included in each Representation. When set to COMPACT, duplicate elements
 	// are combined and presented at the AdaptationSet level.
 	ManifestLayout?: "FULL" | "COMPACT"
-	ManifestName?:   _#defs."/$defs/Properties/definitions/ManifestName"
+	ManifestName?:   #ManifestName
 
 	// Minimum duration (in seconds) that a player will buffer media before starting the presentation.
 	MinBufferTimeSeconds?: int
@@ -79,14 +75,14 @@ _#defs: "/$defs/Properties/definitions/DashManifest": close({
 	// sourced from the segments of the ingested content. When set to MANIFEST, the
 	// scte markers are sourced from the manifest of the ingested content.
 	ScteMarkersSource?: "SEGMENTS" | "MANIFEST"
-	StreamSelection?:   _#defs."/$defs/Properties/definitions/StreamSelection"
+	StreamSelection?:   #StreamSelection
 })
 
 // A Dynamic Adaptive Streaming over HTTP (DASH) packaging configuration.
-_#defs: "/$defs/Properties/definitions/DashPackage": close({
+#DashPackage: close({
 	// A list of DASH manifest configurations.
-	DashManifests!: [..._#defs."/$defs/Properties/definitions/DashManifest"]
-	Encryption?:    _#defs."/$defs/Properties/definitions/DashEncryption"
+	DashManifests!: [...#DashManifest]
+	Encryption?:    #DashEncryption
 
 	// When includeEncoderConfigurationInSegments is set to true, MediaPackage
 	// places your encoder's Sequence Parameter Set (SPS), Picture Parameter Set
@@ -104,7 +100,7 @@ _#defs: "/$defs/Properties/definitions/DashPackage": close({
 	// more than one period. If the list contains "ADS", new periods will be
 	// created where the Asset contains SCTE-35 ad markers.
 	PeriodTriggers?:         [..."ADS"]
-	SegmentDurationSeconds?: _#defs."/$defs/Properties/definitions/SegmentDurationSeconds"
+	SegmentDurationSeconds?: #SegmentDurationSeconds
 
 	// Determines the type of SegmentTemplate included in the Media Presentation
 	// Description (MPD). When set to NUMBER_WITH_TIMELINE, a full timeline is
@@ -117,7 +113,7 @@ _#defs: "/$defs/Properties/definitions/DashPackage": close({
 
 // The configuration to use for encrypting one or more content tracks separately
 // for endpoints that use SPEKE 2.0.
-_#defs: "/$defs/Properties/definitions/EncryptionContractConfiguration": close({
+#EncryptionContractConfiguration: close({
 	// A collection of audio encryption presets.
 	PresetSpeke20Audio!: "PRESET-AUDIO-1" | "PRESET-AUDIO-2" | "PRESET-AUDIO-3" | "SHARED" | "UNENCRYPTED"
 
@@ -135,17 +131,17 @@ _#defs: "/$defs/Properties/definitions/EncryptionContractConfiguration": close({
 })
 
 // An HTTP Live Streaming (HLS) encryption configuration.
-_#defs: "/$defs/Properties/definitions/HlsEncryption": close({
+#HlsEncryption: close({
 	// An HTTP Live Streaming (HLS) encryption configuration.
 	ConstantInitializationVector?: string
 
 	// The encryption method to use.
 	EncryptionMethod?: "AES_128" | "SAMPLE_AES"
-	SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"
+	SpekeKeyProvider!: #SpekeKeyProvider
 })
 
 // An HTTP Live Streaming (HLS) manifest configuration.
-_#defs: "/$defs/Properties/definitions/HlsManifest": close({
+#HlsManifest: close({
 	// This setting controls how ad markers are included in the packaged
 	// OriginEndpoint. "NONE" will omit all SCTE-35 ad markers from the output.
 	// "PASSTHROUGH" causes the manifest to contain a copy of the SCTE-35 ad
@@ -156,7 +152,7 @@ _#defs: "/$defs/Properties/definitions/HlsManifest": close({
 
 	// When enabled, an I-Frame only stream will be included in the output.
 	IncludeIframeOnlyStream?: bool
-	ManifestName?:            _#defs."/$defs/Properties/definitions/ManifestName"
+	ManifestName?:            #ManifestName
 
 	// The interval (in seconds) between each EXT-X-PROGRAM-DATE-TIME tag inserted
 	// into manifests. Additionally, when an interval is specified ID3Timed
@@ -170,61 +166,59 @@ _#defs: "/$defs/Properties/definitions/HlsManifest": close({
 
 	// When enabled, the EXT-X-KEY tag will be repeated in output manifests.
 	RepeatExtXKey?:   bool
-	StreamSelection?: _#defs."/$defs/Properties/definitions/StreamSelection"
+	StreamSelection?: #StreamSelection
 })
 
 // An HTTP Live Streaming (HLS) packaging configuration.
-_#defs: "/$defs/Properties/definitions/HlsPackage": close({
-	Encryption?: _#defs."/$defs/Properties/definitions/HlsEncryption"
+#HlsPackage: close({
+	Encryption?: #HlsEncryption
 
 	// A list of HLS manifest configurations.
-	HlsManifests!: [..._#defs."/$defs/Properties/definitions/HlsManifest"]
+	HlsManifests!: [...#HlsManifest]
 
 	// When enabled, MediaPackage passes through digital video broadcasting (DVB)
 	// subtitles into the output.
 	IncludeDvbSubtitles?:    bool
-	SegmentDurationSeconds?: _#defs."/$defs/Properties/definitions/SegmentDurationSeconds"
+	SegmentDurationSeconds?: #SegmentDurationSeconds
 
 	// When enabled, audio streams will be placed in rendition groups in the output.
 	UseAudioRenditionGroup?: bool
 })
 
 // An optional string to include in the name of the manifest.
-_#defs: "/$defs/Properties/definitions/ManifestName": string
+#ManifestName: string
 
 // A CMAF encryption configuration.
-_#defs: "/$defs/Properties/definitions/MssEncryption": close(
-	{SpekeKeyProvider!: _#defs."/$defs/Properties/definitions/SpekeKeyProvider"},
-)
+#MssEncryption: close({SpekeKeyProvider!: #SpekeKeyProvider})
 
 // A Microsoft Smooth Streaming (MSS) manifest configuration.
-_#defs: "/$defs/Properties/definitions/MssManifest": close({
-	ManifestName?:    _#defs."/$defs/Properties/definitions/ManifestName"
-	StreamSelection?: _#defs."/$defs/Properties/definitions/StreamSelection"
+#MssManifest: close({
+	ManifestName?:    #ManifestName
+	StreamSelection?: #StreamSelection
 })
 
 // A Microsoft Smooth Streaming (MSS) PackagingConfiguration.
-_#defs: "/$defs/Properties/definitions/MssPackage": close({
-	Encryption?: _#defs."/$defs/Properties/definitions/MssEncryption"
+#MssPackage: close({
+	Encryption?: #MssEncryption
 
 	// A list of MSS manifest configurations.
-	MssManifests!:           [..._#defs."/$defs/Properties/definitions/MssManifest"]
-	SegmentDurationSeconds?: _#defs."/$defs/Properties/definitions/SegmentDurationSeconds"
+	MssManifests!:           [...#MssManifest]
+	SegmentDurationSeconds?: #SegmentDurationSeconds
 })
 
 // An Amazon Resource Name (ARN) of an IAM role that AWS Elemental MediaPackage
 // will assume when accessing the key provider service.
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 
 // Duration (in seconds) of each fragment. Actual fragments will be rounded to
 // the nearest multiple of the source fragment duration.
-_#defs: "/$defs/Properties/definitions/SegmentDurationSeconds": int
+#SegmentDurationSeconds: int
 
 // A configuration for accessing an external Secure Packager and Encoder Key
 // Exchange (SPEKE) service that will provide encryption keys.
-_#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
-	EncryptionContractConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionContractConfiguration"
-	RoleArn!:                         _#defs."/$defs/Properties/definitions/RoleArn"
+#SpekeKeyProvider: close({
+	EncryptionContractConfiguration?: #EncryptionContractConfiguration
+	RoleArn!:                         #RoleArn
 
 	// The system IDs to include in key requests.
 	SystemIds!: [...string]
@@ -234,7 +228,7 @@ _#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
 })
 
 // A StreamSelection configuration.
-_#defs: "/$defs/Properties/definitions/StreamSelection": close({
+#StreamSelection: close({
 	// The maximum video bitrate (bps) to include in output.
 	MaxVideoBitsPerSecond?: int
 
@@ -245,7 +239,7 @@ _#defs: "/$defs/Properties/definitions/StreamSelection": close({
 	StreamOrder?: "ORIGINAL" | "VIDEO_BITRATE_ASCENDING" | "VIDEO_BITRATE_DESCENDING"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

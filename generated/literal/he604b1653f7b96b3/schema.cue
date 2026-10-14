@@ -10,7 +10,7 @@ package schema
 	Arn?: string
 
 	// AllowList criteria.
-	Criteria!: _#defs."/$defs/Properties/definitions/Criteria"
+	Criteria!: #Criteria
 
 	// Description of AllowList.
 	Description?: string
@@ -22,30 +22,30 @@ package schema
 	Name!: string
 
 	// AllowList status.
-	Status?: _#defs."/$defs/Properties/definitions/Status"
+	Status?: #Status
 
 	// A collection of tags associated with a resource
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // The regex or s3 object to use for the AllowList.
-_#defs: "/$defs/Properties/definitions/Criteria": matchN(1, [close({
+#Criteria: matchN(1, [close({
 	// The S3 object key for the AllowList.
 	Regex!: string
 }), close({
 	// The S3 location for the AllowList.
-	S3WordsList!: _#defs."/$defs/Properties/definitions/S3WordsList"
+	S3WordsList!: #S3WordsList
 })])
 
-_#defs: "/$defs/Properties/definitions/Regex": string
+#Regex: string
 
-_#defs: "/$defs/Properties/definitions/S3WordsList": close({
+#S3WordsList: close({
 	BucketName!: string
 	ObjectKey!:  string
 })
 
 // The status for the AllowList
-_#defs: "/$defs/Properties/definitions/Status": "OK" |
+#Status: "OK" |
 	"S3_OBJECT_NOT_FOUND" |
 	"S3_USER_ACCESS_DENIED" |
 	"S3_OBJECT_ACCESS_DENIED" |
@@ -55,7 +55,7 @@ _#defs: "/$defs/Properties/definitions/Status": "OK" |
 	"UNKNOWN_ERROR"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: string
 

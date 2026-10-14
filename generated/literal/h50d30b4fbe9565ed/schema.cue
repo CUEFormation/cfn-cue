@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"time"
 	"strings"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -36,9 +36,9 @@ import (
 
 	// Numerical guardrail version (not DRAFT)
 	GuardrailVersion!:         =~"^[1-9][0-9]{0,7}$"
-	ModelEnforcement?:         _#defs."/$defs/Properties/definitions/ModelEnforcement"
-	Owner?:                    _#defs."/$defs/Properties/definitions/ConfigOwner"
-	SelectiveContentGuarding?: _#defs."/$defs/Properties/definitions/SelectiveContentGuarding"
+	ModelEnforcement?:         #ModelEnforcement
+	Owner?:                    #ConfigOwner
+	SelectiveContentGuarding?: #SelectiveContentGuarding
 
 	// Timestamp when the configuration was last updated
 	UpdatedAt?: time.Time
@@ -48,11 +48,11 @@ import (
 })
 
 // Configuration owner type
-_#defs: "/$defs/Properties/definitions/ConfigOwner": "ACCOUNT" | "ORGANIZATION"
+#ConfigOwner: "ACCOUNT" | "ORGANIZATION"
 
 // Model-specific information for the enforced guardrail configuration. If not
 // present, the configuration is enforced on all models
-_#defs: "/$defs/Properties/definitions/ModelEnforcement": close({
+#ModelEnforcement: close({
 	// Models to exclude from enforcement. If a model is in both lists, it is excluded
 	ExcludedModels!: [...] & [
 		...=~"^([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}(/[a-z0-9]{12}){0,1}$"
@@ -65,7 +65,7 @@ _#defs: "/$defs/Properties/definitions/ModelEnforcement": close({
 })
 
 // Selective content guarding controls for enforced guardrails
-_#defs: "/$defs/Properties/definitions/SelectiveContentGuarding": close({
+#SelectiveContentGuarding: close({
 	// Selective guarding mode for user messages
 	Messages?: "SELECTIVE" | "COMPREHENSIVE"
 

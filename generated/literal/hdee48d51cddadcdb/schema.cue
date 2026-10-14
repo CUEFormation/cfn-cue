@@ -13,47 +13,47 @@ import (
 #Properties: close({
 	// The ID of the EMR Serverless Application.
 	ApplicationId?: strings.MaxRunes(64) & strings.MinRunes(1)
-	Architecture?:  _#defs."/$defs/Properties/definitions/Architecture"
+	Architecture?:  #Architecture
 
 	// The Amazon Resource Name (ARN) of the EMR Serverless Application.
 	Arn?: =~"^arn:(aws[a-zA-Z0-9-]*):emr-serverless:.+:(\\d{12}):\\/applications\\/[0-9a-zA-Z]+$"
 
 	// Configuration for Auto Start of Application.
-	AutoStartConfiguration?: _#defs."/$defs/Properties/definitions/AutoStartConfiguration"
+	AutoStartConfiguration?: #AutoStartConfiguration
 
 	// Configuration for Auto Stop of Application.
-	AutoStopConfiguration?: _#defs."/$defs/Properties/definitions/AutoStopConfiguration"
+	AutoStopConfiguration?: #AutoStopConfiguration
 
 	// The IAM IdentityCenter configuration for trusted-identity-propagation on this
 	// application. Supported with release labels emr-7.8.0 and above.
-	IdentityCenterConfiguration?: _#defs."/$defs/Properties/definitions/IdentityCenterConfiguration"
-	ImageConfiguration?:          _#defs."/$defs/Properties/definitions/ImageConfigurationInput"
+	IdentityCenterConfiguration?: #IdentityCenterConfiguration
+	ImageConfiguration?:          #ImageConfigurationInput
 
 	// Initial capacity initialized when an Application is started.
-	InitialCapacity?:          _#defs."/$defs/Properties/definitions/InitialCapacityConfigMap"
-	InteractiveConfiguration?: _#defs."/$defs/Properties/definitions/InteractiveConfiguration"
+	InitialCapacity?:          #InitialCapacityConfigMap
+	InteractiveConfiguration?: #InteractiveConfiguration
 
 	// Maximum allowed cumulative resources for an Application. No new resources
 	// will be created once the limit is hit.
-	MaximumCapacity?:         _#defs."/$defs/Properties/definitions/MaximumAllowedResources"
-	MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/MonitoringConfiguration"
+	MaximumCapacity?:         #MaximumAllowedResources
+	MonitoringConfiguration?: #MonitoringConfiguration
 
 	// User friendly Application name.
 	Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9._\\/#-]+$"
 
 	// Network Configuration for customer VPC connectivity.
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	NetworkConfiguration?: #NetworkConfiguration
 
 	// EMR release label.
 	ReleaseLabel!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9._/-]+$"
-	RuntimeConfiguration?: _#defs."/$defs/Properties/definitions/ConfigurationList"
+	RuntimeConfiguration?: #ConfigurationList
 
 	// The scheduler configuration for batch and streaming jobs running on this
 	// application. Supported with release labels emr-7.0.0 and above.
-	SchedulerConfiguration?: _#defs."/$defs/Properties/definitions/SchedulerConfiguration"
+	SchedulerConfiguration?: #SchedulerConfiguration
 
 	// Tag map with key and value
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The type of the application
 	Type!: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -64,20 +64,20 @@ import (
 	// applications and HiveDriver and TezTask for Hive applications. You can
 	// either set image details in this parameter for each worker type, or in
 	// imageConfiguration for all worker types.
-	WorkerTypeSpecifications?: _#defs."/$defs/Properties/definitions/WorkerTypeSpecificationInputMap"
+	WorkerTypeSpecifications?: #WorkerTypeSpecificationInputMap
 })
 
 // The cpu architecture of an application.
-_#defs: "/$defs/Properties/definitions/Architecture": "ARM64" | "X86_64"
+#Architecture: "ARM64" | "X86_64"
 
 // Configuration for Auto Start of Application
-_#defs: "/$defs/Properties/definitions/AutoStartConfiguration": close({
+#AutoStartConfiguration: close({
 	// If set to true, the Application will automatically start. Defaults to true.
 	Enabled?: bool
 })
 
 // Configuration for Auto Stop of Application
-_#defs: "/$defs/Properties/definitions/AutoStopConfiguration": close({
+#AutoStopConfiguration: close({
 	// If set to true, the Application will automatically stop after being idle. Defaults to true.
 	Enabled?: bool
 
@@ -86,9 +86,9 @@ _#defs: "/$defs/Properties/definitions/AutoStopConfiguration": close({
 	IdleTimeoutMinutes?: int
 })
 
-_#defs: "/$defs/Properties/definitions/Classification": strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*"
+#Classification: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*"
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLoggingConfiguration": null |
+#CloudWatchLoggingConfiguration: null |
 bool |
 number |
 string |
@@ -98,57 +98,49 @@ close({
 	Enabled?: bool
 
 	// KMS key ARN to encrypt the logs stored in given CloudWatch log-group.
-	EncryptionKeyArn?: _#defs."/$defs/Properties/definitions/EncryptionKeyArn"
+	EncryptionKeyArn?: #EncryptionKeyArn
 
 	// Log-group name to produce log-streams on CloudWatch. If undefined, logs will
 	// be produced in a default log-group /aws/emr-serverless
-	LogGroupName?: _#defs."/$defs/Properties/definitions/LogGroupName"
+	LogGroupName?: #LogGroupName
 
 	// Log-stream name prefix by which log-stream names will start in the CloudWatch Log-group.
-	LogStreamNamePrefix?: _#defs."/$defs/Properties/definitions/LogStreamNamePrefix"
+	LogStreamNamePrefix?: #LogStreamNamePrefix
 
 	// The specific log-streams which need to be uploaded to CloudWatch.
-	LogTypeMap?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LogTypeMapKeyValuePair"]
+	LogTypeMap?: list.UniqueItems() & [...#LogTypeMapKeyValuePair]
 })
 
 // Runtime configuration for batch and interactive JobRun.
-_#defs: "/$defs/Properties/definitions/ConfigurationList": list.MaxItems(100) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/ConfigurationObject"
-]
+#ConfigurationList: list.MaxItems(100) & list.UniqueItems() & [...] & [...#ConfigurationObject]
 
 // Configuration for a JobRun.
-_#defs: "/$defs/Properties/definitions/ConfigurationObject": close({
+#ConfigurationObject: close({
 	// String with a maximum length of 1024.
-	Classification!: _#defs."/$defs/Properties/definitions/Classification"
-	Configurations?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/ConfigurationObject"
-	]
+	Classification!: #Classification
+	Configurations?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#ConfigurationObject]
 	Properties?: close({
 
-		{[=~"^[a-zA-Z]+[-a-zA-Z0-9_.]*$"]: _#defs."/$defs/Properties/definitions/SensitivePropertiesMap"}})
+		{[=~"^[a-zA-Z]+[-a-zA-Z0-9_.]*$"]: #SensitivePropertiesMap}})
 })
 
 // Per worker CPU resource. vCPU is the only supported unit and specifying vCPU is optional.
-_#defs: "/$defs/Properties/definitions/CpuSize": strings.MaxRunes(15) &
-strings.MinRunes(1) &
-=~"^[1-9][0-9]*(\\s)?(vCPU|vcpu|VCPU)?$"
+#CpuSize: strings.MaxRunes(15) & strings.MinRunes(1) & =~"^[1-9][0-9]*(\\s)?(vCPU|vcpu|VCPU)?$"
 
 // Per worker Disk resource. GB is the only supported unit and specifying GB is optional
-_#defs: "/$defs/Properties/definitions/DiskSize": strings.MaxRunes(15) &
-strings.MinRunes(1) &
-=~"^[1-9][0-9]*(\\s)?(GB|gb|gB|Gb)$"
+#DiskSize: strings.MaxRunes(15) & strings.MinRunes(1) & =~"^[1-9][0-9]*(\\s)?(GB|gb|gB|Gb)$"
 
 // Per worker DiskType resource. Shuffle optimized and Standard are only
 // supported types and specifying diskType is optional
-_#defs: "/$defs/Properties/definitions/DiskType": =~"^(SHUFFLE_OPTIMIZED|[Ss]huffle_[Oo]ptimized|STANDARD|[Ss]tandard)$"
+#DiskType: =~"^(SHUFFLE_OPTIMIZED|[Ss]huffle_[Oo]ptimized|STANDARD|[Ss]tandard)$"
 
-_#defs: "/$defs/Properties/definitions/EncryptionKeyArn": strings.MaxRunes(2048) &
+#EncryptionKeyArn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:(aws[a-zA-Z0-9-]*):kms:[a-zA-Z0-9\\-]*:(\\d{12})?:key\\/[a-zA-Z0-9-]+$"
 
 // The IAM IdentityCenter configuration for trusted-identity-propagation on this
 // application. Supported with release labels emr-7.8.0 and above.
-_#defs: "/$defs/Properties/definitions/IdentityCenterConfiguration": close({
+#IdentityCenterConfiguration: close({
 	// The IAM IdentityCenter instance arn
 	IdentityCenterInstanceArn?: strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
@@ -156,7 +148,7 @@ _#defs: "/$defs/Properties/definitions/IdentityCenterConfiguration": close({
 })
 
 // The image configuration.
-_#defs: "/$defs/Properties/definitions/ImageConfigurationInput": close({
+#ImageConfigurationInput: close({
 	// The URI of an image in the Amazon ECR registry. This field is required when
 	// you create a new application. If you leave this field blank in an update,
 	// Amazon EMR will remove the image configuration.
@@ -165,8 +157,8 @@ _#defs: "/$defs/Properties/definitions/ImageConfigurationInput": close({
 	=~"^([a-z0-9]+[a-z0-9-.]*)\\/((?:[a-z0-9]+(?:[._-][a-z0-9]+)*\\/)*[a-z0-9]+(?:[._-][a-z0-9]+)*)(?:\\:([a-zA-Z0-9_][a-zA-Z0-9-._]{0,299})|@(sha256:[0-9a-f]{64}))$"
 })
 
-_#defs: "/$defs/Properties/definitions/InitialCapacityConfig": close({
-	WorkerConfiguration!: _#defs."/$defs/Properties/definitions/WorkerConfiguration"
+#InitialCapacityConfig: close({
+	WorkerConfiguration!: #WorkerConfiguration
 
 	// Initial count of workers to be initialized when an Application is started.
 	// This count will be continued to be maintained until the Application is
@@ -174,17 +166,15 @@ _#defs: "/$defs/Properties/definitions/InitialCapacityConfig": close({
 	WorkerCount!: int & <=1000000 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/InitialCapacityConfigKeyValuePair": close({
+#InitialCapacityConfigKeyValuePair: close({
 	// Worker type for an analytics framework.
 	Key!:   strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z]+[-_]*[a-zA-Z]+$"
-	Value!: _#defs."/$defs/Properties/definitions/InitialCapacityConfig"
+	Value!: #InitialCapacityConfig
 })
 
-_#defs: "/$defs/Properties/definitions/InitialCapacityConfigMap": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/InitialCapacityConfigKeyValuePair"
-]
+#InitialCapacityConfigMap: list.UniqueItems() & [...#InitialCapacityConfigKeyValuePair]
 
-_#defs: "/$defs/Properties/definitions/InteractiveConfiguration": close({
+#InteractiveConfiguration: close({
 	// Enables an Apache Livy endpoint that you can connect to and run interactive jobs
 	LivyEndpointEnabled?: bool
 
@@ -196,27 +186,21 @@ _#defs: "/$defs/Properties/definitions/InteractiveConfiguration": close({
 	StudioEnabled?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/LogGroupName": strings.MaxRunes(512) &
-strings.MinRunes(1) &
-=~"^[\\.\\-_/#A-Za-z0-9]+$"
+#LogGroupName: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$"
 
-_#defs: "/$defs/Properties/definitions/LogStreamNamePrefix": strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$"
+#LogStreamNamePrefix: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$"
 
 // List of Applicable values: [STDOUT, STDERR, HIVE_LOG, TEZ_AM, SYSTEM_LOGS]
-_#defs: "/$defs/Properties/definitions/LogTypeList": list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/LogTypeString"
-]
+#LogTypeList: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#LogTypeString]
 
-_#defs: "/$defs/Properties/definitions/LogTypeMapKeyValuePair": close({
-	Key!:   _#defs."/$defs/Properties/definitions/WorkerTypeString"
-	Value!: _#defs."/$defs/Properties/definitions/LogTypeList"
+#LogTypeMapKeyValuePair: close({
+	Key!:   #WorkerTypeString
+	Value!: #LogTypeList
 })
 
-_#defs: "/$defs/Properties/definitions/LogTypeString": strings.MaxRunes(50) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z]+[-_]*[a-zA-Z]+$"
+#LogTypeString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z]+[-_]*[a-zA-Z]+$"
 
-_#defs: "/$defs/Properties/definitions/ManagedPersistenceMonitoringConfiguration": null |
+#ManagedPersistenceMonitoringConfiguration: null |
 bool |
 number |
 string |
@@ -226,81 +210,74 @@ close({
 	Enabled?: bool
 
 	// KMS key ARN to encrypt the logs stored in managed persistence
-	EncryptionKeyArn?: _#defs."/$defs/Properties/definitions/EncryptionKeyArn"
+	EncryptionKeyArn?: #EncryptionKeyArn
 })
 
-_#defs: "/$defs/Properties/definitions/MaximumAllowedResources": close({
+#MaximumAllowedResources: close({
 	// Per worker CPU resource. vCPU is the only supported unit and specifying vCPU is optional.
-	Cpu!: _#defs."/$defs/Properties/definitions/CpuSize"
+	Cpu!: #CpuSize
 
 	// Per worker Disk resource. GB is the only supported unit and specifying GB is optional
-	Disk?: _#defs."/$defs/Properties/definitions/DiskSize"
+	Disk?: #DiskSize
 
 	// Per worker memory resource. GB is the only supported unit and specifying GB is optional.
-	Memory!: _#defs."/$defs/Properties/definitions/MemorySize"
+	Memory!: #MemorySize
 })
 
 // Per worker memory resource. GB is the only supported unit and specifying GB is optional.
-_#defs: "/$defs/Properties/definitions/MemorySize": strings.MaxRunes(15) &
-strings.MinRunes(1) &
-=~"^[1-9][0-9]*(\\s)?(GB|gb|gB|Gb)?$"
+#MemorySize: strings.MaxRunes(15) & strings.MinRunes(1) & =~"^[1-9][0-9]*(\\s)?(GB|gb|gB|Gb)?$"
 
 // Monitoring configuration for batch and interactive JobRun.
-_#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
+#MonitoringConfiguration: close({
 	// CloudWatch logging configurations for a JobRun.
-	CloudWatchLoggingConfiguration?: _#defs."/$defs/Properties/definitions/CloudWatchLoggingConfiguration"
+	CloudWatchLoggingConfiguration?: #CloudWatchLoggingConfiguration
 
 	// Managed log persistence configurations for a JobRun.
-	ManagedPersistenceMonitoringConfiguration?:
-		_#defs."/$defs/Properties/definitions/ManagedPersistenceMonitoringConfiguration"
+	ManagedPersistenceMonitoringConfiguration?: #ManagedPersistenceMonitoringConfiguration
 
 	// Prometheus monitoring configurations for a JobRun.
-	PrometheusMonitoringConfiguration?: _#defs."/$defs/Properties/definitions/PrometheusMonitoringConfiguration"
+	PrometheusMonitoringConfiguration?: #PrometheusMonitoringConfiguration
 
 	// S3 monitoring configurations for a JobRun.
-	S3MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/S3MonitoringConfiguration"
+	S3MonitoringConfiguration?: #S3MonitoringConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
+#NetworkConfiguration: close({
 	// The ID of the security groups in the VPC to which you want to connect your job or application.
-	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SecurityGroupId"
-	]
+	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#SecurityGroupId]
 
 	// The ID of the subnets in the VPC to which you want to connect your job or application.
-	SubnetIds?: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/SubnetId"
-	]
+	SubnetIds?: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [...#SubnetId]
 })
 
-_#defs: "/$defs/Properties/definitions/PrometheusMonitoringConfiguration": null |
+#PrometheusMonitoringConfiguration: null |
 bool |
 number |
 string |
 [...] |
 close({
 	// The remote write URL in the Amazon Managed Service for Prometheus workspace to send metrics to.
-	RemoteWriteUrl?: _#defs."/$defs/Properties/definitions/RemoteWriteUrl"
+	RemoteWriteUrl?: #RemoteWriteUrl
 })
 
-_#defs: "/$defs/Properties/definitions/RemoteWriteUrl": strings.MaxRunes(10280) &
+#RemoteWriteUrl: strings.MaxRunes(10280) &
 strings.MinRunes(1) &
 =~"^https://aps-workspaces.([a-z]{2}-[a-z-]{1,20}-[1-9]).amazonaws(.[0-9A-Za-z]{2,4})+/workspaces/[-_.0-9A-Za-z]{1,100}/api/v1/remote_write$"
 
-_#defs: "/$defs/Properties/definitions/S3MonitoringConfiguration": null |
+#S3MonitoringConfiguration: null |
 bool |
 number |
 string |
 [...] |
 close({
 	// KMS key ARN to encrypt the logs stored in given s3
-	EncryptionKeyArn?: _#defs."/$defs/Properties/definitions/EncryptionKeyArn"
-	LogUri?:           _#defs."/$defs/Properties/definitions/UriString"
+	EncryptionKeyArn?: #EncryptionKeyArn
+	LogUri?:           #UriString
 })
 
 // The scheduler configuration for batch and streaming jobs running on this
 // application. Supported with release labels emr-7.0.0 and above.
-_#defs: "/$defs/Properties/definitions/SchedulerConfiguration": close({
+#SchedulerConfiguration: close({
 	// The maximum concurrent job runs on this application. If scheduler
 	// configuration is enabled on your application, the default value is 15. The
 	// valid range is 1 to 1000.
@@ -313,24 +290,20 @@ _#defs: "/$defs/Properties/definitions/SchedulerConfiguration": close({
 })
 
 // Identifier of a security group
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 strings.MaxRunes(32) &
 strings.MinRunes(1) &
 =~"^[-0-9a-zA-Z]+"
 
-_#defs: "/$defs/Properties/definitions/SensitivePropertiesKeyValuePair": strings.MaxRunes(1024) &
-strings.MinRunes(1) &
-=~".*\\S.*"
+#SensitivePropertiesKeyValuePair: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*"
 
-_#defs: "/$defs/Properties/definitions/SensitivePropertiesMap": strings.MaxRunes(1024) &
-strings.MinRunes(1) &
-=~".*\\S.*"
+#SensitivePropertiesMap: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*"
 
 // Identifier of a subnet
-_#defs: "/$defs/Properties/definitions/SubnetId": strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[-0-9a-zA-Z]+"
+#SubnetId: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[-0-9a-zA-Z]+"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The value for the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length. You can use any of the following characters: the set
 	// of Unicode letters, digits, whitespace, _, ., /, =, +, and -.
@@ -342,34 +315,30 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 /_.:=+@-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/UriString": strings.MaxRunes(10280) &
+#UriString: strings.MaxRunes(10280) &
 strings.MinRunes(1) &
 =~"[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\r\\n\\t]*"
 
-_#defs: "/$defs/Properties/definitions/WorkerConfiguration": close({
+#WorkerConfiguration: close({
 	// Per worker CPU resource. vCPU is the only supported unit and specifying vCPU is optional.
-	Cpu!: _#defs."/$defs/Properties/definitions/CpuSize"
+	Cpu!: #CpuSize
 
 	// Per worker Disk resource. GB is the only supported unit and specifying GB is optional
-	Disk?: _#defs."/$defs/Properties/definitions/DiskSize"
+	Disk?: #DiskSize
 
 	// Per worker DiskType resource. Shuffle optimized and Standard are only
 	// supported types and specifying diskType is optional
-	DiskType?: _#defs."/$defs/Properties/definitions/DiskType"
+	DiskType?: #DiskType
 
 	// Per worker memory resource. GB is the only supported unit and specifying GB is optional.
-	Memory!: _#defs."/$defs/Properties/definitions/MemorySize"
+	Memory!: #MemorySize
 })
 
 // The specifications for a worker type.
-_#defs: "/$defs/Properties/definitions/WorkerTypeSpecificationInput": close(
-	{ImageConfiguration?: _#defs."/$defs/Properties/definitions/ImageConfigurationInput"},
-)
+#WorkerTypeSpecificationInput: close({ImageConfiguration?: #ImageConfigurationInput})
 
-_#defs: "/$defs/Properties/definitions/WorkerTypeSpecificationInputMap": close({
+#WorkerTypeSpecificationInputMap: close({
 
-	{[=~"^[a-zA-Z]+[-_]*[a-zA-Z]+$"]: _#defs."/$defs/Properties/definitions/WorkerTypeSpecificationInput"}})
+	{[=~"^[a-zA-Z]+[-_]*[a-zA-Z]+$"]: #WorkerTypeSpecificationInput}})
 
-_#defs: "/$defs/Properties/definitions/WorkerTypeString": strings.MaxRunes(50) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z]+[-_]*[a-zA-Z]+$"
+#WorkerTypeString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z]+[-_]*[a-zA-Z]+$"

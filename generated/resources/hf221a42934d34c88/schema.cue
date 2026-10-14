@@ -22,11 +22,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	RecipeName!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
-	Sample?: _#defs."/$defs/Properties/definitions/Sample" | fn.#ObjectExpression
-	Tags?:   [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Sample?: #Sample | fn.#ObjectExpression
+	Tags?:   [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Sample": close({
+#Sample: close({
 	Size?: int & <=5000 & >=1 |
 		{
 			string &
@@ -47,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/Sample": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

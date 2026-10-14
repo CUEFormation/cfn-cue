@@ -16,19 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	NotebookInstanceLifecycleConfigName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 	fn.#StringExpression
-	OnCreate?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/NotebookInstanceLifecycleHook"] |
-		fn.#ListExpression
-	OnStart?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/NotebookInstanceLifecycleHook"] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	OnCreate?: list.MaxItems(1) & [...] & [...#NotebookInstanceLifecycleHook] | fn.#ListExpression
+	OnStart?:  list.MaxItems(1) & [...] & [...#NotebookInstanceLifecycleHook] | fn.#ListExpression
+	Tags?:     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/NotebookInstanceLifecycleHook": close(
+#NotebookInstanceLifecycleHook: close(
 	{Content?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\S\\s]+$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

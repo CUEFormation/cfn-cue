@@ -12,72 +12,69 @@ import (
 
 // Definition of AWS::Bedrock::AutomatedReasoningPolicy Resource Type
 #Properties: close({
-	CreatedAt?:        _#defs."/$defs/Properties/definitions/CreatedAt"
-	DefinitionHash?:   _#defs."/$defs/Properties/definitions/DefinitionHash"
-	Description?:      _#defs."/$defs/Properties/definitions/Description"
-	ForceDelete?:      _#defs."/$defs/Properties/definitions/ForceDelete"
-	KmsKeyArn?:        _#defs."/$defs/Properties/definitions/KmsKeyArn"
-	KmsKeyId?:         _#defs."/$defs/Properties/definitions/KmsKeyId"
-	Name!:             _#defs."/$defs/Properties/definitions/Name"
-	PolicyArn?:        _#defs."/$defs/Properties/definitions/PolicyArn"
-	PolicyDefinition?: _#defs."/$defs/Properties/definitions/PolicyDefinition"
-	PolicyId?:         _#defs."/$defs/Properties/definitions/PolicyId"
-	Tags?:             _#defs."/$defs/Properties/definitions/Tags"
-	UpdatedAt?:        _#defs."/$defs/Properties/definitions/UpdatedAt"
-	Version?:          _#defs."/$defs/Properties/definitions/Version"
+	CreatedAt?:        #CreatedAt
+	DefinitionHash?:   #DefinitionHash
+	Description?:      #Description
+	ForceDelete?:      #ForceDelete
+	KmsKeyArn?:        #KmsKeyArn
+	KmsKeyId?:         #KmsKeyId
+	Name!:             #Name
+	PolicyArn?:        #PolicyArn
+	PolicyDefinition?: #PolicyDefinition
+	PolicyId?:         #PolicyId
+	Tags?:             #Tags
+	UpdatedAt?:        #UpdatedAt
+	Version?:          #Version
 })
 
 // Time this policy was created
-_#defs: "/$defs/Properties/definitions/CreatedAt": time.Time
+#CreatedAt: time.Time
 
 // The hash for this version
-_#defs: "/$defs/Properties/definitions/DefinitionHash": strings.MaxRunes(128) &
-strings.MinRunes(128) &
-=~"^[0-9a-z]{128}$"
+#DefinitionHash: strings.MaxRunes(128) & strings.MinRunes(128) & =~"^[0-9a-z]{128}$"
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1024) & =~"^[\\s\\S]+$"
+#Description: strings.MaxRunes(1024) & =~"^[\\s\\S]+$"
 
 // Specifies whether to force delete the automated reasoning policy even if it
 // has active resources. When false , Amazon Bedrock validates if all artifacts
 // have been deleted (e.g. policy version, test case, test result) for a policy
 // before deletion. When true , Amazon Bedrock will delete the policy and all
 // its artifacts without validation. Default is false
-_#defs: "/$defs/Properties/definitions/ForceDelete": bool
+#ForceDelete: bool
 
 // The KMS key with which the Policy's assets will be encrypted at rest.
-_#defs: "/$defs/Properties/definitions/KmsKeyArn": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+#KmsKeyArn: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$"
 
 // The KMS key with which the Policy's assets will be encrypted at rest.
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
-	string) &
+#KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^(arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:((key/[a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)))|([a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)$"
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$"
+#Name: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$"
 
-_#defs: "/$defs/Properties/definitions/PolicyArn": strings.MaxRunes(2048) &
+#PolicyArn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:automated-reasoning-policy\\/[a-z0-9]{12}$"
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinition": close({
+#PolicyDefinition: close({
 	// The rules definition block of an AutomatedReasoningPolicyDefinition.
-	Rules?: _#defs."/$defs/Properties/definitions/PolicyDefinitionRuleList"
+	Rules?: #PolicyDefinitionRuleList
 
 	// The types definition block of an AutomatedReasoningPolicyDefinition.
-	Types?: _#defs."/$defs/Properties/definitions/PolicyDefinitionTypeList"
+	Types?: #PolicyDefinitionTypeList
 
 	// The variables definition block of an AutomatedReasoningPolicyDefinition.
-	Variables?: _#defs."/$defs/Properties/definitions/PolicyDefinitionVariableList"
+	Variables?: #PolicyDefinitionVariableList
 
 	// The policy format version.
 	Version?: string
 })
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionRule": close({
+#PolicyDefinitionRule: close({
 	// An alternate expression for this rule
 	AlternateExpression?: strings.MaxRunes(2048) & =~"^[\\s\\S]+$"
 
@@ -88,11 +85,9 @@ _#defs: "/$defs/Properties/definitions/PolicyDefinitionRule": close({
 	Id!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[A-Z][0-9A-Z]{11}$"
 })
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionRuleList": list.MaxItems(500) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PolicyDefinitionRule"
-]
+#PolicyDefinitionRuleList: list.MaxItems(500) & [...] & [...#PolicyDefinitionRule]
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionType": close({
+#PolicyDefinitionType: close({
 	// A natural language description of this type.
 	Description?: strings.MaxRunes(1024) & =~"^[\\s\\S]+$"
 
@@ -100,14 +95,12 @@ _#defs: "/$defs/Properties/definitions/PolicyDefinitionType": close({
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$"
 
 	// A list of valid values for this type.
-	Values!: _#defs."/$defs/Properties/definitions/PolicyDefinitionTypeValueList"
+	Values!: #PolicyDefinitionTypeValueList
 })
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionTypeList": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PolicyDefinitionType"
-]
+#PolicyDefinitionTypeList: list.MaxItems(50) & [...] & [...#PolicyDefinitionType]
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionTypeValue": close({
+#PolicyDefinitionTypeValue: close({
 	// A natural language description of the type's value.
 	Description?: strings.MaxRunes(1024) & =~"^[\\s\\S]+$"
 
@@ -115,11 +108,9 @@ _#defs: "/$defs/Properties/definitions/PolicyDefinitionTypeValue": close({
 	Value!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionTypeValueList": list.MaxItems(50) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/PolicyDefinitionTypeValue"
-]
+#PolicyDefinitionTypeValueList: list.MaxItems(50) & list.MinItems(1) & [...#PolicyDefinitionTypeValue]
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionVariable": close({
+#PolicyDefinitionVariable: close({
 	// A natural language description of this variable.
 	Description!: strings.MaxRunes(1024) & =~"^[\\s\\S]+$"
 
@@ -130,15 +121,13 @@ _#defs: "/$defs/Properties/definitions/PolicyDefinitionVariable": close({
 	Type!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/PolicyDefinitionVariableList": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PolicyDefinitionVariable"
-]
+#PolicyDefinitionVariableList: list.MaxItems(200) & [...] & [...#PolicyDefinitionVariable]
 
 // The id of the policy
-_#defs: "/$defs/Properties/definitions/PolicyId": strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$"
+#PolicyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$"
 
 // Definition of the key/value pair for a tag
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Tag Key
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 
@@ -146,12 +135,10 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-]
+#Tags: list.MaxItems(200) & [...] & [...#Tag]
 
 // Time this policy was last updated
-_#defs: "/$defs/Properties/definitions/UpdatedAt": time.Time
+#UpdatedAt: time.Time
 
 // Version of the policy that was created. This will always be `DRAFT`
-_#defs: "/$defs/Properties/definitions/Version": =~"^(([1-9][0-9]{0,11})|(DRAFT))$"
+#Version: =~"^(([1-9][0-9]{0,11})|(DRAFT))$"

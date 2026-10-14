@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -21,27 +21,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:            strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	DisplayName?:            strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:                   =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
-	PackagingType?:          _#defs."/$defs/Properties/definitions/PackagingType"
-	PostSetupScriptDetails?: _#defs."/$defs/Properties/definitions/ScriptDetails"
-	SetupScriptDetails?:     _#defs."/$defs/Properties/definitions/ScriptDetails"
-	SourceS3Location!:       _#defs."/$defs/Properties/definitions/S3Location"
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	PackagingType?:          #PackagingType
+	PostSetupScriptDetails?: #ScriptDetails
+	SetupScriptDetails?:     #ScriptDetails
+	SourceS3Location!:       #S3Location
+	Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
+#Arn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PackagingType": "APPSTREAM2" | "CUSTOM" | fn.#StringExpression
+#PackagingType: "APPSTREAM2" | "CUSTOM" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	S3Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	S3Key?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScriptDetails": close({
+#ScriptDetails: close({
 	ExecutableParameters?: strings.MinRunes(1) | fn.#StringExpression
 	ExecutablePath!:       strings.MinRunes(1) | fn.#StringExpression
-	ScriptS3Location!:     _#defs."/$defs/Properties/definitions/S3Location"
+	ScriptS3Location!:     #S3Location
 	TimeoutInSeconds!: int |
 		{
 			string &
@@ -59,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/ScriptDetails": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": matchN(1, [close({
+#Tag: matchN(1, [close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }), close({

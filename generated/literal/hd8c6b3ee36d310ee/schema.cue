@@ -8,14 +8,14 @@ import "strings"
 
 // Resource Type definition for AWS::Connect::ApprovedOrigin
 #Properties: close({
-	InstanceId!: _#defs."/$defs/Properties/definitions/InstanceId"
-	Origin!:     _#defs."/$defs/Properties/definitions/Origin"
+	InstanceId!: #InstanceId
+	Origin!:     #Origin
 })
 
 // Amazon Connect instance identifier
-_#defs: "/$defs/Properties/definitions/InstanceId": strings.MaxRunes(100) &
+#InstanceId: strings.MaxRunes(100) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$"
 
 // Domain name to be added to the allowlist of instance
-_#defs: "/$defs/Properties/definitions/Origin": strings.MaxRunes(267)
+#Origin: strings.MaxRunes(267)

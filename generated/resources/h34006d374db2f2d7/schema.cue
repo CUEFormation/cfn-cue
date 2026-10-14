@@ -17,19 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Principals?: [...strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(^\\d{12}$|arn:.*)$" | fn.#StringExpression] |
 	fn.#ListExpression
 	Resources?: [..._#defs."/$defs/Properties/definitions/Resource"] | fn.#ListExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:      [...#Tag] | fn.#ListExpression
 })
+
+#Tag: close({
+	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Resource": close({
 	Cidr?:       strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	EndpointId?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 	Region?:     strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/Tag": close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

@@ -15,15 +15,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ApiId!:               string | fn.#StringExpression
 	Description?:         string | fn.#StringExpression
-	DynamoDBConfig?:      _#defs."/$defs/Properties/definitions/DynamoDBConfig" | fn.#ObjectExpression
-	ElasticsearchConfig?: _#defs."/$defs/Properties/definitions/ElasticsearchConfig" | fn.#ObjectExpression
-	EventBridgeConfig?:   _#defs."/$defs/Properties/definitions/EventBridgeConfig" | fn.#ObjectExpression
-	HttpConfig?:          _#defs."/$defs/Properties/definitions/HttpConfig" | fn.#ObjectExpression
-	LambdaConfig?:        _#defs."/$defs/Properties/definitions/LambdaConfig" | fn.#ObjectExpression
+	DynamoDBConfig?:      #DynamoDBConfig | fn.#ObjectExpression
+	ElasticsearchConfig?: #ElasticsearchConfig | fn.#ObjectExpression
+	EventBridgeConfig?:   #EventBridgeConfig | fn.#ObjectExpression
+	HttpConfig?:          #HttpConfig | fn.#ObjectExpression
+	LambdaConfig?:        #LambdaConfig | fn.#ObjectExpression
 	MetricsConfig?:       "DISABLED" | "ENABLED" | fn.#StringExpression
 	Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
-	OpenSearchServiceConfig?:  _#defs."/$defs/Properties/definitions/OpenSearchServiceConfig" | fn.#ObjectExpression
-	RelationalDatabaseConfig?: _#defs."/$defs/Properties/definitions/RelationalDatabaseConfig" | fn.#ObjectExpression
+	OpenSearchServiceConfig?:  #OpenSearchServiceConfig | fn.#ObjectExpression
+	RelationalDatabaseConfig?: #RelationalDatabaseConfig | fn.#ObjectExpression
 	ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	Type!: "AMAZON_BEDROCK_RUNTIME" |
@@ -38,59 +38,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AuthorizationConfig": close({
+#AuthorizationConfig: close({
 	AuthorizationType!: "AWS_IAM" | fn.#StringExpression
-	AwsIamConfig?:      _#defs."/$defs/Properties/definitions/AwsIamConfig" | fn.#ObjectExpression
+	AwsIamConfig?:      #AwsIamConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AwsIamConfig": close({
+#AwsIamConfig: close({
 	SigningRegion?:      string | fn.#StringExpression
 	SigningServiceName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeltaSyncConfig": close({
+#DeltaSyncConfig: close({
 	BaseTableTTL!:       string | fn.#StringExpression
 	DeltaSyncTableName!: string | fn.#StringExpression
 	DeltaSyncTableTTL!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DynamoDBConfig": close({
+#DynamoDBConfig: close({
 	AwsRegion!:            string | fn.#StringExpression
-	DeltaSyncConfig?:      _#defs."/$defs/Properties/definitions/DeltaSyncConfig" | fn.#ObjectExpression
+	DeltaSyncConfig?:      #DeltaSyncConfig | fn.#ObjectExpression
 	TableName!:            string | fn.#StringExpression
 	UseCallerCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Versioned?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ElasticsearchConfig": close({
+#ElasticsearchConfig: close({
 	AwsRegion!: string | fn.#StringExpression
 	Endpoint!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventBridgeConfig": close({EventBusArn!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#EventBridgeConfig: close({EventBusArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpConfig": close({
-	AuthorizationConfig?: _#defs."/$defs/Properties/definitions/AuthorizationConfig" | fn.#ObjectExpression
+#HttpConfig: close({
+	AuthorizationConfig?: #AuthorizationConfig | fn.#ObjectExpression
 	Endpoint!:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaConfig": close({LambdaFunctionArn!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#LambdaConfig: close({LambdaFunctionArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OpenSearchServiceConfig": close({
+#OpenSearchServiceConfig: close({
 	AwsRegion!: string | fn.#StringExpression
 	Endpoint!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RdsHttpEndpointConfig": close({
+#RdsHttpEndpointConfig: close({
 	AwsRegion!:           string | fn.#StringExpression
 	AwsSecretStoreArn!:   string | fn.#StringExpression
 	DatabaseName?:        string | fn.#StringExpression
@@ -99,8 +97,8 @@ _#defs: "/$defs/Properties/definitions/RdsHttpEndpointConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RelationalDatabaseConfig": close({
-	RdsHttpEndpointConfig?:        _#defs."/$defs/Properties/definitions/RdsHttpEndpointConfig" | fn.#ObjectExpression
+#RelationalDatabaseConfig: close({
+	RdsHttpEndpointConfig?:        #RdsHttpEndpointConfig | fn.#ObjectExpression
 	RelationalDatabaseSourceType!: "RDS_HTTP_ENDPOINT" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

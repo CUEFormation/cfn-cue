@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"list"
+	"time"
 	"strings"
 )
 
@@ -13,22 +13,22 @@ import (
 // Resource definition for AWS::BedrockAgentCore::CodeInterpreterCustom
 #Properties: close({
 	// List of root CA certificates in PEM format.
-	Certificates?: _#defs."/$defs/Properties/definitions/CertificateList"
+	Certificates?: #CertificateList
 
 	// The ARN of a CodeInterpreter resource.
-	CodeInterpreterArn?: _#defs."/$defs/Properties/definitions/CodeInterpreterArn"
+	CodeInterpreterArn?: #CodeInterpreterArn
 
 	// The id of the code interpreter.
-	CodeInterpreterId?: _#defs."/$defs/Properties/definitions/CodeInterpreterId"
+	CodeInterpreterId?: #CodeInterpreterId
 
 	// Timestamp when the code interpreter was created.
 	CreatedAt?: time.Time
 
 	// The description of the code interpreter.
-	Description?: _#defs."/$defs/Properties/definitions/Description"
+	Description?: #Description
 
 	// The ARN of the IAM role that the code interpreter uses to access resources.
-	ExecutionRoleArn?: _#defs."/$defs/Properties/definitions/RoleArn"
+	ExecutionRoleArn?: #RoleArn
 
 	// The reason for failure if the code interpreter creation or operation failed.
 	FailureReason?: string
@@ -37,107 +37,93 @@ import (
 	LastUpdatedAt?: time.Time
 
 	// The name of the code interpreter.
-	Name!: _#defs."/$defs/Properties/definitions/SandboxName"
+	Name!: #SandboxName
 
 	// Network configuration for code interpreter.
-	NetworkConfiguration!: _#defs."/$defs/Properties/definitions/CodeInterpreterNetworkConfiguration"
+	NetworkConfiguration!: #CodeInterpreterNetworkConfiguration
 
 	// Status of code interpreter.
-	Status?: _#defs."/$defs/Properties/definitions/CodeInterpreterStatus"
-	Tags?:   _#defs."/$defs/Properties/definitions/TagsMap"
+	Status?: #CodeInterpreterStatus
+	Tags?:   #TagsMap
 })
 
 // A root CA certificate configuration.
-_#defs: "/$defs/Properties/definitions/Certificate": close({
+#Certificate: close({
 	// Certificate location in Secrets Manager.
-	CertificateLocation!: _#defs."/$defs/Properties/definitions/CertificateLocation"
+	CertificateLocation!: #CertificateLocation
 })
 
 // List of root CA certificates.
-_#defs: "/$defs/Properties/definitions/CertificateList": list.MaxItems(10) & [...] & [
-	..._#defs."/$defs/Properties/definitions/Certificate"
-]
+#CertificateList: list.MaxItems(10) & [...] & [...#Certificate]
 
 // Certificate location in Secrets Manager.
-_#defs: "/$defs/Properties/definitions/CertificateLocation": close({
+#CertificateLocation: close({
 	// Secrets Manager secret ARN.
 	SecretArn!:
 		=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=.@-]+$"
 })
 
 // The ARN of a CodeInterpreter resource.
-_#defs: "/$defs/Properties/definitions/CodeInterpreterArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):code-interpreter(-custom)?\\/(aws\\.codeinterpreter\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$"
+#CodeInterpreterArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):code-interpreter(-custom)?\\/(aws\\.codeinterpreter\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$"
 
 // The id of the code interpreter.
-_#defs: "/$defs/Properties/definitions/CodeInterpreterId": =~"^(aws\\.codeinterpreter\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$"
+#CodeInterpreterId: =~"^(aws\\.codeinterpreter\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$"
 
 // Network configuration for code interpreter
-_#defs: "/$defs/Properties/definitions/CodeInterpreterNetworkConfiguration": close({
-	NetworkMode!: _#defs."/$defs/Properties/definitions/CodeInterpreterNetworkMode"
-	VpcConfig?:   _#defs."/$defs/Properties/definitions/VpcConfig"
+#CodeInterpreterNetworkConfiguration: close({
+	NetworkMode!: #CodeInterpreterNetworkMode
+	VpcConfig?:   #VpcConfig
 })
 
 // Network modes supported by code interpreter
-_#defs: "/$defs/Properties/definitions/CodeInterpreterNetworkMode": "PUBLIC" | "SANDBOX" | "VPC"
+#CodeInterpreterNetworkMode: "PUBLIC" | "SANDBOX" | "VPC"
 
 // Status of Code interpreter
-_#defs: "/$defs/Properties/definitions/CodeInterpreterStatus": "CREATING" |
-	"CREATE_FAILED" |
-	"READY" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	"DELETED"
+#CodeInterpreterStatus: "CREATING" | "CREATE_FAILED" | "READY" | "DELETING" | "DELETE_FAILED" | "DELETED"
 
 // List of code interpreters
-_#defs: "/$defs/Properties/definitions/CodeInterpreterSummaries": [
-	..._#defs."/$defs/Properties/definitions/CodeInterpreterSummary"
-]
+#CodeInterpreterSummaries: [...#CodeInterpreterSummary]
 
 // Code Interpreter
-_#defs: "/$defs/Properties/definitions/CodeInterpreterSummary": close({
-	CodeInterpreterArn!: _#defs."/$defs/Properties/definitions/CodeInterpreterArn"
-	CodeInterpreterId!:  _#defs."/$defs/Properties/definitions/CodeInterpreterId"
+#CodeInterpreterSummary: close({
+	CodeInterpreterArn!: #CodeInterpreterArn
+	CodeInterpreterId!:  #CodeInterpreterId
 	CreatedAt!:          time.Time
-	Description?:        _#defs."/$defs/Properties/definitions/Description"
+	Description?:        #Description
 	LastUpdatedAt?:      time.Time
-	Name?:               _#defs."/$defs/Properties/definitions/SandboxName"
-	Status!:             _#defs."/$defs/Properties/definitions/CodeInterpreterStatus"
+	Name?:               #SandboxName
+	Status!:             #CodeInterpreterStatus
 })
 
 // Description of the code interpreter.
-_#defs: "/$defs/Properties/definitions/Description": string
+#Description: string
 
 // The ARN of the IAM role.
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):iam::[0-9]{12}:role/.+$"
 
 // The name of the sandbox.
-_#defs: "/$defs/Properties/definitions/SandboxName": string
+#SandboxName: string
 
 // Security group id
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
-	=~"^sg-[0-9a-zA-Z]{8,17}$"
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-zA-Z]{8,17}$"
 
 // Security groups for VPC
-_#defs: "/$defs/Properties/definitions/SecurityGroups": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SecurityGroupId"
-]
+#SecurityGroups: list.MaxItems(16) & list.MinItems(1) & [...#SecurityGroupId]
 
 // Subnet id
-_#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-[0-9a-zA-Z]{8,17}$"
+#SubnetId: =~"^subnet-[0-9a-zA-Z]{8,17}$"
 
 // Subnets for VPC
-_#defs: "/$defs/Properties/definitions/Subnets": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SubnetId"
-]
+#Subnets: list.MaxItems(16) & list.MinItems(1) & [...#SubnetId]
 
 // A map of tag keys and values
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})
 
 // Network mode configuration for VPC
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroups!: _#defs."/$defs/Properties/definitions/SecurityGroups"
-	Subnets!:        _#defs."/$defs/Properties/definitions/Subnets"
+#VpcConfig: close({
+	SecurityGroups!: #SecurityGroups
+	Subnets!:        #Subnets
 })

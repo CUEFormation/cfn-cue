@@ -27,7 +27,7 @@ import (
 
 	// The operating system user and group applied to all compute drive requests
 	// made using the access point.
-	PosixUser?: _#defs."/$defs/Properties/definitions/PosixUser"
+	PosixUser?: #PosixUser
 
 	// Specifies the directory on the Amazon EFS file system that the access point
 	// exposes as the root directory of your file system to NFS clients using the
@@ -36,19 +36,17 @@ import (
 	// creates it and applies the CreationPermissions settings when a client
 	// connects to an access point. When specifying a RootDirectory, you need to
 	// provide the Path, and the CreationPermissions is optional.
-	RootDirectory?: _#defs."/$defs/Properties/definitions/RootDirectory"
+	RootDirectory?: #RootDirectory
 	Status?:        "available" | "creating" | "updating" | "deleting" | "deleted" | "error"
-	Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AccessPointTag"
-	]
+	Tags?:          list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#AccessPointTag]
 })
 
-_#defs: "/$defs/Properties/definitions/AccessPointTag": close({
+#AccessPointTag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$"
 	Value?: strings.MaxRunes(256) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/CreationPermissions": close({
+#CreationPermissions: close({
 	// Specifies the POSIX group ID to apply to the RootDirectory. Accepts values
 	// from 0 to 2^32 (4294967295).
 	OwnerGid!: =~"^[0-9]+$"
@@ -62,7 +60,7 @@ _#defs: "/$defs/Properties/definitions/CreationPermissions": close({
 	Permissions!: =~"^[0-7]{3,4}$"
 })
 
-_#defs: "/$defs/Properties/definitions/PosixUser": close({
+#PosixUser: close({
 	// The POSIX group ID used for all file system operations using this access point.
 	Gid!: =~"^[0-9]+$"
 
@@ -73,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/PosixUser": close({
 	Uid!: =~"^[0-9]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/RootDirectory": close({
+#RootDirectory: close({
 	// (Optional) Specifies the POSIX IDs and permissions to apply to the access
 	// point's RootDirectory. If the RootDirectory>Path specified does not exist,
 	// EFS creates the root directory using the CreationPermissions settings when a
@@ -81,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/RootDirectory": close({
 	// you must provide values for all properties. If you do not provide
 	// CreationPermissions and the specified RootDirectory>Path does not exist,
 	// attempts to mount the file system using the access point will fail.
-	CreationPermissions?: _#defs."/$defs/Properties/definitions/CreationPermissions"
+	CreationPermissions?: #CreationPermissions
 
 	// Specifies the path on the EFS file system to expose as the root directory to
 	// NFS clients using the access point to access the EFS file system. A path can

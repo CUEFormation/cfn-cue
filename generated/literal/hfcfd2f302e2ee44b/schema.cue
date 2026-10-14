@@ -17,53 +17,43 @@ import (
 	Description?:       strings.MaxRunes(512) & =~".*"
 	EndpointId?:        strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+[\\.][A-Za-z0-9\\-]+$"
 	EndpointUrl?:       strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(https://)?[\\.\\-a-z0-9]+$"
-	EventBuses!:        _#defs."/$defs/Properties/definitions/EventBuses"
+	EventBuses!:        #EventBuses
 	Name?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$"
-	ReplicationConfig?: _#defs."/$defs/Properties/definitions/ReplicationConfig"
+	ReplicationConfig?: #ReplicationConfig
 	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$"
-	RoutingConfig!: _#defs."/$defs/Properties/definitions/RoutingConfig"
+	RoutingConfig!: #RoutingConfig
 	State?:         "ACTIVE" | "CREATING" | "UPDATING" | "DELETING" | "CREATE_FAILED" | "UPDATE_FAILED"
 	StateReason?:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$"
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointEventBus": close(
-	{EventBusArn!: _#defs."/$defs/Properties/definitions/EventBusArn"},
-)
+#EndpointEventBus: close({EventBusArn!: #EventBusArn})
 
-_#defs: "/$defs/Properties/definitions/EventBusArn": strings.MaxRunes(512) &
+#EventBusArn: strings.MaxRunes(512) &
 strings.MinRunes(1) &
 =~"^arn:aws[a-z-]*:events:[a-z]+-[a-z-]+-\\d+:\\d{12}:event-bus/[\\w.-]+$"
 
-_#defs: "/$defs/Properties/definitions/EventBuses": list.MaxItems(2) & list.MinItems(2) & [
-	..._#defs."/$defs/Properties/definitions/EndpointEventBus"
-]
+#EventBuses: list.MaxItems(2) & list.MinItems(2) & [...#EndpointEventBus]
 
-_#defs: "/$defs/Properties/definitions/FailoverConfig": close({
-	Primary!:   _#defs."/$defs/Properties/definitions/Primary"
-	Secondary!: _#defs."/$defs/Properties/definitions/Secondary"
+#FailoverConfig: close({
+	Primary!:   #Primary
+	Secondary!: #Secondary
 })
 
-_#defs: "/$defs/Properties/definitions/HealthCheck": strings.MaxRunes(1600) &
+#HealthCheck: strings.MaxRunes(1600) &
 strings.MinRunes(1) &
 =~"^arn:aws([a-z]|\\-)*:route53:::healthcheck/[\\-a-z0-9]+$"
 
-_#defs: "/$defs/Properties/definitions/Primary": close(
-	{HealthCheck!: _#defs."/$defs/Properties/definitions/HealthCheck"},
-)
+#Primary: close({HealthCheck!: #HealthCheck})
 
-_#defs: "/$defs/Properties/definitions/ReplicationConfig": close(
-	{State!: _#defs."/$defs/Properties/definitions/ReplicationState"},
-)
+#ReplicationConfig: close({State!: #ReplicationState})
 
-_#defs: "/$defs/Properties/definitions/ReplicationState": "ENABLED" | "DISABLED"
+#ReplicationState: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/Route": strings.MaxRunes(20) & strings.MinRunes(9) & =~"^[\\-a-z0-9]+$"
+#Route: strings.MaxRunes(20) & strings.MinRunes(9) & =~"^[\\-a-z0-9]+$"
 
-_#defs: "/$defs/Properties/definitions/RoutingConfig": close(
-	{FailoverConfig!: _#defs."/$defs/Properties/definitions/FailoverConfig"},
-)
+#RoutingConfig: close({FailoverConfig!: #FailoverConfig})
 
-_#defs: "/$defs/Properties/definitions/Secondary": close({Route!: _#defs."/$defs/Properties/definitions/Route"})
+#Secondary: close({Route!: #Route})

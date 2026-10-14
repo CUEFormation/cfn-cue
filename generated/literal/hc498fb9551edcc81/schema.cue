@@ -18,10 +18,10 @@ import (
 	Id!:                   strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$"
 	LastModificationTime?: time.Time
 	SignalCatalogArn!:     string
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

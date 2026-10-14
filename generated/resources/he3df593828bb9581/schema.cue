@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -15,27 +15,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::Oam::Link Resource Type
 #Properties: close({
 	LabelTemplate?:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	LinkConfiguration?: _#defs."/$defs/Properties/definitions/LinkConfiguration"
-	ResourceTypes!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ResourceType"
-	] |
-		fn.#ListExpression
+	LinkConfiguration?: #LinkConfiguration
+	ResourceTypes!:  list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#ResourceType] | fn.#ListExpression
 	SinkIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	Tags?:           {...} | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/LinkConfiguration": close({
-	LogGroupConfiguration?: _#defs."/$defs/Properties/definitions/LinkFilter"
-	MetricConfiguration?:   _#defs."/$defs/Properties/definitions/LinkFilter"
+#LinkConfiguration: close({
+	LogGroupConfiguration?: #LinkFilter
+	MetricConfiguration?:   #LinkFilter
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LinkFilter": close(
-	{Filter!: strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#LinkFilter: close({Filter!: strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceType": "AWS::CloudWatch::Metric" |
+#ResourceType: "AWS::CloudWatch::Metric" |
 	"AWS::Logs::LogGroup" |
 	"AWS::XRay::Trace" |
 	"AWS::ApplicationInsights::Application" |

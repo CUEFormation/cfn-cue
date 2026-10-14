@@ -18,10 +18,10 @@ import (
 	RuleBody!:               string
 	RuleName!:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\x20-\\x7E]+$"
 	RuleState!:              ("ENABLED" | "DISABLED") & (strings.MaxRunes(32) & strings.MinRunes(1))
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                   list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

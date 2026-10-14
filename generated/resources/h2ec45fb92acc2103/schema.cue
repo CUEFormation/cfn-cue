@@ -18,140 +18,111 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // An entity that defines the scope of audit evidence collected by AWS Audit Manager.
 #Properties: close({
-	AssessmentReportsDestination?: _#defs."/$defs/Properties/definitions/AssessmentReportsDestination"
-	AwsAccount?:                   _#defs."/$defs/Properties/definitions/AWSAccount"
-	Delegations?:                  [..._#defs."/$defs/Properties/definitions/Delegation"] | fn.#ListExpression
-	Description?:                  _#defs."/$defs/Properties/definitions/AssessmentDescription"
-	FrameworkId?:                  _#defs."/$defs/Properties/definitions/FrameworkId"
-	Name?:                         _#defs."/$defs/Properties/definitions/AssessmentName"
-	Roles?:                        [..._#defs."/$defs/Properties/definitions/Role"] | fn.#ListExpression
-	Scope?:                        _#defs."/$defs/Properties/definitions/Scope"
-	Status?:                       _#defs."/$defs/Properties/definitions/AssessmentStatus"
-	Tags?:                         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	AssessmentReportsDestination?: #AssessmentReportsDestination
+	AwsAccount?:                   #AWSAccount
+	Delegations?:                  [...#Delegation] | fn.#ListExpression
+	Description?:                  #AssessmentDescription
+	FrameworkId?:                  #FrameworkId
+	Name?:                         #AssessmentName
+	Roles?:                        [...#Role] | fn.#ListExpression
+	Scope?:                        #Scope
+	Status?:                       #AssessmentStatus
+	Tags?:                         [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AWSAccount": close({
-	EmailAddress?: _#defs."/$defs/Properties/definitions/EmailAddress"
-	Id?:           _#defs."/$defs/Properties/definitions/AccountId"
-	Name?:         _#defs."/$defs/Properties/definitions/AccountName"
+#AWSAccount: close({
+	EmailAddress?: #EmailAddress
+	Id?:           #AccountId
+	Name?:         #AccountName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AWSService": close(
-	{ServiceName?: _#defs."/$defs/Properties/definitions/AWSServiceName"},
-) |
-	fn.#ObjectExpression
+#AWSService: close({ServiceName?: #AWSServiceName}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AWSServiceName": strings.MaxRunes(40) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9-\\s().]+$" |
-fn.#StringExpression
+#AWSServiceName: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\s().]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AccountId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
-fn.#StringExpression
+#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AccountName": strings.MaxRunes(50) &
-strings.MinRunes(1) &
-=~"^[\\x{0020}-\\x{007E}]+$" |
-fn.#StringExpression
+#AccountName: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AssessmentArn": strings.MaxRunes(2048) &
-strings.MinRunes(20) &
-=~"^arn:.*:auditmanager:.*" |
-fn.#StringExpression
+#AssessmentArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:auditmanager:.*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AssessmentDescription": strings.MaxRunes(1000) &
-strings.MinRunes(0) &
-=~"^[\\w\\W\\s\\S]*$" |
-fn.#StringExpression
+#AssessmentDescription: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AssessmentName": strings.MaxRunes(127) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9-_\\.]+$" |
-fn.#StringExpression
+#AssessmentName: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AssessmentReportDestinationType": "S3" | fn.#StringExpression
+#AssessmentReportDestinationType: "S3" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AssessmentReportsDestination": close({
-	Destination?:     _#defs."/$defs/Properties/definitions/S3Url"
-	DestinationType?: _#defs."/$defs/Properties/definitions/AssessmentReportDestinationType"
+#AssessmentReportsDestination: close({
+	Destination?:     #S3Url
+	DestinationType?: #AssessmentReportDestinationType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AssessmentStatus": "ACTIVE" | "INACTIVE" | fn.#StringExpression
+#AssessmentStatus: "ACTIVE" | "INACTIVE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ControlSetId": strings.MaxRunes(300) &
-strings.MinRunes(1) &
-=~"^[\\w\\W\\s\\S]*$" |
-fn.#StringExpression
+#ControlSetId: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CreatedBy": strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:*:.*" |
-fn.#StringExpression
+#CreatedBy: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:*:.*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Delegation": close({
-	AssessmentId?:   _#defs."/$defs/Properties/definitions/UUID"
-	AssessmentName?: _#defs."/$defs/Properties/definitions/AssessmentName"
-	Comment?:        _#defs."/$defs/Properties/definitions/DelegationComment"
-	ControlSetId?:   _#defs."/$defs/Properties/definitions/ControlSetId"
-	CreatedBy?:      _#defs."/$defs/Properties/definitions/CreatedBy"
-	CreationTime?:   _#defs."/$defs/Properties/definitions/Timestamp"
-	Id?:             _#defs."/$defs/Properties/definitions/UUID"
-	LastUpdated?:    _#defs."/$defs/Properties/definitions/Timestamp"
-	RoleArn?:        _#defs."/$defs/Properties/definitions/IamArn"
-	RoleType?:       _#defs."/$defs/Properties/definitions/RoleType"
-	Status?:         _#defs."/$defs/Properties/definitions/DelegationStatus"
+#Delegation: close({
+	AssessmentId?:   #UUID
+	AssessmentName?: #AssessmentName
+	Comment?:        #DelegationComment
+	ControlSetId?:   #ControlSetId
+	CreatedBy?:      #CreatedBy
+	CreationTime?:   #Timestamp
+	Id?:             #UUID
+	LastUpdated?:    #Timestamp
+	RoleArn?:        #IamArn
+	RoleType?:       #RoleType
+	Status?:         #DelegationStatus
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DelegationComment": strings.MaxRunes(350) & =~"^[\\w\\W\\s\\S]*$" |
-fn.#StringExpression
+#DelegationComment: strings.MaxRunes(350) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DelegationStatus": "IN_PROGRESS" |
-	"UNDER_REVIEW" |
-	"COMPLETE" |
-	fn.#StringExpression
+#DelegationStatus: "IN_PROGRESS" | "UNDER_REVIEW" | "COMPLETE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EmailAddress": strings.MaxRunes(320) & strings.MinRunes(1) & =~"^.*@.*$" |
-fn.#StringExpression
+#EmailAddress: strings.MaxRunes(320) & strings.MinRunes(1) & =~"^.*@.*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FrameworkId": strings.MaxRunes(36) &
+#FrameworkId: strings.MaxRunes(36) &
 strings.MinRunes(32) &
 =~"^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|.*\\S.*)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IamArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#IamArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:.*:iam:.*" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Role": close({
-	RoleArn?:  _#defs."/$defs/Properties/definitions/IamArn"
-	RoleType?: _#defs."/$defs/Properties/definitions/RoleType"
+#Role: close({
+	RoleArn?:  #IamArn
+	RoleType?: #RoleType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleType": "PROCESS_OWNER" | "RESOURCE_OWNER" | fn.#StringExpression
+#RoleType: "PROCESS_OWNER" | "RESOURCE_OWNER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3Url": strings.MaxRunes(1024) &
+#S3Url: strings.MaxRunes(1024) &
 strings.MinRunes(1) &
 =~"^(S|s)3:\\/\\/[a-zA-Z0-9\\-\\.\\(\\)\\'\\*\\_\\!\\=\\+\\@\\:\\s\\,\\?\\/]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Scope": close({
-	AwsAccounts?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AWSAccount"] |
-		fn.#ListExpression
-	AwsServices?: [..._#defs."/$defs/Properties/definitions/AWSService"] | fn.#ListExpression
+#Scope: close({
+	AwsAccounts?: list.MaxItems(200) & list.MinItems(1) & [...#AWSAccount] | fn.#ListExpression
+	AwsServices?: [...#AWSService] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": number |
+#Timestamp: number |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -171,9 +142,7 @@ _#defs: "/$defs/Properties/definitions/Timestamp": number |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/UUID": strings.MaxRunes(36) &
-strings.MinRunes(36) &
-=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+#UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
 fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::AuditManager::Assessment"

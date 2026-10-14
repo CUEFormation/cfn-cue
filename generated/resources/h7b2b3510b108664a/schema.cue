@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,8 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // that defines the actions that Systems Manager performs, which can be used to
 // set up and run commands on your instances.
 #Properties: close({
-	Attachments?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/AttachmentsSource"] |
-		fn.#ListExpression
+	Attachments?:    list.MaxItems(20) & [...] & [...#AttachmentsSource] | fn.#ListExpression
 	Content!:        fn.#Object & {...} | strings.MinRunes(1) | fn.#StringObjectExpression
 	DocumentFormat?: "YAML" | "JSON" | "TEXT" | fn.#StringExpression
 	DocumentType?: "ApplicationConfiguration" |
@@ -37,14 +36,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"Session" |
 		fn.#StringExpression
 	Name?:         =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
-	Requires?:     list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DocumentRequires"] | fn.#ListExpression
-	Tags?:         list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Requires?:     list.MinItems(1) & [...#DocumentRequires] | fn.#ListExpression
+	Tags?:         list.MaxItems(1000) & [...] & [...#Tag] | fn.#ListExpression
 	TargetType?:   strings.MaxRunes(200) & strings.MinRunes(0) & =~"^\\/[\\w\\.\\-\\:\\/]*$" | fn.#StringExpression
 	UpdateMethod?: "Replace" | "NewVersion" | fn.#StringExpression
 	VersionName?:  =~"^[a-zA-Z0-9_\\-.]{1,128}$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AttachmentsSource": close({
+#AttachmentsSource: close({
 	Key?:  "SourceUrl" | "S3FileUrl" | "AttachmentReference" | fn.#StringExpression
 	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Values?: list.MaxItems(1) & list.MinItems(1) & [
@@ -54,13 +53,13 @@ _#defs: "/$defs/Properties/definitions/AttachmentsSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentRequires": close({
+#DocumentRequires: close({
 	Name?:    strings.MaxRunes(200) & =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
 	Version?: strings.MaxRunes(8) & =~"([$]LATEST|[$]DEFAULT|^[1-9][0-9]*$)" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

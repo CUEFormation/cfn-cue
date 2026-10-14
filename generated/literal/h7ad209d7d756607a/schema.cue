@@ -7,7 +7,7 @@ package schema
 // Resource Type definition for AWS::ApiGatewayV2::Stage
 #Properties: close({
 	// Settings for logging access in this stage.
-	AccessLogSettings?: _#defs."/$defs/Properties/definitions/AccessLogSettings"
+	AccessLogSettings?: #AccessLogSettings
 
 	// The API identifier.
 	ApiId!: string
@@ -20,7 +20,7 @@ package schema
 	ClientCertificateId?: string
 
 	// The default route settings for the stage.
-	DefaultRouteSettings?: _#defs."/$defs/Properties/definitions/RouteSettings"
+	DefaultRouteSettings?: #RouteSettings
 
 	// The deployment identifier for the API stage. Can't be updated if autoDeploy is enabled.
 	DeploymentId?: string
@@ -38,12 +38,12 @@ package schema
 		{[=~".*"]: string}})
 })
 
-_#defs: "/$defs/Properties/definitions/AccessLogSettings": close({
+#AccessLogSettings: close({
 	DestinationArn?: string
 	Format?:         string
 })
 
-_#defs: "/$defs/Properties/definitions/RouteSettings": close({
+#RouteSettings: close({
 	DataTraceEnabled?:       bool
 	DetailedMetricsEnabled?: bool
 	LoggingLevel?:           string

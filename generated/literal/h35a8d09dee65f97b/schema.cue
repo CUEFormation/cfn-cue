@@ -22,7 +22,7 @@ import (
 	// Space:
 	// arn:<partition>:aidevops:<region>:<account-id>:agentspace/<agentspace-id>/trigger/<trigger-id>.
 	Arn?:       string
-	Condition!: _#defs."/$defs/Properties/definitions/Condition"
+	Condition!: #Condition
 
 	// The timestamp when the trigger was created.
 	CreatedAt?: time.Time
@@ -41,10 +41,10 @@ import (
 })
 
 // The condition that causes the trigger to fire.
-_#defs: "/$defs/Properties/definitions/Condition": close({Schedule!: _#defs."/$defs/Properties/definitions/Schedule"})
+#Condition: close({Schedule!: #Schedule})
 
 // Schedule configuration for a time-based trigger.
-_#defs: "/$defs/Properties/definitions/Schedule": close({
+#Schedule: close({
 	// A cron or rate expression that defines when the trigger fires.
 	Expression!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

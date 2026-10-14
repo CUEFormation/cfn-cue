@@ -17,21 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9\\-\\._]*$" | fn.#StringExpression
-	RunConfigurations!: _#defs."/$defs/Properties/definitions/RunConfigurations" | fn.#ObjectExpression
-	Tags?:              _#defs."/$defs/Properties/definitions/TagMap" | fn.#ObjectExpression
+	RunConfigurations!: #RunConfigurations | fn.#ObjectExpression
+	Tags?:              #TagMap | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/RunConfigurations": close(
-	{VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"},
-) |
-	fn.#ObjectExpression
+#RunConfigurations: close({VpcConfig?: #VpcConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds?: list.MaxItems(5) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(128) &

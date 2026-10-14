@@ -8,7 +8,7 @@ package schema
 #Properties: close({
 	Arn?:              string
 	Id?:               string
-	InitialVersion?:   _#defs."/$defs/Properties/definitions/GroupVersion"
+	InitialVersion?:   #GroupVersion
 	LatestVersionArn?: string
 	Name!:             string
 	RoleArn?:          =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
@@ -16,7 +16,7 @@ package schema
 	Tags?:             string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/GroupVersion": close({
+#GroupVersion: close({
 	ConnectorDefinitionVersionArn?:    string
 	CoreDefinitionVersionArn?:         string
 	DeviceDefinitionVersionArn?:       string

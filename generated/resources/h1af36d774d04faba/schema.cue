@@ -17,12 +17,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AddressFamily!: "ipv4" | "ipv6" | fn.#StringExpression
 	Description?:   string | fn.#StringExpression
 	IpamId?:        string | fn.#StringExpression
-	Rules?:         [..._#defs."/$defs/Properties/definitions/IpamPrefixListResolverRule"] | fn.#ListExpression
-	Tags?:          list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Rules?:         [...#IpamPrefixListResolverRule] | fn.#ListExpression
+	Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IpamPrefixListResolverRule": close({
-	Conditions?:   [..._#defs."/$defs/Properties/definitions/IpamPrefixListResolverRuleCondition"] | fn.#ListExpression
+#IpamPrefixListResolverRule: close({
+	Conditions?:   [...#IpamPrefixListResolverRuleCondition] | fn.#ListExpression
 	IpamScopeId?:  string | fn.#StringExpression
 	ResourceType?: "vpc" | "subnet" | "eip" | "public-ipv4-pool" | fn.#StringExpression
 	RuleType!:     "static-cidr" | "ipam-resource-cidr" | "ipam-pool-cidr" | fn.#StringExpression
@@ -30,7 +30,7 @@ _#defs: "/$defs/Properties/definitions/IpamPrefixListResolverRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpamPrefixListResolverRuleCondition": matchN(1, [{
+#IpamPrefixListResolverRuleCondition: matchN(1, [{
 	Operation!:  _
 	IpamPoolId!: _
 	...
@@ -61,11 +61,11 @@ _#defs: "/$defs/Properties/definitions/IpamPrefixListResolverRuleCondition": mat
 	ResourceId?:     string | fn.#StringExpression
 	ResourceOwner?:  string | fn.#StringExpression
 	ResourceRegion?: string | fn.#StringExpression
-	ResourceTag?:    _#defs."/$defs/Properties/definitions/Tag" | fn.#ObjectExpression
+	ResourceTag?:    #Tag | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

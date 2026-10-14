@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,23 +16,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // found in an Audit finding or Detect violation.
 #Properties: close({
 	ActionName?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	ActionParams!: _#defs."/$defs/Properties/definitions/ActionParams"
+	ActionParams!: #ActionParams
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ActionParams": close({
-	AddThingsToThingGroupParams?:       _#defs."/$defs/Properties/definitions/AddThingsToThingGroupParams"
-	EnableIoTLoggingParams?:            _#defs."/$defs/Properties/definitions/EnableIoTLoggingParams"
-	PublishFindingToSnsParams?:         _#defs."/$defs/Properties/definitions/PublishFindingToSnsParams"
-	ReplaceDefaultPolicyVersionParams?: _#defs."/$defs/Properties/definitions/ReplaceDefaultPolicyVersionParams"
-	UpdateCACertificateParams?:         _#defs."/$defs/Properties/definitions/UpdateCACertificateParams"
-	UpdateDeviceCertificateParams?:     _#defs."/$defs/Properties/definitions/UpdateDeviceCertificateParams"
+#ActionParams: close({
+	AddThingsToThingGroupParams?:       #AddThingsToThingGroupParams
+	EnableIoTLoggingParams?:            #EnableIoTLoggingParams
+	PublishFindingToSnsParams?:         #PublishFindingToSnsParams
+	ReplaceDefaultPolicyVersionParams?: #ReplaceDefaultPolicyVersionParams
+	UpdateCACertificateParams?:         #UpdateCACertificateParams
+	UpdateDeviceCertificateParams?:     #UpdateDeviceCertificateParams
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AddThingsToThingGroupParams": close({
+#AddThingsToThingGroupParams: close({
 	OverrideDynamicGroups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ThingGroupNames!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" | fn.#StringExpression
@@ -41,37 +41,30 @@ _#defs: "/$defs/Properties/definitions/AddThingsToThingGroupParams": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnableIoTLoggingParams": close({
+#EnableIoTLoggingParams: close({
 	LogLevel!:          "DEBUG" | "INFO" | "ERROR" | "WARN" | "UNSET_VALUE" | fn.#StringExpression
 	RoleArnForLogging!: strings.MaxRunes(2048) & strings.MinRunes(11) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PublishFindingToSnsParams": close({
+#PublishFindingToSnsParams: close({
 	TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(11)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplaceDefaultPolicyVersionParams": close(
-	{TemplateName!: "BLANK_POLICY" | "UNSET_VALUE" | fn.#StringExpression},
-) |
+#ReplaceDefaultPolicyVersionParams: close({TemplateName!: "BLANK_POLICY" | "UNSET_VALUE" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateCACertificateParams": close(
-	{Action!: "DEACTIVATE" | "UNSET_VALUE" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#UpdateCACertificateParams: close({Action!: "DEACTIVATE" | "UNSET_VALUE" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UpdateDeviceCertificateParams": close(
-	{Action!: "DEACTIVATE" | "UNSET_VALUE" | fn.#StringExpression},
-) |
+#UpdateDeviceCertificateParams: close({Action!: "DEACTIVATE" | "UNSET_VALUE" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::IoT::MitigationAction"

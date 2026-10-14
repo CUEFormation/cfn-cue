@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"time"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -26,18 +26,18 @@ import (
 
 	// A timestamp specifying when the algorithm was created.
 	CreationTime?:           time.Time
-	InferenceSpecification?: _#defs."/$defs/Properties/definitions/InferenceSpecification"
+	InferenceSpecification?: #InferenceSpecification
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?:                  list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TrainingSpecification!: _#defs."/$defs/Properties/definitions/TrainingSpecification"
+	Tags?:                  list.MaxItems(50) & [...] & [...#Tag]
+	TrainingSpecification!: #TrainingSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/CategoricalParameterRangeSpecification": close(
+#CategoricalParameterRangeSpecification: close(
 	{Values!: list.MaxItems(30) & list.MinItems(1) & [...strings.MaxRunes(256) & strings.MinRunes(0)]},
 )
 
-_#defs: "/$defs/Properties/definitions/ChannelSpecification": close({
+#ChannelSpecification: close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$"
 	IsRequired?:  bool
 	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\.\\-_]+$"
@@ -46,30 +46,28 @@ _#defs: "/$defs/Properties/definitions/ChannelSpecification": close({
 	SupportedInputModes!:       list.MinItems(1) & [..."Pipe" | "File" | "FastFile"]
 })
 
-_#defs: "/$defs/Properties/definitions/ContinuousParameterRangeSpecification": close({
+#ContinuousParameterRangeSpecification: close({
 	MaxValue!: strings.MaxRunes(256) & strings.MinRunes(0)
 	MinValue!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/HyperParameterSpecification": close({
+#HyperParameterSpecification: close({
 	DefaultValue?: strings.MaxRunes(2500) & strings.MinRunes(0)
 	Description?:  strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$"
 	IsRequired?:   bool
 	IsTunable?:    bool
 	Name!:         strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$"
-	Range?:        _#defs."/$defs/Properties/definitions/ParameterRange"
+	Range?:        #ParameterRange
 	Type!:         "Integer" | "Continuous" | "Categorical" | "FreeText"
 })
 
-_#defs: "/$defs/Properties/definitions/HyperParameterTuningJobObjective": close({
+#HyperParameterTuningJobObjective: close({
 	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.+$"
 	Type!:       "Maximize" | "Minimize"
 })
 
-_#defs: "/$defs/Properties/definitions/InferenceSpecification": close({
-	Containers!: list.MaxItems(15) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ModelPackageContainerDefinition"
-	]
+#InferenceSpecification: close({
+	Containers!:            list.MaxItems(15) & list.MinItems(1) & [...#ModelPackageContainerDefinition]
 	SupportedContentTypes?: [...strings.MaxRunes(256) & strings.MinRunes(0)]
 	SupportedRealtimeInferenceInstanceTypes?: [
 		..."ml.c4.2xlarge" |
@@ -471,21 +469,19 @@ _#defs: "/$defs/Properties/definitions/InferenceSpecification": close({
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/IntegerParameterRangeSpecification": close({
+#IntegerParameterRangeSpecification: close({
 	MaxValue!: strings.MaxRunes(256) & strings.MinRunes(0)
 	MinValue!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/MetricDefinition": close({
+#MetricDefinition: close({
 	Name!:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.+$"
 	Regex!: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^.+$"
 })
 
-_#defs: "/$defs/Properties/definitions/ModelInput": close(
-	{DataInputConfig!: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\S\\s]+$"},
-)
+#ModelInput: close({DataInputConfig!: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\S\\s]+$"})
 
-_#defs: "/$defs/Properties/definitions/ModelPackageContainerDefinition": close({
+#ModelPackageContainerDefinition: close({
 	ContainerHostname?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$"
 	Environment?: close({
 
@@ -495,27 +491,24 @@ _#defs: "/$defs/Properties/definitions/ModelPackageContainerDefinition": close({
 	Image!:            strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$"
 	ImageDigest?:      strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$"
 	IsCheckpoint?:     bool
-	ModelInput?:       _#defs."/$defs/Properties/definitions/ModelInput"
+	ModelInput?:       #ModelInput
 	NearestModelName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ParameterRange": close({
-	CategoricalParameterRangeSpecification?:
-		_#defs."/$defs/Properties/definitions/CategoricalParameterRangeSpecification"
-	ContinuousParameterRangeSpecification?: _#defs."/$defs/Properties/definitions/ContinuousParameterRangeSpecification"
-	IntegerParameterRangeSpecification?:    _#defs."/$defs/Properties/definitions/IntegerParameterRangeSpecification"
+#ParameterRange: close({
+	CategoricalParameterRangeSpecification?: #CategoricalParameterRangeSpecification
+	ContinuousParameterRangeSpecification?:  #ContinuousParameterRangeSpecification
+	IntegerParameterRangeSpecification?:     #IntegerParameterRangeSpecification
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })
 
-_#defs: "/$defs/Properties/definitions/TrainingSpecification": close({
-	MetricDefinitions?: list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/MetricDefinition"]
-	SupportedHyperParameters?: list.MaxItems(100) & [...] & [
-		..._#defs."/$defs/Properties/definitions/HyperParameterSpecification"
-	]
+#TrainingSpecification: close({
+	MetricDefinitions?:        list.MaxItems(40) & [...] & [...#MetricDefinition]
+	SupportedHyperParameters?: list.MaxItems(100) & [...] & [...#HyperParameterSpecification]
 	SupportedTrainingInstanceTypes!: [
 		..."ml.c4.2xlarge" |
 			"ml.c4.4xlarge" |
@@ -743,11 +736,9 @@ _#defs: "/$defs/Properties/definitions/TrainingSpecification": close({
 			"ml.trn1n.32xlarge" |
 			"ml.trn2.48xlarge"
 	]
-	SupportedTuningJobObjectiveMetrics?: [..._#defs."/$defs/Properties/definitions/HyperParameterTuningJobObjective"]
+	SupportedTuningJobObjectiveMetrics?: [...#HyperParameterTuningJobObjective]
 	SupportsDistributedTraining?:        bool
-	TrainingChannels!: list.MaxItems(8) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ChannelSpecification"
-	]
-	TrainingImage!:       strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$"
+	TrainingChannels!:                   list.MaxItems(8) & list.MinItems(1) & [...#ChannelSpecification]
+	TrainingImage!:                      strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$"
 	TrainingImageDigest?: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$"
 })

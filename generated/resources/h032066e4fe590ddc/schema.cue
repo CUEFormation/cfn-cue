@@ -20,26 +20,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // your business entity. Invoice units allow you to separate AWS account costs
 // and configures your invoice for each business entity.
 #Properties: close({
-	Description?:            _#defs."/$defs/Properties/definitions/Description"
-	InvoiceReceiver!:        _#defs."/$defs/Properties/definitions/InvoiceReceiver"
-	Name!:                   _#defs."/$defs/Properties/definitions/Name"
-	ResourceTags?:           _#defs."/$defs/Properties/definitions/ResourceTags"
-	Rule!:                   _#defs."/$defs/Properties/definitions/Rule"
-	TaxInheritanceDisabled?: _#defs."/$defs/Properties/definitions/TaxInheritanceDisabled"
+	Description?:            #Description
+	InvoiceReceiver!:        #InvoiceReceiver
+	Name!:                   #Name
+	ResourceTags?:           #ResourceTags
+	Rule!:                   #Rule
+	TaxInheritanceDisabled?: #TaxInheritanceDisabled
 })
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\S\\s]*$" |
-fn.#StringExpression
+#Description: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InvoiceReceiver": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" |
-fn.#StringExpression
+#InvoiceReceiver: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InvoiceUnitArn": strings.MaxRunes(256) &
+#InvoiceUnitArn: strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LastModified": number |
+#LastModified: number |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
@@ -59,20 +57,17 @@ _#defs: "/$defs/Properties/definitions/LastModified": number |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+#Name: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceTags": list.MaxItems(200) & [...] & [
-	..._#defs."/$defs/Properties/definitions/ResourceTag"
-] |
-	fn.#ListExpression
+#ResourceTags: list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
+#Rule: close({
 	LinkedAccounts!: list.MaxItems(1000) & [...] & [
 		...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
 	] |
@@ -80,14 +75,7 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TaxInheritanceDisabled": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#TaxInheritanceDisabled: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Invoicing::InvoiceUnit"
 	Properties!: #Properties

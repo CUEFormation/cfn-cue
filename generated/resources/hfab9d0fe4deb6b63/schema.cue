@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -18,25 +18,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Bedrock::DataSource Resource Type
 #Properties: close({
-	DataDeletionPolicy?: _#defs."/$defs/Properties/definitions/DataDeletionPolicy"
+	DataDeletionPolicy?: #DataDeletionPolicy
 	DataSourceConfiguration!: close({
-		ConfluenceConfiguration?: _#defs."/$defs/Properties/definitions/ConfluenceDataSourceConfiguration"
-		ManagedKnowledgeBaseConnectorConfiguration?:
-			_#defs."/$defs/Properties/definitions/ManagedKnowledgeBaseConnectorConfiguration"
-		S3Configuration?:         _#defs."/$defs/Properties/definitions/S3DataSourceConfiguration"
-		SalesforceConfiguration?: _#defs."/$defs/Properties/definitions/SalesforceDataSourceConfiguration"
-		SharePointConfiguration?: _#defs."/$defs/Properties/definitions/SharePointDataSourceConfiguration"
-		Type!:                    _#defs."/$defs/Properties/definitions/DataSourceType"
+		ConfluenceConfiguration?:                    #ConfluenceDataSourceConfiguration
+		ManagedKnowledgeBaseConnectorConfiguration?: #ManagedKnowledgeBaseConnectorConfiguration
+		S3Configuration?:                            #S3DataSourceConfiguration
+		SalesforceConfiguration?:                    #SalesforceDataSourceConfiguration
+		SharePointConfiguration?:                    #SharePointDataSourceConfiguration
+		Type!:                                       #DataSourceType
 		WebConfiguration?: close({
 			CrawlerConfiguration?: close({
-				CrawlerLimits?:    _#defs."/$defs/Properties/definitions/WebCrawlerLimits"
-				ExclusionFilters?: _#defs."/$defs/Properties/definitions/FilterList"
-				InclusionFilters?: _#defs."/$defs/Properties/definitions/FilterList"
-				Scope?:            _#defs."/$defs/Properties/definitions/WebScopeType"
+				CrawlerLimits?:    #WebCrawlerLimits
+				ExclusionFilters?: #FilterList
+				InclusionFilters?: #FilterList
+				Scope?:            #WebScopeType
 				UserAgent?:        strings.MaxRunes(40) & strings.MinRunes(15) | fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
-			SourceConfiguration!: _#defs."/$defs/Properties/definitions/WebSourceConfiguration"
+			SourceConfiguration!: #WebSourceConfiguration
 		}) |
 		fn.#ObjectExpression
 	}) |
@@ -44,59 +43,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:                       strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
 	KnowledgeBaseId!:                   =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
 	Name!:                              =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	ServerSideEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionConfiguration"
-	VectorIngestionConfiguration?:      _#defs."/$defs/Properties/definitions/VectorIngestionConfiguration"
+	ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
+	VectorIngestionConfiguration?:      #VectorIngestionConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/AudioExtractionConfiguration": close(
-	{AudioExtractionStatus!: _#defs."/$defs/Properties/definitions/EnabledOrDisabledState"},
-) |
-	fn.#ObjectExpression
+#AudioExtractionConfiguration: close({AudioExtractionStatus!: #EnabledOrDisabledState}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BedrockDataAutomationConfiguration": close(
-	{ParsingModality?: _#defs."/$defs/Properties/definitions/ParsingModality"},
-) |
-	fn.#ObjectExpression
+#BedrockDataAutomationConfiguration: close({ParsingModality?: #ParsingModality}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BedrockFoundationModelConfiguration": close({
-	ModelArn!:        _#defs."/$defs/Properties/definitions/ModelArn"
-	ParsingModality?: _#defs."/$defs/Properties/definitions/ParsingModality"
-	ParsingPrompt?:   _#defs."/$defs/Properties/definitions/ParsingPrompt"
+#BedrockFoundationModelConfiguration: close({
+	ModelArn!:        #ModelArn
+	ParsingModality?: #ParsingModality
+	ParsingPrompt?:   #ParsingPrompt
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BedrockFoundationModelContextEnrichmentConfiguration": close({
-	EnrichmentStrategyConfiguration!: _#defs."/$defs/Properties/definitions/EnrichmentStrategyConfiguration"
-	ModelArn!:                        _#defs."/$defs/Properties/definitions/ModelArn"
+#BedrockFoundationModelContextEnrichmentConfiguration: close({
+	EnrichmentStrategyConfiguration!: #EnrichmentStrategyConfiguration
+	ModelArn!:                        #ModelArn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ChunkingConfiguration": close({
-	ChunkingStrategy!:                  _#defs."/$defs/Properties/definitions/ChunkingStrategy"
-	FixedSizeChunkingConfiguration?:    _#defs."/$defs/Properties/definitions/FixedSizeChunkingConfiguration"
-	HierarchicalChunkingConfiguration?: _#defs."/$defs/Properties/definitions/HierarchicalChunkingConfiguration"
-	SemanticChunkingConfiguration?:     _#defs."/$defs/Properties/definitions/SemanticChunkingConfiguration"
+#ChunkingConfiguration: close({
+	ChunkingStrategy!:                  #ChunkingStrategy
+	FixedSizeChunkingConfiguration?:    #FixedSizeChunkingConfiguration
+	HierarchicalChunkingConfiguration?: #HierarchicalChunkingConfiguration
+	SemanticChunkingConfiguration?:     #SemanticChunkingConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ChunkingStrategy": "FIXED_SIZE" |
-	"NONE" |
-	"HIERARCHICAL" |
-	"SEMANTIC" |
-	fn.#StringExpression
+#ChunkingStrategy: "FIXED_SIZE" | "NONE" | "HIERARCHICAL" | "SEMANTIC" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceCrawlerConfiguration": close(
-	{FilterConfiguration?: _#defs."/$defs/Properties/definitions/CrawlFilterConfiguration"},
-) |
-	fn.#ObjectExpression
+#ConfluenceCrawlerConfiguration: close({FilterConfiguration?: #CrawlFilterConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceDataSourceConfiguration": close({
-	CrawlerConfiguration?: _#defs."/$defs/Properties/definitions/ConfluenceCrawlerConfiguration"
-	SourceConfiguration!:  _#defs."/$defs/Properties/definitions/ConfluenceSourceConfiguration"
+#ConfluenceDataSourceConfiguration: close({
+	CrawlerConfiguration?: #ConfluenceCrawlerConfiguration
+	SourceConfiguration!:  #ConfluenceSourceConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfluenceSourceConfiguration": close({
+#ConfluenceSourceConfiguration: close({
 	AuthType!: "BASIC" | "OAUTH2_CLIENT_CREDENTIALS" | fn.#StringExpression
 	CredentialsSecretArn!: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" |
 		fn.#StringExpression
@@ -105,45 +91,42 @@ _#defs: "/$defs/Properties/definitions/ConfluenceSourceConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContextEnrichmentConfiguration": close({
-	BedrockFoundationModelConfiguration?:
-		_#defs."/$defs/Properties/definitions/BedrockFoundationModelContextEnrichmentConfiguration"
-	Type!: _#defs."/$defs/Properties/definitions/ContextEnrichmentType"
+#ContextEnrichmentConfiguration: close({
+	BedrockFoundationModelConfiguration?: #BedrockFoundationModelContextEnrichmentConfiguration
+	Type!:                                #ContextEnrichmentType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContextEnrichmentType": "BEDROCK_FOUNDATION_MODEL" | fn.#StringExpression
+#ContextEnrichmentType: "BEDROCK_FOUNDATION_MODEL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CrawlFilterConfiguration": close({
-	PatternObjectFilter?: _#defs."/$defs/Properties/definitions/PatternObjectFilterConfiguration"
+#CrawlFilterConfiguration: close({
+	PatternObjectFilter?: #PatternObjectFilterConfiguration
 	Type!:                "PATTERN" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomTransformationConfiguration": close({
-	IntermediateStorage!: _#defs."/$defs/Properties/definitions/IntermediateStorage"
-	Transformations!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Transformation"] |
-		fn.#ListExpression
+#CustomTransformationConfiguration: close({
+	IntermediateStorage!: #IntermediateStorage
+	Transformations!:     list.MaxItems(1) & list.MinItems(1) & [...#Transformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DailySchedule": close({}) | fn.#ObjectExpression
+#DailySchedule: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataDeletionPolicy": "RETAIN" | "DELETE" | fn.#StringExpression
+#DataDeletionPolicy: "RETAIN" | "DELETE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceConfiguration": close({
-	ConfluenceConfiguration?: _#defs."/$defs/Properties/definitions/ConfluenceDataSourceConfiguration"
-	ManagedKnowledgeBaseConnectorConfiguration?:
-		_#defs."/$defs/Properties/definitions/ManagedKnowledgeBaseConnectorConfiguration"
-	S3Configuration?:         _#defs."/$defs/Properties/definitions/S3DataSourceConfiguration"
-	SalesforceConfiguration?: _#defs."/$defs/Properties/definitions/SalesforceDataSourceConfiguration"
-	SharePointConfiguration?: _#defs."/$defs/Properties/definitions/SharePointDataSourceConfiguration"
-	Type!:                    _#defs."/$defs/Properties/definitions/DataSourceType"
-	WebConfiguration?:        _#defs."/$defs/Properties/definitions/WebDataSourceConfiguration"
+#DataSourceConfiguration: close({
+	ConfluenceConfiguration?:                    #ConfluenceDataSourceConfiguration
+	ManagedKnowledgeBaseConnectorConfiguration?: #ManagedKnowledgeBaseConnectorConfiguration
+	S3Configuration?:                            #S3DataSourceConfiguration
+	SalesforceConfiguration?:                    #SalesforceDataSourceConfiguration
+	SharePointConfiguration?:                    #SharePointDataSourceConfiguration
+	Type!:                                       #DataSourceType
+	WebConfiguration?:                           #WebDataSourceConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceStatus": "AVAILABLE" |
+#DataSourceStatus: "AVAILABLE" |
 	"DELETING" |
 	"DELETE_UNSUCCESSFUL" |
 	"CREATING" |
@@ -151,7 +134,7 @@ _#defs: "/$defs/Properties/definitions/DataSourceStatus": "AVAILABLE" |
 	"FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataSourceType": "S3" |
+#DataSourceType: "S3" |
 	"CONFLUENCE" |
 	"SALESFORCE" |
 	"SHAREPOINT" |
@@ -161,7 +144,7 @@ _#defs: "/$defs/Properties/definitions/DataSourceType": "S3" |
 	"MANAGED_KNOWLEDGE_BASE_CONNECTOR" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DayOfMonth": close({
+#DayOfMonth: close({
 	DayNumber?: int & <=28 & >=1 |
 		{
 			string &
@@ -187,17 +170,10 @@ _#defs: "/$defs/Properties/definitions/DayOfMonth": close({
 }) & matchN(>=1, [{DayNumber!: _}, {LastDayOfMonth!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DayOfWeek": "SUNDAY" |
-	"MONDAY" |
-	"TUESDAY" |
-	"WEDNESDAY" |
-	"THURSDAY" |
-	"FRIDAY" |
-	"SATURDAY" |
-	fn.#StringExpression
+#DayOfWeek: "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DeletionProtectionConfiguration": close({
-	DeletionProtectionStatus!: _#defs."/$defs/Properties/definitions/EnabledOrDisabledState"
+#DeletionProtectionConfiguration: close({
+	DeletionProtectionStatus!: #EnabledOrDisabledState
 	DeletionProtectionThreshold?: int & <=100 & >=0 |
 		{
 			string &
@@ -217,21 +193,16 @@ _#defs: "/$defs/Properties/definitions/DeletionProtectionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnabledOrDisabledState": "ENABLED" | "DISABLED" | fn.#StringExpression
+#EnabledOrDisabledState: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EnrichmentStrategyConfiguration": close(
-	{Method!: _#defs."/$defs/Properties/definitions/EnrichmentStrategyMethod"},
-) |
-	fn.#ObjectExpression
+#EnrichmentStrategyConfiguration: close({Method!: #EnrichmentStrategyMethod}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnrichmentStrategyMethod": "CHUNK_ENTITY_EXTRACTION" | fn.#StringExpression
+#EnrichmentStrategyMethod: "CHUNK_ENTITY_EXTRACTION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FilterList": list.MaxItems(25) & list.MinItems(1) & [
-	...strings.MaxRunes(1000) | fn.#StringExpression
-] |
+#FilterList: list.MaxItems(25) & list.MinItems(1) & [...strings.MaxRunes(1000) | fn.#StringExpression] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/FixedSizeChunkingConfiguration": close({
+#FixedSizeChunkingConfiguration: close({
 	MaxTokens!: int & >=1 |
 		{
 			string &
@@ -266,10 +237,8 @@ _#defs: "/$defs/Properties/definitions/FixedSizeChunkingConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HierarchicalChunkingConfiguration": close({
-	LevelConfigurations!: list.MaxItems(2) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/HierarchicalChunkingLevelConfiguration"
-	] |
+#HierarchicalChunkingConfiguration: close({
+	LevelConfigurations!: list.MaxItems(2) & list.MinItems(2) & [...#HierarchicalChunkingLevelConfiguration] |
 		fn.#ListExpression
 	OverlapTokens!: int & >=1 |
 		{
@@ -289,7 +258,7 @@ _#defs: "/$defs/Properties/definitions/HierarchicalChunkingConfiguration": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HierarchicalChunkingLevelConfiguration": close({
+#HierarchicalChunkingLevelConfiguration: close({
 	MaxTokens!: int & <=8192 & >=1 |
 		{
 			string &
@@ -309,79 +278,62 @@ _#defs: "/$defs/Properties/definitions/HierarchicalChunkingLevelConfiguration": 
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageExtractionConfiguration": close(
-	{ImageExtractionStatus!: _#defs."/$defs/Properties/definitions/EnabledOrDisabledState"},
-) |
-	fn.#ObjectExpression
+#ImageExtractionConfiguration: close({ImageExtractionStatus!: #EnabledOrDisabledState}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IntermediateStorage": close(
-	{S3Location!: _#defs."/$defs/Properties/definitions/S3Location"},
-) |
-	fn.#ObjectExpression
+#IntermediateStorage: close({S3Location!: #S3Location}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedKnowledgeBaseConnectorConfiguration": close({
+#ManagedKnowledgeBaseConnectorConfiguration: close({
 	ConnectorParameters?:             fn.#Object & {...} | fn.#ObjectExpression
-	DeletionProtectionConfiguration?: _#defs."/$defs/Properties/definitions/DeletionProtectionConfiguration"
-	MediaExtractionConfiguration?:    _#defs."/$defs/Properties/definitions/MediaExtractionConfiguration"
-	SyncSchedule?:                    _#defs."/$defs/Properties/definitions/SyncSchedule"
+	DeletionProtectionConfiguration?: #DeletionProtectionConfiguration
+	MediaExtractionConfiguration?:    #MediaExtractionConfiguration
+	SyncSchedule?:                    #SyncSchedule
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MediaExtractionConfiguration": close({
-	AudioExtractionConfiguration?: _#defs."/$defs/Properties/definitions/AudioExtractionConfiguration"
-	ImageExtractionConfiguration?: _#defs."/$defs/Properties/definitions/ImageExtractionConfiguration"
-	VideoExtractionConfiguration?: _#defs."/$defs/Properties/definitions/VideoExtractionConfiguration"
+#MediaExtractionConfiguration: close({
+	AudioExtractionConfiguration?: #AudioExtractionConfiguration
+	ImageExtractionConfiguration?: #ImageExtractionConfiguration
+	VideoExtractionConfiguration?: #VideoExtractionConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ModelArn": strings.MaxRunes(2048) &
+#ModelArn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^(arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:(bedrock):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MonthlySchedule": close(
-	{DayOfMonth!: _#defs."/$defs/Properties/definitions/DayOfMonth"},
-) |
-	fn.#ObjectExpression
+#MonthlySchedule: close({DayOfMonth!: #DayOfMonth}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParsingConfiguration": close({
-	BedrockDataAutomationConfiguration?:  _#defs."/$defs/Properties/definitions/BedrockDataAutomationConfiguration"
-	BedrockFoundationModelConfiguration?: _#defs."/$defs/Properties/definitions/BedrockFoundationModelConfiguration"
-	ParsingStrategy!:                     _#defs."/$defs/Properties/definitions/ParsingStrategy"
+#ParsingConfiguration: close({
+	BedrockDataAutomationConfiguration?:  #BedrockDataAutomationConfiguration
+	BedrockFoundationModelConfiguration?: #BedrockFoundationModelConfiguration
+	ParsingStrategy!:                     #ParsingStrategy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParsingModality": "MULTIMODAL" | fn.#StringExpression
+#ParsingModality: "MULTIMODAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ParsingPrompt": close(
-	{ParsingPromptText!: strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#ParsingPrompt: close({ParsingPromptText!: strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParsingStrategy": "BEDROCK_FOUNDATION_MODEL" |
+#ParsingStrategy: "BEDROCK_FOUNDATION_MODEL" |
 	"BEDROCK_DATA_AUTOMATION" |
 	"SMART_PARSING" |
 	"MULTI_MODAL_EMBEDDINGS" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PatternObjectFilter": close({
-	ExclusionFilters?: _#defs."/$defs/Properties/definitions/FilterList"
-	InclusionFilters?: _#defs."/$defs/Properties/definitions/FilterList"
+#PatternObjectFilter: close({
+	ExclusionFilters?: #FilterList
+	InclusionFilters?: #FilterList
 	ObjectType!:       strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PatternObjectFilterConfiguration": close(
-	{Filters!: _#defs."/$defs/Properties/definitions/PatternObjectFilterList"},
-) |
-	fn.#ObjectExpression
+#PatternObjectFilterConfiguration: close({Filters!: #PatternObjectFilterList}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PatternObjectFilterList": list.MaxItems(25) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/PatternObjectFilter"
-] |
-	fn.#ListExpression
+#PatternObjectFilterList: list.MaxItems(25) & list.MinItems(1) & [...#PatternObjectFilter] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/S3DataSourceConfiguration": close({
+#S3DataSourceConfiguration: close({
 	BucketArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:s3:::[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" |
@@ -394,23 +346,18 @@ _#defs: "/$defs/Properties/definitions/S3DataSourceConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close(
-	{URI!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^s3://.{1,128}$" | fn.#StringExpression},
-) |
+#S3Location: close({URI!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^s3://.{1,128}$" | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceCrawlerConfiguration": close(
-	{FilterConfiguration?: _#defs."/$defs/Properties/definitions/CrawlFilterConfiguration"},
-) |
-	fn.#ObjectExpression
+#SalesforceCrawlerConfiguration: close({FilterConfiguration?: #CrawlFilterConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceDataSourceConfiguration": close({
-	CrawlerConfiguration?: _#defs."/$defs/Properties/definitions/SalesforceCrawlerConfiguration"
-	SourceConfiguration!:  _#defs."/$defs/Properties/definitions/SalesforceSourceConfiguration"
+#SalesforceDataSourceConfiguration: close({
+	CrawlerConfiguration?: #SalesforceCrawlerConfiguration
+	SourceConfiguration!:  #SalesforceSourceConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SalesforceSourceConfiguration": close({
+#SalesforceSourceConfiguration: close({
 	AuthType!: "OAUTH2_CLIENT_CREDENTIALS" | fn.#StringExpression
 	CredentialsSecretArn!: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" |
 		fn.#StringExpression
@@ -418,15 +365,11 @@ _#defs: "/$defs/Properties/definitions/SalesforceSourceConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SeedUrl": close({Url!: =~"^https?://[A-Za-z0-9][^\\s]*$" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#SeedUrl: close({Url!: =~"^https?://[A-Za-z0-9][^\\s]*$" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SeedUrls": list.MaxItems(100) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SeedUrl"
-] |
-	fn.#ListExpression
+#SeedUrls: list.MaxItems(100) & list.MinItems(1) & [...#SeedUrl] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/SemanticChunkingConfiguration": close({
+#SemanticChunkingConfiguration: close({
 	BreakpointPercentileThreshold!: int & <=99 & >=50 |
 		{
 			string &
@@ -477,7 +420,7 @@ _#defs: "/$defs/Properties/definitions/SemanticChunkingConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close({
+#ServerSideEncryptionConfiguration: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -486,18 +429,15 @@ _#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SharePointCrawlerConfiguration": close(
-	{FilterConfiguration?: _#defs."/$defs/Properties/definitions/CrawlFilterConfiguration"},
-) |
-	fn.#ObjectExpression
+#SharePointCrawlerConfiguration: close({FilterConfiguration?: #CrawlFilterConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SharePointDataSourceConfiguration": close({
-	CrawlerConfiguration?: _#defs."/$defs/Properties/definitions/SharePointCrawlerConfiguration"
-	SourceConfiguration!:  _#defs."/$defs/Properties/definitions/SharePointSourceConfiguration"
+#SharePointDataSourceConfiguration: close({
+	CrawlerConfiguration?: #SharePointCrawlerConfiguration
+	SourceConfiguration!:  #SharePointSourceConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SharePointSourceConfiguration": close({
+#SharePointSourceConfiguration: close({
 	AuthType!: "OAUTH2_CLIENT_CREDENTIALS" | "OAUTH2_SHAREPOINT_APP_ONLY_CLIENT_CREDENTIALS" | fn.#StringExpression
 	CredentialsSecretArn!: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" |
 		fn.#StringExpression
@@ -509,10 +449,10 @@ _#defs: "/$defs/Properties/definitions/SharePointSourceConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SyncSchedule": close({
-	Daily?:   _#defs."/$defs/Properties/definitions/DailySchedule"
-	Monthly?: _#defs."/$defs/Properties/definitions/MonthlySchedule"
-	Weekly?:  _#defs."/$defs/Properties/definitions/WeeklySchedule"
+#SyncSchedule: close({
+	Daily?:   #DailySchedule
+	Monthly?: #MonthlySchedule
+	Weekly?:  #WeeklySchedule
 	if Daily != _|_ {
 		Weekly?:  error("Weekly cannot be used with Daily; set exactly one of Daily, Weekly, Monthly")
 		Monthly?: error("Monthly cannot be used with Daily; set exactly one of Daily, Weekly, Monthly")
@@ -523,18 +463,16 @@ _#defs: "/$defs/Properties/definitions/SyncSchedule": close({
 }) & matchN(>=1, [{Daily!: _}, {Weekly!: _}, {Monthly!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Transformation": close({
+#Transformation: close({
 	StepToApply!:            "POST_CHUNKING" | fn.#StringExpression
-	TransformationFunction!: _#defs."/$defs/Properties/definitions/TransformationFunction"
+	TransformationFunction!: #TransformationFunction
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransformationFunction": close(
-	{TransformationLambdaConfiguration!: _#defs."/$defs/Properties/definitions/TransformationLambdaConfiguration"},
-) |
+#TransformationFunction: close({TransformationLambdaConfiguration!: #TransformationLambdaConfiguration}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TransformationLambdaConfiguration": close({
+#TransformationLambdaConfiguration: close({
 	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -543,35 +481,29 @@ _#defs: "/$defs/Properties/definitions/TransformationLambdaConfiguration": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UrlConfiguration": close(
-	{SeedUrls!: _#defs."/$defs/Properties/definitions/SeedUrls"},
-) |
-	fn.#ObjectExpression
+#UrlConfiguration: close({SeedUrls!: #SeedUrls}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VectorIngestionConfiguration": close({
-	ChunkingConfiguration?:             _#defs."/$defs/Properties/definitions/ChunkingConfiguration"
-	ContextEnrichmentConfiguration?:    _#defs."/$defs/Properties/definitions/ContextEnrichmentConfiguration"
-	CustomTransformationConfiguration?: _#defs."/$defs/Properties/definitions/CustomTransformationConfiguration"
-	ParsingConfiguration?:              _#defs."/$defs/Properties/definitions/ParsingConfiguration"
+#VectorIngestionConfiguration: close({
+	ChunkingConfiguration?:             #ChunkingConfiguration
+	ContextEnrichmentConfiguration?:    #ContextEnrichmentConfiguration
+	CustomTransformationConfiguration?: #CustomTransformationConfiguration
+	ParsingConfiguration?:              #ParsingConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VideoExtractionConfiguration": close(
-	{VideoExtractionStatus!: _#defs."/$defs/Properties/definitions/EnabledOrDisabledState"},
-) |
-	fn.#ObjectExpression
+#VideoExtractionConfiguration: close({VideoExtractionStatus!: #EnabledOrDisabledState}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerConfiguration": close({
-	CrawlerLimits?:    _#defs."/$defs/Properties/definitions/WebCrawlerLimits"
-	ExclusionFilters?: _#defs."/$defs/Properties/definitions/FilterList"
-	InclusionFilters?: _#defs."/$defs/Properties/definitions/FilterList"
-	Scope?:            _#defs."/$defs/Properties/definitions/WebScopeType"
+#WebCrawlerConfiguration: close({
+	CrawlerLimits?:    #WebCrawlerLimits
+	ExclusionFilters?: #FilterList
+	InclusionFilters?: #FilterList
+	Scope?:            #WebScopeType
 	UserAgent?:        strings.MaxRunes(40) & strings.MinRunes(15) | fn.#StringExpression
 	UserAgentHeader?:  strings.MaxRunes(86) & strings.MinRunes(61) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerLimits": close({
+#WebCrawlerLimits: close({
 	MaxPages?: int & >=1 |
 		{
 			string &
@@ -606,23 +538,17 @@ _#defs: "/$defs/Properties/definitions/WebCrawlerLimits": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebDataSourceConfiguration": close({
-	CrawlerConfiguration?: _#defs."/$defs/Properties/definitions/WebCrawlerConfiguration"
-	SourceConfiguration!:  _#defs."/$defs/Properties/definitions/WebSourceConfiguration"
+#WebDataSourceConfiguration: close({
+	CrawlerConfiguration?: #WebCrawlerConfiguration
+	SourceConfiguration!:  #WebSourceConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebScopeType": "HOST_ONLY" | "SUBDOMAINS" | fn.#StringExpression
+#WebScopeType: "HOST_ONLY" | "SUBDOMAINS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WebSourceConfiguration": close(
-	{UrlConfiguration!: _#defs."/$defs/Properties/definitions/UrlConfiguration"},
-) |
-	fn.#ObjectExpression
+#WebSourceConfiguration: close({UrlConfiguration!: #UrlConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WeeklySchedule": close(
-	{DayOfWeek!: _#defs."/$defs/Properties/definitions/DayOfWeek"},
-) |
-	fn.#ObjectExpression
+#WeeklySchedule: close({DayOfWeek!: #DayOfWeek}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Bedrock::DataSource"
 	Properties!: #Properties

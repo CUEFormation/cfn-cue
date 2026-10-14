@@ -21,13 +21,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // creating a Kinesis Data Analytics application, see [Creating an
 // Application](https://docs.aws.amazon.com/kinesisanalytics/latest/java/getting-started.html).
 #Properties: close({
-	ApplicationConfiguration?: _#defs."/$defs/Properties/definitions/ApplicationConfiguration" | fn.#ObjectExpression
-	ApplicationDescription?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ApplicationMaintenanceConfiguration?: _#defs."/$defs/Properties/definitions/ApplicationMaintenanceConfiguration" |
-		fn.#ObjectExpression
-	ApplicationMode?:  "INTERACTIVE" | "STREAMING" | fn.#StringExpression
+	ApplicationConfiguration?:            #ApplicationConfiguration | fn.#ObjectExpression
+	ApplicationDescription?:              strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	ApplicationMaintenanceConfiguration?: #ApplicationMaintenanceConfiguration | fn.#ObjectExpression
+	ApplicationMode?:                     "INTERACTIVE" | "STREAMING" | fn.#StringExpression
 	ApplicationName?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	RunConfiguration?: _#defs."/$defs/Properties/definitions/RunConfiguration" | fn.#ObjectExpression
+	RunConfiguration?: #RunConfiguration | fn.#ObjectExpression
 	RuntimeEnvironment!: "FLINK-1_11" |
 		"FLINK-1_13" |
 		"FLINK-1_15" |
@@ -43,37 +42,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"ZEPPELIN-FLINK-2_0" |
 		"ZEPPELIN-FLINK-3_0" |
 		fn.#StringExpression
-	ServiceExecutionRole!: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ServiceExecutionRole!: #Arn | fn.#StringExpression
+	Tags?:                 list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationCodeConfiguration": close({
-	CodeContent!:     _#defs."/$defs/Properties/definitions/CodeContent" | fn.#ObjectExpression
+#ApplicationCodeConfiguration: close({
+	CodeContent!:     #CodeContent | fn.#ObjectExpression
 	CodeContentType!: "PLAINTEXT" | "ZIPFILE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationConfiguration": close({
-	ApplicationCodeConfiguration?: _#defs."/$defs/Properties/definitions/ApplicationCodeConfiguration" |
-		fn.#ObjectExpression
-	ApplicationEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ApplicationEncryptionConfiguration" |
-		fn.#ObjectExpression
-	ApplicationSnapshotConfiguration?: _#defs."/$defs/Properties/definitions/ApplicationSnapshotConfiguration" |
-		fn.#ObjectExpression
-	ApplicationSystemRollbackConfiguration?: _#defs."/$defs/Properties/definitions/ApplicationSystemRollbackConfiguration" |
-		fn.#ObjectExpression
-	EnvironmentProperties?: _#defs."/$defs/Properties/definitions/EnvironmentProperties" | fn.#ObjectExpression
-	FlinkApplicationConfiguration?: _#defs."/$defs/Properties/definitions/FlinkApplicationConfiguration" |
-		fn.#ObjectExpression
-	SqlApplicationConfiguration?: _#defs."/$defs/Properties/definitions/SqlApplicationConfiguration" |
-		fn.#ObjectExpression
-	VpcConfigurations?: _#defs."/$defs/Properties/definitions/VpcConfigurations" | fn.#ListExpression
-	ZeppelinApplicationConfiguration?: _#defs."/$defs/Properties/definitions/ZeppelinApplicationConfiguration" |
-		fn.#ObjectExpression
+#ApplicationConfiguration: close({
+	ApplicationCodeConfiguration?:           #ApplicationCodeConfiguration | fn.#ObjectExpression
+	ApplicationEncryptionConfiguration?:     #ApplicationEncryptionConfiguration | fn.#ObjectExpression
+	ApplicationSnapshotConfiguration?:       #ApplicationSnapshotConfiguration | fn.#ObjectExpression
+	ApplicationSystemRollbackConfiguration?: #ApplicationSystemRollbackConfiguration | fn.#ObjectExpression
+	EnvironmentProperties?:                  #EnvironmentProperties | fn.#ObjectExpression
+	FlinkApplicationConfiguration?:          #FlinkApplicationConfiguration | fn.#ObjectExpression
+	SqlApplicationConfiguration?:            #SqlApplicationConfiguration | fn.#ObjectExpression
+	VpcConfigurations?:                      #VpcConfigurations | fn.#ListExpression
+	ZeppelinApplicationConfiguration?:       #ZeppelinApplicationConfiguration | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationEncryptionConfiguration": close({
+#ApplicationEncryptionConfiguration: close({
 	KeyId?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(?:arn:.*:kms:.*:.*:(?:key\\/.*|alias\\/.*)|alias\\/.*|(?i)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$" |
@@ -82,12 +74,12 @@ _#defs: "/$defs/Properties/definitions/ApplicationEncryptionConfiguration": clos
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationMaintenanceConfiguration": close(
+#ApplicationMaintenanceConfiguration: close(
 	{ApplicationMaintenanceWindowStartTime!: =~"^([01][0-9]|2[0-3]):[0-5][0-9]$" | fn.#StringExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationRestoreConfiguration": close({
+#ApplicationRestoreConfiguration: close({
 	ApplicationRestoreType!: "SKIP_RESTORE_FROM_SNAPSHOT" |
 		"RESTORE_FROM_LATEST_SNAPSHOT" |
 		"RESTORE_FROM_CUSTOM_SNAPSHOT" |
@@ -96,32 +88,28 @@ _#defs: "/$defs/Properties/definitions/ApplicationRestoreConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationSnapshotConfiguration": close(
+#ApplicationSnapshotConfiguration: close(
 	{SnapshotsEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ApplicationSystemRollbackConfiguration": close(
+#ApplicationSystemRollbackConfiguration: close(
 	{RollbackEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:.*$" |
-fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:.*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CSVMappingParameters": close({
+#CSVMappingParameters: close({
 	RecordColumnDelimiter!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	RecordRowDelimiter!:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CatalogConfiguration": close({
-	GlueDataCatalogConfiguration?: _#defs."/$defs/Properties/definitions/GlueDataCatalogConfiguration" |
-		fn.#ObjectExpression
-}) |
+#CatalogConfiguration: close({GlueDataCatalogConfiguration?: #GlueDataCatalogConfiguration | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CheckpointConfiguration": close({
+#CheckpointConfiguration: close({
 	CheckpointInterval?: int & <=9223372036854776000 & >=1 |
 		{
 			string &
@@ -159,70 +147,56 @@ _#defs: "/$defs/Properties/definitions/CheckpointConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeContent": close({
-	S3ContentLocation?: _#defs."/$defs/Properties/definitions/S3ContentLocation" | fn.#ObjectExpression
+#CodeContent: close({
+	S3ContentLocation?: #S3ContentLocation | fn.#ObjectExpression
 	TextContent?:       strings.MaxRunes(102400) & strings.MinRunes(1) | fn.#StringExpression
 	ZipFileContent?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomArtifactConfiguration": close({
+#CustomArtifactConfiguration: close({
 	ArtifactType!:      "DEPENDENCY_JAR" | "UDF" | fn.#StringExpression
-	MavenReference?:    _#defs."/$defs/Properties/definitions/MavenReference" | fn.#ObjectExpression
-	S3ContentLocation?: _#defs."/$defs/Properties/definitions/S3ContentLocation" | fn.#ObjectExpression
+	MavenReference?:    #MavenReference | fn.#ObjectExpression
+	S3ContentLocation?: #S3ContentLocation | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomArtifactsConfiguration": list.MaxItems(50) & [...] & [
-	..._#defs."/$defs/Properties/definitions/CustomArtifactConfiguration" | fn.#ObjectExpression
-] |
+#CustomArtifactsConfiguration: list.MaxItems(50) & [...] & [...#CustomArtifactConfiguration | fn.#ObjectExpression] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/DeployAsApplicationConfiguration": close(
-	{S3ContentLocation!: _#defs."/$defs/Properties/definitions/S3ContentBaseLocation" | fn.#ObjectExpression},
-) |
+#DeployAsApplicationConfiguration: close({S3ContentLocation!: #S3ContentBaseLocation | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentProperties": close({
-	PropertyGroups?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/PropertyGroup"] |
-		fn.#ListExpression
-}) |
+#EnvironmentProperties: close({PropertyGroups?: list.MaxItems(50) & [...] & [...#PropertyGroup] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlinkApplicationConfiguration": close({
-	CheckpointConfiguration?:  _#defs."/$defs/Properties/definitions/CheckpointConfiguration" | fn.#ObjectExpression
-	MonitoringConfiguration?:  _#defs."/$defs/Properties/definitions/MonitoringConfiguration" | fn.#ObjectExpression
-	ParallelismConfiguration?: _#defs."/$defs/Properties/definitions/ParallelismConfiguration" | fn.#ObjectExpression
+#FlinkApplicationConfiguration: close({
+	CheckpointConfiguration?:  #CheckpointConfiguration | fn.#ObjectExpression
+	MonitoringConfiguration?:  #MonitoringConfiguration | fn.#ObjectExpression
+	ParallelismConfiguration?: #ParallelismConfiguration | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlinkRunConfiguration": close(
+#FlinkRunConfiguration: close(
 	{AllowNonRestoredState?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GlueDataCatalogConfiguration": close(
-	{DatabaseARN?: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#GlueDataCatalogConfiguration: close({DatabaseARN?: #Arn | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Input": close({
-	InputParallelism?: _#defs."/$defs/Properties/definitions/InputParallelism" | fn.#ObjectExpression
-	InputProcessingConfiguration?: _#defs."/$defs/Properties/definitions/InputProcessingConfiguration" |
-		fn.#ObjectExpression
-	InputSchema!:          _#defs."/$defs/Properties/definitions/InputSchema" | fn.#ObjectExpression
-	KinesisFirehoseInput?: _#defs."/$defs/Properties/definitions/KinesisFirehoseInput" | fn.#ObjectExpression
-	KinesisStreamsInput?:  _#defs."/$defs/Properties/definitions/KinesisStreamsInput" | fn.#ObjectExpression
-	NamePrefix!:           strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[^-\\s<>&]*$" | fn.#StringExpression
+#Input: close({
+	InputParallelism?:             #InputParallelism | fn.#ObjectExpression
+	InputProcessingConfiguration?: #InputProcessingConfiguration | fn.#ObjectExpression
+	InputSchema!:                  #InputSchema | fn.#ObjectExpression
+	KinesisFirehoseInput?:         #KinesisFirehoseInput | fn.#ObjectExpression
+	KinesisStreamsInput?:          #KinesisStreamsInput | fn.#ObjectExpression
+	NamePrefix!:                   strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[^-\\s<>&]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputLambdaProcessor": close(
-	{ResourceARN!: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#InputLambdaProcessor: close({ResourceARN!: #Arn | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputParallelism": close({
+#InputParallelism: close({
 	Count?: int & <=64 & >=1 |
 		{
 			string &
@@ -242,55 +216,44 @@ _#defs: "/$defs/Properties/definitions/InputParallelism": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputProcessingConfiguration": close(
-	{InputLambdaProcessor?: _#defs."/$defs/Properties/definitions/InputLambdaProcessor" | fn.#ObjectExpression},
-) |
+#InputProcessingConfiguration: close({InputLambdaProcessor?: #InputLambdaProcessor | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputSchema": close({
-	RecordColumns!: list.MaxItems(1000) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RecordColumn"] |
-		fn.#ListExpression
+#InputSchema: close({
+	RecordColumns!:  list.MaxItems(1000) & list.MinItems(1) & [...#RecordColumn] | fn.#ListExpression
 	RecordEncoding?: "UTF-8" & (strings.MaxRunes(5) & strings.MinRunes(5)) | fn.#StringExpression
-	RecordFormat!:   _#defs."/$defs/Properties/definitions/RecordFormat" | fn.#ObjectExpression
+	RecordFormat!:   #RecordFormat | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/JSONMappingParameters": close(
-	{RecordRowPath!: strings.MaxRunes(65535) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#JSONMappingParameters: close({RecordRowPath!: strings.MaxRunes(65535) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisFirehoseInput": close(
-	{ResourceARN!: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#KinesisFirehoseInput: close({ResourceARN!: #Arn | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisStreamsInput": close(
-	{ResourceARN!: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#KinesisStreamsInput: close({ResourceARN!: #Arn | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MappingParameters": close({
-	CSVMappingParameters?:  _#defs."/$defs/Properties/definitions/CSVMappingParameters" | fn.#ObjectExpression
-	JSONMappingParameters?: _#defs."/$defs/Properties/definitions/JSONMappingParameters" | fn.#ObjectExpression
+#MappingParameters: close({
+	CSVMappingParameters?:  #CSVMappingParameters | fn.#ObjectExpression
+	JSONMappingParameters?: #JSONMappingParameters | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MavenReference": close({
+#MavenReference: close({
 	ArtifactId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
 	GroupId!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
 	Version!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MonitoringConfiguration": close({
+#MonitoringConfiguration: close({
 	ConfigurationType!: "DEFAULT" | "CUSTOM" | fn.#StringExpression
 	LogLevel?:          "DEBUG" | "INFO" | "WARN" | "ERROR" | fn.#StringExpression
 	MetricsLevel?:      "APPLICATION" | "OPERATOR" | "PARALLELISM" | "TASK" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParallelismConfiguration": close({
+#ParallelismConfiguration: close({
 	AutoScalingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ConfigurationType!:  "CUSTOM" | "DEFAULT" | fn.#StringExpression
 	Parallelism?: int & >=1 |
@@ -326,57 +289,54 @@ _#defs: "/$defs/Properties/definitions/ParallelismConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PropertyGroup": close({
+#PropertyGroup: close({
 	PropertyGroupId?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
 	PropertyMap?:     struct.MaxFields(50) & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecordColumn": close({
+#RecordColumn: close({
 	Mapping?: strings.MaxRunes(65535) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^-\\s<>&]*$" | fn.#StringExpression
 	SqlType!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecordFormat": close({
-	MappingParameters?: _#defs."/$defs/Properties/definitions/MappingParameters" | fn.#ObjectExpression
+#RecordFormat: close({
+	MappingParameters?: #MappingParameters | fn.#ObjectExpression
 	RecordFormatType!:  "CSV" | "JSON" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RunConfiguration": close({
-	ApplicationRestoreConfiguration?: _#defs."/$defs/Properties/definitions/ApplicationRestoreConfiguration" |
-		fn.#ObjectExpression
-	FlinkRunConfiguration?: _#defs."/$defs/Properties/definitions/FlinkRunConfiguration" | fn.#ObjectExpression
+#RunConfiguration: close({
+	ApplicationRestoreConfiguration?: #ApplicationRestoreConfiguration | fn.#ObjectExpression
+	FlinkRunConfiguration?:           #FlinkRunConfiguration | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3ContentBaseLocation": close({
+#S3ContentBaseLocation: close({
 	BasePath?:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/!-_.*'()]+$" | fn.#StringExpression
-	BucketARN!: _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
+	BucketARN!: #Arn | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3ContentLocation": close({
-	BucketARN!:     _#defs."/$defs/Properties/definitions/Arn" | fn.#StringExpression
+#S3ContentLocation: close({
+	BucketARN!:     #Arn | fn.#StringExpression
 	FileKey!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	ObjectVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SqlApplicationConfiguration": close(
-	{Inputs?: list.MaxItems(1) & [..._#defs."/$defs/Properties/definitions/Input"] | fn.#ListExpression},
-) |
+#SqlApplicationConfiguration: close({Inputs?: list.MaxItems(1) & [...#Input] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
+#VpcConfiguration: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
@@ -386,25 +346,17 @@ _#defs: "/$defs/Properties/definitions/VpcConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfigurations": list.MaxItems(1) & [
-	..._#defs."/$defs/Properties/definitions/VpcConfiguration" | fn.#ObjectExpression
-] |
-	fn.#ListExpression
+#VpcConfigurations: list.MaxItems(1) & [...#VpcConfiguration | fn.#ObjectExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ZeppelinApplicationConfiguration": close({
-	CatalogConfiguration?: _#defs."/$defs/Properties/definitions/CatalogConfiguration" | fn.#ObjectExpression
-	CustomArtifactsConfiguration?: _#defs."/$defs/Properties/definitions/CustomArtifactsConfiguration" |
-		fn.#ListExpression
-	DeployAsApplicationConfiguration?: _#defs."/$defs/Properties/definitions/DeployAsApplicationConfiguration" |
-		fn.#ObjectExpression
-	MonitoringConfiguration?: _#defs."/$defs/Properties/definitions/ZeppelinMonitoringConfiguration" |
-		fn.#ObjectExpression
+#ZeppelinApplicationConfiguration: close({
+	CatalogConfiguration?:             #CatalogConfiguration | fn.#ObjectExpression
+	CustomArtifactsConfiguration?:     #CustomArtifactsConfiguration | fn.#ListExpression
+	DeployAsApplicationConfiguration?: #DeployAsApplicationConfiguration | fn.#ObjectExpression
+	MonitoringConfiguration?:          #ZeppelinMonitoringConfiguration | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ZeppelinMonitoringConfiguration": close(
-	{LogLevel?: "DEBUG" | "INFO" | "WARN" | "ERROR" | fn.#StringExpression},
-) |
+#ZeppelinMonitoringConfiguration: close({LogLevel?: "DEBUG" | "INFO" | "WARN" | "ERROR" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::KinesisAnalyticsV2::Application"

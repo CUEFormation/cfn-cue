@@ -19,14 +19,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Mappings?: close({
 		Properties?: close({
 
-			{[=~"^[A-Za-z0-9_.-]{1,64}$"]: _#defs."/$defs/Properties/definitions/PropertyMapping" | fn.#ObjectExpression}}) |
+			{[=~"^[A-Za-z0-9_.-]{1,64}$"]: #PropertyMapping | fn.#ObjectExpression}}) |
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression
-	Settings?: _#defs."/$defs/Properties/definitions/IndexSettings" | fn.#ObjectExpression
+	Settings?: #IndexSettings | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IndexSettings": close({
+#IndexSettings: close({
 	Analysis?: close({
 		Analyzer?: close({
 
@@ -66,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/IndexSettings": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PropertyMapping": close({
+#PropertyMapping: close({
 	Analyzer?:         string | fn.#StringExpression
 	CompressionLevel?: "16x" | "32x" | "8x" | "4x" | "2x" | "1x" | fn.#StringExpression
 	DataType?:         "float" | "byte" | fn.#StringExpression
@@ -131,7 +131,7 @@ _#defs: "/$defs/Properties/definitions/PropertyMapping": close({
 	fn.#ObjectExpression
 	Properties?: close({
 
-		{[=~"^[A-Za-z0-9_.-]{1,64}$"]: _#defs."/$defs/Properties/definitions/PropertyMapping" | fn.#ObjectExpression}}) |
+		{[=~"^[A-Za-z0-9_.-]{1,64}$"]: #PropertyMapping | fn.#ObjectExpression}}) |
 	fn.#ObjectExpression
 	SpaceType?: "l2" | "l1" | "linf" | "cosinesimil" | "innerproduct" | "hamming" | fn.#StringExpression
 	Type!:      "text" | "knn_vector" | "keyword" | "integer" | fn.#StringExpression

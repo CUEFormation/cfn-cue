@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -57,19 +57,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	MessageReviewHandler?: _#defs."/$defs/Properties/definitions/MessageReviewHandler"
+	MessageReviewHandler?: #MessageReviewHandler
 	Name?:                 strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-	Tags?:                 list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/MessageReviewHandler": close({
+#MessageReviewHandler: close({
 	FallbackResult?: "ALLOW" | "DENY" | fn.#StringExpression
 	Uri?: strings.MaxRunes(170) & strings.MinRunes(0) & =~"^$|^arn:aws:lambda:[a-z0-9-]+:[0-9]{12}:function:.+" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

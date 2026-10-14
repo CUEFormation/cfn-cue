@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"time"
+	"strings"
 	"list"
 )
 
@@ -19,26 +19,26 @@ import (
 	Arn?:              string
 	ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 	ChannelName!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
-	ContainerType!:    _#defs."/$defs/Properties/definitions/ContainerType"
+	ContainerType!:    #ContainerType
 
 	// <p>The date and time the origin endpoint was created.</p>
 	CreatedAt?:        time.Time
 	DashManifestUrls?: [...string]
 
 	// <p>A DASH manifest configuration.</p>
-	DashManifests?: [..._#defs."/$defs/Properties/definitions/DashManifestConfiguration"]
+	DashManifests?: [...#DashManifestConfiguration]
 
 	// <p>Enter any descriptive text that helps you to identify the origin endpoint.</p>
 	Description?:                     strings.MaxRunes(1024) & strings.MinRunes(0)
-	ForceEndpointErrorConfiguration?: _#defs."/$defs/Properties/definitions/ForceEndpointErrorConfiguration"
+	ForceEndpointErrorConfiguration?: #ForceEndpointErrorConfiguration
 	HlsManifestUrls?:                 [...string]
 
 	// <p>An HTTP live streaming (HLS) manifest configuration.</p>
-	HlsManifests?:              [..._#defs."/$defs/Properties/definitions/HlsManifestConfiguration"]
+	HlsManifests?:              [...#HlsManifestConfiguration]
 	LowLatencyHlsManifestUrls?: [...string]
 
 	// <p>A low-latency HLS manifest configuration.</p>
-	LowLatencyHlsManifests?: [..._#defs."/$defs/Properties/definitions/LowLatencyHlsManifestConfiguration"]
+	LowLatencyHlsManifests?: [...#LowLatencyHlsManifestConfiguration]
 
 	// <p>The date and time the origin endpoint was modified.</p>
 	ModifiedAt?:      time.Time
@@ -46,41 +46,37 @@ import (
 
 	// <p>The Microsoft Smooth Streaming (MSS) manifest configurations associated
 	// with this origin endpoint.</p>
-	MssManifests?:       [..._#defs."/$defs/Properties/definitions/MssManifestConfiguration"]
+	MssManifests?:       [...#MssManifestConfiguration]
 	OriginEndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
-	Segment?:            _#defs."/$defs/Properties/definitions/Segment"
+	Segment?:            #Segment
 
 	// <p>The size of the window (in seconds) to create a window of the live stream
 	// that's available for on-demand viewing. Viewers can start-over or catch-up
 	// on content that falls within the window. The maximum startover window is
 	// 1,209,600 seconds (14 days).</p>
 	StartoverWindowSeconds?: int & <=1209600 & >=0
-	StreamNameOutputMode?:   _#defs."/$defs/Properties/definitions/StreamNameOutputMode"
-	Tags?:                   [..._#defs."/$defs/Properties/definitions/Tag"]
-	UriSeparator?:           _#defs."/$defs/Properties/definitions/UriSeparator"
+	StreamNameOutputMode?:   #StreamNameOutputMode
+	Tags?:                   [...#Tag]
+	UriSeparator?:           #UriSeparator
 })
 
-_#defs: "/$defs/Properties/definitions/AdMarkerDash": "BINARY" | "XML"
+#AdMarkerDash: "BINARY" | "XML"
 
-_#defs: "/$defs/Properties/definitions/AdMarkerHls": "DATERANGE" | "SCTE35_ENHANCED"
+#AdMarkerHls: "DATERANGE" | "SCTE35_ENHANCED"
 
-_#defs: "/$defs/Properties/definitions/CmafEncryptionMethod": "CENC" | "CBCS"
+#CmafEncryptionMethod: "CENC" | "CBCS"
 
-_#defs: "/$defs/Properties/definitions/ContainerType": "TS" | "CMAF" | "ISM"
+#ContainerType: "TS" | "CMAF" | "ISM"
 
-_#defs: "/$defs/Properties/definitions/CustomAdType": "PROGRAM" |
-	"CHAPTER" |
-	"UNSCHEDULED_EVENT" |
-	"ALTERNATE_CONTENT_OPPORTUNITY" |
-	"NETWORK"
+#CustomAdType: "PROGRAM" | "CHAPTER" | "UNSCHEDULED_EVENT" | "ALTERNATE_CONTENT_OPPORTUNITY" | "NETWORK"
 
-_#defs: "/$defs/Properties/definitions/DashAudioTimelinePattern": "NONE" | "PATTERNED"
+#DashAudioTimelinePattern: "NONE" | "PATTERNED"
 
 // <p>The configuration for the DASH <code>availabilityStartTime</code>
 // attribute of the Media Presentation Description (MPD). Use this
 // configuration to set a custom availability start time for your DASH
 // manifest.</p>
-_#defs: "/$defs/Properties/definitions/DashAvailabilityStartTimeConfiguration": close({
+#DashAvailabilityStartTimeConfiguration: close({
 	// <p>The fixed availability start time for the DASH manifest, in ISO 8601
 	// date-time format. The value must have hourly granularity, meaning that the
 	// minutes, seconds, and fractional seconds must be zero. The value must be on
@@ -92,7 +88,7 @@ _#defs: "/$defs/Properties/definitions/DashAvailabilityStartTimeConfiguration": 
 // <p>The base URLs to use for retrieving segments. You can specify multiple
 // locations and indicate the priority and weight for when each should be used,
 // for use in mutli-CDN workflows.</p>
-_#defs: "/$defs/Properties/definitions/DashBaseUrl": close({
+#DashBaseUrl: close({
 	// <p>For use with DVB-DASH profiles only. The priority of this location for
 	// servings segments. The lower the number, the higher the priority.</p>
 	DvbPriority?: int & <=15000 & >=1
@@ -108,13 +104,13 @@ _#defs: "/$defs/Properties/definitions/DashBaseUrl": close({
 	Url!: strings.MaxRunes(2048) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/DashCompactness": "STANDARD" | "NONE"
+#DashCompactness: "STANDARD" | "NONE"
 
-_#defs: "/$defs/Properties/definitions/DashDrmSignaling": "INDIVIDUAL" | "REFERENCED"
+#DashDrmSignaling: "INDIVIDUAL" | "REFERENCED"
 
 // <p>For use with DVB-DASH profiles only. The settings for font downloads that
 // you want Elemental MediaPackage to pass through to the manifest.</p>
-_#defs: "/$defs/Properties/definitions/DashDvbFontDownload": close({
+#DashDvbFontDownload: close({
 	// <p>The <code>fontFamily</code> name for subtitles, as described in <a
 	// href="https://tech.ebu.ch/publications/tech3380">EBU-TT-D Subtitling
 	// Distribution Format</a>. </p>
@@ -134,7 +130,7 @@ _#defs: "/$defs/Properties/definitions/DashDvbFontDownload": close({
 // <p>For use with DVB-DASH profiles only. The settings for error reporting from
 // the playback device that you want Elemental MediaPackage to pass through to
 // the manifest.</p>
-_#defs: "/$defs/Properties/definitions/DashDvbMetricsReporting": close({
+#DashDvbMetricsReporting: close({
 	// <p>The number of playback devices per 1000 that will send error reports to
 	// the reporting URL. This represents the probability that a playback device
 	// will be a reporting player for this session.</p>
@@ -147,23 +143,23 @@ _#defs: "/$defs/Properties/definitions/DashDvbMetricsReporting": close({
 // <p>For endpoints that use the DVB-DASH profile only. The font download and
 // error reporting information that you want MediaPackage to pass through to
 // the manifest.</p>
-_#defs: "/$defs/Properties/definitions/DashDvbSettings": close({
+#DashDvbSettings: close({
 	// <p>Playback device error reporting settings.</p>
-	ErrorMetrics?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/DashDvbMetricsReporting"]
-	FontDownload?: _#defs."/$defs/Properties/definitions/DashDvbFontDownload"
+	ErrorMetrics?: list.MaxItems(20) & [...] & [...#DashDvbMetricsReporting]
+	FontDownload?: #DashDvbFontDownload
 })
 
 // <p>Retrieve the DASH manifest configuration.</p>
-_#defs: "/$defs/Properties/definitions/DashManifestConfiguration": close({
-	AudioTimelinePattern?:               _#defs."/$defs/Properties/definitions/DashAudioTimelinePattern"
-	AvailabilityStartTimeConfiguration?: _#defs."/$defs/Properties/definitions/DashAvailabilityStartTimeConfiguration"
+#DashManifestConfiguration: close({
+	AudioTimelinePattern?:               #DashAudioTimelinePattern
+	AvailabilityStartTimeConfiguration?: #DashAvailabilityStartTimeConfiguration
 
 	// <p>The base URL to use for retrieving segments.</p>
-	BaseUrls?:            list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/DashBaseUrl"]
-	Compactness?:         _#defs."/$defs/Properties/definitions/DashCompactness"
-	DrmSignaling?:        _#defs."/$defs/Properties/definitions/DashDrmSignaling"
-	DvbSettings?:         _#defs."/$defs/Properties/definitions/DashDvbSettings"
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
+	BaseUrls?:            list.MaxItems(20) & [...] & [...#DashBaseUrl]
+	Compactness?:         #DashCompactness
+	DrmSignaling?:        #DashDrmSignaling
+	DvbSettings?:         #DashDvbSettings
+	FilterConfiguration?: #FilterConfiguration
 
 	// <p>A short string that's appended to the endpoint URL. The manifest name
 	// creates a unique path to this endpoint. If you don't enter a value,
@@ -186,32 +182,28 @@ _#defs: "/$defs/Properties/definitions/DashManifestConfiguration": close({
 	// information about periods in the DASH manifest, see <a
 	// href="https://docs.aws.amazon.com/mediapackage/latest/userguide/multi-period.html">Multi-period
 	// DASH in AWS Elemental MediaPackage</a>.</p>
-	PeriodTriggers?: list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/DashPeriodTrigger"]
+	PeriodTriggers?: list.MaxItems(100) & [...] & [...#DashPeriodTrigger]
 
 	// <p>The profile that the output is compliant with.</p>
-	Profiles?:              list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/DashProfile"]
-	ProgramInformation?:    _#defs."/$defs/Properties/definitions/DashProgramInformation"
-	ScteDash?:              _#defs."/$defs/Properties/definitions/ScteDash"
-	SegmentTemplateFormat?: _#defs."/$defs/Properties/definitions/DashSegmentTemplateFormat"
-	SubtitleConfiguration?: _#defs."/$defs/Properties/definitions/DashSubtitleConfiguration"
+	Profiles?:              list.MaxItems(5) & [...] & [...#DashProfile]
+	ProgramInformation?:    #DashProgramInformation
+	ScteDash?:              #ScteDash
+	SegmentTemplateFormat?: #DashSegmentTemplateFormat
+	SubtitleConfiguration?: #DashSubtitleConfiguration
 
 	// <p>The amount of time (in seconds) that the player should be from the end of the manifest.</p>
 	SuggestedPresentationDelaySeconds?: int
-	UriPathType?:                       _#defs."/$defs/Properties/definitions/UriPathType"
-	UtcTiming?:                         _#defs."/$defs/Properties/definitions/DashUtcTiming"
+	UriPathType?:                       #UriPathType
+	UtcTiming?:                         #DashUtcTiming
 })
 
-_#defs: "/$defs/Properties/definitions/DashPeriodTrigger": "AVAILS" |
-	"DRM_KEY_ROTATION" |
-	"SOURCE_CHANGES" |
-	"SOURCE_DISRUPTIONS" |
-	"NONE"
+#DashPeriodTrigger: "AVAILS" | "DRM_KEY_ROTATION" | "SOURCE_CHANGES" | "SOURCE_DISRUPTIONS" | "NONE"
 
-_#defs: "/$defs/Properties/definitions/DashProfile": "DVB_DASH"
+#DashProfile: "DVB_DASH"
 
 // <p>Details about the content that you want MediaPackage to pass through in
 // the manifest to the playback device.</p>
-_#defs: "/$defs/Properties/definitions/DashProgramInformation": close({
+#DashProgramInformation: close({
 	// <p>A copyright statement about the content.</p>
 	Copyright?: strings.MaxRunes(2048) & strings.MinRunes(1)
 
@@ -228,40 +220,32 @@ _#defs: "/$defs/Properties/definitions/DashProgramInformation": close({
 	Title?: strings.MaxRunes(2048) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/DashSegmentTemplateFormat": "NUMBER_WITH_TIMELINE"
+#DashSegmentTemplateFormat: "NUMBER_WITH_TIMELINE"
 
 // <p>The configuration for DASH subtitles.</p>
-_#defs: "/$defs/Properties/definitions/DashSubtitleConfiguration": close(
-	{TtmlConfiguration?: _#defs."/$defs/Properties/definitions/DashTtmlConfiguration"},
-)
+#DashSubtitleConfiguration: close({TtmlConfiguration?: #DashTtmlConfiguration})
 
 // <p>The settings for TTML subtitles.</p>
-_#defs: "/$defs/Properties/definitions/DashTtmlConfiguration": close(
-	{TtmlProfile!: _#defs."/$defs/Properties/definitions/DashTtmlProfile"},
-)
+#DashTtmlConfiguration: close({TtmlProfile!: #DashTtmlProfile})
 
-_#defs: "/$defs/Properties/definitions/DashTtmlProfile": "IMSC_1" | "EBU_TT_D_101"
+#DashTtmlProfile: "IMSC_1" | "EBU_TT_D_101"
 
 // <p>Determines the type of UTC timing included in the DASH Media Presentation
 // Description (MPD).</p>
-_#defs: "/$defs/Properties/definitions/DashUtcTiming": close({
-	TimingMode?: _#defs."/$defs/Properties/definitions/DashUtcTimingMode"
+#DashUtcTiming: close({
+	TimingMode?: #DashUtcTimingMode
 
 	// <p>The the method that the player uses to synchronize to coordinated
 	// universal time (UTC) wall clock time.</p>
 	TimingSource?: strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/DashUtcTimingMode": "HTTP_HEAD" | "HTTP_ISO" | "HTTP_XSDATE" | "UTC_DIRECT"
+#DashUtcTimingMode: "HTTP_HEAD" | "HTTP_ISO" | "HTTP_XSDATE" | "UTC_DIRECT"
 
-_#defs: "/$defs/Properties/definitions/DrmSystem": "CLEAR_KEY_AES_128" |
-	"FAIRPLAY" |
-	"PLAYREADY" |
-	"WIDEVINE" |
-	"IRDETO"
+#DrmSystem: "CLEAR_KEY_AES_128" | "FAIRPLAY" | "PLAYREADY" | "WIDEVINE" | "IRDETO"
 
 // <p>The parameters for encrypting content.</p>
-_#defs: "/$defs/Properties/definitions/Encryption": close({
+#Encryption: close({
 	// <p>Excludes SEIG and SGPD boxes from segment metadata in CMAF containers.</p>
 	// <p>When set to <code>true</code>, MediaPackage omits these DRM metadata
 	// boxes from CMAF segments, which can improve compatibility with certain
@@ -279,7 +263,7 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 	// value, then MediaPackage creates the constant initialization vector
 	// (IV).</p>
 	ConstantInitializationVector?: strings.MaxRunes(32) & strings.MinRunes(32) & =~"^[0-9a-fA-F]+$"
-	EncryptionMethod!:             _#defs."/$defs/Properties/definitions/EncryptionMethod"
+	EncryptionMethod!:             #EncryptionMethod
 
 	// <p>The frequency (in seconds) of key changes for live workflows, in which
 	// content is streamed real time. The service retrieves content keys before the
@@ -290,7 +274,7 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 	// <p>The following example setting causes the service to rotate keys every
 	// thirty minutes: <code>1800</code> </p>
 	KeyRotationIntervalSeconds?: int & <=31536000 & >=300
-	SpekeKeyProvider!:           _#defs."/$defs/Properties/definitions/SpekeKeyProvider"
+	SpekeKeyProvider!:           #SpekeKeyProvider
 })
 
 // <p>Configure one or more content encryption keys for your endpoints that use
@@ -298,27 +282,24 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 // used to encrypt the audio and video tracks in your stream. To configure the
 // encryption contract, specify which audio and video encryption presets to
 // use.</p>
-_#defs: "/$defs/Properties/definitions/EncryptionContractConfiguration": close({
-	PresetSpeke20Audio!: _#defs."/$defs/Properties/definitions/PresetSpeke20Audio"
-	PresetSpeke20Video!: _#defs."/$defs/Properties/definitions/PresetSpeke20Video"
+#EncryptionContractConfiguration: close({
+	PresetSpeke20Audio!: #PresetSpeke20Audio
+	PresetSpeke20Video!: #PresetSpeke20Video
 })
 
 // <p>The encryption type.</p>
-_#defs: "/$defs/Properties/definitions/EncryptionMethod": close({
-	CmafEncryptionMethod?: _#defs."/$defs/Properties/definitions/CmafEncryptionMethod"
-	IsmEncryptionMethod?:  _#defs."/$defs/Properties/definitions/IsmEncryptionMethod"
-	TsEncryptionMethod?:   _#defs."/$defs/Properties/definitions/TsEncryptionMethod"
+#EncryptionMethod: close({
+	CmafEncryptionMethod?: #CmafEncryptionMethod
+	IsmEncryptionMethod?:  #IsmEncryptionMethod
+	TsEncryptionMethod?:   #TsEncryptionMethod
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointErrorCondition": "STALE_MANIFEST" |
-	"INCOMPLETE_MANIFEST" |
-	"MISSING_DRM_KEY" |
-	"SLATE_INPUT"
+#EndpointErrorCondition: "STALE_MANIFEST" | "INCOMPLETE_MANIFEST" | "MISSING_DRM_KEY" | "SLATE_INPUT"
 
 // <p>Filter configuration includes settings for manifest filtering, start and
 // end times, and time delay that apply to all of your egress requests for this
 // manifest. </p>
-_#defs: "/$defs/Properties/definitions/FilterConfiguration": close({
+#FilterConfiguration: close({
 	// <p>Optionally specify the clip start time for all of your manifest egress
 	// requests. When you include clip start time, note that you cannot use clip
 	// start time query parameters for this manifest's endpoint URL.</p>
@@ -353,7 +334,7 @@ _#defs: "/$defs/Properties/definitions/FilterConfiguration": close({
 })
 
 // <p>The failover settings for the endpoint.</p>
-_#defs: "/$defs/Properties/definitions/ForceEndpointErrorConfiguration": close({
+#ForceEndpointErrorConfiguration: close({
 	// <p>The failover conditions for the endpoint. The options are:</p> <ul> <li>
 	// <p> <code>STALE_MANIFEST</code> - The manifest stalled and there are no new
 	// segments or parts.</p> </li> <li> <p> <code>INCOMPLETE_MANIFEST</code> -
@@ -362,18 +343,18 @@ _#defs: "/$defs/Properties/definitions/ForceEndpointErrorConfiguration": close({
 	// fetch the key for the current key period.</p> </li> <li> <p>
 	// <code>SLATE_INPUT</code> - The segments which contain slate content are
 	// considered to be missing content.</p> </li> </ul>
-	EndpointErrorConditions?: [..._#defs."/$defs/Properties/definitions/EndpointErrorCondition"]
+	EndpointErrorConditions?: [...#EndpointErrorCondition]
 })
 
 // <p>Retrieve the HTTP live streaming (HLS) manifest configuration.</p>
-_#defs: "/$defs/Properties/definitions/HlsManifestConfiguration": close({
+#HlsManifestConfiguration: close({
 	// <p>A short string that's appended to the endpoint URL. The child manifest
 	// name creates a unique path to this endpoint. If you don't enter a value,
 	// MediaPackage uses the default child manifest name, index_1. The manifestName
 	// on the HLSManifest object overrides the manifestName you provided on the
 	// originEndpoint object.</p>
 	ChildManifestName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
+	FilterConfiguration?: #FilterConfiguration
 
 	// <p>A short short string that's appended to the endpoint URL. The manifest
 	// name creates a unique path to this endpoint. If you don't enter a value,
@@ -395,9 +376,9 @@ _#defs: "/$defs/Properties/definitions/HlsManifestConfiguration": close({
 	// if any ID3Timed metadata is in the HLS input, it is passed through to the
 	// HLS output.</p>
 	ProgramDateTimeIntervalSeconds?: int
-	ScteHls?:                        _#defs."/$defs/Properties/definitions/ScteHls"
-	StartTag?:                       _#defs."/$defs/Properties/definitions/StartTag"
-	UriPathType?:                    _#defs."/$defs/Properties/definitions/UriPathType"
+	ScteHls?:                        #ScteHls
+	StartTag?:                       #StartTag
+	UriPathType?:                    #UriPathType
 
 	// <p>The egress domain URL for stream delivery from MediaPackage.</p>
 	Url?: string
@@ -411,17 +392,17 @@ _#defs: "/$defs/Properties/definitions/HlsManifestConfiguration": close({
 	UrlEncodeChildManifest?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/IsmEncryptionMethod": "CENC"
+#IsmEncryptionMethod: "CENC"
 
 // <p>Retrieve the low-latency HTTP live streaming (HLS) manifest configuration.</p>
-_#defs: "/$defs/Properties/definitions/LowLatencyHlsManifestConfiguration": close({
+#LowLatencyHlsManifestConfiguration: close({
 	// <p>A short string that's appended to the endpoint URL. The child manifest
 	// name creates a unique path to this endpoint. If you don't enter a value,
 	// MediaPackage uses the default child manifest name, index_1. The manifestName
 	// on the HLSManifest object overrides the manifestName you provided on the
 	// originEndpoint object.</p>
 	ChildManifestName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
+	FilterConfiguration?: #FilterConfiguration
 
 	// <p>A short short string that's appended to the endpoint URL. The manifest
 	// name creates a unique path to this endpoint. If you don't enter a value,
@@ -443,9 +424,9 @@ _#defs: "/$defs/Properties/definitions/LowLatencyHlsManifestConfiguration": clos
 	// if any ID3Timed metadata is in the HLS input, it is passed through to the
 	// HLS output.</p>
 	ProgramDateTimeIntervalSeconds?: int
-	ScteHls?:                        _#defs."/$defs/Properties/definitions/ScteHls"
-	StartTag?:                       _#defs."/$defs/Properties/definitions/StartTag"
-	UriPathType?:                    _#defs."/$defs/Properties/definitions/UriPathType"
+	ScteHls?:                        #ScteHls
+	StartTag?:                       #StartTag
+	UriPathType?:                    #UriPathType
 
 	// <p>The egress domain URL for stream delivery from MediaPackage.</p>
 	Url?: string
@@ -462,9 +443,9 @@ _#defs: "/$defs/Properties/definitions/LowLatencyHlsManifestConfiguration": clos
 // <p>Configuration details for a Microsoft Smooth Streaming (MSS) manifest
 // associated with an origin endpoint. This includes all the settings and
 // properties that define how the MSS content is packaged and delivered.</p>
-_#defs: "/$defs/Properties/definitions/MssManifestConfiguration": close({
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
-	ManifestLayout?:      _#defs."/$defs/Properties/definitions/MssManifestLayout"
+#MssManifestConfiguration: close({
+	FilterConfiguration?: #FilterConfiguration
+	ManifestLayout?:      #MssManifestLayout
 
 	// <p>The name of the MSS manifest. This name is appended to the origin endpoint
 	// URL to create the unique path for accessing this specific MSS manifest.</p>
@@ -475,17 +456,13 @@ _#defs: "/$defs/Properties/definitions/MssManifestConfiguration": close({
 	ManifestWindowSeconds?: int
 })
 
-_#defs: "/$defs/Properties/definitions/MssManifestLayout": "FULL" | "COMPACT"
+#MssManifestLayout: "FULL" | "COMPACT"
 
-_#defs: "/$defs/Properties/definitions/OutputTimestampMode": "PASSTHROUGH" | "REBASED_TO_CHANNEL_START"
+#OutputTimestampMode: "PASSTHROUGH" | "REBASED_TO_CHANNEL_START"
 
-_#defs: "/$defs/Properties/definitions/PresetSpeke20Audio": "PRESET_AUDIO_1" |
-	"PRESET_AUDIO_2" |
-	"PRESET_AUDIO_3" |
-	"SHARED" |
-	"UNENCRYPTED"
+#PresetSpeke20Audio: "PRESET_AUDIO_1" | "PRESET_AUDIO_2" | "PRESET_AUDIO_3" | "SHARED" | "UNENCRYPTED"
 
-_#defs: "/$defs/Properties/definitions/PresetSpeke20Video": "PRESET_VIDEO_1" |
+#PresetSpeke20Video: "PRESET_VIDEO_1" |
 	"PRESET_VIDEO_2" |
 	"PRESET_VIDEO_3" |
 	"PRESET_VIDEO_4" |
@@ -497,7 +474,7 @@ _#defs: "/$defs/Properties/definitions/PresetSpeke20Video": "PRESET_VIDEO_1" |
 	"UNENCRYPTED"
 
 // <p>The SCTE configuration.</p>
-_#defs: "/$defs/Properties/definitions/Scte": close({
+#Scte: close({
 	// <p>A list of additional non-Ad SCTE-35 event types to treat as
 	// advertisements. When configured, events matching these types produce ad
 	// markers (such as <code>SCTE35-OUT</code> and <code>SCTE35-IN</code> in HLS
@@ -506,20 +483,20 @@ _#defs: "/$defs/Properties/definitions/Scte": close({
 	// <code>ALTERNATE_CONTENT_OPPORTUNITY</code> | <code>NETWORK</code> </p> <p>If
 	// you don't specify any values, the default is empty (only default ad types
 	// are used).</p>
-	CustomAdTypes?: list.MaxItems(25) & [...] & [..._#defs."/$defs/Properties/definitions/CustomAdType"]
+	CustomAdTypes?: list.MaxItems(25) & [...] & [...#CustomAdType]
 
 	// <p>The SCTE-35 message types that you want to be treated as ad markers in the output.</p>
-	ScteFilter?:     list.MaxItems(100) & [...] & [..._#defs."/$defs/Properties/definitions/ScteFilter"]
-	ScteInSegments?: _#defs."/$defs/Properties/definitions/ScteInSegments"
+	ScteFilter?:     list.MaxItems(100) & [...] & [...#ScteFilter]
+	ScteInSegments?: #ScteInSegments
 })
 
 // <p>The SCTE configuration.</p>
-_#defs: "/$defs/Properties/definitions/ScteDash": close({
-	AdMarkerDash?:    _#defs."/$defs/Properties/definitions/AdMarkerDash"
-	ScteInManifests?: _#defs."/$defs/Properties/definitions/ScteInManifests"
+#ScteDash: close({
+	AdMarkerDash?:    #AdMarkerDash
+	ScteInManifests?: #ScteInManifests
 })
 
-_#defs: "/$defs/Properties/definitions/ScteFilter": "SPLICE_INSERT" |
+#ScteFilter: "SPLICE_INSERT" |
 	"BREAK" |
 	"PROVIDER_ADVERTISEMENT" |
 	"DISTRIBUTOR_ADVERTISEMENT" |
@@ -540,19 +517,19 @@ _#defs: "/$defs/Properties/definitions/ScteFilter": "SPLICE_INSERT" |
 	"CALL_AD_SERVER"
 
 // <p>The SCTE configuration.</p>
-_#defs: "/$defs/Properties/definitions/ScteHls": close({
-	AdMarkerHls?:     _#defs."/$defs/Properties/definitions/AdMarkerHls"
-	ScteInManifests?: _#defs."/$defs/Properties/definitions/ScteInManifests"
+#ScteHls: close({
+	AdMarkerHls?:     #AdMarkerHls
+	ScteInManifests?: #ScteInManifests
 })
 
-_#defs: "/$defs/Properties/definitions/ScteInManifests": "ALL" | "MATCHES_FILTER"
+#ScteInManifests: "ALL" | "MATCHES_FILTER"
 
-_#defs: "/$defs/Properties/definitions/ScteInSegments": "NONE" | "ALL" | "MATCHES_FILTER"
+#ScteInSegments: "NONE" | "ALL" | "MATCHES_FILTER"
 
 // <p>The segment configuration, including the segment name, duration, and other
 // configuration values.</p>
-_#defs: "/$defs/Properties/definitions/Segment": close({
-	Encryption?: _#defs."/$defs/Properties/definitions/Encryption"
+#Segment: close({
+	Encryption?: #Encryption
 
 	// <p>When selected, the stream set includes an additional I-frame only stream,
 	// along with the other tracks. If false, this extra stream is not included.
@@ -562,8 +539,8 @@ _#defs: "/$defs/Properties/definitions/Segment": close({
 	// stream. This playlist permits player functionality like fast forward and
 	// rewind.</p>
 	IncludeIframeOnlyStreams?: bool
-	OutputTimestampMode?:      _#defs."/$defs/Properties/definitions/OutputTimestampMode"
-	Scte?:                     _#defs."/$defs/Properties/definitions/Scte"
+	OutputTimestampMode?:      #OutputTimestampMode
+	Scte?:                     #Scte
 
 	// <p>The duration (in seconds) of each segment. Enter a value equal to, or a
 	// multiple of, the input segment duration. If the value that you enter is
@@ -588,7 +565,7 @@ _#defs: "/$defs/Properties/definitions/Segment": close({
 })
 
 // <p>The parameters for the SPEKE key provider.</p>
-_#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
+#SpekeKeyProvider: close({
 	// <p>The ARN for the certificate that you imported to Amazon Web Services
 	// Certificate Manager to add content key encryption to this endpoint. For this
 	// feature to work, your DRM key provider must support content key
@@ -598,8 +575,8 @@ _#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
 	=~"^arn:([^:\\n]+):acm:([^:\\n]+):([0-9]+):certificate/[a-zA-Z0-9-_]+$"
 
 	// <p>The DRM solution provider you're using to protect your content during distribution.</p>
-	DrmSystems!: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DrmSystem"]
-	EncryptionContractConfiguration!: _#defs."/$defs/Properties/definitions/EncryptionContractConfiguration"
+	DrmSystems!:                      list.MaxItems(4) & list.MinItems(1) & [...#DrmSystem]
+	EncryptionContractConfiguration!: #EncryptionContractConfiguration
 
 	// <p>The unique identifier for the content. The service sends this to the key
 	// server to identify the current endpoint. How unique you make this depends on
@@ -632,7 +609,7 @@ _#defs: "/$defs/Properties/definitions/SpekeKeyProvider": close({
 // configuration object with a valid TimeOffset. When you do, you can also
 // optionally specify whether to include a PRECISE value in the EXT-X-START
 // tag.</p>
-_#defs: "/$defs/Properties/definitions/StartTag": close({
+#StartTag: close({
 	// <p>Specify the value for PRECISE within your EXT-X-START tag. Leave blank, or
 	// choose false, to use the default value NO. Choose yes to use the value
 	// YES.</p>
@@ -647,15 +624,15 @@ _#defs: "/$defs/Properties/definitions/StartTag": close({
 	TimeOffset!: number
 })
 
-_#defs: "/$defs/Properties/definitions/StreamNameOutputMode": "INDEX" | "PASSTHROUGH_NAME"
+#StreamNameOutputMode: "INDEX" | "PASSTHROUGH_NAME"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/TsEncryptionMethod": "AES_128" | "SAMPLE_AES"
+#TsEncryptionMethod: "AES_128" | "SAMPLE_AES"
 
-_#defs: "/$defs/Properties/definitions/UriPathType": "LEAF" | "ROOT"
+#UriPathType: "LEAF" | "ROOT"
 
-_#defs: "/$defs/Properties/definitions/UriSeparator": "UNDERSCORE" | "HYPHEN"
+#UriSeparator: "UNDERSCORE" | "HYPHEN"

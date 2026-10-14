@@ -18,7 +18,7 @@ import (
 // services](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AWS-logs-and-resource-policy.html).
 #Properties: close({
 	// The Amazon Resource Name (ARN) that uniquely identifies this delivery source.
-	Arn?: _#defs."/$defs/Properties/definitions/Arn"
+	Arn?: #Arn
 
 	// A map of key-value pairs to configure the delivery source. Both keys and
 	// values must be between 1 and 255 characters in length.
@@ -35,12 +35,12 @@ import (
 	Name!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$"
 
 	// The ARN of the resource that will be sending the logs.
-	ResourceArn?: _#defs."/$defs/Properties/definitions/Arn"
+	ResourceArn?: #Arn
 
 	// This array contains the ARN of the AWS resource that sends logs and is
 	// represented by this delivery source. Currently, only one ARN can be in the
 	// array.
-	ResourceArns?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Arn"]
+	ResourceArns?: list.UniqueItems() & [...#Arn]
 
 	// The AWS service that is sending logs.
 	Service?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\w-]*$"
@@ -52,14 +52,14 @@ import (
 	StatusReason?: "RESOURCE_DELETED"
 
 	// The tags that have been assigned to this delivery source.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // The Amazon Resource Name (ARN) that uniquely identifies this delivery source.
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?"
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?"
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

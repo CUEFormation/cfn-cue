@@ -9,7 +9,7 @@ package schema
 	Arn?:            string
 	Id?:             string
 	Tags?:           string | {...}
-	WhitelistRules?: [..._#defs."/$defs/Properties/definitions/InputWhitelistRuleCidr"]
+	WhitelistRules?: [...#InputWhitelistRuleCidr]
 })
 
-_#defs: "/$defs/Properties/definitions/InputWhitelistRuleCidr": close({Cidr?: string})
+#InputWhitelistRuleCidr: close({Cidr?: string})

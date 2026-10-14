@@ -8,9 +8,9 @@ import "list"
 
 // Resource Type definition for AWS::ElasticLoadBalancingV2::ListenerCertificate
 #Properties: close({
-	Certificates!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Certificate"]
+	Certificates!: list.UniqueItems() & [...#Certificate]
 	Id?:           string
 	ListenerArn!:  string
 })
 
-_#defs: "/$defs/Properties/definitions/Certificate": close({CertificateArn?: string})
+#Certificate: close({CertificateArn?: string})

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,28 +16,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CurrentRevisionId?:  strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
 	Environment?:        string | fn.#StringExpression
 	Name?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	RobotSoftwareSuite!: _#defs."/$defs/Properties/definitions/RobotSoftwareSuite"
-	Sources?:            [..._#defs."/$defs/Properties/definitions/SourceConfig"] | fn.#ListExpression
-	Tags?:               _#defs."/$defs/Properties/definitions/Tags"
+	RobotSoftwareSuite!: #RobotSoftwareSuite
+	Sources?:            [...#SourceConfig] | fn.#ListExpression
+	Tags?:               #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" |
-	fn.#StringExpression
+#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RobotSoftwareSuite": close({
+#RobotSoftwareSuite: close({
 	Name!:    "ROS" | "ROS2" | "General" | fn.#StringExpression
 	Version?: "Kinetic" | "Melodic" | "Dashing" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceConfig": close({
+#SourceConfig: close({
 	Architecture!: ("X86_64" | "ARM64" | "ARMHF") & (strings.MaxRunes(255) & strings.MinRunes(1)) | fn.#StringExpression
 	S3Bucket!:     string | fn.#StringExpression
 	S3Key!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
 fn.#ObjectExpression

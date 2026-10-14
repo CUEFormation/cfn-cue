@@ -18,10 +18,10 @@ import "strings"
 
 	// Specifies an application resource lifecycle configuration to prevent your
 	// application from accumulating too many versions.
-	ResourceLifecycleConfig?: _#defs."/$defs/Properties/definitions/ApplicationResourceLifecycleConfig"
+	ResourceLifecycleConfig?: #ApplicationResourceLifecycleConfig
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationResourceLifecycleConfig": close({
+#ApplicationResourceLifecycleConfig: close({
 	// The ARN of an IAM service role that Elastic Beanstalk has permission to
 	// assume. The ServiceRole property is required the first time that you provide
 	// a ResourceLifecycleConfig for the application. After you provide it once,
@@ -31,20 +31,20 @@ _#defs: "/$defs/Properties/definitions/ApplicationResourceLifecycleConfig": clos
 	ServiceRole?: string
 
 	// Defines lifecycle settings for application versions.
-	VersionLifecycleConfig?: _#defs."/$defs/Properties/definitions/ApplicationVersionLifecycleConfig"
+	VersionLifecycleConfig?: #ApplicationVersionLifecycleConfig
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationVersionLifecycleConfig": close({
+#ApplicationVersionLifecycleConfig: close({
 	// Specify a max age rule to restrict the length of time that application
 	// versions are retained for an application.
-	MaxAgeRule?: _#defs."/$defs/Properties/definitions/MaxAgeRule"
+	MaxAgeRule?: #MaxAgeRule
 
 	// Specify a max count rule to restrict the number of application versions that
 	// are retained for an application.
-	MaxCountRule?: _#defs."/$defs/Properties/definitions/MaxCountRule"
+	MaxCountRule?: #MaxCountRule
 })
 
-_#defs: "/$defs/Properties/definitions/MaxAgeRule": close({
+#MaxAgeRule: close({
 	// Set to true to delete a version's source bundle from Amazon S3 when Elastic
 	// Beanstalk deletes the application version.
 	DeleteSourceFromS3?: bool
@@ -56,7 +56,7 @@ _#defs: "/$defs/Properties/definitions/MaxAgeRule": close({
 	MaxAgeInDays?: int
 })
 
-_#defs: "/$defs/Properties/definitions/MaxCountRule": close({
+#MaxCountRule: close({
 	// Set to true to delete a version's source bundle from Amazon S3 when Elastic
 	// Beanstalk deletes the application version.
 	DeleteSourceFromS3?: bool

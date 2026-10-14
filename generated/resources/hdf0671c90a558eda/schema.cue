@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -14,28 +14,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A resource schema representing a Lake Formation Tag.
 #Properties: close({
-	CatalogId?: _#defs."/$defs/Properties/definitions/CatalogIdString" | fn.#StringExpression
-	TagKey!:    _#defs."/$defs/Properties/definitions/LFTagKey" | fn.#StringExpression
-	TagValues!: _#defs."/$defs/Properties/definitions/TagValueList" | fn.#ListExpression
+	CatalogId?: #CatalogIdString | fn.#StringExpression
+	TagKey!:    #LFTagKey | fn.#StringExpression
+	TagValues!: #TagValueList | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CatalogIdString": strings.MaxRunes(12) & strings.MinRunes(12) |
+#CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
+
+#LFTagKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([{a-zA-Z}{\\s}{0-9}_.:\\/=+\\-@%]*)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagKey": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^([{a-zA-Z}{\\s}{0-9}_.:\\/=+\\-@%]*)$" |
+#LFTagValue: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([{a-zA-Z}{\\s}{0-9}_.:\\*\\/=+\\-@%]*)$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LFTagValue": strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"^([{a-zA-Z}{\\s}{0-9}_.:\\*\\/=+\\-@%]*)$" |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/TagValueList": list.MaxItems(1000) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/LFTagValue"
-] |
-	fn.#ListExpression
+#TagValueList: list.MaxItems(1000) & list.MinItems(1) & [...#LFTagValue] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::LakeFormation::Tag"
 	Properties!: #Properties

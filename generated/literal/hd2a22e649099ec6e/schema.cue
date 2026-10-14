@@ -17,87 +17,83 @@ import (
 	CollaborationIdentifier!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-	DefaultJobResultConfiguration?: _#defs."/$defs/Properties/definitions/MembershipProtectedJobResultConfiguration"
-	DefaultResultConfiguration?:    _#defs."/$defs/Properties/definitions/MembershipProtectedQueryResultConfiguration"
+	DefaultJobResultConfiguration?: #MembershipProtectedJobResultConfiguration
+	DefaultResultConfiguration?:    #MembershipProtectedQueryResultConfiguration
 	IsMetricsEnabled?:              bool
-	JobLogStatus?:                  _#defs."/$defs/Properties/definitions/MembershipJobLogStatus"
+	JobLogStatus?:                  #MembershipJobLogStatus
 	MembershipIdentifier?: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
-	PaymentConfiguration?: _#defs."/$defs/Properties/definitions/MembershipPaymentConfiguration"
-	QueryLogStatus!:       _#defs."/$defs/Properties/definitions/MembershipQueryLogStatus"
+	PaymentConfiguration?: #MembershipPaymentConfiguration
+	QueryLogStatus!:       #MembershipQueryLogStatus
 
 	// An arbitrary set of tags (key-value pairs) for this cleanrooms membership.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/MembershipJobComputePaymentConfig": close({IsResponsible!: bool})
+#MembershipJobComputePaymentConfig: close({IsResponsible!: bool})
 
-_#defs: "/$defs/Properties/definitions/MembershipJobLogStatus": "ENABLED" | "DISABLED"
+#MembershipJobLogStatus: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/MembershipMLPaymentConfig": close({
-	ModelInference?:          _#defs."/$defs/Properties/definitions/MembershipModelInferencePaymentConfig"
-	ModelTraining?:           _#defs."/$defs/Properties/definitions/MembershipModelTrainingPaymentConfig"
-	SyntheticDataGeneration?: _#defs."/$defs/Properties/definitions/MembershipSyntheticDataGenerationPaymentConfig"
+#MembershipMLPaymentConfig: close({
+	ModelInference?:          #MembershipModelInferencePaymentConfig
+	ModelTraining?:           #MembershipModelTrainingPaymentConfig
+	SyntheticDataGeneration?: #MembershipSyntheticDataGenerationPaymentConfig
 })
 
-_#defs: "/$defs/Properties/definitions/MembershipModelInferencePaymentConfig": close({IsResponsible!: bool})
+#MembershipModelInferencePaymentConfig: close({IsResponsible!: bool})
 
-_#defs: "/$defs/Properties/definitions/MembershipModelTrainingPaymentConfig": close({IsResponsible!: bool})
+#MembershipModelTrainingPaymentConfig: close({IsResponsible!: bool})
 
-_#defs: "/$defs/Properties/definitions/MembershipPaymentConfiguration": close({
-	JobCompute?:      _#defs."/$defs/Properties/definitions/MembershipJobComputePaymentConfig"
-	MachineLearning?: _#defs."/$defs/Properties/definitions/MembershipMLPaymentConfig"
-	QueryCompute!:    _#defs."/$defs/Properties/definitions/MembershipQueryComputePaymentConfig"
+#MembershipPaymentConfiguration: close({
+	JobCompute?:      #MembershipJobComputePaymentConfig
+	MachineLearning?: #MembershipMLPaymentConfig
+	QueryCompute!:    #MembershipQueryComputePaymentConfig
 })
 
-_#defs: "/$defs/Properties/definitions/MembershipProtectedJobOutputConfiguration": close(
-	{S3!: _#defs."/$defs/Properties/definitions/ProtectedJobS3OutputConfigurationInput"},
-)
+#MembershipProtectedJobOutputConfiguration: close({S3!: #ProtectedJobS3OutputConfigurationInput})
 
-_#defs: "/$defs/Properties/definitions/MembershipProtectedJobResultConfiguration": close({
-	OutputConfiguration!: _#defs."/$defs/Properties/definitions/MembershipProtectedJobOutputConfiguration"
+#MembershipProtectedJobResultConfiguration: close({
+	OutputConfiguration!: #MembershipProtectedJobOutputConfiguration
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(32) &
 	=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/MembershipProtectedQueryOutputConfiguration": close(
-	{S3!: _#defs."/$defs/Properties/definitions/ProtectedQueryS3OutputConfiguration"},
-)
+#MembershipProtectedQueryOutputConfiguration: close({S3!: #ProtectedQueryS3OutputConfiguration})
 
-_#defs: "/$defs/Properties/definitions/MembershipProtectedQueryResultConfiguration": close({
-	OutputConfiguration!: _#defs."/$defs/Properties/definitions/MembershipProtectedQueryOutputConfiguration"
+#MembershipProtectedQueryResultConfiguration: close({
+	OutputConfiguration!: #MembershipProtectedQueryOutputConfiguration
 	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(32) &
 	=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/MembershipQueryComputePaymentConfig": close({IsResponsible!: bool})
+#MembershipQueryComputePaymentConfig: close({IsResponsible!: bool})
 
-_#defs: "/$defs/Properties/definitions/MembershipQueryLogStatus": "ENABLED" | "DISABLED"
+#MembershipQueryLogStatus: "ENABLED" | "DISABLED"
 
-_#defs: "/$defs/Properties/definitions/MembershipStatus": "ACTIVE" | "REMOVED" | "COLLABORATION_DELETED"
+#MembershipStatus: "ACTIVE" | "REMOVED" | "COLLABORATION_DELETED"
 
-_#defs: "/$defs/Properties/definitions/MembershipSyntheticDataGenerationPaymentConfig": close({IsResponsible!: bool})
+#MembershipSyntheticDataGenerationPaymentConfig: close({IsResponsible!: bool})
 
-_#defs: "/$defs/Properties/definitions/ProtectedJobS3OutputConfigurationInput": close({
+#ProtectedJobS3OutputConfigurationInput: close({
 	Bucket!:    strings.MaxRunes(63) & strings.MinRunes(3)
 	KeyPrefix?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ProtectedQueryS3OutputConfiguration": close({
+#ProtectedQueryS3OutputConfiguration: close({
 	Bucket!:           strings.MaxRunes(63) & strings.MinRunes(3)
 	KeyPrefix?:        string
-	ResultFormat!:     _#defs."/$defs/Properties/definitions/ResultFormat"
+	ResultFormat!:     #ResultFormat
 	SingleFileOutput?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/ResultFormat": "CSV" | "PARQUET"
+#ResultFormat: "CSV" | "PARQUET"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

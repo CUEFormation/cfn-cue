@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,13 +13,13 @@ import (
 #Properties: close({
 	// The configuration for the analyzer
 	AnalyzerConfiguration?: close({
-		InternalAccessConfiguration?: _#defs."/$defs/Properties/definitions/InternalAccessConfiguration"
-		UnusedAccessConfiguration?:   _#defs."/$defs/Properties/definitions/UnusedAccessConfiguration"
+		InternalAccessConfiguration?: #InternalAccessConfiguration
+		UnusedAccessConfiguration?:   #UnusedAccessConfiguration
 	})
 
 	// Analyzer name
 	AnalyzerName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z_][A-Za-z0-9_.-]*$"
-	ArchiveRules?: [..._#defs."/$defs/Properties/definitions/ArchiveRule"]
+	ArchiveRules?: [...#ArchiveRule]
 
 	// Amazon Resource Name (ARN) of the analyzer
 	Arn?: strings.MaxRunes(1600) &
@@ -27,7 +27,7 @@ import (
 	=~"^arn:[^:]+:access-analyzer(-beta|-gamma)?:[^:]*:[^:]*:analyzer/.+$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The type of the analyzer, must be one of ACCOUNT, ORGANIZATION,
 	// ACCOUNT_INTERNAL_ACCESS, ORGANIZATION_INTERNAL_ACCESS, ACCOUNT_UNUSED_ACCESS
@@ -36,7 +36,7 @@ import (
 })
 
 // The criteria for an analysis rule for an analyzer.
-_#defs: "/$defs/Properties/definitions/AnalysisRuleCriteria": close({
+#AnalysisRuleCriteria: close({
 	// A list of AWS account IDs to apply to the analysis rule criteria. The
 	// accounts cannot include the organization analyzer owner account. Account IDs
 	// can only be applied to the analysis rule criteria for organization-level
@@ -52,19 +52,19 @@ _#defs: "/$defs/Properties/definitions/AnalysisRuleCriteria": close({
 	// For the tag value, you can specify a value that is 0 to 256 characters in
 	// length. If the specified tag value is 0 characters, the rule is applied to
 	// all principals with the specified tag key.
-	ResourceTags?: [..._#defs."/$defs/Properties/definitions/Tags"]
+	ResourceTags?: [...#Tags]
 })
 
 // An Access Analyzer archive rule. Archive rules automatically archive new
 // findings that meet the criteria you define when you create the rule.
-_#defs: "/$defs/Properties/definitions/ArchiveRule": close({
-	Filter!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Filter"]
+#ArchiveRule: close({
+	Filter!: list.MinItems(1) & [...#Filter]
 
 	// The archive rule name
 	RuleName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/Filter": close({
+#Filter: close({
 	Contains?: [...string]
 	Eq?:       [...string]
 	Exists?:   bool
@@ -73,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/Filter": close({
 })
 
 // The criteria for an analysis rule for an internal access analyzer.
-_#defs: "/$defs/Properties/definitions/InternalAccessAnalysisRuleCriteria": close({
+#InternalAccessAnalysisRuleCriteria: close({
 	// A list of AWS account IDs to apply to the internal access analysis rule
 	// criteria. Account IDs can only be applied to the analysis rule criteria for
 	// organization-level analyzers and cannot include the organization owner
@@ -94,7 +94,7 @@ _#defs: "/$defs/Properties/definitions/InternalAccessAnalysisRuleCriteria": clos
 // Specifies the configuration of an internal access analyzer for an AWS
 // organization or account. This configuration determines how the analyzer
 // evaluates internal access within your AWS environment.
-_#defs: "/$defs/Properties/definitions/InternalAccessConfiguration": close({
+#InternalAccessConfiguration: close({
 	// Contains information about analysis rules for the internal access analyzer.
 	// Analysis rules determine which entities will generate findings based on the
 	// criteria you define when you create the rule.
@@ -102,12 +102,12 @@ _#defs: "/$defs/Properties/definitions/InternalAccessConfiguration": close({
 		// A list of rules for the internal access analyzer containing criteria to
 		// include in analysis. Only resources that meet the rule criteria will
 		// generate findings.
-		Inclusions?: [..._#defs."/$defs/Properties/definitions/InternalAccessAnalysisRuleCriteria"]
+		Inclusions?: [...#InternalAccessAnalysisRuleCriteria]
 	})
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -122,15 +122,15 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // An array of key-value pairs to apply to this resource.
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+#Tags: list.UniqueItems() & [...#Tag]
 
 // The Configuration for Unused Access Analyzer
-_#defs: "/$defs/Properties/definitions/UnusedAccessConfiguration": close({
+#UnusedAccessConfiguration: close({
 	// Contains information about rules for the analyzer.
 	AnalysisRule?: close({
 		// A list of rules for the analyzer containing criteria to exclude from
 		// analysis. Entities that meet the rule criteria will not generate findings.
-		Exclusions?: [..._#defs."/$defs/Properties/definitions/AnalysisRuleCriteria"]
+		Exclusions?: [...#AnalysisRuleCriteria]
 	})
 
 	// The specified access age in days for which to generate findings for unused

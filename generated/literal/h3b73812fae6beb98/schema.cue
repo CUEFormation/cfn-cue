@@ -3,37 +3,35 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::NetworkFirewall::VpcEndpointAssociation
 #Properties: close({
-	Description?:   _#defs."/$defs/Properties/definitions/Description"
-	EndpointId?:    _#defs."/$defs/Properties/definitions/EndpointId"
-	FirewallArn!:   _#defs."/$defs/Properties/definitions/ResourceArn"
-	SubnetMapping!: _#defs."/$defs/Properties/definitions/SubnetMapping"
-	Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	VpcEndpointAssociationArn?: _#defs."/$defs/Properties/definitions/ResourceArn"
-	VpcEndpointAssociationId?:  _#defs."/$defs/Properties/definitions/ResourceId"
-	VpcId!:                     _#defs."/$defs/Properties/definitions/VpcId"
+	Description?:               #Description
+	EndpointId?:                #EndpointId
+	FirewallArn!:               #ResourceArn
+	SubnetMapping!:             #SubnetMapping
+	Tags?:                      list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag]
+	VpcEndpointAssociationArn?: #ResourceArn
+	VpcEndpointAssociationId?:  #ResourceId
+	VpcId!:                     #VpcId
 })
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$"
+#Description: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$"
 
 // An endpoint Id.
-_#defs: "/$defs/Properties/definitions/EndpointId": string
+#EndpointId: string
 
 // A resource ARN.
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$"
+#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$"
 
-_#defs: "/$defs/Properties/definitions/ResourceId": strings.MaxRunes(36) &
-strings.MinRunes(36) &
-=~"^([0-9a-f]{8})-([0-9a-f]{4}-){3}([0-9a-f]{12})$"
+#ResourceId: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^([0-9a-f]{8})-([0-9a-f]{4}-){3}([0-9a-f]{12})$"
 
-_#defs: "/$defs/Properties/definitions/SubnetMapping": close({
+#SubnetMapping: close({
 	// A IPAddressType
 	IPAddressType?: "DUALSTACK" | "IPV4" | "IPV6"
 
@@ -41,12 +39,12 @@ _#defs: "/$defs/Properties/definitions/SubnetMapping": close({
 	SubnetId!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$"
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$"
 })
 
-_#defs: "/$defs/Properties/definitions/VpcId": =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+#VpcId: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 strings.MaxRunes(128) &
 strings.MinRunes(1) &
 =~"^vpc-[0-9a-f]+$"

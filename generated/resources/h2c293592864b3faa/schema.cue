@@ -20,8 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // configuration.
 #Properties: close({
 	BuildConfig!: close({
-		CodeConfig!: close({S3Object!: _#defs."/$defs/Properties/definitions/S3Object" | fn.#ObjectExpression}) |
-			fn.#ObjectExpression
+		CodeConfig!: close({S3Object!: #S3Object | fn.#ObjectExpression}) | fn.#ObjectExpression
 		RuntimeConfig!: close({
 			Runtime!: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*[0-9]+(\\.[a-z0-9]+)*$" |
 			fn.#StringExpression
@@ -67,10 +66,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		TelemetryConfig?: close(
-			{LoggingConfig?: _#defs."/$defs/Properties/definitions/LoggingConfig" | fn.#ObjectExpression},
-		) |
-			fn.#ObjectExpression
+		TelemetryConfig?: close({LoggingConfig?: #LoggingConfig | fn.#ObjectExpression}) | fn.#ObjectExpression
 		TimeoutSeconds?: int & <=900 & >=3 |
 			{
 				string &
@@ -93,14 +89,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+#LoggingConfig: close({
 	ApplicationLogLevel?: "TRACE" | "DEBUG" | "INFO" | "WARN" | "ERROR" | "FATAL" | fn.#StringExpression
 	LogGroup?:       strings.MaxRunes(500) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\-_/#]+$" | fn.#StringExpression
 	SystemLogLevel?: "DEBUG" | "INFO" | "WARN" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Object": close({
+#S3Object: close({
 	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^([a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9])$" |
 	fn.#StringExpression
 	Key!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression

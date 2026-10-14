@@ -11,26 +11,24 @@ package schema
 	MeshName!:           string
 	MeshOwner?:          string
 	ResourceOwner?:      string
-	Spec!:               _#defs."/$defs/Properties/definitions/VirtualServiceSpec"
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"]
+	Spec!:               #VirtualServiceSpec
+	Tags?:               [...#Tag]
 	Uid?:                string
 	VirtualServiceName!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualNodeServiceProvider": close({VirtualNodeName!: string})
+#VirtualNodeServiceProvider: close({VirtualNodeName!: string})
 
-_#defs: "/$defs/Properties/definitions/VirtualRouterServiceProvider": close({VirtualRouterName!: string})
+#VirtualRouterServiceProvider: close({VirtualRouterName!: string})
 
-_#defs: "/$defs/Properties/definitions/VirtualServiceProvider": close({
-	VirtualNode?:   _#defs."/$defs/Properties/definitions/VirtualNodeServiceProvider"
-	VirtualRouter?: _#defs."/$defs/Properties/definitions/VirtualRouterServiceProvider"
+#VirtualServiceProvider: close({
+	VirtualNode?:   #VirtualNodeServiceProvider
+	VirtualRouter?: #VirtualRouterServiceProvider
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualServiceSpec": close(
-	{Provider?: _#defs."/$defs/Properties/definitions/VirtualServiceProvider"},
-)
+#VirtualServiceSpec: close({Provider?: #VirtualServiceProvider})

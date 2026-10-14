@@ -31,7 +31,7 @@ import (
 	// information, see [Amazon S3 Transfer
 	// Acceleration](https://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html)
 	// in the *Amazon S3 User Guide*.
-	AccelerateConfiguration?: _#defs."/$defs/Properties/definitions/AccelerateConfiguration"
+	AccelerateConfiguration?: #AccelerateConfiguration
 
 	// This is a legacy property, and it is not recommended for most use cases. A
 	// majority of modern use cases in Amazon S3 no longer require the use of ACLs,
@@ -65,8 +65,8 @@ import (
 		"PublicReadWrite"
 
 	// Specifies the configuration and any analyses for the analytics filter of an Amazon S3 bucket.
-	AnalyticsConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AnalyticsConfiguration"]
-	Arn?:                     _#defs."/$defs/Properties/definitions/Arn"
+	AnalyticsConfigurations?: list.UniqueItems() & [...#AnalyticsConfiguration]
+	Arn?:                     #Arn
 
 	// Specifies default encryption for a bucket using server-side encryption with
 	// Amazon S3-managed keys (SSE-S3), AWS KMS-managed keys (SSE-KMS), or
@@ -75,7 +75,7 @@ import (
 	// Default Encryption for S3
 	// Buckets](https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html)
 	// in the *Amazon S3 User Guide*.
-	BucketEncryption?: _#defs."/$defs/Properties/definitions/BucketEncryption"
+	BucketEncryption?: #BucketEncryption
 
 	// A name for the bucket. If you don't specify a name, AWS CloudFormation
 	// generates a unique ID and uses that ID for the bucket name. The bucket name
@@ -96,35 +96,33 @@ import (
 	// bucket. For more information, see [Enabling Cross-Origin Resource
 	// Sharing](https://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html) in the
 	// *Amazon S3 User Guide*.
-	CorsConfiguration?:   _#defs."/$defs/Properties/definitions/CorsConfiguration"
+	CorsConfiguration?:   #CorsConfiguration
 	DomainName?:          string
 	DualStackDomainName?: string
 
 	// Defines how Amazon S3 handles Intelligent-Tiering storage.
-	IntelligentTieringConfigurations?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/IntelligentTieringConfiguration"
-	]
+	IntelligentTieringConfigurations?: list.UniqueItems() & [...#IntelligentTieringConfiguration]
 
 	// Specifies the S3 Inventory configuration for an Amazon S3 bucket. For more
 	// information, see [GET Bucket
 	// inventory](https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketGETInventoryConfig.html)
 	// in the *Amazon S3 API Reference*.
-	InventoryConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InventoryConfiguration"]
+	InventoryConfigurations?: list.UniqueItems() & [...#InventoryConfiguration]
 
 	// Specifies the lifecycle configuration for objects in an Amazon S3 bucket. For
 	// more information, see [Object Lifecycle
 	// Management](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lifecycle-mgmt.html)
 	// in the *Amazon S3 User Guide*.
-	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration"
+	LifecycleConfiguration?: #LifecycleConfiguration
 
 	// Settings that define where logs are stored.
-	LoggingConfiguration?: _#defs."/$defs/Properties/definitions/LoggingConfiguration"
+	LoggingConfiguration?: #LoggingConfiguration
 
 	// The S3 Metadata configuration for a general purpose bucket.
-	MetadataConfiguration?: _#defs."/$defs/Properties/definitions/MetadataConfiguration"
+	MetadataConfiguration?: #MetadataConfiguration
 
 	// The metadata table configuration of an S3 general purpose bucket.
-	MetadataTableConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableConfiguration"
+	MetadataTableConfiguration?: #MetadataTableConfiguration
 
 	// Specifies a metrics configuration for the CloudWatch request metrics
 	// (specified by the metrics configuration ID) from an Amazon S3 bucket. If
@@ -132,10 +130,10 @@ import (
 	// replacement of the existing metrics configuration. If you don't include the
 	// elements you want to keep, they are erased. For more information, see
 	// [PutBucketMetricsConfiguration](https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketPUTMetricConfiguration.html).
-	MetricsConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricsConfiguration"]
+	MetricsConfigurations?: list.UniqueItems() & [...#MetricsConfiguration]
 
 	// Configuration that defines how Amazon S3 handles bucket notifications.
-	NotificationConfiguration?: _#defs."/$defs/Properties/definitions/NotificationConfiguration"
+	NotificationConfiguration?: #NotificationConfiguration
 
 	// This operation is not supported for directory buckets.
 	// Places an Object Lock configuration on the specified bucket. The rule
@@ -153,7 +151,7 @@ import (
 	// You must URL encode any signed header values that contain spaces. For
 	// example, if your header value is ``my file.txt``, containing two spaces
 	// after ``my``, you must URL encode this value to ``my%20%20file.txt``.
-	ObjectLockConfiguration?: _#defs."/$defs/Properties/definitions/ObjectLockConfiguration"
+	ObjectLockConfiguration?: #ObjectLockConfiguration
 
 	// Indicates whether this bucket has an Object Lock configuration enabled.
 	// Enable ``ObjectLockEnabled`` when you apply ``ObjectLockConfiguration`` to a
@@ -161,10 +159,10 @@ import (
 	ObjectLockEnabled?: bool
 
 	// Configuration that defines how Amazon S3 handles Object Ownership rules.
-	OwnershipControls?: _#defs."/$defs/Properties/definitions/OwnershipControls"
+	OwnershipControls?: #OwnershipControls
 
 	// Configuration that defines how Amazon S3 handles public access.
-	PublicAccessBlockConfiguration?: _#defs."/$defs/Properties/definitions/PublicAccessBlockConfiguration"
+	PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration
 	RegionalDomainName?:             string
 
 	// Configuration for replicating objects in an S3 bucket. To enable replication,
@@ -173,10 +171,10 @@ import (
 	// Amazon S3 can store replicated objects in a single destination bucket or
 	// multiple destination buckets. The destination bucket or buckets must already
 	// exist.
-	ReplicationConfiguration?: _#defs."/$defs/Properties/definitions/ReplicationConfiguration"
+	ReplicationConfiguration?: #ReplicationConfiguration
 
 	// An arbitrary set of tags (key-value pairs) for this S3 bucket.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// Enables multiple versions of all objects in this bucket. You might enable
 	// versioning to prevent objects from being deleted or overwritten by mistake
@@ -185,12 +183,12 @@ import (
 	// short amount of time for the change to be fully propagated. We recommend
 	// that you wait for 15 minutes after enabling versioning before issuing write
 	// operations (``PUT`` or ``DELETE``) on objects in the bucket.
-	VersioningConfiguration?: _#defs."/$defs/Properties/definitions/VersioningConfiguration"
+	VersioningConfiguration?: #VersioningConfiguration
 
 	// Information used to configure the bucket as a static website. For more
 	// information, see [Hosting Websites on Amazon
 	// S3](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html).
-	WebsiteConfiguration?: _#defs."/$defs/Properties/definitions/WebsiteConfiguration"
+	WebsiteConfiguration?: #WebsiteConfiguration
 	WebsiteURL?:           net.AbsURL
 })
 
@@ -200,7 +198,7 @@ import (
 // Using a Bucket Lifecycle
 // Policy](https://docs.aws.amazon.com/AmazonS3/latest/dev/mpuoverview.html#mpu-abort-incomplete-mpu-lifecycle-config)
 // in the *Amazon S3 User Guide*.
-_#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
+#AbortIncompleteMultipartUpload: close({
 	// Specifies the number of days after which Amazon S3 stops an incomplete multipart upload.
 	DaysAfterInitiation!: int & >=0
 })
@@ -209,7 +207,7 @@ _#defs: "/$defs/Properties/definitions/AbortIncompleteMultipartUpload": close({
 // information, see [Amazon S3 Transfer
 // Acceleration](https://docs.aws.amazon.com/AmazonS3/latest/dev/transfer-acceleration.html)
 // in the *Amazon S3 User Guide*.
-_#defs: "/$defs/Properties/definitions/AccelerateConfiguration": close({
+#AccelerateConfiguration: close({
 	// Specifies the transfer acceleration status of the bucket.
 	AccelerationStatus!: "Enabled" | "Suspended"
 })
@@ -219,7 +217,7 @@ _#defs: "/$defs/Properties/definitions/AccelerateConfiguration": close({
 // the AWS-account that owns the destination bucket. If this is not specified
 // in the replication configuration, the replicas are owned by same AWS-account
 // that owns the source object.
-_#defs: "/$defs/Properties/definitions/AccessControlTranslation": close({
+#AccessControlTranslation: close({
 	// Specifies the replica ownership. For default and valid values, see [PUT
 	// bucket
 	// replication](https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketPUTreplication.html)
@@ -228,7 +226,7 @@ _#defs: "/$defs/Properties/definitions/AccessControlTranslation": close({
 })
 
 // Specifies the configuration and any analyses for the analytics filter of an Amazon S3 bucket.
-_#defs: "/$defs/Properties/definitions/AnalyticsConfiguration": close({
+#AnalyticsConfiguration: close({
 	// The ID that identifies the analytics configuration.
 	Id!: string
 
@@ -237,13 +235,13 @@ _#defs: "/$defs/Properties/definitions/AnalyticsConfiguration": close({
 
 	// Contains data related to access patterns to be collected and made available
 	// to analyze the tradeoffs between different storage classes.
-	StorageClassAnalysis!: _#defs."/$defs/Properties/definitions/StorageClassAnalysis"
+	StorageClassAnalysis!: #StorageClassAnalysis
 
 	// The tags to use when evaluating an analytics filter.
 	// The analytics only includes objects that meet the filter's criteria. If no
 	// filter is specified, all of the contents of the bucket are included in the
 	// analysis.
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"]
+	TagFilters?: list.UniqueItems() & [...#TagFilter]
 })
 
 // The annotation table configuration for an S3 Metadata configuration. The
@@ -254,7 +252,7 @@ _#defs: "/$defs/Properties/definitions/AnalyticsConfiguration": close({
 // your AWS managed table bucket. Otherwise, the newly re-enabled annotation
 // table configuration will enter a failed state because the annotation table
 // already exists in the table bucket.
-_#defs: "/$defs/Properties/definitions/AnnotationTableConfiguration": close({
+#AnnotationTableConfiguration: close({
 	// Specifies whether the annotation table configuration is enabled or disabled.
 	ConfigurationState!: "ENABLED" | "DISABLED"
 
@@ -263,7 +261,7 @@ _#defs: "/$defs/Properties/definitions/AnnotationTableConfiguration": close({
 	// Service (AWS KMS) keys (SSE-KMS), set ``SseAlgorithm`` to ``aws:kms``. You
 	// must also set ``KmsKeyArn`` to the ARN of a customer managed KMS key in the
 	// same Region where your general purpose bucket is located.
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration"
+	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
 
 	// The ARN of the IAM role that grants Amazon S3 Metadata permission to read
 	// annotations from your bucket.
@@ -277,10 +275,10 @@ _#defs: "/$defs/Properties/definitions/AnnotationTableConfiguration": close({
 })
 
 // the Amazon Resource Name (ARN) of the specified bucket.
-_#defs: "/$defs/Properties/definitions/Arn": string
+#Arn: string
 
 // List of encryption types.
-_#defs: "/$defs/Properties/definitions/BlockedEncryptionTypeList": list.UniqueItems() & [..."NONE" | "SSE-C"]
+#BlockedEncryptionTypeList: list.UniqueItems() & [..."NONE" | "SSE-C"]
 
 // A bucket-level setting for Amazon S3 general purpose buckets used to prevent
 // the upload of new objects encrypted with the specified server-side
@@ -302,14 +300,14 @@ _#defs: "/$defs/Properties/definitions/BlockedEncryptionTypeList": list.UniqueIt
 // + Permissions You must have the s3:PutEncryptionConfiguration permission to
 // block or unblock an encryption type for a bucket. You must have the
 // s3:GetEncryptionConfiguration permission to view a bucket's encryption type.
-_#defs: "/$defs/Properties/definitions/BlockedEncryptionTypes": close({
+#BlockedEncryptionTypes: close({
 	// The object encryption type that you want to block or unblock for an Amazon S3
 	// general purpose bucket.
 	// Currently, this parameter only supports blocking or unblocking server side
 	// encryption with customer-provided keys (SSE-C). For more information about
 	// SSE-C, see [Using server-side encryption with customer-provided keys
 	// (SSE-C)](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerSideEncryptionCustomerKeys.html).
-	EncryptionType?: _#defs."/$defs/Properties/definitions/BlockedEncryptionTypeList"
+	EncryptionType?: #BlockedEncryptionTypeList
 })
 
 // Specifies default encryption for a bucket using server-side encryption with
@@ -319,25 +317,23 @@ _#defs: "/$defs/Properties/definitions/BlockedEncryptionTypes": close({
 // Default Encryption for S3
 // Buckets](https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html)
 // in the *Amazon S3 User Guide*.
-_#defs: "/$defs/Properties/definitions/BucketEncryption": close({
+#BucketEncryption: close({
 	// Specifies the default server-side-encryption configuration.
-	ServerSideEncryptionConfiguration!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ServerSideEncryptionRule"
-	]
+	ServerSideEncryptionConfiguration!: list.UniqueItems() & [...#ServerSideEncryptionRule]
 })
 
 // Describes the cross-origin access configuration for objects in an Amazon S3
 // bucket. For more information, see [Enabling Cross-Origin Resource
 // Sharing](https://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html) in the
 // *Amazon S3 User Guide*.
-_#defs: "/$defs/Properties/definitions/CorsConfiguration": close({
+#CorsConfiguration: close({
 	// A set of origins and methods (cross-origin access that you want to allow).
 	// You can add up to 100 rules to the configuration.
-	CorsRules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CorsRule"]
+	CorsRules!: list.UniqueItems() & [...#CorsRule]
 })
 
 // Specifies a cross-origin access rule for an Amazon S3 bucket.
-_#defs: "/$defs/Properties/definitions/CorsRule": close({
+#CorsRule: close({
 	// Headers that are specified in the ``Access-Control-Request-Headers`` header.
 	// These headers are allowed in a preflight OPTIONS request. In response to any
 	// preflight OPTIONS request, Amazon S3 returns any requested headers that are
@@ -366,9 +362,9 @@ _#defs: "/$defs/Properties/definitions/CorsRule": close({
 
 // Specifies how data related to the storage class analysis for an Amazon S3
 // bucket should be exported.
-_#defs: "/$defs/Properties/definitions/DataExport": close({
+#DataExport: close({
 	// The place to store the data for an analysis.
-	Destination!: _#defs."/$defs/Properties/definitions/Destination"
+	Destination!: #Destination
 
 	// The version of the output schema to use when exporting data. Must be ``V_1``.
 	OutputSchemaVersion!: "V_1"
@@ -383,7 +379,7 @@ _#defs: "/$defs/Properties/definitions/DataExport": close({
 // The ``DefaultEventHold`` duration can be specified in either ``Days`` or
 // ``Years``, but you must select one. You can't specify ``Days`` and ``Years``
 // at the same time.
-_#defs: "/$defs/Properties/definitions/DefaultEventHold": close({
+#DefaultEventHold: close({
 	// The number of days that you want to specify for the default event hold
 	// duration. Valid values are ``1`` to ``36500`` days. You must specify either
 	// ``Days`` or ``Years``, but not both.
@@ -400,7 +396,7 @@ _#defs: "/$defs/Properties/definitions/DefaultEventHold": close({
 // + The ``DefaultRetention`` settings require both a mode and a period.
 // + The ``DefaultRetention`` period can be either ``Days`` or ``Years`` but you
 // must select one. You cannot specify ``Days`` and ``Years`` at the same time.
-_#defs: "/$defs/Properties/definitions/DefaultRetention": close({
+#DefaultRetention: close({
 	// The number of days that you want to specify for the default retention period.
 	// If Object Lock is turned on, you must specify ``Mode`` and specify either
 	// ``Days`` or ``Years``.
@@ -412,7 +408,7 @@ _#defs: "/$defs/Properties/definitions/DefaultRetention": close({
 	// If you specify both a default retention period (``Days`` or ``Years``) and a
 	// ``DefaultEventHold``, the event hold duration can't exceed the default
 	// retention period.
-	DefaultEventHold?: _#defs."/$defs/Properties/definitions/DefaultEventHold"
+	DefaultEventHold?: #DefaultEventHold
 
 	// The default Object Lock retention mode you want to apply to new objects
 	// placed in the specified bucket. If Object Lock is turned on, you must
@@ -438,14 +434,14 @@ _#defs: "/$defs/Properties/definitions/DefaultRetention": close({
 // S3 handles replication of delete markers differently. For more information,
 // see [Backward
 // Compatibility](https://docs.aws.amazon.com/AmazonS3/latest/dev/replication-add-config.html#replication-backward-compat-considerations).
-_#defs: "/$defs/Properties/definitions/DeleteMarkerReplication": close({
+#DeleteMarkerReplication: close({
 	// Indicates whether to replicate delete markers.
 	Status?: "Disabled" | "Enabled"
 })
 
 // Specifies information about where to publish analysis or configuration
 // results for an Amazon S3 bucket.
-_#defs: "/$defs/Properties/definitions/Destination": close({
+#Destination: close({
 	// The account ID that owns the destination S3 bucket. If no account ID is
 	// provided, the owner is not validated before exporting data.
 	// Although this value is optional, we strongly recommend that you set it to
@@ -470,7 +466,7 @@ _#defs: "/$defs/Properties/definitions/Destination": close({
 // the key within the requester’s account. This behavior can result in data
 // that's encrypted with a KMS key that belongs to the requester, and not the
 // bucket owner.
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	// Specifies the ID (Key ARN or Alias ARN) of the customer managed AWS KMS key
 	// stored in AWS Key Management Service (KMS) for the destination bucket.
 	// Amazon S3 uses this key to encrypt replica objects. Amazon S3 only supports
@@ -490,7 +486,7 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 // targets. For more information, see [What Is Amazon
 // EventBridge](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html)
 // in the *Amazon EventBridge User Guide*
-_#defs: "/$defs/Properties/definitions/EventBridgeConfiguration": close({
+#EventBridgeConfiguration: close({
 	// Enables delivery of events to Amazon EventBridge.
 	EventBridgeEnabled!: bool
 })
@@ -504,7 +500,7 @@ _#defs: "/$defs/Properties/definitions/EventBridgeConfiguration": close({
 // you can use ``FilterRule`` to find objects in a bucket with key names that
 // have the same prefix. A suffix is similar to a prefix, but it is at the end
 // of the object key name instead of at the beginning.
-_#defs: "/$defs/Properties/definitions/FilterRule": close({
+#FilterRule: close({
 	// The object key name prefix or suffix identifying one or more objects to which
 	// the filtering rule applies. The maximum length is 1,024 characters.
 	// Overlapping prefixes and suffixes are not supported. For more information,
@@ -521,7 +517,7 @@ _#defs: "/$defs/Properties/definitions/FilterRule": close({
 // For information about the S3 Intelligent-Tiering storage class, see [Storage
 // class for automatically optimizing frequently and infrequently accessed
 // objects](https://docs.aws.amazon.com/AmazonS3/latest/dev/storage-class-intro.html#sc-dynamic-data-access).
-_#defs: "/$defs/Properties/definitions/IntelligentTieringConfiguration": close({
+#IntelligentTieringConfiguration: close({
 	// The ID used to identify the S3 Intelligent-Tiering configuration.
 	Id!: string
 
@@ -532,7 +528,7 @@ _#defs: "/$defs/Properties/definitions/IntelligentTieringConfiguration": close({
 	Status!: "Disabled" | "Enabled"
 
 	// A container for a key-value pair.
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"]
+	TagFilters?: list.UniqueItems() & [...#TagFilter]
 
 	// Specifies a list of S3 Intelligent-Tiering storage class tiers in the
 	// configuration. At least one tier must be defined in the list. At most, you
@@ -541,16 +537,16 @@ _#defs: "/$defs/Properties/definitions/IntelligentTieringConfiguration": close({
 	// You only need Intelligent Tiering Configuration enabled on a bucket if you
 	// want to automatically move objects stored in the Intelligent-Tiering storage
 	// class to Archive Access or Deep Archive Access tiers.
-	Tierings!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tiering"]
+	Tierings!: list.UniqueItems() & [...#Tiering]
 })
 
 // Specifies the S3 Inventory configuration for an Amazon S3 bucket. For more
 // information, see [GET Bucket
 // inventory](https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketGETInventoryConfig.html)
 // in the *Amazon S3 API Reference*.
-_#defs: "/$defs/Properties/definitions/InventoryConfiguration": close({
+#InventoryConfiguration: close({
 	// Contains information about where to publish the inventory results.
-	Destination!: _#defs."/$defs/Properties/definitions/Destination"
+	Destination!: #Destination
 
 	// Specifies whether the inventory is enabled or disabled. If set to ``True``,
 	// an inventory list is generated. If set to ``False``, no inventory list is
@@ -602,13 +598,13 @@ _#defs: "/$defs/Properties/definitions/InventoryConfiguration": close({
 // your AWS managed table bucket. Otherwise, the newly re-enabled inventory
 // table configuration will enter a failed state because the inventory table
 // already exists in the table bucket.
-_#defs: "/$defs/Properties/definitions/InventoryTableConfiguration": close({
+#InventoryTableConfiguration: close({
 	// The configuration state of the inventory table, indicating whether the
 	// inventory table is enabled or disabled.
 	ConfigurationState!: "ENABLED" | "DISABLED"
 
 	// The encryption configuration for the inventory table.
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration"
+	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
 
 	// The Amazon Resource Name (ARN) for the inventory table.
 	TableArn?: string
@@ -624,12 +620,12 @@ _#defs: "/$defs/Properties/definitions/InventoryTableConfiguration": close({
 // already exists in the table bucket. The journal table of a previous
 // configuration must be deleted before a new journal table can be created
 // successfully.
-_#defs: "/$defs/Properties/definitions/JournalTableConfiguration": close({
+#JournalTableConfiguration: close({
 	// The encryption configuration for the journal table.
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/MetadataTableEncryptionConfiguration"
+	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
 
 	// The journal table record expiration settings for the journal table.
-	RecordExpiration!: _#defs."/$defs/Properties/definitions/RecordExpiration"
+	RecordExpiration!: #RecordExpiration
 
 	// The Amazon Resource Name (ARN) for the journal table.
 	TableArn?: string
@@ -639,7 +635,7 @@ _#defs: "/$defs/Properties/definitions/JournalTableConfiguration": close({
 })
 
 // Describes the LAMlong functions to invoke and the events for which to invoke them.
-_#defs: "/$defs/Properties/definitions/LambdaConfiguration": close({
+#LambdaConfiguration: close({
 	// The Amazon S3 bucket event for which to invoke the LAMlong function. For more
 	// information, see [Supported Event
 	// Types](https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html)
@@ -650,7 +646,7 @@ _#defs: "/$defs/Properties/definitions/LambdaConfiguration": close({
 	// function. For example, you can create a filter so that only image files with
 	// a ``.jpg`` extension invoke the function when they are added to the Amazon
 	// S3 bucket.
-	Filter?: _#defs."/$defs/Properties/definitions/NotificationFilter"
+	Filter?: #NotificationFilter
 
 	// The Amazon Resource Name (ARN) of the LAMlong function that Amazon S3 invokes
 	// when the specified event type occurs.
@@ -661,9 +657,9 @@ _#defs: "/$defs/Properties/definitions/LambdaConfiguration": close({
 // more information, see [Object Lifecycle
 // Management](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lifecycle-mgmt.html)
 // in the *Amazon S3 User Guide*.
-_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
+#LifecycleConfiguration: close({
 	// A lifecycle rule for individual objects in an Amazon S3 bucket.
-	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Rule"]
+	Rules!: list.UniqueItems() & [...#Rule]
 
 	// Indicates which default minimum object size behavior is applied to the lifecycle configuration.
 	// This parameter applies to general purpose buckets only. It isn't supported
@@ -690,7 +686,7 @@ _#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
 // To successfully complete the ``AWS::S3::Bucket LoggingConfiguration``
 // request, you must have ``s3:PutObject`` and ``s3:PutObjectAcl`` in your IAM
 // permissions.
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close({
+#LoggingConfiguration: close({
 	// The name of the bucket where Amazon S3 should store server access log files.
 	// You can store log files in any bucket that you own. By default, logs are
 	// stored in the bucket where the ``LoggingConfiguration`` property is defined.
@@ -703,29 +699,29 @@ _#defs: "/$defs/Properties/definitions/LoggingConfiguration": close({
 
 	// Amazon S3 key format for log objects. Only one format, either
 	// PartitionedPrefix or SimplePrefix, is allowed.
-	TargetObjectKeyFormat?: _#defs."/$defs/Properties/definitions/TargetObjectKeyFormat"
+	TargetObjectKeyFormat?: #TargetObjectKeyFormat
 })
 
 // Creates a V2 S3 Metadata configuration of a general purpose bucket. For more
 // information, see [Accelerating data discovery with S3
 // Metadata](https://docs.aws.amazon.com/AmazonS3/latest/userguide/metadata-tables-overview.html)
 // in the *Amazon S3 User Guide*.
-_#defs: "/$defs/Properties/definitions/MetadataConfiguration": close({
+#MetadataConfiguration: close({
 	// The annotation table configuration for a metadata configuration.
-	AnnotationTableConfiguration?: _#defs."/$defs/Properties/definitions/AnnotationTableConfiguration"
+	AnnotationTableConfiguration?: #AnnotationTableConfiguration
 
 	// The destination information for the S3 Metadata configuration.
-	Destination?: _#defs."/$defs/Properties/definitions/MetadataDestination"
+	Destination?: #MetadataDestination
 
 	// The inventory table configuration for a metadata configuration.
-	InventoryTableConfiguration?: _#defs."/$defs/Properties/definitions/InventoryTableConfiguration"
+	InventoryTableConfiguration?: #InventoryTableConfiguration
 
 	// The journal table configuration for a metadata configuration.
-	JournalTableConfiguration!: _#defs."/$defs/Properties/definitions/JournalTableConfiguration"
+	JournalTableConfiguration!: #JournalTableConfiguration
 })
 
 // The destination information for the S3 Metadata configuration.
-_#defs: "/$defs/Properties/definitions/MetadataDestination": close({
+#MetadataDestination: close({
 	// The Amazon Resource Name (ARN) of the table bucket where the metadata configuration is stored.
 	TableBucketArn?: string
 
@@ -754,16 +750,16 @@ _#defs: "/$defs/Properties/definitions/MetadataDestination": close({
 // information, see [Accelerating data discovery with S3
 // Metadata](https://docs.aws.amazon.com/AmazonS3/latest/userguide/metadata-tables-overview.html)
 // in the *Amazon S3 User Guide*.
-_#defs: "/$defs/Properties/definitions/MetadataTableConfiguration": close({
+#MetadataTableConfiguration: close({
 	// The destination information for the metadata table configuration. The
 	// destination table bucket must be in the same Region and AWS-account as the
 	// general purpose bucket. The specified metadata table name must be unique
 	// within the ``aws_s3_metadata`` namespace in the destination table bucket.
-	S3TablesDestination!: _#defs."/$defs/Properties/definitions/S3TablesDestination"
+	S3TablesDestination!: #S3TablesDestination
 })
 
 // The encryption settings for an S3 Metadata journal table or inventory table configuration.
-_#defs: "/$defs/Properties/definitions/MetadataTableEncryptionConfiguration": close({
+#MetadataTableEncryptionConfiguration: close({
 	// If server-side encryption with KMSlong (KMS) keys (SSE-KMS) is specified, you
 	// must also specify the KMS key Amazon Resource Name (ARN). You must specify a
 	// customer-managed KMS key that's located in the same Region as the general
@@ -779,10 +775,10 @@ _#defs: "/$defs/Properties/definitions/MetadataTableEncryptionConfiguration": cl
 
 // A container specifying replication metrics-related settings enabling
 // replication metrics and events.
-_#defs: "/$defs/Properties/definitions/Metrics": close({
+#Metrics: close({
 	// A container specifying the time threshold for emitting the
 	// ``s3:Replication:OperationMissedThreshold`` event.
-	EventThreshold?: _#defs."/$defs/Properties/definitions/ReplicationTimeValue"
+	EventThreshold?: #ReplicationTimeValue
 
 	// Specifies whether the replication metrics are enabled.
 	Status!: "Disabled" | "Enabled"
@@ -797,7 +793,7 @@ _#defs: "/$defs/Properties/definitions/Metrics": close({
 // For more information, see [PUT Bucket
 // metrics](https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketPUTMetricConfiguration.html)
 // in the *Amazon S3 API Reference*.
-_#defs: "/$defs/Properties/definitions/MetricsConfiguration": close({
+#MetricsConfiguration: close({
 	// The access point that was used while performing operations on the object. The
 	// metrics configuration only includes objects that meet the filter's criteria.
 	AccessPointArn?: string
@@ -811,7 +807,7 @@ _#defs: "/$defs/Properties/definitions/MetricsConfiguration": close({
 
 	// Specifies a list of tag filters to use as a metrics configuration filter. The
 	// metrics configuration includes only objects that meet the filter's criteria.
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"]
+	TagFilters?: list.UniqueItems() & [...#TagFilter]
 })
 
 // Specifies when noncurrent object versions expire. Upon expiration, S3
@@ -821,7 +817,7 @@ _#defs: "/$defs/Properties/definitions/MetricsConfiguration": close({
 // the object's lifetime. For more information about setting a lifecycle rule
 // configuration, see [AWS::S3::Bucket
 // Rule](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket-lifecycleconfig-rule.html).
-_#defs: "/$defs/Properties/definitions/NoncurrentVersionExpiration": close({
+#NoncurrentVersionExpiration: close({
 	// Specifies how many noncurrent versions S3 will retain. If there are this many
 	// more recent noncurrent versions, S3 will take the associated action. For
 	// more information about noncurrent versions, see [Lifecycle configuration
@@ -846,7 +842,7 @@ _#defs: "/$defs/Properties/definitions/NoncurrentVersionExpiration": close({
 // ``GLACIER_IR``, ``GLACIER``, or ``DEEP_ARCHIVE`` storage class at a specific
 // period in the object's lifetime. If you specify this property, don't specify
 // the ``NoncurrentVersionTransitions`` property.
-_#defs: "/$defs/Properties/definitions/NoncurrentVersionTransition": close({
+#NoncurrentVersionTransition: close({
 	// Specifies how many noncurrent versions S3 will retain. If there are this many
 	// more recent noncurrent versions, S3 will take the associated action. For
 	// more information about noncurrent versions, see [Lifecycle configuration
@@ -887,28 +883,28 @@ _#defs: "/$defs/Properties/definitions/NoncurrentVersionTransition": close({
 // [AWS::Lambda::Permission](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-lambda-permission.html)
 // and [Granting Permissions to Publish Event Notification Messages to a
 // Destination](https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html#grant-destinations-permissions-to-s3).
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
+#NotificationConfiguration: close({
 	// Enables delivery of events to Amazon EventBridge.
-	EventBridgeConfiguration?: _#defs."/$defs/Properties/definitions/EventBridgeConfiguration"
+	EventBridgeConfiguration?: #EventBridgeConfiguration
 
 	// Describes the LAMlong functions to invoke and the events for which to invoke them.
-	LambdaConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LambdaConfiguration"]
+	LambdaConfigurations?: list.UniqueItems() & [...#LambdaConfiguration]
 
 	// The Amazon Simple Queue Service queues to publish messages to and the events
 	// for which to publish messages.
-	QueueConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/QueueConfiguration"]
+	QueueConfigurations?: list.UniqueItems() & [...#QueueConfiguration]
 
 	// The topic to which notifications are sent and the events for which notifications are generated.
-	TopicConfigurations?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TopicConfiguration"]
+	TopicConfigurations?: list.UniqueItems() & [...#TopicConfiguration]
 })
 
 // Specifies object key name filtering rules. For information about key name
 // filtering, see [Configuring event notifications using object key name
 // filtering](https://docs.aws.amazon.com/AmazonS3/latest/userguide/notification-how-to-filtering.html)
 // in the *Amazon S3 User Guide*.
-_#defs: "/$defs/Properties/definitions/NotificationFilter": close({
+#NotificationFilter: close({
 	// A container for object key name prefix and suffix filtering rules.
-	S3Key!: _#defs."/$defs/Properties/definitions/S3KeyFilter"
+	S3Key!: #S3KeyFilter
 })
 
 // Places an Object Lock configuration on the specified bucket. The rule
@@ -916,7 +912,7 @@ _#defs: "/$defs/Properties/definitions/NotificationFilter": close({
 // every new object placed in the specified bucket. For more information, see
 // [Locking
 // Objects](https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock.html).
-_#defs: "/$defs/Properties/definitions/ObjectLockConfiguration": close({
+#ObjectLockConfiguration: close({
 	// Indicates whether this bucket has an Object Lock configuration enabled.
 	// Enable ``ObjectLockEnabled`` when you apply ``ObjectLockConfiguration`` to a
 	// bucket.
@@ -930,19 +926,19 @@ _#defs: "/$defs/Properties/definitions/ObjectLockConfiguration": close({
 	// [ObjectLockRule](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket-objectlockrule.html)
 	// and
 	// [DefaultRetention](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket-defaultretention.html).
-	Rule?: _#defs."/$defs/Properties/definitions/ObjectLockRule"
+	Rule?: #ObjectLockRule
 })
 
 // Specifies the Object Lock rule for the specified object. Enable the this rule
 // when you apply ``ObjectLockConfiguration`` to a bucket.
-_#defs: "/$defs/Properties/definitions/ObjectLockRule": close({
+#ObjectLockRule: close({
 	// The default Object Lock retention mode and period that you want to apply to
 	// new objects placed in the specified bucket. If Object Lock is turned on,
 	// bucket settings require both ``Mode`` and a period of either ``Days`` or
 	// ``Years``. You cannot specify ``Days`` and ``Years`` at the same time. For
 	// more information about allowable values for mode and period, see
 	// [DefaultRetention](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket-defaultretention.html).
-	DefaultRetention?: _#defs."/$defs/Properties/definitions/DefaultRetention"
+	DefaultRetention?: #DefaultRetention
 })
 
 // Specifies the container element for Object Ownership rules.
@@ -952,9 +948,9 @@ _#defs: "/$defs/Properties/definitions/ObjectLockRule": close({
 // more information, see [Controlling ownership of objects and disabling
 // ACLs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/about-object-ownership.html)
 // in the *Amazon S3 User Guide*.
-_#defs: "/$defs/Properties/definitions/OwnershipControls": close({
+#OwnershipControls: close({
 	// Specifies the container element for Object Ownership rules.
-	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/OwnershipControlsRule"]
+	Rules!: list.UniqueItems() & [...#OwnershipControlsRule]
 })
 
 // Specifies an Object Ownership rule.
@@ -964,7 +960,7 @@ _#defs: "/$defs/Properties/definitions/OwnershipControls": close({
 // more information, see [Controlling ownership of objects and disabling
 // ACLs](https://docs.aws.amazon.com/AmazonS3/latest/userguide/about-object-ownership.html)
 // in the *Amazon S3 User Guide*.
-_#defs: "/$defs/Properties/definitions/OwnershipControlsRule": close({
+#OwnershipControlsRule: close({
 	// Specifies an object ownership rule.
 	ObjectOwnership?: "ObjectWriter" | "BucketOwnerPreferred" | "BucketOwnerEnforced"
 })
@@ -972,7 +968,7 @@ _#defs: "/$defs/Properties/definitions/OwnershipControlsRule": close({
 // Amazon S3 keys for log objects are partitioned in the following format:
 // ``[DestinationPrefix][SourceAccountId]/[SourceRegion]/[SourceBucket]/[YYYY]/[MM]/[DD]/[YYYY]-[MM]-[DD]-[hh]-[mm]-[ss]-[UniqueString]``
 // PartitionedPrefix defaults to EventTime delivery when server access logs are delivered.
-_#defs: "/$defs/Properties/definitions/PartitionedPrefix": close({
+#PartitionedPrefix: close({
 	// Specifies the partition date source for the partitioned prefix.
 	// ``PartitionDateSource`` can be ``EventTime`` or ``DeliveryTime``.
 	// For ``DeliveryTime``, the time in the log file names corresponds to the
@@ -990,7 +986,7 @@ _#defs: "/$defs/Properties/definitions/PartitionedPrefix": close({
 // Amazon S3 considers a bucket or object public, see [The Meaning of
 // "Public"](https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html#access-control-block-public-access-policy-status)
 // in the *Amazon S3 User Guide*.
-_#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
+#PublicAccessBlockConfiguration: close({
 	// Specifies whether Amazon S3 should block public access control lists (ACLs)
 	// for this bucket and objects in this bucket. Setting this element to ``TRUE``
 	// causes the following behavior:
@@ -1026,7 +1022,7 @@ _#defs: "/$defs/Properties/definitions/PublicAccessBlockConfiguration": close({
 
 // Specifies the configuration for publishing messages to an Amazon Simple Queue
 // Service (Amazon SQS) queue when Amazon S3 detects specified events.
-_#defs: "/$defs/Properties/definitions/QueueConfiguration": close({
+#QueueConfiguration: close({
 	// The Amazon S3 bucket event about which you want to publish messages to Amazon
 	// SQS. For more information, see [Supported Event
 	// Types](https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html)
@@ -1039,7 +1035,7 @@ _#defs: "/$defs/Properties/definitions/QueueConfiguration": close({
 	// information, see [Configuring event notifications using object key name
 	// filtering](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/notification-how-to-filtering.html)
 	// in the *Amazon S3 User Guide*.
-	Filter?: _#defs."/$defs/Properties/definitions/NotificationFilter"
+	Filter?: #NotificationFilter
 
 	// The Amazon Resource Name (ARN) of the Amazon SQS queue to which Amazon S3
 	// publishes a message when it detects events of the specified type. FIFO
@@ -1049,7 +1045,7 @@ _#defs: "/$defs/Properties/definitions/QueueConfiguration": close({
 })
 
 // The journal table record expiration settings for a journal table in an S3 Metadata configuration.
-_#defs: "/$defs/Properties/definitions/RecordExpiration": close({
+#RecordExpiration: close({
 	// If you enable journal table record expiration, you can set the number of days
 	// to retain your journal table records. Journal table records must be retained
 	// for a minimum of 7 days. To set this value, specify any whole number from
@@ -1062,7 +1058,7 @@ _#defs: "/$defs/Properties/definitions/RecordExpiration": close({
 })
 
 // Specifies the redirect behavior of all requests to a website endpoint of an Amazon S3 bucket.
-_#defs: "/$defs/Properties/definitions/RedirectAllRequestsTo": matchN(3, [
+#RedirectAllRequestsTo: matchN(3, [
 	matchN(0, [null | bool | number | string | [...] | {
 		RedirectAllRequestsTo!: _
 		ErrorDocument!:         _
@@ -1089,7 +1085,7 @@ _#defs: "/$defs/Properties/definitions/RedirectAllRequestsTo": matchN(3, [
 
 // Specifies how requests are redirected. In the event of an error, you can
 // specify a different error code to return.
-_#defs: "/$defs/Properties/definitions/RedirectRule": close({
+#RedirectRule: close({
 	// The host name to use in the redirect request.
 	HostName?: string
 
@@ -1124,7 +1120,7 @@ _#defs: "/$defs/Properties/definitions/RedirectRule": close({
 })
 
 // A filter that you can specify for selection for modifications on replicas.
-_#defs: "/$defs/Properties/definitions/ReplicaModifications": close({
+#ReplicaModifications: close({
 	// Specifies whether Amazon S3 replicates modifications on replicas.
 	// *Allowed values*: ``Enabled`` | ``Disabled``
 	Status!: "Enabled" | "Disabled"
@@ -1136,7 +1132,7 @@ _#defs: "/$defs/Properties/definitions/ReplicaModifications": close({
 // replication configurations, see [Replication
 // configuration](https://docs.aws.amazon.com/AmazonS3/latest/userguide/replication-add-config.html)
 // in the *Amazon S3 User Guide*.
-_#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
+#ReplicationConfiguration: close({
 	// The Amazon Resource Name (ARN) of the IAMlong (IAM) role that Amazon S3
 	// assumes when replicating objects. For more information, see [How to Set Up
 	// Replication](https://docs.aws.amazon.com/AmazonS3/latest/dev/replication-how-setup.html)
@@ -1145,18 +1141,18 @@ _#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
 
 	// A container for one or more replication rules. A replication configuration
 	// must have at least one rule and can contain a maximum of 1,000 rules.
-	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ReplicationRule"]
+	Rules!: list.UniqueItems() & [...#ReplicationRule]
 })
 
 // A container for information about the replication destination and its
 // configurations including enabling the S3 Replication Time Control (S3 RTC).
-_#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
+#ReplicationDestination: close({
 	// Specify this only in a cross-account scenario (where source and destination
 	// bucket owners are not the same), and you want to change replica ownership to
 	// the AWS-account that owns the destination bucket. If this is not specified
 	// in the replication configuration, the replicas are owned by same AWS-account
 	// that owns the source object.
-	AccessControlTranslation?: _#defs."/$defs/Properties/definitions/AccessControlTranslation"
+	AccessControlTranslation?: #AccessControlTranslation
 
 	// Destination bucket owner account ID. In a cross-account scenario, if you
 	// direct Amazon S3 to change replica ownership to the AWS-account that owns
@@ -1173,17 +1169,17 @@ _#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
 	Bucket!: string
 
 	// Specifies encryption-related information.
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
+	EncryptionConfiguration?: #EncryptionConfiguration
 
 	// A container specifying replication metrics-related settings enabling
 	// replication metrics and events.
-	Metrics?: _#defs."/$defs/Properties/definitions/Metrics"
+	Metrics?: #Metrics
 
 	// A container specifying S3 Replication Time Control (S3 RTC), including
 	// whether S3 RTC is enabled and the time when all objects and operations on
 	// objects must be replicated. Must be specified together with a ``Metrics``
 	// block.
-	ReplicationTime?: _#defs."/$defs/Properties/definitions/ReplicationTime"
+	ReplicationTime?: #ReplicationTime
 
 	// The storage class to use when replicating objects, such as S3 Standard or
 	// reduced redundancy. By default, Amazon S3 uses the storage class of the
@@ -1203,7 +1199,7 @@ _#defs: "/$defs/Properties/definitions/ReplicationDestination": close({
 })
 
 // Specifies which Amazon S3 objects to replicate and where to store the replicas.
-_#defs: "/$defs/Properties/definitions/ReplicationRule": close({
+#ReplicationRule: close({
 	// Specifies whether Amazon S3 replicates delete markers. If you specify a
 	// ``Filter`` in your replication configuration, you must also include a
 	// ``DeleteMarkerReplication`` element. If your ``Filter`` includes a ``Tag``
@@ -1217,11 +1213,11 @@ _#defs: "/$defs/Properties/definitions/ReplicationRule": close({
 	// S3 handles replication of delete markers differently. For more information,
 	// see [Backward
 	// Compatibility](https://docs.aws.amazon.com/AmazonS3/latest/dev/replication-add-config.html#replication-backward-compat-considerations).
-	DeleteMarkerReplication?: _#defs."/$defs/Properties/definitions/DeleteMarkerReplication"
+	DeleteMarkerReplication?: #DeleteMarkerReplication
 
 	// A container for information about the replication destination and its
 	// configurations including enabling the S3 Replication Time Control (S3 RTC).
-	Destination!: _#defs."/$defs/Properties/definitions/ReplicationDestination"
+	Destination!: #ReplicationDestination
 
 	// A filter that identifies the subset of objects to which the replication rule
 	// applies. A ``Filter`` must specify exactly one ``Prefix``, ``TagFilter``, or
@@ -1231,7 +1227,7 @@ _#defs: "/$defs/Properties/definitions/ReplicationRule": close({
 	// V1 replication configuration only supports filtering by key prefix. To filter
 	// using a V1 replication configuration, add the ``Prefix`` directly as a child
 	// element of the ``Rule`` element.
-	Filter?: _#defs."/$defs/Properties/definitions/ReplicationRuleFilter"
+	Filter?: #ReplicationRuleFilter
 
 	// A unique identifier for the rule. The maximum value is 255 characters. If you
 	// don't specify a value, AWS CloudFormation generates a random ID. When using
@@ -1263,7 +1259,7 @@ _#defs: "/$defs/Properties/definitions/ReplicationRule": close({
 	// A container that describes additional filters for identifying the source
 	// objects that you want to replicate. You can choose to enable or disable the
 	// replication of these objects.
-	SourceSelectionCriteria?: _#defs."/$defs/Properties/definitions/SourceSelectionCriteria"
+	SourceSelectionCriteria?: #SourceSelectionCriteria
 
 	// Specifies whether the rule is enabled.
 	Status!: "Disabled" | "Enabled"
@@ -1276,25 +1272,25 @@ _#defs: "/$defs/Properties/definitions/ReplicationRule": close({
 // + If you specify both a ``Prefix`` and a ``TagFilter``, wrap these filters in an ``And`` tag.
 // + If you specify a filter based on multiple tags, wrap the ``TagFilter``
 // elements in an ``And`` tag
-_#defs: "/$defs/Properties/definitions/ReplicationRuleAndOperator": close({
+#ReplicationRuleAndOperator: close({
 	// An object key name prefix that identifies the subset of objects to which the rule applies.
 	Prefix?: string
 
 	// An array of tags containing key and value pairs.
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"]
+	TagFilters?: list.UniqueItems() & [...#TagFilter]
 })
 
 // A filter that identifies the subset of objects to which the replication rule
 // applies. A ``Filter`` must specify exactly one ``Prefix``, ``TagFilter``, or
 // an ``And`` child element.
-_#defs: "/$defs/Properties/definitions/ReplicationRuleFilter": close({
+#ReplicationRuleFilter: close({
 	// A container for specifying rule filters. The filters determine the subset of
 	// objects to which the rule applies. This element is required only if you
 	// specify more than one filter. For example:
 	// + If you specify both a ``Prefix`` and a ``TagFilter``, wrap these filters in an ``And`` tag.
 	// + If you specify a filter based on multiple tags, wrap the ``TagFilter``
 	// elements in an ``And`` tag.
-	And?: _#defs."/$defs/Properties/definitions/ReplicationRuleAndOperator"
+	And?: #ReplicationRuleAndOperator
 
 	// An object key name prefix that identifies the subset of objects to which the rule applies.
 	// Replacement must be made for object keys containing special characters (such
@@ -1305,25 +1301,25 @@ _#defs: "/$defs/Properties/definitions/ReplicationRuleFilter": close({
 
 	// A container for specifying a tag key and value.
 	// The rule applies only to objects that have the tag in their tag set.
-	TagFilter?: _#defs."/$defs/Properties/definitions/TagFilter"
+	TagFilter?: #TagFilter
 })
 
 // A container specifying S3 Replication Time Control (S3 RTC) related
 // information, including whether S3 RTC is enabled and the time when all
 // objects and operations on objects must be replicated. Must be specified
 // together with a ``Metrics`` block.
-_#defs: "/$defs/Properties/definitions/ReplicationTime": close({
+#ReplicationTime: close({
 	// Specifies whether the replication time is enabled.
 	Status!: "Disabled" | "Enabled"
 
 	// A container specifying the time by which replication should be complete for
 	// all objects and operations on objects.
-	Time!: _#defs."/$defs/Properties/definitions/ReplicationTimeValue"
+	Time!: #ReplicationTimeValue
 })
 
 // A container specifying the time value for S3 Replication Time Control (S3
 // RTC) and replication metrics ``EventThreshold``.
-_#defs: "/$defs/Properties/definitions/ReplicationTimeValue": close({
+#ReplicationTimeValue: close({
 	// Contains an integer specifying time in minutes.
 	// Valid value: 15
 	Minutes!: int
@@ -1333,18 +1329,18 @@ _#defs: "/$defs/Properties/definitions/ReplicationTimeValue": close({
 // information about routing rules, see [Configuring advanced conditional
 // redirects](https://docs.aws.amazon.com/AmazonS3/latest/dev/how-to-page-redirect.html#advanced-conditional-redirects)
 // in the *Amazon S3 User Guide*.
-_#defs: "/$defs/Properties/definitions/RoutingRule": close({
+#RoutingRule: close({
 	// Container for redirect information. You can redirect requests to another
 	// host, to another page, or with another protocol. In the event of an error,
 	// you can specify a different error code to return.
-	RedirectRule!: _#defs."/$defs/Properties/definitions/RedirectRule"
+	RedirectRule!: #RedirectRule
 
 	// A container for describing a condition that must be met for the specified
 	// redirect to apply. For example, 1. If request is for pages in the ``/docs``
 	// folder, redirect to the ``/documents`` folder. 2. If request results in HTTP
 	// error 4xx, redirect request to another host where you might process the
 	// error.
-	RoutingRuleCondition?: _#defs."/$defs/Properties/definitions/RoutingRuleCondition"
+	RoutingRuleCondition?: #RoutingRuleCondition
 })
 
 // A container for describing a condition that must be met for the specified
@@ -1352,7 +1348,7 @@ _#defs: "/$defs/Properties/definitions/RoutingRule": close({
 // folder, redirect to the ``/documents`` folder. 2. If request results in HTTP
 // error 4xx, redirect request to another host where you might process the
 // error.
-_#defs: "/$defs/Properties/definitions/RoutingRuleCondition": close({
+#RoutingRuleCondition: close({
 	// The HTTP error code when the redirect is applied. In the event of an error,
 	// if the error code equals this value, then the specified redirect is applied.
 	// Required when parent element ``Condition`` is specified and sibling
@@ -1380,16 +1376,16 @@ _#defs: "/$defs/Properties/definitions/RoutingRuleCondition": close({
 // ``ExpirationInDays``, ``NoncurrentVersionExpirationInDays``,
 // ``NoncurrentVersionTransition``, ``NoncurrentVersionTransitions``,
 // ``Transition``, or ``Transitions``.
-_#defs: "/$defs/Properties/definitions/Rule": close({
+#Rule: close({
 	// Specifies a lifecycle rule that stops incomplete multipart uploads to an Amazon S3 bucket.
-	AbortIncompleteMultipartUpload?: _#defs."/$defs/Properties/definitions/AbortIncompleteMultipartUpload"
+	AbortIncompleteMultipartUpload?: #AbortIncompleteMultipartUpload
 
 	// Indicates when objects are deleted from Amazon S3 and Amazon S3 Glacier. The
 	// date value must be in ISO 8601 format. The time is always midnight UTC. If
 	// you specify an expiration and transition time, you must use the same time
 	// unit for both properties (either in days or by date). The expiration time
 	// must also be later than the transition time.
-	ExpirationDate?: _#defs."/$defs/Properties/definitions/iso8601UTC"
+	ExpirationDate?: #iso8601UTC
 
 	// Indicates the number of days after creation when objects are deleted from
 	// Amazon S3 and Amazon S3 Glacier. If you specify an expiration and transition
@@ -1411,7 +1407,7 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 	// configuration action on a bucket that has versioning enabled (or suspended)
 	// to request that S3 delete noncurrent object versions at a specific period in
 	// the object's lifetime.
-	NoncurrentVersionExpiration?: _#defs."/$defs/Properties/definitions/NoncurrentVersionExpiration"
+	NoncurrentVersionExpiration?: #NoncurrentVersionExpiration
 
 	// (Deprecated.) For buckets with versioning enabled (or suspended), specifies
 	// the time, in days, between when a new version of the object is uploaded to
@@ -1425,16 +1421,14 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 	// specify a transition and expiration time, the expiration time must be later
 	// than the transition time. If you specify this property, don't specify the
 	// ``NoncurrentVersionTransitions`` property.
-	NoncurrentVersionTransition?: _#defs."/$defs/Properties/definitions/NoncurrentVersionTransition"
+	NoncurrentVersionTransition?: #NoncurrentVersionTransition
 
 	// For buckets with versioning enabled (or suspended), one or more transition
 	// rules that specify when non-current objects transition to a specified
 	// storage class. If you specify a transition and expiration time, the
 	// expiration time must be later than the transition time. If you specify this
 	// property, don't specify the ``NoncurrentVersionTransition`` property.
-	NoncurrentVersionTransitions?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/NoncurrentVersionTransition"
-	]
+	NoncurrentVersionTransitions?: list.UniqueItems() & [...#NoncurrentVersionTransition]
 
 	// Specifies the minimum object size in bytes for this rule to apply to. Objects
 	// must be larger than this value in bytes. For more information about size
@@ -1462,21 +1456,21 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 	Status!: "Enabled" | "Disabled"
 
 	// Tags to use to identify a subset of objects to which the lifecycle rule applies.
-	TagFilters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TagFilter"]
+	TagFilters?: list.UniqueItems() & [...#TagFilter]
 
 	// (Deprecated.) Specifies when an object transitions to a specified storage
 	// class. If you specify an expiration and transition time, you must use the
 	// same time unit for both properties (either in days or by date). The
 	// expiration time must also be later than the transition time. If you specify
 	// this property, don't specify the ``Transitions`` property.
-	Transition?: _#defs."/$defs/Properties/definitions/Transition"
+	Transition?: #Transition
 
 	// One or more transition rules that specify when an object transitions to a
 	// specified storage class. If you specify an expiration and transition time,
 	// you must use the same time unit for both properties (either in days or by
 	// date). The expiration time must also be later than the transition time. If
 	// you specify this property, don't specify the ``Transition`` property.
-	Transitions?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Transition"]
+	Transitions?: list.UniqueItems() & [...#Transition]
 	if ObjectSizeGreaterThan != _|_ {
 		AbortIncompleteMultipartUpload?: error(
 			"AbortIncompleteMultipartUpload cannot be used with ObjectSizeGreaterThan",
@@ -1494,16 +1488,16 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 // in the *Amazon S3 User Guide*.
 // The same type of filter rule cannot be used more than once. For example, you
 // cannot specify two prefix rules.
-_#defs: "/$defs/Properties/definitions/S3KeyFilter": close({
+#S3KeyFilter: close({
 	// A list of containers for the key-value pair that defines the criteria for the filter rule.
-	Rules!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/FilterRule"]
+	Rules!: list.UniqueItems() & [...#FilterRule]
 })
 
 // The destination information for a V1 S3 Metadata configuration. The
 // destination table bucket must be in the same Region and AWS-account as the
 // general purpose bucket. The specified metadata table name must be unique
 // within the ``aws_s3_metadata`` namespace in the destination table bucket.
-_#defs: "/$defs/Properties/definitions/S3TablesDestination": close({
+#S3TablesDestination: close({
 	// The Amazon Resource Name (ARN) for the metadata table in the metadata table
 	// configuration. The specified metadata table name must be unique within the
 	// ``aws_s3_metadata`` namespace in the destination table bucket.
@@ -1541,7 +1535,7 @@ _#defs: "/$defs/Properties/definitions/S3TablesDestination": close({
 // (``aws/s3``) isn't supported.
 // + *Directory buckets* - For directory buckets, there are only two supported
 // options for server-side encryption: SSE-S3 and SSE-KMS.
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionByDefault": close({
+#ServerSideEncryptionByDefault: close({
 	// AWS Key Management Service (KMS) customer managed key ID to use for the default encryption.
 	// + *General purpose buckets* - This parameter is allowed if and only if
 	// ``SSEAlgorithm`` is set to ``aws:kms`` or ``aws:kms:dsse``.
@@ -1591,7 +1585,7 @@ _#defs: "/$defs/Properties/definitions/ServerSideEncryptionByDefault": close({
 // key](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#customer-cmk)
 // for encryption in your directory bucket, only use the key ID or key ARN. The
 // key alias format of the KMS key isn't supported.
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionRule": close({
+#ServerSideEncryptionRule: close({
 	// A bucket-level setting for Amazon S3 general purpose buckets used to prevent
 	// the upload of new objects encrypted with the specified server-side
 	// encryption type. For example, blocking an encryption type will block
@@ -1605,7 +1599,7 @@ _#defs: "/$defs/Properties/definitions/ServerSideEncryptionRule": close({
 	// encryption with customer-provided keys (SSE-C). For more information about
 	// SSE-C, see [Using server-side encryption with customer-provided keys
 	// (SSE-C)](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerSideEncryptionCustomerKeys.html).
-	BlockedEncryptionTypes?: _#defs."/$defs/Properties/definitions/BlockedEncryptionTypes"
+	BlockedEncryptionTypes?: #BlockedEncryptionTypes
 
 	// Specifies whether Amazon S3 should use an S3 Bucket Key with server-side
 	// encryption using KMS (SSE-KMS) for new objects in the bucket. Existing
@@ -1620,22 +1614,22 @@ _#defs: "/$defs/Properties/definitions/ServerSideEncryptionRule": close({
 	// Specifies the default server-side encryption to apply to new objects in the
 	// bucket. If a PUT Object request doesn't specify any server-side encryption,
 	// this default encryption will be applied.
-	ServerSideEncryptionByDefault?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionByDefault"
+	ServerSideEncryptionByDefault?: #ServerSideEncryptionByDefault
 })
 
 // A container that describes additional filters for identifying the source
 // objects that you want to replicate. You can choose to enable or disable the
 // replication of these objects.
-_#defs: "/$defs/Properties/definitions/SourceSelectionCriteria": close({
+#SourceSelectionCriteria: close({
 	// A filter that you can specify for selection for modifications on replicas.
-	ReplicaModifications?: _#defs."/$defs/Properties/definitions/ReplicaModifications"
+	ReplicaModifications?: #ReplicaModifications
 
 	// A container for filter information for the selection of Amazon S3 objects encrypted with AWS KMS.
-	SseKmsEncryptedObjects?: _#defs."/$defs/Properties/definitions/SseKmsEncryptedObjects"
+	SseKmsEncryptedObjects?: #SseKmsEncryptedObjects
 })
 
 // A container for filter information for the selection of S3 objects encrypted with AWS KMS.
-_#defs: "/$defs/Properties/definitions/SseKmsEncryptedObjects": close({
+#SseKmsEncryptedObjects: close({
 	// Specifies whether Amazon S3 replicates objects created with server-side
 	// encryption using an AWS KMS key stored in AWS Key Management Service.
 	Status!: "Disabled" | "Enabled"
@@ -1644,14 +1638,14 @@ _#defs: "/$defs/Properties/definitions/SseKmsEncryptedObjects": close({
 // Specifies data related to access patterns to be collected and made available
 // to analyze the tradeoffs between different storage classes for an Amazon S3
 // bucket.
-_#defs: "/$defs/Properties/definitions/StorageClassAnalysis": close({
+#StorageClassAnalysis: close({
 	// Specifies how data related to the storage class analysis for an Amazon S3
 	// bucket should be exported.
-	DataExport?: _#defs."/$defs/Properties/definitions/DataExport"
+	DataExport?: #DataExport
 })
 
 // A container of a key value name pair.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// Name of the object key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -1663,7 +1657,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // bucket. For more information, see [Categorizing your storage using
 // tags](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-tagging.html)
 // in the *Amazon Simple Storage Service User Guide*.
-_#defs: "/$defs/Properties/definitions/TagFilter": close({
+#TagFilter: close({
 	// The tag key.
 	Key!: string
 
@@ -1673,18 +1667,18 @@ _#defs: "/$defs/Properties/definitions/TagFilter": close({
 
 // Describes the key format for server access log file in the target bucket. You
 // can choose between SimplePrefix and PartitionedPrefix.
-_#defs: "/$defs/Properties/definitions/TargetObjectKeyFormat": matchN(1, [close({
+#TargetObjectKeyFormat: matchN(1, [close({
 	// This format defaults the prefix to the given log file prefix for delivering
 	// server access log file.
 	SimplePrefix!: close({})
 }), close(
-	{PartitionedPrefix!: _#defs."/$defs/Properties/definitions/PartitionedPrefix"},
+	{PartitionedPrefix!: #PartitionedPrefix},
 )])
 
 // The S3 Intelligent-Tiering storage class is designed to optimize storage
 // costs by automatically moving data to the most cost-effective storage access
 // tier, without additional operational overhead.
-_#defs: "/$defs/Properties/definitions/Tiering": close({
+#Tiering: close({
 	// S3 Intelligent-Tiering access tier. See [Storage class for automatically
 	// optimizing frequently and infrequently accessed
 	// objects](https://docs.aws.amazon.com/AmazonS3/latest/dev/storage-class-intro.html#sc-dynamic-data-access)
@@ -1702,7 +1696,7 @@ _#defs: "/$defs/Properties/definitions/Tiering": close({
 // A container for specifying the configuration for publication of messages to
 // an Amazon Simple Notification Service (Amazon SNS) topic when Amazon S3
 // detects specified events.
-_#defs: "/$defs/Properties/definitions/TopicConfiguration": close({
+#TopicConfiguration: close({
 	// The Amazon S3 bucket event about which to send notifications. For more
 	// information, see [Supported Event
 	// Types](https://docs.aws.amazon.com/AmazonS3/latest/dev/NotificationHowTo.html)
@@ -1712,7 +1706,7 @@ _#defs: "/$defs/Properties/definitions/TopicConfiguration": close({
 	// The filtering rules that determine for which objects to send notifications.
 	// For example, you can create a filter so that Amazon S3 sends notifications
 	// only when image files with a ``.jpg`` extension are added to the bucket.
-	Filter?: _#defs."/$defs/Properties/definitions/NotificationFilter"
+	Filter?: #NotificationFilter
 
 	// The Amazon Resource Name (ARN) of the Amazon SNS topic to which Amazon S3
 	// publishes a message when it detects events of the specified type.
@@ -1724,7 +1718,7 @@ _#defs: "/$defs/Properties/definitions/TopicConfiguration": close({
 // [Transitioning Objects Using Amazon S3
 // Lifecycle](https://docs.aws.amazon.com/AmazonS3/latest/dev/lifecycle-transition-general-considerations.html)
 // in the *Amazon S3 User Guide*.
-_#defs: "/$defs/Properties/definitions/Transition": close({
+#Transition: close({
 	// The storage class to which you want the object to transition.
 	StorageClass!: "DEEP_ARCHIVE" |
 		"GLACIER" |
@@ -1736,7 +1730,7 @@ _#defs: "/$defs/Properties/definitions/Transition": close({
 
 	// Indicates when objects are transitioned to the specified storage class. The
 	// date value must be in ISO 8601 format. The time is always midnight UTC.
-	TransitionDate?: _#defs."/$defs/Properties/definitions/iso8601UTC"
+	TransitionDate?: #iso8601UTC
 
 	// Indicates the number of days after creation when objects are transitioned to
 	// the specified storage class. The value can be ``0`` or any positive integer.
@@ -1758,13 +1752,13 @@ _#defs: "/$defs/Properties/definitions/Transition": close({
 // across all AWS regions for full consistency.
 // + *Suspending versioning* - Takes effect immediately with no propagation delay.
 // + *Transitioning between states* - Any change from Suspended to Enabled has a 15-minute delay.
-_#defs: "/$defs/Properties/definitions/VersioningConfiguration": close({
+#VersioningConfiguration: close({
 	// The versioning state of the bucket.
 	Status!: "Enabled" | "Suspended"
 })
 
 // Specifies website configuration parameters for an Amazon S3 bucket.
-_#defs: "/$defs/Properties/definitions/WebsiteConfiguration": close({
+#WebsiteConfiguration: close({
 	// The name of the error document for the website.
 	ErrorDocument?: string
 
@@ -1773,11 +1767,11 @@ _#defs: "/$defs/Properties/definitions/WebsiteConfiguration": close({
 
 	// The redirect behavior for every request to this bucket's website endpoint.
 	// If you specify this property, you can't specify any other property.
-	RedirectAllRequestsTo?: _#defs."/$defs/Properties/definitions/RedirectAllRequestsTo"
+	RedirectAllRequestsTo?: #RedirectAllRequestsTo
 
 	// Rules that define when a redirect is applied and the redirect behavior.
-	RoutingRules?: [..._#defs."/$defs/Properties/definitions/RoutingRule"]
+	RoutingRules?: [...#RoutingRule]
 })
 
 // The date value in ISO 8601 format. The timezone is always UTC. (YYYY-MM-DDThh:mm:ssZ)
-_#defs: "/$defs/Properties/definitions/iso8601UTC": =~"^(\\d{4})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$"
+#iso8601UTC: =~"^(\\d{4})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$"

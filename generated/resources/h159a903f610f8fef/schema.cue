@@ -18,10 +18,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	ScheduleDescription?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 	ScheduleIdentifier!:  strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:                [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |

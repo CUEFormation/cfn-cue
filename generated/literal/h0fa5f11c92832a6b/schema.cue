@@ -27,7 +27,7 @@ import (
 	EnvironmentId?: =~"[a-z0-9]{4,7}"
 
 	// Amazon CloudWatch alarms to monitor during the deployment process.
-	Monitors?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Monitor"]
+	Monitors?: list.MaxItems(5) & [...] & [...#Monitor]
 
 	// A name for the environment.
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -35,11 +35,11 @@ import (
 	// Metadata to assign to the environment. Tags help organize and categorize your
 	// AWS AppConfig resources. Each tag consists of a key and an optional value,
 	// both of which you define.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Amazon CloudWatch alarm to monitor during the deployment process.
-_#defs: "/$defs/Properties/definitions/Monitor": close({
+#Monitor: close({
 	// Amazon Resource Name (ARN) of the Amazon CloudWatch alarm.
 	AlarmArn!: strings.MaxRunes(2048) & strings.MinRunes(1)
 
@@ -53,7 +53,7 @@ _#defs: "/$defs/Properties/definitions/Monitor": close({
 // Metadata to assign to the environment. Tags help organize and categorize your
 // AWS AppConfig resources. Each tag consists of a key and an optional value,
 // both of which you define.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key-value string map. The valid character set is [a-zA-Z1-9+-=._:/]. The
 	// tag key can be up to 128 characters and must not start with aws:.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)

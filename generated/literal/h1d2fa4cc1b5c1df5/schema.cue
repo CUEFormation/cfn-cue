@@ -13,45 +13,45 @@ import "list"
 		{[=~"[a-zA-Z0-9]+"]: string}
 		...
 	}
-	AdvancedSecurityOptions?:    _#defs."/$defs/Properties/definitions/AdvancedSecurityOptionsInput"
+	AdvancedSecurityOptions?:    #AdvancedSecurityOptionsInput
 	Arn?:                        string
-	CognitoOptions?:             _#defs."/$defs/Properties/definitions/CognitoOptions"
+	CognitoOptions?:             #CognitoOptions
 	DomainArn?:                  string
 	DomainEndpoint?:             string
-	DomainEndpointOptions?:      _#defs."/$defs/Properties/definitions/DomainEndpointOptions"
+	DomainEndpointOptions?:      #DomainEndpointOptions
 	DomainName?:                 string
-	EBSOptions?:                 _#defs."/$defs/Properties/definitions/EBSOptions"
-	ElasticsearchClusterConfig?: _#defs."/$defs/Properties/definitions/ElasticsearchClusterConfig"
+	EBSOptions?:                 #EBSOptions
+	ElasticsearchClusterConfig?: #ElasticsearchClusterConfig
 	ElasticsearchVersion?:       string
-	EncryptionAtRestOptions?:    _#defs."/$defs/Properties/definitions/EncryptionAtRestOptions"
+	EncryptionAtRestOptions?:    #EncryptionAtRestOptions
 	Id?:                         string
 	LogPublishingOptions?: {
-		{[=~"[a-zA-Z0-9]+"]: _#defs."/$defs/Properties/definitions/LogPublishingOption"}
+		{[=~"[a-zA-Z0-9]+"]: #LogPublishingOption}
 		...
 	}
-	NodeToNodeEncryptionOptions?: _#defs."/$defs/Properties/definitions/NodeToNodeEncryptionOptions"
-	SnapshotOptions?:             _#defs."/$defs/Properties/definitions/SnapshotOptions"
-	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"]
-	VPCOptions?:                  _#defs."/$defs/Properties/definitions/VPCOptions"
+	NodeToNodeEncryptionOptions?: #NodeToNodeEncryptionOptions
+	SnapshotOptions?:             #SnapshotOptions
+	Tags?:                        [...#Tag]
+	VPCOptions?:                  #VPCOptions
 })
 
-_#defs: "/$defs/Properties/definitions/AdvancedSecurityOptionsInput": close({
+#AdvancedSecurityOptionsInput: close({
 	AnonymousAuthEnabled?:        bool
 	Enabled?:                     bool
 	InternalUserDatabaseEnabled?: bool
-	MasterUserOptions?:           _#defs."/$defs/Properties/definitions/MasterUserOptions"
+	MasterUserOptions?:           #MasterUserOptions
 })
 
-_#defs: "/$defs/Properties/definitions/CognitoOptions": close({
+#CognitoOptions: close({
 	Enabled?:        bool
 	IdentityPoolId?: string
 	RoleArn?:        =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	UserPoolId?:     string
 })
 
-_#defs: "/$defs/Properties/definitions/ColdStorageOptions": close({Enabled?: bool})
+#ColdStorageOptions: close({Enabled?: bool})
 
-_#defs: "/$defs/Properties/definitions/DomainEndpointOptions": close({
+#DomainEndpointOptions: close({
 	CustomEndpoint?:               string
 	CustomEndpointCertificateArn?: string
 	CustomEndpointEnabled?:        bool
@@ -59,15 +59,15 @@ _#defs: "/$defs/Properties/definitions/DomainEndpointOptions": close({
 	TLSSecurityPolicy?:            string
 })
 
-_#defs: "/$defs/Properties/definitions/EBSOptions": close({
+#EBSOptions: close({
 	EBSEnabled?: bool
 	Iops?:       int
 	VolumeSize?: int
 	VolumeType?: string
 })
 
-_#defs: "/$defs/Properties/definitions/ElasticsearchClusterConfig": close({
-	ColdStorageOptions?:     _#defs."/$defs/Properties/definitions/ColdStorageOptions"
+#ElasticsearchClusterConfig: close({
+	ColdStorageOptions?:     #ColdStorageOptions
 	DedicatedMasterCount?:   int
 	DedicatedMasterEnabled?: bool
 	DedicatedMasterType?:    string
@@ -76,38 +76,38 @@ _#defs: "/$defs/Properties/definitions/ElasticsearchClusterConfig": close({
 	WarmCount?:              int
 	WarmEnabled?:            bool
 	WarmType?:               string
-	ZoneAwarenessConfig?:    _#defs."/$defs/Properties/definitions/ZoneAwarenessConfig"
+	ZoneAwarenessConfig?:    #ZoneAwarenessConfig
 	ZoneAwarenessEnabled?:   bool
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionAtRestOptions": close({
+#EncryptionAtRestOptions: close({
 	Enabled?:  bool
 	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
 })
 
-_#defs: "/$defs/Properties/definitions/LogPublishingOption": close({
+#LogPublishingOption: close({
 	CloudWatchLogsLogGroupArn?: string
 	Enabled?:                   bool
 })
 
-_#defs: "/$defs/Properties/definitions/MasterUserOptions": close({
+#MasterUserOptions: close({
 	MasterUserARN?:      string
 	MasterUserName?:     string
 	MasterUserPassword?: string
 })
 
-_#defs: "/$defs/Properties/definitions/NodeToNodeEncryptionOptions": close({Enabled?: bool})
+#NodeToNodeEncryptionOptions: close({Enabled?: bool})
 
-_#defs: "/$defs/Properties/definitions/SnapshotOptions": close({AutomatedSnapshotStartHour?: int})
+#SnapshotOptions: close({AutomatedSnapshotStartHour?: int})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/VPCOptions": close({
+#VPCOptions: close({
 	SecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetIds?:        list.UniqueItems() & [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/ZoneAwarenessConfig": close({AvailabilityZoneCount?: int})
+#ZoneAwarenessConfig: close({AvailabilityZoneCount?: int})

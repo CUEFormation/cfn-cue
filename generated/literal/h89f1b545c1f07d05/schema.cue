@@ -11,8 +11,8 @@ import (
 
 // Resource schema for AWS::MediaTailor::PlaybackConfiguration
 #Properties: close({
-	AdConditioningConfiguration?:   _#defs."/$defs/Properties/definitions/AdConditioningConfiguration"
-	AdDecisionServerConfiguration?: _#defs."/$defs/Properties/definitions/AdDecisionServerConfiguration"
+	AdConditioningConfiguration?:   #AdConditioningConfiguration
+	AdDecisionServerConfiguration?: #AdDecisionServerConfiguration
 
 	// The URL for the ad decision server (ADS). This includes the specification of
 	// static parameters and placeholders for dynamic parameters. AWS Elemental
@@ -23,33 +23,33 @@ import (
 
 	// The settings that control how many concurrent requests MediaTailor makes to
 	// the ad decision server (ADS).
-	AdsPersonalizationConcurrency?: _#defs."/$defs/Properties/definitions/AdsPersonalizationConcurrency"
+	AdsPersonalizationConcurrency?: #AdsPersonalizationConcurrency
 
 	// The ad decision server (ADS) request timeouts and personalization time
 	// budgets for live, VOD, and prefetch workflows.
-	AdsPersonalizationTimeouts?: _#defs."/$defs/Properties/definitions/AdsPersonalizationTimeouts"
+	AdsPersonalizationTimeouts?: #AdsPersonalizationTimeouts
 
 	// The configuration for avail suppression, also known as ad suppression. For
 	// more information about ad suppression, see Ad Suppression
 	// (https://docs.aws.amazon.com/mediatailor/latest/ug/ad-behavior.html).
-	AvailSuppression?: _#defs."/$defs/Properties/definitions/AvailSuppression"
+	AvailSuppression?: #AvailSuppression
 
 	// The configuration for bumpers. Bumpers are short audio or video clips that
 	// play at the start or before the end of an ad break. To learn more about
 	// bumpers, see Bumpers
 	// (https://docs.aws.amazon.com/mediatailor/latest/ug/bumpers.html).
-	Bumper?: _#defs."/$defs/Properties/definitions/Bumper"
+	Bumper?: #Bumper
 
 	// The configuration for using a content delivery network (CDN), like Amazon
 	// CloudFront, for content and ad segment management.
-	CdnConfiguration?: _#defs."/$defs/Properties/definitions/CdnConfiguration"
+	CdnConfiguration?: #CdnConfiguration
 
 	// The player parameters and aliases used as dynamic variables during session
 	// initialization. For more information, see Domain Variables.
-	ConfigurationAliases?: _#defs."/$defs/Properties/definitions/ConfigurationAliases"
+	ConfigurationAliases?: #ConfigurationAliases
 
 	// The configuration for DASH content.
-	DashConfiguration?: _#defs."/$defs/Properties/definitions/DashConfiguration"
+	DashConfiguration?: #DashConfiguration
 
 	// A map of event names to function identifiers for custom processing during
 	// session lifecycle events.
@@ -58,7 +58,7 @@ import (
 		{[=~".*"]: string}})
 
 	// The configuration for HLS content.
-	HlsConfiguration?: _#defs."/$defs/Properties/definitions/HlsConfiguration"
+	HlsConfiguration?: #HlsConfiguration
 
 	// The setting that controls whether players can use stitched or guided ad
 	// insertion. The default, STITCHED_ONLY, forces all player sessions to use
@@ -66,18 +66,18 @@ import (
 	// to select either stitched or guided ad insertion at session-initialization
 	// time. The default for players that do not specify an insertion mode is
 	// stitched.
-	InsertionMode?: _#defs."/$defs/Properties/definitions/InsertionMode"
+	InsertionMode?: #InsertionMode
 
 	// The configuration for pre-roll ad insertion.
-	LivePreRollConfiguration?: _#defs."/$defs/Properties/definitions/LivePreRollConfiguration"
+	LivePreRollConfiguration?: #LivePreRollConfiguration
 
 	// The configuration that defines where AWS Elemental MediaTailor sends logs for
 	// the playback configuration.
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	LogConfiguration?: #LogConfiguration
 
 	// The configuration for manifest processing rules. Manifest processing rules
 	// enable customization of the personalized manifests created by MediaTailor.
-	ManifestProcessingRules?: _#defs."/$defs/Properties/definitions/ManifestProcessingRules"
+	ManifestProcessingRules?: #ManifestProcessingRules
 
 	// The identifier for the playback configuration.
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
@@ -112,7 +112,7 @@ import (
 	SlateAdUrl?: string
 
 	// The tags to assign to the playback configuration.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The name that is used to associate this playback configuration with a custom
 	// transcode profile. This overrides the dynamic transcoding defaults of
@@ -127,19 +127,17 @@ import (
 
 // <p>The setting that indicates what conditioning MediaTailor will perform on
 // ads that the ad decision server (ADS) returns.</p>
-_#defs: "/$defs/Properties/definitions/AdConditioningConfiguration": close(
-	{StreamingMediaFileConditioning!: _#defs."/$defs/Properties/definitions/StreamingMediaFileConditioning"},
-)
+#AdConditioningConfiguration: close({StreamingMediaFileConditioning!: #StreamingMediaFileConditioning})
 
 // The configuration for the request to the specified Ad Decision Server URL.
-_#defs: "/$defs/Properties/definitions/AdDecisionServerConfiguration": close({
-	HttpRequest?:  _#defs."/$defs/Properties/definitions/HttpRequest"
-	VastResponse?: _#defs."/$defs/Properties/definitions/VastResponse"
+#AdDecisionServerConfiguration: close({
+	HttpRequest?:  #HttpRequest
+	VastResponse?: #VastResponse
 })
 
 // The headers in the request sent to the Ad Decision Server URL. The max length
 // is 10,000 characters.
-_#defs: "/$defs/Properties/definitions/AdDecisionServerConfigurationHttpHeaders": close({
+#AdDecisionServerConfigurationHttpHeaders: close({
 
 	{[=~".*"]: string}})
 
@@ -148,12 +146,12 @@ _#defs: "/$defs/Properties/definitions/AdDecisionServerConfigurationHttpHeaders"
 // manifest to the MediaTailor personalized manifest. No logic is applied to
 // these ad markers. For example, if EXT-X-CUE-OUT has a value of 60, but no
 // ads are filled for that ad break, MediaTailor will not set the value to 0.
-_#defs: "/$defs/Properties/definitions/AdMarkerPassthrough": close({
+#AdMarkerPassthrough: close({
 	// Enables ad marker passthrough for your configuration.
 	Enabled?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/AdsInteractionLog": close({
+#AdsInteractionLog: close({
 	// Indicates that MediaTailor won't emit the selected events in the logs for
 	// playback sessions that are initialized with this configuration.
 	ExcludeEventTypes?: [...string]
@@ -165,7 +163,7 @@ _#defs: "/$defs/Properties/definitions/AdsInteractionLog": close({
 
 // The settings that control how many concurrent requests MediaTailor makes to
 // the ad decision server (ADS).
-_#defs: "/$defs/Properties/definitions/AdsPersonalizationConcurrency": close({
+#AdsPersonalizationConcurrency: close({
 	// Enables parallel processing of ADS requests in VOD workflows when the ADS
 	// returns VAST responses. The default is false.
 	EnableVodVastParallelization?: bool
@@ -177,7 +175,7 @@ _#defs: "/$defs/Properties/definitions/AdsPersonalizationConcurrency": close({
 
 // The ad decision server (ADS) request timeouts and personalization time
 // budgets for live, VOD, and prefetch workflows.
-_#defs: "/$defs/Properties/definitions/AdsPersonalizationTimeouts": close({
+#AdsPersonalizationTimeouts: close({
 	// The maximum time, in milliseconds, that MediaTailor waits for a single ADS
 	// response during live or VOD playback. The default is 3000.
 	AdsRequestTimeoutMilliseconds?: int
@@ -203,7 +201,7 @@ _#defs: "/$defs/Properties/definitions/AdsPersonalizationTimeouts": close({
 // The configuration for avail suppression, also known as ad suppression. For
 // more information about ad suppression, see Ad Suppression
 // (https://docs.aws.amazon.com/mediatailor/latest/ug/ad-behavior.html).
-_#defs: "/$defs/Properties/definitions/AvailSuppression": close({
+#AvailSuppression: close({
 	// Defines the policy to apply to the avail suppression mode. BEHIND_LIVE_EDGE
 	// will always use the full avail suppression policy. AFTER_LIVE_EDGE mode can
 	// be used to invoke partial ad break fills when a session starts mid-break.
@@ -233,7 +231,7 @@ _#defs: "/$defs/Properties/definitions/AvailSuppression": close({
 // play at the start or before the end of an ad break. To learn more about
 // bumpers, see Bumpers
 // (https://docs.aws.amazon.com/mediatailor/latest/ug/bumpers.html).
-_#defs: "/$defs/Properties/definitions/Bumper": close({
+#Bumper: close({
 	// The URL for the end bumper asset.
 	EndUrl?: string
 
@@ -243,7 +241,7 @@ _#defs: "/$defs/Properties/definitions/Bumper": close({
 
 // The configuration for using a content delivery network (CDN), like Amazon
 // CloudFront, for content and ad segment management.
-_#defs: "/$defs/Properties/definitions/CdnConfiguration": close({
+#CdnConfiguration: close({
 	// A non-default content delivery network (CDN) to serve ad segments. By
 	// default, AWS Elemental MediaTailor uses Amazon CloudFront with default cache
 	// settings as its CDN for ad segments. To set up an alternate CDN, create a
@@ -262,10 +260,10 @@ _#defs: "/$defs/Properties/definitions/CdnConfiguration": close({
 })
 
 // The predefined aliases for dynamic variables.
-_#defs: "/$defs/Properties/definitions/ConfigurationAliases": null | bool | number | string | [...] | {...}
+#ConfigurationAliases: null | bool | number | string | [...] | {...}
 
 // The configuration for DASH PUT operations.
-_#defs: "/$defs/Properties/definitions/DashConfiguration": close({
+#DashConfiguration: close({
 	// The URL generated by MediaTailor to initiate a DASH playback session. The
 	// session uses server-side reporting.
 	ManifestEndpointPrefix?: string
@@ -288,31 +286,31 @@ _#defs: "/$defs/Properties/definitions/DashConfiguration": close({
 	OriginManifestType?: "SINGLE_PERIOD" | "MULTI_PERIOD"
 })
 
-_#defs: "/$defs/Properties/definitions/HlsConfiguration": close({
+#HlsConfiguration: close({
 	// The URL that is used to initiate a playback session for devices that support
 	// Apple HLS. The session uses server-side reporting.
 	ManifestEndpointPrefix?: string
 })
 
 // The configuration for the request to the Ad Decision Server URL.
-_#defs: "/$defs/Properties/definitions/HttpRequest": close({
+#HttpRequest: close({
 	// The body of the request to the Ad Decision Server URL. The maximum length is 100,000 characters.
 	Body?: string
 
 	// The compression type of the request sent to the Ad Decision Server URL. Only
 	// the POST HTTP Method permits compression other than NONE.
 	CompressRequest?: "NONE" | "GZIP"
-	Headers?:         _#defs."/$defs/Properties/definitions/AdDecisionServerConfigurationHttpHeaders"
+	Headers?:         #AdDecisionServerConfigurationHttpHeaders
 
 	// Supported HTTP Methods for the request to the Ad Decision Server URL.
 	HttpMethod?: "GET" | "POST"
 })
 
-_#defs: "/$defs/Properties/definitions/InsertionMode": "STITCHED_ONLY" | "PLAYER_SELECT"
+#InsertionMode: "STITCHED_ONLY" | "PLAYER_SELECT"
 
 // The configuration for pre-roll ad insertion.
-_#defs: "/$defs/Properties/definitions/LivePreRollConfiguration": close({
-	AdDecisionServerConfiguration?: _#defs."/$defs/Properties/definitions/PreRollAdDecisionServerConfiguration"
+#LivePreRollConfiguration: close({
+	AdDecisionServerConfiguration?: #PreRollAdDecisionServerConfiguration
 
 	// The URL for the ad decision server (ADS) for pre-roll ads. This includes the
 	// specification of static parameters and placeholders for dynamic parameters.
@@ -327,9 +325,9 @@ _#defs: "/$defs/Properties/definitions/LivePreRollConfiguration": close({
 	MaxDurationSeconds?: int
 })
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	// The event types that MediaTailor emits in logs for interactions with the ADS.
-	AdsInteractionLog?: _#defs."/$defs/Properties/definitions/AdsInteractionLog"
+	AdsInteractionLog?: #AdsInteractionLog
 
 	// The method used for collecting logs from AWS Elemental MediaTailor. To
 	// configure MediaTailor to send logs directly to Amazon CloudWatch Logs,
@@ -341,7 +339,7 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 	EnabledLoggingStrategies?: [...string]
 
 	// The event types that MediaTailor emits in logs for interactions with the origin server.
-	ManifestServiceInteractionLog?: _#defs."/$defs/Properties/definitions/ManifestServiceInteractionLog"
+	ManifestServiceInteractionLog?: #ManifestServiceInteractionLog
 
 	// The percentage of session logs that MediaTailor sends to your CloudWatch Logs
 	// account. For example, if your playback configuration has 1000 sessions and
@@ -354,43 +352,41 @@ _#defs: "/$defs/Properties/definitions/LogConfiguration": close({
 
 // The configuration for manifest processing rules. Manifest processing rules
 // enable customization of the personalized manifests created by MediaTailor.
-_#defs: "/$defs/Properties/definitions/ManifestProcessingRules": close({
+#ManifestProcessingRules: close({
 	// For HLS, when set to true, MediaTailor passes through EXT-X-CUE-IN,
 	// EXT-X-CUE-OUT, and EXT-X-SPLICEPOINT-SCTE35 ad markers from the origin
 	// manifest to the MediaTailor personalized manifest. No logic is applied to
 	// these ad markers. For example, if EXT-X-CUE-OUT has a value of 60, but no
 	// ads are filled for that ad break, MediaTailor will not set the value to 0.
-	AdMarkerPassthrough?: _#defs."/$defs/Properties/definitions/AdMarkerPassthrough"
+	AdMarkerPassthrough?: #AdMarkerPassthrough
 })
 
-_#defs: "/$defs/Properties/definitions/ManifestServiceInteractionLog": close({
+#ManifestServiceInteractionLog: close({
 	// Indicates that MediaTailor won't emit the selected events in the logs for
 	// playback sessions that are initialized with this configuration.
 	ExcludeEventTypes?: [...string]
 })
 
 // The configuration for the request to the pre-roll Ad Decision Server.
-_#defs: "/$defs/Properties/definitions/PreRollAdDecisionServerConfiguration": close(
-	{VastResponse?: _#defs."/$defs/Properties/definitions/PreRollVastResponse"},
-)
+#PreRollAdDecisionServerConfiguration: close({VastResponse?: #PreRollVastResponse})
 
 // The configuration for how MediaTailor processes the VAST response returned by
 // the pre-roll Ad Decision Server.
-_#defs: "/$defs/Properties/definitions/PreRollVastResponse": close({
+#PreRollVastResponse: close({
 	// Determines how MediaTailor sequences ads returned in the pre-roll VAST response.
 	AdSequencingMode?: "FOLLOW_AD_SEQUENCE" | "IGNORE_AD_SEQUENCE"
 })
 
-_#defs: "/$defs/Properties/definitions/StreamingMediaFileConditioning": "TRANSCODE" | "NONE"
+#StreamingMediaFileConditioning: "TRANSCODE" | "NONE"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
 // The configuration for how MediaTailor processes the VAST response returned by
 // the Ad Decision Server.
-_#defs: "/$defs/Properties/definitions/VastResponse": close({
+#VastResponse: close({
 	// Determines how MediaTailor sequences ads returned in the VAST response from
 	// the Ad Decision Server.
 	AdSequencingMode?: "FOLLOW_AD_SEQUENCE" |

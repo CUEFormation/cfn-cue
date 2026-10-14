@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 	"time"
 	"struct"
 )
@@ -21,14 +21,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::Pipes::Pipe Resource Type
 #Properties: close({
 	Description?:  strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
-	DesiredState?: _#defs."/$defs/Properties/definitions/RequestedPipeState"
+	DesiredState?: #RequestedPipeState
 	Enrichment?: strings.MaxRunes(1600) &
 	strings.MinRunes(0) &
 	=~"^$|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)$" |
 	fn.#StringExpression
-	EnrichmentParameters?: _#defs."/$defs/Properties/definitions/PipeEnrichmentParameters"
+	EnrichmentParameters?: #PipeEnrichmentParameters
 	KmsKeyIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-/:]*$" | fn.#StringExpression
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/PipeLogConfiguration"
+	LogConfiguration?: #PipeLogConfiguration
 	Name?:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(1600) &
@@ -39,19 +39,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^smk://(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9]):[0-9]{1,5}|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)$" |
 	fn.#StringExpression
-	SourceParameters?: _#defs."/$defs/Properties/definitions/PipeSourceParameters"
-	Tags?:             _#defs."/$defs/Properties/definitions/TagMap"
+	SourceParameters?: #PipeSourceParameters
+	Tags?:             #TagMap
 	Target!: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)$" |
 	fn.#StringExpression
-	TargetParameters?: _#defs."/$defs/Properties/definitions/PipeTargetParameters"
+	TargetParameters?: #PipeTargetParameters
 })
 
-_#defs: "/$defs/Properties/definitions/AssignPublicIp": "ENABLED" | "DISABLED" | fn.#StringExpression
+#AssignPublicIp: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
-	AssignPublicIp?: _#defs."/$defs/Properties/definitions/AssignPublicIp"
+#AwsVpcConfiguration: close({
+	AssignPublicIp?: #AssignPublicIp
 	SecurityGroups?: list.MaxItems(5) & [...] & [
 		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^sg-[0-9a-zA-Z]*|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$" |
 		fn.#StringExpression
@@ -65,7 +65,7 @@ _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BatchArrayProperties": close({
+#BatchArrayProperties: close({
 	Size?: int & <=10000 & >=2 |
 		{
 			string &
@@ -85,42 +85,42 @@ _#defs: "/$defs/Properties/definitions/BatchArrayProperties": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BatchContainerOverrides": close({
+#BatchContainerOverrides: close({
 	Command?:              [...string | fn.#StringExpression] | fn.#ListExpression
-	Environment?:          [..._#defs."/$defs/Properties/definitions/BatchEnvironmentVariable"] | fn.#ListExpression
+	Environment?:          [...#BatchEnvironmentVariable] | fn.#ListExpression
 	InstanceType?:         string | fn.#StringExpression
-	ResourceRequirements?: [..._#defs."/$defs/Properties/definitions/BatchResourceRequirement"] | fn.#ListExpression
+	ResourceRequirements?: [...#BatchResourceRequirement] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BatchEnvironmentVariable": close({
+#BatchEnvironmentVariable: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BatchJobDependency": close({
+#BatchJobDependency: close({
 	JobId?: string | fn.#StringExpression
-	Type?:  _#defs."/$defs/Properties/definitions/BatchJobDependencyType"
+	Type?:  #BatchJobDependencyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BatchJobDependencyType": "N_TO_N" | "SEQUENTIAL" | fn.#StringExpression
+#BatchJobDependencyType: "N_TO_N" | "SEQUENTIAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BatchParametersMap": close({
+#BatchParametersMap: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BatchResourceRequirement": close({
-	Type!:  _#defs."/$defs/Properties/definitions/BatchResourceRequirementType"
+#BatchResourceRequirement: close({
+	Type!:  #BatchResourceRequirementType
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BatchResourceRequirementType": "GPU" | "MEMORY" | "VCPU" | fn.#StringExpression
+#BatchResourceRequirementType: "GPU" | "MEMORY" | "VCPU" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/BatchRetryStrategy": close({
+#BatchRetryStrategy: close({
 	Attempts?: int & <=10 & >=1 |
 		{
 			string &
@@ -140,7 +140,7 @@ _#defs: "/$defs/Properties/definitions/BatchRetryStrategy": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
+#CapacityProviderStrategyItem: close({
 	Base?: int & <=100000 & >=0 |
 		{
 			string &
@@ -177,7 +177,7 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CloudwatchLogsLogDestination": close({
+#CloudwatchLogsLogDestination: close({
 	LogGroupArn?: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^(^arn:aws([a-z]|\\-)*:logs:([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}):(\\d{12}):log-group:.+)$" |
@@ -185,7 +185,7 @@ _#defs: "/$defs/Properties/definitions/CloudwatchLogsLogDestination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeadLetterConfig": close({
+#DeadLetterConfig: close({
 	Arn?: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)$" |
@@ -193,18 +193,18 @@ _#defs: "/$defs/Properties/definitions/DeadLetterConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DimensionMapping": close({
+#DimensionMapping: close({
 	DimensionName!:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	DimensionValue!:     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	DimensionValueType!: _#defs."/$defs/Properties/definitions/DimensionValueType"
+	DimensionValueType!: #DimensionValueType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DimensionValueType": "VARCHAR" | fn.#StringExpression
+#DimensionValueType: "VARCHAR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DynamoDBStreamStartPosition": "TRIM_HORIZON" | "LATEST" | fn.#StringExpression
+#DynamoDBStreamStartPosition: "TRIM_HORIZON" | "LATEST" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EcsContainerOverride": close({
+#EcsContainerOverride: close({
 	Command?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Cpu?: int |
 		{
@@ -220,8 +220,8 @@ _#defs: "/$defs/Properties/definitions/EcsContainerOverride": close({
 				)
 		} |
 		fn.#NumberExpression
-	Environment?:      [..._#defs."/$defs/Properties/definitions/EcsEnvironmentVariable"] | fn.#ListExpression
-	EnvironmentFiles?: [..._#defs."/$defs/Properties/definitions/EcsEnvironmentFile"] | fn.#ListExpression
+	Environment?:      [...#EcsEnvironmentVariable] | fn.#ListExpression
+	EnvironmentFiles?: [...#EcsEnvironmentFile] | fn.#ListExpression
 	Memory?: int |
 		{
 			string &
@@ -251,25 +251,25 @@ _#defs: "/$defs/Properties/definitions/EcsContainerOverride": close({
 		} |
 		fn.#NumberExpression
 	Name?:                 string | fn.#StringExpression
-	ResourceRequirements?: [..._#defs."/$defs/Properties/definitions/EcsResourceRequirement"] | fn.#ListExpression
+	ResourceRequirements?: [...#EcsResourceRequirement] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcsEnvironmentFile": close({
-	Type!:  _#defs."/$defs/Properties/definitions/EcsEnvironmentFileType"
+#EcsEnvironmentFile: close({
+	Type!:  #EcsEnvironmentFileType
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcsEnvironmentFileType": "s3" | fn.#StringExpression
+#EcsEnvironmentFileType: "s3" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EcsEnvironmentVariable": close({
+#EcsEnvironmentVariable: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcsEphemeralStorage": close({
+#EcsEphemeralStorage: close({
 	SizeInGiB!: int & <=200 & >=21 |
 		{
 			string &
@@ -289,34 +289,31 @@ _#defs: "/$defs/Properties/definitions/EcsEphemeralStorage": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcsInferenceAcceleratorOverride": close({
+#EcsInferenceAcceleratorOverride: close({
 	DeviceName?: string | fn.#StringExpression
 	DeviceType?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcsResourceRequirement": close({
-	Type!:  _#defs."/$defs/Properties/definitions/EcsResourceRequirementType"
+#EcsResourceRequirement: close({
+	Type!:  #EcsResourceRequirementType
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcsResourceRequirementType": "GPU" |
-	"InferenceAccelerator" |
-	fn.#StringExpression
+#EcsResourceRequirementType: "GPU" | "InferenceAccelerator" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EcsTaskOverride": close({
-	ContainerOverrides?: [..._#defs."/$defs/Properties/definitions/EcsContainerOverride"] | fn.#ListExpression
+#EcsTaskOverride: close({
+	ContainerOverrides?: [...#EcsContainerOverride] | fn.#ListExpression
 	Cpu?:                string | fn.#StringExpression
-	EphemeralStorage?:   _#defs."/$defs/Properties/definitions/EcsEphemeralStorage"
+	EphemeralStorage?:   #EcsEphemeralStorage
 	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-]+):([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.+)|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$" |
 	fn.#StringExpression
-	InferenceAcceleratorOverrides?: [..._#defs."/$defs/Properties/definitions/EcsInferenceAcceleratorOverride"] |
-		fn.#ListExpression
-	Memory?: string | fn.#StringExpression
+	InferenceAcceleratorOverrides?: [...#EcsInferenceAcceleratorOverride] | fn.#ListExpression
+	Memory?:                        string | fn.#StringExpression
 	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
@@ -325,23 +322,13 @@ _#defs: "/$defs/Properties/definitions/EcsTaskOverride": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EpochTimeUnit": "MILLISECONDS" |
-	"SECONDS" |
-	"MICROSECONDS" |
-	"NANOSECONDS" |
-	fn.#StringExpression
+#EpochTimeUnit: "MILLISECONDS" | "SECONDS" | "MICROSECONDS" | "NANOSECONDS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Filter": close(
-	{Pattern?: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#Filter: close({Pattern?: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilterCriteria": close(
-	{Filters?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Filter"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#FilterCriteria: close({Filters?: list.MaxItems(5) & [...] & [...#Filter] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FirehoseLogDestination": close({
+#FirehoseLogDestination: close({
 	DeliveryStreamArn?: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^(^arn:aws([a-z]|\\-)*:firehose:([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}):(\\d{12}):deliverystream/.+)$" |
@@ -349,7 +336,7 @@ _#defs: "/$defs/Properties/definitions/FirehoseLogDestination": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HeaderParametersMap": close({
+#HeaderParametersMap: close({
 
 	{[=~"^[!#$%&'*+-.^_`|~0-9a-zA-Z]+|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"]: strings.MaxRunes(512) &
 	strings.MinRunes(0) &
@@ -357,18 +344,15 @@ _#defs: "/$defs/Properties/definitions/HeaderParametersMap": close({
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IncludeExecutionDataOption": "ALL" | fn.#StringExpression
+#IncludeExecutionDataOption: "ALL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisStreamStartPosition": "TRIM_HORIZON" |
-	"LATEST" |
-	"AT_TIMESTAMP" |
-	fn.#StringExpression
+#KinesisStreamStartPosition: "TRIM_HORIZON" | "LATEST" | "AT_TIMESTAMP" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchType": "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
+#LaunchType: "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LogLevel": "OFF" | "ERROR" | "INFO" | "TRACE" | fn.#StringExpression
+#LogLevel: "OFF" | "ERROR" | "INFO" | "TRACE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MQBrokerAccessCredentials": close({
+#MQBrokerAccessCredentials: close({
 	BasicAuth!: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^(^arn:aws([a-z]|\\-)*:secretsmanager:([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}):(\\d{12}):secret:.+)$" |
@@ -376,7 +360,7 @@ _#defs: "/$defs/Properties/definitions/MQBrokerAccessCredentials": close({
 }) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/MSKAccessCredentials": matchN(1, [close({
+#MSKAccessCredentials: matchN(1, [close({
 	SaslScram512Auth!: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^(^arn:aws([a-z]|\\-)*:secretsmanager:([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}):(\\d{12}):secret:.+)$" |
@@ -389,62 +373,51 @@ _#defs: "/$defs/Properties/definitions/MSKAccessCredentials": matchN(1, [close({
 })]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/MSKStartPosition": "TRIM_HORIZON" | "LATEST" | fn.#StringExpression
+#MSKStartPosition: "TRIM_HORIZON" | "LATEST" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MeasureValueType": "DOUBLE" |
-	"BIGINT" |
-	"VARCHAR" |
-	"BOOLEAN" |
-	"TIMESTAMP" |
-	fn.#StringExpression
+#MeasureValueType: "DOUBLE" | "BIGINT" | "VARCHAR" | "BOOLEAN" | "TIMESTAMP" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MultiMeasureAttributeMapping": close({
+#MultiMeasureAttributeMapping: close({
 	MeasureValue!:              strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	MeasureValueType!:          _#defs."/$defs/Properties/definitions/MeasureValueType"
+	MeasureValueType!:          #MeasureValueType
 	MultiMeasureAttributeName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MultiMeasureMapping": close({
-	MultiMeasureAttributeMappings!: list.MaxItems(256) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/MultiMeasureAttributeMapping"
-	] |
+#MultiMeasureMapping: close({
+	MultiMeasureAttributeMappings!: list.MaxItems(256) & list.MinItems(1) & [...#MultiMeasureAttributeMapping] |
 		fn.#ListExpression
 	MultiMeasureName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close(
-	{AwsvpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration"},
-) |
-	fn.#ObjectExpression
+#NetworkConfiguration: close({AwsvpcConfiguration?: #AwsVpcConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnPartialBatchItemFailureStreams": "AUTOMATIC_BISECT" | fn.#StringExpression
+#OnPartialBatchItemFailureStreams: "AUTOMATIC_BISECT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PipeEnrichmentHttpParameters": close({
-	HeaderParameters?:      _#defs."/$defs/Properties/definitions/HeaderParametersMap"
+#PipeEnrichmentHttpParameters: close({
+	HeaderParameters?:      #HeaderParametersMap
 	PathParameterValues?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	QueryStringParameters?: _#defs."/$defs/Properties/definitions/QueryStringParametersMap"
+	QueryStringParameters?: #QueryStringParametersMap
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeEnrichmentParameters": close({
-	HttpParameters?: _#defs."/$defs/Properties/definitions/PipeEnrichmentHttpParameters"
+#PipeEnrichmentParameters: close({
+	HttpParameters?: #PipeEnrichmentHttpParameters
 	InputTemplate?:  strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeLogConfiguration": close({
-	CloudwatchLogsLogDestination?: _#defs."/$defs/Properties/definitions/CloudwatchLogsLogDestination"
-	FirehoseLogDestination?:       _#defs."/$defs/Properties/definitions/FirehoseLogDestination"
-	IncludeExecutionData?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/IncludeExecutionDataOption"] |
-		fn.#ListExpression
-	Level?:            _#defs."/$defs/Properties/definitions/LogLevel"
-	S3LogDestination?: _#defs."/$defs/Properties/definitions/S3LogDestination"
+#PipeLogConfiguration: close({
+	CloudwatchLogsLogDestination?: #CloudwatchLogsLogDestination
+	FirehoseLogDestination?:       #FirehoseLogDestination
+	IncludeExecutionData?:         list.UniqueItems() & [...#IncludeExecutionDataOption] | fn.#ListExpression
+	Level?:                        #LogLevel
+	S3LogDestination?:             #S3LogDestination
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeSourceActiveMQBrokerParameters": close({
+#PipeSourceActiveMQBrokerParameters: close({
 	BatchSize?: int & <=10000 & >=1 |
 		{
 			string &
@@ -461,7 +434,7 @@ _#defs: "/$defs/Properties/definitions/PipeSourceActiveMQBrokerParameters": clos
 				)
 		} |
 		fn.#NumberExpression
-	Credentials!: _#defs."/$defs/Properties/definitions/MQBrokerAccessCredentials"
+	Credentials!: #MQBrokerAccessCredentials
 	MaximumBatchingWindowInSeconds?: int & <=300 & >=0 |
 		{
 			string &
@@ -482,7 +455,7 @@ _#defs: "/$defs/Properties/definitions/PipeSourceActiveMQBrokerParameters": clos
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeSourceDynamoDBStreamParameters": close({
+#PipeSourceDynamoDBStreamParameters: close({
 	BatchSize?: int & <=10000 & >=1 |
 		{
 			string &
@@ -499,7 +472,7 @@ _#defs: "/$defs/Properties/definitions/PipeSourceDynamoDBStreamParameters": clos
 				)
 		} |
 		fn.#NumberExpression
-	DeadLetterConfig?: _#defs."/$defs/Properties/definitions/DeadLetterConfig"
+	DeadLetterConfig?: #DeadLetterConfig
 	MaximumBatchingWindowInSeconds?: int & <=300 & >=0 |
 		{
 			string &
@@ -548,7 +521,7 @@ _#defs: "/$defs/Properties/definitions/PipeSourceDynamoDBStreamParameters": clos
 				)
 		} |
 		fn.#NumberExpression
-	OnPartialBatchItemFailure?: _#defs."/$defs/Properties/definitions/OnPartialBatchItemFailureStreams"
+	OnPartialBatchItemFailure?: #OnPartialBatchItemFailureStreams
 	ParallelizationFactor?: int & <=10 & >=1 |
 		{
 			string &
@@ -565,11 +538,11 @@ _#defs: "/$defs/Properties/definitions/PipeSourceDynamoDBStreamParameters": clos
 				)
 		} |
 		fn.#NumberExpression
-	StartingPosition!: _#defs."/$defs/Properties/definitions/DynamoDBStreamStartPosition"
+	StartingPosition!: #DynamoDBStreamStartPosition
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeSourceKinesisStreamParameters": close({
+#PipeSourceKinesisStreamParameters: close({
 	BatchSize?: int & <=10000 & >=1 |
 		{
 			string &
@@ -586,7 +559,7 @@ _#defs: "/$defs/Properties/definitions/PipeSourceKinesisStreamParameters": close
 				)
 		} |
 		fn.#NumberExpression
-	DeadLetterConfig?: _#defs."/$defs/Properties/definitions/DeadLetterConfig"
+	DeadLetterConfig?: #DeadLetterConfig
 	MaximumBatchingWindowInSeconds?: int & <=300 & >=0 |
 		{
 			string &
@@ -635,7 +608,7 @@ _#defs: "/$defs/Properties/definitions/PipeSourceKinesisStreamParameters": close
 				)
 		} |
 		fn.#NumberExpression
-	OnPartialBatchItemFailure?: _#defs."/$defs/Properties/definitions/OnPartialBatchItemFailureStreams"
+	OnPartialBatchItemFailure?: #OnPartialBatchItemFailureStreams
 	ParallelizationFactor?: int & <=10 & >=1 |
 		{
 			string &
@@ -652,12 +625,12 @@ _#defs: "/$defs/Properties/definitions/PipeSourceKinesisStreamParameters": close
 				)
 		} |
 		fn.#NumberExpression
-	StartingPosition!:          _#defs."/$defs/Properties/definitions/KinesisStreamStartPosition"
+	StartingPosition!:          #KinesisStreamStartPosition
 	StartingPositionTimestamp?: time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeSourceManagedStreamingKafkaParameters": close({
+#PipeSourceManagedStreamingKafkaParameters: close({
 	BatchSize?: int & <=10000 & >=1 |
 		{
 			string &
@@ -676,7 +649,7 @@ _#defs: "/$defs/Properties/definitions/PipeSourceManagedStreamingKafkaParameters
 		fn.#NumberExpression
 	ConsumerGroupID?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\/*:_+=.@-]*$" |
 	fn.#StringExpression
-	Credentials?: _#defs."/$defs/Properties/definitions/MSKAccessCredentials"
+	Credentials?: #MSKAccessCredentials
 	MaximumBatchingWindowInSeconds?: int & <=300 & >=0 |
 		{
 			string &
@@ -693,24 +666,24 @@ _#defs: "/$defs/Properties/definitions/PipeSourceManagedStreamingKafkaParameters
 				)
 		} |
 		fn.#NumberExpression
-	StartingPosition?: _#defs."/$defs/Properties/definitions/MSKStartPosition"
+	StartingPosition?: #MSKStartPosition
 	TopicName!: strings.MaxRunes(249) & strings.MinRunes(1) & =~"^[^.]([a-zA-Z0-9\\-_.]+)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeSourceParameters": close({
-	ActiveMQBrokerParameters?:        _#defs."/$defs/Properties/definitions/PipeSourceActiveMQBrokerParameters"
-	DynamoDBStreamParameters?:        _#defs."/$defs/Properties/definitions/PipeSourceDynamoDBStreamParameters"
-	FilterCriteria?:                  _#defs."/$defs/Properties/definitions/FilterCriteria"
-	KinesisStreamParameters?:         _#defs."/$defs/Properties/definitions/PipeSourceKinesisStreamParameters"
-	ManagedStreamingKafkaParameters?: _#defs."/$defs/Properties/definitions/PipeSourceManagedStreamingKafkaParameters"
-	RabbitMQBrokerParameters?:        _#defs."/$defs/Properties/definitions/PipeSourceRabbitMQBrokerParameters"
-	SelfManagedKafkaParameters?:      _#defs."/$defs/Properties/definitions/PipeSourceSelfManagedKafkaParameters"
-	SqsQueueParameters?:              _#defs."/$defs/Properties/definitions/PipeSourceSqsQueueParameters"
+#PipeSourceParameters: close({
+	ActiveMQBrokerParameters?:        #PipeSourceActiveMQBrokerParameters
+	DynamoDBStreamParameters?:        #PipeSourceDynamoDBStreamParameters
+	FilterCriteria?:                  #FilterCriteria
+	KinesisStreamParameters?:         #PipeSourceKinesisStreamParameters
+	ManagedStreamingKafkaParameters?: #PipeSourceManagedStreamingKafkaParameters
+	RabbitMQBrokerParameters?:        #PipeSourceRabbitMQBrokerParameters
+	SelfManagedKafkaParameters?:      #PipeSourceSelfManagedKafkaParameters
+	SqsQueueParameters?:              #PipeSourceSqsQueueParameters
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeSourceRabbitMQBrokerParameters": close({
+#PipeSourceRabbitMQBrokerParameters: close({
 	BatchSize?: int & <=10000 & >=1 |
 		{
 			string &
@@ -727,7 +700,7 @@ _#defs: "/$defs/Properties/definitions/PipeSourceRabbitMQBrokerParameters": clos
 				)
 		} |
 		fn.#NumberExpression
-	Credentials!: _#defs."/$defs/Properties/definitions/MQBrokerAccessCredentials"
+	Credentials!: #MQBrokerAccessCredentials
 	MaximumBatchingWindowInSeconds?: int & <=300 & >=0 |
 		{
 			string &
@@ -749,7 +722,7 @@ _#defs: "/$defs/Properties/definitions/PipeSourceRabbitMQBrokerParameters": clos
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeSourceSelfManagedKafkaParameters": close({
+#PipeSourceSelfManagedKafkaParameters: close({
 	AdditionalBootstrapServers?: list.MaxItems(2) & [...] & [
 		...strings.MaxRunes(300) &
 		strings.MinRunes(1) &
@@ -775,7 +748,7 @@ _#defs: "/$defs/Properties/definitions/PipeSourceSelfManagedKafkaParameters": cl
 		fn.#NumberExpression
 	ConsumerGroupID?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\/*:_+=.@-]*$" |
 	fn.#StringExpression
-	Credentials?: _#defs."/$defs/Properties/definitions/SelfManagedKafkaAccessConfigurationCredentials"
+	Credentials?: #SelfManagedKafkaAccessConfigurationCredentials
 	MaximumBatchingWindowInSeconds?: int & <=300 & >=0 |
 		{
 			string &
@@ -796,13 +769,13 @@ _#defs: "/$defs/Properties/definitions/PipeSourceSelfManagedKafkaParameters": cl
 	strings.MinRunes(1) &
 	=~"^(^arn:aws([a-z]|\\-)*:secretsmanager:([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}):(\\d{12}):secret:.+)$" |
 	fn.#StringExpression
-	StartingPosition?: _#defs."/$defs/Properties/definitions/SelfManagedKafkaStartPosition"
+	StartingPosition?: #SelfManagedKafkaStartPosition
 	TopicName!: strings.MaxRunes(249) & strings.MinRunes(1) & =~"^[^.]([a-zA-Z0-9\\-_.]+)$" | fn.#StringExpression
-	Vpc?:       _#defs."/$defs/Properties/definitions/SelfManagedKafkaAccessConfigurationVpc"
+	Vpc?:       #SelfManagedKafkaAccessConfigurationVpc
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeSourceSqsQueueParameters": close({
+#PipeSourceSqsQueueParameters: close({
 	BatchSize?: int & <=10000 & >=1 |
 		{
 			string &
@@ -838,7 +811,7 @@ _#defs: "/$defs/Properties/definitions/PipeSourceSqsQueueParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeState": "RUNNING" |
+#PipeState: "RUNNING" |
 	"STOPPED" |
 	"CREATING" |
 	"UPDATING" |
@@ -855,44 +828,38 @@ _#defs: "/$defs/Properties/definitions/PipeState": "RUNNING" |
 	"UPDATE_ROLLBACK_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PipeTargetBatchJobParameters": close({
-	ArrayProperties?:    _#defs."/$defs/Properties/definitions/BatchArrayProperties"
-	ContainerOverrides?: _#defs."/$defs/Properties/definitions/BatchContainerOverrides"
-	DependsOn?: list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/BatchJobDependency"] |
-		fn.#ListExpression
-	JobDefinition!: string | fn.#StringExpression
-	JobName!:       string | fn.#StringExpression
-	Parameters?:    _#defs."/$defs/Properties/definitions/BatchParametersMap"
-	RetryStrategy?: _#defs."/$defs/Properties/definitions/BatchRetryStrategy"
+#PipeTargetBatchJobParameters: close({
+	ArrayProperties?:    #BatchArrayProperties
+	ContainerOverrides?: #BatchContainerOverrides
+	DependsOn?:          list.MaxItems(20) & [...] & [...#BatchJobDependency] | fn.#ListExpression
+	JobDefinition!:      string | fn.#StringExpression
+	JobName!:            string | fn.#StringExpression
+	Parameters?:         #BatchParametersMap
+	RetryStrategy?:      #BatchRetryStrategy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeTargetCloudWatchLogsParameters": close({
+#PipeTargetCloudWatchLogsParameters: close({
 	LogStreamName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Timestamp?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\$(\\.[\\w_-]+(\\[(\\d+|\\*)\\])*)*$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeTargetEcsTaskParameters": close({
-	CapacityProviderStrategy?: list.MaxItems(6) & [...] & [
-		..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"
-	] |
-		fn.#ListExpression
-	EnableECSManagedTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Group?:                string | fn.#StringExpression
-	LaunchType?:           _#defs."/$defs/Properties/definitions/LaunchType"
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-	Overrides?:            _#defs."/$defs/Properties/definitions/EcsTaskOverride"
-	PlacementConstraints?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/PlacementConstraint"] |
-		fn.#ListExpression
-	PlacementStrategy?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/PlacementStrategy"] |
-		fn.#ListExpression
-	PlatformVersion?: string | fn.#StringExpression
-	PropagateTags?:   _#defs."/$defs/Properties/definitions/PropagateTags"
-	ReferenceId?:     strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+#PipeTargetEcsTaskParameters: close({
+	CapacityProviderStrategy?: list.MaxItems(6) & [...] & [...#CapacityProviderStrategyItem] | fn.#ListExpression
+	EnableECSManagedTags?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableExecuteCommand?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Group?:                    string | fn.#StringExpression
+	LaunchType?:               #LaunchType
+	NetworkConfiguration?:     #NetworkConfiguration
+	Overrides?:                #EcsTaskOverride
+	PlacementConstraints?:     list.MaxItems(10) & [...] & [...#PlacementConstraint] | fn.#ListExpression
+	PlacementStrategy?:        list.MaxItems(5) & [...] & [...#PlacementStrategy] | fn.#ListExpression
+	PlatformVersion?:          string | fn.#StringExpression
+	PropagateTags?:            #PropagateTags
+	ReferenceId?:              strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	Tags?:                     [...#Tag] | fn.#ListExpression
 	TaskCount?: int & >=1 |
 		{
 			string &
@@ -915,7 +882,7 @@ _#defs: "/$defs/Properties/definitions/PipeTargetEcsTaskParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeTargetEventBridgeEventBusParameters": close({
+#PipeTargetEventBridgeEventBusParameters: close({
 	DetailType?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	EndpointId?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+[\\.][A-Za-z0-9\\-]+$" |
 	fn.#StringExpression
@@ -932,45 +899,40 @@ _#defs: "/$defs/Properties/definitions/PipeTargetEventBridgeEventBusParameters":
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeTargetHttpParameters": close({
-	HeaderParameters?:      _#defs."/$defs/Properties/definitions/HeaderParametersMap"
+#PipeTargetHttpParameters: close({
+	HeaderParameters?:      #HeaderParametersMap
 	PathParameterValues?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	QueryStringParameters?: _#defs."/$defs/Properties/definitions/QueryStringParametersMap"
+	QueryStringParameters?: #QueryStringParametersMap
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeTargetInvocationType": "REQUEST_RESPONSE" |
-	"FIRE_AND_FORGET" |
-	fn.#StringExpression
+#PipeTargetInvocationType: "REQUEST_RESPONSE" | "FIRE_AND_FORGET" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PipeTargetKinesisStreamParameters": close(
+#PipeTargetKinesisStreamParameters: close(
 	{PartitionKey!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeTargetLambdaFunctionParameters": close(
-	{InvocationType?: _#defs."/$defs/Properties/definitions/PipeTargetInvocationType"},
-) |
-	fn.#ObjectExpression
+#PipeTargetLambdaFunctionParameters: close({InvocationType?: #PipeTargetInvocationType}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeTargetParameters": close({
-	BatchJobParameters?:                 _#defs."/$defs/Properties/definitions/PipeTargetBatchJobParameters"
-	CloudWatchLogsParameters?:           _#defs."/$defs/Properties/definitions/PipeTargetCloudWatchLogsParameters"
-	EcsTaskParameters?:                  _#defs."/$defs/Properties/definitions/PipeTargetEcsTaskParameters"
-	EventBridgeEventBusParameters?:      _#defs."/$defs/Properties/definitions/PipeTargetEventBridgeEventBusParameters"
-	HttpParameters?:                     _#defs."/$defs/Properties/definitions/PipeTargetHttpParameters"
+#PipeTargetParameters: close({
+	BatchJobParameters?:                 #PipeTargetBatchJobParameters
+	CloudWatchLogsParameters?:           #PipeTargetCloudWatchLogsParameters
+	EcsTaskParameters?:                  #PipeTargetEcsTaskParameters
+	EventBridgeEventBusParameters?:      #PipeTargetEventBridgeEventBusParameters
+	HttpParameters?:                     #PipeTargetHttpParameters
 	InputTemplate?:                      strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
-	KinesisStreamParameters?:            _#defs."/$defs/Properties/definitions/PipeTargetKinesisStreamParameters"
-	LambdaFunctionParameters?:           _#defs."/$defs/Properties/definitions/PipeTargetLambdaFunctionParameters"
-	RedshiftDataParameters?:             _#defs."/$defs/Properties/definitions/PipeTargetRedshiftDataParameters"
-	SageMakerPipelineParameters?:        _#defs."/$defs/Properties/definitions/PipeTargetSageMakerPipelineParameters"
-	SqsQueueParameters?:                 _#defs."/$defs/Properties/definitions/PipeTargetSqsQueueParameters"
-	StepFunctionStateMachineParameters?: _#defs."/$defs/Properties/definitions/PipeTargetStateMachineParameters"
-	TimestreamParameters?:               _#defs."/$defs/Properties/definitions/PipeTargetTimestreamParameters"
+	KinesisStreamParameters?:            #PipeTargetKinesisStreamParameters
+	LambdaFunctionParameters?:           #PipeTargetLambdaFunctionParameters
+	RedshiftDataParameters?:             #PipeTargetRedshiftDataParameters
+	SageMakerPipelineParameters?:        #PipeTargetSageMakerPipelineParameters
+	SqsQueueParameters?:                 #PipeTargetSqsQueueParameters
+	StepFunctionStateMachineParameters?: #PipeTargetStateMachineParameters
+	TimestreamParameters?:               #PipeTargetTimestreamParameters
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeTargetRedshiftDataParameters": close({
+#PipeTargetRedshiftDataParameters: close({
 	Database!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	DbUser?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	SecretManagerArn?: strings.MaxRunes(1600) &
@@ -986,63 +948,50 @@ _#defs: "/$defs/Properties/definitions/PipeTargetRedshiftDataParameters": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeTargetSageMakerPipelineParameters": close({
-	PipelineParameterList?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SageMakerPipelineParameter"
-	] |
-		fn.#ListExpression
-}) |
+#PipeTargetSageMakerPipelineParameters: close(
+	{PipelineParameterList?: list.MaxItems(200) & [...] & [...#SageMakerPipelineParameter] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeTargetSqsQueueParameters": close({
+#PipeTargetSqsQueueParameters: close({
 	MessageDeduplicationId?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 	MessageGroupId?:         strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeTargetStateMachineParameters": close(
-	{InvocationType?: _#defs."/$defs/Properties/definitions/PipeTargetInvocationType"},
-) |
-	fn.#ObjectExpression
+#PipeTargetStateMachineParameters: close({InvocationType?: #PipeTargetInvocationType}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PipeTargetTimestreamParameters": close({
-	DimensionMappings!: list.MaxItems(128) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DimensionMapping"
-	] |
-		fn.#ListExpression
-	EpochTimeUnit?: _#defs."/$defs/Properties/definitions/EpochTimeUnit"
-	MultiMeasureMappings?: list.MaxItems(1024) & [...] & [..._#defs."/$defs/Properties/definitions/MultiMeasureMapping"] |
-		fn.#ListExpression
-	SingleMeasureMappings?: list.MaxItems(8192) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SingleMeasureMapping"
-	] |
-		fn.#ListExpression
-	TimeFieldType?:   _#defs."/$defs/Properties/definitions/TimeFieldType"
-	TimeValue!:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	TimestampFormat?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	VersionValue!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#PipeTargetTimestreamParameters: close({
+	DimensionMappings!:     list.MaxItems(128) & list.MinItems(1) & [...#DimensionMapping] | fn.#ListExpression
+	EpochTimeUnit?:         #EpochTimeUnit
+	MultiMeasureMappings?:  list.MaxItems(1024) & [...] & [...#MultiMeasureMapping] | fn.#ListExpression
+	SingleMeasureMappings?: list.MaxItems(8192) & [...] & [...#SingleMeasureMapping] | fn.#ListExpression
+	TimeFieldType?:         #TimeFieldType
+	TimeValue!:             strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	TimestampFormat?:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	VersionValue!:          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementConstraint": close({
+#PlacementConstraint: close({
 	Expression?: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-	Type?:       _#defs."/$defs/Properties/definitions/PlacementConstraintType"
+	Type?:       #PlacementConstraintType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementConstraintType": "distinctInstance" | "memberOf" | fn.#StringExpression
+#PlacementConstraintType: "distinctInstance" | "memberOf" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementStrategy": close({
+#PlacementStrategy: close({
 	Field?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	Type?:  _#defs."/$defs/Properties/definitions/PlacementStrategyType"
+	Type?:  #PlacementStrategyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementStrategyType": "random" | "spread" | "binpack" | fn.#StringExpression
+#PlacementStrategyType: "random" | "spread" | "binpack" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PropagateTags": "TASK_DEFINITION" | fn.#StringExpression
+#PropagateTags: "TASK_DEFINITION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/QueryStringParametersMap": close({
+#QueryStringParametersMap: close({
 
 	{[=~"^[^\\x00-\\x1F\\x7F]+|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"]: strings.MaxRunes(512) &
 	strings.MinRunes(0) &
@@ -1050,19 +999,19 @@ _#defs: "/$defs/Properties/definitions/QueryStringParametersMap": close({
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RequestedPipeState": "RUNNING" | "STOPPED" | fn.#StringExpression
+#RequestedPipeState: "RUNNING" | "STOPPED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3LogDestination": close({
+#S3LogDestination: close({
 	BucketName?:   string | fn.#StringExpression
 	BucketOwner?:  string | fn.#StringExpression
-	OutputFormat?: _#defs."/$defs/Properties/definitions/S3OutputFormat"
+	OutputFormat?: #S3OutputFormat
 	Prefix?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3OutputFormat": "json" | "plain" | "w3c" | fn.#StringExpression
+#S3OutputFormat: "json" | "plain" | "w3c" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SageMakerPipelineParameter": close({
+#SageMakerPipelineParameter: close({
 	Name!: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$" |
@@ -1071,7 +1020,7 @@ _#defs: "/$defs/Properties/definitions/SageMakerPipelineParameter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelfManagedKafkaAccessConfigurationCredentials": matchN(1, [close({
+#SelfManagedKafkaAccessConfigurationCredentials: matchN(1, [close({
 	BasicAuth!: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^(^arn:aws([a-z]|\\-)*:secretsmanager:([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}):(\\d{12}):secret:.+)$" |
@@ -1094,7 +1043,7 @@ _#defs: "/$defs/Properties/definitions/SelfManagedKafkaAccessConfigurationCreden
 })]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/SelfManagedKafkaAccessConfigurationVpc": close({
+#SelfManagedKafkaAccessConfigurationVpc: close({
 	SecurityGroup?: list.MaxItems(5) & [...] & [
 		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^sg-[0-9a-zA-Z]*$" | fn.#StringExpression
 	] |
@@ -1106,27 +1055,27 @@ _#defs: "/$defs/Properties/definitions/SelfManagedKafkaAccessConfigurationVpc": 
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelfManagedKafkaStartPosition": "TRIM_HORIZON" | "LATEST" | fn.#StringExpression
+#SelfManagedKafkaStartPosition: "TRIM_HORIZON" | "LATEST" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SingleMeasureMapping": close({
+#SingleMeasureMapping: close({
 	MeasureName!:      strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	MeasureValue!:     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	MeasureValueType!: _#defs."/$defs/Properties/definitions/MeasureValueType"
+	MeasureValueType!: #MeasureValueType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": struct.MaxFields(50) & struct.MinFields(1) & close({
+#TagMap: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeFieldType": "EPOCH" | "TIMESTAMP_FORMAT" | fn.#StringExpression
+#TimeFieldType: "EPOCH" | "TIMESTAMP_FORMAT" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Pipes::Pipe"
 	Properties!: #Properties

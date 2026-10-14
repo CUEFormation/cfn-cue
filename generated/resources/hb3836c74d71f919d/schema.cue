@@ -17,12 +17,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	MeshName!:          string | fn.#StringExpression
 	MeshOwner?:         string | fn.#StringExpression
 	RouteName?:         string | fn.#StringExpression
-	Spec!:              _#defs."/$defs/Properties/definitions/RouteSpec"
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Spec!:              #RouteSpec
+	Tags?:              [...#Tag] | fn.#ListExpression
 	VirtualRouterName!: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Duration": close({
+#Duration: close({
 	Unit!: string | fn.#StringExpression
 	Value!: int |
 		{
@@ -41,7 +41,7 @@ _#defs: "/$defs/Properties/definitions/Duration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcRetryPolicy": close({
+#GrpcRetryPolicy: close({
 	GrpcRetryEvents?: [...string | fn.#StringExpression] | fn.#ListExpression
 	HttpRetryEvents?: [...string | fn.#StringExpression] | fn.#ListExpression
 	MaxRetries!: int |
@@ -58,26 +58,23 @@ _#defs: "/$defs/Properties/definitions/GrpcRetryPolicy": close({
 				)
 		} |
 		fn.#NumberExpression
-	PerRetryTimeout!: _#defs."/$defs/Properties/definitions/Duration"
+	PerRetryTimeout!: #Duration
 	TcpRetryEvents?:  [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcRoute": close({
-	Action!:      _#defs."/$defs/Properties/definitions/GrpcRouteAction"
-	Match!:       _#defs."/$defs/Properties/definitions/GrpcRouteMatch"
-	RetryPolicy?: _#defs."/$defs/Properties/definitions/GrpcRetryPolicy"
-	Timeout?:     _#defs."/$defs/Properties/definitions/GrpcTimeout"
+#GrpcRoute: close({
+	Action!:      #GrpcRouteAction
+	Match!:       #GrpcRouteMatch
+	RetryPolicy?: #GrpcRetryPolicy
+	Timeout?:     #GrpcTimeout
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcRouteAction": close(
-	{WeightedTargets!: [..._#defs."/$defs/Properties/definitions/WeightedTarget"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#GrpcRouteAction: close({WeightedTargets!: [...#WeightedTarget] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcRouteMatch": close({
-	Metadata?:   [..._#defs."/$defs/Properties/definitions/GrpcRouteMetadata"] | fn.#ListExpression
+#GrpcRouteMatch: close({
+	Metadata?:   [...#GrpcRouteMetadata] | fn.#ListExpression
 	MethodName?: string | fn.#StringExpression
 	Port?: int |
 		{
@@ -97,47 +94,46 @@ _#defs: "/$defs/Properties/definitions/GrpcRouteMatch": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcRouteMetadata": close({
+#GrpcRouteMetadata: close({
 	Invert?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Match?:  _#defs."/$defs/Properties/definitions/GrpcRouteMetadataMatchMethod"
+	Match?:  #GrpcRouteMetadataMatchMethod
 	Name!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcRouteMetadataMatchMethod": close({
+#GrpcRouteMetadataMatchMethod: close({
 	Exact?:  string | fn.#StringExpression
 	Prefix?: string | fn.#StringExpression
-	Range?:  _#defs."/$defs/Properties/definitions/MatchRange"
+	Range?:  #MatchRange
 	Regex?:  string | fn.#StringExpression
 	Suffix?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GrpcTimeout": close({
-	Idle?:       _#defs."/$defs/Properties/definitions/Duration"
-	PerRequest?: _#defs."/$defs/Properties/definitions/Duration"
+#GrpcTimeout: close({
+	Idle?:       #Duration
+	PerRequest?: #Duration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HeaderMatchMethod": close({
+#HeaderMatchMethod: close({
 	Exact?:  string | fn.#StringExpression
 	Prefix?: string | fn.#StringExpression
-	Range?:  _#defs."/$defs/Properties/definitions/MatchRange"
+	Range?:  #MatchRange
 	Regex?:  string | fn.#StringExpression
 	Suffix?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpPathMatch": close({
+#HttpPathMatch: close({
 	Exact?: string | fn.#StringExpression
 	Regex?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpQueryParameterMatch": close({Exact?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#HttpQueryParameterMatch: close({Exact?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpRetryPolicy": close({
+#HttpRetryPolicy: close({
 	HttpRetryEvents?: [...string | fn.#StringExpression] | fn.#ListExpression
 	MaxRetries!: int |
 		{
@@ -153,35 +149,32 @@ _#defs: "/$defs/Properties/definitions/HttpRetryPolicy": close({
 				)
 		} |
 		fn.#NumberExpression
-	PerRetryTimeout!: _#defs."/$defs/Properties/definitions/Duration"
+	PerRetryTimeout!: #Duration
 	TcpRetryEvents?:  [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpRoute": close({
-	Action!:      _#defs."/$defs/Properties/definitions/HttpRouteAction"
-	Match!:       _#defs."/$defs/Properties/definitions/HttpRouteMatch"
-	RetryPolicy?: _#defs."/$defs/Properties/definitions/HttpRetryPolicy"
-	Timeout?:     _#defs."/$defs/Properties/definitions/HttpTimeout"
+#HttpRoute: close({
+	Action!:      #HttpRouteAction
+	Match!:       #HttpRouteMatch
+	RetryPolicy?: #HttpRetryPolicy
+	Timeout?:     #HttpTimeout
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpRouteAction": close(
-	{WeightedTargets!: [..._#defs."/$defs/Properties/definitions/WeightedTarget"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#HttpRouteAction: close({WeightedTargets!: [...#WeightedTarget] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpRouteHeader": close({
+#HttpRouteHeader: close({
 	Invert?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Match?:  _#defs."/$defs/Properties/definitions/HeaderMatchMethod"
+	Match?:  #HeaderMatchMethod
 	Name!:   string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpRouteMatch": close({
-	Headers?: [..._#defs."/$defs/Properties/definitions/HttpRouteHeader"] | fn.#ListExpression
+#HttpRouteMatch: close({
+	Headers?: [...#HttpRouteHeader] | fn.#ListExpression
 	Method?:  string | fn.#StringExpression
-	Path?:    _#defs."/$defs/Properties/definitions/HttpPathMatch"
+	Path?:    #HttpPathMatch
 	Port?: int |
 		{
 			string &
@@ -197,18 +190,18 @@ _#defs: "/$defs/Properties/definitions/HttpRouteMatch": close({
 		} |
 		fn.#NumberExpression
 	Prefix?:          string | fn.#StringExpression
-	QueryParameters?: [..._#defs."/$defs/Properties/definitions/QueryParameter"] | fn.#ListExpression
+	QueryParameters?: [...#QueryParameter] | fn.#ListExpression
 	Scheme?:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpTimeout": close({
-	Idle?:       _#defs."/$defs/Properties/definitions/Duration"
-	PerRequest?: _#defs."/$defs/Properties/definitions/Duration"
+#HttpTimeout: close({
+	Idle?:       #Duration
+	PerRequest?: #Duration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchRange": close({
+#MatchRange: close({
 	End!: int |
 		{
 			string &
@@ -240,16 +233,16 @@ _#defs: "/$defs/Properties/definitions/MatchRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryParameter": close({
-	Match?: _#defs."/$defs/Properties/definitions/HttpQueryParameterMatch"
+#QueryParameter: close({
+	Match?: #HttpQueryParameterMatch
 	Name!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RouteSpec": close({
-	GrpcRoute?:  _#defs."/$defs/Properties/definitions/GrpcRoute"
-	Http2Route?: _#defs."/$defs/Properties/definitions/HttpRoute"
-	HttpRoute?:  _#defs."/$defs/Properties/definitions/HttpRoute"
+#RouteSpec: close({
+	GrpcRoute?:  #GrpcRoute
+	Http2Route?: #HttpRoute
+	HttpRoute?:  #HttpRoute
 	Priority?: int |
 		{
 			string &
@@ -264,29 +257,26 @@ _#defs: "/$defs/Properties/definitions/RouteSpec": close({
 				)
 		} |
 		fn.#NumberExpression
-	TcpRoute?: _#defs."/$defs/Properties/definitions/TcpRoute"
+	TcpRoute?: #TcpRoute
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TcpRoute": close({
-	Action!:  _#defs."/$defs/Properties/definitions/TcpRouteAction"
-	Match?:   _#defs."/$defs/Properties/definitions/TcpRouteMatch"
-	Timeout?: _#defs."/$defs/Properties/definitions/TcpTimeout"
+#TcpRoute: close({
+	Action!:  #TcpRouteAction
+	Match?:   #TcpRouteMatch
+	Timeout?: #TcpTimeout
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TcpRouteAction": close(
-	{WeightedTargets!: [..._#defs."/$defs/Properties/definitions/WeightedTarget"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#TcpRouteAction: close({WeightedTargets!: [...#WeightedTarget] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TcpRouteMatch": close({
+#TcpRouteMatch: close({
 	Port?: int |
 		{
 			string &
@@ -304,10 +294,9 @@ _#defs: "/$defs/Properties/definitions/TcpRouteMatch": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TcpTimeout": close({Idle?: _#defs."/$defs/Properties/definitions/Duration"}) |
-	fn.#ObjectExpression
+#TcpTimeout: close({Idle?: #Duration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WeightedTarget": close({
+#WeightedTarget: close({
 	Port?: int |
 		{
 			string &

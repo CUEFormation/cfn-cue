@@ -29,14 +29,14 @@ import "strings"
 	}, _) & {...}
 ]) & close({
 	CloudFrontDistribution?: string
-	CustomDomainConfig?:     _#defs."/$defs/Properties/definitions/CustomDomainConfigType"
+	CustomDomainConfig?:     #CustomDomainConfigType
 	Domain!:                 strings.MaxRunes(63) & strings.MinRunes(1)
 	ManagedLoginVersion?:    int
-	Routing?:                _#defs."/$defs/Properties/definitions/RoutingType"
+	Routing?:                #RoutingType
 	UserPoolId!:             strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/CustomDomainConfigType": close({
+#CustomDomainConfigType: close({
 	CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -44,11 +44,9 @@ _#defs: "/$defs/Properties/definitions/CustomDomainConfigType": close({
 	SecurityPolicy?: "TLS_V1" | "TLS_V1_2_2021" | "TLS_V1_3_2025"
 })
 
-_#defs: "/$defs/Properties/definitions/FailoverType": close({
+#FailoverType: close({
 	PrimaryRoute53HealthCheckId!: strings.MaxRunes(64) & strings.MinRunes(0)
 	SecondaryRegion!:             strings.MaxRunes(32) & strings.MinRunes(5)
 })
 
-_#defs: "/$defs/Properties/definitions/RoutingType": close(
-	{Failover?: _#defs."/$defs/Properties/definitions/FailoverType"},
-)
+#RoutingType: close({Failover?: #FailoverType})

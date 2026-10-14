@@ -20,16 +20,16 @@ import (
 	BundleId!: string
 
 	// An object that describes the cache behavior settings for the distribution.
-	CacheBehaviorSettings?: _#defs."/$defs/Properties/definitions/CacheSettings"
+	CacheBehaviorSettings?: #CacheSettings
 
 	// An array of objects that describe the per-path cache behavior for the distribution.
-	CacheBehaviors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CacheBehaviorPerPath"]
+	CacheBehaviors?: list.UniqueItems() & [...#CacheBehaviorPerPath]
 
 	// The certificate attached to the Distribution.
 	CertificateName?: =~"^\\w[\\w\\-]*\\w$"
 
 	// An object that describes the default cache behavior for the distribution.
-	DefaultCacheBehavior!: _#defs."/$defs/Properties/definitions/CacheBehavior"
+	DefaultCacheBehavior!: #CacheBehavior
 	DistributionArn?:      string
 
 	// The name for the distribution.
@@ -43,25 +43,25 @@ import (
 
 	// An object that describes the origin resource for the distribution, such as a
 	// Lightsail instance or load balancer.
-	Origin!: _#defs."/$defs/Properties/definitions/InputOrigin"
+	Origin!: #InputOrigin
 
 	// The status of the distribution.
 	Status?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Describes the default cache behavior of an Amazon Lightsail content delivery
 // network (CDN) distribution.
-_#defs: "/$defs/Properties/definitions/CacheBehavior": close({
+#CacheBehavior: close({
 	// The cache behavior of the distribution.
 	Behavior?: "cache" | "dont-cache"
 })
 
 // Describes the per-path cache behavior of an Amazon Lightsail content delivery
 // network (CDN) distribution.
-_#defs: "/$defs/Properties/definitions/CacheBehaviorPerPath": close({
+#CacheBehaviorPerPath: close({
 	// The cache behavior for the specified path.
 	Behavior?: "cache" | "dont-cache"
 
@@ -72,7 +72,7 @@ _#defs: "/$defs/Properties/definitions/CacheBehaviorPerPath": close({
 })
 
 // Describes the cache settings of an Amazon Lightsail content delivery network (CDN) distribution.
-_#defs: "/$defs/Properties/definitions/CacheSettings": close({
+#CacheSettings: close({
 	// The HTTP methods that are processed and forwarded to the distribution's origin.
 	AllowedHTTPMethods?: =~"\\S"
 
@@ -86,15 +86,15 @@ _#defs: "/$defs/Properties/definitions/CacheSettings": close({
 
 	// An object that describes the cookies that are forwarded to the origin. Your
 	// content is cached based on the cookies that are forwarded.
-	ForwardedCookies?: _#defs."/$defs/Properties/definitions/CookieObject"
+	ForwardedCookies?: #CookieObject
 
 	// An object that describes the headers that are forwarded to the origin. Your
 	// content is cached based on the headers that are forwarded.
-	ForwardedHeaders?: _#defs."/$defs/Properties/definitions/HeaderObject"
+	ForwardedHeaders?: #HeaderObject
 
 	// An object that describes the query strings that are forwarded to the origin.
 	// Your content is cached based on the query strings that are forwarded.
-	ForwardedQueryStrings?: _#defs."/$defs/Properties/definitions/QueryStringObject"
+	ForwardedQueryStrings?: #QueryStringObject
 
 	// The maximum amount of time that objects stay in the distribution's cache
 	// before the distribution forwards another request to the origin to determine
@@ -109,7 +109,7 @@ _#defs: "/$defs/Properties/definitions/CacheSettings": close({
 
 // Describes whether an Amazon Lightsail content delivery network (CDN)
 // distribution forwards cookies to the origin and, if so, which ones.
-_#defs: "/$defs/Properties/definitions/CookieObject": close({
+#CookieObject: close({
 	// The specific cookies to forward to your distribution's origin.
 	CookiesAllowList?: list.UniqueItems() & [...string]
 
@@ -120,7 +120,7 @@ _#defs: "/$defs/Properties/definitions/CookieObject": close({
 })
 
 // Describes the request headers that a Lightsail distribution bases caching on.
-_#defs: "/$defs/Properties/definitions/HeaderObject": close({
+#HeaderObject: close({
 	// The specific headers to forward to your distribution's origin.
 	HeadersAllowList?: list.UniqueItems() & [...string]
 
@@ -129,7 +129,7 @@ _#defs: "/$defs/Properties/definitions/HeaderObject": close({
 })
 
 // Describes the origin resource of an Amazon Lightsail content delivery network (CDN) distribution.
-_#defs: "/$defs/Properties/definitions/InputOrigin": close({
+#InputOrigin: close({
 	// The name of the origin resource.
 	Name?: =~"^\\w[\\w\\-]*\\w$"
 
@@ -162,7 +162,7 @@ _#defs: "/$defs/Properties/definitions/InputOrigin": close({
 
 // Describes the query string parameters that an Amazon Lightsail content
 // delivery network (CDN) distribution to bases caching on.
-_#defs: "/$defs/Properties/definitions/QueryStringObject": close({
+#QueryStringObject: close({
 	// Indicates whether the distribution forwards and caches based on query strings.
 	Option?: bool
 
@@ -171,7 +171,7 @@ _#defs: "/$defs/Properties/definitions/QueryStringObject": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

@@ -6,55 +6,55 @@ package schema
 
 // Resource Type definition for AWS::Pinpoint::Campaign
 #Properties: close({
-	AdditionalTreatments?:        [..._#defs."/$defs/Properties/definitions/WriteTreatmentResource"]
+	AdditionalTreatments?:        [...#WriteTreatmentResource]
 	ApplicationId!:               string
 	Arn?:                         string
-	CampaignHook?:                _#defs."/$defs/Properties/definitions/CampaignHook"
+	CampaignHook?:                #CampaignHook
 	CampaignId?:                  string
-	CustomDeliveryConfiguration?: _#defs."/$defs/Properties/definitions/CustomDeliveryConfiguration"
+	CustomDeliveryConfiguration?: #CustomDeliveryConfiguration
 	Description?:                 string
 	HoldoutPercent?:              int
 	IsPaused?:                    bool
-	Limits?:                      _#defs."/$defs/Properties/definitions/Limits"
-	MessageConfiguration?:        _#defs."/$defs/Properties/definitions/MessageConfiguration"
+	Limits?:                      #Limits
+	MessageConfiguration?:        #MessageConfiguration
 	Name!:                        string
 	Priority?:                    int
-	Schedule!:                    _#defs."/$defs/Properties/definitions/Schedule"
+	Schedule!:                    #Schedule
 	SegmentId!:                   string
 	SegmentVersion?:              int
 	Tags?:                        string | {...}
-	TemplateConfiguration?:       _#defs."/$defs/Properties/definitions/TemplateConfiguration"
+	TemplateConfiguration?:       #TemplateConfiguration
 	TreatmentDescription?:        string
 	TreatmentName?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/CampaignCustomMessage": close({Data?: string})
+#CampaignCustomMessage: close({Data?: string})
 
-_#defs: "/$defs/Properties/definitions/CampaignEmailMessage": close({
+#CampaignEmailMessage: close({
 	Body?:        string
 	FromAddress?: string
 	HtmlBody?:    string
 	Title?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/CampaignEventFilter": close({
-	Dimensions?: _#defs."/$defs/Properties/definitions/EventDimensions"
+#CampaignEventFilter: close({
+	Dimensions?: #EventDimensions
 	FilterType?: string
 })
 
-_#defs: "/$defs/Properties/definitions/CampaignHook": close({
+#CampaignHook: close({
 	LambdaFunctionName?: string
 	Mode?:               string
 	WebUrl?:             string
 })
 
-_#defs: "/$defs/Properties/definitions/CampaignInAppMessage": close({
-	Content?:      [..._#defs."/$defs/Properties/definitions/InAppMessageContent"]
+#CampaignInAppMessage: close({
+	Content?:      [...#InAppMessageContent]
 	CustomConfig?: string | {...}
 	Layout?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/CampaignSmsMessage": close({
+#CampaignSmsMessage: close({
 	Body?:              string
 	EntityId?:          string
 	MessageType?:       string
@@ -63,12 +63,12 @@ _#defs: "/$defs/Properties/definitions/CampaignSmsMessage": close({
 	TemplateId?:        string
 })
 
-_#defs: "/$defs/Properties/definitions/CustomDeliveryConfiguration": close({
+#CustomDeliveryConfiguration: close({
 	DeliveryUri?:   string
 	EndpointTypes?: [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/DefaultButtonConfiguration": close({
+#DefaultButtonConfiguration: close({
 	BackgroundColor?: string
 	BorderRadius?:    int
 	ButtonAction?:    string
@@ -77,41 +77,41 @@ _#defs: "/$defs/Properties/definitions/DefaultButtonConfiguration": close({
 	TextColor?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/EventDimensions": close({
+#EventDimensions: close({
 	Attributes?: string | {...}
-	EventType?:  _#defs."/$defs/Properties/definitions/SetDimension"
+	EventType?:  #SetDimension
 	Metrics?:    string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/InAppMessageBodyConfig": close({
+#InAppMessageBodyConfig: close({
 	Alignment?: string
 	Body?:      string
 	TextColor?: string
 })
 
-_#defs: "/$defs/Properties/definitions/InAppMessageButton": close({
-	Android?:       _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
-	DefaultConfig?: _#defs."/$defs/Properties/definitions/DefaultButtonConfiguration"
-	IOS?:           _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
-	Web?:           _#defs."/$defs/Properties/definitions/OverrideButtonConfiguration"
+#InAppMessageButton: close({
+	Android?:       #OverrideButtonConfiguration
+	DefaultConfig?: #DefaultButtonConfiguration
+	IOS?:           #OverrideButtonConfiguration
+	Web?:           #OverrideButtonConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/InAppMessageContent": close({
+#InAppMessageContent: close({
 	BackgroundColor?: string
-	BodyConfig?:      _#defs."/$defs/Properties/definitions/InAppMessageBodyConfig"
-	HeaderConfig?:    _#defs."/$defs/Properties/definitions/InAppMessageHeaderConfig"
+	BodyConfig?:      #InAppMessageBodyConfig
+	HeaderConfig?:    #InAppMessageHeaderConfig
 	ImageUrl?:        string
-	PrimaryBtn?:      _#defs."/$defs/Properties/definitions/InAppMessageButton"
-	SecondaryBtn?:    _#defs."/$defs/Properties/definitions/InAppMessageButton"
+	PrimaryBtn?:      #InAppMessageButton
+	SecondaryBtn?:    #InAppMessageButton
 })
 
-_#defs: "/$defs/Properties/definitions/InAppMessageHeaderConfig": close({
+#InAppMessageHeaderConfig: close({
 	Alignment?: string
 	Header?:    string
 	TextColor?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Limits": close({
+#Limits: close({
 	Daily?:             int
 	MaximumDuration?:   int
 	MessagesPerSecond?: int
@@ -119,7 +119,7 @@ _#defs: "/$defs/Properties/definitions/Limits": close({
 	Total?:             int
 })
 
-_#defs: "/$defs/Properties/definitions/Message": close({
+#Message: close({
 	Action?:            string
 	Body?:              string
 	ImageIconUrl?:      string
@@ -134,61 +134,61 @@ _#defs: "/$defs/Properties/definitions/Message": close({
 	Url?:               string
 })
 
-_#defs: "/$defs/Properties/definitions/MessageConfiguration": close({
-	ADMMessage?:     _#defs."/$defs/Properties/definitions/Message"
-	APNSMessage?:    _#defs."/$defs/Properties/definitions/Message"
-	BaiduMessage?:   _#defs."/$defs/Properties/definitions/Message"
-	CustomMessage?:  _#defs."/$defs/Properties/definitions/CampaignCustomMessage"
-	DefaultMessage?: _#defs."/$defs/Properties/definitions/Message"
-	EmailMessage?:   _#defs."/$defs/Properties/definitions/CampaignEmailMessage"
-	GCMMessage?:     _#defs."/$defs/Properties/definitions/Message"
-	InAppMessage?:   _#defs."/$defs/Properties/definitions/CampaignInAppMessage"
-	SMSMessage?:     _#defs."/$defs/Properties/definitions/CampaignSmsMessage"
+#MessageConfiguration: close({
+	ADMMessage?:     #Message
+	APNSMessage?:    #Message
+	BaiduMessage?:   #Message
+	CustomMessage?:  #CampaignCustomMessage
+	DefaultMessage?: #Message
+	EmailMessage?:   #CampaignEmailMessage
+	GCMMessage?:     #Message
+	InAppMessage?:   #CampaignInAppMessage
+	SMSMessage?:     #CampaignSmsMessage
 })
 
-_#defs: "/$defs/Properties/definitions/OverrideButtonConfiguration": close({
+#OverrideButtonConfiguration: close({
 	ButtonAction?: string
 	Link?:         string
 })
 
-_#defs: "/$defs/Properties/definitions/QuietTime": close({
+#QuietTime: close({
 	End!:   string
 	Start!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Schedule": close({
+#Schedule: close({
 	EndTime?:     string
-	EventFilter?: _#defs."/$defs/Properties/definitions/CampaignEventFilter"
+	EventFilter?: #CampaignEventFilter
 	Frequency?:   string
 	IsLocalTime?: bool
-	QuietTime?:   _#defs."/$defs/Properties/definitions/QuietTime"
+	QuietTime?:   #QuietTime
 	StartTime?:   string
 	TimeZone?:    string
 })
 
-_#defs: "/$defs/Properties/definitions/SetDimension": close({
+#SetDimension: close({
 	DimensionType?: string
 	Values?:        [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/Template": close({
+#Template: close({
 	Name?:    string
 	Version?: string
 })
 
-_#defs: "/$defs/Properties/definitions/TemplateConfiguration": close({
-	EmailTemplate?: _#defs."/$defs/Properties/definitions/Template"
-	PushTemplate?:  _#defs."/$defs/Properties/definitions/Template"
-	SMSTemplate?:   _#defs."/$defs/Properties/definitions/Template"
-	VoiceTemplate?: _#defs."/$defs/Properties/definitions/Template"
+#TemplateConfiguration: close({
+	EmailTemplate?: #Template
+	PushTemplate?:  #Template
+	SMSTemplate?:   #Template
+	VoiceTemplate?: #Template
 })
 
-_#defs: "/$defs/Properties/definitions/WriteTreatmentResource": close({
-	CustomDeliveryConfiguration?: _#defs."/$defs/Properties/definitions/CustomDeliveryConfiguration"
-	MessageConfiguration?:        _#defs."/$defs/Properties/definitions/MessageConfiguration"
-	Schedule?:                    _#defs."/$defs/Properties/definitions/Schedule"
+#WriteTreatmentResource: close({
+	CustomDeliveryConfiguration?: #CustomDeliveryConfiguration
+	MessageConfiguration?:        #MessageConfiguration
+	Schedule?:                    #Schedule
 	SizePercent?:                 int
-	TemplateConfiguration?:       _#defs."/$defs/Properties/definitions/TemplateConfiguration"
+	TemplateConfiguration?:       #TemplateConfiguration
 	TreatmentDescription?:        string
 	TreatmentName?:               string
 })

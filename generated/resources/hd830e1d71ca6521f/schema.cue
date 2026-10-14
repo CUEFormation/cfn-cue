@@ -20,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // (GameLift) container fleet to host game servers.
 #Properties: close({
 	BillingType?:             "ON_DEMAND" | "SPOT" | fn.#StringExpression
-	DeploymentConfiguration?: _#defs."/$defs/Properties/definitions/DeploymentConfiguration"
+	DeploymentConfiguration?: #DeploymentConfiguration
 	Description?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	FleetRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(256) &
@@ -47,20 +47,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	GameSessionCreationLimitPolicy?: _#defs."/$defs/Properties/definitions/GameSessionCreationLimitPolicy" |
-		fn.#ObjectExpression
-	InstanceConnectionPortRange?: _#defs."/$defs/Properties/definitions/ConnectionPortRange"
-	InstanceInboundPermissions?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/IpPermission"] |
-		fn.#ListExpression
-	InstanceType?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	GameSessionCreationLimitPolicy?: #GameSessionCreationLimitPolicy | fn.#ObjectExpression
+	InstanceConnectionPortRange?:    #ConnectionPortRange
+	InstanceInboundPermissions?:     list.MaxItems(50) & [...] & [...#IpPermission] | fn.#ListExpression
+	InstanceType?:                   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Locations?: list.MaxItems(100) & list.MinItems(1) & [...close({
-		Location!:         _#defs."/$defs/Properties/definitions/Location"
-		LocationCapacity?: _#defs."/$defs/Properties/definitions/LocationCapacity"
-		StoppedActions?:   _#defs."/$defs/Properties/definitions/StoppedActions"
+		Location!:         #Location
+		LocationCapacity?: #LocationCapacity
+		StoppedActions?:   #StoppedActions
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	LogConfiguration?: _#defs."/$defs/Properties/definitions/LogConfiguration"
+	LogConfiguration?: #LogConfiguration
 	MetricGroups?: list.MaxItems(1) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	NewGameSessionProtectionPolicy?: "FullProtection" | "NoProtection" | fn.#StringExpression
@@ -69,12 +67,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^[a-zA-Z0-9\\-]+$|^arn:.*:containergroupdefinition\\/[a-zA-Z0-9\\-]+(:[0-9]+)?$" |
 	fn.#StringExpression
 	PlayerGatewayMode?: "DISABLED" | "ENABLED" | "REQUIRED" | fn.#StringExpression
-	ScalingPolicies?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/ScalingPolicy"] | fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	ScalingPolicies?:   list.MaxItems(50) & [...#ScalingPolicy] | fn.#ListExpression
+	Tags?:              list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionPortRange": close({
+#ConnectionPortRange: close({
 	FromPort!: int & <=60000 & >=1 |
 		{
 			string &
@@ -110,7 +107,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionPortRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
+#DeploymentConfiguration: close({
 	ImpairmentStrategy?: "MAINTAIN" | "ROLLBACK" | fn.#StringExpression
 	MinimumHealthyPercentage?: int & <=75 & >=30 |
 		{
@@ -132,12 +129,12 @@ _#defs: "/$defs/Properties/definitions/DeploymentConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeploymentDetails": close(
+#DeploymentDetails: close(
 	{LatestDeploymentId?: strings.MaxRunes(1024) & =~"^[a-zA-Z0-9\\-]+$|^$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GameSessionCreationLimitPolicy": close({
+#GameSessionCreationLimitPolicy: close({
 	NewGameSessionsPerCreator?: int & >=0 |
 		{
 			string &
@@ -171,7 +168,7 @@ _#defs: "/$defs/Properties/definitions/GameSessionCreationLimitPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpPermission": close({
+#IpPermission: close({
 	FromPort!: int & <=60000 & >=1 |
 		{
 			string &
@@ -210,10 +207,9 @@ _#defs: "/$defs/Properties/definitions/IpPermission": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Location": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" |
-fn.#StringExpression
+#Location: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LocationCapacity": close({
+#LocationCapacity: close({
 	DesiredEC2Instances?: int & >=0 |
 		{
 			string &
@@ -229,8 +225,7 @@ _#defs: "/$defs/Properties/definitions/LocationCapacity": close({
 				)
 		} |
 		fn.#NumberExpression
-	ManagedCapacityConfiguration?: _#defs."/$defs/Properties/definitions/ManagedCapacityConfiguration" |
-		fn.#ObjectExpression
+	ManagedCapacityConfiguration?: #ManagedCapacityConfiguration | fn.#ObjectExpression
 	MaxSize!: int & >=0 |
 		{
 			string &
@@ -264,24 +259,24 @@ _#defs: "/$defs/Properties/definitions/LocationCapacity": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LocationConfiguration": close({
-	Location!:            _#defs."/$defs/Properties/definitions/Location"
-	LocationCapacity?:    _#defs."/$defs/Properties/definitions/LocationCapacity"
+#LocationConfiguration: close({
+	Location!:            #Location
+	LocationCapacity?:    #LocationCapacity
 	PlayerGatewayStatus?: "DISABLED" | "ENABLED" | fn.#StringExpression
-	StoppedActions?:      _#defs."/$defs/Properties/definitions/StoppedActions"
+	StoppedActions?:      #StoppedActions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
-	LogDestination?: _#defs."/$defs/Properties/definitions/LogDestination"
+#LogConfiguration: close({
+	LogDestination?: #LogDestination
 	LogGroupArn?:    strings.MaxRunes(512) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/\\-\\*]+" | fn.#StringExpression
 	S3BucketName?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LogDestination": "NONE" | "CLOUDWATCH" | "S3" | fn.#StringExpression
+#LogDestination: "NONE" | "CLOUDWATCH" | "S3" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedCapacityConfiguration": close({
+#ManagedCapacityConfiguration: close({
 	ScaleInAfterInactivityMinutes?: int & <=1440 & >=5 |
 		{
 			string &
@@ -302,7 +297,7 @@ _#defs: "/$defs/Properties/definitions/ManagedCapacityConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
+#ScalingPolicy: close({
 	ComparisonOperator?: "GreaterThanOrEqualToThreshold" |
 		"GreaterThanThreshold" |
 		"LessThanThreshold" |
@@ -353,7 +348,7 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 		} |
 		fn.#NumberExpression
 	ScalingAdjustmentType?: "ChangeInCapacity" | "ExactCapacity" | "PercentChangeInCapacity" | fn.#StringExpression
-	TargetConfiguration?:   _#defs."/$defs/Properties/definitions/TargetConfiguration" | fn.#ObjectExpression
+	TargetConfiguration?:   #TargetConfiguration | fn.#ObjectExpression
 	Threshold?: number |
 		{
 			string &
@@ -376,16 +371,15 @@ _#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StoppedActions": list.MaxItems(1) & [..."AUTO_SCALING" | fn.#StringExpression] |
-	fn.#ListExpression
+#StoppedActions: list.MaxItems(1) & [..."AUTO_SCALING" | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetConfiguration": close({
+#TargetConfiguration: close({
 	TargetValue!: number |
 		{
 			string &

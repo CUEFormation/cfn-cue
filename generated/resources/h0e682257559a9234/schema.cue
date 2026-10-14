@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"time"
 )
 
@@ -19,14 +19,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{1,256}$" | fn.#StringExpression
-	Permit!:         _#defs."/$defs/Properties/definitions/Permit"
-	SigningKeyInfo!: _#defs."/$defs/Properties/definitions/SigningKeyInfo"
+	Permit!:         #Permit
+	SigningKeyInfo!: #SigningKeyInfo
 	SupportCaseDisplayId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/-]{1,512}$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ActionSet": close({
+#ActionSet: close({
 	Actions?: list.MaxItems(10) & list.MinItems(1) & [
 		...strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]*:[A-Za-z0-9_.-]+$" | fn.#StringExpression
 	] |
@@ -35,20 +35,20 @@ _#defs: "/$defs/Properties/definitions/ActionSet": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Condition": close({
+#Condition: close({
 	AllowAfter?:  time.Time | fn.#StringExpression
 	AllowBefore?: time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Permit": close({
-	Actions!:    _#defs."/$defs/Properties/definitions/ActionSet"
-	Conditions?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/Condition"] | fn.#ListExpression
-	Resources!:  _#defs."/$defs/Properties/definitions/ResourceSet"
+#Permit: close({
+	Actions!:    #ActionSet
+	Conditions?: list.MaxItems(2) & [...#Condition] | fn.#ListExpression
+	Resources!:  #ResourceSet
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceSet": close({
+#ResourceSet: close({
 	AllResourcesInRegion?: close({}) | fn.#ObjectExpression
 	Resources?: list.MaxItems(5) & list.MinItems(1) & [
 		...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/_.-]+$" | fn.#StringExpression
@@ -57,12 +57,12 @@ _#defs: "/$defs/Properties/definitions/ResourceSet": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SigningKeyInfo": close(
+#SigningKeyInfo: close(
 	{KmsKey!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/:_-]{1,512}$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
 }) |

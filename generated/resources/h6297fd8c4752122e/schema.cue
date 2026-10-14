@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -24,7 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkInterface": close({
+#NetworkInterface: close({
 	AvailabilityZone?:   string | fn.#StringExpression
 	NetworkInterfaceId?: string | fn.#StringExpression
 	PrivateIpAddress?:   string | fn.#StringExpression
@@ -32,7 +32,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterface": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcSecurityGroup": close({
+#VpcSecurityGroup: close({
 	Status?: string | fn.#StringExpression
 	VpcSecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression

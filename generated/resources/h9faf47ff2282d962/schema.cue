@@ -10,12 +10,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Greengrass::SubscriptionDefinition
 #Properties: close({
-	InitialVersion?: _#defs."/$defs/Properties/definitions/SubscriptionDefinitionVersion"
+	InitialVersion?: #SubscriptionDefinitionVersion
 	Name!:           string | fn.#StringExpression
 	Tags?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Subscription": close({
+#Subscription: close({
 	Id!:      string | fn.#StringExpression
 	Source!:  string | fn.#StringExpression
 	Subject!: string | fn.#StringExpression
@@ -23,10 +23,7 @@ _#defs: "/$defs/Properties/definitions/Subscription": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubscriptionDefinitionVersion": close(
-	{Subscriptions!: [..._#defs."/$defs/Properties/definitions/Subscription"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#SubscriptionDefinitionVersion: close({Subscriptions!: [...#Subscription] | fn.#ListExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Greengrass::SubscriptionDefinition"
 	Properties!: #Properties

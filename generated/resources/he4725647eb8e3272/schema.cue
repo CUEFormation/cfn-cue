@@ -18,16 +18,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Transfer::User Resource Type
 #Properties: close({
-	HomeDirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|/.*)$" | fn.#StringExpression
-	HomeDirectoryMappings?: list.MaxItems(50000) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/HomeDirectoryMapEntry"
-	] |
-		fn.#ListExpression
-	HomeDirectoryType?: _#defs."/$defs/Properties/definitions/HomeDirectoryType"
-	Policy?:            strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	PosixProfile?:      _#defs."/$defs/Properties/definitions/PosixProfile"
-	Role!:              strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$" | fn.#StringExpression
-	ServerId!:          strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" | fn.#StringExpression
+	HomeDirectory?:         strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|/.*)$" | fn.#StringExpression
+	HomeDirectoryMappings?: list.MaxItems(50000) & list.MinItems(1) & [...#HomeDirectoryMapEntry] | fn.#ListExpression
+	HomeDirectoryType?:     #HomeDirectoryType
+	Policy?:                strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	PosixProfile?:          #PosixProfile
+	Role!:                  strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$" | fn.#StringExpression
+	ServerId!:              strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" | fn.#StringExpression
 	SshPublicKeys?: [
 		...strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
@@ -35,22 +32,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:     list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	UserName!: strings.MaxRunes(100) & strings.MinRunes(3) & =~"^[\\w][\\w@.-]{2,99}$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/HomeDirectoryMapEntry": close({
+#HomeDirectoryMapEntry: close({
 	Entry!:  strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^/.*$" | fn.#StringExpression
 	Target!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^/.*$" | fn.#StringExpression
-	Type?:   _#defs."/$defs/Properties/definitions/MapType"
+	Type?:   #MapType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HomeDirectoryType": "PATH" | "LOGICAL" | fn.#StringExpression
+#HomeDirectoryType: "PATH" | "LOGICAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MapType": "FILE" | "DIRECTORY" | fn.#StringExpression
+#MapType: "FILE" | "DIRECTORY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PosixProfile": close({
+#PosixProfile: close({
 	Gid!: <=4294967295 & >=0 |
 		{
 			string &
@@ -117,7 +114,7 @@ _#defs: "/$defs/Properties/definitions/PosixProfile": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		LocalDeploymentAdministrationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 			fn.#StringExpression
 		LocalDeploymentExecutionRoleName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Parameters!:                       _#defs."/$defs/Properties/definitions/ConfigurationParametersMap"
+		Parameters!:                       #ConfigurationParametersMap
 		Type!:                             =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
 		TypeVersion?:                      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	}) |
@@ -25,26 +25,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	Description?: =~"^.{0,512}$" | fn.#StringExpression
 	Name?:        =~"^[ A-Za-z0-9_-]{1,50}$" | fn.#StringExpression
-	Tags?:        _#defs."/$defs/Properties/definitions/TagsMap"
+	Tags?:        #TagsMap
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigurationDefinition": close({
+#ConfigurationDefinition: close({
 	LocalDeploymentAdministrationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	LocalDeploymentExecutionRoleName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Parameters!:                       _#defs."/$defs/Properties/definitions/ConfigurationParametersMap"
+	Parameters!:                       #ConfigurationParametersMap
 	Type!:                             =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
 	TypeVersion?:                      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	id?:                               string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ConfigurationParametersMap": close({
+#ConfigurationParametersMap: close({
 
 	{[=~"^[A-Za-z0-9+=@_\\/\\s-]+$"]: strings.MaxRunes(40960) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Status": "INITIALIZING" |
+#Status: "INITIALIZING" |
 	"DEPLOYING" |
 	"SUCCEEDED" |
 	"DELETING" |
@@ -56,23 +56,23 @@ _#defs: "/$defs/Properties/definitions/Status": "INITIALIZING" |
 	"NONE" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StatusDetails": close({
+#StatusDetails: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StatusSummary": close({
+#StatusSummary: close({
 	LastUpdatedAt!: string | fn.#StringExpression
-	Status?:        _#defs."/$defs/Properties/definitions/Status"
-	StatusDetails?: _#defs."/$defs/Properties/definitions/StatusDetails"
+	Status?:        #Status
+	StatusDetails?: #StatusDetails
 	StatusMessage?: string | fn.#StringExpression
-	StatusType!:    _#defs."/$defs/Properties/definitions/StatusType"
+	StatusType!:    #StatusType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StatusType": "Deployment" | "AsyncExecutions" | fn.#StringExpression
+#StatusType: "Deployment" | "AsyncExecutions" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[A-Za-z0-9 +=@_\\/:.-]+$"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9 +=@_\\/:.-]+$" |
 	fn.#StringExpression}}) |

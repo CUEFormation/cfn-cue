@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 	"time"
 )
 
@@ -35,8 +35,8 @@ import (
 
 	// The ARN of the user who created the agent.
 	Creator?:               string
-	CustomPromptInput?:     _#defs."/$defs/Properties/definitions/CustomPromptInput"
-	CustomPromptInterface?: _#defs."/$defs/Properties/definitions/CustomPromptInterface"
+	CustomPromptInput?:     #CustomPromptInput
+	CustomPromptInterface?: #CustomPromptInterface
 
 	// A description of the agent.
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$"
@@ -57,7 +57,7 @@ import (
 	StarterPrompts?: list.MaxItems(3) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(0)]
 
 	// A list of key-value pairs to associate with the agent resource.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/AgentTag"]
+	Tags?: list.MaxItems(200) & [...#AgentTag]
 
 	// The date and time the agent was last updated.
 	UpdatedAt?: time.Time
@@ -67,7 +67,7 @@ import (
 })
 
 // A key-value pair to associate with the agent resource.
-_#defs: "/$defs/Properties/definitions/AgentTag": close({
+#AgentTag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -76,16 +76,16 @@ _#defs: "/$defs/Properties/definitions/AgentTag": close({
 })
 
 // Custom prompt configuration. Specify either ExistingPrompt or NewPrompt.
-_#defs: "/$defs/Properties/definitions/CustomPromptInput": close({
-	ExistingPrompt?: _#defs."/$defs/Properties/definitions/CustomPromptProfile"
-	NewPrompt?:      _#defs."/$defs/Properties/definitions/CustomPromptInputParameters"
+#CustomPromptInput: close({
+	ExistingPrompt?: #CustomPromptProfile
+	NewPrompt?:      #CustomPromptInputParameters
 	if ExistingPrompt != _|_ {
 		NewPrompt?: error("NewPrompt cannot be used with ExistingPrompt; set exactly one of ExistingPrompt, NewPrompt")
 	}
 }) & matchN(>=1, [{ExistingPrompt!: _}, {NewPrompt!: _}])
 
 // Parameters for creating a new custom prompt configuration.
-_#defs: "/$defs/Properties/definitions/CustomPromptInputParameters": close({
+#CustomPromptInputParameters: close({
 	// Custom instructions for the agent behavior.
 	CustomInstructions?: strings.MaxRunes(350000) & strings.MinRunes(5)
 
@@ -103,7 +103,7 @@ _#defs: "/$defs/Properties/definitions/CustomPromptInputParameters": close({
 })
 
 // Read-only view of the resolved custom prompt interface for the agent.
-_#defs: "/$defs/Properties/definitions/CustomPromptInterface": close({
+#CustomPromptInterface: close({
 	// Custom instructions for the agent behavior.
 	CustomInstructions?: strings.MaxRunes(350000) & strings.MinRunes(5)
 
@@ -133,7 +133,7 @@ _#defs: "/$defs/Properties/definitions/CustomPromptInterface": close({
 })
 
 // Reference to an existing custom prompt profile.
-_#defs: "/$defs/Properties/definitions/CustomPromptProfile": close({
+#CustomPromptProfile: close({
 	// The identifier of the model profile.
 	ModelProfileId!: strings.MaxRunes(36)
 

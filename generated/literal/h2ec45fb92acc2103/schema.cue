@@ -11,147 +11,133 @@ import (
 
 // An entity that defines the scope of audit evidence collected by AWS Audit Manager.
 #Properties: close({
-	Arn?:                          _#defs."/$defs/Properties/definitions/AssessmentArn"
-	AssessmentId?:                 _#defs."/$defs/Properties/definitions/UUID"
-	AssessmentReportsDestination?: _#defs."/$defs/Properties/definitions/AssessmentReportsDestination"
-	AwsAccount?:                   _#defs."/$defs/Properties/definitions/AWSAccount"
-	CreationTime?:                 _#defs."/$defs/Properties/definitions/Timestamp"
+	Arn?:                          #AssessmentArn
+	AssessmentId?:                 #UUID
+	AssessmentReportsDestination?: #AssessmentReportsDestination
+	AwsAccount?:                   #AWSAccount
+	CreationTime?:                 #Timestamp
 
 	// The list of delegations.
-	Delegations?: [..._#defs."/$defs/Properties/definitions/Delegation"]
-	Description?: _#defs."/$defs/Properties/definitions/AssessmentDescription"
-	FrameworkId?: _#defs."/$defs/Properties/definitions/FrameworkId"
-	Name?:        _#defs."/$defs/Properties/definitions/AssessmentName"
+	Delegations?: [...#Delegation]
+	Description?: #AssessmentDescription
+	FrameworkId?: #FrameworkId
+	Name?:        #AssessmentName
 
 	// The list of roles for the specified assessment.
-	Roles?:  [..._#defs."/$defs/Properties/definitions/Role"]
-	Scope?:  _#defs."/$defs/Properties/definitions/Scope"
-	Status?: _#defs."/$defs/Properties/definitions/AssessmentStatus"
+	Roles?:  [...#Role]
+	Scope?:  #Scope
+	Status?: #AssessmentStatus
 
 	// The tags associated with the assessment.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // The AWS account associated with the assessment.
-_#defs: "/$defs/Properties/definitions/AWSAccount": close({
-	EmailAddress?: _#defs."/$defs/Properties/definitions/EmailAddress"
-	Id?:           _#defs."/$defs/Properties/definitions/AccountId"
-	Name?:         _#defs."/$defs/Properties/definitions/AccountName"
+#AWSAccount: close({
+	EmailAddress?: #EmailAddress
+	Id?:           #AccountId
+	Name?:         #AccountName
 })
 
 // An AWS service such as Amazon S3, AWS CloudTrail, and so on.
-_#defs: "/$defs/Properties/definitions/AWSService": close(
-	{ServiceName?: _#defs."/$defs/Properties/definitions/AWSServiceName"},
-)
+#AWSService: close({ServiceName?: #AWSServiceName})
 
 // The name of the AWS service.
-_#defs: "/$defs/Properties/definitions/AWSServiceName": strings.MaxRunes(40) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9-\\s().]+$"
+#AWSServiceName: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\s().]+$"
 
 // The identifier for the specified AWS account.
-_#defs: "/$defs/Properties/definitions/AccountId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
+#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
 
 // The name of the specified AWS account.
-_#defs: "/$defs/Properties/definitions/AccountName": strings.MaxRunes(50) &
-strings.MinRunes(1) &
-=~"^[\\x{0020}-\\x{007E}]+$"
+#AccountName: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}]+$"
 
 // The Amazon Resource Name (ARN) of the assessment.
-_#defs: "/$defs/Properties/definitions/AssessmentArn": strings.MaxRunes(2048) &
-strings.MinRunes(20) &
-=~"^arn:.*:auditmanager:.*"
+#AssessmentArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:auditmanager:.*"
 
 // The description of the specified assessment.
-_#defs: "/$defs/Properties/definitions/AssessmentDescription": strings.MaxRunes(1000) &
-strings.MinRunes(0) &
-=~"^[\\w\\W\\s\\S]*$"
+#AssessmentDescription: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$"
 
 // The name of the related assessment.
-_#defs: "/$defs/Properties/definitions/AssessmentName": strings.MaxRunes(127) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9-_\\.]+$"
+#AssessmentName: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.]+$"
 
 // The destination type, such as Amazon S3.
-_#defs: "/$defs/Properties/definitions/AssessmentReportDestinationType": "S3"
+#AssessmentReportDestinationType: "S3"
 
 // The destination in which evidence reports are stored for the specified assessment.
-_#defs: "/$defs/Properties/definitions/AssessmentReportsDestination": close({
-	Destination?:     _#defs."/$defs/Properties/definitions/S3Url"
-	DestinationType?: _#defs."/$defs/Properties/definitions/AssessmentReportDestinationType"
+#AssessmentReportsDestination: close({
+	Destination?:     #S3Url
+	DestinationType?: #AssessmentReportDestinationType
 })
 
 // The status of the specified assessment.
-_#defs: "/$defs/Properties/definitions/AssessmentStatus": "ACTIVE" | "INACTIVE"
+#AssessmentStatus: "ACTIVE" | "INACTIVE"
 
 // The identifier for the specified control set.
-_#defs: "/$defs/Properties/definitions/ControlSetId": strings.MaxRunes(300) &
-strings.MinRunes(1) &
-=~"^[\\w\\W\\s\\S]*$"
+#ControlSetId: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[\\w\\W\\s\\S]*$"
 
 // The IAM user or role that performed the action.
-_#defs: "/$defs/Properties/definitions/CreatedBy": strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:*:.*"
+#CreatedBy: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:*:.*"
 
 // The assignment of a control set to a delegate for review.
-_#defs: "/$defs/Properties/definitions/Delegation": close({
-	AssessmentId?:   _#defs."/$defs/Properties/definitions/UUID"
-	AssessmentName?: _#defs."/$defs/Properties/definitions/AssessmentName"
-	Comment?:        _#defs."/$defs/Properties/definitions/DelegationComment"
-	ControlSetId?:   _#defs."/$defs/Properties/definitions/ControlSetId"
-	CreatedBy?:      _#defs."/$defs/Properties/definitions/CreatedBy"
-	CreationTime?:   _#defs."/$defs/Properties/definitions/Timestamp"
-	Id?:             _#defs."/$defs/Properties/definitions/UUID"
-	LastUpdated?:    _#defs."/$defs/Properties/definitions/Timestamp"
-	RoleArn?:        _#defs."/$defs/Properties/definitions/IamArn"
-	RoleType?:       _#defs."/$defs/Properties/definitions/RoleType"
-	Status?:         _#defs."/$defs/Properties/definitions/DelegationStatus"
+#Delegation: close({
+	AssessmentId?:   #UUID
+	AssessmentName?: #AssessmentName
+	Comment?:        #DelegationComment
+	ControlSetId?:   #ControlSetId
+	CreatedBy?:      #CreatedBy
+	CreationTime?:   #Timestamp
+	Id?:             #UUID
+	LastUpdated?:    #Timestamp
+	RoleArn?:        #IamArn
+	RoleType?:       #RoleType
+	Status?:         #DelegationStatus
 })
 
 // The comment related to the delegation.
-_#defs: "/$defs/Properties/definitions/DelegationComment": strings.MaxRunes(350) & =~"^[\\w\\W\\s\\S]*$"
+#DelegationComment: strings.MaxRunes(350) & =~"^[\\w\\W\\s\\S]*$"
 
 // The status of the delegation.
-_#defs: "/$defs/Properties/definitions/DelegationStatus": "IN_PROGRESS" | "UNDER_REVIEW" | "COMPLETE"
+#DelegationStatus: "IN_PROGRESS" | "UNDER_REVIEW" | "COMPLETE"
 
 // The unique identifier for the email account.
-_#defs: "/$defs/Properties/definitions/EmailAddress": strings.MaxRunes(320) & strings.MinRunes(1) & =~"^.*@.*$"
+#EmailAddress: strings.MaxRunes(320) & strings.MinRunes(1) & =~"^.*@.*$"
 
 // The identifier for the specified framework.
-_#defs: "/$defs/Properties/definitions/FrameworkId": strings.MaxRunes(36) &
+#FrameworkId: strings.MaxRunes(36) &
 strings.MinRunes(32) &
 =~"^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|.*\\S.*)$"
 
 // The Amazon Resource Name (ARN) of the IAM user or role.
-_#defs: "/$defs/Properties/definitions/IamArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#IamArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:.*:iam:.*"
 
 // The wrapper that contains AWS Audit Manager role information, such as the role type and IAM ARN.
-_#defs: "/$defs/Properties/definitions/Role": close({
-	RoleArn?:  _#defs."/$defs/Properties/definitions/IamArn"
-	RoleType?: _#defs."/$defs/Properties/definitions/RoleType"
+#Role: close({
+	RoleArn?:  #IamArn
+	RoleType?: #RoleType
 })
 
 // The IAM role type.
-_#defs: "/$defs/Properties/definitions/RoleType": "PROCESS_OWNER" | "RESOURCE_OWNER"
+#RoleType: "PROCESS_OWNER" | "RESOURCE_OWNER"
 
 // The URL of the specified Amazon S3 bucket.
-_#defs: "/$defs/Properties/definitions/S3Url": strings.MaxRunes(1024) &
+#S3Url: strings.MaxRunes(1024) &
 strings.MinRunes(1) &
 =~"^(S|s)3:\\/\\/[a-zA-Z0-9\\-\\.\\(\\)\\'\\*\\_\\!\\=\\+\\@\\:\\s\\,\\?\\/]+$"
 
 // The wrapper that contains the AWS accounts and AWS services in scope for the assessment.
-_#defs: "/$defs/Properties/definitions/Scope": close({
+#Scope: close({
 	// The AWS accounts included in scope.
-	AwsAccounts?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AWSAccount"]
+	AwsAccounts?: list.MaxItems(200) & list.MinItems(1) & [...#AWSAccount]
 
 	// The AWS services included in scope.
-	AwsServices?: [..._#defs."/$defs/Properties/definitions/AWSService"]
+	AwsServices?: [...#AWSService]
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -166,8 +152,6 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // The sequence of characters that identifies when the event occurred.
-_#defs: "/$defs/Properties/definitions/Timestamp": number
+#Timestamp: number
 
-_#defs: "/$defs/Properties/definitions/UUID": strings.MaxRunes(36) &
-strings.MinRunes(36) &
-=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+#UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"

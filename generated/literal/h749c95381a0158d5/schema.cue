@@ -38,24 +38,24 @@ import (
 	Name!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$"
 
 	// A structure that describes the options for the portal associated with an application
-	PortalOptions?: _#defs."/$defs/Properties/definitions/PortalOptionsConfiguration"
+	PortalOptions?: #PortalOptionsConfiguration
 
 	// Specifies whether the application is enabled or disabled
 	Status?: "ENABLED" | "DISABLED"
-	Tags?:   list.MaxItems(75) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:   list.MaxItems(75) & [...#Tag]
 })
 
 // A structure that describes the options for the access portal associated with an application
-_#defs: "/$defs/Properties/definitions/PortalOptionsConfiguration": close({
+#PortalOptionsConfiguration: close({
 	// A structure that describes the sign-in options for the access portal
-	SignInOptions?: _#defs."/$defs/Properties/definitions/SignInOptions"
+	SignInOptions?: #SignInOptions
 
 	// Indicates whether this application is visible in the access portal
 	Visibility?: "ENABLED" | "DISABLED"
 })
 
 // A structure that describes the sign-in options for an application portal
-_#defs: "/$defs/Properties/definitions/SignInOptions": close({
+#SignInOptions: close({
 	// The URL that accepts authentication requests for an application, this is a
 	// required parameter if the Origin parameter is APPLICATION
 	ApplicationUrl?: strings.MaxRunes(512) &
@@ -68,7 +68,7 @@ _#defs: "/$defs/Properties/definitions/SignInOptions": close({
 
 // The metadata that you apply to the Identity Center (SSO) Application to help
 // you categorize and organize them.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$"
 })

@@ -13,288 +13,251 @@ import (
 // Resource Type definition for AWS::BedrockAgentCore::Runtime
 #Properties: close({
 	// The Amazon Resource Name(ARN) that uniquely identifies the Agent
-	AgentRuntimeArn?: _#defs."/$defs/Properties/definitions/AgentRuntimeArn"
+	AgentRuntimeArn?: #AgentRuntimeArn
 
 	// The artifact of the agent
-	AgentRuntimeArtifact!: _#defs."/$defs/Properties/definitions/AgentRuntimeArtifact"
+	AgentRuntimeArtifact!: #AgentRuntimeArtifact
 
 	// Identifier for a resource
-	AgentRuntimeId?: _#defs."/$defs/Properties/definitions/AgentRuntimeId"
+	AgentRuntimeId?: #AgentRuntimeId
 
 	// Name for a resource
-	AgentRuntimeName!: _#defs."/$defs/Properties/definitions/AgentRuntimeName"
+	AgentRuntimeName!: #AgentRuntimeName
 
 	// Version of the Agent
-	AgentRuntimeVersion?: _#defs."/$defs/Properties/definitions/AgentRuntimeVersion"
+	AgentRuntimeVersion?: #AgentRuntimeVersion
 
 	// Authorizer configuration for the agent runtime
-	AuthorizerConfiguration?: _#defs."/$defs/Properties/definitions/AuthorizerConfiguration"
+	AuthorizerConfiguration?: #AuthorizerConfiguration
 
 	// Capacity provider configuration for the agent runtime
-	CapacityProviderConfiguration?: _#defs."/$defs/Properties/definitions/CapacityProviderConfiguration"
+	CapacityProviderConfiguration?: #CapacityProviderConfiguration
 
 	// Timestamp when the Agent was created
-	CreatedAt?: _#defs."/$defs/Properties/definitions/CreatedAt"
+	CreatedAt?: #CreatedAt
 
 	// Description of the resource
-	Description?: _#defs."/$defs/Properties/definitions/Description"
+	Description?: #Description
 
 	// Environment variables for the agent runtime
-	EnvironmentVariables?: _#defs."/$defs/Properties/definitions/EnvironmentVariablesMap"
+	EnvironmentVariables?: #EnvironmentVariablesMap
 
 	// The reason for failure if the agent is in a failed state.
 	FailureReason?: string
 
 	// Filesystem configurations for the agent runtime
-	FilesystemConfigurations?: _#defs."/$defs/Properties/definitions/FilesystemConfigurations"
+	FilesystemConfigurations?: #FilesystemConfigurations
 
 	// When resource was last updated
-	LastUpdatedAt?: _#defs."/$defs/Properties/definitions/LastUpdatedAt"
+	LastUpdatedAt?: #LastUpdatedAt
 
 	// Lifecycle configuration for managing runtime sessions
-	LifecycleConfiguration?: _#defs."/$defs/Properties/definitions/LifecycleConfiguration"
+	LifecycleConfiguration?: #LifecycleConfiguration
 
 	// Network access configuration for the Agent
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
+	NetworkConfiguration?: #NetworkConfiguration
 
 	// The version of the runtime platform
-	PlatformVersion?: _#defs."/$defs/Properties/definitions/PlatformVersion"
+	PlatformVersion?: #PlatformVersion
 
 	// Protocol configuration for the agent runtime
-	ProtocolConfiguration?: _#defs."/$defs/Properties/definitions/ProtocolConfiguration"
+	ProtocolConfiguration?: #ProtocolConfiguration
 
 	// Configuration for HTTP request headers
-	RequestHeaderConfiguration?: _#defs."/$defs/Properties/definitions/RequestHeaderConfiguration"
+	RequestHeaderConfiguration?: #RequestHeaderConfiguration
 
 	// Amazon Resource Name (ARN) of an IAM role
-	RoleArn!: _#defs."/$defs/Properties/definitions/RoleArn"
+	RoleArn!: #RoleArn
 
 	// Current status of the agent
-	Status?: _#defs."/$defs/Properties/definitions/AgentStatus"
-	Tags?:   _#defs."/$defs/Properties/definitions/TagsMap"
+	Status?: #AgentStatus
+	Tags?:   #TagsMap
 
 	// Workload identity details for the agent
-	WorkloadIdentityDetails?: _#defs."/$defs/Properties/definitions/WorkloadIdentityDetails"
+	WorkloadIdentityDetails?: #WorkloadIdentityDetails
 })
 
 // Managed runtime types
-_#defs: "/$defs/Properties/definitions/AgentManagedRuntimeType": "PYTHON_3_10" |
-	"PYTHON_3_11" |
-	"PYTHON_3_12" |
-	"PYTHON_3_13" |
-	"PYTHON_3_14" |
-	"NODE_22"
+#AgentManagedRuntimeType: "PYTHON_3_10" | "PYTHON_3_11" | "PYTHON_3_12" | "PYTHON_3_13" | "PYTHON_3_14" | "NODE_22"
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeArn": strings.MaxRunes(2048) &
+#AgentRuntimeArn: strings.MaxRunes(2048) &
 =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$"
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeArtifact": close({
-	CodeConfiguration?:      _#defs."/$defs/Properties/definitions/CodeConfiguration"
-	ContainerConfiguration?: _#defs."/$defs/Properties/definitions/ContainerConfiguration"
+#AgentRuntimeArtifact: close({
+	CodeConfiguration?:      #CodeConfiguration
+	ContainerConfiguration?: #ContainerConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeId": =~"[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}"
+#AgentRuntimeId: =~"[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}"
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeName": =~"[a-zA-Z][a-zA-Z0-9_]{0,47}"
+#AgentRuntimeName: =~"[a-zA-Z][a-zA-Z0-9_]{0,47}"
 
-_#defs: "/$defs/Properties/definitions/AgentRuntimeVersion": strings.MaxRunes(5) &
-strings.MinRunes(1) &
-=~"([1-9][0-9]{0,4})"
+#AgentRuntimeVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"([1-9][0-9]{0,4})"
 
-_#defs: "/$defs/Properties/definitions/AgentStatus": "CREATING" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"READY" |
-	"DELETING" |
-	"DELETE_FAILED"
+#AgentStatus: "CREATING" | "CREATE_FAILED" | "UPDATING" | "UPDATE_FAILED" | "READY" | "DELETING" | "DELETE_FAILED"
 
 // Allowed audience value
-_#defs: "/$defs/Properties/definitions/AllowedAudience": string
+#AllowedAudience: string
 
 // List of allowed audiences
-_#defs: "/$defs/Properties/definitions/AllowedAudienceList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AllowedAudience"
-]
+#AllowedAudienceList: list.MinItems(1) & [...#AllowedAudience]
 
 // Allowed client value
-_#defs: "/$defs/Properties/definitions/AllowedClient": string
+#AllowedClient: string
 
 // List of allowed clients
-_#defs: "/$defs/Properties/definitions/AllowedClientsList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AllowedClient"
-]
+#AllowedClientsList: list.MinItems(1) & [...#AllowedClient]
 
 // Allowed scope value
-_#defs: "/$defs/Properties/definitions/AllowedScope": =~"[\\x21\\x23-\\x5B\\x5D-\\x7E]+"
+#AllowedScope: =~"[\\x21\\x23-\\x5B\\x5D-\\x7E]+"
 
 // List of allowed scopes
-_#defs: "/$defs/Properties/definitions/AllowedScopesList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AllowedScope"
-]
+#AllowedScopesList: list.MinItems(1) & [...#AllowedScope]
 
 // Allow-list of upstream workloads permitted to reach this resource via the
 // workload identity chain. When set, the data plane enforces that the
 // introspected workload chain's caller matches one of the configured hosting
 // environments or workload identities; absent means no chain enforcement.
-_#defs: "/$defs/Properties/definitions/AllowedWorkloadConfiguration": close({
-	HostingEnvironments?: _#defs."/$defs/Properties/definitions/HostingEnvironmentsList"
-	WorkloadIdentities?:  _#defs."/$defs/Properties/definitions/WorkloadIdentitiesList"
+#AllowedWorkloadConfiguration: close({
+	HostingEnvironments?: #HostingEnvironmentsList
+	WorkloadIdentities?:  #WorkloadIdentitiesList
 })
 
 // Configuration for the authorizer
-_#defs: "/$defs/Properties/definitions/AuthorizerConfiguration": close(
-	{CustomJWTAuthorizer?: _#defs."/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration"},
-)
+#AuthorizerConfiguration: close({CustomJWTAuthorizer?: #CustomJWTAuthorizerConfiguration})
 
 // The value or values in the custom claim to match and relationship of match
-_#defs: "/$defs/Properties/definitions/AuthorizingClaimMatchValueType": close({
-	ClaimMatchOperator!: _#defs."/$defs/Properties/definitions/ClaimMatchOperator"
-	ClaimMatchValue!:    _#defs."/$defs/Properties/definitions/ClaimMatchValueType"
+#AuthorizingClaimMatchValueType: close({
+	ClaimMatchOperator!: #ClaimMatchOperator
+	ClaimMatchValue!:    #ClaimMatchValueType
 })
 
 // ARN of the capacity provider
-_#defs: "/$defs/Properties/definitions/CapacityProviderArn": strings.MaxRunes(2048) &
+#CapacityProviderArn: strings.MaxRunes(2048) &
 =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:capacity-provider/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$"
 
 // Configuration for a capacity provider
-_#defs: "/$defs/Properties/definitions/CapacityProviderConfiguration": close(
-	{CapacityProviderArn!: _#defs."/$defs/Properties/definitions/CapacityProviderArn"},
-)
+#CapacityProviderConfiguration: close({CapacityProviderArn!: #CapacityProviderArn})
 
 // Configuration for a CapacityProvider-managed volume to mount into the agent runtime
-_#defs: "/$defs/Properties/definitions/CapacityProviderVolumeConfiguration": close({
-	MountPath!:  _#defs."/$defs/Properties/definitions/MountPath"
-	VolumeName!: _#defs."/$defs/Properties/definitions/CapacityProviderVolumeName"
+#CapacityProviderVolumeConfiguration: close({
+	MountPath!:  #MountPath
+	VolumeName!: #CapacityProviderVolumeName
 })
 
 // Name of the capacity provider volume
-_#defs: "/$defs/Properties/definitions/CapacityProviderVolumeName": strings.MaxRunes(48) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z][a-zA-Z0-9_-]{0,47}$"
+#CapacityProviderVolumeName: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_-]{0,47}$"
 
 // The relationship between the claim field value and the value or values being matched
-_#defs: "/$defs/Properties/definitions/ClaimMatchOperator": "EQUALS" | "CONTAINS" | "CONTAINS_ANY"
+#ClaimMatchOperator: "EQUALS" | "CONTAINS" | "CONTAINS_ANY"
 
 // The value or values in the custom claim to match for
-_#defs: "/$defs/Properties/definitions/ClaimMatchValueType": close({
-	MatchValueString?:     _#defs."/$defs/Properties/definitions/MatchValueString"
-	MatchValueStringList?: _#defs."/$defs/Properties/definitions/MatchValueStringList"
+#ClaimMatchValueType: close({
+	MatchValueString?:     #MatchValueString
+	MatchValueStringList?: #MatchValueStringList
 })
 
-_#defs: "/$defs/Properties/definitions/ClientToken": strings.MaxRunes(256) & strings.MinRunes(33) & =~"^[a-zA-Z0-9-_]+$"
+#ClientToken: strings.MaxRunes(256) & strings.MinRunes(33) & =~"^[a-zA-Z0-9-_]+$"
 
 // Object represents source code from zip file
-_#defs: "/$defs/Properties/definitions/Code": close({S3?: _#defs."/$defs/Properties/definitions/S3Location"})
+#Code: close({S3?: #S3Location})
 
 // Representation of a code configuration
-_#defs: "/$defs/Properties/definitions/CodeConfiguration": close({
-	Code!:       _#defs."/$defs/Properties/definitions/Code"
-	EntryPoint!: _#defs."/$defs/Properties/definitions/EntryPoints"
-	Runtime!:    _#defs."/$defs/Properties/definitions/AgentManagedRuntimeType"
+#CodeConfiguration: close({
+	Code!:       #Code
+	EntryPoint!: #EntryPoints
+	Runtime!:    #AgentManagedRuntimeType
 })
 
-_#defs: "/$defs/Properties/definitions/ContainerConfiguration": close(
-	{ContainerUri!: _#defs."/$defs/Properties/definitions/RuntimeContainerUri"},
-)
+#ContainerConfiguration: close({ContainerUri!: #RuntimeContainerUri})
 
-_#defs: "/$defs/Properties/definitions/CreatedAt": string
+#CreatedAt: string
 
 // Required custom claim
-_#defs: "/$defs/Properties/definitions/CustomClaimValidationType": close({
-	AuthorizingClaimMatchValue!: _#defs."/$defs/Properties/definitions/AuthorizingClaimMatchValueType"
-	InboundTokenClaimName!:      _#defs."/$defs/Properties/definitions/InboundTokenClaimName"
-	InboundTokenClaimValueType!: _#defs."/$defs/Properties/definitions/InboundTokenClaimValueType"
+#CustomClaimValidationType: close({
+	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
+	InboundTokenClaimName!:      #InboundTokenClaimName
+	InboundTokenClaimValueType!: #InboundTokenClaimValueType
 })
 
 // List of required custom claims
-_#defs: "/$defs/Properties/definitions/CustomClaimsList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/CustomClaimValidationType"
-]
+#CustomClaimsList: list.MinItems(1) & [...#CustomClaimValidationType]
 
 // Configuration for custom JWT authorizer
-_#defs: "/$defs/Properties/definitions/CustomJWTAuthorizerConfiguration": close({
-	AllowedAudience?:              _#defs."/$defs/Properties/definitions/AllowedAudienceList"
-	AllowedClients?:               _#defs."/$defs/Properties/definitions/AllowedClientsList"
-	AllowedScopes?:                _#defs."/$defs/Properties/definitions/AllowedScopesList"
-	AllowedWorkloadConfiguration?: _#defs."/$defs/Properties/definitions/AllowedWorkloadConfiguration"
-	CustomClaims?:                 _#defs."/$defs/Properties/definitions/CustomClaimsList"
-	DiscoveryUrl!:                 _#defs."/$defs/Properties/definitions/DiscoveryUrl"
-	PrivateEndpoint?:              _#defs."/$defs/Properties/definitions/PrivateEndpoint"
-	PrivateEndpointOverrides?:     _#defs."/$defs/Properties/definitions/PrivateEndpointOverridesList"
+#CustomJWTAuthorizerConfiguration: close({
+	AllowedAudience?:              #AllowedAudienceList
+	AllowedClients?:               #AllowedClientsList
+	AllowedScopes?:                #AllowedScopesList
+	AllowedWorkloadConfiguration?: #AllowedWorkloadConfiguration
+	CustomClaims?:                 #CustomClaimsList
+	DiscoveryUrl!:                 #DiscoveryUrl
+	PrivateEndpoint?:              #PrivateEndpoint
+	PrivateEndpointOverrides?:     #PrivateEndpointOverridesList
 })
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1200) & strings.MinRunes(1)
+#Description: strings.MaxRunes(1200) & strings.MinRunes(1)
 
 // OpenID Connect discovery URL
-_#defs: "/$defs/Properties/definitions/DiscoveryUrl": =~"^.+/\\.well-known/openid-configuration$"
+#DiscoveryUrl: =~"^.+/\\.well-known/openid-configuration$"
 
 // ARN of the EFS access point
-_#defs: "/$defs/Properties/definitions/EfsAccessPointArn": strings.MaxRunes(128) &
+#EfsAccessPointArn: strings.MaxRunes(128) &
 =~"^arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:access-point/fsap-[0-9a-f]{8,40}$"
 
 // Configuration for EFS access point filesystem
-_#defs: "/$defs/Properties/definitions/EfsAccessPointConfiguration": close({
-	AccessPointArn!: _#defs."/$defs/Properties/definitions/EfsAccessPointArn"
-	MountPath!:      _#defs."/$defs/Properties/definitions/MountPath"
+#EfsAccessPointConfiguration: close({
+	AccessPointArn!: #EfsAccessPointArn
+	MountPath!:      #MountPath
 })
 
 // List of entry points
-_#defs: "/$defs/Properties/definitions/EntryPoints": list.MaxItems(2) & list.MinItems(1) & [...string]
+#EntryPoints: list.MaxItems(2) & list.MinItems(1) & [...string]
 
 // Environment variable key
-_#defs: "/$defs/Properties/definitions/EnvironmentVariableKey": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z_][a-zA-Z0-9_]*$"
+#EnvironmentVariableKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$"
 
 // Environment variable value
-_#defs: "/$defs/Properties/definitions/EnvironmentVariableValue": strings.MaxRunes(2048)
+#EnvironmentVariableValue: strings.MaxRunes(2048)
 
 // Environment variable attributes
-_#defs: "/$defs/Properties/definitions/EnvironmentVariablesMap": struct.MaxFields(50) & close({
+#EnvironmentVariablesMap: struct.MaxFields(50) & close({
 
 	{[=~"^[a-zA-Z_][a-zA-Z0-9_]*$"]: strings.MaxRunes(2048)}})
 
 // Filesystem configuration for the runtime
-_#defs: "/$defs/Properties/definitions/FilesystemConfiguration": close({
-	CapacityProviderVolume?: _#defs."/$defs/Properties/definitions/CapacityProviderVolumeConfiguration"
-	EfsAccessPoint?:         _#defs."/$defs/Properties/definitions/EfsAccessPointConfiguration"
-	S3FilesAccessPoint?:     _#defs."/$defs/Properties/definitions/S3FilesAccessPointConfiguration"
-	SessionStorage?:         _#defs."/$defs/Properties/definitions/SessionStorageConfiguration"
+#FilesystemConfiguration: close({
+	CapacityProviderVolume?: #CapacityProviderVolumeConfiguration
+	EfsAccessPoint?:         #EfsAccessPointConfiguration
+	S3FilesAccessPoint?:     #S3FilesAccessPointConfiguration
+	SessionStorage?:         #SessionStorageConfiguration
 })
 
 // List of filesystem configurations
-_#defs: "/$defs/Properties/definitions/FilesystemConfigurations": list.MaxItems(5) & [...] & [
-	..._#defs."/$defs/Properties/definitions/FilesystemConfiguration"
-]
+#FilesystemConfigurations: list.MaxItems(5) & [...] & [...#FilesystemConfiguration]
 
 // HTTP header name
-_#defs: "/$defs/Properties/definitions/HeaderName": strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^[A-Za-z][A-Za-z0-9_-]{0,255}$"
+#HeaderName: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_-]{0,255}$"
 
 // An upstream workload identified by the ARN of its hosting environment (for
 // example a Gateway or Runtime ARN)
-_#defs: "/$defs/Properties/definitions/HostingEnvironment": close({
+#HostingEnvironment: close({
 	// The ARN of the bedrock-agentcore hosting environment
 	Arn!: strings.MaxRunes(1011) & strings.MinRunes(20)
 })
 
 // List of allow-listed hosting environments
-_#defs: "/$defs/Properties/definitions/HostingEnvironmentsList": list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/HostingEnvironment"
-]
+#HostingEnvironmentsList: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#HostingEnvironment]
 
 // The name of the custom claim to validate
-_#defs: "/$defs/Properties/definitions/InboundTokenClaimName": =~"[A-Za-z0-9_.-:]+"
+#InboundTokenClaimName: =~"[A-Za-z0-9_.-:]+"
 
 // Token claim data type
-_#defs: "/$defs/Properties/definitions/InboundTokenClaimValueType": "STRING" | "STRING_ARRAY"
+#InboundTokenClaimValueType: "STRING" | "STRING_ARRAY"
 
-_#defs: "/$defs/Properties/definitions/LastUpdatedAt": string
+#LastUpdatedAt: string
 
 // Configuration for managing the lifecycle of runtime sessions and resources
-_#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
+#LifecycleConfiguration: close({
 	// Timeout in seconds for idle runtime sessions
 	IdleRuntimeSessionTimeout?: int & <=1209600 & >=60
 
@@ -303,7 +266,7 @@ _#defs: "/$defs/Properties/definitions/LifecycleConfiguration": close({
 })
 
 // Managed VPC resource configuration
-_#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
+#ManagedVpcResource: close({
 	// The IP address type for the endpoint
 	EndpointIpAddressType!: "IPV4" | "IPV6"
 
@@ -327,80 +290,67 @@ _#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
 })
 
 // The string value to match for
-_#defs: "/$defs/Properties/definitions/MatchValueString": =~"[A-Za-z0-9_.-]+"
+#MatchValueString: =~"[A-Za-z0-9_.-]+"
 
 // The list of strings to check for a match
-_#defs: "/$defs/Properties/definitions/MatchValueStringList": list.MaxItems(255) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/MatchValueString"
-]
+#MatchValueStringList: list.MaxItems(255) & list.MinItems(1) & [...#MatchValueString]
 
 // Mount path for filesystem configuration
-_#defs: "/$defs/Properties/definitions/MountPath": strings.MaxRunes(200) &
-strings.MinRunes(6) &
-=~"^/mnt/[a-zA-Z0-9._-]+/?$"
+#MountPath: strings.MaxRunes(200) & strings.MinRunes(6) & =~"^/mnt/[a-zA-Z0-9._-]+/?$"
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
-	NetworkMode!:       _#defs."/$defs/Properties/definitions/NetworkMode"
-	NetworkModeConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"
+#NetworkConfiguration: close({
+	NetworkMode!:       #NetworkMode
+	NetworkModeConfig?: #VpcConfig
 })
 
 // Network mode configuration type
-_#defs: "/$defs/Properties/definitions/NetworkMode": "PUBLIC" | "VPC"
+#NetworkMode: "PUBLIC" | "VPC"
 
-_#defs: "/$defs/Properties/definitions/PlatformVersion": strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\s]+$"
+#PlatformVersion: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[^\\s]+$"
 
 // Private endpoint configuration. Exactly one of SelfManagedLatticeResource or
 // ManagedVpcResource must be specified.
-_#defs: "/$defs/Properties/definitions/PrivateEndpoint": matchN(1, [close(
-	{SelfManagedLatticeResource!: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource"},
-), close(
-	{ManagedVpcResource!: _#defs."/$defs/Properties/definitions/ManagedVpcResource"},
-)])
+#PrivateEndpoint: matchN(1, [
+	close({SelfManagedLatticeResource!: #SelfManagedLatticeResource}), close({ManagedVpcResource!: #ManagedVpcResource}),
+])
 
 // Override mapping of a domain to a private endpoint
-_#defs: "/$defs/Properties/definitions/PrivateEndpointOverride": close({
+#PrivateEndpointOverride: close({
 	// The domain to override
 	Domain!:          strings.MaxRunes(253) & strings.MinRunes(1)
-	PrivateEndpoint!: _#defs."/$defs/Properties/definitions/PrivateEndpoint"
+	PrivateEndpoint!: #PrivateEndpoint
 })
 
 // List of private endpoint overrides
-_#defs: "/$defs/Properties/definitions/PrivateEndpointOverridesList": list.MaxItems(5) & [...] & [
-	..._#defs."/$defs/Properties/definitions/PrivateEndpointOverride"
-]
+#PrivateEndpointOverridesList: list.MaxItems(5) & [...] & [...#PrivateEndpointOverride]
 
-_#defs: "/$defs/Properties/definitions/ProtocolConfiguration": "MCP" | "HTTP" | "A2A" | "AGUI"
+#ProtocolConfiguration: "MCP" | "HTTP" | "A2A" | "AGUI"
 
 // List of allowed HTTP headers for agent runtime requests
-_#defs: "/$defs/Properties/definitions/RequestHeaderAllowlist": list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/HeaderName"
-]
+#RequestHeaderAllowlist: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#HeaderName]
 
 // Configuration for HTTP request headers
-_#defs: "/$defs/Properties/definitions/RequestHeaderConfiguration": close(
-	{RequestHeaderAllowlist?: _#defs."/$defs/Properties/definitions/RequestHeaderAllowlist"},
-)
+#RequestHeaderConfiguration: close({RequestHeaderAllowlist?: #RequestHeaderAllowlist})
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
-	=~"arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+"
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+"
 
 // The ECR URI of the container
-_#defs: "/$defs/Properties/definitions/RuntimeContainerUri": strings.MaxRunes(1024) &
+#RuntimeContainerUri: strings.MaxRunes(1024) &
 strings.MinRunes(1) &
 =~"^(([0-9]{12})\\.dkr\\.ecr\\.([a-z0-9-]+)\\.([a-z0-9-]+(?:\\.[a-z0-9-]+)+)|public\\.ecr\\.aws)/((?:[a-z0-9]+(?:[._-][a-z0-9]+)*/)*[a-z0-9]+(?:[._-][a-z0-9]+)*)(?::([^:@]{1,300}))?(?:@(.+))?$"
 
 // ARN of the S3 Files access point
-_#defs: "/$defs/Properties/definitions/S3FilesAccessPointArn": strings.MaxRunes(256) &
+#S3FilesAccessPointArn: strings.MaxRunes(256) &
 =~"^arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}/access-point/fsap-[0-9a-f]{17,40}$"
 
 // Configuration for S3 Files access point filesystem
-_#defs: "/$defs/Properties/definitions/S3FilesAccessPointConfiguration": close({
-	AccessPointArn!: _#defs."/$defs/Properties/definitions/S3FilesAccessPointArn"
-	MountPath!:      _#defs."/$defs/Properties/definitions/MountPath"
+#S3FilesAccessPointConfiguration: close({
+	AccessPointArn!: #S3FilesAccessPointArn
+	MountPath!:      #MountPath
 })
 
 // S3 Location Configuration
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	// S3 bucket name
 	Bucket!: =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$"
 
@@ -412,53 +362,44 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 })
 
 // Security group id
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
-	=~"^sg-[0-9a-zA-Z]{8,17}$"
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-zA-Z]{8,17}$"
 
 // Security groups for VPC
-_#defs: "/$defs/Properties/definitions/SecurityGroups": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SecurityGroupId"
-]
+#SecurityGroups: list.MaxItems(16) & list.MinItems(1) & [...#SecurityGroupId]
 
 // Self-managed VPC Lattice resource configuration
-_#defs: "/$defs/Properties/definitions/SelfManagedLatticeResource": close({
+#SelfManagedLatticeResource: close({
 	// The identifier of the VPC Lattice resource configuration
 	ResourceConfigurationIdentifier!: string
 })
 
 // Configuration for session storage
-_#defs: "/$defs/Properties/definitions/SessionStorageConfiguration": close(
-	{MountPath!: _#defs."/$defs/Properties/definitions/MountPath"},
-)
+#SessionStorageConfiguration: close({MountPath!: #MountPath})
 
 // Subnet id
-_#defs: "/$defs/Properties/definitions/SubnetId": =~"^subnet-[0-9a-zA-Z]{8,17}$"
+#SubnetId: =~"^subnet-[0-9a-zA-Z]{8,17}$"
 
 // Subnets for VPC
-_#defs: "/$defs/Properties/definitions/Subnets": list.MaxItems(16) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/SubnetId"
-]
+#Subnets: list.MaxItems(16) & list.MinItems(1) & [...#SubnetId]
 
 // A map of tag keys and values
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})
 
 // Network mode configuration for VPC
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
-	SecurityGroups!: _#defs."/$defs/Properties/definitions/SecurityGroups"
-	Subnets!:        _#defs."/$defs/Properties/definitions/Subnets"
+#VpcConfig: close({
+	SecurityGroups!: #SecurityGroups
+	Subnets!:        #Subnets
 })
 
 // List of allow-listed workload identity names
-_#defs: "/$defs/Properties/definitions/WorkloadIdentitiesList": list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
+#WorkloadIdentitiesList: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
 	...strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[A-Za-z0-9_.-]+$"
 ]
 
 // ARN of the workload identity
-_#defs: "/$defs/Properties/definitions/WorkloadIdentityArn": strings.MaxRunes(1024) & strings.MinRunes(1)
+#WorkloadIdentityArn: strings.MaxRunes(1024) & strings.MinRunes(1)
 
 // Configuration for workload identity
-_#defs: "/$defs/Properties/definitions/WorkloadIdentityDetails": close(
-	{WorkloadIdentityArn!: _#defs."/$defs/Properties/definitions/WorkloadIdentityArn"},
-)
+#WorkloadIdentityDetails: close({WorkloadIdentityArn!: #WorkloadIdentityArn})

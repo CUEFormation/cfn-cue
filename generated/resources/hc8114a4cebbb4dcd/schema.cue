@@ -26,12 +26,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ApiKeySourceType?:          string | fn.#StringExpression
 	BinaryMediaTypes?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	Body?:                      fn.#Object & {...} | string | fn.#StringObjectExpression
-	BodyS3Location?:            _#defs."/$defs/Properties/definitions/S3Location" | fn.#ObjectExpression
+	BodyS3Location?:            #S3Location | fn.#ObjectExpression
 	CloneFrom?:                 string | fn.#StringExpression
 	Description?:               string | fn.#StringExpression
 	DisableExecuteApiEndpoint?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EndpointAccessMode?:        string | fn.#StringExpression
-	EndpointConfiguration?:     _#defs."/$defs/Properties/definitions/EndpointConfiguration" | fn.#ObjectExpression
+	EndpointConfiguration?:     #EndpointConfiguration | fn.#ObjectExpression
 	FailOnWarnings?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MinimumCompressionSize?: int |
 		{
@@ -56,18 +56,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringObjectExpression
 	Policy?:         fn.#Object & {...} | string | fn.#StringObjectExpression
 	SecurityPolicy?: string | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:           [...#Tag] | fn.#ListExpression
 	Version?:        string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({
+#EndpointConfiguration: close({
 	IpAddressType?:  string | fn.#StringExpression
 	Types?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	VpcEndpointIds?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket?:  string | fn.#StringExpression
 	ETag?:    string | fn.#StringExpression
 	Key?:     string | fn.#StringExpression
@@ -75,7 +75,7 @@ _#defs: "/$defs/Properties/definitions/S3Location": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

@@ -35,7 +35,7 @@ import (
 	DomainName!: string
 
 	// Domain information that domain name registrars use to verify your identity.
-	DomainValidationOptions?: [..._#defs."/$defs/Properties/definitions/DomainValidationOption"]
+	DomainValidationOptions?: [...#DomainValidationOption]
 	Id?: null | bool | number | =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" | [...] | {...}
 
 	// Specifies the algorithm of the public and private key pair that your
@@ -46,21 +46,21 @@ import (
 	SubjectAlternativeNames?: [...string]
 
 	// Key-value pairs that can identify the certificate.
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 
 	// The method you want to use to validate that you own or control the domain
 	// associated with a public certificate. Valid values are DNS, EMAIL or HTTP
 	ValidationMethod?: string
 })
 
-_#defs: "/$defs/Properties/definitions/DomainValidationOption": close({
+#DomainValidationOption: close({
 	DomainName?:       string
 	HostedZoneId?:     string
 	ValidationDomain?: string
 })
 
 // A tag is a key-value pair that is used to manage the resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

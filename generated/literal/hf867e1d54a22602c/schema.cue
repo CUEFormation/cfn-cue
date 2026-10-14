@@ -3,234 +3,210 @@
 package schema
 
 import (
-	"time"
-	"list"
 	"strings"
+	"list"
 	"struct"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BedrockAgentCore::GatewayTarget Resource Type
 #Properties: close({
-	AuthorizationData?: _#defs."/$defs/Properties/definitions/AuthorizationData"
-	CreatedAt?:         time.Time
-	CredentialProviderConfigurations?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/CredentialProviderConfiguration"
-	]
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1)
+	AuthorizationData?:                #AuthorizationData
+	CreatedAt?:                        time.Time
+	CredentialProviderConfigurations?: list.MaxItems(1) & list.MinItems(1) & [...#CredentialProviderConfiguration]
+	Description?:                      strings.MaxRunes(200) & strings.MinRunes(1)
 	GatewayArn?:
 		=~"^arn:aws(|-cn|-us-gov):bedrock-agentcore:[a-z0-9-]{1,20}:[0-9]{12}:gateway/([0-9a-z][-]?){1,48}-[a-z0-9]{10}$"
 	GatewayIdentifier?:               =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$"
 	LastSynchronizedAt?:              time.Time
-	MetadataConfiguration?:           _#defs."/$defs/Properties/definitions/MetadataConfiguration"
+	MetadataConfiguration?:           #MetadataConfiguration
 	Name?:                            =~"^([0-9a-zA-Z][-]?){1,100}$"
-	PrivateEndpoint?:                 _#defs."/$defs/Properties/definitions/PrivateEndpoint"
-	PrivateEndpointManagedResources?: [..._#defs."/$defs/Properties/definitions/ManagedResourceDetails"]
-	ProtocolType?:                    _#defs."/$defs/Properties/definitions/TargetProtocolType"
-	Status?:                          _#defs."/$defs/Properties/definitions/TargetStatus"
+	PrivateEndpoint?:                 #PrivateEndpoint
+	PrivateEndpointManagedResources?: [...#ManagedResourceDetails]
+	ProtocolType?:                    #TargetProtocolType
+	Status?:                          #TargetStatus
 	StatusReasons?:                   list.MaxItems(100) & [...strings.MaxRunes(2048)]
-	TargetConfiguration!:             _#defs."/$defs/Properties/definitions/TargetConfiguration"
+	TargetConfiguration!:             #TargetConfiguration
 	TargetId?:                        =~"^[0-9a-zA-Z]{10}$"
 	UpdatedAt?:                       time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/ApiGatewayTargetConfiguration": close({
-	ApiGatewayToolConfiguration!: _#defs."/$defs/Properties/definitions/ApiGatewayToolConfiguration"
+#ApiGatewayTargetConfiguration: close({
+	ApiGatewayToolConfiguration!: #ApiGatewayToolConfiguration
 	RestApiId!:                   string
 	Stage!:                       string
 })
 
-_#defs: "/$defs/Properties/definitions/ApiGatewayToolConfiguration": close({
-	ToolFilters!:   [..._#defs."/$defs/Properties/definitions/ApiGatewayToolFilter"]
-	ToolOverrides?: [..._#defs."/$defs/Properties/definitions/ApiGatewayToolOverride"]
+#ApiGatewayToolConfiguration: close({
+	ToolFilters!:   [...#ApiGatewayToolFilter]
+	ToolOverrides?: [...#ApiGatewayToolOverride]
 })
 
-_#defs: "/$defs/Properties/definitions/ApiGatewayToolFilter": close({
+#ApiGatewayToolFilter: close({
 	FilterPath!: string
-	Methods!:    [..._#defs."/$defs/Properties/definitions/RestApiMethod"]
+	Methods!:    [...#RestApiMethod]
 })
 
-_#defs: "/$defs/Properties/definitions/ApiGatewayToolOverride": close({
+#ApiGatewayToolOverride: close({
 	Description?: string
-	Method!:      _#defs."/$defs/Properties/definitions/RestApiMethod"
+	Method!:      #RestApiMethod
 	Name!:        string
 	Path!:        string
 })
 
-_#defs: "/$defs/Properties/definitions/ApiKeyCredentialLocation": "HEADER" | "QUERY_PARAMETER"
+#ApiKeyCredentialLocation: "HEADER" | "QUERY_PARAMETER"
 
-_#defs: "/$defs/Properties/definitions/ApiKeyCredentialProvider": close({
-	CredentialLocation?:      _#defs."/$defs/Properties/definitions/ApiKeyCredentialLocation"
+#ApiKeyCredentialProvider: close({
+	CredentialLocation?:      #ApiKeyCredentialLocation
 	CredentialParameterName?: strings.MaxRunes(64) & strings.MinRunes(1)
 	CredentialPrefix?:        strings.MaxRunes(64) & strings.MinRunes(1)
 	ProviderArn!:             =~"^arn:([^:]*):([^:]*):([^:]*):([0-9]{12})?:(.+)$"
 })
 
-_#defs: "/$defs/Properties/definitions/ApiSchemaConfiguration": matchN(1, [
-	close({S3!: _#defs."/$defs/Properties/definitions/S3Configuration"}), close({InlinePayload!: string}),
-])
+#ApiSchemaConfiguration: matchN(1, [close({S3!: #S3Configuration}), close({InlinePayload!: string})])
 
-_#defs: "/$defs/Properties/definitions/AuthorizationData": close(
-	{Oauth2!: _#defs."/$defs/Properties/definitions/OAuth2AuthorizationData"},
-)
+#AuthorizationData: close({Oauth2!: #OAuth2AuthorizationData})
 
-_#defs: "/$defs/Properties/definitions/ConnectorConfiguration": close({
+#ConnectorConfiguration: close({
 	Description?:        strings.MaxRunes(2000)
 	Name!:               strings.MaxRunes(64) & =~"^[a-zA-Z][a-zA-Z0-9_-]*$"
-	ParameterOverrides?: [..._#defs."/$defs/Properties/definitions/ConnectorParameterOverride"]
+	ParameterOverrides?: [...#ConnectorParameterOverride]
 	ParameterValues?:    _
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectorParameterOverride": close({
+#ConnectorParameterOverride: close({
 	Description?: string
 	Path!:        string
 	Visible?:     bool
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectorSource": close(
-	{ConnectorId!: strings.MaxRunes(256) & strings.MinRunes(1)},
-)
+#ConnectorSource: close({ConnectorId!: strings.MaxRunes(256) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/ConnectorTargetConfiguration": close({
-	Configurations?: [..._#defs."/$defs/Properties/definitions/ConnectorConfiguration"]
+#ConnectorTargetConfiguration: close({
+	Configurations?: [...#ConnectorConfiguration]
 	Enabled?:        list.MaxItems(50) & list.MinItems(1) & [...string]
-	Source!:         _#defs."/$defs/Properties/definitions/ConnectorSource"
+	Source!:         #ConnectorSource
 })
 
-_#defs: "/$defs/Properties/definitions/CredentialProvider": matchN(1, [close(
-	{OauthCredentialProvider!: _#defs."/$defs/Properties/definitions/OAuthCredentialProvider"},
+#CredentialProvider: matchN(1, [close(
+	{OauthCredentialProvider!: #OAuthCredentialProvider},
 ), close(
-	{ApiKeyCredentialProvider!: _#defs."/$defs/Properties/definitions/ApiKeyCredentialProvider"},
+	{ApiKeyCredentialProvider!: #ApiKeyCredentialProvider},
 ), close(
-	{IamCredentialProvider!: _#defs."/$defs/Properties/definitions/IamCredentialProvider"},
+	{IamCredentialProvider!: #IamCredentialProvider},
 )])
 
-_#defs: "/$defs/Properties/definitions/CredentialProviderConfiguration": close({
-	CredentialProvider?:     _#defs."/$defs/Properties/definitions/CredentialProvider"
-	CredentialProviderType!: _#defs."/$defs/Properties/definitions/CredentialProviderType"
+#CredentialProviderConfiguration: close({
+	CredentialProvider?:     #CredentialProvider
+	CredentialProviderType!: #CredentialProviderType
 })
 
-_#defs: "/$defs/Properties/definitions/CredentialProviderType": "GATEWAY_IAM_ROLE" |
-	"OAUTH" |
-	"API_KEY" |
-	"CALLER_IAM_CREDENTIALS" |
-	"JWT_PASSTHROUGH"
+#CredentialProviderType: "GATEWAY_IAM_ROLE" | "OAUTH" | "API_KEY" | "CALLER_IAM_CREDENTIALS" | "JWT_PASSTHROUGH"
 
-_#defs: "/$defs/Properties/definitions/EndpointIpAddressType": "IPV4" | "IPV6"
+#EndpointIpAddressType: "IPV4" | "IPV6"
 
-_#defs: "/$defs/Properties/definitions/HttpApiSchemaConfiguration": close(
-	{Source!: _#defs."/$defs/Properties/definitions/ApiSchemaConfiguration"},
-)
+#HttpApiSchemaConfiguration: close({Source!: #ApiSchemaConfiguration})
 
-_#defs: "/$defs/Properties/definitions/HttpConnectorParameters": struct.MaxFields(10) & struct.MinFields(0) & close({
+#HttpConnectorParameters: struct.MaxFields(10) & struct.MinFields(0) & close({
 
 	{[=~"^[a-zA-Z][a-zA-Z0-9_-]*$"]: strings.MaxRunes(1024) & strings.MinRunes(1)}})
 
-_#defs: "/$defs/Properties/definitions/HttpConnectorSource": close(
-	{ConnectorId!: strings.MaxRunes(256) & strings.MinRunes(1)},
-)
+#HttpConnectorSource: close({ConnectorId!: strings.MaxRunes(256) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/HttpConnectorTargetConfiguration": close({
-	Parameters?: _#defs."/$defs/Properties/definitions/HttpConnectorParameters"
-	Source!:     _#defs."/$defs/Properties/definitions/HttpConnectorSource"
+#HttpConnectorTargetConfiguration: close({
+	Parameters?: #HttpConnectorParameters
+	Source!:     #HttpConnectorSource
 })
 
-_#defs: "/$defs/Properties/definitions/HttpTargetConfiguration": matchN(1, [close(
-	{AgentcoreRuntime!: _#defs."/$defs/Properties/definitions/RuntimeTargetConfiguration"},
+#HttpTargetConfiguration: matchN(1, [close(
+	{AgentcoreRuntime!: #RuntimeTargetConfiguration},
 ), close(
-	{Passthrough!: _#defs."/$defs/Properties/definitions/PassthroughTargetConfiguration"},
+	{Passthrough!: #PassthroughTargetConfiguration},
 ), close(
-	{Connector!: _#defs."/$defs/Properties/definitions/HttpConnectorTargetConfiguration"},
+	{Connector!: #HttpConnectorTargetConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/IamCredentialProvider": close({
+#IamCredentialProvider: close({
 	Region?:  strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
 	Service!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/InferenceConnectorSource": close(
-	{ConnectorId!: strings.MaxRunes(256) & strings.MinRunes(1)},
-)
+#InferenceConnectorSource: close({ConnectorId!: strings.MaxRunes(256) & strings.MinRunes(1)})
 
-_#defs: "/$defs/Properties/definitions/InferenceConnectorTargetConfiguration": close(
-	{Source!: _#defs."/$defs/Properties/definitions/InferenceConnectorSource"},
-)
+#InferenceConnectorTargetConfiguration: close({Source!: #InferenceConnectorSource})
 
-_#defs: "/$defs/Properties/definitions/InferenceOperationConfiguration": close({
-	Models?:       list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ModelEntry"]
+#InferenceOperationConfiguration: close({
+	Models?:       list.MaxItems(100) & list.MinItems(1) & [...#ModelEntry]
 	Path!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9\\-\\._/]+$"
 	ProviderPath?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9\\-\\._/]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/InferenceProviderTargetConfiguration": close({
+#InferenceProviderTargetConfiguration: close({
 	Endpoint!:     strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[a-zA-Z0-9\\-\\.]+(:[0-9]{1,5})?(/.*)?$"
-	ModelMapping?: _#defs."/$defs/Properties/definitions/ModelMapping"
-	Operations?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/InferenceOperationConfiguration"
-	]
+	ModelMapping?: #ModelMapping
+	Operations?:   list.MaxItems(10) & list.MinItems(1) & [...#InferenceOperationConfiguration]
 })
 
-_#defs: "/$defs/Properties/definitions/InferenceTargetConfiguration": matchN(1, [close(
-	{Connector!: _#defs."/$defs/Properties/definitions/InferenceConnectorTargetConfiguration"},
+#InferenceTargetConfiguration: matchN(1, [close(
+	{Connector!: #InferenceConnectorTargetConfiguration},
 ), close(
-	{Provider!: _#defs."/$defs/Properties/definitions/InferenceProviderTargetConfiguration"},
+	{Provider!: #InferenceProviderTargetConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/ListingMode": "DEFAULT" | "DYNAMIC"
+#ListingMode: "DEFAULT" | "DYNAMIC"
 
-_#defs: "/$defs/Properties/definitions/ManagedResourceDetails": close({
+#ManagedResourceDetails: close({
 	Domain?: string
 	ResourceAssociationArn?:
 		=~"^(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetworkresourceassociation/)?snra-[0-9a-f]{17}$"
 	ResourceGatewayArn?: =~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourcegateway/rgw-[0-9a-z]{17}$"
 })
 
-_#defs: "/$defs/Properties/definitions/ManagedVpcResource": close({
-	EndpointIpAddressType!: _#defs."/$defs/Properties/definitions/EndpointIpAddressType"
+#ManagedVpcResource: close({
+	EndpointIpAddressType!: #EndpointIpAddressType
 	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3)
 	SecurityGroupIds?: list.MaxItems(5) & [...] & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 	]
 	SubnetIds!:     [...=~"^subnet-[0-9a-zA-Z]{8,17}$"]
-	Tags?:          _#defs."/$defs/Properties/definitions/TagsMap"
+	Tags?:          #TagsMap
 	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$"
 })
 
-_#defs: "/$defs/Properties/definitions/McpLambdaTargetConfiguration": close({
+#McpLambdaTargetConfiguration: close({
 	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(170) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$"
-	ToolSchema!: _#defs."/$defs/Properties/definitions/ToolSchema"
+	ToolSchema!: #ToolSchema
 })
 
-_#defs: "/$defs/Properties/definitions/McpServerTargetConfiguration": close({
+#McpServerTargetConfiguration: close({
 	Endpoint!:         =~"^https://.*"
-	ListingMode?:      _#defs."/$defs/Properties/definitions/ListingMode"
-	McpToolSchema?:    _#defs."/$defs/Properties/definitions/McpToolSchemaConfiguration"
+	ListingMode?:      #ListingMode
+	McpToolSchema?:    #McpToolSchemaConfiguration
 	ResourcePriority?: <=1000 & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/McpTargetConfiguration": matchN(1, [close(
-	{OpenApiSchema!: _#defs."/$defs/Properties/definitions/ApiSchemaConfiguration"},
+#McpTargetConfiguration: matchN(1, [close(
+	{OpenApiSchema!: #ApiSchemaConfiguration},
 ), close(
-	{SmithyModel!: _#defs."/$defs/Properties/definitions/ApiSchemaConfiguration"},
+	{SmithyModel!: #ApiSchemaConfiguration},
 ), close(
-	{Lambda!: _#defs."/$defs/Properties/definitions/McpLambdaTargetConfiguration"},
+	{Lambda!: #McpLambdaTargetConfiguration},
 ), close(
-	{McpServer!: _#defs."/$defs/Properties/definitions/McpServerTargetConfiguration"},
+	{McpServer!: #McpServerTargetConfiguration},
 ), close(
-	{ApiGateway!: _#defs."/$defs/Properties/definitions/ApiGatewayTargetConfiguration"},
+	{ApiGateway!: #ApiGatewayTargetConfiguration},
 ), close(
-	{Connector!: _#defs."/$defs/Properties/definitions/ConnectorTargetConfiguration"},
+	{Connector!: #ConnectorTargetConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/McpToolSchemaConfiguration": matchN(1, [
-	close({S3!: _#defs."/$defs/Properties/definitions/S3Configuration"}), close({InlinePayload!: string}),
-])
+#McpToolSchemaConfiguration: matchN(1, [close({S3!: #S3Configuration}), close({InlinePayload!: string})])
 
-_#defs: "/$defs/Properties/definitions/MetadataConfiguration": close({
+#MetadataConfiguration: close({
 	AllowedQueryParameters?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(40) & strings.MinRunes(1)
 	]
@@ -242,88 +218,84 @@ _#defs: "/$defs/Properties/definitions/MetadataConfiguration": close({
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/ModelEntry": close({
+#ModelEntry: close({
 	Model!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\._\\*\\?@]+(/[a-zA-Z0-9\\-\\._\\*\\?@]+)*$"
 })
 
-_#defs: "/$defs/Properties/definitions/ModelMapping": close(
-	{ProviderPrefix?: _#defs."/$defs/Properties/definitions/ProviderPrefix"},
-)
+#ModelMapping: close({ProviderPrefix?: #ProviderPrefix})
 
-_#defs: "/$defs/Properties/definitions/OAuth2AuthorizationData": close({
+#OAuth2AuthorizationData: close({
 	AuthorizationUrl!: strings.MinRunes(1)
 	UserId?:           strings.MaxRunes(128) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/OAuthCredentialProvider": close({
-	CustomParameters?: _#defs."/$defs/Properties/definitions/OAuthCustomParameters"
+#OAuthCredentialProvider: close({
+	CustomParameters?: #OAuthCustomParameters
 	DefaultReturnUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\w+:(\\/?\\/?)[^\\s]+$"
-	GrantType?:        _#defs."/$defs/Properties/definitions/OAuthGrantType"
+	GrantType?:        #OAuthGrantType
 	ProviderArn!:      =~"^arn:([^:]*):([^:]*):([^:]*):([0-9]{12})?:(.+)$"
 	Scopes!:           list.MaxItems(100) & [...strings.MaxRunes(128) & strings.MinRunes(1)]
 })
 
-_#defs: "/$defs/Properties/definitions/OAuthCustomParameters": struct.MaxFields(10) & struct.MinFields(1) & close({
+#OAuthCustomParameters: struct.MaxFields(10) & struct.MinFields(1) & close({
 
 	{[=~".+"]: strings.MaxRunes(2048) & strings.MinRunes(1)}})
 
-_#defs: "/$defs/Properties/definitions/OAuthGrantType": "CLIENT_CREDENTIALS" | "AUTHORIZATION_CODE" | "TOKEN_EXCHANGE"
+#OAuthGrantType: "CLIENT_CREDENTIALS" | "AUTHORIZATION_CODE" | "TOKEN_EXCHANGE"
 
-_#defs: "/$defs/Properties/definitions/PassthroughProtocolType": "MCP" | "A2A" | "INFERENCE" | "CUSTOM"
+#PassthroughProtocolType: "MCP" | "A2A" | "INFERENCE" | "CUSTOM"
 
-_#defs: "/$defs/Properties/definitions/PassthroughTargetConfiguration": close({
+#PassthroughTargetConfiguration: close({
 	Endpoint!:     strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[a-zA-Z0-9\\-\\.]+(:[0-9]{1,5})?(/.*)?$"
-	ProtocolType!: _#defs."/$defs/Properties/definitions/PassthroughProtocolType"
-	Schema?:       _#defs."/$defs/Properties/definitions/HttpApiSchemaConfiguration"
-	StickinessConfiguration?: _#defs."/$defs/Properties/definitions/StickinessConfiguration"
+	ProtocolType!: #PassthroughProtocolType
+	Schema?:       #HttpApiSchemaConfiguration
+	StickinessConfiguration?: #StickinessConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/PrivateEndpoint": matchN(1, [close(
-	{SelfManagedLatticeResource!: _#defs."/$defs/Properties/definitions/SelfManagedLatticeResource"},
-), close(
-	{ManagedVpcResource!: _#defs."/$defs/Properties/definitions/ManagedVpcResource"},
-)])
+#PrivateEndpoint: matchN(1, [
+	close({SelfManagedLatticeResource!: #SelfManagedLatticeResource}), close({ManagedVpcResource!: #ManagedVpcResource}),
+])
 
-_#defs: "/$defs/Properties/definitions/ProviderPrefix": close({
+#ProviderPrefix: close({
 	Separator?: strings.MaxRunes(1) & strings.MinRunes(1)
 	Strip?:     bool
 })
 
-_#defs: "/$defs/Properties/definitions/RestApiMethod": "GET" | "DELETE" | "HEAD" | "OPTIONS" | "PATCH" | "PUT" | "POST"
+#RestApiMethod: "GET" | "DELETE" | "HEAD" | "OPTIONS" | "PATCH" | "PUT" | "POST"
 
-_#defs: "/$defs/Properties/definitions/RuntimeTargetConfiguration": close({
+#RuntimeTargetConfiguration: close({
 	Arn!:
 		=~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$"
 	Qualifier?: =~"([1-9][0-9]{0,4})|([a-zA-Z][a-zA-Z0-9_]{0,47})"
-	Schema?:    _#defs."/$defs/Properties/definitions/HttpApiSchemaConfiguration"
+	Schema?:    #HttpApiSchemaConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/S3Configuration": close({
+#S3Configuration: close({
 	BucketOwnerAccountId?: =~"^[0-9]{12}$"
 	Uri?:                  string
 })
 
-_#defs: "/$defs/Properties/definitions/SchemaDefinition": close({
+#SchemaDefinition: close({
 	Description?: string
-	Items?:       _#defs."/$defs/Properties/definitions/SchemaDefinition"
-	Properties?:  _#defs."/$defs/Properties/definitions/SchemaProperties"
+	Items?:       #SchemaDefinition
+	Properties?:  #SchemaProperties
 	Required?:    [...string]
-	Type!:        _#defs."/$defs/Properties/definitions/SchemaType"
+	Type!:        #SchemaType
 })
 
-_#defs: "/$defs/Properties/definitions/SchemaProperties": close({
+#SchemaProperties: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/SchemaDefinition"}})
+	{[=~".+"]: #SchemaDefinition}})
 
-_#defs: "/$defs/Properties/definitions/SchemaType": "string" | "number" | "object" | "array" | "boolean" | "integer"
+#SchemaType: "string" | "number" | "object" | "array" | "boolean" | "integer"
 
-_#defs: "/$defs/Properties/definitions/SelfManagedLatticeResource": close({
+#SelfManagedLatticeResource: close({
 	ResourceConfigurationIdentifier!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((rcfg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}))$"
 })
 
-_#defs: "/$defs/Properties/definitions/StickinessConfiguration": close({
+#StickinessConfiguration: close({
 	Identifier!: strings.MaxRunes(256) & strings.MinRunes(1)
 	Timeout?:    <=86400 & >=1
 })
@@ -332,21 +304,21 @@ _#defs: "/$defs/Properties/definitions/StickinessConfiguration": close({
 // created on your behalf (tag-on-create). Useful for cost allocation. These
 // tags are forwarded to VPC Lattice and are not stored on the gateway target
 // itself.
-_#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & close({
+#TagsMap: struct.MaxFields(50) & close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})
 
-_#defs: "/$defs/Properties/definitions/TargetConfiguration": matchN(1, [close(
-	{Mcp!: _#defs."/$defs/Properties/definitions/McpTargetConfiguration"},
+#TargetConfiguration: matchN(1, [close(
+	{Mcp!: #McpTargetConfiguration},
 ), close(
-	{Http!: _#defs."/$defs/Properties/definitions/HttpTargetConfiguration"},
+	{Http!: #HttpTargetConfiguration},
 ), close(
-	{Inference!: _#defs."/$defs/Properties/definitions/InferenceTargetConfiguration"},
+	{Inference!: #InferenceTargetConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/TargetProtocolType": "MCP" | "HTTP"
+#TargetProtocolType: "MCP" | "HTTP"
 
-_#defs: "/$defs/Properties/definitions/TargetStatus": "CREATING" |
+#TargetStatus: "CREATING" |
 	"UPDATING" |
 	"UPDATE_UNSUCCESSFUL" |
 	"DELETING" |
@@ -358,15 +330,11 @@ _#defs: "/$defs/Properties/definitions/TargetStatus": "CREATING" |
 	"UPDATE_PENDING_AUTH" |
 	"SYNCHRONIZE_PENDING_AUTH"
 
-_#defs: "/$defs/Properties/definitions/ToolDefinition": close({
+#ToolDefinition: close({
 	Description!:  string
-	InputSchema!:  _#defs."/$defs/Properties/definitions/SchemaDefinition"
+	InputSchema!:  #SchemaDefinition
 	Name!:         string
-	OutputSchema?: _#defs."/$defs/Properties/definitions/SchemaDefinition"
+	OutputSchema?: #SchemaDefinition
 })
 
-_#defs: "/$defs/Properties/definitions/ToolSchema": matchN(1, [close(
-	{S3!: _#defs."/$defs/Properties/definitions/S3Configuration"},
-), close(
-	{InlinePayload!: [..._#defs."/$defs/Properties/definitions/ToolDefinition"]},
-)])
+#ToolSchema: matchN(1, [close({S3!: #S3Configuration}), close({InlinePayload!: [...#ToolDefinition]})])

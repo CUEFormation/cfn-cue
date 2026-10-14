@@ -35,13 +35,13 @@ import (
 	ServerId!: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$"
 
 	// Key-value pairs that can be used to group and search for host keys.
-	Tags?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...#Tag]
 
 	// The encryption algorithm that is used for the host key.
 	Type?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The name assigned to the tag that you create.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

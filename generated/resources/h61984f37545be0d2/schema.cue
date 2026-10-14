@@ -15,39 +15,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::MWAAServerless::Workflow resource
 #Properties: close({
-	Code?:                    _#defs."/$defs/Properties/definitions/Code"
-	DefinitionS3Location!:    _#defs."/$defs/Properties/definitions/S3Location"
-	Description?:             _#defs."/$defs/Properties/definitions/Description"
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	LoggingConfiguration?:    _#defs."/$defs/Properties/definitions/LoggingConfiguration"
-	Name?:                    _#defs."/$defs/Properties/definitions/Name"
-	NetworkConfiguration?:    _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-	RoleArn!:                 _#defs."/$defs/Properties/definitions/RoleArn"
-	Tags?:                    _#defs."/$defs/Properties/definitions/Tags"
-	TriggerMode?:             _#defs."/$defs/Properties/definitions/TriggerMode"
+	Code?:                    #Code
+	DefinitionS3Location!:    #S3Location
+	Description?:             #Description
+	EncryptionConfiguration?: #EncryptionConfiguration
+	LoggingConfiguration?:    #LoggingConfiguration
+	Name?:                    #Name
+	NetworkConfiguration?:    #NetworkConfiguration
+	RoleArn!:                 #RoleArn
+	Tags?:                    #Tags
+	TriggerMode?:             #TriggerMode
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
+#Arn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(?:-(?:cn|us-gov|iso|iso-b|iso-e|iso-f))?:airflow-serverless:([a-z]{2}-(?:[a-z]+-)+[0-9]{1}):([0-9]{12}):workflow/([a-zA-Z0-9][a-zA-Z0-9\\.\\-_]{0,254}-[a-zA-Z0-9]{10})$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Code": close(
-	{S3Location?: _#defs."/$defs/Properties/definitions/CodeS3Location"},
-) |
-	fn.#ObjectExpression
+#Code: close({S3Location?: #CodeS3Location}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeS3Location": close({
+#CodeS3Location: close({
 	Bucket!:    strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 	ObjectKey!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	VersionId?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$" |
-fn.#StringExpression
+#Description: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
@@ -55,17 +51,11 @@ _#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close(
-	{LogGroupName!: strings.MinRunes(1) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#LoggingConfiguration: close({LogGroupName!: strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9]+[a-zA-Z0-9\\.\\-_]*$" |
-fn.#StringExpression
+#Name: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+[a-zA-Z0-9\\.\\-_]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
+#NetworkConfiguration: close({
 	SecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(255) &
@@ -79,37 +69,33 @@ _#defs: "/$defs/Properties/definitions/NetworkConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(?:-(?:cn|us-gov|iso|iso-b|iso-e|iso-f))?:iam::[0-9]{12}:role(/[a-zA-Z0-9+=,.@_-]{1,512})*?/[a-zA-Z0-9+=,.@_-]{1,64}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!:    strings.MinRunes(1) | fn.#StringExpression
 	ObjectKey!: strings.MinRunes(1) | fn.#StringExpression
 	VersionId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduleConfiguration": close({CronExpression?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#ScheduleConfiguration: close({CronExpression?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": struct.MaxFields(50) & close({
+#Tags: struct.MaxFields(50) & close({
 
 	{[=~"^[\\w\\d+\\-\\.\\:/@]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Timestamp": time.Time | fn.#StringExpression
+#Timestamp: time.Time | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TriggerMode": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#TriggerMode: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowStatus": "READY" | "DELETING" | fn.#StringExpression
+#WorkflowStatus: "READY" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowVersion": strings.MaxRunes(32) &
-strings.MinRunes(32) &
-=~"^[a-z0-9]{32}$" |
-fn.#StringExpression
+#WorkflowVersion: strings.MaxRunes(32) & strings.MinRunes(32) & =~"^[a-z0-9]{32}$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::MWAAServerless::Workflow"
 	Properties!: #Properties

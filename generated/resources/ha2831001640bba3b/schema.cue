@@ -24,43 +24,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // CloudFront sends a request when it can't find a valid object in its cache
 // that matches the request's cache key. If you want to send values to the
 // origin but *not* include them in the cache key, use ``OriginRequestPolicy``.
-#Properties: close(
-	{CachePolicyConfig!: _#defs."/$defs/Properties/definitions/CachePolicyConfig" | fn.#ObjectExpression},
-)
+#Properties: close({CachePolicyConfig!: #CachePolicyConfig | fn.#ObjectExpression})
 
-_#defs: "/$defs/Properties/definitions/CachePolicyConfig": close({
-	Comment?:    string | fn.#StringExpression
-	DefaultTTL!: math.MultipleOf(1) & >=0 | fn.#NumberExpression
-	MaxTTL!:     math.MultipleOf(1) & >=0 | fn.#NumberExpression
-	MinTTL!:     math.MultipleOf(1) & >=0 | fn.#NumberExpression
-	Name!:       string | fn.#StringExpression
-	ParametersInCacheKeyAndForwardedToOrigin!: _#defs."/$defs/Properties/definitions/ParametersInCacheKeyAndForwardedToOrigin" |
-		fn.#ObjectExpression
+#CachePolicyConfig: close({
+	Comment?:                                  string | fn.#StringExpression
+	DefaultTTL!:                               math.MultipleOf(1) & >=0 | fn.#NumberExpression
+	MaxTTL!:                                   math.MultipleOf(1) & >=0 | fn.#NumberExpression
+	MinTTL!:                                   math.MultipleOf(1) & >=0 | fn.#NumberExpression
+	Name!:                                     string | fn.#StringExpression
+	ParametersInCacheKeyAndForwardedToOrigin!: #ParametersInCacheKeyAndForwardedToOrigin | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CookiesConfig": close({
+#CookiesConfig: close({
 	CookieBehavior!: =~"^(none|whitelist|allExcept|all)$" | fn.#StringExpression
 	Cookies?:        [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HeadersConfig": close({
+#HeadersConfig: close({
 	HeaderBehavior!: =~"^(none|whitelist)$" | fn.#StringExpression
 	Headers?:        [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParametersInCacheKeyAndForwardedToOrigin": close({
-	CookiesConfig!:              _#defs."/$defs/Properties/definitions/CookiesConfig" | fn.#ObjectExpression
+#ParametersInCacheKeyAndForwardedToOrigin: close({
+	CookiesConfig!:              #CookiesConfig | fn.#ObjectExpression
 	EnableAcceptEncodingBrotli?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableAcceptEncodingGzip!:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HeadersConfig!:              _#defs."/$defs/Properties/definitions/HeadersConfig" | fn.#ObjectExpression
-	QueryStringsConfig!:         _#defs."/$defs/Properties/definitions/QueryStringsConfig" | fn.#ObjectExpression
+	HeadersConfig!:              #HeadersConfig | fn.#ObjectExpression
+	QueryStringsConfig!:         #QueryStringsConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryStringsConfig": close({
+#QueryStringsConfig: close({
 	QueryStringBehavior!: =~"^(none|whitelist|allExcept|all)$" | fn.#StringExpression
 	QueryStrings?:        [...string | fn.#StringExpression] | fn.#ListExpression
 }) |

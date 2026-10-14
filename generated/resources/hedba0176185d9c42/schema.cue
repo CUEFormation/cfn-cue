@@ -4,8 +4,8 @@ package schema
 
 import (
 	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -18,26 +18,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SageMaker::ProcessingJob
 #Properties: close({
-	AppSpecification!: _#defs."/$defs/Properties/definitions/AppSpecification"
-	Environment?:      _#defs."/$defs/Properties/definitions/Environment"
-	ExperimentConfig?: _#defs."/$defs/Properties/definitions/ExperimentConfig"
-	NetworkConfig?:    _#defs."/$defs/Properties/definitions/NetworkConfig"
-	ProcessingInputs?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/ProcessingInputsObject"] |
-		fn.#ListExpression
+	AppSpecification!: #AppSpecification
+	Environment?:      #Environment
+	ExperimentConfig?: #ExperimentConfig
+	NetworkConfig?:    #NetworkConfig
+	ProcessingInputs?: list.MaxItems(10) & [...] & [...#ProcessingInputsObject] | fn.#ListExpression
 	ProcessingJobName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
 	fn.#StringExpression
-	ProcessingOutputConfig?: _#defs."/$defs/Properties/definitions/ProcessingOutputConfig"
-	ProcessingResources!:    _#defs."/$defs/Properties/definitions/ProcessingResources"
+	ProcessingOutputConfig?: #ProcessingOutputConfig
+	ProcessingResources!:    #ProcessingResources
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" |
 	fn.#StringExpression
-	StoppingCondition?: _#defs."/$defs/Properties/definitions/StoppingCondition"
-	Tags?:              list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	StoppingCondition?: #StoppingCondition
+	Tags?:              list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AppSpecification": close({
+#AppSpecification: close({
 	ContainerArguments?: list.MaxItems(100) & [...] & [
 		...strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 	] |
@@ -50,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/AppSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AthenaDatasetDefinition": close({
+#AthenaDatasetDefinition: close({
 	Catalog!:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	Database!: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -67,7 +66,7 @@ _#defs: "/$defs/Properties/definitions/AthenaDatasetDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterConfig": close({
+#ClusterConfig: close({
 	InstanceCount!: int & <=100 & >=1 |
 		{
 			string &
@@ -219,21 +218,21 @@ _#defs: "/$defs/Properties/definitions/ClusterConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DatasetDefinition": close({
-	AthenaDatasetDefinition?:   _#defs."/$defs/Properties/definitions/AthenaDatasetDefinition"
+#DatasetDefinition: close({
+	AthenaDatasetDefinition?:   #AthenaDatasetDefinition
 	DataDistributionType?:      "FullyReplicated" | "ShardedByS3Key" | fn.#StringExpression
 	InputMode?:                 "File" | "Pipe" | fn.#StringExpression
 	LocalPath?:                 strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	RedshiftDatasetDefinition?: _#defs."/$defs/Properties/definitions/RedshiftDatasetDefinition"
+	RedshiftDatasetDefinition?: #RedshiftDatasetDefinition
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Environment": close({
+#Environment: close({
 
 	{[=~"^[a-zA-Z_][a-zA-Z0-9_]{0,255}$"]: strings.MaxRunes(256) & =~"[\\S\\s]*" | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExperimentConfig": close({
+#ExperimentConfig: close({
 	ExperimentName?:            strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" | fn.#StringExpression
 	RunName?:                   strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" | fn.#StringExpression
 	TrialComponentDisplayName?: strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" | fn.#StringExpression
@@ -241,12 +240,12 @@ _#defs: "/$defs/Properties/definitions/ExperimentConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FeatureStoreOutput": close(
+#FeatureStoreOutput: close(
 	{FeatureGroupName!: strings.MaxRunes(64) & =~"[a-zA-Z0-9]([_-]*[a-zA-Z0-9]){0,63}" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkConfig": close({
+#NetworkConfig: close({
 	EnableInterContainerTrafficEncryption?: bool |
 		"true" |
 		"True" |
@@ -256,44 +255,40 @@ _#defs: "/$defs/Properties/definitions/NetworkConfig": close({
 		"FALSE" |
 		fn.#BooleanExpression
 	EnableNetworkIsolation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	VpcConfig?:              _#defs."/$defs/Properties/definitions/VpcConfig"
+	VpcConfig?:              #VpcConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProcessingInputsObject": close({
+#ProcessingInputsObject: close({
 	AppManaged?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DatasetDefinition?: _#defs."/$defs/Properties/definitions/DatasetDefinition"
+	DatasetDefinition?: #DatasetDefinition
 	InputName!:         string | fn.#StringExpression
-	S3Input?:           _#defs."/$defs/Properties/definitions/S3Input"
+	S3Input?:           #S3Input
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProcessingOutputConfig": close({
+#ProcessingOutputConfig: close({
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"[a-zA-Z0-9:/_-]*" |
 	fn.#StringExpression
-	Outputs!: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/ProcessingOutputsObject"] |
-		fn.#ListExpression
+	Outputs!: list.MaxItems(10) & [...] & [...#ProcessingOutputsObject] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProcessingOutputsObject": close({
+#ProcessingOutputsObject: close({
 	AppManaged?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	FeatureStoreOutput?: _#defs."/$defs/Properties/definitions/FeatureStoreOutput"
+	FeatureStoreOutput?: #FeatureStoreOutput
 	OutputName!:         string | fn.#StringExpression
-	S3Output?:           _#defs."/$defs/Properties/definitions/S3Output"
+	S3Output?:           #S3Output
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProcessingResources": close(
-	{ClusterConfig!: _#defs."/$defs/Properties/definitions/ClusterConfig"},
-) |
-	fn.#ObjectExpression
+#ProcessingResources: close({ClusterConfig!: #ClusterConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftDatasetDefinition": close({
+#RedshiftDatasetDefinition: close({
 	ClusterId!: strings.MaxRunes(63) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
 	ClusterRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
@@ -315,7 +310,7 @@ _#defs: "/$defs/Properties/definitions/RedshiftDatasetDefinition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Input": close({
+#S3Input: close({
 	LocalPath?:              strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 	S3CompressionType?:      "None" | "Gzip" | fn.#StringExpression
 	S3DataDistributionType?: "FullyReplicated" | "ShardedByS3Key" | fn.#StringExpression
@@ -325,14 +320,14 @@ _#defs: "/$defs/Properties/definitions/S3Input": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Output": close({
+#S3Output: close({
 	LocalPath?:    strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 	S3UploadMode!: "Continuous" | "EndOfJob" | fn.#StringExpression
 	S3Uri!:        strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(https|s3)://([^/]+)/?(.*)" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StoppingCondition": close({
+#StoppingCondition: close({
 	MaxRuntimeInSeconds!: int & <=777600 & >=1 |
 		{
 			string &
@@ -352,13 +347,13 @@ _#defs: "/$defs/Properties/definitions/StoppingCondition": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & [...] & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(32) &

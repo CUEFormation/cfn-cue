@@ -14,16 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Batch::SchedulingPolicy
 #Properties: close({
-	FairsharePolicy?:  _#defs."/$defs/Properties/definitions/FairsharePolicy"
+	FairsharePolicy?:  #FairsharePolicy
 	Name?:             =~"" | fn.#StringExpression
-	QuotaSharePolicy?: _#defs."/$defs/Properties/definitions/QuotaSharePolicy"
+	QuotaSharePolicy?: #QuotaSharePolicy
 	Tags?: close({
 
 		{[=~".*"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/FairsharePolicy": close({
+#FairsharePolicy: close({
 	ComputeReservation?: <=99 & >=0 |
 		{
 			string &
@@ -64,18 +64,16 @@ _#defs: "/$defs/Properties/definitions/FairsharePolicy": close({
 				)
 		} |
 		fn.#NumberExpression
-	ShareDistribution?: [..._#defs."/$defs/Properties/definitions/ShareAttributes"] | fn.#ListExpression
+	ShareDistribution?: [...#ShareAttributes] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QuotaSharePolicy": close(
-	{IdleResourceAssignmentStrategy?: =~"(?i)^(?:fifo)$" | fn.#StringExpression},
-) |
+#QuotaSharePolicy: close({IdleResourceAssignmentStrategy?: =~"(?i)^(?:fifo)$" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": string | fn.#StringExpression
+#ResourceArn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ShareAttributes": close({
+#ShareAttributes: close({
 	ShareIdentifier?: string | fn.#StringExpression
 	WeightFactor?: <=1000 & >=0 |
 		{

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -16,38 +16,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Certificate?:             strings.MaxRunes(1600) & strings.MinRunes(0) | fn.#StringExpression
 	CreateWithHostKey?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Domain?:                  _#defs."/$defs/Properties/definitions/Domain"
-	EndpointDetails?:         _#defs."/$defs/Properties/definitions/EndpointDetails"
-	EndpointType?:            _#defs."/$defs/Properties/definitions/EndpointType"
-	IdentityProviderDetails?: _#defs."/$defs/Properties/definitions/IdentityProviderDetails"
-	IdentityProviderType?:    _#defs."/$defs/Properties/definitions/IdentityProviderType"
-	IpAddressType?:           _#defs."/$defs/Properties/definitions/IpAddressType"
+	Domain?:                  #Domain
+	EndpointDetails?:         #EndpointDetails
+	EndpointType?:            #EndpointType
+	IdentityProviderDetails?: #IdentityProviderDetails
+	IdentityProviderType?:    #IdentityProviderType
+	IpAddressType?:           #IpAddressType
 	LoggingRole?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^(|arn:.*role/\\S+)$" | fn.#StringExpression
 	PostAuthenticationLoginBanner?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[\\x09-\\x0D\\x20-\\x7E]*$" |
 	fn.#StringExpression
 	PreAuthenticationLoginBanner?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[\\x09-\\x0D\\x20-\\x7E]*$" |
 	fn.#StringExpression
-	ProtocolDetails?: _#defs."/$defs/Properties/definitions/ProtocolDetails"
-	Protocols?: list.MaxItems(4) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Protocol"] |
-		fn.#ListExpression
-	S3StorageOptions?: _#defs."/$defs/Properties/definitions/S3StorageOptions"
+	ProtocolDetails?:  #ProtocolDetails
+	Protocols?:        list.MaxItems(4) & list.MinItems(1) & [...#Protocol] | fn.#ListExpression
+	S3StorageOptions?: #S3StorageOptions
 	SecurityPolicyName?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^TransferSecurityPolicy-.+$" |
 	fn.#StringExpression
 	StructuredLogDestinations?: list.MaxItems(1) & [...] & [
 		...strings.MaxRunes(1600) & strings.MinRunes(20) & =~"^arn:\\S+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	WorkflowDetails?: _#defs."/$defs/Properties/definitions/WorkflowDetails"
+	Tags?:            list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	WorkflowDetails?: #WorkflowDetails
 })
 
-_#defs: "/$defs/Properties/definitions/As2Transport": "HTTP" | fn.#StringExpression
+#As2Transport: "HTTP" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DirectoryListingOptimization": "ENABLED" | "DISABLED" | fn.#StringExpression
+#DirectoryListingOptimization: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Domain": "S3" | "EFS" | fn.#StringExpression
+#Domain: "S3" | "EFS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointDetails": close({
+#EndpointDetails: close({
 	AddressAllocationIds?: [...string | fn.#StringExpression] | fn.#ListExpression
 	SecurityGroupIds?: [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
@@ -64,87 +63,65 @@ _#defs: "/$defs/Properties/definitions/EndpointDetails": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EndpointType": "PUBLIC" | "VPC" | "VPC_ENDPOINT" | fn.#StringExpression
+#EndpointType: "PUBLIC" | "VPC" | "VPC_ENDPOINT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IdentityProviderDetails": close({
+#IdentityProviderDetails: close({
 	DirectoryId?:    strings.MaxRunes(12) & strings.MinRunes(12) & =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
 	Function?:       strings.MaxRunes(170) & strings.MinRunes(1) & =~"^arn:[a-z-]+:lambda:.*$" | fn.#StringExpression
 	InvocationRole?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$" | fn.#StringExpression
-	SftpAuthenticationMethods?: _#defs."/$defs/Properties/definitions/SftpAuthenticationMethods"
+	SftpAuthenticationMethods?: #SftpAuthenticationMethods
 	Url?:                       strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IdentityProviderType": "SERVICE_MANAGED" |
-	"API_GATEWAY" |
-	"AWS_DIRECTORY_SERVICE" |
-	"AWS_LAMBDA" |
-	fn.#StringExpression
+#IdentityProviderType: "SERVICE_MANAGED" | "API_GATEWAY" | "AWS_DIRECTORY_SERVICE" | "AWS_LAMBDA" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IpAddressType": "IPV4" | "DUALSTACK" | fn.#StringExpression
+#IpAddressType: "IPV4" | "DUALSTACK" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Protocol": "SFTP" | "FTP" | "FTPS" | "AS2" | fn.#StringExpression
+#Protocol: "SFTP" | "FTP" | "FTPS" | "AS2" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProtocolDetails": close({
-	As2Transports?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/As2Transport"] |
-		fn.#ListExpression
+#ProtocolDetails: close({
+	As2Transports?:            list.MaxItems(1) & list.MinItems(1) & [...#As2Transport] | fn.#ListExpression
 	PassiveIp?:                strings.MaxRunes(15) & strings.MinRunes(0) | fn.#StringExpression
-	ProxyConfig?:              _#defs."/$defs/Properties/definitions/ProxyConfig"
-	SetStatOption?:            _#defs."/$defs/Properties/definitions/SetStatOption"
-	TlsSessionResumptionMode?: _#defs."/$defs/Properties/definitions/TlsSessionResumptionMode"
+	ProxyConfig?:              #ProxyConfig
+	SetStatOption?:            #SetStatOption
+	TlsSessionResumptionMode?: #TlsSessionResumptionMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProxyConfig": close(
-	{SftpMode?: _#defs."/$defs/Properties/definitions/ProxyMode"},
-) |
-	fn.#ObjectExpression
+#ProxyConfig: close({SftpMode?: #ProxyMode}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProxyMode": "PROXY_PROTOCOL_V2_ENFORCED" | "NONE" | fn.#StringExpression
+#ProxyMode: "PROXY_PROTOCOL_V2_ENFORCED" | "NONE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3StorageOptions": close(
-	{DirectoryListingOptimization?: _#defs."/$defs/Properties/definitions/DirectoryListingOptimization"},
-) |
-	fn.#ObjectExpression
+#S3StorageOptions: close({DirectoryListingOptimization?: #DirectoryListingOptimization}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SetStatOption": "DEFAULT" | "ENABLE_NO_OP" | fn.#StringExpression
+#SetStatOption: "DEFAULT" | "ENABLE_NO_OP" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SftpAuthenticationMethods": "PASSWORD" |
+#SftpAuthenticationMethods: "PASSWORD" |
 	"PUBLIC_KEY" |
 	"PUBLIC_KEY_OR_PASSWORD" |
 	"PUBLIC_KEY_AND_PASSWORD" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/State": "OFFLINE" |
-	"ONLINE" |
-	"STARTING" |
-	"STOPPING" |
-	"START_FAILED" |
-	"STOP_FAILED" |
-	fn.#StringExpression
+#State: "OFFLINE" | "ONLINE" | "STARTING" | "STOPPING" | "START_FAILED" | "STOP_FAILED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TlsSessionResumptionMode": "DISABLED" |
-	"ENABLED" |
-	"ENFORCED" |
-	fn.#StringExpression
+#TlsSessionResumptionMode: "DISABLED" | "ENABLED" | "ENFORCED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowDetail": close({
+#WorkflowDetail: close({
 	ExecutionRole!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$" | fn.#StringExpression
 	WorkflowId!:    strings.MaxRunes(19) & strings.MinRunes(19) & =~"^w-([a-z0-9]{17})$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkflowDetails": close({
-	OnPartialUpload?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/WorkflowDetail"] |
-		fn.#ListExpression
-	OnUpload?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/WorkflowDetail"] |
-		fn.#ListExpression
+#WorkflowDetails: close({
+	OnPartialUpload?: list.MaxItems(1) & [...] & [...#WorkflowDetail] | fn.#ListExpression
+	OnUpload?:        list.MaxItems(1) & [...] & [...#WorkflowDetail] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

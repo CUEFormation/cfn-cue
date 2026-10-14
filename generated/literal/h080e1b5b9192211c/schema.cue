@@ -18,36 +18,36 @@ package schema
 // instance.
 #Properties: close({
 	// The device name (for example, ``/dev/sdh`` or ``xvdh``).
-	Device?: _#defs."/$defs/Properties/definitions/Device"
+	Device?: #Device
 
 	// The index of the EBS card. Some instance types support multiple EBS cards.
 	// The default EBS card index is 0.
-	EbsCardIndex?: _#defs."/$defs/Properties/definitions/EbsCardIndex"
+	EbsCardIndex?: #EbsCardIndex
 
 	// The ID of the instance to which the volume attaches. This value can be a
 	// reference to an
 	// [AWS::EC2::Instance](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html)
 	// resource, or it can be the physical ID of an existing EC2 instance.
-	InstanceId!: _#defs."/$defs/Properties/definitions/InstanceId"
+	InstanceId!: #InstanceId
 
 	// The ID of the Amazon EBS volume. The volume and instance must be within the
 	// same Availability Zone. This value can be a reference to an
 	// [AWS::EC2::Volume](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-ebs-volume.html)
 	// resource, or it can be the volume ID of an existing Amazon EBS volume.
-	VolumeId!: _#defs."/$defs/Properties/definitions/VolumeId"
+	VolumeId!: #VolumeId
 })
 
 // The device name
-_#defs: "/$defs/Properties/definitions/Device": string
+#Device: string
 
 // The index of the EBS card. Some instance types support multiple EBS cards.
 // The default EBS card index is 0.
-_#defs: "/$defs/Properties/definitions/EbsCardIndex": int
+#EbsCardIndex: int
 
-_#defs: "/$defs/Properties/definitions/Id": string
+#Id: string
 
 // The ID of the instance to which the volume attaches
-_#defs: "/$defs/Properties/definitions/InstanceId": string
+#InstanceId: string
 
 // The ID of the Amazon EBS volume
-_#defs: "/$defs/Properties/definitions/VolumeId": string
+#VolumeId: string

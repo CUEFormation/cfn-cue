@@ -8,71 +8,71 @@ package schema
 #Properties: close({
 	ApplicationId!: string
 	Arn?:           string
-	Dimensions?:    _#defs."/$defs/Properties/definitions/SegmentDimensions"
+	Dimensions?:    #SegmentDimensions
 	Name!:          string
-	SegmentGroups?: _#defs."/$defs/Properties/definitions/SegmentGroups"
+	SegmentGroups?: #SegmentGroups
 	SegmentId?:     string
 	Tags?:          string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/Behavior": close({Recency?: _#defs."/$defs/Properties/definitions/Recency"})
+#Behavior: close({Recency?: #Recency})
 
-_#defs: "/$defs/Properties/definitions/Coordinates": close({
+#Coordinates: close({
 	Latitude!:  number
 	Longitude!: number
 })
 
-_#defs: "/$defs/Properties/definitions/Demographic": close({
-	AppVersion?: _#defs."/$defs/Properties/definitions/SetDimension"
-	Channel?:    _#defs."/$defs/Properties/definitions/SetDimension"
-	DeviceType?: _#defs."/$defs/Properties/definitions/SetDimension"
-	Make?:       _#defs."/$defs/Properties/definitions/SetDimension"
-	Model?:      _#defs."/$defs/Properties/definitions/SetDimension"
-	Platform?:   _#defs."/$defs/Properties/definitions/SetDimension"
+#Demographic: close({
+	AppVersion?: #SetDimension
+	Channel?:    #SetDimension
+	DeviceType?: #SetDimension
+	Make?:       #SetDimension
+	Model?:      #SetDimension
+	Platform?:   #SetDimension
 })
 
-_#defs: "/$defs/Properties/definitions/GPSPoint": close({
-	Coordinates!:       _#defs."/$defs/Properties/definitions/Coordinates"
+#GPSPoint: close({
+	Coordinates!:       #Coordinates
 	RangeInKilometers!: number
 })
 
-_#defs: "/$defs/Properties/definitions/Groups": close({
-	Dimensions?:     [..._#defs."/$defs/Properties/definitions/SegmentDimensions"]
-	SourceSegments?: [..._#defs."/$defs/Properties/definitions/SourceSegments"]
+#Groups: close({
+	Dimensions?:     [...#SegmentDimensions]
+	SourceSegments?: [...#SourceSegments]
 	SourceType?:     string
 	Type?:           string
 })
 
-_#defs: "/$defs/Properties/definitions/Location": close({
-	Country?:  _#defs."/$defs/Properties/definitions/SetDimension"
-	GPSPoint?: _#defs."/$defs/Properties/definitions/GPSPoint"
+#Location: close({
+	Country?:  #SetDimension
+	GPSPoint?: #GPSPoint
 })
 
-_#defs: "/$defs/Properties/definitions/Recency": close({
+#Recency: close({
 	Duration!:    string
 	RecencyType!: string
 })
 
-_#defs: "/$defs/Properties/definitions/SegmentDimensions": close({
+#SegmentDimensions: close({
 	Attributes?:     string | {...}
-	Behavior?:       _#defs."/$defs/Properties/definitions/Behavior"
-	Demographic?:    _#defs."/$defs/Properties/definitions/Demographic"
-	Location?:       _#defs."/$defs/Properties/definitions/Location"
+	Behavior?:       #Behavior
+	Demographic?:    #Demographic
+	Location?:       #Location
 	Metrics?:        string | {...}
 	UserAttributes?: string | {...}
 })
 
-_#defs: "/$defs/Properties/definitions/SegmentGroups": close({
-	Groups?:  [..._#defs."/$defs/Properties/definitions/Groups"]
+#SegmentGroups: close({
+	Groups?:  [...#Groups]
 	Include?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SetDimension": close({
+#SetDimension: close({
 	DimensionType?: string
 	Values?:        [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/SourceSegments": close({
+#SourceSegments: close({
 	Id!:      string
 	Version?: int
 })

@@ -16,14 +16,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ClusterArn?: =~"^[A-Za-z0-9:\\/_-]*$" | fn.#StringExpression
 	Name!:       strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: [
-		..._#defs."/$defs/Properties/definitions/Tag" & (null | bool | number | string | list.MaxItems(20) | {...}) |
-		fn.#ObjectExpression
-	] |
+	Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
 	fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |

@@ -22,7 +22,7 @@ package schema
 	EnaQueueCount?: int
 
 	// Configures ENA Express for the network interface that this action attaches to the instance.
-	EnaSrdSpecification?: _#defs."/$defs/Properties/definitions/EnaSrdSpecification"
+	EnaSrdSpecification?: #EnaSrdSpecification
 
 	// The ID of the instance to which you will attach the ENI.
 	InstanceId!: string
@@ -42,7 +42,7 @@ package schema
 // applications are designed to handle network packets that are out of order to
 // reduce the overhead for packet delivery at the network layer. When ENA
 // Express is enabled, you can specify whether UDP network traffic uses it.
-_#defs: "/$defs/Properties/definitions/EnaSrdSpecification": close({
+#EnaSrdSpecification: close({
 	// Indicates whether ENA Express is enabled for the network interface.
 	EnaSrdEnabled?: bool
 

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -13,10 +13,10 @@ import (
 #Properties: close({
 	// The time at which the project was created.
 	CreationTime?:       string
-	ProjectArn?:         _#defs."/$defs/Properties/definitions/ProjectArn"
-	ProjectDescription?: _#defs."/$defs/Properties/definitions/ProjectDescription"
-	ProjectId?:          _#defs."/$defs/Properties/definitions/ProjectId"
-	ProjectName!:        _#defs."/$defs/Properties/definitions/ProjectName"
+	ProjectArn?:         #ProjectArn
+	ProjectDescription?: #ProjectDescription
+	ProjectId?:          #ProjectId
+	ProjectName!:        #ProjectName
 
 	// The status of a project.
 	ProjectStatus?: "Pending" |
@@ -29,27 +29,25 @@ import (
 
 	// Provisioned ServiceCatalog Details
 	ServiceCatalogProvisionedProductDetails?: close({
-		ProvisionedProductId?:            _#defs."/$defs/Properties/definitions/ProvisioningArtifactId"
-		ProvisionedProductStatusMessage?: _#defs."/$defs/Properties/definitions/ProvisionedProductStatusMessage"
+		ProvisionedProductId?:            #ProvisioningArtifactId
+		ProvisionedProductStatusMessage?: #ProvisionedProductStatusMessage
 	})
 
 	// Input ServiceCatalog Provisioning Details
 	ServiceCatalogProvisioningDetails?: close({
-		PathId?:                 _#defs."/$defs/Properties/definitions/PathId"
-		ProductId!:              _#defs."/$defs/Properties/definitions/ProductId"
-		ProvisioningArtifactId?: _#defs."/$defs/Properties/definitions/ProvisioningArtifactId"
+		PathId?:                 #PathId
+		ProductId!:              #ProductId
+		ProvisioningArtifactId?: #ProvisioningArtifactId
 
 		// Parameters specified by the administrator that are required for provisioning the product.
-		ProvisioningParameters?: [..._#defs."/$defs/Properties/definitions/ProvisioningParameter"]
+		ProvisioningParameters?: [...#ProvisioningParameter]
 	})
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(40) & [...] & [...#Tag]
 
 	// An array of template providers associated with the project.
-	TemplateProviderDetails?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TemplateProviderDetail"
-	]
+	TemplateProviderDetails?: list.MaxItems(1) & list.MinItems(1) & [...#TemplateProviderDetail]
 	if ServiceCatalogProvisioningDetails != _|_ {
 		TemplateProviderDetails?: error(
 			"TemplateProviderDetails cannot be used with ServiceCatalogProvisioningDetails; set exactly one of ServiceCatalogProvisioningDetails, TemplateProviderDetails",
@@ -57,7 +55,7 @@ import (
 	}
 }) & matchN(>=1, [{ServiceCatalogProvisioningDetails!: _}, {TemplateProviderDetails!: _}])
 
-_#defs: "/$defs/Properties/definitions/CfnStackParameter": close({
+#CfnStackParameter: close({
 	// The key of the parameter.
 	Key!: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -66,13 +64,11 @@ _#defs: "/$defs/Properties/definitions/CfnStackParameter": close({
 })
 
 // A list of parameters used in the CloudFormation template.
-_#defs: "/$defs/Properties/definitions/CfnStackParameters": list.MaxItems(180) & [...] & [
-	..._#defs."/$defs/Properties/definitions/CfnStackParameter"
-]
+#CfnStackParameters: list.MaxItems(180) & [...] & [...#CfnStackParameter]
 
 // CloudFormation template provider details for a SageMaker project.
-_#defs: "/$defs/Properties/definitions/CfnTemplateProviderDetail": close({
-	Parameters?: _#defs."/$defs/Properties/definitions/CfnStackParameters"
+#CfnTemplateProviderDetail: close({
+	Parameters?: #CfnStackParameters
 
 	// The Amazon Resource Name (ARN) of the IAM role used by the template provider.
 	RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -88,41 +84,33 @@ _#defs: "/$defs/Properties/definitions/CfnTemplateProviderDetail": close({
 })
 
 // The path identifier of the product.
-_#defs: "/$defs/Properties/definitions/PathId": strings.MaxRunes(100) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
+#PathId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
 
 // Service Catalog product identifier.
-_#defs: "/$defs/Properties/definitions/ProductId": strings.MaxRunes(100) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
+#ProductId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
 
 // The Amazon Resource Name (ARN) of the Project.
-_#defs: "/$defs/Properties/definitions/ProjectArn": strings.MaxRunes(2048) &
+#ProjectArn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:project.*"
 
 // The description of the project.
-_#defs: "/$defs/Properties/definitions/ProjectDescription": strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*"
+#ProjectDescription: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*"
 
 // Project Id.
-_#defs: "/$defs/Properties/definitions/ProjectId": strings.MaxRunes(20) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*"
+#ProjectId: strings.MaxRunes(20) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*"
 
 // The name of the project.
-_#defs: "/$defs/Properties/definitions/ProjectName": strings.MaxRunes(32) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
+#ProjectName: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
 
 // Provisioned Product Status Message
-_#defs: "/$defs/Properties/definitions/ProvisionedProductStatusMessage": string
+#ProvisionedProductStatusMessage: string
 
 // The identifier of the provisioning artifact (also known as a version).
-_#defs: "/$defs/Properties/definitions/ProvisioningArtifactId": strings.MaxRunes(100) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
+#ProvisioningArtifactId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$"
 
 // Information about a parameter used to provision a product.
-_#defs: "/$defs/Properties/definitions/ProvisioningParameter": close({
+#ProvisioningParameter: close({
 	// The parameter key.
 	Key!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~".*"
 
@@ -131,7 +119,7 @@ _#defs: "/$defs/Properties/definitions/ProvisioningParameter": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -146,6 +134,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Details about the template provider for the SageMaker project.
-_#defs: "/$defs/Properties/definitions/TemplateProviderDetail": close(
-	{CfnTemplateProviderDetail?: _#defs."/$defs/Properties/definitions/CfnTemplateProviderDetail"},
-) & matchN(>=1, [{CfnTemplateProviderDetail!: _}])
+#TemplateProviderDetail: close({CfnTemplateProviderDetail?: #CfnTemplateProviderDetail}) & matchN(
+	>=1,
+	[{CfnTemplateProviderDetail!: _}],
+)

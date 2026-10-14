@@ -21,19 +21,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	AssertionEncryptionMode?: "Allowed" | "Required" | fn.#StringExpression
 	Name?:                    strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w._-]+" | fn.#StringExpression
-	PrivateKeyList?: list.MaxItems(2) & [..._#defs."/$defs/Properties/definitions/SAMLPrivateKey"] | fn.#ListExpression
-	RemovePrivateKey?:     strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+" | fn.#StringExpression
-	SamlMetadataDocument?: strings.MaxRunes(10000000) & strings.MinRunes(1000) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	PrivateKeyList?:          list.MaxItems(2) & [...#SAMLPrivateKey] | fn.#ListExpression
+	RemovePrivateKey?:        strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+" | fn.#StringExpression
+	SamlMetadataDocument?:    strings.MaxRunes(10000000) & strings.MinRunes(1000) | fn.#StringExpression
+	Tags?:                    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/SAMLPrivateKey": close({
+#SAMLPrivateKey: close({
 	KeyId!:     strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+" | fn.#StringExpression
 	Timestamp!: time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
 }) |

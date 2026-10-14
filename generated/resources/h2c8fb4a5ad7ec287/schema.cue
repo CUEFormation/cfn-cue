@@ -23,17 +23,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CronExpression?: string | fn.#StringExpression
 	Name?:           string | fn.#StringExpression
-	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TimeRanges?:     [..._#defs."/$defs/Properties/definitions/TimeRange"] | fn.#ListExpression
+	Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	TimeRanges?:     [...#TimeRange] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeRange": close({
+#TimeRange: close({
 	EndHour?: int & <=23 & >=0 |
 		{
 			string &

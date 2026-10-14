@@ -29,9 +29,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 	IamInstanceProfileArn!: =~"^arn:aws([a-zA-Z-]{0,10})?:iam::[0-9]{12}:instance-profile/.{1,128}$" |
 		fn.#StringExpression
-	InstanceConfigs!:      [..._#defs."/$defs/Properties/definitions/InstanceConfig"] | fn.#ListExpression
+	InstanceConfigs!:      [...#InstanceConfig] | fn.#ListExpression
 	Name?:                 string | fn.#StringExpression
-	NodeLifecycleActions?: _#defs."/$defs/Properties/definitions/NodeLifecycleActions"
+	NodeLifecycleActions?: #NodeLifecycleActions
 	PurchaseOption?: "ONDEMAND" |
 		"SPOT" |
 		"CAPACITY_BLOCK" |
@@ -75,7 +75,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression
 	SlurmConfiguration?: close({
-		GresCustomSettings?: [..._#defs."/$defs/Properties/definitions/GresCustomSetting"] | fn.#ListExpression
+		GresCustomSettings?: [...#GresCustomSetting] | fn.#ListExpression
 		ScaleDownIdleTimeInSeconds?: int & <=10000000 & >=1 |
 			{
 				string &
@@ -94,14 +94,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SlurmCustomSettings?: [..._#defs."/$defs/Properties/definitions/SlurmCustomSetting"] | fn.#ListExpression
+		SlurmCustomSettings?: [...#SlurmCustomSetting] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 	SpotOptions?: close(
 		{AllocationStrategy?: "lowest-price" | "capacity-optimized" | "price-capacity-optimized" | fn.#StringExpression},
 	) |
 		fn.#ObjectExpression
-	SubnetIds!: [..._#defs."/$defs/Properties/definitions/SubnetId"] | fn.#ListExpression
+	SubnetIds!: [...#SubnetId] | fn.#ListExpression
 	Tags?: null |
 	bool |
 	number |
@@ -113,46 +113,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ValueExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ErrorInfo": close({
+#ErrorInfo: close({
 	Code?:    string | fn.#StringExpression
 	Message?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GresCustomSetting": close({
+#GresCustomSetting: close({
 
 	{[=~"^.+$"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceConfig": close({InstanceType?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#InstanceConfig: close({InstanceType?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeLifecycleActions": close({
+#NodeLifecycleActions: close({
 	ScriptCachingPolicy?: "CACHE_ONCE" | "REFRESH_ON_REBOOT" | fn.#StringExpression
-	Stages!:              _#defs."/$defs/Properties/definitions/NodeLifecycleStages"
+	Stages!:              #NodeLifecycleStages
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeLifecycleScript": close({
+#NodeLifecycleScript: close({
 	Arguments?:       list.MaxItems(20) & [...strings.MaxRunes(256) | fn.#StringExpression] | fn.#ListExpression
 	ExecutionPolicy?: "FIRST_BOOT_ONLY" | "EVERY_BOOT" | fn.#StringExpression
 	Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9 _-]*$" | fn.#StringExpression
 	OnError?:      "TERMINATE" | "STOP_SEQUENCE" | "CONTINUE" | fn.#StringExpression
-	ScriptSource!: _#defs."/$defs/Properties/definitions/ScriptSource"
+	ScriptSource!: #ScriptSource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NodeLifecycleStages": close({
-	NodeBootstrapped?: list.MaxItems(20) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/NodeLifecycleScript"
-	] |
-		fn.#ListExpression
-	NodeReady?: list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/NodeLifecycleScript"] |
-		fn.#ListExpression
+#NodeLifecycleStages: close({
+	NodeBootstrapped?: list.MaxItems(20) & list.MinItems(1) & [...#NodeLifecycleScript] | fn.#ListExpression
+	NodeReady?:        list.MaxItems(20) & list.MinItems(1) & [...#NodeLifecycleScript] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScriptSource": close({
+#ScriptSource: close({
 	Checksum?:    strings.MaxRunes(64) & strings.MinRunes(64) & =~"^[a-fA-F0-9]{64}$" | fn.#StringExpression
 	S3VersionId?: strings.MaxRunes(1024) | fn.#StringExpression
 	ScriptLocation!: strings.MaxRunes(1024) &
@@ -162,15 +157,15 @@ _#defs: "/$defs/Properties/definitions/ScriptSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupId": string | fn.#StringExpression
+#SecurityGroupId: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SlurmCustomSetting": close({
+#SlurmCustomSetting: close({
 	ParameterName!:  string | fn.#StringExpression
 	ParameterValue!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SubnetId": string | fn.#StringExpression
+#SubnetId: string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::PCS::ComputeNodeGroup"
 	Properties!: #Properties

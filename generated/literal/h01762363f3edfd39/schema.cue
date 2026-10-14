@@ -7,7 +7,7 @@ package schema
 // Resource Type definition for AWS::MediaConnect::FlowSource
 #Properties: close({
 	// The type of encryption that is used on the content ingested from this source.
-	Decryption?: _#defs."/$defs/Properties/definitions/Encryption"
+	Decryption?: #Encryption
 
 	// A description for the source. This value is not used or seen outside of the
 	// current AWS Elemental MediaConnect account.
@@ -23,7 +23,7 @@ package schema
 	FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$"
 
 	// The source configuration for cloud flows receiving a stream from a bridge.
-	GatewayBridgeSource?: _#defs."/$defs/Properties/definitions/GatewayBridgeSource"
+	GatewayBridgeSource?: #GatewayBridgeSource
 
 	// The IP address that the flow will be listening on for incoming content.
 	IngestIp?: string
@@ -72,7 +72,7 @@ package schema
 	StreamId?: string
 
 	// Key-value pairs that can be used to tag and organize this flow source.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The name of the VPC Interface this Source is configured with.
 	VpcInterfaceName?: string
@@ -84,7 +84,7 @@ package schema
 })
 
 // Information about the encryption of the flow.
-_#defs: "/$defs/Properties/definitions/Encryption": close({
+#Encryption: close({
 	// The type of algorithm that is used for the encryption (such as aes128, aes192, or aes256).
 	Algorithm?: "aes128" | "aes192" | "aes256"
 
@@ -130,21 +130,21 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 })
 
 // The source configuration for cloud flows receiving a stream from a bridge.
-_#defs: "/$defs/Properties/definitions/GatewayBridgeSource": close({
+#GatewayBridgeSource: close({
 	// The ARN of the bridge feeding this flow.
 	BridgeArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:bridge:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$"
 
 	// The name of the VPC interface attachment to use for this bridge source.
-	VpcInterfaceAttachment?: _#defs."/$defs/Properties/definitions/VpcInterfaceAttachment"
+	VpcInterfaceAttachment?: #VpcInterfaceAttachment
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
 // The settings for attaching a VPC interface to an resource.
-_#defs: "/$defs/Properties/definitions/VpcInterfaceAttachment": close({
+#VpcInterfaceAttachment: close({
 	// The name of the VPC interface to use for this resource.
 	VpcInterfaceName?: string
 })

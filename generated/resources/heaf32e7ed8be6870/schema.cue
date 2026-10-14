@@ -18,12 +18,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	ExpireDate?:  string | fn.#StringExpression
-	MuteTargets?: close({
-		AlarmNames!: list.MaxItems(500) & list.UniqueItems() & [...] & [
-			..._#defs."/$defs/Properties/definitions/AlarmName"
-		] |
-			fn.#ListExpression
-	}) |
+	MuteTargets?: close(
+		{AlarmNames!: list.MaxItems(500) & list.UniqueItems() & [...] & [...#AlarmName] | fn.#ListExpression},
+	) |
 		fn.#ObjectExpression
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Rule!: close({
@@ -36,12 +33,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression
 	StartDate?: string | fn.#StringExpression
-	Tags?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AlarmName": strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#AlarmName: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

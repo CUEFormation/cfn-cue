@@ -6,12 +6,12 @@ package schema
 
 // Resource Type definition for AWS::WAFRegional::IPSet
 #Properties: close({
-	IPSetDescriptors?: [..._#defs."/$defs/Properties/definitions/IPSetDescriptor"]
+	IPSetDescriptors?: [...#IPSetDescriptor]
 	Id?:               string
 	Name!:             string
 })
 
-_#defs: "/$defs/Properties/definitions/IPSetDescriptor": close({
+#IPSetDescriptor: close({
 	Type!:  string
 	Value!: string
 })

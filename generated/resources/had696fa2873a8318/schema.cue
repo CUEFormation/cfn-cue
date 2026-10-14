@@ -20,8 +20,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::BedrockAgentCore::Memory
 #Properties: close({
-	Description?:      _#defs."/$defs/Properties/definitions/Description"
-	EncryptionKeyArn?: _#defs."/$defs/Properties/definitions/Arn"
+	Description?:      #Description
+	EncryptionKeyArn?: #Arn
 	EventExpiryDuration!: int & <=365 & >=3 |
 		{
 			string &
@@ -38,8 +38,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	IndexedKeys?: _#defs."/$defs/Properties/definitions/IndexedKeysList"
-	MemoryExecutionRoleArn?: _#defs."/$defs/Properties/definitions/Arn" &
+	IndexedKeys?: #IndexedKeysList
+	MemoryExecutionRoleArn?: #Arn &
 	(null |
 	bool |
 	number |
@@ -49,100 +49,96 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	MemoryStrategies?: [...struct.MaxFields(1) & struct.MinFields(1) & close({
 		CustomMemoryStrategy?: close({
-			Configuration?:      _#defs."/$defs/Properties/definitions/CustomConfigurationInput"
-			Description?:        _#defs."/$defs/Properties/definitions/Description"
-			MemoryRecordSchema?: _#defs."/$defs/Properties/definitions/MemoryRecordSchema"
-			Name!:               _#defs."/$defs/Properties/definitions/Name"
-			NamespaceTemplates?: _#defs."/$defs/Properties/definitions/NamespacesList"
-			Namespaces?:         _#defs."/$defs/Properties/definitions/NamespacesList"
+			Configuration?:      #CustomConfigurationInput
+			Description?:        #Description
+			MemoryRecordSchema?: #MemoryRecordSchema
+			Name!:               #Name
+			NamespaceTemplates?: #NamespacesList
+			Namespaces?:         #NamespacesList
 		}) |
 		fn.#ObjectExpression
 		EpisodicMemoryStrategy?: close({
-			Description?:             _#defs."/$defs/Properties/definitions/Description"
-			MemoryRecordSchema?:      _#defs."/$defs/Properties/definitions/MemoryRecordSchema"
-			Name!:                    _#defs."/$defs/Properties/definitions/Name"
-			NamespaceTemplates?:      _#defs."/$defs/Properties/definitions/NamespacesList"
-			Namespaces?:              _#defs."/$defs/Properties/definitions/NamespacesList"
-			ReflectionConfiguration?: _#defs."/$defs/Properties/definitions/EpisodicReflectionConfigurationInput"
+			Description?:             #Description
+			MemoryRecordSchema?:      #MemoryRecordSchema
+			Name!:                    #Name
+			NamespaceTemplates?:      #NamespacesList
+			Namespaces?:              #NamespacesList
+			ReflectionConfiguration?: #EpisodicReflectionConfigurationInput
 		}) |
 		fn.#ObjectExpression
 		SemanticMemoryStrategy?: close({
-			Description?:        _#defs."/$defs/Properties/definitions/Description"
-			MemoryRecordSchema?: _#defs."/$defs/Properties/definitions/MemoryRecordSchema"
-			Name!:               _#defs."/$defs/Properties/definitions/Name"
-			NamespaceTemplates?: _#defs."/$defs/Properties/definitions/NamespacesList"
-			Namespaces?:         _#defs."/$defs/Properties/definitions/NamespacesList"
+			Description?:        #Description
+			MemoryRecordSchema?: #MemoryRecordSchema
+			Name!:               #Name
+			NamespaceTemplates?: #NamespacesList
+			Namespaces?:         #NamespacesList
 		}) |
 		fn.#ObjectExpression
 		SummaryMemoryStrategy?: close({
-			Description?:        _#defs."/$defs/Properties/definitions/Description"
-			MemoryRecordSchema?: _#defs."/$defs/Properties/definitions/MemoryRecordSchema"
-			Name!:               _#defs."/$defs/Properties/definitions/Name"
-			NamespaceTemplates?: _#defs."/$defs/Properties/definitions/NamespacesList"
-			Namespaces?:         _#defs."/$defs/Properties/definitions/NamespacesList"
+			Description?:        #Description
+			MemoryRecordSchema?: #MemoryRecordSchema
+			Name!:               #Name
+			NamespaceTemplates?: #NamespacesList
+			Namespaces?:         #NamespacesList
 		}) |
 		fn.#ObjectExpression
 		UserPreferenceMemoryStrategy?: close({
-			Description?:        _#defs."/$defs/Properties/definitions/Description"
-			MemoryRecordSchema?: _#defs."/$defs/Properties/definitions/MemoryRecordSchema"
-			Name!:               _#defs."/$defs/Properties/definitions/Name"
-			NamespaceTemplates?: _#defs."/$defs/Properties/definitions/NamespacesList"
-			Namespaces?:         _#defs."/$defs/Properties/definitions/NamespacesList"
+			Description?:        #Description
+			MemoryRecordSchema?: #MemoryRecordSchema
+			Name!:               #Name
+			NamespaceTemplates?: #NamespacesList
+			Namespaces?:         #NamespacesList
 		}) |
 		fn.#ObjectExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	Name!:                    _#defs."/$defs/Properties/definitions/Name"
-	NamespaceKeys?:           _#defs."/$defs/Properties/definitions/NamespaceKeysList"
-	StreamDeliveryResources?: _#defs."/$defs/Properties/definitions/StreamDeliveryResources"
-	Tags?:                    _#defs."/$defs/Properties/definitions/TagsMap"
+	Name!:                    #Name
+	NamespaceKeys?:           #NamespaceKeysList
+	StreamDeliveryResources?: #StreamDeliveryResources
+	Tags?:                    #TagsMap
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": string | fn.#StringExpression
+#Arn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ConsolidationConfiguration": fn.#Object &
-{...} &
-_#defs."/$defs/Properties/definitions/CustomConsolidationConfiguration" &
-{...} |
-fn.#ObjectExpression
+#ConsolidationConfiguration: fn.#Object & {...} & #CustomConsolidationConfiguration & {...} | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ContentConfiguration": close({
+#ContentConfiguration: close({
 	Level?: "METADATA_ONLY" | "FULL_CONTENT" | fn.#StringExpression
 	Type!:  "MEMORY_RECORDS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomConfigurationInput": struct.MaxFields(1) & struct.MinFields(1) & close({
-	EpisodicOverride?:         _#defs."/$defs/Properties/definitions/EpisodicOverride"
-	SelfManagedConfiguration?: _#defs."/$defs/Properties/definitions/SelfManagedConfiguration"
-	SemanticOverride?:         _#defs."/$defs/Properties/definitions/SemanticOverride"
-	SummaryOverride?:          _#defs."/$defs/Properties/definitions/SummaryOverride"
-	UserPreferenceOverride?:   _#defs."/$defs/Properties/definitions/UserPreferenceOverride"
+#CustomConfigurationInput: struct.MaxFields(1) & struct.MinFields(1) & close({
+	EpisodicOverride?:         #EpisodicOverride
+	SelfManagedConfiguration?: #SelfManagedConfiguration
+	SemanticOverride?:         #SemanticOverride
+	SummaryOverride?:          #SummaryOverride
+	UserPreferenceOverride?:   #UserPreferenceOverride
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomConsolidationConfiguration": fn.#Object & {...} & matchN(1, [
-	_#defs."/$defs/Properties/definitions/SemanticConsolidationOverride" & {...},
-	_#defs."/$defs/Properties/definitions/SummaryConsolidationOverride" & {...},
-	_#defs."/$defs/Properties/definitions/UserPreferenceConsolidationOverride" & {...}
+#CustomConsolidationConfiguration: fn.#Object & {...} & matchN(1, [
+	#SemanticConsolidationOverride & {...},
+	#SummaryConsolidationOverride & {...},
+	#UserPreferenceConsolidationOverride & {...}
 ]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomExtractionConfiguration": fn.#Object & {...} & matchN(1, [
-	_#defs."/$defs/Properties/definitions/SemanticExtractionOverride" & {...},
-	_#defs."/$defs/Properties/definitions/UserPreferenceExtractionOverride" & {...}
+#CustomExtractionConfiguration: fn.#Object & {...} & matchN(1, [
+	#SemanticExtractionOverride & {...},
+	#UserPreferenceExtractionOverride & {...}
 ]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomMemoryStrategy": close({
-	Configuration?:      _#defs."/$defs/Properties/definitions/CustomConfigurationInput"
+#CustomMemoryStrategy: close({
+	Configuration?:      #CustomConfigurationInput
 	CreatedAt?:          time.Time | fn.#StringExpression
-	Description?:        _#defs."/$defs/Properties/definitions/Description"
-	MemoryRecordSchema?: _#defs."/$defs/Properties/definitions/MemoryRecordSchema"
-	Name!:               _#defs."/$defs/Properties/definitions/Name"
-	NamespaceTemplates?: _#defs."/$defs/Properties/definitions/NamespacesList"
-	Namespaces?:         _#defs."/$defs/Properties/definitions/NamespacesList"
+	Description?:        #Description
+	MemoryRecordSchema?: #MemoryRecordSchema
+	Name!:               #Name
+	NamespaceTemplates?: #NamespacesList
+	Namespaces?:         #NamespacesList
 	Status?:             "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | fn.#StringExpression
 	StrategyId?:         strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
 	Type?:               "SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "CUSTOM" | "EPISODIC" | fn.#StringExpression
@@ -150,18 +146,18 @@ _#defs: "/$defs/Properties/definitions/CustomMemoryStrategy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Definition": strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+#Definition: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Description": string | fn.#StringExpression
+#Description: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EpisodicMemoryStrategy": close({
+#EpisodicMemoryStrategy: close({
 	CreatedAt?:               time.Time | fn.#StringExpression
-	Description?:             _#defs."/$defs/Properties/definitions/Description"
-	MemoryRecordSchema?:      _#defs."/$defs/Properties/definitions/MemoryRecordSchema"
-	Name!:                    _#defs."/$defs/Properties/definitions/Name"
-	NamespaceTemplates?:      _#defs."/$defs/Properties/definitions/NamespacesList"
-	Namespaces?:              _#defs."/$defs/Properties/definitions/NamespacesList"
-	ReflectionConfiguration?: _#defs."/$defs/Properties/definitions/EpisodicReflectionConfigurationInput"
+	Description?:             #Description
+	MemoryRecordSchema?:      #MemoryRecordSchema
+	Name!:                    #Name
+	NamespaceTemplates?:      #NamespacesList
+	Namespaces?:              #NamespacesList
+	ReflectionConfiguration?: #EpisodicReflectionConfigurationInput
 	Status?:                  "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | fn.#StringExpression
 	StrategyId?: strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
 	Type?:       "SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "CUSTOM" | "EPISODIC" | fn.#StringExpression
@@ -169,68 +165,59 @@ _#defs: "/$defs/Properties/definitions/EpisodicMemoryStrategy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EpisodicOverride": close({
-	Consolidation?: _#defs."/$defs/Properties/definitions/EpisodicOverrideConsolidationConfigurationInput"
-	Extraction?:    _#defs."/$defs/Properties/definitions/EpisodicOverrideExtractionConfigurationInput"
-	Reflection?:    _#defs."/$defs/Properties/definitions/EpisodicOverrideReflectionConfigurationInput"
+#EpisodicOverride: close({
+	Consolidation?: #EpisodicOverrideConsolidationConfigurationInput
+	Extraction?:    #EpisodicOverrideExtractionConfigurationInput
+	Reflection?:    #EpisodicOverrideReflectionConfigurationInput
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EpisodicOverrideConsolidationConfigurationInput": close({
-	AppendToPrompt!: _#defs."/$defs/Properties/definitions/Prompt"
+#EpisodicOverrideConsolidationConfigurationInput: close({
+	AppendToPrompt!: #Prompt
 	ModelId!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EpisodicOverrideExtractionConfigurationInput": close({
-	AppendToPrompt!: _#defs."/$defs/Properties/definitions/Prompt"
+#EpisodicOverrideExtractionConfigurationInput: close({
+	AppendToPrompt!: #Prompt
 	ModelId!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EpisodicOverrideReflectionConfigurationInput": close({
-	AppendToPrompt!:     _#defs."/$defs/Properties/definitions/Prompt"
-	MemoryRecordSchema?: _#defs."/$defs/Properties/definitions/MemoryRecordSchema"
+#EpisodicOverrideReflectionConfigurationInput: close({
+	AppendToPrompt!:     #Prompt
+	MemoryRecordSchema?: #MemoryRecordSchema
 	ModelId!:            string | fn.#StringExpression
-	NamespaceTemplates?: _#defs."/$defs/Properties/definitions/NamespacesList"
-	Namespaces?:         _#defs."/$defs/Properties/definitions/NamespacesList"
+	NamespaceTemplates?: #NamespacesList
+	Namespaces?:         #NamespacesList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EpisodicReflectionConfigurationInput": close({
-	MemoryRecordSchema?: _#defs."/$defs/Properties/definitions/MemoryRecordSchema"
-	NamespaceTemplates?: _#defs."/$defs/Properties/definitions/NamespacesList"
-	Namespaces?:         _#defs."/$defs/Properties/definitions/NamespacesList"
+#EpisodicReflectionConfigurationInput: close({
+	MemoryRecordSchema?: #MemoryRecordSchema
+	NamespaceTemplates?: #NamespacesList
+	Namespaces?:         #NamespacesList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExtractionConfig": struct.MaxFields(1) & struct.MinFields(1) & close(
-	{LlmExtractionConfig?: _#defs."/$defs/Properties/definitions/LlmExtractionConfig"},
-) |
+#ExtractionConfig: struct.MaxFields(1) & struct.MinFields(1) & close({LlmExtractionConfig?: #LlmExtractionConfig}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExtractionConfiguration": fn.#Object &
-{...} &
-_#defs."/$defs/Properties/definitions/CustomExtractionConfiguration" &
-{...} |
-fn.#ObjectExpression
+#ExtractionConfiguration: fn.#Object & {...} & #CustomExtractionConfiguration & {...} | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExtractionType": "LLM_INFERRED" | "STRICTLY_CONSISTENT" | fn.#StringExpression
+#ExtractionType: "LLM_INFERRED" | "STRICTLY_CONSISTENT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IndexedKey": close({
-	Key!:  _#defs."/$defs/Properties/definitions/MetadataKey"
-	Type!: _#defs."/$defs/Properties/definitions/MetadataValueType"
+#IndexedKey: close({
+	Key!:  #MetadataKey
+	Type!: #MetadataValueType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IndexedKeysList": list.MaxItems(10) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/IndexedKey"
-] |
-	fn.#ListExpression
+#IndexedKeysList: list.MaxItems(10) & list.MinItems(1) & [...#IndexedKey] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/InvocationConfigurationInput": close({
+#InvocationConfigurationInput: close({
 	PayloadDeliveryBucketName?: =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" | fn.#StringExpression
-	TopicArn?: _#defs."/$defs/Properties/definitions/Arn" &
+	TopicArn?: #Arn &
 	(null |
 	bool |
 	number |
@@ -241,56 +228,42 @@ _#defs: "/$defs/Properties/definitions/InvocationConfigurationInput": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisResource": close({
-	ContentConfigurations!: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ContentConfiguration"
-	] |
-		fn.#ListExpression
-	DataStreamArn!: _#defs."/$defs/Properties/definitions/Arn"
+#KinesisResource: close({
+	ContentConfigurations!: list.MaxItems(1) & list.MinItems(1) & [...#ContentConfiguration] | fn.#ListExpression
+	DataStreamArn!:         #Arn
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LlmExtractionConfig": close({
-	Definition!:               _#defs."/$defs/Properties/definitions/Definition"
-	LlmExtractionInstruction?: _#defs."/$defs/Properties/definitions/LlmExtractionInstruction"
-	Validation?:               _#defs."/$defs/Properties/definitions/Validation"
+#LlmExtractionConfig: close({
+	Definition!:               #Definition
+	LlmExtractionInstruction?: #LlmExtractionInstruction
+	Validation?:               #Validation
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LlmExtractionInstruction": strings.MaxRunes(1000) & strings.MinRunes(1) |
-fn.#StringExpression
+#LlmExtractionInstruction: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryArn": =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:memory/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
+#MemoryArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:memory/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryId": strings.MinRunes(12) &
-=~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
-fn.#StringExpression
+#MemoryId: strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryRecordSchema": close(
-	{MetadataSchema?: _#defs."/$defs/Properties/definitions/MetadataSchemaList"},
-) |
-	fn.#ObjectExpression
+#MemoryRecordSchema: close({MetadataSchema?: #MetadataSchemaList}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryStatus": "CREATING" |
-	"ACTIVE" |
-	"FAILED" |
-	"DELETING" |
-	fn.#StringExpression
+#MemoryStatus: "CREATING" | "ACTIVE" | "FAILED" | "DELETING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryStrategies": [..._#defs."/$defs/Properties/definitions/MemoryStrategy"] |
-	fn.#ListExpression
+#MemoryStrategies: [...#MemoryStrategy] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryStrategy": struct.MaxFields(1) & struct.MinFields(1) & close({
-	CustomMemoryStrategy?:         _#defs."/$defs/Properties/definitions/CustomMemoryStrategy"
-	EpisodicMemoryStrategy?:       _#defs."/$defs/Properties/definitions/EpisodicMemoryStrategy"
-	SemanticMemoryStrategy?:       _#defs."/$defs/Properties/definitions/SemanticMemoryStrategy"
-	SummaryMemoryStrategy?:        _#defs."/$defs/Properties/definitions/SummaryMemoryStrategy"
-	UserPreferenceMemoryStrategy?: _#defs."/$defs/Properties/definitions/UserPreferenceMemoryStrategy"
+#MemoryStrategy: struct.MaxFields(1) & struct.MinFields(1) & close({
+	CustomMemoryStrategy?:         #CustomMemoryStrategy
+	EpisodicMemoryStrategy?:       #EpisodicMemoryStrategy
+	SemanticMemoryStrategy?:       #SemanticMemoryStrategy
+	SummaryMemoryStrategy?:        #SummaryMemoryStrategy
+	UserPreferenceMemoryStrategy?: #UserPreferenceMemoryStrategy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MessageBasedTriggerInput": close({
+#MessageBasedTriggerInput: close({
 	MessageCount?: int & <=50 & >=1 |
 		{
 			string &
@@ -310,68 +283,47 @@ _#defs: "/$defs/Properties/definitions/MessageBasedTriggerInput": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataKey": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-fn.#StringExpression
+#MetadataKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataSchemaEntry": close({
-	ExtractionConfig?: _#defs."/$defs/Properties/definitions/ExtractionConfig"
-	ExtractionType?:   _#defs."/$defs/Properties/definitions/ExtractionType"
-	Key!:              _#defs."/$defs/Properties/definitions/MetadataKey"
-	Type?:             _#defs."/$defs/Properties/definitions/MetadataValueType"
+#MetadataSchemaEntry: close({
+	ExtractionConfig?: #ExtractionConfig
+	ExtractionType?:   #ExtractionType
+	Key!:              #MetadataKey
+	Type?:             #MetadataValueType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataSchemaList": list.MaxItems(20) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/MetadataSchemaEntry"
-] |
-	fn.#ListExpression
+#MetadataSchemaList: list.MaxItems(20) & list.MinItems(1) & [...#MetadataSchemaEntry] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataValueType": "STRING" | "STRINGLIST" | "NUMBER" | fn.#StringExpression
+#MetadataValueType: "STRING" | "STRINGLIST" | "NUMBER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Name": =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+#Name: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Namespace": =~"^[a-zA-Z0-9\\-_/]*(\\{[a-zA-Z][a-zA-Z0-9]*\\}[a-zA-Z0-9\\-_/]*)*$" |
-	fn.#StringExpression
+#Namespace: =~"^[a-zA-Z0-9\\-_/]*(\\{[a-zA-Z][a-zA-Z0-9]*\\}[a-zA-Z0-9\\-_/]*)*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NamespaceAllowedValue": strings.MaxRunes(64) &
-strings.MinRunes(1) &
-=~"^[a-z0-9][a-z0-9-_]*$" |
-fn.#StringExpression
+#NamespaceAllowedValue: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9][a-z0-9-_]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NamespaceKeyEntry": close({
-	Key!:        _#defs."/$defs/Properties/definitions/NamespaceVariableKey"
-	Validation?: _#defs."/$defs/Properties/definitions/NamespaceKeyValidation"
+#NamespaceKeyEntry: close({
+	Key!:        #NamespaceVariableKey
+	Validation?: #NamespaceKeyValidation
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NamespaceKeyValidation": close({
-	AllowedValues?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/NamespaceAllowedValue"
-	] |
-		fn.#ListExpression
-	RegexPattern?: _#defs."/$defs/Properties/definitions/NamespaceRegexPattern"
+#NamespaceKeyValidation: close({
+	AllowedValues?: list.MaxItems(10) & list.MinItems(1) & [...#NamespaceAllowedValue] | fn.#ListExpression
+	RegexPattern?:  #NamespaceRegexPattern
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NamespaceKeysList": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/NamespaceKeyEntry"
-] |
-	fn.#ListExpression
+#NamespaceKeysList: list.MaxItems(5) & list.MinItems(1) & [...#NamespaceKeyEntry] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/NamespaceRegexPattern": strings.MaxRunes(64) & strings.MinRunes(1) |
-fn.#StringExpression
+#NamespaceRegexPattern: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NamespaceVariableKey": strings.MaxRunes(32) & strings.MinRunes(1) |
-fn.#StringExpression
+#NamespaceVariableKey: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NamespacesList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/Namespace"
-] |
-	fn.#ListExpression
+#NamespacesList: list.MinItems(1) & [...#Namespace] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/NumberValidation": close({
+#NumberValidation: close({
 	MaxValue?: number |
 		{
 			string &
@@ -413,9 +365,9 @@ _#defs: "/$defs/Properties/definitions/NumberValidation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Prompt": strings.MaxRunes(30000) & strings.MinRunes(1) | fn.#StringExpression
+#Prompt: strings.MaxRunes(30000) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SelfManagedConfiguration": close({
+#SelfManagedConfiguration: close({
 	HistoricalContextWindowSize?: int & <=50 & >=0 |
 		{
 			string &
@@ -432,30 +384,30 @@ _#defs: "/$defs/Properties/definitions/SelfManagedConfiguration": close({
 				)
 		} |
 		fn.#NumberExpression
-	InvocationConfiguration?: _#defs."/$defs/Properties/definitions/InvocationConfigurationInput"
-	TriggerConditions?:       _#defs."/$defs/Properties/definitions/TriggerConditionList"
+	InvocationConfiguration?: #InvocationConfigurationInput
+	TriggerConditions?:       #TriggerConditionList
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SemanticConsolidationOverride": close({
-	AppendToPrompt!: _#defs."/$defs/Properties/definitions/Prompt"
+#SemanticConsolidationOverride: close({
+	AppendToPrompt!: #Prompt
 	ModelId!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SemanticExtractionOverride": close({
-	AppendToPrompt!: _#defs."/$defs/Properties/definitions/Prompt"
+#SemanticExtractionOverride: close({
+	AppendToPrompt!: #Prompt
 	ModelId!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SemanticMemoryStrategy": close({
+#SemanticMemoryStrategy: close({
 	CreatedAt?:          time.Time | fn.#StringExpression
-	Description?:        _#defs."/$defs/Properties/definitions/Description"
-	MemoryRecordSchema?: _#defs."/$defs/Properties/definitions/MemoryRecordSchema"
-	Name!:               _#defs."/$defs/Properties/definitions/Name"
-	NamespaceTemplates?: _#defs."/$defs/Properties/definitions/NamespacesList"
-	Namespaces?:         _#defs."/$defs/Properties/definitions/NamespacesList"
+	Description?:        #Description
+	MemoryRecordSchema?: #MemoryRecordSchema
+	Name!:               #Name
+	NamespaceTemplates?: #NamespacesList
+	Namespaces?:         #NamespacesList
 	Status?:             "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | fn.#StringExpression
 	StrategyId?:         strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
 	Type?:               "SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "CUSTOM" | "EPISODIC" | fn.#StringExpression
@@ -463,43 +415,38 @@ _#defs: "/$defs/Properties/definitions/SemanticMemoryStrategy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SemanticOverride": close({
-	Consolidation?: _#defs."/$defs/Properties/definitions/SemanticOverrideConsolidationConfigurationInput"
-	Extraction?:    _#defs."/$defs/Properties/definitions/SemanticOverrideExtractionConfigurationInput"
+#SemanticOverride: close({
+	Consolidation?: #SemanticOverrideConsolidationConfigurationInput
+	Extraction?:    #SemanticOverrideExtractionConfigurationInput
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SemanticOverrideConsolidationConfigurationInput": close({
-	AppendToPrompt!: _#defs."/$defs/Properties/definitions/Prompt"
+#SemanticOverrideConsolidationConfigurationInput: close({
+	AppendToPrompt!: #Prompt
 	ModelId!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SemanticOverrideExtractionConfigurationInput": close({
-	AppendToPrompt!: _#defs."/$defs/Properties/definitions/Prompt"
+#SemanticOverrideExtractionConfigurationInput: close({
+	AppendToPrompt!: #Prompt
 	ModelId!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StrategyConfiguration": close({
-	Consolidation?: _#defs."/$defs/Properties/definitions/ConsolidationConfiguration"
-	Extraction?:    _#defs."/$defs/Properties/definitions/ExtractionConfiguration"
+#StrategyConfiguration: close({
+	Consolidation?: #ConsolidationConfiguration
+	Extraction?:    #ExtractionConfiguration
 	Type?: "SEMANTIC_OVERRIDE" | "SUMMARY_OVERRIDE" | "USER_PREFERENCE_OVERRIDE" | "EPISODIC" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamDeliveryResource": struct.MaxFields(1) & struct.MinFields(1) & close(
-	{Kinesis?: _#defs."/$defs/Properties/definitions/KinesisResource"},
-) |
+#StreamDeliveryResource: struct.MaxFields(1) & struct.MinFields(1) & close({Kinesis?: #KinesisResource}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StreamDeliveryResources": close({
-	Resources!: list.MaxItems(1) & [..._#defs."/$defs/Properties/definitions/StreamDeliveryResource"] |
-		fn.#ListExpression
-}) |
+#StreamDeliveryResources: close({Resources!: list.MaxItems(1) & [...#StreamDeliveryResource] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StringListValidation": close({
+#StringListValidation: close({
 	AllowedValues?: list.MaxItems(10) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	MaxItems?: int & <=5 & >=1 |
 		{
@@ -520,24 +467,24 @@ _#defs: "/$defs/Properties/definitions/StringListValidation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StringValidation": close(
+#StringValidation: close(
 	{AllowedValues!: list.MaxItems(10) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SummaryConsolidationOverride": close({
-	AppendToPrompt!: _#defs."/$defs/Properties/definitions/Prompt"
+#SummaryConsolidationOverride: close({
+	AppendToPrompt!: #Prompt
 	ModelId!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SummaryMemoryStrategy": close({
+#SummaryMemoryStrategy: close({
 	CreatedAt?:          time.Time | fn.#StringExpression
-	Description?:        _#defs."/$defs/Properties/definitions/Description"
-	MemoryRecordSchema?: _#defs."/$defs/Properties/definitions/MemoryRecordSchema"
-	Name!:               _#defs."/$defs/Properties/definitions/Name"
-	NamespaceTemplates?: _#defs."/$defs/Properties/definitions/NamespacesList"
-	Namespaces?:         _#defs."/$defs/Properties/definitions/NamespacesList"
+	Description?:        #Description
+	MemoryRecordSchema?: #MemoryRecordSchema
+	Name!:               #Name
+	NamespaceTemplates?: #NamespacesList
+	Namespaces?:         #NamespacesList
 	Status?:             "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | fn.#StringExpression
 	StrategyId?:         strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
 	Type?:               "SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "CUSTOM" | "EPISODIC" | fn.#StringExpression
@@ -545,24 +492,21 @@ _#defs: "/$defs/Properties/definitions/SummaryMemoryStrategy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SummaryOverride": close(
-	{Consolidation?: _#defs."/$defs/Properties/definitions/SummaryOverrideConsolidationConfigurationInput"},
-) |
-	fn.#ObjectExpression
+#SummaryOverride: close({Consolidation?: #SummaryOverrideConsolidationConfigurationInput}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SummaryOverrideConsolidationConfigurationInput": close({
-	AppendToPrompt!: _#defs."/$defs/Properties/definitions/Prompt"
+#SummaryOverrideConsolidationConfigurationInput: close({
+	AppendToPrompt!: #Prompt
 	ModelId!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & struct.MinFields(0) & close({
+#TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeBasedTriggerInput": close({
+#TimeBasedTriggerInput: close({
 	IdleSessionTimeout?: int & <=3000 & >=10 |
 		{
 			string &
@@ -582,7 +526,7 @@ _#defs: "/$defs/Properties/definitions/TimeBasedTriggerInput": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TokenBasedTriggerInput": close({
+#TokenBasedTriggerInput: close({
 	TokenCount?: int & <=500000 & >=100 |
 		{
 			string &
@@ -602,37 +546,34 @@ _#defs: "/$defs/Properties/definitions/TokenBasedTriggerInput": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TriggerConditionInput": struct.MaxFields(1) & struct.MinFields(1) & close({
-	MessageBasedTrigger?: _#defs."/$defs/Properties/definitions/MessageBasedTriggerInput"
-	TimeBasedTrigger?:    _#defs."/$defs/Properties/definitions/TimeBasedTriggerInput"
-	TokenBasedTrigger?:   _#defs."/$defs/Properties/definitions/TokenBasedTriggerInput"
+#TriggerConditionInput: struct.MaxFields(1) & struct.MinFields(1) & close({
+	MessageBasedTrigger?: #MessageBasedTriggerInput
+	TimeBasedTrigger?:    #TimeBasedTriggerInput
+	TokenBasedTrigger?:   #TokenBasedTriggerInput
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TriggerConditionList": list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/TriggerConditionInput"
-] |
-	fn.#ListExpression
+#TriggerConditionList: list.MinItems(1) & [...#TriggerConditionInput] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/UserPreferenceConsolidationOverride": close({
-	AppendToPrompt!: _#defs."/$defs/Properties/definitions/Prompt"
+#UserPreferenceConsolidationOverride: close({
+	AppendToPrompt!: #Prompt
 	ModelId!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserPreferenceExtractionOverride": close({
-	AppendToPrompt!: _#defs."/$defs/Properties/definitions/Prompt"
+#UserPreferenceExtractionOverride: close({
+	AppendToPrompt!: #Prompt
 	ModelId!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserPreferenceMemoryStrategy": close({
+#UserPreferenceMemoryStrategy: close({
 	CreatedAt?:          time.Time | fn.#StringExpression
-	Description?:        _#defs."/$defs/Properties/definitions/Description"
-	MemoryRecordSchema?: _#defs."/$defs/Properties/definitions/MemoryRecordSchema"
-	Name!:               _#defs."/$defs/Properties/definitions/Name"
-	NamespaceTemplates?: _#defs."/$defs/Properties/definitions/NamespacesList"
-	Namespaces?:         _#defs."/$defs/Properties/definitions/NamespacesList"
+	Description?:        #Description
+	MemoryRecordSchema?: #MemoryRecordSchema
+	Name!:               #Name
+	NamespaceTemplates?: #NamespacesList
+	Namespaces?:         #NamespacesList
 	Status?:             "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | fn.#StringExpression
 	StrategyId?:         strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
 	Type?:               "SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "CUSTOM" | "EPISODIC" | fn.#StringExpression
@@ -640,28 +581,28 @@ _#defs: "/$defs/Properties/definitions/UserPreferenceMemoryStrategy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserPreferenceOverride": close({
-	Consolidation?: _#defs."/$defs/Properties/definitions/UserPreferenceOverrideConsolidationConfigurationInput"
-	Extraction?:    _#defs."/$defs/Properties/definitions/UserPreferenceOverrideExtractionConfigurationInput"
+#UserPreferenceOverride: close({
+	Consolidation?: #UserPreferenceOverrideConsolidationConfigurationInput
+	Extraction?:    #UserPreferenceOverrideExtractionConfigurationInput
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserPreferenceOverrideConsolidationConfigurationInput": close({
-	AppendToPrompt!: _#defs."/$defs/Properties/definitions/Prompt"
+#UserPreferenceOverrideConsolidationConfigurationInput: close({
+	AppendToPrompt!: #Prompt
 	ModelId!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserPreferenceOverrideExtractionConfigurationInput": close({
-	AppendToPrompt!: _#defs."/$defs/Properties/definitions/Prompt"
+#UserPreferenceOverrideExtractionConfigurationInput: close({
+	AppendToPrompt!: #Prompt
 	ModelId!:        string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Validation": struct.MaxFields(1) & struct.MinFields(1) & close({
-	NumberValidation?:     _#defs."/$defs/Properties/definitions/NumberValidation"
-	StringListValidation?: _#defs."/$defs/Properties/definitions/StringListValidation"
-	StringValidation?:     _#defs."/$defs/Properties/definitions/StringValidation"
+#Validation: struct.MaxFields(1) & struct.MinFields(1) & close({
+	NumberValidation?:     #NumberValidation
+	StringListValidation?: #StringListValidation
+	StringValidation?:     #StringValidation
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

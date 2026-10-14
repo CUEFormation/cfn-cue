@@ -17,19 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?:              string | fn.#StringExpression
 	PolicyDocument?:           string | fn.#StringExpression
 	PolicyEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SseSpecification?:         _#defs."/$defs/Properties/definitions/SseSpecification" | fn.#ObjectExpression
-	Tags?:                     list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	SseSpecification?:         #SseSpecification | fn.#ObjectExpression
+	Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	VerifiedAccessInstanceId!: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/SseSpecification": close({
+#SseSpecification: close({
 	CustomerManagedKeyEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

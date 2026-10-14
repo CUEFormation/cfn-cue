@@ -20,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Action?:          "ARCHIVE" | "NOOP" | fn.#StringExpression
 	Description?:     strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 	DetectorId!:      strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	FindingCriteria!: _#defs."/$defs/Properties/definitions/FindingCriteria"
+	FindingCriteria!: #FindingCriteria
 	Name!:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	Rank?: int & <=100 & >=1 |
 		{
@@ -38,10 +38,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/TagItem"] | fn.#ListExpression
+	Tags?: [...#TagItem] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Condition": close({
+#Condition: close({
 	Eq?:     [...string | fn.#StringExpression] | fn.#ListExpression
 	Equals?: [...string | fn.#StringExpression] | fn.#ListExpression
 	GreaterThan?: int |
@@ -163,15 +163,15 @@ _#defs: "/$defs/Properties/definitions/Condition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FindingCriteria": close({
+#FindingCriteria: close({
 	Criterion?: close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Condition"}}) |
+		{[=~"^.+$"]: #Condition}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagItem": close({
+#TagItem: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

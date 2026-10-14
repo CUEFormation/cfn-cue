@@ -13,49 +13,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::MediaTailor::SourceLocation Resource Type
 #Properties: close({
-	AccessConfiguration?:                 _#defs."/$defs/Properties/definitions/AccessConfiguration"
-	DefaultSegmentDeliveryConfiguration?: _#defs."/$defs/Properties/definitions/DefaultSegmentDeliveryConfiguration"
-	HttpConfiguration!:                   _#defs."/$defs/Properties/definitions/HttpConfiguration"
-	SegmentDeliveryConfigurations?: [..._#defs."/$defs/Properties/definitions/SegmentDeliveryConfiguration"] |
-		fn.#ListExpression
-	SourceLocationName!: string | fn.#StringExpression
-	Tags?:               list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	AccessConfiguration?:                 #AccessConfiguration
+	DefaultSegmentDeliveryConfiguration?: #DefaultSegmentDeliveryConfiguration
+	HttpConfiguration!:                   #HttpConfiguration
+	SegmentDeliveryConfigurations?:       [...#SegmentDeliveryConfiguration] | fn.#ListExpression
+	SourceLocationName!:                  string | fn.#StringExpression
+	Tags?:                                list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessConfiguration": close({
-	AccessType?: _#defs."/$defs/Properties/definitions/AccessType"
-	SecretsManagerAccessTokenConfiguration?:
-		_#defs."/$defs/Properties/definitions/SecretsManagerAccessTokenConfiguration"
+#AccessConfiguration: close({
+	AccessType?:                             #AccessType
+	SecretsManagerAccessTokenConfiguration?: #SecretsManagerAccessTokenConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AccessType": "S3_SIGV4" |
-	"SECRETS_MANAGER_ACCESS_TOKEN" |
-	"AUTODETECT_SIGV4" |
-	fn.#StringExpression
+#AccessType: "S3_SIGV4" | "SECRETS_MANAGER_ACCESS_TOKEN" | "AUTODETECT_SIGV4" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultSegmentDeliveryConfiguration": close(
-	{BaseUrl?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#DefaultSegmentDeliveryConfiguration: close({BaseUrl?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpConfiguration": close({BaseUrl!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#HttpConfiguration: close({BaseUrl!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SecretsManagerAccessTokenConfiguration": close({
+#SecretsManagerAccessTokenConfiguration: close({
 	HeaderName?:      string | fn.#StringExpression
 	SecretArn?:       string | fn.#StringExpression
 	SecretStringKey?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SegmentDeliveryConfiguration": close({
+#SegmentDeliveryConfiguration: close({
 	BaseUrl?: string | fn.#StringExpression
 	Name?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

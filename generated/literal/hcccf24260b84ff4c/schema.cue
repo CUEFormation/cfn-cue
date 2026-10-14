@@ -36,7 +36,7 @@ import (
 	Name!: =~"^[a-z_][a-z0-9_]{0,99}?$"
 
 	// Tags associated with this variable.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 
 	// The variable type. For more information see
 	// https://docs.aws.amazon.com/frauddetector/latest/ug/create-a-variable.html#variable-types
@@ -75,7 +75,7 @@ import (
 		"USERAGENT"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

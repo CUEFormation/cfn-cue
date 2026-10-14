@@ -14,21 +14,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::CustomerProfiles::DomainObjectType
 #Properties: close({
-	Description?:    _#defs."/$defs/Properties/definitions/Description"
-	DomainName!:     _#defs."/$defs/Properties/definitions/DomainName"
-	EncryptionKey?:  _#defs."/$defs/Properties/definitions/EncryptionKey"
-	Fields!:         _#defs."/$defs/Properties/definitions/DomainObjectTypeFields"
-	ObjectTypeName!: _#defs."/$defs/Properties/definitions/ObjectTypeName"
-	Tags?:           _#defs."/$defs/Properties/definitions/Tags"
+	Description?:    #Description
+	DomainName!:     #DomainName
+	EncryptionKey?:  #EncryptionKey
+	Fields!:         #DomainObjectTypeFields
+	ObjectTypeName!: #ObjectTypeName
+	Tags?:           #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Description": strings.MaxRunes(10000) & strings.MinRunes(1) |
-fn.#StringExpression
+#Description: strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DomainName": strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
-fn.#StringExpression
+#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DomainObjectTypeField": close({
+#DomainObjectTypeField: close({
 	ContentType?: "STRING" | "NUMBER" | fn.#StringExpression
 	FeatureType?: "TEXTUAL" | "CATEGORICAL" | fn.#StringExpression
 	Source!:      strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
@@ -36,29 +34,22 @@ _#defs: "/$defs/Properties/definitions/DomainObjectTypeField": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DomainObjectTypeFields": close({
+#DomainObjectTypeFields: close({
 
-	{[=~"^[a-zA-Z0-9_.-]+$"]: _#defs."/$defs/Properties/definitions/DomainObjectTypeField"}}) |
+	{[=~"^[a-zA-Z0-9_.-]+$"]: #DomainObjectTypeField}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionKey": strings.MaxRunes(255) & strings.MinRunes(0) |
-fn.#StringExpression
+#EncryptionKey: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectTypeName": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z_][a-zA-Z_0-9-]*$" |
-fn.#StringExpression
+#ObjectTypeName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.MaxItems(50) & list.UniqueItems() & [...] & [
-	..._#defs."/$defs/Properties/definitions/Tag"
-] |
-	fn.#ListExpression
+#Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::CustomerProfiles::DomainObjectType"
 	Properties!: #Properties

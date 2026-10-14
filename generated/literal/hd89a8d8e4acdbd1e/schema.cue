@@ -12,8 +12,8 @@ import "strings"
 #Properties: close({
 	// Your 12-digit account ID (used as the primary identifier for the CloudFormation resource).
 	AccountId!:                             strings.MaxRunes(12) & strings.MinRunes(12)
-	AuditCheckConfigurations!:              _#defs."/$defs/Properties/definitions/AuditCheckConfigurations"
-	AuditNotificationTargetConfigurations?: _#defs."/$defs/Properties/definitions/AuditNotificationTargetConfigurations"
+	AuditCheckConfigurations!:              #AuditCheckConfigurations
+	AuditNotificationTargetConfigurations?: #AuditNotificationTargetConfigurations
 
 	// The ARN of the role that grants permission to AWS IoT to access information
 	// about your devices, policies, certificates and other items as required when
@@ -22,34 +22,33 @@ import "strings"
 })
 
 // The configuration for a specific audit check.
-_#defs: "/$defs/Properties/definitions/AuditCheckConfiguration": close({
+#AuditCheckConfiguration: close({
 	// True if the check is enabled.
 	Enabled?: bool
 })
 
 // Specifies which audit checks are enabled and disabled for this account.
-_#defs: "/$defs/Properties/definitions/AuditCheckConfigurations": close({
-	AuthenticatedCognitoRoleOverlyPermissiveCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
-	CaCertificateExpiringCheck?:                    _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
-	CaCertificateKeyQualityCheck?:                  _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
-	ConflictingClientIdsCheck?:                     _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
-	DeviceCertificateAgeCheck?:                     _#defs."/$defs/Properties/definitions/DeviceCertAgeAuditCheckConfiguration"
-	DeviceCertificateExpiringCheck?:                _#defs."/$defs/Properties/definitions/DeviceCertExpirationAuditCheckConfiguration"
-	DeviceCertificateKeyQualityCheck?:              _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
-	DeviceCertificateSharedCheck?:                  _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
-	IntermediateCaRevokedForActiveDeviceCertificatesCheck?:
-		_#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
-	IoTPolicyPotentialMisConfigurationCheck?:         _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
-	IotPolicyOverlyPermissiveCheck?:                  _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
-	IotRoleAliasAllowsAccessToUnusedServicesCheck?:   _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
-	IotRoleAliasOverlyPermissiveCheck?:               _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
-	LoggingDisabledCheck?:                            _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
-	RevokedCaCertificateStillActiveCheck?:            _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
-	RevokedDeviceCertificateStillActiveCheck?:        _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
-	UnauthenticatedCognitoRoleOverlyPermissiveCheck?: _#defs."/$defs/Properties/definitions/AuditCheckConfiguration"
+#AuditCheckConfigurations: close({
+	AuthenticatedCognitoRoleOverlyPermissiveCheck?:         #AuditCheckConfiguration
+	CaCertificateExpiringCheck?:                            #AuditCheckConfiguration
+	CaCertificateKeyQualityCheck?:                          #AuditCheckConfiguration
+	ConflictingClientIdsCheck?:                             #AuditCheckConfiguration
+	DeviceCertificateAgeCheck?:                             #DeviceCertAgeAuditCheckConfiguration
+	DeviceCertificateExpiringCheck?:                        #DeviceCertExpirationAuditCheckConfiguration
+	DeviceCertificateKeyQualityCheck?:                      #AuditCheckConfiguration
+	DeviceCertificateSharedCheck?:                          #AuditCheckConfiguration
+	IntermediateCaRevokedForActiveDeviceCertificatesCheck?: #AuditCheckConfiguration
+	IoTPolicyPotentialMisConfigurationCheck?:               #AuditCheckConfiguration
+	IotPolicyOverlyPermissiveCheck?:                        #AuditCheckConfiguration
+	IotRoleAliasAllowsAccessToUnusedServicesCheck?:         #AuditCheckConfiguration
+	IotRoleAliasOverlyPermissiveCheck?:                     #AuditCheckConfiguration
+	LoggingDisabledCheck?:                                  #AuditCheckConfiguration
+	RevokedCaCertificateStillActiveCheck?:                  #AuditCheckConfiguration
+	RevokedDeviceCertificateStillActiveCheck?:              #AuditCheckConfiguration
+	UnauthenticatedCognitoRoleOverlyPermissiveCheck?:       #AuditCheckConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/AuditNotificationTarget": close({
+#AuditNotificationTarget: close({
 	// True if notifications to the target are enabled.
 	Enabled?: bool
 
@@ -61,27 +60,21 @@ _#defs: "/$defs/Properties/definitions/AuditNotificationTarget": close({
 })
 
 // Information about the targets to which audit notifications are sent.
-_#defs: "/$defs/Properties/definitions/AuditNotificationTargetConfigurations": close(
-	{Sns?: _#defs."/$defs/Properties/definitions/AuditNotificationTarget"},
-)
+#AuditNotificationTargetConfigurations: close({Sns?: #AuditNotificationTarget})
 
 // A structure containing the configName and corresponding configValue for configuring audit checks.
-_#defs: "/$defs/Properties/definitions/CertAgeCheckCustomConfiguration": close(
-	{CertAgeThresholdInDays?: _#defs."/$defs/Properties/definitions/ConfigValue"},
-)
+#CertAgeCheckCustomConfiguration: close({CertAgeThresholdInDays?: #ConfigValue})
 
 // A structure containing the configName and corresponding configValue for configuring audit checks.
-_#defs: "/$defs/Properties/definitions/CertExpirationCheckCustomConfiguration": close(
-	{CertExpirationThresholdInDays?: _#defs."/$defs/Properties/definitions/ConfigValue"},
-)
+#CertExpirationCheckCustomConfiguration: close({CertExpirationThresholdInDays?: #ConfigValue})
 
 // The configValue for configuring audit checks.
-_#defs: "/$defs/Properties/definitions/ConfigValue": strings.MaxRunes(64) & strings.MinRunes(1)
+#ConfigValue: strings.MaxRunes(64) & strings.MinRunes(1)
 
 // A structure containing the configName and corresponding configValue for
 // configuring DeviceCertAgeCheck.
-_#defs: "/$defs/Properties/definitions/DeviceCertAgeAuditCheckConfiguration": close({
-	Configuration?: _#defs."/$defs/Properties/definitions/CertAgeCheckCustomConfiguration"
+#DeviceCertAgeAuditCheckConfiguration: close({
+	Configuration?: #CertAgeCheckCustomConfiguration
 
 	// True if the check is enabled.
 	Enabled?: bool
@@ -89,8 +82,8 @@ _#defs: "/$defs/Properties/definitions/DeviceCertAgeAuditCheckConfiguration": cl
 
 // A structure containing the configName and corresponding configValue for
 // configuring DeviceCertExpirationCheck.
-_#defs: "/$defs/Properties/definitions/DeviceCertExpirationAuditCheckConfiguration": close({
-	Configuration?: _#defs."/$defs/Properties/definitions/CertExpirationCheckCustomConfiguration"
+#DeviceCertExpirationAuditCheckConfiguration: close({
+	Configuration?: #CertExpirationCheckCustomConfiguration
 
 	// True if the check is enabled.
 	Enabled?: bool

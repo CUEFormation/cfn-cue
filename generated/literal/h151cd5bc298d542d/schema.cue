@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"math"
 	"strings"
 	"list"
-	"math"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,7 +14,7 @@ import (
 #Properties: close({
 	// The Amazon Resource Name (ARN) of the collection group.
 	Arn?:            string
-	CapacityLimits?: _#defs."/$defs/Properties/definitions/CapacityLimits"
+	CapacityLimits?: #CapacityLimits
 
 	// The description of the collection group.
 	Description?: strings.MaxRunes(1000)
@@ -33,10 +33,10 @@ import (
 	StandbyReplicas!: "ENABLED" | "DISABLED"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityLimits": close({
+#CapacityLimits: close({
 	// The maximum indexing capacity for collections in the group.
 	MaxIndexingCapacityInOcu?: math.MultipleOf(0.5) & >=1
 
@@ -51,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/CapacityLimits": close({
 })
 
 // A map of key-value pairs associated with the collection group.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key in the key-value pair
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

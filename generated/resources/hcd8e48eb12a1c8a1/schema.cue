@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,21 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Project. A project is a grouping of the resources needed to create and
 // manage Dataset and ProjectVersions.
 #Properties: close({
-	ProjectName!: _#defs."/$defs/Properties/definitions/ProjectName"
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	ProjectName!: #ProjectName
+	Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(2048) &
+#Arn: strings.MaxRunes(2048) &
 =~"(^arn:[a-z\\d-]+:rekognition:[a-z\\d-]+:\\d{12}:project/[a-zA-Z0-9_.\\-]{1,255}/[0-9]+$)" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProjectName": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*" |
-fn.#StringExpression
+#ProjectName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" | fn.#StringExpression
 }) |

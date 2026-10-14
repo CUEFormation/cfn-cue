@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,32 +14,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Contains a list of IP addresses. This can be either IPV4 or IPV6. The list will be mutually
 #Properties: close({
-	Addresses!:        [..._#defs."/$defs/Properties/definitions/IPAddress"] | fn.#ListExpression
-	Description?:      _#defs."/$defs/Properties/definitions/EntityDescription"
-	IPAddressVersion!: _#defs."/$defs/Properties/definitions/IPAddressVersion"
-	Name?:             _#defs."/$defs/Properties/definitions/EntityName"
-	Scope!:            _#defs."/$defs/Properties/definitions/Scope"
-	Tags?:             list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Addresses!:        [...#IPAddress] | fn.#ListExpression
+	Description?:      #EntityDescription
+	IPAddressVersion!: #IPAddressVersion
+	Name?:             #EntityName
+	Scope!:            #Scope
+	Tags?:             list.MinItems(1) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EntityDescription": =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$" |
+#EntityDescription: =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EntityId": =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" |
-	fn.#StringExpression
+#EntityId: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/EntityName": =~"^[0-9A-Za-z_-]{1,128}$" | fn.#StringExpression
+#EntityName: =~"^[0-9A-Za-z_-]{1,128}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IPAddress": strings.MaxRunes(50) & strings.MinRunes(1) & =~"\\S" |
-fn.#StringExpression
+#IPAddress: strings.MaxRunes(50) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IPAddressVersion": "IPV4" | "IPV6" | fn.#StringExpression
+#IPAddressVersion: "IPV4" | "IPV6" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": string | fn.#StringExpression
+#ResourceArn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Scope": "CLOUDFRONT" | "REGIONAL" | fn.#StringExpression
+#Scope: "CLOUDFRONT" | "REGIONAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

@@ -30,17 +30,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
+#Unit: close({}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::IoTFleetWise::StateTemplate"
 	Properties!: #Properties

@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,43 +14,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::SSMIncidents::ReplicationSet
 #Properties: close({
-	DeletionProtected?: _#defs."/$defs/Properties/definitions/DeletionProtected"
-	Regions!:           _#defs."/$defs/Properties/definitions/RegionList" | fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	DeletionProtected?: #DeletionProtected
+	Regions!:           #RegionList | fn.#ListExpression
+	Tags?:              list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(1000) &
-=~"^arn:aws(-(cn|us-gov|iso(-b)?))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
+#Arn: strings.MaxRunes(1000) & =~"^arn:aws(-(cn|us-gov|iso(-b)?))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DeletionProtected": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#DeletionProtected: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/RegionConfiguration": close(
-	{SseKmsKeyId!: strings.MaxRunes(2048) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
+#RegionConfiguration: close({SseKmsKeyId!: strings.MaxRunes(2048) | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RegionList": list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/ReplicationRegion"
-] |
-	fn.#ListExpression
+#RegionList: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [...#ReplicationRegion] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/RegionName": strings.MaxRunes(20) | fn.#StringExpression
+#RegionName: strings.MaxRunes(20) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationRegion": close({
-	RegionConfiguration?: _#defs."/$defs/Properties/definitions/RegionConfiguration"
-	RegionName?:          _#defs."/$defs/Properties/definitions/RegionName"
+#ReplicationRegion: close({
+	RegionConfiguration?: #RegionConfiguration
+	RegionName?:          #RegionName
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

@@ -30,13 +30,13 @@ import "strings"
 	Status?: "ACTIVE" | "INVALID"
 
 	// The tags associated with the Recovery Plan.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The timestamp when the Recovery Plan was last updated.
 	UpdatedAt?: strings.MaxRunes(32) & strings.MinRunes(19)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(0)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

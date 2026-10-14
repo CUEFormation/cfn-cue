@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"time"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -17,7 +17,7 @@ import (
 	=~"arn:((aws)|(aws-cn)|(aws-us-gov)):iottwinmaker:[a-z0-9-]+:[0-9]{12}:[\\/a-zA-Z0-9_\\-\\.:]+"
 
 	// The date and time when the sync job was created.
-	CreationDateTime?: _#defs."/$defs/Properties/definitions/DateTimeFormat"
+	CreationDateTime?: #DateTimeFormat
 
 	// The state of SyncJob.
 	State?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+"
@@ -36,10 +36,10 @@ import (
 		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: strings.MaxRunes(256) & strings.MinRunes(1)}})
 
 	// The date and time when the sync job was updated.
-	UpdateDateTime?: _#defs."/$defs/Properties/definitions/DateTimeFormat"
+	UpdateDateTime?: #DateTimeFormat
 
 	// The ID of the workspace.
 	WorkspaceId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_0-9][a-zA-Z_\\-0-9]*[a-zA-Z0-9]+"
 })
 
-_#defs: "/$defs/Properties/definitions/DateTimeFormat": time.Time
+#DateTimeFormat: time.Time

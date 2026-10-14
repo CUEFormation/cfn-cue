@@ -32,49 +32,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Description?:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	RuleGroup?:     _#defs."/$defs/Properties/definitions/RuleGroup"
-	RuleGroupName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	SummaryConfiguration?: close(
-		{RuleOptions?: [..._#defs."/$defs/Properties/definitions/SummaryRuleOption"] | fn.#ListExpression},
-	) |
-		fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	Type!: "STATELESS" | "STATEFUL" | fn.#StringExpression
+	Description?:          strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+	RuleGroup?:            #RuleGroup
+	RuleGroupName!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+	SummaryConfiguration?: close({RuleOptions?: [...#SummaryRuleOption] | fn.#ListExpression}) | fn.#ObjectExpression
+	Tags?:                 list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	Type!:                 "STATELESS" | "STATEFUL" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ActionDefinition": close(
-	{PublishMetricAction?: _#defs."/$defs/Properties/definitions/PublishMetricAction"},
-) |
-	fn.#ObjectExpression
+#ActionDefinition: close({PublishMetricAction?: #PublishMetricAction}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Address": close({
+#Address: close({
 	AddressDefinition!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([a-fA-F\\d:\\.]+/\\d{1,3})$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomAction": close({
-	ActionDefinition!: _#defs."/$defs/Properties/definitions/ActionDefinition"
+#CustomAction: close({
+	ActionDefinition!: #ActionDefinition
 	ActionName!:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Dimension": close(
-	{Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_ ]+$" | fn.#StringExpression},
-) |
+#Dimension: close({Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_ ]+$" | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GeneratedRulesType": "ALLOWLIST" |
-	"DENYLIST" |
-	"ALERTLIST" |
-	"REJECTLIST" |
-	fn.#StringExpression
+#GeneratedRulesType: "ALLOWLIST" | "DENYLIST" | "ALERTLIST" | "REJECTLIST" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Header": close({
+#Header: close({
 	Destination!:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	DestinationPort!: _#defs."/$defs/Properties/definitions/Port"
+	DestinationPort!: #Port
 	Direction!:       "FORWARD" | "ANY" | fn.#StringExpression
 	Protocol!: "IP" |
 		"TCP" |
@@ -97,40 +84,33 @@ _#defs: "/$defs/Properties/definitions/Header": close({
 		"DHCP" |
 		fn.#StringExpression
 	Source!:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	SourcePort!: _#defs."/$defs/Properties/definitions/Port"
+	SourcePort!: #Port
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IPSet": close(
-	{Definition?: [..._#defs."/$defs/Properties/definitions/VariableDefinition"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#IPSet: close({Definition?: [...#VariableDefinition] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IPSetReference": close(
-	{ReferenceArn?: _#defs."/$defs/Properties/definitions/ResourceArn"},
-) |
-	fn.#ObjectExpression
+#IPSetReference: close({ReferenceArn?: #ResourceArn}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MatchAttributes": close({
-	DestinationPorts?: [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
-	Destinations?:     [..._#defs."/$defs/Properties/definitions/Address"] | fn.#ListExpression
-	Protocols?:        [..._#defs."/$defs/Properties/definitions/ProtocolNumber"] | fn.#ListExpression
-	SourcePorts?:      [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
-	Sources?:          [..._#defs."/$defs/Properties/definitions/Address"] | fn.#ListExpression
-	TCPFlags?:         [..._#defs."/$defs/Properties/definitions/TCPFlagField"] | fn.#ListExpression
+#MatchAttributes: close({
+	DestinationPorts?: [...#PortRange] | fn.#ListExpression
+	Destinations?:     [...#Address] | fn.#ListExpression
+	Protocols?:        [...#ProtocolNumber] | fn.#ListExpression
+	SourcePorts?:      [...#PortRange] | fn.#ListExpression
+	Sources?:          [...#Address] | fn.#ListExpression
+	TCPFlags?:         [...#TCPFlagField] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Port": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" |
-fn.#StringExpression
+#Port: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PortRange": close({
-	FromPort!: _#defs."/$defs/Properties/definitions/PortRangeBound"
-	ToPort!:   _#defs."/$defs/Properties/definitions/PortRangeBound"
+#PortRange: close({
+	FromPort!: #PortRangeBound
+	ToPort!:   #PortRangeBound
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PortRangeBound": int & <=65535 & >=0 |
+#PortRangeBound: int & <=65535 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -147,12 +127,9 @@ _#defs: "/$defs/Properties/definitions/PortRangeBound": int & <=65535 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/PortSet": close(
-	{Definition?: [..._#defs."/$defs/Properties/definitions/VariableDefinition"] | fn.#ListExpression},
-) |
-	fn.#ObjectExpression
+#PortSet: close({Definition?: [...#VariableDefinition] | fn.#ListExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ProtocolNumber": int & <=255 & >=0 |
+#ProtocolNumber: int & <=255 & >=0 |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -169,91 +146,82 @@ _#defs: "/$defs/Properties/definitions/ProtocolNumber": int & <=255 & >=0 |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/PublishMetricAction": close({
-	Dimensions!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Dimension"] |
-		fn.#ListExpression
-}) |
+#PublishMetricAction: close({Dimensions!: list.MaxItems(1) & list.MinItems(1) & [...#Dimension] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReferenceSets": close({
+#ReferenceSets: close({
 	IPSetReferences?: close({
 
-		{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/IPSetReference"}}) |
+		{[=~"^[A-Za-z0-9_]{1,32}$"]: #IPSetReference}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" |
-fn.#StringExpression
+#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RuleDefinition": close({
+#RuleDefinition: close({
 	Actions!:         [...string | fn.#StringExpression] | fn.#ListExpression
-	MatchAttributes!: _#defs."/$defs/Properties/definitions/MatchAttributes"
+	MatchAttributes!: #MatchAttributes
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleGroup": close({
-	ReferenceSets?:       _#defs."/$defs/Properties/definitions/ReferenceSets"
-	RuleVariables?:       _#defs."/$defs/Properties/definitions/RuleVariables"
-	RulesSource!:         _#defs."/$defs/Properties/definitions/RulesSource"
-	StatefulRuleOptions?: _#defs."/$defs/Properties/definitions/StatefulRuleOptions"
+#RuleGroup: close({
+	ReferenceSets?:       #ReferenceSets
+	RuleVariables?:       #RuleVariables
+	RulesSource!:         #RulesSource
+	StatefulRuleOptions?: #StatefulRuleOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleOption": close({
+#RuleOption: close({
 	Keyword!:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	Settings?: [..._#defs."/$defs/Properties/definitions/Setting"] | fn.#ListExpression
+	Settings?: [...#Setting] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RuleOrder": "DEFAULT_ACTION_ORDER" | "STRICT_ORDER" | fn.#StringExpression
+#RuleOrder: "DEFAULT_ACTION_ORDER" | "STRICT_ORDER" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RuleVariables": close({
+#RuleVariables: close({
 	IPSets?: close({
 
-		{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/IPSet"}}) |
+		{[=~"^[A-Za-z0-9_]{1,32}$"]: #IPSet}}) |
 	fn.#ObjectExpression
 	PortSets?: close({
 
-		{[=~"^[A-Za-z0-9_]{1,32}$"]: _#defs."/$defs/Properties/definitions/PortSet"}}) |
+		{[=~"^[A-Za-z0-9_]{1,32}$"]: #PortSet}}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RulesSource": close({
-	RulesSourceList?:                _#defs."/$defs/Properties/definitions/RulesSourceList"
-	RulesString?:                    _#defs."/$defs/Properties/definitions/RulesString"
-	StatefulRules?:                  [..._#defs."/$defs/Properties/definitions/StatefulRule"] | fn.#ListExpression
-	StatelessRulesAndCustomActions?: _#defs."/$defs/Properties/definitions/StatelessRulesAndCustomActions"
+#RulesSource: close({
+	RulesSourceList?:                #RulesSourceList
+	RulesString?:                    #RulesString
+	StatefulRules?:                  [...#StatefulRule] | fn.#ListExpression
+	StatelessRulesAndCustomActions?: #StatelessRulesAndCustomActions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RulesSourceList": close({
-	GeneratedRulesType!: _#defs."/$defs/Properties/definitions/GeneratedRulesType"
-	TargetTypes!:        [..._#defs."/$defs/Properties/definitions/TargetType"] | fn.#ListExpression
+#RulesSourceList: close({
+	GeneratedRulesType!: #GeneratedRulesType
+	TargetTypes!:        [...#TargetType] | fn.#ListExpression
 	Targets!:            [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RulesString": strings.MaxRunes(1000000) & strings.MinRunes(0) |
-fn.#StringExpression
+#RulesString: strings.MaxRunes(1000000) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Setting": strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^.*$" |
-fn.#StringExpression
+#Setting: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/StatefulRule": close({
+#StatefulRule: close({
 	Action!:      "PASS" | "DROP" | "ALERT" | "REJECT" | fn.#StringExpression
-	Header!:      _#defs."/$defs/Properties/definitions/Header"
-	RuleOptions!: [..._#defs."/$defs/Properties/definitions/RuleOption"] | fn.#ListExpression
+	Header!:      #Header
+	RuleOptions!: [...#RuleOption] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StatefulRuleOptions": close(
-	{RuleOrder?: _#defs."/$defs/Properties/definitions/RuleOrder"},
-) |
-	fn.#ObjectExpression
+#StatefulRuleOptions: close({RuleOrder?: #RuleOrder}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StatelessRule": close({
+#StatelessRule: close({
 	Priority!: int & <=65535 & >=1 |
 		{
 			string &
@@ -270,43 +238,35 @@ _#defs: "/$defs/Properties/definitions/StatelessRule": close({
 				)
 		} |
 		fn.#NumberExpression
-	RuleDefinition!: _#defs."/$defs/Properties/definitions/RuleDefinition"
+	RuleDefinition!: #RuleDefinition
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StatelessRulesAndCustomActions": close({
-	CustomActions?:  [..._#defs."/$defs/Properties/definitions/CustomAction"] | fn.#ListExpression
-	StatelessRules!: [..._#defs."/$defs/Properties/definitions/StatelessRule"] | fn.#ListExpression
+#StatelessRulesAndCustomActions: close({
+	CustomActions?:  [...#CustomAction] | fn.#ListExpression
+	StatelessRules!: [...#StatelessRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SummaryRuleOption": "SID" | "MSG" | "METADATA" | fn.#StringExpression
+#SummaryRuleOption: "SID" | "MSG" | "METADATA" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TCPFlag": "FIN" |
-	"SYN" |
-	"RST" |
-	"PSH" |
-	"ACK" |
-	"URG" |
-	"ECE" |
-	"CWR" |
-	fn.#StringExpression
+#TCPFlag: "FIN" | "SYN" | "RST" | "PSH" | "ACK" | "URG" | "ECE" | "CWR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TCPFlagField": close({
-	Flags!: [..._#defs."/$defs/Properties/definitions/TCPFlag"] | fn.#ListExpression
-	Masks?: [..._#defs."/$defs/Properties/definitions/TCPFlag"] | fn.#ListExpression
+#TCPFlagField: close({
+	Flags!: [...#TCPFlag] | fn.#ListExpression
+	Masks?: [...#TCPFlag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetType": "TLS_SNI" | "HTTP_HOST" | fn.#StringExpression
+#TargetType: "TLS_SNI" | "HTTP_HOST" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VariableDefinition": strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+#VariableDefinition: strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::NetworkFirewall::RuleGroup"
 	Properties!: #Properties

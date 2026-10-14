@@ -14,12 +14,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // AWS::EC2::TransitGatewayMeteringPolicyEntry Resource Definition
 #Properties: close({
-	DestinationCidrBlock?:                  string | fn.#StringExpression
-	DestinationPortRange?:                  string | fn.#StringExpression
-	DestinationTransitGatewayAttachmentId?: string | fn.#StringExpression
-	DestinationTransitGatewayAttachmentType?: _#defs."/$defs/Properties/definitions/TransitGatewayAttachmentResourceType" |
-		fn.#StringExpression
-	MeteredAccount!: _#defs."/$defs/Properties/definitions/TransitGatewayMeteringPayerType" | fn.#StringExpression
+	DestinationCidrBlock?:                    string | fn.#StringExpression
+	DestinationPortRange?:                    string | fn.#StringExpression
+	DestinationTransitGatewayAttachmentId?:   string | fn.#StringExpression
+	DestinationTransitGatewayAttachmentType?: #TransitGatewayAttachmentResourceType | fn.#StringExpression
+	MeteredAccount!:                          #TransitGatewayMeteringPayerType | fn.#StringExpression
 	PolicyRuleNumber!: int |
 		{
 			string &
@@ -34,16 +33,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Protocol?:                         string | fn.#StringExpression
-	SourceCidrBlock?:                  string | fn.#StringExpression
-	SourcePortRange?:                  string | fn.#StringExpression
-	SourceTransitGatewayAttachmentId?: string | fn.#StringExpression
-	SourceTransitGatewayAttachmentType?: _#defs."/$defs/Properties/definitions/TransitGatewayAttachmentResourceType" |
-		fn.#StringExpression
-	TransitGatewayMeteringPolicyId!: string | fn.#StringExpression
+	Protocol?:                           string | fn.#StringExpression
+	SourceCidrBlock?:                    string | fn.#StringExpression
+	SourcePortRange?:                    string | fn.#StringExpression
+	SourceTransitGatewayAttachmentId?:   string | fn.#StringExpression
+	SourceTransitGatewayAttachmentType?: #TransitGatewayAttachmentResourceType | fn.#StringExpression
+	TransitGatewayMeteringPolicyId!:     string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayAttachmentResourceType": "vpc" |
+#TransitGatewayAttachmentResourceType: "vpc" |
 	"vpn" |
 	"direct-connect-gateway" |
 	"peering" |
@@ -52,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/TransitGatewayAttachmentResourceType": "v
 	"client-vpn" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayMeteringPayerType": "source-attachment-owner" |
+#TransitGatewayMeteringPayerType: "source-attachment-owner" |
 	"destination-attachment-owner" |
 	"transit-gateway-owner" |
 	fn.#StringExpression

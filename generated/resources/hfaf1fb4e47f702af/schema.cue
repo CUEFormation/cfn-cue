@@ -10,22 +10,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::FSx::StorageVirtualMachine
 #Properties: close({
-	ActiveDirectoryConfiguration?: _#defs."/$defs/Properties/definitions/ActiveDirectoryConfiguration"
+	ActiveDirectoryConfiguration?: #ActiveDirectoryConfiguration
 	FileSystemId!:                 string | fn.#StringExpression
 	Name!:                         string | fn.#StringExpression
 	RootVolumeSecurityStyle?:      string | fn.#StringExpression
 	SvmAdminPassword?:             string | fn.#StringExpression
-	Tags?:                         [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                         [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ActiveDirectoryConfiguration": close({
-	NetBiosName?: string | fn.#StringExpression
-	SelfManagedActiveDirectoryConfiguration?:
-		_#defs."/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration"
+#ActiveDirectoryConfiguration: close({
+	NetBiosName?:                             string | fn.#StringExpression
+	SelfManagedActiveDirectoryConfiguration?: #SelfManagedActiveDirectoryConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration": close({
+#SelfManagedActiveDirectoryConfiguration: close({
 	DnsIps?:                              [...string | fn.#StringExpression] | fn.#ListExpression
 	DomainJoinServiceAccountSecret?:      string | fn.#StringExpression
 	DomainName?:                          string | fn.#StringExpression
@@ -36,7 +35,7 @@ _#defs: "/$defs/Properties/definitions/SelfManagedActiveDirectoryConfiguration":
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

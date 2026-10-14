@@ -37,15 +37,15 @@ import (
 	RuleType!: =~"(?i)^(?:delegate|forward|recursive|system)$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 
 	// An array that contains the IP addresses and ports that an outbound endpoint
 	// forwards DNS queries to. Typically, these are the IP addresses of DNS
 	// resolvers on your network. Specify IPv4 addresses. IPv6 is not supported.
-	TargetIps?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/TargetAddress"]
+	TargetIps?: list.MinItems(1) & [...#TargetAddress]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -59,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TargetAddress": close({
+#TargetAddress: close({
 	// One IP address that you want to forward DNS queries to. You can specify only IPv4 addresses.
 	Ip?: strings.MaxRunes(36) & strings.MinRunes(7)
 

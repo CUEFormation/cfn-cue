@@ -30,14 +30,14 @@ import (
 	// The Amazon Resource Name (ARN) of an IAM role with permission to access the
 	// S3 bucket that contains the block list text file.
 	RoleArn!:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
-	SourceS3Path!: _#defs."/$defs/Properties/definitions/S3Path"
+	SourceS3Path!: #S3Path
 
 	// A list of key-value pairs that identify or categorize the block list.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
 // Information required to find a specific file in an Amazon S3 bucket.
-_#defs: "/$defs/Properties/definitions/S3Path": close({
+#S3Path: close({
 	// The name of the S3 bucket that contains the file.
 	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 
@@ -46,7 +46,7 @@ _#defs: "/$defs/Properties/definitions/S3Path": close({
 })
 
 // A key-value pair that identifies or categorizes a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

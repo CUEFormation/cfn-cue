@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,7 +16,7 @@ import (
 	=~"^arn:aws[-a-z]*:cleanrooms-ml:[-a-z0-9]+:[0-9]{12}:configured-model-algorithm/[-a-zA-Z0-9_/.]+$"
 	Description?: strings.MaxRunes(255) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$"
-	InferenceContainerConfig?: _#defs."/$defs/Properties/definitions/InferenceContainerConfig"
+	InferenceContainerConfig?: #InferenceContainerConfig
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -28,27 +28,25 @@ import (
 	=~"^arn:aws[-a-z]*:iam::[0-9]{12}:role/.+$"
 
 	// An arbitrary set of tags (key-value pairs) for this cleanrooms-ml configured model algorithm.
-	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	TrainingContainerConfig?: _#defs."/$defs/Properties/definitions/ContainerConfig"
+	Tags?:                    list.UniqueItems() & [...#Tag]
+	TrainingContainerConfig?: #ContainerConfig
 })
 
-_#defs: "/$defs/Properties/definitions/ContainerConfig": close({
+#ContainerConfig: close({
 	Arguments?:  list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.*$"]
 	Entrypoint?: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.*$"]
 	ImageUri!:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$"
-	MetricDefinitions?: list.MaxItems(40) & [...] & [..._#defs."/$defs/Properties/definitions/MetricDefinition"]
+	MetricDefinitions?: list.MaxItems(40) & [...] & [...#MetricDefinition]
 })
 
-_#defs: "/$defs/Properties/definitions/InferenceContainerConfig": close(
-	{ImageUri!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$"},
-)
+#InferenceContainerConfig: close({ImageUri!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$"})
 
-_#defs: "/$defs/Properties/definitions/MetricDefinition": close({
+#MetricDefinition: close({
 	Name!:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.+$"
 	Regex!: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^.+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

@@ -19,25 +19,23 @@ import (
 
 	// Name for Cassandra keyspace
 	KeyspaceName?:             =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$"
-	ReplicationSpecification?: _#defs."/$defs/Properties/definitions/ReplicationSpecification"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	ReplicationSpecification?: #ReplicationSpecification
+	Tags?:                     list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/RegionList": list.MaxItems(20) & list.MinItems(2) & list.UniqueItems() & [
-	...=~"^[a-z]{2,}-[a-z]+-[0-9]+$"
-]
+#RegionList: list.MaxItems(20) & list.MinItems(2) & list.UniqueItems() & [...=~"^[a-z]{2,}-[a-z]+-[0-9]+$"]
 
-_#defs: "/$defs/Properties/definitions/ReplicationSpecification": close({
+#ReplicationSpecification: close({
 	RegionList?: _
 	if RegionList != _|_ {
 		ReplicationStrategy!: _
 	}
 	{}
-	"RegionList"?:        _#defs."/$defs/Properties/definitions/RegionList"
+	"RegionList"?:        #RegionList
 	ReplicationStrategy?: "SINGLE_REGION" | "MULTI_REGION"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

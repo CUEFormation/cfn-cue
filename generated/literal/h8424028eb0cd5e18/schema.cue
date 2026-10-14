@@ -54,7 +54,7 @@ import "time"
 })
 
 // Specifies a template parameter name and its associated values for a managed permission.
-_#defs: "/$defs/Properties/definitions/PermissionTemplateParameter": close({
+#PermissionTemplateParameter: close({
 	// The name of the template parameter.
 	Name!: string
 

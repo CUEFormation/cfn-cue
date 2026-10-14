@@ -12,7 +12,7 @@ import "strings"
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[\\w!@#\\-.?,\\s]*"
 
 	// List of Destination connectors of the flow.
-	DestinationFlowConfigList!: [..._#defs."/$defs/Properties/definitions/DestinationFlowConfig"]
+	DestinationFlowConfigList!: [...#DestinationFlowConfig]
 
 	// ARN identifier of the flow.
 	FlowArn?: strings.MaxRunes(512) & =~"arn:aws:appflow:.*:[0-9]+:.*"
@@ -32,70 +32,66 @@ import "strings"
 	=~"arn:aws:kms:.*:[0-9]+:.*"
 
 	// Configurations of metadata catalog of the flow.
-	MetadataCatalogConfig?: _#defs."/$defs/Properties/definitions/MetadataCatalogConfig"
+	MetadataCatalogConfig?: #MetadataCatalogConfig
 
 	// Configurations of Source connector of the flow.
-	SourceFlowConfig!: _#defs."/$defs/Properties/definitions/SourceFlowConfig"
+	SourceFlowConfig!: #SourceFlowConfig
 
 	// List of Tags.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// List of tasks for the flow.
-	Tasks!: [..._#defs."/$defs/Properties/definitions/Task"]
+	Tasks!: [...#Task]
 
 	// Trigger settings of the flow.
-	TriggerConfig!: _#defs."/$defs/Properties/definitions/TriggerConfig"
+	TriggerConfig!: #TriggerConfig
 })
 
-_#defs: "/$defs/Properties/definitions/AggregationConfig": {
-	AggregationType?: _#defs."/$defs/Properties/definitions/AggregationType"
-	TargetFileSize?:  _#defs."/$defs/Properties/definitions/TargetFileSize"
+#AggregationConfig: {
+	AggregationType?: #AggregationType
+	TargetFileSize?:  #TargetFileSize
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/AggregationType": "None" | "SingleFile"
+#AggregationType: "None" | "SingleFile"
 
-_#defs: "/$defs/Properties/definitions/AmplitudeConnectorOperator": "BETWEEN"
+#AmplitudeConnectorOperator: "BETWEEN"
 
-_#defs: "/$defs/Properties/definitions/AmplitudeSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#AmplitudeSourceProperties: close({Object!: #Object})
 
 // The API version that the connector will use.
-_#defs: "/$defs/Properties/definitions/ApiVersion": strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
+#ApiVersion: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/BucketName": strings.MaxRunes(63) & strings.MinRunes(3) & =~"\\S+"
+#BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/BucketPrefix": strings.MaxRunes(512) & strings.MinRunes(0)
+#BucketPrefix: strings.MaxRunes(512) & strings.MinRunes(0)
 
 // Operation to be performed on provided source fields
-_#defs: "/$defs/Properties/definitions/ConnectorOperator": {
-	Amplitude?:       _#defs."/$defs/Properties/definitions/AmplitudeConnectorOperator"
-	CustomConnector?: _#defs."/$defs/Properties/definitions/Operator"
-	Datadog?:         _#defs."/$defs/Properties/definitions/DatadogConnectorOperator"
-	Dynatrace?:       _#defs."/$defs/Properties/definitions/DynatraceConnectorOperator"
-	GoogleAnalytics?: _#defs."/$defs/Properties/definitions/GoogleAnalyticsConnectorOperator"
-	InforNexus?:      _#defs."/$defs/Properties/definitions/InforNexusConnectorOperator"
-	Marketo?:         _#defs."/$defs/Properties/definitions/MarketoConnectorOperator"
-	Pardot?:          _#defs."/$defs/Properties/definitions/PardotConnectorOperator"
-	S3?:              _#defs."/$defs/Properties/definitions/S3ConnectorOperator"
-	SAPOData?:        _#defs."/$defs/Properties/definitions/SAPODataConnectorOperator"
-	Salesforce?:      _#defs."/$defs/Properties/definitions/SalesforceConnectorOperator"
-	ServiceNow?:      _#defs."/$defs/Properties/definitions/ServiceNowConnectorOperator"
-	Singular?:        _#defs."/$defs/Properties/definitions/SingularConnectorOperator"
-	Slack?:           _#defs."/$defs/Properties/definitions/SlackConnectorOperator"
-	Trendmicro?:      _#defs."/$defs/Properties/definitions/TrendmicroConnectorOperator"
-	Veeva?:           _#defs."/$defs/Properties/definitions/VeevaConnectorOperator"
-	Zendesk?:         _#defs."/$defs/Properties/definitions/ZendeskConnectorOperator"
+#ConnectorOperator: {
+	Amplitude?:       #AmplitudeConnectorOperator
+	CustomConnector?: #Operator
+	Datadog?:         #DatadogConnectorOperator
+	Dynatrace?:       #DynatraceConnectorOperator
+	GoogleAnalytics?: #GoogleAnalyticsConnectorOperator
+	InforNexus?:      #InforNexusConnectorOperator
+	Marketo?:         #MarketoConnectorOperator
+	Pardot?:          #PardotConnectorOperator
+	S3?:              #S3ConnectorOperator
+	SAPOData?:        #SAPODataConnectorOperator
+	Salesforce?:      #SalesforceConnectorOperator
+	ServiceNow?:      #ServiceNowConnectorOperator
+	Singular?:        #SingularConnectorOperator
+	Slack?:           #SlackConnectorOperator
+	Trendmicro?:      #TrendmicroConnectorOperator
+	Veeva?:           #VeevaConnectorOperator
+	Zendesk?:         #ZendeskConnectorOperator
 	...
 }
 
 // Name of connector profile
-_#defs: "/$defs/Properties/definitions/ConnectorProfileName": strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"[\\w/!@#+=.-]+"
+#ConnectorProfileName: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+"
 
-_#defs: "/$defs/Properties/definitions/ConnectorType": "SAPOData" |
+#ConnectorType: "SAPOData" |
 	"Salesforce" |
 	"Pardot" |
 	"Singular" |
@@ -118,31 +114,31 @@ _#defs: "/$defs/Properties/definitions/ConnectorType": "SAPOData" |
 	"Upsolver" |
 	"LookoutMetrics"
 
-_#defs: "/$defs/Properties/definitions/CustomConnectorDestinationProperties": close({
-	CustomProperties?:    _#defs."/$defs/Properties/definitions/CustomProperties"
-	EntityName!:          _#defs."/$defs/Properties/definitions/EntityName"
-	ErrorHandlingConfig?: _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
+#CustomConnectorDestinationProperties: close({
+	CustomProperties?:    #CustomProperties
+	EntityName!:          #EntityName
+	ErrorHandlingConfig?: #ErrorHandlingConfig
 
 	// List of fields used as ID when performing a write operation.
 	IdFieldNames?:       [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$"]
-	WriteOperationType?: _#defs."/$defs/Properties/definitions/WriteOperationType"
+	WriteOperationType?: #WriteOperationType
 })
 
-_#defs: "/$defs/Properties/definitions/CustomConnectorSourceProperties": close({
-	CustomProperties?: _#defs."/$defs/Properties/definitions/CustomProperties"
+#CustomConnectorSourceProperties: close({
+	CustomProperties?: #CustomProperties
 	DataTransferApi?: close({
 		Name!: strings.MaxRunes(64) & strings.MinRunes(0) & =~"[\\w/-]+"
 		Type!: "SYNC" | "ASYNC" | "AUTOMATIC"
 	})
-	EntityName!: _#defs."/$defs/Properties/definitions/EntityName"
+	EntityName!: #EntityName
 })
 
 // A map for properties for custom connector.
-_#defs: "/$defs/Properties/definitions/CustomProperties": {...}
+#CustomProperties: {...}
 
-_#defs: "/$defs/Properties/definitions/DataTransferApi": "AUTOMATIC" | "BULKV2" | "REST_SYNC"
+#DataTransferApi: "AUTOMATIC" | "BULKV2" | "REST_SYNC"
 
-_#defs: "/$defs/Properties/definitions/DatadogConnectorOperator": "PROJECTION" |
+#DatadogConnectorOperator: "PROJECTION" |
 	"BETWEEN" |
 	"EQUAL_TO" |
 	"ADDITION" |
@@ -158,48 +154,46 @@ _#defs: "/$defs/Properties/definitions/DatadogConnectorOperator": "PROJECTION" |
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/DatadogSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#DatadogSourceProperties: close({Object!: #Object})
 
 // Name of the datetime/timestamp data type field to be used for importing
 // incremental records from the source
-_#defs: "/$defs/Properties/definitions/DatetimeTypeFieldName": strings.MaxRunes(256) & strings.MinRunes(0)
+#DatetimeTypeFieldName: strings.MaxRunes(256) & strings.MinRunes(0)
 
 // Destination connector details
-_#defs: "/$defs/Properties/definitions/DestinationConnectorProperties": {
-	CustomConnector?: _#defs."/$defs/Properties/definitions/CustomConnectorDestinationProperties"
-	EventBridge?:     _#defs."/$defs/Properties/definitions/EventBridgeDestinationProperties"
-	LookoutMetrics?:  _#defs."/$defs/Properties/definitions/LookoutMetricsDestinationProperties"
-	Marketo?:         _#defs."/$defs/Properties/definitions/MarketoDestinationProperties"
-	Redshift?:        _#defs."/$defs/Properties/definitions/RedshiftDestinationProperties"
-	S3?:              _#defs."/$defs/Properties/definitions/S3DestinationProperties"
-	SAPOData?:        _#defs."/$defs/Properties/definitions/SAPODataDestinationProperties"
-	Salesforce?:      _#defs."/$defs/Properties/definitions/SalesforceDestinationProperties"
-	Snowflake?:       _#defs."/$defs/Properties/definitions/SnowflakeDestinationProperties"
-	Upsolver?:        _#defs."/$defs/Properties/definitions/UpsolverDestinationProperties"
-	Zendesk?:         _#defs."/$defs/Properties/definitions/ZendeskDestinationProperties"
+#DestinationConnectorProperties: {
+	CustomConnector?: #CustomConnectorDestinationProperties
+	EventBridge?:     #EventBridgeDestinationProperties
+	LookoutMetrics?:  #LookoutMetricsDestinationProperties
+	Marketo?:         #MarketoDestinationProperties
+	Redshift?:        #RedshiftDestinationProperties
+	S3?:              #S3DestinationProperties
+	SAPOData?:        #SAPODataDestinationProperties
+	Salesforce?:      #SalesforceDestinationProperties
+	Snowflake?:       #SnowflakeDestinationProperties
+	Upsolver?:        #UpsolverDestinationProperties
+	Zendesk?:         #ZendeskDestinationProperties
 	...
 }
 
 // Configurations of destination connector.
-_#defs: "/$defs/Properties/definitions/DestinationFlowConfig": close({
+#DestinationFlowConfig: close({
 	// The API version that the destination connector uses.
-	ApiVersion?: _#defs."/$defs/Properties/definitions/ApiVersion"
+	ApiVersion?: #ApiVersion
 
 	// Name of destination connector profile
-	ConnectorProfileName?: _#defs."/$defs/Properties/definitions/ConnectorProfileName"
+	ConnectorProfileName?: #ConnectorProfileName
 
 	// Destination connector type
-	ConnectorType!: _#defs."/$defs/Properties/definitions/ConnectorType"
+	ConnectorType!: #ConnectorType
 
 	// Destination connector details
-	DestinationConnectorProperties!: _#defs."/$defs/Properties/definitions/DestinationConnectorProperties"
+	DestinationConnectorProperties!: #DestinationConnectorProperties
 })
 
-_#defs: "/$defs/Properties/definitions/DocumentType": strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w_-]+"
+#DocumentType: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w_-]+"
 
-_#defs: "/$defs/Properties/definitions/DynatraceConnectorOperator": "PROJECTION" |
+#DynatraceConnectorOperator: "PROJECTION" |
 	"BETWEEN" |
 	"EQUAL_TO" |
 	"ADDITION" |
@@ -215,29 +209,27 @@ _#defs: "/$defs/Properties/definitions/DynatraceConnectorOperator": "PROJECTION"
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/DynatraceSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#DynatraceSourceProperties: close({Object!: #Object})
 
-_#defs: "/$defs/Properties/definitions/EnableDynamicFieldUpdate": bool
+#EnableDynamicFieldUpdate: bool
 
-_#defs: "/$defs/Properties/definitions/EntityName": strings.MaxRunes(1024) & strings.MinRunes(0) & =~"\\S+"
+#EntityName: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/ErrorHandlingConfig": close({
-	BucketName?:       _#defs."/$defs/Properties/definitions/BucketName"
-	BucketPrefix?:     _#defs."/$defs/Properties/definitions/BucketPrefix"
+#ErrorHandlingConfig: close({
+	BucketName?:       #BucketName
+	BucketPrefix?:     #BucketPrefix
 	FailOnFirstError?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/EventBridgeDestinationProperties": close({
-	ErrorHandlingConfig?: _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
-	Object!:              _#defs."/$defs/Properties/definitions/Object"
+#EventBridgeDestinationProperties: close({
+	ErrorHandlingConfig?: #ErrorHandlingConfig
+	Object!:              #Object
 })
 
-_#defs: "/$defs/Properties/definitions/FileType": "CSV" | "JSON" | "PARQUET"
+#FileType: "CSV" | "JSON" | "PARQUET"
 
 // Trigger settings of the flow.
-_#defs: "/$defs/Properties/definitions/GlueDataCatalog": close({
+#GlueDataCatalog: close({
 	// A string containing the value for the tag
 	DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(0)
 
@@ -251,27 +243,25 @@ _#defs: "/$defs/Properties/definitions/GlueDataCatalog": close({
 	TablePrefix!: strings.MaxRunes(128) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/GoogleAnalyticsConnectorOperator": "PROJECTION" | "BETWEEN"
+#GoogleAnalyticsConnectorOperator: "PROJECTION" | "BETWEEN"
 
-_#defs: "/$defs/Properties/definitions/GoogleAnalyticsSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#GoogleAnalyticsSourceProperties: close({Object!: #Object})
 
-_#defs: "/$defs/Properties/definitions/IncludeAllVersions": bool
+#IncludeAllVersions: bool
 
-_#defs: "/$defs/Properties/definitions/IncludeDeletedRecords": bool
+#IncludeDeletedRecords: bool
 
-_#defs: "/$defs/Properties/definitions/IncludeRenditions": bool
+#IncludeRenditions: bool
 
-_#defs: "/$defs/Properties/definitions/IncludeSourceFiles": bool
+#IncludeSourceFiles: bool
 
 // Configuration for scheduled incremental data pull
-_#defs: "/$defs/Properties/definitions/IncrementalPullConfig": {
-	DatetimeTypeFieldName?: _#defs."/$defs/Properties/definitions/DatetimeTypeFieldName"
+#IncrementalPullConfig: {
+	DatetimeTypeFieldName?: #DatetimeTypeFieldName
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/InforNexusConnectorOperator": "PROJECTION" |
+#InforNexusConnectorOperator: "PROJECTION" |
 	"BETWEEN" |
 	"EQUAL_TO" |
 	"ADDITION" |
@@ -287,15 +277,11 @@ _#defs: "/$defs/Properties/definitions/InforNexusConnectorOperator": "PROJECTION
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/InforNexusSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#InforNexusSourceProperties: close({Object!: #Object})
 
-_#defs: "/$defs/Properties/definitions/LookoutMetricsDestinationProperties": close(
-	{Object?: _#defs."/$defs/Properties/definitions/Object"},
-)
+#LookoutMetricsDestinationProperties: close({Object?: #Object})
 
-_#defs: "/$defs/Properties/definitions/MarketoConnectorOperator": "PROJECTION" |
+#MarketoConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"BETWEEN" |
@@ -312,26 +298,24 @@ _#defs: "/$defs/Properties/definitions/MarketoConnectorOperator": "PROJECTION" |
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/MarketoDestinationProperties": close({
-	ErrorHandlingConfig?: _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
-	Object!:              _#defs."/$defs/Properties/definitions/Object"
+#MarketoDestinationProperties: close({
+	ErrorHandlingConfig?: #ErrorHandlingConfig
+	Object!:              #Object
 })
 
-_#defs: "/$defs/Properties/definitions/MarketoSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#MarketoSourceProperties: close({Object!: #Object})
 
 // Configurations of metadata catalog of the flow.
-_#defs: "/$defs/Properties/definitions/MetadataCatalogConfig": close({
+#MetadataCatalogConfig: close({
 	// Configurations of glue data catalog of the flow.
-	GlueDataCatalog?: _#defs."/$defs/Properties/definitions/GlueDataCatalog"
+	GlueDataCatalog?: #GlueDataCatalog
 })
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(128) & =~"\\S+"
+#Name: strings.MaxRunes(128) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/Object": strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
+#Object: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+"
 
-_#defs: "/$defs/Properties/definitions/Operator": "PROJECTION" |
+#Operator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"CONTAINS" |
@@ -353,7 +337,7 @@ _#defs: "/$defs/Properties/definitions/Operator": "PROJECTION" |
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/OperatorPropertiesKeys": "VALUE" |
+#OperatorPropertiesKeys: "VALUE" |
 	"VALUES" |
 	"DATA_TYPE" |
 	"UPPER_BOUND" |
@@ -371,7 +355,7 @@ _#defs: "/$defs/Properties/definitions/OperatorPropertiesKeys": "VALUE" |
 	"INCLUDE_NEW_FIELDS" |
 	"ORDERED_PARTITION_KEYS_LIST"
 
-_#defs: "/$defs/Properties/definitions/PardotConnectorOperator": "PROJECTION" |
+#PardotConnectorOperator: "PROJECTION" |
 	"EQUAL_TO" |
 	"NO_OP" |
 	"ADDITION" |
@@ -386,34 +370,32 @@ _#defs: "/$defs/Properties/definitions/PardotConnectorOperator": "PROJECTION" |
 	"VALIDATE_NON_NEGATIVE" |
 	"VALIDATE_NUMERIC"
 
-_#defs: "/$defs/Properties/definitions/PardotSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#PardotSourceProperties: close({Object!: #Object})
 
-_#defs: "/$defs/Properties/definitions/PathPrefix": "EXECUTION_ID" | "SCHEMA_VERSION"
+#PathPrefix: "EXECUTION_ID" | "SCHEMA_VERSION"
 
-_#defs: "/$defs/Properties/definitions/PathPrefixHierarchy": [..._#defs."/$defs/Properties/definitions/PathPrefix"]
+#PathPrefixHierarchy: [...#PathPrefix]
 
-_#defs: "/$defs/Properties/definitions/PrefixConfig": close({
-	PathPrefixHierarchy?: _#defs."/$defs/Properties/definitions/PathPrefixHierarchy"
-	PrefixFormat?:        _#defs."/$defs/Properties/definitions/PrefixFormat"
-	PrefixType?:          _#defs."/$defs/Properties/definitions/PrefixType"
+#PrefixConfig: close({
+	PathPrefixHierarchy?: #PathPrefixHierarchy
+	PrefixFormat?:        #PrefixFormat
+	PrefixType?:          #PrefixType
 })
 
-_#defs: "/$defs/Properties/definitions/PrefixFormat": "YEAR" | "MONTH" | "DAY" | "HOUR" | "MINUTE"
+#PrefixFormat: "YEAR" | "MONTH" | "DAY" | "HOUR" | "MINUTE"
 
-_#defs: "/$defs/Properties/definitions/PrefixType": "FILENAME" | "PATH" | "PATH_AND_FILENAME"
+#PrefixType: "FILENAME" | "PATH" | "PATH_AND_FILENAME"
 
-_#defs: "/$defs/Properties/definitions/PreserveSourceDataTyping": bool
+#PreserveSourceDataTyping: bool
 
-_#defs: "/$defs/Properties/definitions/RedshiftDestinationProperties": close({
-	BucketPrefix?:           _#defs."/$defs/Properties/definitions/BucketPrefix"
-	ErrorHandlingConfig?:    _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
-	IntermediateBucketName!: _#defs."/$defs/Properties/definitions/BucketName"
-	Object!:                 _#defs."/$defs/Properties/definitions/Object"
+#RedshiftDestinationProperties: close({
+	BucketPrefix?:           #BucketPrefix
+	ErrorHandlingConfig?:    #ErrorHandlingConfig
+	IntermediateBucketName!: #BucketName
+	Object!:                 #Object
 })
 
-_#defs: "/$defs/Properties/definitions/S3ConnectorOperator": "PROJECTION" |
+#S3ConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"BETWEEN" |
@@ -434,31 +416,31 @@ _#defs: "/$defs/Properties/definitions/S3ConnectorOperator": "PROJECTION" |
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/S3DestinationProperties": close({
-	BucketName!:           _#defs."/$defs/Properties/definitions/BucketName"
-	BucketPrefix?:         _#defs."/$defs/Properties/definitions/BucketPrefix"
-	S3OutputFormatConfig?: _#defs."/$defs/Properties/definitions/S3OutputFormatConfig"
+#S3DestinationProperties: close({
+	BucketName!:           #BucketName
+	BucketPrefix?:         #BucketPrefix
+	S3OutputFormatConfig?: #S3OutputFormatConfig
 })
 
-_#defs: "/$defs/Properties/definitions/S3InputFormatConfig": {
+#S3InputFormatConfig: {
 	S3InputFileType?: "CSV" | "JSON"
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/S3OutputFormatConfig": close({
-	AggregationConfig?:        _#defs."/$defs/Properties/definitions/AggregationConfig"
-	FileType?:                 _#defs."/$defs/Properties/definitions/FileType"
-	PrefixConfig?:             _#defs."/$defs/Properties/definitions/PrefixConfig"
-	PreserveSourceDataTyping?: _#defs."/$defs/Properties/definitions/PreserveSourceDataTyping"
+#S3OutputFormatConfig: close({
+	AggregationConfig?:        #AggregationConfig
+	FileType?:                 #FileType
+	PrefixConfig?:             #PrefixConfig
+	PreserveSourceDataTyping?: #PreserveSourceDataTyping
 })
 
-_#defs: "/$defs/Properties/definitions/S3SourceProperties": close({
-	BucketName!:          _#defs."/$defs/Properties/definitions/BucketName"
-	BucketPrefix!:        _#defs."/$defs/Properties/definitions/BucketPrefix"
-	S3InputFormatConfig?: _#defs."/$defs/Properties/definitions/S3InputFormatConfig"
+#S3SourceProperties: close({
+	BucketName!:          #BucketName
+	BucketPrefix!:        #BucketPrefix
+	S3InputFormatConfig?: #S3InputFormatConfig
 })
 
-_#defs: "/$defs/Properties/definitions/SAPODataConnectorOperator": "PROJECTION" |
+#SAPODataConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"CONTAINS" |
 	"GREATER_THAN" |
@@ -480,37 +462,33 @@ _#defs: "/$defs/Properties/definitions/SAPODataConnectorOperator": "PROJECTION" 
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/SAPODataDestinationProperties": close({
-	ErrorHandlingConfig?: _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
+#SAPODataDestinationProperties: close({
+	ErrorHandlingConfig?: #ErrorHandlingConfig
 
 	// List of fields used as ID when performing a write operation.
 	IdFieldNames?:                  [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$"]
-	ObjectPath!:                    _#defs."/$defs/Properties/definitions/Object"
-	SuccessResponseHandlingConfig?: _#defs."/$defs/Properties/definitions/SuccessResponseHandlingConfig"
-	WriteOperationType?:            _#defs."/$defs/Properties/definitions/WriteOperationType"
+	ObjectPath!:                    #Object
+	SuccessResponseHandlingConfig?: #SuccessResponseHandlingConfig
+	WriteOperationType?:            #WriteOperationType
 })
 
-_#defs: "/$defs/Properties/definitions/SAPODataMaxPageSize": int & <=10000 & >=1
+#SAPODataMaxPageSize: int & <=10000 & >=1
 
-_#defs: "/$defs/Properties/definitions/SAPODataMaxParallelism": int & <=10 & >=1
+#SAPODataMaxParallelism: int & <=10 & >=1
 
 // SAP Source connector page size
-_#defs: "/$defs/Properties/definitions/SAPODataPaginationConfig": close(
-	{maxPageSize!: _#defs."/$defs/Properties/definitions/SAPODataMaxPageSize"},
-)
+#SAPODataPaginationConfig: close({maxPageSize!: #SAPODataMaxPageSize})
 
 // SAP Source connector parallelism factor
-_#defs: "/$defs/Properties/definitions/SAPODataParallelismConfig": close(
-	{maxParallelism!: _#defs."/$defs/Properties/definitions/SAPODataMaxParallelism"},
-)
+#SAPODataParallelismConfig: close({maxParallelism!: #SAPODataMaxParallelism})
 
-_#defs: "/$defs/Properties/definitions/SAPODataSourceProperties": close({
-	ObjectPath!:        _#defs."/$defs/Properties/definitions/Object"
-	paginationConfig?:  _#defs."/$defs/Properties/definitions/SAPODataPaginationConfig"
-	parallelismConfig?: _#defs."/$defs/Properties/definitions/SAPODataParallelismConfig"
+#SAPODataSourceProperties: close({
+	ObjectPath!:        #Object
+	paginationConfig?:  #SAPODataPaginationConfig
+	parallelismConfig?: #SAPODataParallelismConfig
 })
 
-_#defs: "/$defs/Properties/definitions/SalesforceConnectorOperator": "PROJECTION" |
+#SalesforceConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"CONTAINS" |
 	"GREATER_THAN" |
@@ -532,25 +510,25 @@ _#defs: "/$defs/Properties/definitions/SalesforceConnectorOperator": "PROJECTION
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/SalesforceDestinationProperties": close({
-	DataTransferApi?:     _#defs."/$defs/Properties/definitions/DataTransferApi"
-	ErrorHandlingConfig?: _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
+#SalesforceDestinationProperties: close({
+	DataTransferApi?:     #DataTransferApi
+	ErrorHandlingConfig?: #ErrorHandlingConfig
 
 	// List of fields used as ID when performing a write operation.
 	IdFieldNames?:       [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$"]
-	Object!:             _#defs."/$defs/Properties/definitions/Object"
-	WriteOperationType?: _#defs."/$defs/Properties/definitions/WriteOperationType"
+	Object!:             #Object
+	WriteOperationType?: #WriteOperationType
 })
 
-_#defs: "/$defs/Properties/definitions/SalesforceSourceProperties": close({
-	DataTransferApi?:          _#defs."/$defs/Properties/definitions/DataTransferApi"
-	EnableDynamicFieldUpdate?: _#defs."/$defs/Properties/definitions/EnableDynamicFieldUpdate"
-	IncludeDeletedRecords?:    _#defs."/$defs/Properties/definitions/IncludeDeletedRecords"
-	Object!:                   _#defs."/$defs/Properties/definitions/Object"
+#SalesforceSourceProperties: close({
+	DataTransferApi?:          #DataTransferApi
+	EnableDynamicFieldUpdate?: #EnableDynamicFieldUpdate
+	IncludeDeletedRecords?:    #IncludeDeletedRecords
+	Object!:                   #Object
 })
 
 // Details required for scheduled trigger type
-_#defs: "/$defs/Properties/definitions/ScheduledTriggerProperties": close({
+#ScheduledTriggerProperties: close({
 	DataPullMode?:                   "Incremental" | "Complete"
 	FirstExecutionFrom?:             number
 	FlowErrorDeactivationThreshold?: int & <=100 & >=1
@@ -561,7 +539,7 @@ _#defs: "/$defs/Properties/definitions/ScheduledTriggerProperties": close({
 	TimeZone?:                       strings.MaxRunes(256)
 })
 
-_#defs: "/$defs/Properties/definitions/ServiceNowConnectorOperator": "PROJECTION" |
+#ServiceNowConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"CONTAINS" |
 	"GREATER_THAN" |
@@ -583,11 +561,9 @@ _#defs: "/$defs/Properties/definitions/ServiceNowConnectorOperator": "PROJECTION
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/ServiceNowSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#ServiceNowSourceProperties: close({Object!: #Object})
 
-_#defs: "/$defs/Properties/definitions/SingularConnectorOperator": "PROJECTION" |
+#SingularConnectorOperator: "PROJECTION" |
 	"EQUAL_TO" |
 	"ADDITION" |
 	"MULTIPLICATION" |
@@ -602,11 +578,9 @@ _#defs: "/$defs/Properties/definitions/SingularConnectorOperator": "PROJECTION" 
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/SingularSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#SingularSourceProperties: close({Object!: #Object})
 
-_#defs: "/$defs/Properties/definitions/SlackConnectorOperator": "PROJECTION" |
+#SlackConnectorOperator: "PROJECTION" |
 	"BETWEEN" |
 	"EQUAL_TO" |
 	"ADDITION" |
@@ -622,66 +596,64 @@ _#defs: "/$defs/Properties/definitions/SlackConnectorOperator": "PROJECTION" |
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/SlackSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#SlackSourceProperties: close({Object!: #Object})
 
-_#defs: "/$defs/Properties/definitions/SnowflakeDestinationProperties": close({
-	BucketPrefix?:           _#defs."/$defs/Properties/definitions/BucketPrefix"
-	ErrorHandlingConfig?:    _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
-	IntermediateBucketName!: _#defs."/$defs/Properties/definitions/BucketName"
-	Object!:                 _#defs."/$defs/Properties/definitions/Object"
+#SnowflakeDestinationProperties: close({
+	BucketPrefix?:           #BucketPrefix
+	ErrorHandlingConfig?:    #ErrorHandlingConfig
+	IntermediateBucketName!: #BucketName
+	Object!:                 #Object
 })
 
 // Source connector details required to query a connector
-_#defs: "/$defs/Properties/definitions/SourceConnectorProperties": {
-	Amplitude?:       _#defs."/$defs/Properties/definitions/AmplitudeSourceProperties"
-	CustomConnector?: _#defs."/$defs/Properties/definitions/CustomConnectorSourceProperties"
-	Datadog?:         _#defs."/$defs/Properties/definitions/DatadogSourceProperties"
-	Dynatrace?:       _#defs."/$defs/Properties/definitions/DynatraceSourceProperties"
-	GoogleAnalytics?: _#defs."/$defs/Properties/definitions/GoogleAnalyticsSourceProperties"
-	InforNexus?:      _#defs."/$defs/Properties/definitions/InforNexusSourceProperties"
-	Marketo?:         _#defs."/$defs/Properties/definitions/MarketoSourceProperties"
-	Pardot?:          _#defs."/$defs/Properties/definitions/PardotSourceProperties"
-	S3?:              _#defs."/$defs/Properties/definitions/S3SourceProperties"
-	SAPOData?:        _#defs."/$defs/Properties/definitions/SAPODataSourceProperties"
-	Salesforce?:      _#defs."/$defs/Properties/definitions/SalesforceSourceProperties"
-	ServiceNow?:      _#defs."/$defs/Properties/definitions/ServiceNowSourceProperties"
-	Singular?:        _#defs."/$defs/Properties/definitions/SingularSourceProperties"
-	Slack?:           _#defs."/$defs/Properties/definitions/SlackSourceProperties"
-	Trendmicro?:      _#defs."/$defs/Properties/definitions/TrendmicroSourceProperties"
-	Veeva?:           _#defs."/$defs/Properties/definitions/VeevaSourceProperties"
-	Zendesk?:         _#defs."/$defs/Properties/definitions/ZendeskSourceProperties"
+#SourceConnectorProperties: {
+	Amplitude?:       #AmplitudeSourceProperties
+	CustomConnector?: #CustomConnectorSourceProperties
+	Datadog?:         #DatadogSourceProperties
+	Dynatrace?:       #DynatraceSourceProperties
+	GoogleAnalytics?: #GoogleAnalyticsSourceProperties
+	InforNexus?:      #InforNexusSourceProperties
+	Marketo?:         #MarketoSourceProperties
+	Pardot?:          #PardotSourceProperties
+	S3?:              #S3SourceProperties
+	SAPOData?:        #SAPODataSourceProperties
+	Salesforce?:      #SalesforceSourceProperties
+	ServiceNow?:      #ServiceNowSourceProperties
+	Singular?:        #SingularSourceProperties
+	Slack?:           #SlackSourceProperties
+	Trendmicro?:      #TrendmicroSourceProperties
+	Veeva?:           #VeevaSourceProperties
+	Zendesk?:         #ZendeskSourceProperties
 	...
 }
 
 // Configurations of Source connector of the flow.
-_#defs: "/$defs/Properties/definitions/SourceFlowConfig": close({
+#SourceFlowConfig: close({
 	// The API version that the destination connector uses.
-	ApiVersion?: _#defs."/$defs/Properties/definitions/ApiVersion"
+	ApiVersion?: #ApiVersion
 
 	// Name of source connector profile
-	ConnectorProfileName?: _#defs."/$defs/Properties/definitions/ConnectorProfileName"
+	ConnectorProfileName?: #ConnectorProfileName
 
 	// Type of source connector
-	ConnectorType!: _#defs."/$defs/Properties/definitions/ConnectorType"
+	ConnectorType!: #ConnectorType
 
 	// Configuration for scheduled incremental data pull
-	IncrementalPullConfig?: _#defs."/$defs/Properties/definitions/IncrementalPullConfig"
+	IncrementalPullConfig?: #IncrementalPullConfig
 
 	// Source connector details required to query a connector
-	SourceConnectorProperties!: _#defs."/$defs/Properties/definitions/SourceConnectorProperties"
+	SourceConnectorProperties!: #SourceConnectorProperties
 })
 
-_#defs: "/$defs/Properties/definitions/Status": "Active" | "Draft" | "Errored" | "Suspended"
+#Status: "Active" | "Draft" | "Errored" | "Suspended"
 
-_#defs: "/$defs/Properties/definitions/SuccessResponseHandlingConfig": close({
-	BucketName?:   _#defs."/$defs/Properties/definitions/BucketName"
-	BucketPrefix?: _#defs."/$defs/Properties/definitions/BucketPrefix"
+#SuccessResponseHandlingConfig: close({
+	BucketName?:   #BucketName
+	BucketPrefix?: #BucketPrefix
 })
 
 // A label for tagging AppFlow resources
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string used to identify this tag
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -689,11 +661,11 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TargetFileSize": int
+#TargetFileSize: int
 
-_#defs: "/$defs/Properties/definitions/Task": close({
+#Task: close({
 	// Operation to be performed on provided source fields
-	ConnectorOperator?: _#defs."/$defs/Properties/definitions/ConnectorOperator"
+	ConnectorOperator?: #ConnectorOperator
 
 	// A field value on which source field should be validated
 	DestinationField?: strings.MaxRunes(256) & strings.MinRunes(0)
@@ -702,19 +674,19 @@ _#defs: "/$defs/Properties/definitions/Task": close({
 	SourceFields!: [...strings.MaxRunes(2048) & strings.MinRunes(0)]
 
 	// A Map used to store task related info
-	TaskProperties?: [..._#defs."/$defs/Properties/definitions/TaskPropertiesObject"]
+	TaskProperties?: [...#TaskPropertiesObject]
 
 	// Type of task
-	TaskType!: _#defs."/$defs/Properties/definitions/TaskType"
+	TaskType!: #TaskType
 })
 
 // An object used to store task related info
-_#defs: "/$defs/Properties/definitions/TaskPropertiesObject": close({
-	Key!:   _#defs."/$defs/Properties/definitions/OperatorPropertiesKeys"
+#TaskPropertiesObject: close({
+	Key!:   #OperatorPropertiesKeys
 	Value!: strings.MaxRunes(2048) & =~".+"
 })
 
-_#defs: "/$defs/Properties/definitions/TaskType": "Arithmetic" |
+#TaskType: "Arithmetic" |
 	"Filter" |
 	"Map" |
 	"Map_all" |
@@ -725,7 +697,7 @@ _#defs: "/$defs/Properties/definitions/TaskType": "Arithmetic" |
 	"Validate" |
 	"Partition"
 
-_#defs: "/$defs/Properties/definitions/TrendmicroConnectorOperator": "PROJECTION" |
+#TrendmicroConnectorOperator: "PROJECTION" |
 	"EQUAL_TO" |
 	"ADDITION" |
 	"MULTIPLICATION" |
@@ -740,38 +712,34 @@ _#defs: "/$defs/Properties/definitions/TrendmicroConnectorOperator": "PROJECTION
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/TrendmicroSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#TrendmicroSourceProperties: close({Object!: #Object})
 
 // Trigger settings of the flow.
-_#defs: "/$defs/Properties/definitions/TriggerConfig": close({
+#TriggerConfig: close({
 	// Details required based on the type of trigger
-	TriggerProperties?: _#defs."/$defs/Properties/definitions/ScheduledTriggerProperties"
+	TriggerProperties?: #ScheduledTriggerProperties
 
 	// Trigger type of the flow
-	TriggerType!: _#defs."/$defs/Properties/definitions/TriggerType"
+	TriggerType!: #TriggerType
 })
 
-_#defs: "/$defs/Properties/definitions/TriggerType": "Scheduled" | "Event" | "OnDemand"
+#TriggerType: "Scheduled" | "Event" | "OnDemand"
 
-_#defs: "/$defs/Properties/definitions/UpsolverBucketName": strings.MaxRunes(63) &
-strings.MinRunes(16) &
-=~"^(upsolver-appflow)\\S*"
+#UpsolverBucketName: strings.MaxRunes(63) & strings.MinRunes(16) & =~"^(upsolver-appflow)\\S*"
 
-_#defs: "/$defs/Properties/definitions/UpsolverDestinationProperties": close({
-	BucketName!:           _#defs."/$defs/Properties/definitions/UpsolverBucketName"
-	BucketPrefix?:         _#defs."/$defs/Properties/definitions/BucketPrefix"
-	S3OutputFormatConfig!: _#defs."/$defs/Properties/definitions/UpsolverS3OutputFormatConfig"
+#UpsolverDestinationProperties: close({
+	BucketName!:           #UpsolverBucketName
+	BucketPrefix?:         #BucketPrefix
+	S3OutputFormatConfig!: #UpsolverS3OutputFormatConfig
 })
 
-_#defs: "/$defs/Properties/definitions/UpsolverS3OutputFormatConfig": close({
-	AggregationConfig?: _#defs."/$defs/Properties/definitions/AggregationConfig"
-	FileType?:          _#defs."/$defs/Properties/definitions/FileType"
-	PrefixConfig!:      _#defs."/$defs/Properties/definitions/PrefixConfig"
+#UpsolverS3OutputFormatConfig: close({
+	AggregationConfig?: #AggregationConfig
+	FileType?:          #FileType
+	PrefixConfig!:      #PrefixConfig
 })
 
-_#defs: "/$defs/Properties/definitions/VeevaConnectorOperator": "PROJECTION" |
+#VeevaConnectorOperator: "PROJECTION" |
 	"LESS_THAN" |
 	"GREATER_THAN" |
 	"BETWEEN" |
@@ -792,17 +760,17 @@ _#defs: "/$defs/Properties/definitions/VeevaConnectorOperator": "PROJECTION" |
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/VeevaSourceProperties": close({
-	DocumentType?:       _#defs."/$defs/Properties/definitions/DocumentType"
-	IncludeAllVersions?: _#defs."/$defs/Properties/definitions/IncludeAllVersions"
-	IncludeRenditions?:  _#defs."/$defs/Properties/definitions/IncludeRenditions"
-	IncludeSourceFiles?: _#defs."/$defs/Properties/definitions/IncludeSourceFiles"
-	Object!:             _#defs."/$defs/Properties/definitions/Object"
+#VeevaSourceProperties: close({
+	DocumentType?:       #DocumentType
+	IncludeAllVersions?: #IncludeAllVersions
+	IncludeRenditions?:  #IncludeRenditions
+	IncludeSourceFiles?: #IncludeSourceFiles
+	Object!:             #Object
 })
 
-_#defs: "/$defs/Properties/definitions/WriteOperationType": "INSERT" | "UPSERT" | "UPDATE" | "DELETE"
+#WriteOperationType: "INSERT" | "UPSERT" | "UPDATE" | "DELETE"
 
-_#defs: "/$defs/Properties/definitions/ZendeskConnectorOperator": "PROJECTION" |
+#ZendeskConnectorOperator: "PROJECTION" |
 	"GREATER_THAN" |
 	"ADDITION" |
 	"MULTIPLICATION" |
@@ -817,15 +785,13 @@ _#defs: "/$defs/Properties/definitions/ZendeskConnectorOperator": "PROJECTION" |
 	"VALIDATE_NUMERIC" |
 	"NO_OP"
 
-_#defs: "/$defs/Properties/definitions/ZendeskDestinationProperties": close({
-	ErrorHandlingConfig?: _#defs."/$defs/Properties/definitions/ErrorHandlingConfig"
+#ZendeskDestinationProperties: close({
+	ErrorHandlingConfig?: #ErrorHandlingConfig
 
 	// List of fields used as ID when performing a write operation.
 	IdFieldNames?:       [...] & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\S+$"]
-	Object!:             _#defs."/$defs/Properties/definitions/Object"
-	WriteOperationType?: _#defs."/$defs/Properties/definitions/WriteOperationType"
+	Object!:             #Object
+	WriteOperationType?: #WriteOperationType
 })
 
-_#defs: "/$defs/Properties/definitions/ZendeskSourceProperties": close(
-	{Object!: _#defs."/$defs/Properties/definitions/Object"},
-)
+#ZendeskSourceProperties: close({Object!: #Object})

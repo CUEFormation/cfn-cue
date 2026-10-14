@@ -12,11 +12,9 @@ import (
 // Resource schema for AWS::SecurityHub::AutomationRuleV2
 #Properties: close({
 	// A list of actions to be performed when the rule criteria is met
-	Actions!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AutomationRulesActionV2"
-	]
-	CreatedAt?: _#defs."/$defs/Properties/definitions/ISO8601DateString"
-	Criteria!:  _#defs."/$defs/Properties/definitions/Criteria"
+	Actions!:   list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#AutomationRulesActionV2]
+	CreatedAt?: #ISO8601DateString
+	Criteria!:  #Criteria
 
 	// A description of the automation rule
 	Description!: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*\\S.*"
@@ -36,24 +34,24 @@ import (
 
 	// The status of the automation rule
 	RuleStatus?: "ENABLED" | "DISABLED"
-	Tags?:       _#defs."/$defs/Properties/definitions/Tags"
-	UpdatedAt?:  _#defs."/$defs/Properties/definitions/ISO8601DateString"
+	Tags?:       #Tags
+	UpdatedAt?:  #ISO8601DateString
 })
 
 // The logical operator used to combine multiple conditions
-_#defs: "/$defs/Properties/definitions/AllowedOperators": "AND" | "OR"
+#AllowedOperators: "AND" | "OR"
 
 // Allows you to configure automated responses
-_#defs: "/$defs/Properties/definitions/AutomationRulesActionV2": close({
-	ExternalIntegrationConfiguration?: _#defs."/$defs/Properties/definitions/ExternalIntegrationConfiguration"
-	FindingFieldsUpdate?:              _#defs."/$defs/Properties/definitions/AutomationRulesFindingFieldsUpdateV2"
+#AutomationRulesActionV2: close({
+	ExternalIntegrationConfiguration?: #ExternalIntegrationConfiguration
+	FindingFieldsUpdate?:              #AutomationRulesFindingFieldsUpdateV2
 
 	// The category of action to be executed by the automation rule
 	Type!: "FINDING_FIELDS_UPDATE" | "EXTERNAL_INTEGRATION"
 })
 
 // The changes to be applied to fields in a security finding when an automation rule is triggered
-_#defs: "/$defs/Properties/definitions/AutomationRulesFindingFieldsUpdateV2": close({
+#AutomationRulesFindingFieldsUpdateV2: close({
 	// Notes or contextual information for findings that are modified by the automation rule
 	Comment?: =~".*\\S.*"
 
@@ -65,52 +63,42 @@ _#defs: "/$defs/Properties/definitions/AutomationRulesFindingFieldsUpdateV2": cl
 })
 
 // Boolean filter for querying findings
-_#defs: "/$defs/Properties/definitions/BooleanFilter": close({
+#BooleanFilter: close({
 	// The value of the boolean
 	Value!: bool
 })
 
 // Enables the creation of filtering criteria for security findings
-_#defs: "/$defs/Properties/definitions/CompositeFilter": close({
+#CompositeFilter: close({
 	// Enables filtering based on boolean field values
-	BooleanFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/OcsfBooleanFilter"
-	]
+	BooleanFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#OcsfBooleanFilter]
 
 	// Enables filtering based on date and timestamp fields
-	DateFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/OcsfDateFilter"
-	]
+	DateFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#OcsfDateFilter]
 
 	// Enables filtering based on map field value
-	MapFilters?: list.MaxItems(20) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/OcsfMapFilter"]
+	MapFilters?: list.MaxItems(20) & list.MinItems(1) & [...#OcsfMapFilter]
 
 	// Enables filtering based on numerical field values
-	NumberFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/OcsfNumberFilter"
-	]
-	Operator?: _#defs."/$defs/Properties/definitions/AllowedOperators"
+	NumberFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#OcsfNumberFilter]
+	Operator?:      #AllowedOperators
 
 	// Enables filtering based on string field values
-	StringFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/OcsfStringFilter"
-	]
+	StringFilters?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#OcsfStringFilter]
 })
 
 // Defines the parameters and conditions used to evaluate and filter security findings
-_#defs: "/$defs/Properties/definitions/Criteria": close(
-	{OcsfFindingCriteria?: _#defs."/$defs/Properties/definitions/OcsfFindingFilters"},
-)
+#Criteria: close({OcsfFindingCriteria?: #OcsfFindingFilters})
 
 // A date filter for querying findings
-_#defs: "/$defs/Properties/definitions/DateFilter": close({
-	DateRange?: _#defs."/$defs/Properties/definitions/DateRange"
-	End?:       _#defs."/$defs/Properties/definitions/ISO8601DateString"
-	Start?:     _#defs."/$defs/Properties/definitions/ISO8601DateString"
+#DateFilter: close({
+	DateRange?: #DateRange
+	End?:       #ISO8601DateString
+	Start?:     #ISO8601DateString
 })
 
 // A date range for the date filter
-_#defs: "/$defs/Properties/definitions/DateRange": close({
+#DateRange: close({
 	// A date range unit for the date filter
 	Unit!: "DAYS"
 
@@ -119,16 +107,16 @@ _#defs: "/$defs/Properties/definitions/DateRange": close({
 })
 
 // The settings for integrating automation rule actions with external systems or service
-_#defs: "/$defs/Properties/definitions/ExternalIntegrationConfiguration": close({
+#ExternalIntegrationConfiguration: close({
 	// The ARN of the connector that establishes the integration
 	ConnectorArn?: =~".*\\S.*"
 })
 
 // The timestamp formatted in ISO8601
-_#defs: "/$defs/Properties/definitions/ISO8601DateString": =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$"
+#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$"
 
 // A map filter for filtering findings
-_#defs: "/$defs/Properties/definitions/MapFilter": close({
+#MapFilter: close({
 	// The condition to apply to the key value when filtering findings with a map filter
 	Comparison!: "EQUALS" | "NOT_EQUALS"
 
@@ -140,7 +128,7 @@ _#defs: "/$defs/Properties/definitions/MapFilter": close({
 })
 
 // A number filter for querying findings
-_#defs: "/$defs/Properties/definitions/NumberFilter": close({
+#NumberFilter: close({
 	// The equal-to condition to be applied to a single field when querying for findings
 	Eq?: number
 
@@ -152,51 +140,51 @@ _#defs: "/$defs/Properties/definitions/NumberFilter": close({
 })
 
 // Enables filtering of security findings based on boolean field values in OCSF
-_#defs: "/$defs/Properties/definitions/OcsfBooleanFilter": close({
+#OcsfBooleanFilter: close({
 	// The name of the field
 	FieldName!: "compliance.assessments.meets_criteria" |
 		"vulnerabilities.is_exploit_available" |
 		"vulnerabilities.is_fix_available"
-	Filter!: _#defs."/$defs/Properties/definitions/BooleanFilter"
+	Filter!: #BooleanFilter
 })
 
 // Enables filtering of security findings based on date and timestamp fields in OCSF
-_#defs: "/$defs/Properties/definitions/OcsfDateFilter": close({
+#OcsfDateFilter: close({
 	// The name of the field
 	FieldName!: "finding_info.created_time_dt" |
 		"finding_info.first_seen_time_dt" |
 		"finding_info.last_seen_time_dt" |
 		"finding_info.modified_time_dt"
-	Filter!: _#defs."/$defs/Properties/definitions/DateFilter"
+	Filter!: #DateFilter
 })
 
 // The filtering conditions that align with OCSF standards
-_#defs: "/$defs/Properties/definitions/OcsfFindingFilters": close({
+#OcsfFindingFilters: close({
 	// Enables the creation of complex filtering conditions by combining filter
-	CompositeFilters?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/CompositeFilter"]
-	CompositeOperator?: _#defs."/$defs/Properties/definitions/AllowedOperators"
+	CompositeFilters?:  list.UniqueItems() & [...#CompositeFilter]
+	CompositeOperator?: #AllowedOperators
 })
 
 // Enables filtering of security findings based on map field values in OCSF
-_#defs: "/$defs/Properties/definitions/OcsfMapFilter": close({
+#OcsfMapFilter: close({
 	// The name of the field
 	FieldName!: "resources.tags"
-	Filter!:    _#defs."/$defs/Properties/definitions/MapFilter"
+	Filter!:    #MapFilter
 })
 
 // Enables filtering of security findings based on numerical field values in OCSF
-_#defs: "/$defs/Properties/definitions/OcsfNumberFilter": close({
+#OcsfNumberFilter: close({
 	// The name of the field
 	FieldName!: "activity_id" |
 		"compliance.status_id" |
 		"confidence_score" |
 		"finding_info.related_events_count" |
 		"vendor_attributes.severity_id"
-	Filter!: _#defs."/$defs/Properties/definitions/NumberFilter"
+	Filter!: #NumberFilter
 })
 
 // The name of the field
-_#defs: "/$defs/Properties/definitions/OcsfStringField": "activity_name" |
+#OcsfStringField: "activity_name" |
 	"cloud.account.name" |
 	"cloud.account.uid" |
 	"cloud.provider" |
@@ -230,13 +218,13 @@ _#defs: "/$defs/Properties/definitions/OcsfStringField": "activity_name" |
 	"vendor_attributes.severity"
 
 // Enables filtering of security findings based on string field values in OCSF
-_#defs: "/$defs/Properties/definitions/OcsfStringFilter": close({
-	FieldName!: _#defs."/$defs/Properties/definitions/OcsfStringField"
-	Filter!:    _#defs."/$defs/Properties/definitions/StringFilter"
+#OcsfStringFilter: close({
+	FieldName!: #OcsfStringField
+	Filter!:    #StringFilter
 })
 
 // A string filter for filtering findings
-_#defs: "/$defs/Properties/definitions/StringFilter": close({
+#StringFilter: close({
 	// The condition to apply to a string value when filtering findings
 	Comparison!: "EQUALS" | "PREFIX" | "NOT_EQUALS" | "PREFIX_NOT_EQUALS" | "CONTAINS"
 
@@ -245,4 +233,4 @@ _#defs: "/$defs/Properties/definitions/StringFilter": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": {...}
+#Tags: {...}

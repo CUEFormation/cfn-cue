@@ -57,12 +57,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	InstanceType!: string | fn.#StringExpression
 	OutPostArn?:   =~"^arn:aws([a-z-]+)?:outposts:[a-z\\d-]+:\\d{12}:outpost/op-[a-f0-9]{17}$" | fn.#StringExpression
 	PlacementGroupArn?: =~"^arn:aws([a-z-]+)?:ec2:[a-z\\d-]+:\\d{12}:placement-group/^.{1,255}$" | fn.#StringExpression
-	TagSpecifications?: [..._#defs."/$defs/Properties/definitions/TagSpecification"] | fn.#ListExpression
+	TagSpecifications?: [...#TagSpecification] | fn.#ListExpression
 	Tenancy?:           "dedicated" | "default" | fn.#StringExpression
 	UnusedReservationBillingOwnerId?: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityAllocation": close({
+#CapacityAllocation: close({
 	AllocationType?: string | fn.#StringExpression
 	Count?: int |
 		{
@@ -81,13 +81,13 @@ _#defs: "/$defs/Properties/definitions/CapacityAllocation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagSpecification": close({
+#TagSpecification: close({
 	ResourceType?: "application-status-check" |
 		"capacity-block" |
 		"capacity-manager-data-export" |
@@ -201,7 +201,7 @@ _#defs: "/$defs/Properties/definitions/TagSpecification": close({
 		"vpn-connection-device-type" |
 		"vpn-gateway" |
 		fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

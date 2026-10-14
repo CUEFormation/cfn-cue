@@ -24,13 +24,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Name!:        string | fn.#StringExpression
 	ServiceRole?: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" | fn.#StringExpression
-	SingleSignOn?: _#defs."/$defs/Properties/definitions/SingleSignOn" | fn.#ObjectExpression
-	Tags?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	SingleSignOn?: #SingleSignOn | fn.#ObjectExpression
+	Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AuthType": "IAM_IDC" | "DISABLED" | fn.#StringExpression
+#AuthType: "IAM_IDC" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DomainStatus": "CREATING" |
+#DomainStatus: "CREATING" |
 	"AVAILABLE" |
 	"CREATION_FAILED" |
 	"DELETING" |
@@ -38,25 +38,25 @@ _#defs: "/$defs/Properties/definitions/DomainStatus": "CREATING" |
 	"DELETION_FAILED" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IdcInstanceArn": strings.MaxRunes(1224) &
+#IdcInstanceArn: strings.MaxRunes(1224) &
 strings.MinRunes(10) &
 =~"arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SingleSignOn": close({
-	IdcInstanceArn?: _#defs."/$defs/Properties/definitions/IdcInstanceArn"
-	Type?:           _#defs."/$defs/Properties/definitions/AuthType"
-	UserAssignment?: _#defs."/$defs/Properties/definitions/UserAssignment"
+#SingleSignOn: close({
+	IdcInstanceArn?: #IdcInstanceArn
+	Type?:           #AuthType
+	UserAssignment?: #UserAssignment
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UserAssignment": "AUTOMATIC" | "MANUAL" | fn.#StringExpression
+#UserAssignment: "AUTOMATIC" | "MANUAL" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::DataZone::Domain"
 	Properties!: #Properties

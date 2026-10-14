@@ -11,7 +11,7 @@ import "strings"
 	Arn?: =~"^arn:aws(-[a-z]+)*:cloudfront::[0-9]{12}:trust-store/[A-Za-z0-9_]+$"
 
 	// A CA certificates bundle source.
-	CaCertificatesBundleSource?: _#defs."/$defs/Properties/definitions/CaCertificatesBundleSource"
+	CaCertificatesBundleSource?: #CaCertificatesBundleSource
 	ETag?:                       string
 	Id?:                         string
 	LastModifiedTime?:           string
@@ -22,7 +22,7 @@ import "strings"
 	Status?:                 "PENDING" | "ACTIVE" | "FAILED"
 
 	// A complex type that contains zero or more ``Tag`` elements.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// A boolean. When true, performs real-time certificate revocation checks by
 	// querying the OCSP endpoint specified within the client certificate.
@@ -30,7 +30,7 @@ import "strings"
 })
 
 // The CA certificates bundle location in Amazon S3.
-_#defs: "/$defs/Properties/definitions/CaCertificatesBundleS3Location": close({
+#CaCertificatesBundleS3Location: close({
 	// The S3 bucket.
 	Bucket!: string
 
@@ -45,13 +45,13 @@ _#defs: "/$defs/Properties/definitions/CaCertificatesBundleS3Location": close({
 })
 
 // A CA certificates bundle source.
-_#defs: "/$defs/Properties/definitions/CaCertificatesBundleSource": close({
+#CaCertificatesBundleSource: close({
 	// The CA certificates bundle location in Amazon S3.
-	CaCertificatesBundleS3Location!: _#defs."/$defs/Properties/definitions/CaCertificatesBundleS3Location"
+	CaCertificatesBundleS3Location!: #CaCertificatesBundleS3Location
 })
 
 // A complex type that contains ``Tag`` key and ``Tag`` value.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string that contains ``Tag`` key.
 	// The string length should be between 1 and 128 characters. Valid characters
 	// include ``a-z``, ``A-Z``, ``0-9``, space, and the special characters ``_ - .

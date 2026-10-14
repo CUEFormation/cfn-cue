@@ -7,113 +7,107 @@ package schema
 // Resource Type definition for AWS::MediaLive::Input
 #Properties: close({
 	Arn?:                            string
-	Destinations?:                   [..._#defs."/$defs/Properties/definitions/InputDestinationRequest"]
+	Destinations?:                   [...#InputDestinationRequest]
 	Id?:                             string
-	InputDevices?:                   [..._#defs."/$defs/Properties/definitions/InputDeviceSettings"]
+	InputDevices?:                   [...#InputDeviceSettings]
 	InputNetworkLocation?:           string
 	InputSecurityGroups?:            [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
-	MediaConnectFlows?:              [..._#defs."/$defs/Properties/definitions/MediaConnectFlowRequest"]
-	MulticastSettings?:              _#defs."/$defs/Properties/definitions/MulticastSettingsCreateRequest"
+	MediaConnectFlows?:              [...#MediaConnectFlowRequest]
+	MulticastSettings?:              #MulticastSettingsCreateRequest
 	Name?:                           string
 	RoleArn?:                        =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
-	RouterSettings?:                 _#defs."/$defs/Properties/definitions/RouterSettings"
+	RouterSettings?:                 #RouterSettings
 	SdiSources?:                     [...string]
-	Smpte2110ReceiverGroupSettings?: _#defs."/$defs/Properties/definitions/Smpte2110ReceiverGroupSettings"
-	Sources?:                        [..._#defs."/$defs/Properties/definitions/InputSourceRequest"]
-	SrtSettings?:                    _#defs."/$defs/Properties/definitions/SrtSettingsRequest"
+	Smpte2110ReceiverGroupSettings?: #Smpte2110ReceiverGroupSettings
+	Sources?:                        [...#InputSourceRequest]
+	SrtSettings?:                    #SrtSettingsRequest
 	Tags?:                           string | {...}
 	Type?:                           string
-	Vpc?:                            _#defs."/$defs/Properties/definitions/InputVpcRequest"
+	Vpc?:                            #InputVpcRequest
 })
 
-_#defs: "/$defs/Properties/definitions/InputDestinationRequest": close({
+#InputDestinationRequest: close({
 	Network?:         string
-	NetworkRoutes?:   [..._#defs."/$defs/Properties/definitions/InputRequestDestinationRoute"]
+	NetworkRoutes?:   [...#InputRequestDestinationRoute]
 	StaticIpAddress?: string
 	StreamName?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/InputDeviceSettings": close({Id?: string})
+#InputDeviceSettings: close({Id?: string})
 
-_#defs: "/$defs/Properties/definitions/InputRequestDestinationRoute": close({
+#InputRequestDestinationRoute: close({
 	Cidr?:    string
 	Gateway?: string
 })
 
-_#defs: "/$defs/Properties/definitions/InputSdpLocation": close({
+#InputSdpLocation: close({
 	MediaIndex?: int
 	SdpUrl?:     string
 })
 
-_#defs: "/$defs/Properties/definitions/InputSourceRequest": close({
+#InputSourceRequest: close({
 	PasswordParam?: string
 	Url?:           string
 	Username?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/InputVpcRequest": close({
+#InputVpcRequest: close({
 	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetIds?:        [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/MediaConnectFlowRequest": close({FlowArn?: string})
+#MediaConnectFlowRequest: close({FlowArn?: string})
 
-_#defs: "/$defs/Properties/definitions/MulticastSettingsCreateRequest": close(
-	{Sources?: [..._#defs."/$defs/Properties/definitions/MulticastSourceCreateRequest"]},
-)
+#MulticastSettingsCreateRequest: close({Sources?: [...#MulticastSourceCreateRequest]})
 
-_#defs: "/$defs/Properties/definitions/MulticastSourceCreateRequest": close({
+#MulticastSourceCreateRequest: close({
 	SourceIp?: string
 	Url?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/RouterDestinationSettings": close({AvailabilityZoneName?: string})
+#RouterDestinationSettings: close({AvailabilityZoneName?: string})
 
-_#defs: "/$defs/Properties/definitions/RouterSettings": close({
-	Destinations?:   [..._#defs."/$defs/Properties/definitions/RouterDestinationSettings"]
+#RouterSettings: close({
+	Destinations?:   [...#RouterDestinationSettings]
 	EncryptionType?: string
 	SecretArn?:      string
 })
 
-_#defs: "/$defs/Properties/definitions/Smpte2110ReceiverGroup": close(
-	{SdpSettings?: _#defs."/$defs/Properties/definitions/Smpte2110ReceiverGroupSdpSettings"},
-)
+#Smpte2110ReceiverGroup: close({SdpSettings?: #Smpte2110ReceiverGroupSdpSettings})
 
-_#defs: "/$defs/Properties/definitions/Smpte2110ReceiverGroupSdpSettings": close({
-	AncillarySdps?: [..._#defs."/$defs/Properties/definitions/InputSdpLocation"]
-	AudioSdps?:     [..._#defs."/$defs/Properties/definitions/InputSdpLocation"]
-	VideoSdp?:      _#defs."/$defs/Properties/definitions/InputSdpLocation"
+#Smpte2110ReceiverGroupSdpSettings: close({
+	AncillarySdps?: [...#InputSdpLocation]
+	AudioSdps?:     [...#InputSdpLocation]
+	VideoSdp?:      #InputSdpLocation
 })
 
-_#defs: "/$defs/Properties/definitions/Smpte2110ReceiverGroupSettings": close(
-	{Smpte2110ReceiverGroups?: [..._#defs."/$defs/Properties/definitions/Smpte2110ReceiverGroup"]},
-)
+#Smpte2110ReceiverGroupSettings: close({Smpte2110ReceiverGroups?: [...#Smpte2110ReceiverGroup]})
 
-_#defs: "/$defs/Properties/definitions/SrtCallerDecryptionRequest": close({
+#SrtCallerDecryptionRequest: close({
 	Algorithm?:           string
 	PassphraseSecretArn?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SrtCallerSourceRequest": close({
-	Decryption?:         _#defs."/$defs/Properties/definitions/SrtCallerDecryptionRequest"
+#SrtCallerSourceRequest: close({
+	Decryption?:         #SrtCallerDecryptionRequest
 	MinimumLatency?:     int
 	SrtListenerAddress?: string
 	SrtListenerPort?:    string
 	StreamId?:           string
 })
 
-_#defs: "/$defs/Properties/definitions/SrtListenerDecryptionRequest": close({
+#SrtListenerDecryptionRequest: close({
 	Algorithm?:           string
 	PassphraseSecretArn?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SrtListenerSettingsRequest": close({
-	Decryption?:     _#defs."/$defs/Properties/definitions/SrtListenerDecryptionRequest"
+#SrtListenerSettingsRequest: close({
+	Decryption?:     #SrtListenerDecryptionRequest
 	MinimumLatency?: int
 	StreamId?:       string
 })
 
-_#defs: "/$defs/Properties/definitions/SrtSettingsRequest": close({
-	SrtCallerSources?:    [..._#defs."/$defs/Properties/definitions/SrtCallerSourceRequest"]
-	SrtListenerSettings?: _#defs."/$defs/Properties/definitions/SrtListenerSettingsRequest"
+#SrtSettingsRequest: close({
+	SrtCallerSources?:    [...#SrtCallerSourceRequest]
+	SrtListenerSettings?: #SrtListenerSettingsRequest
 })

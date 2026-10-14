@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"struct"
+	"strings"
 	"list"
 )
 
@@ -13,12 +13,12 @@ import (
 // Resource type definition for AWS::NetworkFirewall::LoggingConfiguration
 #Properties: close({
 	EnableMonitoringDashboard?: bool
-	FirewallArn!:               _#defs."/$defs/Properties/definitions/ResourceArn"
+	FirewallArn!:               #ResourceArn
 	FirewallName?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$"
-	LoggingConfiguration!:      _#defs."/$defs/Properties/definitions/LoggingConfiguration"
+	LoggingConfiguration!:      #LoggingConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/LogDestinationConfig": close({
+#LogDestinationConfig: close({
 	// A key-value pair to configure the logDestinations.
 	LogDestination!: struct.MinFields(1) & close({
 
@@ -27,9 +27,7 @@ _#defs: "/$defs/Properties/definitions/LogDestinationConfig": close({
 	LogType!:            "ALERT" | "FLOW" | "TLS"
 })
 
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close(
-	{LogDestinationConfigs!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LogDestinationConfig"]},
-)
+#LoggingConfiguration: close({LogDestinationConfigs!: list.MinItems(1) & [...#LogDestinationConfig]})
 
 // A resource ARN.
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$"
+#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$"

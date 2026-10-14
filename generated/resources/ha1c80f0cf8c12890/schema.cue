@@ -51,7 +51,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	HealthCheckPaths?: [..._#defs."/$defs/Properties/definitions/HealthCheckPath"] | fn.#ListExpression
+	HealthCheckPaths?: [...#HealthCheckPath] | fn.#ListExpression
 	InitializationGracePeriodSeconds?: int & <=600 & >=-1 |
 		{
 			string &
@@ -117,7 +117,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	Timeout?: int |
 		{
 			string &
@@ -134,27 +134,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/HealthCheckPath": close({
-	Destinations?: [..._#defs."/$defs/Properties/definitions/HealthCheckPathDestination"] | fn.#ListExpression
-	Source?:       _#defs."/$defs/Properties/definitions/HealthCheckPathSource"
+#HealthCheckPath: close({
+	Destinations?: [...#HealthCheckPathDestination] | fn.#ListExpression
+	Source?:       #HealthCheckPathSource
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckPathDestination": close({
+#HealthCheckPathDestination: close({
 	SecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	SubnetId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HealthCheckPathSource": close({
+#HealthCheckPathSource: close({
 	SecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	SubnetId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

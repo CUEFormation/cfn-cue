@@ -12,10 +12,10 @@ import (
 // Resource Type definition for AWS::ElasticLoadBalancing::LoadBalancer
 #Properties: close({
 	// Information about where and how access logs are stored for the load balancer.
-	AccessLoggingPolicy?: _#defs."/$defs/Properties/definitions/AccessLoggingPolicy"
+	AccessLoggingPolicy?: #AccessLoggingPolicy
 
 	// Information about a policy for application-controlled session stickiness.
-	AppCookieStickinessPolicy?: [..._#defs."/$defs/Properties/definitions/AppCookieStickinessPolicy"]
+	AppCookieStickinessPolicy?: [...#AppCookieStickinessPolicy]
 
 	// The Availability Zones for a load balancer in a default VPC. For a load
 	// balancer in a nondefault VPC, specify Subnets instead.
@@ -30,11 +30,11 @@ import (
 
 	// If enabled, the load balancer allows existing requests to complete before the
 	// load balancer shifts traffic away from a deregistered or unhealthy instance.
-	ConnectionDrainingPolicy?: _#defs."/$defs/Properties/definitions/ConnectionDrainingPolicy"
+	ConnectionDrainingPolicy?: #ConnectionDrainingPolicy
 
 	// If enabled, the load balancer allows the connections to remain idle (no data
 	// is sent over the connection) for the specified duration.
-	ConnectionSettings?: _#defs."/$defs/Properties/definitions/ConnectionSettings"
+	ConnectionSettings?: #ConnectionSettings
 
 	// If enabled, the load balancer routes the request traffic evenly across all
 	// instances regardless of the Availability Zones.
@@ -44,41 +44,41 @@ import (
 	DNSName?: string
 
 	// The health check settings to use when evaluating the health of your EC2 instances.
-	HealthCheck?: _#defs."/$defs/Properties/definitions/HealthCheck"
+	HealthCheck?: #HealthCheck
 
 	// The IDs of the instances for the load balancer.
 	Instances?: [...string]
 
 	// Information about a policy for duration-based session stickiness.
-	LBCookieStickinessPolicy?: [..._#defs."/$defs/Properties/definitions/LBCookieStickinessPolicy"]
+	LBCookieStickinessPolicy?: [...#LBCookieStickinessPolicy]
 
 	// The Listeners for the load balancer. You can specify at most one listener per port.
-	Listeners!: [..._#defs."/$defs/Properties/definitions/Listeners"]
+	Listeners!: [...#Listeners]
 
 	// The name of the load balancer. This name must be unique within your set of
 	// load balancers for the region.
 	LoadBalancerName?: string
 
 	// The policies defined for your Classic Load Balancer. Specify only back-end server policies.
-	Policies?: [..._#defs."/$defs/Properties/definitions/Policies"]
+	Policies?: [...#Policies]
 
 	// The type of load balancer. Valid only for load balancers in a VPC.
 	Scheme?: string
 
 	// The security groups for the load balancer. Valid only for load balancers in a VPC.
 	SecurityGroups?:      [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
-	SourceSecurityGroup?: _#defs."/$defs/Properties/definitions/SourceSecurityGroup"
+	SourceSecurityGroup?: #SourceSecurityGroup
 
 	// The IDs of the subnets for the load balancer. You can specify at most one
 	// subnet per Availability Zone.
 	Subnets?: [...string]
 
 	// The tags associated with a load balancer.
-	Tags?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MinItems(1) & [...#Tag]
 })
 
 // Information about where and how access logs are stored for the load balancer.
-_#defs: "/$defs/Properties/definitions/AccessLoggingPolicy": close({
+#AccessLoggingPolicy: close({
 	// The interval for publishing the access logs. You can specify an interval of
 	// either 5 minutes or 60 minutes.
 	//
@@ -98,7 +98,7 @@ _#defs: "/$defs/Properties/definitions/AccessLoggingPolicy": close({
 })
 
 // Information about a policy for application-controlled session stickiness.
-_#defs: "/$defs/Properties/definitions/AppCookieStickinessPolicy": close({
+#AppCookieStickinessPolicy: close({
 	// The name of the application cookie used for stickiness.
 	CookieName!: string
 
@@ -109,7 +109,7 @@ _#defs: "/$defs/Properties/definitions/AppCookieStickinessPolicy": close({
 
 // If enabled, the load balancer allows existing requests to complete before the
 // load balancer shifts traffic away from a deregistered or unhealthy instance.
-_#defs: "/$defs/Properties/definitions/ConnectionDrainingPolicy": close({
+#ConnectionDrainingPolicy: close({
 	// Specifies whether connection draining is enabled for the load balancer.
 	Enabled!: bool
 
@@ -120,7 +120,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionDrainingPolicy": close({
 
 // If enabled, the load balancer allows the connections to remain idle (no data
 // is sent over the connection) for the specified duration.
-_#defs: "/$defs/Properties/definitions/ConnectionSettings": close({
+#ConnectionSettings: close({
 	// The time, in seconds, that the connection is allowed to be idle (no data has
 	// been sent over the connection) before it is closed by the load balancer.
 	IdleTimeout!: int
@@ -131,7 +131,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionSettings": close({
 // Update requires replacement if you did not previously specify health check
 // settings or if you are removing the health check settings. Otherwise, update
 // requires no interruption.
-_#defs: "/$defs/Properties/definitions/HealthCheck": close({
+#HealthCheck: close({
 	// The number of consecutive health checks successes required before moving the
 	// instance to the `Healthy` state.
 	HealthyThreshold!: string
@@ -153,7 +153,7 @@ _#defs: "/$defs/Properties/definitions/HealthCheck": close({
 })
 
 // Information about a policy for duration-based session stickiness.
-_#defs: "/$defs/Properties/definitions/LBCookieStickinessPolicy": close({
+#LBCookieStickinessPolicy: close({
 	// The time period, in seconds, after which the cookie should be considered
 	// stale. If this parameter is not specified, the stickiness session lasts for
 	// the duration of the browser session.
@@ -164,7 +164,7 @@ _#defs: "/$defs/Properties/definitions/LBCookieStickinessPolicy": close({
 	PolicyName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Listeners": close({
+#Listeners: close({
 	// The port on which the instance is listening.
 	InstancePort!: string
 
@@ -198,9 +198,9 @@ _#defs: "/$defs/Properties/definitions/Listeners": close({
 	SSLCertificateId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Policies": close({
+#Policies: close({
 	// The policy attributes.
-	Attributes!: [..._#defs."/$defs/Properties/definitions/PolicyItem"]
+	Attributes!: [...#PolicyItem]
 
 	// The instance ports for the policy. Required only for some policy types.
 	InstancePorts?: [...string]
@@ -215,12 +215,12 @@ _#defs: "/$defs/Properties/definitions/Policies": close({
 	PolicyType!: string
 })
 
-_#defs: "/$defs/Properties/definitions/PolicyItem": close({
+#PolicyItem: close({
 	Name?:  string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/SourceSecurityGroup": close({
+#SourceSecurityGroup: close({
 	// The name of the security group that you can use as part of your inbound rules
 	// for your load balancer's back-end instances.
 	GroupName?: string
@@ -229,7 +229,7 @@ _#defs: "/$defs/Properties/definitions/SourceSecurityGroup": close({
 	OwnerAlias?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that's 1 to 128 Unicode
 	// characters in length and can't be prefixed with `aws:`. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace,

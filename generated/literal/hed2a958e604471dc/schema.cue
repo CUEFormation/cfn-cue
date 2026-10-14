@@ -6,21 +6,21 @@ package schema
 
 // Resource Type definition for AWS::SES::VdmAttributes
 #Properties: close({
-	DashboardAttributes?: _#defs."/$defs/Properties/definitions/DashboardAttributes"
-	GuardianAttributes?:  _#defs."/$defs/Properties/definitions/GuardianAttributes"
+	DashboardAttributes?: #DashboardAttributes
+	GuardianAttributes?:  #GuardianAttributes
 
 	// Unique identifier for this resource
 	VdmAttributesResourceId?: string
 })
 
 // Preferences regarding the Dashboard feature.
-_#defs: "/$defs/Properties/definitions/DashboardAttributes": close({
+#DashboardAttributes: close({
 	// Whether emails sent from this account have engagement tracking enabled.
 	EngagementMetrics?: =~"ENABLED|DISABLED"
 })
 
 // Preferences regarding the Guardian feature.
-_#defs: "/$defs/Properties/definitions/GuardianAttributes": close({
+#GuardianAttributes: close({
 	// Whether emails sent from this account have optimized delivery algorithm enabled.
 	OptimizedSharedDelivery?: =~"ENABLED|DISABLED"
 })

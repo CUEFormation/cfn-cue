@@ -38,12 +38,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	Severity?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	Source!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?: list.MaxItems(1000) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	Title!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Tags?:     list.MaxItems(1000) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	Title!:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"time"
 	"list"
-	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,9 +25,7 @@ import (
 	DataRepositoryAssociationIds?: [...string]
 
 	// Data repository associations for the cache
-	DataRepositoryAssociations?: list.MaxItems(8) & [...] & [
-		..._#defs."/$defs/Properties/definitions/DataRepositoryAssociation"
-	]
+	DataRepositoryAssociations?: list.MaxItems(8) & [...] & [...#DataRepositoryAssociation]
 
 	// The ID of the file cache
 	FileCacheId?: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fc-[0-9a-f]{8,})$"
@@ -45,7 +43,7 @@ import (
 	Lifecycle?: "AVAILABLE" | "CREATING" | "DELETING" | "UPDATING" | "FAILED"
 
 	// The Lustre configuration for the file cache
-	LustreConfiguration?: _#defs."/$defs/Properties/definitions/LustreConfiguration"
+	LustreConfiguration?: #LustreConfiguration
 
 	// Network interface IDs for the cache
 	NetworkInterfaceIds?: [...string]
@@ -73,34 +71,34 @@ import (
 	]
 
 	// Tags to associate with the file cache
-	Tags?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag]
 
 	// The VPC ID of the cache
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/DataRepositoryAssociation": close({
+#DataRepositoryAssociation: close({
 	DataRepositoryPath!: strings.MaxRunes(4357) & strings.MinRunes(3)
 	FileCachePath!:      strings.MaxRunes(4096) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/LogConfiguration": close({
+#LogConfiguration: close({
 	Destination?: strings.MaxRunes(1024) & strings.MinRunes(8)
 	Level!:       "DISABLED" | "WARN_ONLY" | "ERROR_ONLY" | "WARN_ERROR"
 })
 
-_#defs: "/$defs/Properties/definitions/LustreConfiguration": close({
+#LustreConfiguration: close({
 	DeploymentType!:             "CACHE_1"
-	LogConfiguration?:           _#defs."/$defs/Properties/definitions/LogConfiguration"
-	MetadataConfiguration!:      _#defs."/$defs/Properties/definitions/MetadataConfiguration"
+	LogConfiguration?:           #LogConfiguration
+	MetadataConfiguration!:      #MetadataConfiguration
 	MountName?:                  strings.MaxRunes(8) & strings.MinRunes(1) & =~"^([A-Za-z0-9_-]{1,8})$"
 	PerUnitStorageThroughput!:   int & <=1000 & >=12
 	WeeklyMaintenanceStartTime?: strings.MaxRunes(7) & strings.MinRunes(7) & =~"^[1-7]:([01]\\d|2[0-3]):?([0-5]\\d)$"
 })
 
-_#defs: "/$defs/Properties/definitions/MetadataConfiguration": close({StorageCapacity!: int & <=2147483647 & >=0})
+#MetadataConfiguration: close({StorageCapacity!: int & <=2147483647 & >=0})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

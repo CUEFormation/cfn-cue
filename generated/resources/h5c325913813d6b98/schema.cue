@@ -10,20 +10,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::ResourceExplorer2::Index Resource Type
 #Properties: close({
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
-	Type!: _#defs."/$defs/Properties/definitions/IndexType"
+	Tags?: #TagMap
+	Type!: #IndexType
 })
 
-_#defs: "/$defs/Properties/definitions/IndexState": "ACTIVE" |
-	"CREATING" |
-	"DELETING" |
-	"DELETED" |
-	"UPDATING" |
-	fn.#StringExpression
+#IndexState: "ACTIVE" | "CREATING" | "DELETING" | "DELETED" | "UPDATING" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/IndexType": "LOCAL" | "AGGREGATOR" | fn.#StringExpression
+#IndexType: "LOCAL" | "AGGREGATOR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: string | fn.#StringExpression}}) |
 fn.#ObjectExpression

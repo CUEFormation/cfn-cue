@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Schema of AWS::EC2::IPAMAllocation Type
 #Properties: close({
-	Cidr?:        _#defs."/$defs/Properties/definitions/Cidr"
+	Cidr?:        #Cidr
 	Description?: string | fn.#StringExpression
 	IpamPoolId!:  string | fn.#StringExpression
 	NetmaskLength?: int |
@@ -33,7 +33,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Cidr": string | fn.#StringExpression
+#Cidr: string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EC2::IPAMAllocation"
 	Properties!: #Properties

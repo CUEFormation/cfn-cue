@@ -22,22 +22,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // https://docs.aws.amazon.com/AmazonECS/latest/developerguide/deployment-types.htmlin
 // the Amazon Elastic Container Service Developer Guide.
 #Properties: close({
-	CapacityProviderStrategy?: [..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"] |
-		fn.#ListExpression
-	Cluster!:              string | fn.#StringExpression
-	ExternalId?:           string | fn.#StringExpression
-	LaunchType?:           "EC2" | "FARGATE" | fn.#StringExpression
-	LoadBalancers?:        [..._#defs."/$defs/Properties/definitions/LoadBalancer"] | fn.#ListExpression
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-	PlatformVersion?:      string | fn.#StringExpression
-	Scale?:                _#defs."/$defs/Properties/definitions/Scale" | fn.#ObjectExpression
-	Service!:              string | fn.#StringExpression
-	ServiceRegistries?:    [..._#defs."/$defs/Properties/definitions/ServiceRegistry"] | fn.#ListExpression
-	Tags?:           list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TaskDefinition!: string | fn.#StringExpression
+	CapacityProviderStrategy?: [...#CapacityProviderStrategyItem] | fn.#ListExpression
+	Cluster!:                  string | fn.#StringExpression
+	ExternalId?:               string | fn.#StringExpression
+	LaunchType?:               "EC2" | "FARGATE" | fn.#StringExpression
+	LoadBalancers?:            [...#LoadBalancer] | fn.#ListExpression
+	NetworkConfiguration?:     #NetworkConfiguration
+	PlatformVersion?:          string | fn.#StringExpression
+	Scale?:                    #Scale | fn.#ObjectExpression
+	Service!:                  string | fn.#StringExpression
+	ServiceRegistries?:        [...#ServiceRegistry] | fn.#ListExpression
+	Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	TaskDefinition!:           string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
+#AwsVpcConfiguration: close({
 	AssignPublicIp?: "DISABLED" | "ENABLED" | fn.#StringExpression
 	SecurityGroups?: list.MaxItems(5) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -48,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
+#CapacityProviderStrategyItem: close({
 	Base?: int & <=100000 & >=0 |
 		{
 			string &
@@ -85,7 +84,7 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoadBalancer": close({
+#LoadBalancer: close({
 	ContainerName?: string | fn.#StringExpression
 	ContainerPort?: int |
 		{
@@ -105,12 +104,9 @@ _#defs: "/$defs/Properties/definitions/LoadBalancer": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close(
-	{AwsVpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration"},
-) |
-	fn.#ObjectExpression
+#NetworkConfiguration: close({AwsVpcConfiguration?: #AwsVpcConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Scale": close({
+#Scale: close({
 	Unit?: "PERCENT" | fn.#StringExpression
 	Value?: <=100 & >=0 |
 		{
@@ -135,7 +131,7 @@ _#defs: "/$defs/Properties/definitions/Scale": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServiceRegistry": close({
+#ServiceRegistry: close({
 	ContainerName?: string | fn.#StringExpression
 	ContainerPort?: int |
 		{
@@ -169,7 +165,7 @@ _#defs: "/$defs/Properties/definitions/ServiceRegistry": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

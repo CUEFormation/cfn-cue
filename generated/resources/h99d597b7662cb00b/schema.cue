@@ -17,19 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Name!:            strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	RoutingStrategy!: _#defs."/$defs/Properties/definitions/RoutingStrategy" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	RoutingStrategy!: #RoutingStrategy | fn.#ObjectExpression
+	Tags?:            list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/RoutingStrategy": close({
+#RoutingStrategy: close({
 	FleetId?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-z]*fleet-[a-zA-Z0-9\\-]+" | fn.#StringExpression
 	Message?: string | fn.#StringExpression
 	Type!:    "SIMPLE" | "TERMINAL" | fn.#StringExpression
 }) & matchN(>=1, [{FleetId!: _}, {Message!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

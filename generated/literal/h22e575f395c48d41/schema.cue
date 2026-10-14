@@ -11,26 +11,22 @@ package schema
 	MeshName!:          string
 	MeshOwner?:         string
 	ResourceOwner?:     string
-	Spec!:              _#defs."/$defs/Properties/definitions/VirtualRouterSpec"
-	Tags?:              [..._#defs."/$defs/Properties/definitions/Tag"]
+	Spec!:              #VirtualRouterSpec
+	Tags?:              [...#Tag]
 	Uid?:               string
 	VirtualRouterName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/PortMapping": close({
+#PortMapping: close({
 	Port!:     int
 	Protocol!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/VirtualRouterListener": close(
-	{PortMapping!: _#defs."/$defs/Properties/definitions/PortMapping"},
-)
+#VirtualRouterListener: close({PortMapping!: #PortMapping})
 
-_#defs: "/$defs/Properties/definitions/VirtualRouterSpec": close(
-	{Listeners!: [..._#defs."/$defs/Properties/definitions/VirtualRouterListener"]},
-)
+#VirtualRouterSpec: close({Listeners!: [...#VirtualRouterListener]})

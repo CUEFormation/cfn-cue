@@ -14,14 +14,12 @@ import (
 // irrespective of the region in which they were created.
 #Properties: close({
 	// The advanced event selectors that were used to select events for the data store.
-	AdvancedEventSelectors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AdvancedEventSelector"]
+	AdvancedEventSelectors?: list.UniqueItems() & [...#AdvancedEventSelector]
 
 	// Specifies the aggregation configuration to aggregate CloudTrail Events. A
 	// maximum of 1 aggregation configuration is allowed.
-	AggregationConfigurations?: list.MaxItems(1) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/AggregationConfiguration"
-	]
-	Arn?: string
+	AggregationConfigurations?: list.MaxItems(1) & list.UniqueItems() & [...] & [...#AggregationConfiguration]
+	Arn?:                       string
 
 	// Specifies a log group name using an Amazon Resource Name (ARN), a unique
 	// identifier that represents the log group to which CloudTrail logs will be
@@ -42,7 +40,7 @@ import (
 	// selector, the trail processes and logs the event. If the event doesn't match
 	// any event selector, the trail doesn't log the event. You can configure up to
 	// five event selectors for a trail.
-	EventSelectors?: list.MaxItems(5) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EventSelector"]
+	EventSelectors?: list.MaxItems(5) & list.UniqueItems() & [...#EventSelector]
 
 	// Specifies whether the trail is publishing events from global services such as
 	// IAM to the log files.
@@ -50,7 +48,7 @@ import (
 
 	// Lets you enable Insights event logging by specifying the Insights selectors
 	// that you want to enable on an existing trail.
-	InsightSelectors?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InsightSelector"]
+	InsightSelectors?: list.UniqueItems() & [...#InsightSelector]
 
 	// Whether the CloudTrail is currently logging AWS API calls.
 	IsLogging!: bool
@@ -90,7 +88,7 @@ import (
 	// Specifies the name of the Amazon SNS topic defined for notification of log
 	// file delivery. The maximum length is 256 characters.
 	SnsTopicName?: strings.MaxRunes(256)
-	Tags?:         [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:         [...#Tag]
 	TrailName?: strings.MaxRunes(128) &
 	strings.MinRunes(3) &
 	=~"(^[a-zA-Z0-9]$)|(^[a-zA-Z0-9]([a-zA-Z0-9\\._-])*[a-zA-Z0-9]$)"
@@ -99,11 +97,9 @@ import (
 // Advanced event selectors let you create fine-grained selectors for the
 // following AWS CloudTrail event record fields. They help you control costs by
 // logging only those events that are important to you.
-_#defs: "/$defs/Properties/definitions/AdvancedEventSelector": close({
+#AdvancedEventSelector: close({
 	// Contains all selector statements in an advanced event selector.
-	FieldSelectors!: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/AdvancedFieldSelector"
-	]
+	FieldSelectors!: list.MinItems(1) & list.UniqueItems() & [...#AdvancedFieldSelector]
 
 	// An optional, descriptive name for an advanced event selector, such as "Log
 	// data events for only two S3 buckets".
@@ -111,7 +107,7 @@ _#defs: "/$defs/Properties/definitions/AdvancedEventSelector": close({
 })
 
 // A single selector statement in an advanced event selector.
-_#defs: "/$defs/Properties/definitions/AdvancedFieldSelector": close({
+#AdvancedFieldSelector: close({
 	// An operator that includes events that match the last few characters of the
 	// event record field specified as the value of Field.
 	EndsWith?: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)"]
@@ -145,14 +141,12 @@ _#defs: "/$defs/Properties/definitions/AdvancedFieldSelector": close({
 })
 
 // Configure to add aggregation rules to aggregate CloudTrail Events.
-_#defs: "/$defs/Properties/definitions/AggregationConfiguration": close({
+#AggregationConfiguration: close({
 	// The category of events to be aggregated.
 	EventCategory!: "Data"
 
 	// Contains all templates in an aggregation configuration.
-	Templates!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Template"
-	]
+	Templates!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Template]
 })
 
 // CloudTrail supports data event logging for Amazon S3 objects and AWS Lambda
@@ -160,7 +154,7 @@ _#defs: "/$defs/Properties/definitions/AggregationConfiguration": close({
 // selector, but the total number of data resources cannot exceed 250 across
 // all event selectors in a trail. This limit does not apply if you configure
 // resource logging for all data events.
-_#defs: "/$defs/Properties/definitions/DataResource": close({
+#DataResource: close({
 	// The resource type in which you want to log data events. You can specify
 	// AWS::S3::Object or AWS::Lambda::Function resources.
 	Type!: "AWS::Lambda::Function" |
@@ -178,8 +172,8 @@ _#defs: "/$defs/Properties/definitions/DataResource": close({
 })
 
 // The type of email sending events to publish to the event destination.
-_#defs: "/$defs/Properties/definitions/EventSelector": close({
-	DataResources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DataResource"]
+#EventSelector: close({
+	DataResources?: list.UniqueItems() & [...#DataResource]
 
 	// An optional list of service event sources from which you do not want
 	// management events to be logged on your trail. In this release, the list can
@@ -199,20 +193,20 @@ _#defs: "/$defs/Properties/definitions/EventSelector": close({
 })
 
 // A string that contains insight types that are logged on a trail.
-_#defs: "/$defs/Properties/definitions/InsightSelector": close({
+#InsightSelector: close({
 	// The categories of events for which to log insights. By default, insights are
 	// logged for management events only.
-	EventCategories?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SourceEventCategory"]
+	EventCategories?: list.UniqueItems() & [...#SourceEventCategory]
 
 	// The type of insight to log on a trail.
 	InsightType?: "ApiCallRateInsight" | "ApiErrorRateInsight"
 })
 
 // Event category for an insight selector.
-_#defs: "/$defs/Properties/definitions/SourceEventCategory": "Management" | "Data"
+#SourceEventCategory: "Management" | "Data"
 
 // An arbitrary set of tags (key-value pairs) for this trail.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -227,4 +221,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // A template used to configure aggregation rules.
-_#defs: "/$defs/Properties/definitions/Template": "API_ACTIVITY" | "RESOURCE_ACCESS" | "USER_ACTIONS"
+#Template: "API_ACTIVITY" | "RESOURCE_ACCESS" | "USER_ACTIONS"

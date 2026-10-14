@@ -18,8 +18,8 @@ import "strings"
 	Policy!: strings.MaxRunes(20480) &
 	strings.MinRunes(1) &
 	=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]+"
-	Type!: _#defs."/$defs/Properties/definitions/LifecyclePolicyType"
+	Type!: #LifecyclePolicyType
 })
 
 // The type of lifecycle policy
-_#defs: "/$defs/Properties/definitions/LifecyclePolicyType": "retention"
+#LifecyclePolicyType: "retention"

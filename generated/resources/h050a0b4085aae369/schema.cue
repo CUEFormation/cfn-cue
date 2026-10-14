@@ -17,15 +17,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ExcludedAccounts?: list.MaxItems(1000) & [...] & [...=~"^\\d{12}$" | fn.#StringExpression] | fn.#ListExpression
 	OrganizationConfigRuleName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" |
 	fn.#StringExpression
-	OrganizationCustomPolicyRuleMetadata?: _#defs."/$defs/Properties/definitions/OrganizationCustomPolicyRuleMetadata" |
-		fn.#ObjectExpression
-	OrganizationCustomRuleMetadata?: _#defs."/$defs/Properties/definitions/OrganizationCustomRuleMetadata" |
-		fn.#ObjectExpression
-	OrganizationManagedRuleMetadata?: _#defs."/$defs/Properties/definitions/OrganizationManagedRuleMetadata" |
-		fn.#ObjectExpression
+	OrganizationCustomPolicyRuleMetadata?: #OrganizationCustomPolicyRuleMetadata | fn.#ObjectExpression
+	OrganizationCustomRuleMetadata?:       #OrganizationCustomRuleMetadata | fn.#ObjectExpression
+	OrganizationManagedRuleMetadata?:      #OrganizationManagedRuleMetadata | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/OrganizationCustomPolicyRuleMetadata": close({
+#OrganizationCustomPolicyRuleMetadata: close({
 	DebugLogDeliveryAccounts?: list.MaxItems(1000) & [...] & [...=~"^\\d{12}$" | fn.#StringExpression] |
 		fn.#ListExpression
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
@@ -46,7 +43,7 @@ _#defs: "/$defs/Properties/definitions/OrganizationCustomPolicyRuleMetadata": cl
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OrganizationCustomRuleMetadata": close({
+#OrganizationCustomRuleMetadata: close({
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	InputParameters?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	LambdaFunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
@@ -74,7 +71,7 @@ _#defs: "/$defs/Properties/definitions/OrganizationCustomRuleMetadata": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OrganizationManagedRuleMetadata": close({
+#OrganizationManagedRuleMetadata: close({
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	InputParameters?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	MaximumExecutionFrequency?: "One_Hour" |

@@ -44,18 +44,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Operation?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
 	Scope!:     "GLOBAL" | "SERVICE" | "BILLING_ENTITY" | "SKU" | fn.#StringExpression
 	Service?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\-]+" | fn.#StringExpression
-	Tags?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	Tiering?: close({
-		CustomTiers?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/CustomTier"] |
-			fn.#ListExpression
-		FreeTier?: _#defs."/$defs/Properties/definitions/FreeTier"
+		CustomTiers?: list.MaxItems(10) & list.MinItems(1) & [...#CustomTier] | fn.#ListExpression
+		FreeTier?:    #FreeTier
 	}) |
 	fn.#ObjectExpression
 	Type!:      "MARKUP" | "DISCOUNT" | "TIERING" | fn.#StringExpression
 	UsageType?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CustomTier": close({
+#CustomTier: close({
 	BeginRangeInclusive!: >=0 |
 		{
 			string &
@@ -116,12 +115,10 @@ _#defs: "/$defs/Properties/definitions/CustomTier": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FreeTier": close(
-	{Activated!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
+#FreeTier: close({Activated!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

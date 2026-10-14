@@ -15,7 +15,7 @@ import "list"
 	DirectReferringTables?: list.UniqueItems() & [...string]
 
 	// Field definitions of the User-Defined Type
-	Fields!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Field"]
+	Fields!: list.UniqueItems() & [...#Field]
 
 	// ARN of the Keyspace which contains the User-Defined Type.
 	KeyspaceArn?: string
@@ -33,7 +33,7 @@ import "list"
 	TypeName!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Field": close({
+#Field: close({
 	FieldName!: string
 	FieldType!: string
 })

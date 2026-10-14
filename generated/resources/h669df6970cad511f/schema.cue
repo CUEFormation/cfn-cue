@@ -16,17 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	ContactListName?: =~"^[a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
 	Description?:     strings.MaxRunes(500) | fn.#StringExpression
-	Tags?:            list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Topics?:          list.MaxItems(20) & [...] & [..._#defs."/$defs/Properties/definitions/Topic"] | fn.#ListExpression
+	Tags?:            list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+	Topics?:          list.MaxItems(20) & [...] & [...#Topic] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Topic": close({
+#Topic: close({
 	DefaultSubscriptionStatus!: string | fn.#StringExpression
 	Description?:               strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
 	DisplayName!:               strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression

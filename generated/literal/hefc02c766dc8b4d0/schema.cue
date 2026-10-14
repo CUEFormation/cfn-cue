@@ -17,7 +17,7 @@ import (
 	// The Amazon Resource Name (ARN) of the media stream, composed of the flow ARN
 	// followed by /mediaStream/ and the media stream name.
 	Arn?:        string
-	Attributes?: _#defs."/$defs/Properties/definitions/MediaStreamAttributes"
+	Attributes?: #MediaStreamAttributes
 
 	// The sample rate (in Hz) for the stream. If the media stream type is video or
 	// ancillary data, set this value to 90000. If the media stream type is audio,
@@ -44,7 +44,7 @@ import (
 	MediaStreamType!: "video" | "audio" | "ancillary-data"
 
 	// The key-value pairs that can be used to tag and organize the media stream.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The resolution of the video. Required for a video media stream and rejected
 	// for other media stream types.
@@ -52,7 +52,7 @@ import (
 })
 
 // A set of parameters that define the media stream.
-_#defs: "/$defs/Properties/definitions/Fmtp": close({
+#Fmtp: close({
 	// The format of the audio channel. Can only be specified for an audio media stream.
 	ChannelOrder?: string
 
@@ -76,8 +76,8 @@ _#defs: "/$defs/Properties/definitions/Fmtp": close({
 })
 
 // Attributes that are related to the media stream.
-_#defs: "/$defs/Properties/definitions/MediaStreamAttributes": close({
-	Fmtp?: _#defs."/$defs/Properties/definitions/Fmtp"
+#MediaStreamAttributes: close({
+	Fmtp?: #Fmtp
 
 	// The audio language, in a format that is recognized by the receiver. Can only
 	// be specified for an audio media stream.
@@ -85,7 +85,7 @@ _#defs: "/$defs/Properties/definitions/MediaStreamAttributes": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

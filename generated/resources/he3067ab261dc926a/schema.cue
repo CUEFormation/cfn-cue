@@ -17,11 +17,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CrlData!:        string | fn.#StringExpression
 	Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!:           string | fn.#StringExpression
-	Tags?:           list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:           list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	TrustAnchorArn?: =~"^arn:aws(-[^:]+)?:rolesanywhere(:.*){2}(:trust-anchor.*)$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

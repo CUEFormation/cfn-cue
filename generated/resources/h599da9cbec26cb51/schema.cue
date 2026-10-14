@@ -26,11 +26,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SlackChannelId!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9]+$" | fn.#StringExpression
 	SlackWorkspaceId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9A-Z]{1,255}$" | fn.#StringExpression
 	SnsTopicArns?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:             [...#Tag] | fn.#ListExpression
 	UserRoleRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

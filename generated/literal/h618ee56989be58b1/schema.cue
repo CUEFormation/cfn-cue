@@ -20,24 +20,24 @@ import (
 	ConnectInstanceArn!: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$"
-	DialerConfig!: _#defs."/$defs/Properties/definitions/DialerConfig"
+	DialerConfig!: #DialerConfig
 
 	// Amazon Connect Campaign Name
 	Name!:               strings.MaxRunes(127) & strings.MinRunes(1)
-	OutboundCallConfig!: _#defs."/$defs/Properties/definitions/OutboundCallConfig"
+	OutboundCallConfig!: #OutboundCallConfig
 
 	// One or more tags.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Agentless Dialer config
-_#defs: "/$defs/Properties/definitions/AgentlessDialerConfig": close({
+#AgentlessDialerConfig: close({
 	// Allocates dialing capacity for this campaign between multiple active campaigns.
 	DialingCapacity?: <=1 & >=0.01
 })
 
 // The configuration used for answering machine detection during outbound calls
-_#defs: "/$defs/Properties/definitions/AnswerMachineDetectionConfig": close({
+#AnswerMachineDetectionConfig: close({
 	// Enables detection of prompts (e.g., beep after after a voicemail greeting)
 	AwaitAnswerMachinePrompt?: bool
 
@@ -46,10 +46,10 @@ _#defs: "/$defs/Properties/definitions/AnswerMachineDetectionConfig": close({
 })
 
 // The possible types of dialer config parameters
-_#defs: "/$defs/Properties/definitions/DialerConfig": close({
-	AgentlessDialerConfig?:   _#defs."/$defs/Properties/definitions/AgentlessDialerConfig"
-	PredictiveDialerConfig?:  _#defs."/$defs/Properties/definitions/PredictiveDialerConfig"
-	ProgressiveDialerConfig?: _#defs."/$defs/Properties/definitions/ProgressiveDialerConfig"
+#DialerConfig: close({
+	AgentlessDialerConfig?:   #AgentlessDialerConfig
+	PredictiveDialerConfig?:  #PredictiveDialerConfig
+	ProgressiveDialerConfig?: #ProgressiveDialerConfig
 	if ProgressiveDialerConfig != _|_ {
 		PredictiveDialerConfig?: error(
 			"PredictiveDialerConfig cannot be used with ProgressiveDialerConfig; set exactly one of ProgressiveDialerConfig, PredictiveDialerConfig, AgentlessDialerConfig",
@@ -66,8 +66,8 @@ _#defs: "/$defs/Properties/definitions/DialerConfig": close({
 }) & matchN(>=1, [{ProgressiveDialerConfig!: _}, {PredictiveDialerConfig!: _}, {AgentlessDialerConfig!: _}])
 
 // The configuration used for outbound calls.
-_#defs: "/$defs/Properties/definitions/OutboundCallConfig": close({
-	AnswerMachineDetectionConfig?: _#defs."/$defs/Properties/definitions/AnswerMachineDetectionConfig"
+#OutboundCallConfig: close({
+	AnswerMachineDetectionConfig?: #AnswerMachineDetectionConfig
 
 	// The identifier of the contact flow for the outbound call.
 	ConnectContactFlowArn!: strings.MaxRunes(500) &
@@ -87,7 +87,7 @@ _#defs: "/$defs/Properties/definitions/OutboundCallConfig": close({
 })
 
 // Predictive Dialer config
-_#defs: "/$defs/Properties/definitions/PredictiveDialerConfig": close({
+#PredictiveDialerConfig: close({
 	// The bandwidth allocation of a queue resource.
 	BandwidthAllocation!: <=1 & >=0
 
@@ -96,7 +96,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveDialerConfig": close({
 })
 
 // Progressive Dialer config
-_#defs: "/$defs/Properties/definitions/ProgressiveDialerConfig": close({
+#ProgressiveDialerConfig: close({
 	// The bandwidth allocation of a queue resource.
 	BandwidthAllocation!: <=1 & >=0
 
@@ -105,7 +105,7 @@ _#defs: "/$defs/Properties/definitions/ProgressiveDialerConfig": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

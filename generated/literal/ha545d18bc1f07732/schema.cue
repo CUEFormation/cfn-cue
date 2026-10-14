@@ -10,13 +10,13 @@ import "strings"
 #Properties: close({
 	Arn?:                          strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+"
 	ServiceDnsName!:               strings.MaxRunes(2048) & strings.MinRunes(1)
-	Tags?:                         [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                         [...#Tag]
 	VpceConfigurationDescription?: strings.MaxRunes(2048) & strings.MinRunes(1)
 	VpceConfigurationName!:        strings.MaxRunes(1024) & strings.MinRunes(1)
 	VpceServiceName!:              strings.MaxRunes(2048) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

@@ -14,67 +14,67 @@ import (
 	// Alias resource record sets only: Information about the AWS resource, such as
 	// a CloudFront distribution or an Amazon S3 bucket, that you want to route
 	// traffic to.
-	AliasTarget?: _#defs."/$defs/Properties/definitions/AliasTarget"
+	AliasTarget?: #AliasTarget
 
 	// The object that is specified in resource record set object when you are
 	// linking a resource record set to a CIDR location.
-	CidrRoutingConfig?: _#defs."/$defs/Properties/definitions/CidrRoutingConfig"
+	CidrRoutingConfig?: #CidrRoutingConfig
 
 	// Optional: Any comments you want to include about a change batch request.
-	Comment?: _#defs."/$defs/Properties/definitions/Comment"
+	Comment?: #Comment
 
 	// To configure failover, you add the Failover element to two resource record
 	// sets. For one resource record set, you specify PRIMARY as the value for
 	// Failover; for the other resource record set, you specify SECONDARY. In
 	// addition, you include the HealthCheckId element and specify the health check
 	// that you want Amazon Route 53 to perform for each resource record set.
-	Failover?: _#defs."/$defs/Properties/definitions/Failover"
+	Failover?: #Failover
 
 	// A complex type that lets you control how Amazon Route 53 responds to DNS
 	// queries based on the geographic origin of the query.
-	GeoLocation?: _#defs."/$defs/Properties/definitions/GeoLocation"
+	GeoLocation?: #GeoLocation
 
 	// Geoproximity resource record sets only: A complex type that lets you specify
 	// where your resources are located. Only one of LocalZoneGroup, Coordinates,
 	// or AWSRegion is allowed per request at a time.
-	GeoProximityLocation?: _#defs."/$defs/Properties/definitions/GeoProximityLocation"
+	GeoProximityLocation?: #GeoProximityLocation
 
 	// If you want Amazon Route 53 to return this resource record set in response to
 	// a DNS query only when the status of a health check is healthy, include the
 	// HealthCheckId element and specify the ID of the applicable health check.
-	HealthCheckId?: _#defs."/$defs/Properties/definitions/HealthCheckId"
+	HealthCheckId?: #HealthCheckId
 
 	// The ID of the hosted zone that you want to create records in.
-	HostedZoneId?: _#defs."/$defs/Properties/definitions/HostedZoneId"
+	HostedZoneId?: #HostedZoneId
 
 	// The name of the hosted zone that you want to create records in. You must
 	// include a trailing dot (for example, www.example.com.) as part of the
 	// HostedZoneName.
-	HostedZoneName?: _#defs."/$defs/Properties/definitions/HostedZoneName"
+	HostedZoneName?: #HostedZoneName
 
 	// To route traffic approximately randomly to multiple resources, such as web
 	// servers, create one multivalue answer record for each resource and specify
 	// true for MultiValueAnswer.
-	MultiValueAnswer?: _#defs."/$defs/Properties/definitions/MultiValueAnswer"
+	MultiValueAnswer?: #MultiValueAnswer
 
 	// The name of the record that you want to create, update, or delete.
-	Name!: _#defs."/$defs/Properties/definitions/Name"
+	Name!: #Name
 
 	// The Amazon EC2 Region where you created the resource that this resource record set refers to.
-	Region?: _#defs."/$defs/Properties/definitions/Region"
+	Region?: #Region
 
 	// One or more values that correspond with the value that you specified for the Type property.
-	ResourceRecords?: _#defs."/$defs/Properties/definitions/ResourceRecords"
+	ResourceRecords?: #ResourceRecords
 
 	// An identifier that differentiates among multiple resource record sets that
 	// have the same combination of name and type.
-	SetIdentifier?: _#defs."/$defs/Properties/definitions/SetIdentifier"
+	SetIdentifier?: #SetIdentifier
 
 	// The resource record cache time to live (TTL), in seconds.
-	TTL?: _#defs."/$defs/Properties/definitions/TTL"
+	TTL?: #TTL
 
 	// The DNS record type.
-	Type!: _#defs."/$defs/Properties/definitions/Type"
+	Type!: #Type
 
 	// Among resource record sets that have the same combination of DNS name and
 	// type, a value that determines the proportion of DNS queries that Amazon
@@ -82,7 +82,7 @@ import (
 	// calculates the sum of the weights for the resource record sets that have the
 	// same combination of DNS name and type. Route 53 then responds to queries
 	// based on the ratio of a resource's weight to the total.
-	Weight?: _#defs."/$defs/Properties/definitions/Weight"
+	Weight?: #Weight
 	if HostedZoneId != _|_ {
 		HostedZoneName?: error(
 			"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
@@ -93,7 +93,7 @@ import (
 	}
 }) & (matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]) & matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]))
 
-_#defs: "/$defs/Properties/definitions/AliasTarget": close({
+#AliasTarget: close({
 	// The value that you specify depends on where you want to route queries.
 	DNSName!: strings.MaxRunes(1024)
 
@@ -103,10 +103,10 @@ _#defs: "/$defs/Properties/definitions/AliasTarget": close({
 	EvaluateTargetHealth?: bool
 
 	// The value used depends on where you want to route traffic.
-	HostedZoneId!: _#defs."/$defs/Properties/definitions/HostedZoneId"
+	HostedZoneId!: #HostedZoneId
 })
 
-_#defs: "/$defs/Properties/definitions/CidrRoutingConfig": close({
+#CidrRoutingConfig: close({
 	// The CIDR collection ID.
 	CollectionId!: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$"
 
@@ -114,9 +114,9 @@ _#defs: "/$defs/Properties/definitions/CidrRoutingConfig": close({
 	LocationName!: strings.MaxRunes(16) & strings.MinRunes(1) & =~"[0-9A-Za-z_\\-\\*]+"
 })
 
-_#defs: "/$defs/Properties/definitions/Comment": strings.MaxRunes(256)
+#Comment: strings.MaxRunes(256)
 
-_#defs: "/$defs/Properties/definitions/Coordinates": close({
+#Coordinates: close({
 	// Specifies a coordinate of the north–south position of a geographic point on
 	// the surface of the Earth.
 	Latitude!: =~"[-+]?[0-9]{1,2}(\\.[0-9]{0,2})?"
@@ -126,9 +126,9 @@ _#defs: "/$defs/Properties/definitions/Coordinates": close({
 	Longitude!: =~"[-+]?[0-9]{1,3}(\\.[0-9]{0,2})?"
 })
 
-_#defs: "/$defs/Properties/definitions/Failover": "PRIMARY" | "SECONDARY"
+#Failover: "PRIMARY" | "SECONDARY"
 
-_#defs: "/$defs/Properties/definitions/GeoLocation": close({
+#GeoLocation: close({
 	// For geolocation resource record sets, a two-letter abbreviation that identifies a continent.
 	ContinentCode?: strings.MaxRunes(2) & strings.MinRunes(2)
 
@@ -144,7 +144,7 @@ _#defs: "/$defs/Properties/definitions/GeoLocation": close({
 	}
 }) & matchN(>=1, [{ContinentCode!: _}, {CountryCode!: _}])
 
-_#defs: "/$defs/Properties/definitions/GeoProximityLocation": close({
+#GeoProximityLocation: close({
 	// The AWS Region the resource you are directing DNS traffic to, is in.
 	AWSRegion?: strings.MaxRunes(64) & strings.MinRunes(1)
 
@@ -153,7 +153,7 @@ _#defs: "/$defs/Properties/definitions/GeoProximityLocation": close({
 	Bias?: int & <=99 & >=-99
 
 	// Contains the longitude and latitude for a geographic region.
-	Coordinates?: _#defs."/$defs/Properties/definitions/Coordinates"
+	Coordinates?: #Coordinates
 
 	// Specifies an AWS Local Zone.
 	LocalZoneGroup?: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -172,24 +172,24 @@ _#defs: "/$defs/Properties/definitions/GeoProximityLocation": close({
 	}
 }) & matchN(>=1, [{AWSRegion!: _}, {LocalZoneGroup!: _}, {Coordinates!: _}])
 
-_#defs: "/$defs/Properties/definitions/HealthCheckId": strings.MaxRunes(64)
+#HealthCheckId: strings.MaxRunes(64)
 
-_#defs: "/$defs/Properties/definitions/HostedZoneId": strings.MaxRunes(44)
+#HostedZoneId: strings.MaxRunes(44)
 
-_#defs: "/$defs/Properties/definitions/HostedZoneName": strings.MaxRunes(256)
+#HostedZoneName: strings.MaxRunes(256)
 
-_#defs: "/$defs/Properties/definitions/MultiValueAnswer": bool
+#MultiValueAnswer: bool
 
-_#defs: "/$defs/Properties/definitions/Name": strings.MaxRunes(1024)
+#Name: strings.MaxRunes(1024)
 
-_#defs: "/$defs/Properties/definitions/Region": string
+#Region: string
 
-_#defs: "/$defs/Properties/definitions/ResourceRecords": list.UniqueItems() & [...strings.MaxRunes(4000)]
+#ResourceRecords: list.UniqueItems() & [...strings.MaxRunes(4000)]
 
-_#defs: "/$defs/Properties/definitions/SetIdentifier": strings.MaxRunes(128) & strings.MinRunes(0)
+#SetIdentifier: strings.MaxRunes(128) & strings.MinRunes(0)
 
-_#defs: "/$defs/Properties/definitions/TTL": string
+#TTL: string
 
-_#defs: "/$defs/Properties/definitions/Type": string
+#Type: string
 
-_#defs: "/$defs/Properties/definitions/Weight": int
+#Weight: int

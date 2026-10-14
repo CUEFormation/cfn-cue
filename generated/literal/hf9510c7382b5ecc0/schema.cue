@@ -48,12 +48,12 @@ import (
 	LoadBalancerArn?: string
 
 	// The load balancer attributes. Attributes that you do not modify retain their current values.
-	LoadBalancerAttributes?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LoadBalancerAttribute"]
+	LoadBalancerAttributes?: list.UniqueItems() & [...#LoadBalancerAttribute]
 	LoadBalancerFullName?:   string
 	LoadBalancerName?:       string
 
 	// The minimum capacity for a load balancer.
-	MinimumLoadBalancerCapacity?: _#defs."/$defs/Properties/definitions/MinimumLoadBalancerCapacity"
+	MinimumLoadBalancerCapacity?: #MinimumLoadBalancerCapacity
 
 	// The name of the load balancer. This name must be unique per region per
 	// account, can have a maximum of 32 characters, must contain only alphanumeric
@@ -95,7 +95,7 @@ import (
 	// can specify one IPv6 address per subnet.
 	// [Gateway Load Balancers] You can specify subnets from one or more
 	// Availability Zones. You can't specify Elastic IP addresses for your subnets.
-	SubnetMappings?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SubnetMapping"]
+	SubnetMappings?: list.UniqueItems() & [...#SubnetMapping]
 
 	// The IDs of the subnets. You can specify only one subnet per Availability
 	// Zone. You must specify either subnets or subnet mappings, but not both. To
@@ -108,7 +108,7 @@ import (
 	Subnets?: list.UniqueItems() & [...string]
 
 	// The tags to assign to the load balancer.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The type of load balancer. The default is ``application``.
 	Type?: "application" | "gateway" | "network"
@@ -119,7 +119,7 @@ import (
 
 // Specifies an attribute for an Application Load Balancer, a Network Load
 // Balancer, or a Gateway Load Balancer.
-_#defs: "/$defs/Properties/definitions/LoadBalancerAttribute": close({
+#LoadBalancerAttribute: close({
 	// The name of the attribute.
 	// The following attributes are supported by all load balancers:
 	// + ``deletion_protection.enabled`` - Indicates whether deletion protection is
@@ -237,13 +237,13 @@ _#defs: "/$defs/Properties/definitions/LoadBalancerAttribute": close({
 })
 
 // The minimum capacity for a load balancer.
-_#defs: "/$defs/Properties/definitions/MinimumLoadBalancerCapacity": close({
+#MinimumLoadBalancerCapacity: close({
 	// The number of capacity units.
 	CapacityUnits!: int
 })
 
 // Specifies a subnet for a load balancer.
-_#defs: "/$defs/Properties/definitions/SubnetMapping": close({
+#SubnetMapping: close({
 	// [Network Load Balancers] The allocation ID of the Elastic IP address for an
 	// internet-facing load balancer.
 	AllocationId?: string
@@ -265,7 +265,7 @@ _#defs: "/$defs/Properties/definitions/SubnetMapping": close({
 })
 
 // Information about a tag.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

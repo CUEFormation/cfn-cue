@@ -6,14 +6,14 @@ package schema
 
 // Resource Type definition for AWS::SES::ReceiptFilter
 #Properties: close({
-	Filter!: _#defs."/$defs/Properties/definitions/Filter"
+	Filter!: #Filter
 	Id?:     string
 })
 
 // A structure that describes the IP address filter to create, which consists of
 // a name, an IP address range, and whether to allow or block mail from it.
-_#defs: "/$defs/Properties/definitions/Filter": close({
-	IpFilter!: _#defs."/$defs/Properties/definitions/IpFilter"
+#Filter: close({
+	IpFilter!: #IpFilter
 
 	// The name of the IP address filter.
 	Name?: string
@@ -21,7 +21,7 @@ _#defs: "/$defs/Properties/definitions/Filter": close({
 
 // A structure that provides the IP addresses to block or allow, and whether to
 // block or allow incoming mail from them.
-_#defs: "/$defs/Properties/definitions/IpFilter": close({
+#IpFilter: close({
 	// A single IP address or a range of IP addresses to block or allow, specified in CIDR notation.
 	Cidr!: string
 

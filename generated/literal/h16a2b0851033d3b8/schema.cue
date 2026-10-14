@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"time"
 	"strings"
+	"time"
 	"list"
 )
 
@@ -41,7 +41,7 @@ import (
 	LastUpdatedAt?: time.Time
 
 	// The project membership assignments.
-	MembershipAssignments?: [..._#defs."/$defs/Properties/definitions/ProjectMembershipAssignment"]
+	MembershipAssignments?: [...#ProjectMembershipAssignment]
 
 	// The name of the Amazon DataZone project.
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$"
@@ -60,60 +60,60 @@ import (
 	ProjectProfileVersion?: string
 
 	// The status of the project.
-	ProjectStatus?: _#defs."/$defs/Properties/definitions/ProjectStatus"
+	ProjectStatus?: #ProjectStatus
 
 	// The resource tags of the project.
-	ResourceTags?: [..._#defs."/$defs/Properties/definitions/ResourceTag"]
+	ResourceTags?: [...#ResourceTag]
 
 	// The user parameters of the project.
-	UserParameters?: [..._#defs."/$defs/Properties/definitions/EnvironmentConfigurationUserParameter"]
+	UserParameters?: [...#EnvironmentConfigurationUserParameter]
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentConfigurationUserParameter": close({
+#EnvironmentConfigurationUserParameter: close({
 	EnvironmentConfigurationName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$"
 	EnvironmentId?:                =~"^[a-zA-Z0-9_-]{1,36}$"
-	EnvironmentParameters?:        [..._#defs."/$defs/Properties/definitions/EnvironmentParameter"]
+	EnvironmentParameters?:        [...#EnvironmentParameter]
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentDeploymentDetails": close({
-	EnvironmentFailureReasons?: _#defs."/$defs/Properties/definitions/EnvironmentFailureReasons"
-	OverallDeploymentStatus?:   _#defs."/$defs/Properties/definitions/OverallDeploymentStatus"
+#EnvironmentDeploymentDetails: close({
+	EnvironmentFailureReasons?: #EnvironmentFailureReasons
+	OverallDeploymentStatus?:   #OverallDeploymentStatus
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentError": close({
+#EnvironmentError: close({
 	Code?:    string
 	Message!: string
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentFailureReasons": close({
+#EnvironmentFailureReasons: close({
 
-	{[=~".+"]: [..._#defs."/$defs/Properties/definitions/EnvironmentError"]}})
+	{[=~".+"]: [...#EnvironmentError]}})
 
-_#defs: "/$defs/Properties/definitions/EnvironmentParameter": close({
+#EnvironmentParameter: close({
 	Name?:  string
 	Value?: string
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentResolvedAccount": close({
+#EnvironmentResolvedAccount: close({
 	AwsAccountId!:        =~"^\\d{12}$"
 	RegionName!:          =~"^[a-z]{2}-[a-z]{4,10}-\\d$"
 	SourceAccountPoolId!: =~"^[a-zA-Z0-9_-]{1,36}$"
 })
 
 // The member of the project.
-_#defs: "/$defs/Properties/definitions/Member": close({
+#Member: close({
 	GroupIdentifier?: string
 	UserIdentifier?:  string
 })
 
-_#defs: "/$defs/Properties/definitions/OverallDeploymentStatus": "PENDING_DEPLOYMENT" |
+#OverallDeploymentStatus: "PENDING_DEPLOYMENT" |
 	"IN_PROGRESS" |
 	"SUCCESSFUL" |
 	"FAILED_VALIDATION" |
 	"FAILED_DEPLOYMENT"
 
 // Error that occurred during project deletion
-_#defs: "/$defs/Properties/definitions/ProjectDeletionError": close({
+#ProjectDeletionError: close({
 	// Project Deletion Error Code
 	Code?: string
 
@@ -122,25 +122,20 @@ _#defs: "/$defs/Properties/definitions/ProjectDeletionError": close({
 })
 
 // The project membership assignment.
-_#defs: "/$defs/Properties/definitions/ProjectMembershipAssignment": close({
-	Designation!: _#defs."/$defs/Properties/definitions/UserDesignation"
-	Member!:      _#defs."/$defs/Properties/definitions/Member"
+#ProjectMembershipAssignment: close({
+	Designation!: #UserDesignation
+	Member!:      #Member
 })
 
-_#defs: "/$defs/Properties/definitions/ProjectStatus": "ACTIVE" |
-	"MOVING" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED"
+#ProjectStatus: "ACTIVE" | "MOVING" | "DELETING" | "DELETE_FAILED" | "UPDATING" | "UPDATE_FAILED"
 
-_#defs: "/$defs/Properties/definitions/ResourceTag": close({
+#ResourceTag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w \\.:/=+@-]+$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w \\.:/=+@-]*$"
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 
 	{[=~"^[\\w \\.:/=+@-]+$"]: strings.MaxRunes(256) & =~"^[\\w \\.:/=+@-]*$"}})
 
-_#defs: "/$defs/Properties/definitions/UserDesignation": =~"^[a-zA-Z0-9_-]{1,36}$"
+#UserDesignation: =~"^[a-zA-Z0-9_-]{1,36}$"

@@ -17,10 +17,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^arn:([a-z\\d-]+):personalize:.*:.*:.+$" |
 	fn.#StringExpression
 	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*$" | fn.#StringExpression
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

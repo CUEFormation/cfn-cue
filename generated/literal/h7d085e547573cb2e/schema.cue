@@ -49,7 +49,7 @@ import (
 
 	// Key-value pairs that can be used to group and search for certificates. Tags
 	// are metadata attached to certificates for any purpose.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// Describing the type of certificate. With or without a private key.
 	Type?: "CERTIFICATE" | "CERTIFICATE_WITH_PRIVATE_KEY"
@@ -59,7 +59,7 @@ import (
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

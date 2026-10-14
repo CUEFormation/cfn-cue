@@ -16,10 +16,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	BridgeArn!:     string | fn.#StringExpression
 	Name!:          string | fn.#StringExpression
-	NetworkOutput!: _#defs."/$defs/Properties/definitions/BridgeNetworkOutput" | fn.#ObjectExpression
+	NetworkOutput!: #BridgeNetworkOutput | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/BridgeNetworkOutput": close({
+#BridgeNetworkOutput: close({
 	IpAddress!:   string | fn.#StringExpression
 	NetworkName!: string | fn.#StringExpression
 	Port!: int |

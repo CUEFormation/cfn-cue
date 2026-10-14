@@ -10,47 +10,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::MediaLive::Cluster Resource Type
 #Properties: close({
-	ClusterType?: _#defs."/$defs/Properties/definitions/ClusterType"
+	ClusterType?: #ClusterType
 	InstanceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:.+:iam:.+:role/.+$" |
 		fn.#StringExpression
 	Name?:            string | fn.#StringExpression
-	NetworkSettings?: _#defs."/$defs/Properties/definitions/ClusterNetworkSettings"
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tags"] | fn.#ListExpression
+	NetworkSettings?: #ClusterNetworkSettings
+	Tags?:            [...#Tags] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ClusterNetworkSettings": close({
+#ClusterNetworkSettings: close({
 	DefaultRoute?:      string | fn.#StringExpression
-	InterfaceMappings?: [..._#defs."/$defs/Properties/definitions/InterfaceMapping"] | fn.#ListExpression
+	InterfaceMappings?: [...#InterfaceMapping] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterState": "CREATING" |
-	"CREATE_FAILED" |
-	"ACTIVE" |
-	"DELETING" |
-	"DELETED" |
-	fn.#StringExpression
+#ClusterState: "CREATING" | "CREATE_FAILED" | "ACTIVE" | "DELETING" | "DELETED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ClusterType": "ON_PREMISES" |
-	"OUTPOSTS_RACK" |
-	"OUTPOSTS_SERVER" |
-	"EC2" |
-	fn.#StringExpression
+#ClusterType: "ON_PREMISES" | "OUTPOSTS_RACK" | "OUTPOSTS_SERVER" | "EC2" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InterfaceMapping": close({
+#InterfaceMapping: close({
 	LogicalInterfaceName?: string | fn.#StringExpression
 	NetworkId?:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InterfaceNetworkMapping": close({
+#InterfaceNetworkMapping: close({
 	LogicalInterfaceName?: string | fn.#StringExpression
 	NetworkId?:            string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |

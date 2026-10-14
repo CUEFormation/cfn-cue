@@ -4,8 +4,8 @@ package schema
 
 import (
 	"strings"
-	"time"
 	"list"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,7 +25,7 @@ import (
 	=~"^arn:aws(-cn|-us-gov)?:config:[a-z0-9-]+:\\d{12}:connector/.+$"
 
 	// The configuration for the cloud connector.
-	Configuration!: _#defs."/$defs/Properties/definitions/CloudConnectorConfiguration"
+	Configuration!: #CloudConnectorConfiguration
 
 	// The timestamp when the cloud connector was created.
 	CreatedAt?: time.Time
@@ -40,20 +40,20 @@ import (
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// Tags to apply to the cloud connector.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The timestamp when the cloud connector was last updated.
 	UpdatedAt?: time.Time
 })
 
 // Configuration for connecting to Azure.
-_#defs: "/$defs/Properties/definitions/AzureConfiguration": close({
+#AzureConfiguration: close({
 	// The display name of the Azure AD application.
 	ApplicationDisplayName?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*)$"
 
 	// The Azure AD application ID.
 	ApplicationId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
-	Targets?:       _#defs."/$defs/Properties/definitions/ConfigurationTargets"
+	Targets?:       #ConfigurationTargets
 
 	// The display name of the Azure AD tenant.
 	TenantDisplayName?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*)$"
@@ -63,7 +63,7 @@ _#defs: "/$defs/Properties/definitions/AzureConfiguration": close({
 })
 
 // An Azure subscription with its ID and optional display name.
-_#defs: "/$defs/Properties/definitions/AzureSubscription": close({
+#AzureSubscription: close({
 	// The display name of the Azure subscription.
 	DisplayName?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*)$"
 
@@ -74,17 +74,15 @@ _#defs: "/$defs/Properties/definitions/AzureSubscription": close({
 })
 
 // The configuration for the cloud connector. Currently supports Azure.
-_#defs: "/$defs/Properties/definitions/CloudConnectorConfiguration": close(
-	{AzureConfiguration!: _#defs."/$defs/Properties/definitions/AzureConfiguration"},
-)
+#CloudConnectorConfiguration: close({AzureConfiguration!: #AzureConfiguration})
 
 // The targets for the cloud connector. If omitted, the entire tenant is targeted.
-_#defs: "/$defs/Properties/definitions/ConfigurationTargets": close({
+#ConfigurationTargets: close({
 	// List of Azure subscriptions.
-	Subscriptions!: list.MaxItems(75) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/AzureSubscription"]
+	Subscriptions!: list.MaxItems(75) & list.MinItems(1) & [...#AzureSubscription]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

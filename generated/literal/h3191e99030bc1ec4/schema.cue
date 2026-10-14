@@ -7,7 +7,7 @@ package schema
 // Describes a VPN concentrator.
 #Properties: close({
 	// Any tags assigned to the VPN concentrator.
-	Tags?:                       [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                       [...#Tag]
 	TransitGatewayAttachmentId?: string
 
 	// The ID of the transit gateway associated with the VPN concentrator.
@@ -19,7 +19,7 @@ package schema
 })
 
 // Describes a tag.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key of the tag.
 	// Constraints: Tag keys are case-sensitive and accept a maximum of 127 Unicode
 	// characters. May not begin with ``aws:``.

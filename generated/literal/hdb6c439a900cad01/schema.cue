@@ -81,7 +81,7 @@ import "strings"
 	// returning the response to clients. Supported only for HTTP APIs.
 	ResponseParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: _#defs."/$defs/Properties/definitions/ResponseParameterMap"}})
+		{[=~"[a-zA-Z0-9]+"]: #ResponseParameterMap}})
 
 	// The template selection expression for the integration. Supported only for WebSocket APIs.
 	TemplateSelectionExpression?: string
@@ -94,27 +94,23 @@ import "strings"
 	// The TLS configuration for a private integration. If you specify a TLS
 	// configuration, private integration traffic uses the HTTPS protocol.
 	// Supported only for HTTP APIs.
-	TlsConfig?: _#defs."/$defs/Properties/definitions/TlsConfig"
+	TlsConfig?: #TlsConfig
 })
 
 // response parameter
-_#defs: "/$defs/Properties/definitions/ResponseParameter": close({
+#ResponseParameter: close({
 	Destination?: string
 	Source?:      string
 })
 
 // list of response parameters
-_#defs: "/$defs/Properties/definitions/ResponseParameterList": [
-	..._#defs."/$defs/Properties/definitions/ResponseParameter"
-]
+#ResponseParameterList: [...#ResponseParameter]
 
 // map of response parameter lists
-_#defs: "/$defs/Properties/definitions/ResponseParameterMap": close(
-	{ResponseParameters?: _#defs."/$defs/Properties/definitions/ResponseParameterList"},
-)
+#ResponseParameterMap: close({ResponseParameters?: #ResponseParameterList})
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -130,4 +126,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 
 // The TlsConfig property specifies the TLS configuration for a private
 // integration. Supported only for HTTP APIs.
-_#defs: "/$defs/Properties/definitions/TlsConfig": close({ServerNameToVerify?: string})
+#TlsConfig: close({ServerNameToVerify?: string})

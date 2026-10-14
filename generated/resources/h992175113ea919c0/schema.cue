@@ -14,21 +14,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::AppRunner::VpcIngressConnection resource is an App Runner resource
 // that specifies an App Runner VpcIngressConnection.
 #Properties: close({
-	IngressVpcConfiguration!: _#defs."/$defs/Properties/definitions/IngressVpcConfiguration"
+	IngressVpcConfiguration!: #IngressVpcConfiguration
 	ServiceArn!:              strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:                    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                    [...#Tag] | fn.#ListExpression
 	VpcIngressConnectionName?: strings.MaxRunes(40) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,39}" |
 	fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IngressVpcConfiguration": close({
+#IngressVpcConfiguration: close({
 	VpcEndpointId!: strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
 	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(51200) & strings.MinRunes(0)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

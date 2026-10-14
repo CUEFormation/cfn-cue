@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::WAFRegional::RateBasedRule
 #Properties: close({
-	MatchPredicates?: [..._#defs."/$defs/Properties/definitions/Predicate"] | fn.#ListExpression
+	MatchPredicates?: [...#Predicate] | fn.#ListExpression
 	MetricName!:      string | fn.#StringExpression
 	Name!:            string | fn.#StringExpression
 	RateKey!:         string | fn.#StringExpression
@@ -34,7 +34,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Predicate": close({
+#Predicate: close({
 	DataId!:  string | fn.#StringExpression
 	Negated!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Type!:    string | fn.#StringExpression

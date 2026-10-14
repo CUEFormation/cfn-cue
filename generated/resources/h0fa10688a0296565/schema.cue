@@ -17,21 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ClientToken?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	DnsViewId!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
 	ExpiresAt?:   string | fn.#StringExpression
-	Name?:        _#defs."/$defs/Properties/definitions/ResourceName"
-	Tags?:        list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Name?:        #ResourceName
+	Tags?:        list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessToken": strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+#AccessToken: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceName": strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TokenStatus": "CREATING" | "OPERATIONAL" | "DELETING" | fn.#StringExpression
+#TokenStatus: "CREATING" | "OPERATIONAL" | "DELETING" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Route53GlobalResolver::AccessToken"
 	Properties!: #Properties

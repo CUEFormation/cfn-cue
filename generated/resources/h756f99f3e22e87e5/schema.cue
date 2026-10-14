@@ -15,15 +15,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // an Origin Access
 // Identity](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html)
 // in the *Amazon CloudFront Developer Guide*.
-#Properties: close({
-	CloudFrontOriginAccessIdentityConfig!: _#defs."/$defs/Properties/definitions/CloudFrontOriginAccessIdentityConfig" |
-		fn.#ObjectExpression
-})
+#Properties: close(
+	{CloudFrontOriginAccessIdentityConfig!: #CloudFrontOriginAccessIdentityConfig | fn.#ObjectExpression},
+)
 
-_#defs: "/$defs/Properties/definitions/CloudFrontOriginAccessIdentityConfig": close(
-	{Comment!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#CloudFrontOriginAccessIdentityConfig: close({Comment!: string | fn.#StringExpression}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::CloudFront::CloudFrontOriginAccessIdentity"
 	Properties!: #Properties

@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -35,19 +35,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // templates](https://docs.aws.amazon.com/autoscaling/ec2/userguide/migrate-launch-configurations-with-cloudformation.html)
 // in the *Amazon EC2 Auto Scaling User Guide*.
 #Properties: close({
-	AutoScalingGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	AvailabilityZoneDistribution?: _#defs."/$defs/Properties/definitions/AvailabilityZoneDistribution" |
-		fn.#ObjectExpression
+	AutoScalingGroupName?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	AvailabilityZoneDistribution?: #AvailabilityZoneDistribution | fn.#ObjectExpression
 	AvailabilityZoneIds?: list.UniqueItems() & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
-	AvailabilityZoneImpairmentPolicy?: _#defs."/$defs/Properties/definitions/AvailabilityZoneImpairmentPolicy" |
-		fn.#ObjectExpression
+	AvailabilityZoneImpairmentPolicy?: #AvailabilityZoneImpairmentPolicy | fn.#ObjectExpression
 	AvailabilityZones?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	CapacityRebalance?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CapacityReservationSpecification?: _#defs."/$defs/Properties/definitions/CapacityReservationSpecification" |
-		fn.#ObjectExpression
-	Context?:  string | fn.#StringExpression
-	Cooldown?: string | fn.#StringExpression
+	CapacityReservationSpecification?: #CapacityReservationSpecification | fn.#ObjectExpression
+	Context?:                          string | fn.#StringExpression
+	Cooldown?:                         string | fn.#StringExpression
 	DefaultInstanceWarmup?: int |
 		{
 			string &
@@ -83,13 +80,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^(EBS|EC2|ELB|VPC_LATTICE)(,(EBS|EC2|ELB|VPC_LATTICE))*,?$" |
 	fn.#StringExpression
-	InstanceId?:                strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
-	InstanceLifecyclePolicy?:   _#defs."/$defs/Properties/definitions/InstanceLifecyclePolicy" | fn.#ObjectExpression
-	InstanceMaintenancePolicy?: _#defs."/$defs/Properties/definitions/InstanceMaintenancePolicy" | fn.#ObjectExpression
-	LaunchConfigurationName?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	LaunchTemplate?: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification" | fn.#ObjectExpression
-	LifecycleHookSpecificationList?: [..._#defs."/$defs/Properties/definitions/LifecycleHookSpecification"] |
-		fn.#ListExpression
+	InstanceId?:                     strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
+	InstanceLifecyclePolicy?:        #InstanceLifecyclePolicy | fn.#ObjectExpression
+	InstanceMaintenancePolicy?:      #InstanceMaintenancePolicy | fn.#ObjectExpression
+	LaunchConfigurationName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	LaunchTemplate?:                 #LaunchTemplateSpecification | fn.#ObjectExpression
+	LifecycleHookSpecificationList?: [...#LifecycleHookSpecification] | fn.#ListExpression
 	LoadBalancerNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	MaxInstanceLifetime?: int |
 		{
@@ -106,9 +102,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	MaxSize!:              =~"^[0-9]+$" | fn.#StringExpression
-	MetricsCollection?:    [..._#defs."/$defs/Properties/definitions/MetricsCollection"] | fn.#ListExpression
+	MetricsCollection?:    [...#MetricsCollection] | fn.#ListExpression
 	MinSize!:              =~"^[0-9]+$" | fn.#StringExpression
-	MixedInstancesPolicy?: _#defs."/$defs/Properties/definitions/MixedInstancesPolicy" | fn.#ObjectExpression
+	MixedInstancesPolicy?: #MixedInstancesPolicy | fn.#ObjectExpression
 	NewInstancesProtectedFromScaleIn?: bool |
 		"true" |
 		"True" |
@@ -117,19 +113,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	NotificationConfiguration?: _#defs."/$defs/Properties/definitions/NotificationConfiguration" | fn.#ObjectExpression
-	NotificationConfigurations?: [..._#defs."/$defs/Properties/definitions/NotificationConfiguration"] |
-		fn.#ListExpression
-	PlacementGroup?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	NotificationConfiguration?:  #NotificationConfiguration | fn.#ObjectExpression
+	NotificationConfigurations?: [...#NotificationConfiguration] | fn.#ListExpression
+	PlacementGroup?:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	ServiceLinkedRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
 	fn.#StringExpression
 	SkipZonalShiftValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                     [..._#defs."/$defs/Properties/definitions/TagProperty"] | fn.#ListExpression
+	Tags?:                     [...#TagProperty] | fn.#ListExpression
 	TargetGroupARNs?:     [...strings.MaxRunes(511) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	TerminationPolicies?: [...strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	TrafficSources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TrafficSourceIdentifier"] |
-		fn.#ListExpression
-	VPCZoneIdentifier?: [...string | fn.#StringExpression] | fn.#ListExpression
+	TrafficSources?:      list.UniqueItems() & [...#TrafficSourceIdentifier] | fn.#ListExpression
+	VPCZoneIdentifier?:   [...string | fn.#StringExpression] | fn.#ListExpression
 	if InstanceId != _|_ {
 		LaunchConfigurationName?: error(
 			"LaunchConfigurationName cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
@@ -156,7 +150,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}
 }) & matchN(>=1, [{InstanceId!: _}, {LaunchConfigurationName!: _}, {LaunchTemplate!: _}, {MixedInstancesPolicy!: _}])
 
-_#defs: "/$defs/Properties/definitions/AcceleratorCountRequest": close({
+#AcceleratorCountRequest: close({
 	Max?: int & >=0 |
 		{
 			string &
@@ -190,7 +184,7 @@ _#defs: "/$defs/Properties/definitions/AcceleratorCountRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest": close({
+#AcceleratorTotalMemoryMiBRequest: close({
 	Max?: int & >=0 |
 		{
 			string &
@@ -224,7 +218,7 @@ _#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest": close(
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AvailabilityZoneDistribution": close({
+#AvailabilityZoneDistribution: close({
 	CapacityDistributionStrategy?: "balanced-best-effort" |
 		"balanced-only" |
 		"reservations-then-balanced" |
@@ -232,13 +226,13 @@ _#defs: "/$defs/Properties/definitions/AvailabilityZoneDistribution": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AvailabilityZoneImpairmentPolicy": close({
+#AvailabilityZoneImpairmentPolicy: close({
 	ImpairedZoneHealthCheckBehavior!: "IgnoreUnhealthy" | "ReplaceUnhealthy" | fn.#StringExpression
 	ZonalShiftEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest": close({
+#BaselineEbsBandwidthMbpsRequest: close({
 	Max?: int & >=0 |
 		{
 			string &
@@ -272,44 +266,39 @@ _#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BaselinePerformanceFactorsRequest": close(
-	{Cpu?: _#defs."/$defs/Properties/definitions/CpuPerformanceFactorRequest" | fn.#ObjectExpression},
-) |
+#BaselinePerformanceFactorsRequest: close({Cpu?: #CpuPerformanceFactorRequest | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationIds": list.UniqueItems() & [
+#CapacityReservationIds: list.UniqueItems() & [
 	...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-_\\/]+$" | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationResourceGroupArns": list.UniqueItems() & [
+#CapacityReservationResourceGroupArns: list.UniqueItems() & [
 	...strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
 ] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationSpecification": close({
+#CapacityReservationSpecification: close({
 	CapacityReservationPreference!: "capacity-reservations-first" |
 		"capacity-reservations-only" |
 		"default" |
 		"none" |
 		fn.#StringExpression
-	CapacityReservationTarget?: _#defs."/$defs/Properties/definitions/CapacityReservationTarget" | fn.#ObjectExpression
+	CapacityReservationTarget?: #CapacityReservationTarget | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationTarget": close({
-	CapacityReservationIds?: _#defs."/$defs/Properties/definitions/CapacityReservationIds" | fn.#ListExpression
-	CapacityReservationResourceGroupArns?: _#defs."/$defs/Properties/definitions/CapacityReservationResourceGroupArns" |
-		fn.#ListExpression
+#CapacityReservationTarget: close({
+	CapacityReservationIds?:               #CapacityReservationIds | fn.#ListExpression
+	CapacityReservationResourceGroupArns?: #CapacityReservationResourceGroupArns | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CpuPerformanceFactorRequest": close(
-	{References?: _#defs."/$defs/Properties/definitions/PerformanceFactorReferenceSetRequest" | fn.#ListExpression},
-) |
+#CpuPerformanceFactorRequest: close({References?: #PerformanceFactorReferenceSetRequest | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DistributionSegment": close({
+#DistributionSegment: close({
 	TargetCapacityTypes!: list.MinItems(1) & list.UniqueItems() & [
 		..."on-demand-capacity-reservation" |
 			"capacity-block" |
@@ -321,12 +310,9 @@ _#defs: "/$defs/Properties/definitions/DistributionSegment": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceLifecyclePolicy": close(
-	{RetentionTriggers?: _#defs."/$defs/Properties/definitions/RetentionTriggers" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#InstanceLifecyclePolicy: close({RetentionTriggers?: #RetentionTriggers | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceMaintenancePolicy": close({
+#InstanceMaintenancePolicy: close({
 	MaxHealthyPercentage?: _
 	if MaxHealthyPercentage != _|_ {
 		MinHealthyPercentage!: _
@@ -371,8 +357,8 @@ _#defs: "/$defs/Properties/definitions/InstanceMaintenancePolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
-	AcceleratorCount?: _#defs."/$defs/Properties/definitions/AcceleratorCountRequest" | fn.#ObjectExpression
+#InstanceRequirements: close({
+	AcceleratorCount?: #AcceleratorCountRequest | fn.#ObjectExpression
 	AcceleratorManufacturers?: list.UniqueItems() & [
 		..."amazon-web-services" | "amd" | "nvidia" | "xilinx" | fn.#StringExpression
 	] |
@@ -381,20 +367,17 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 		..."a100" | "k80" | "m60" | "radeon-pro-v520" | "t4" | "v100" | "vu9p" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	AcceleratorTotalMemoryMiB?: _#defs."/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest" |
-		fn.#ObjectExpression
+	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiBRequest | fn.#ObjectExpression
 	AcceleratorTypes?: list.UniqueItems() & [..."fpga" | "gpu" | "inference" | fn.#StringExpression] |
 		fn.#ListExpression
 	AllowedInstanceTypes?: list.MaxItems(400) & list.UniqueItems() & [...] & [
 		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	BareMetal?: "excluded" | "included" | "required" | fn.#StringExpression
-	BaselineEbsBandwidthMbps?: _#defs."/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest" |
-		fn.#ObjectExpression
-	BaselinePerformanceFactors?: _#defs."/$defs/Properties/definitions/BaselinePerformanceFactorsRequest" |
-		fn.#ObjectExpression
-	BurstablePerformance?: "excluded" | "included" | "required" | fn.#StringExpression
+	BareMetal?:                  "excluded" | "included" | "required" | fn.#StringExpression
+	BaselineEbsBandwidthMbps?:   #BaselineEbsBandwidthMbpsRequest | fn.#ObjectExpression
+	BaselinePerformanceFactors?: #BaselinePerformanceFactorsRequest | fn.#ObjectExpression
+	BurstablePerformance?:       "excluded" | "included" | "required" | fn.#StringExpression
 	CpuManufacturers?: list.UniqueItems() & [
 		..."amazon-web-services" | "amd" | "apple" | "intel" | fn.#StringExpression
 	] |
@@ -421,10 +404,10 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 				)
 		} |
 		fn.#NumberExpression
-	MemoryGiBPerVCpu?:      _#defs."/$defs/Properties/definitions/MemoryGiBPerVCpuRequest" | fn.#ObjectExpression
-	MemoryMiB!:             _#defs."/$defs/Properties/definitions/MemoryMiBRequest" | fn.#ObjectExpression
-	NetworkBandwidthGbps?:  _#defs."/$defs/Properties/definitions/NetworkBandwidthGbpsRequest" | fn.#ObjectExpression
-	NetworkInterfaceCount?: _#defs."/$defs/Properties/definitions/NetworkInterfaceCountRequest" | fn.#ObjectExpression
+	MemoryGiBPerVCpu?:      #MemoryGiBPerVCpuRequest | fn.#ObjectExpression
+	MemoryMiB!:             #MemoryMiBRequest | fn.#ObjectExpression
+	NetworkBandwidthGbps?:  #NetworkBandwidthGbpsRequest | fn.#ObjectExpression
+	NetworkInterfaceCount?: #NetworkInterfaceCountRequest | fn.#ObjectExpression
 	OnDemandMaxPricePercentageOverLowestPrice?: int & >=0 |
 		{
 			string &
@@ -456,16 +439,13 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 				)
 		} |
 		fn.#NumberExpression
-	TotalLocalStorageGB?: _#defs."/$defs/Properties/definitions/TotalLocalStorageGBRequest" | fn.#ObjectExpression
-	VCpuCount!:           _#defs."/$defs/Properties/definitions/VCpuCountRequest" | fn.#ObjectExpression
+	TotalLocalStorageGB?: #TotalLocalStorageGBRequest | fn.#ObjectExpression
+	VCpuCount!:           #VCpuCountRequest | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstancesDistribution": close({
-	DistributionSegments?: list.MaxItems(1) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/DistributionSegment"
-	] |
-		fn.#ListExpression
+#InstancesDistribution: close({
+	DistributionSegments?:       list.MaxItems(1) & list.MinItems(1) & [...#DistributionSegment] | fn.#ListExpression
 	OnDemandAllocationStrategy?: string | fn.#StringExpression
 	OnDemandBaseCapacity?: int |
 		{
@@ -514,28 +494,26 @@ _#defs: "/$defs/Properties/definitions/InstancesDistribution": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplate": close({
-	LaunchTemplateSpecification!: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification" |
-		fn.#ObjectExpression
-	Overrides?: [..._#defs."/$defs/Properties/definitions/LaunchTemplateOverrides"] | fn.#ListExpression
+#LaunchTemplate: close({
+	LaunchTemplateSpecification!: #LaunchTemplateSpecification | fn.#ObjectExpression
+	Overrides?:                   [...#LaunchTemplateOverrides] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateOverrides": close({
+#LaunchTemplateOverrides: close({
 	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(21) &
 	strings.MinRunes(5) &
 	=~"^ami-[a-z0-9]{1,17}$" |
 	fn.#StringExpression
-	InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirements" | fn.#ObjectExpression
-	InstanceType?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	LaunchTemplateSpecification?: _#defs."/$defs/Properties/definitions/LaunchTemplateSpecification" |
-		fn.#ObjectExpression
-	WeightedCapacity?: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+	InstanceRequirements?:        #InstanceRequirements | fn.#ObjectExpression
+	InstanceType?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	LaunchTemplateSpecification?: #LaunchTemplateSpecification | fn.#ObjectExpression
+	WeightedCapacity?:            strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": close({
+#LaunchTemplateSpecification: close({
 	LaunchTemplateId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	LaunchTemplateName?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$" |
 	fn.#StringExpression
@@ -548,7 +526,7 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateSpecification": close({
 }) & matchN(>=1, [{LaunchTemplateId!: _}, {LaunchTemplateName!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LifecycleHookSpecification": close({
+#LifecycleHookSpecification: close({
 	DefaultResult?: string | fn.#StringExpression
 	HeartbeatTimeout?: int |
 		{
@@ -576,7 +554,7 @@ _#defs: "/$defs/Properties/definitions/LifecycleHookSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpuRequest": close({
+#MemoryGiBPerVCpuRequest: close({
 	Max?: >=0 |
 		{
 			string &
@@ -618,7 +596,7 @@ _#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpuRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MemoryMiBRequest": close({
+#MemoryMiBRequest: close({
 	Max?: int & >=0 |
 		{
 			string &
@@ -652,19 +630,19 @@ _#defs: "/$defs/Properties/definitions/MemoryMiBRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricsCollection": close({
+#MetricsCollection: close({
 	Granularity!: string | fn.#StringExpression
 	Metrics?:     [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MixedInstancesPolicy": close({
-	InstancesDistribution?: _#defs."/$defs/Properties/definitions/InstancesDistribution" | fn.#ObjectExpression
-	LaunchTemplate!:        _#defs."/$defs/Properties/definitions/LaunchTemplate" | fn.#ObjectExpression
+#MixedInstancesPolicy: close({
+	InstancesDistribution?: #InstancesDistribution | fn.#ObjectExpression
+	LaunchTemplate!:        #LaunchTemplate | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkBandwidthGbpsRequest": close({
+#NetworkBandwidthGbpsRequest: close({
 	Max?: >=0 |
 		{
 			string &
@@ -706,7 +684,7 @@ _#defs: "/$defs/Properties/definitions/NetworkBandwidthGbpsRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkInterfaceCountRequest": close({
+#NetworkInterfaceCountRequest: close({
 	Max?: int & >=0 |
 		{
 			string &
@@ -740,7 +718,7 @@ _#defs: "/$defs/Properties/definitions/NetworkInterfaceCountRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
+#NotificationConfiguration: close({
 	NotificationTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
 	TopicARN!: string |
 		[
@@ -751,29 +729,20 @@ _#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PerformanceFactorReferenceRequest": close(
-	{InstanceFamily?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#PerformanceFactorReferenceRequest: close({InstanceFamily?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PerformanceFactorReferenceSetRequest": list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/PerformanceFactorReferenceRequest"
-] |
-	fn.#ListExpression
+#PerformanceFactorReferenceSetRequest: list.UniqueItems() & [...#PerformanceFactorReferenceRequest] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/RetentionTriggers": close(
-	{TerminateHookAbandon?: "retain" | "terminate" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#RetentionTriggers: close({TerminateHookAbandon?: "retain" | "terminate" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagProperty": close({
+#TagProperty: close({
 	Key!:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	PropagateAtLaunch!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Value!:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TotalLocalStorageGBRequest": close({
+#TotalLocalStorageGBRequest: close({
 	Max?: >=0 |
 		{
 			string &
@@ -815,13 +784,13 @@ _#defs: "/$defs/Properties/definitions/TotalLocalStorageGBRequest": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficSourceIdentifier": close({
+#TrafficSourceIdentifier: close({
 	Identifier!: strings.MaxRunes(511) & strings.MinRunes(1) | fn.#StringExpression
 	Type!:       strings.MaxRunes(511) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VCpuCountRequest": close({
+#VCpuCountRequest: close({
 	Max?: int & >=0 |
 		{
 			string &

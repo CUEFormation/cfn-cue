@@ -25,7 +25,7 @@ import (
 	AllocationMinNetmaskLength?: int & <=128 & >=0
 
 	// When specified, an allocation will not be allowed unless a resource has a matching set of tags.
-	AllocationResourceTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	AllocationResourceTags?: list.UniqueItems() & [...#Tag]
 
 	// The Amazon Resource Name (ARN) of the IPAM Pool.
 	Arn?: string
@@ -62,7 +62,7 @@ import (
 	PoolDepth?: int
 
 	// A list of cidrs representing the address space available for allocation in this pool.
-	ProvisionedCidrs?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ProvisionedCidr"]
+	ProvisionedCidrs?: list.UniqueItems() & [...#ProvisionedCidr]
 
 	// The IP address source for pools in the public scope. Only used for
 	// provisioning IP address CIDRs to pools in the public scope. Default is
@@ -76,7 +76,7 @@ import (
 	// The Id of this pool's source. If set, all space provisioned in this pool must
 	// be free space provisioned in the parent pool.
 	SourceIpamPoolId?: string
-	SourceResource?:   _#defs."/$defs/Properties/definitions/SourceResource"
+	SourceResource?:   #SourceResource
 
 	// The state of this pool. This can be one of the following values:
 	// "create-in-progress", "create-complete", "modify-in-progress",
@@ -92,21 +92,21 @@ import (
 	StateMessage?: string
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 // Represents a single IPv4 or IPv6 CIDR
-_#defs: "/$defs/Properties/definitions/Cidr": string & string
+#Cidr: string & string
 
 // An address space to be inserted into this pool. All allocations must be made
 // from this address space.
-_#defs: "/$defs/Properties/definitions/ProvisionedCidr": close({Cidr!: _#defs."/$defs/Properties/definitions/Cidr"})
+#ProvisionedCidr: close({Cidr!: #Cidr})
 
 // The resource associated with this pool's space. Depending on the
 // ResourceType, setting a SourceResource changes which space can be
 // provisioned in this pool and which types of resources can receive
 // allocations
-_#defs: "/$defs/Properties/definitions/SourceResource": close({
+#SourceResource: close({
 	ResourceId!:     string
 	ResourceOwner!:  string
 	ResourceRegion!: string
@@ -114,7 +114,7 @@ _#defs: "/$defs/Properties/definitions/SourceResource": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

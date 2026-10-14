@@ -51,9 +51,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Dimensions?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Dimension"] | fn.#ListExpression
+	Dimensions?:                       list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
 	EvaluateLowSampleCountPercentile?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	EvaluationCriteria?:               _#defs."/$defs/Properties/definitions/EvaluationCriteria" | fn.#ObjectExpression
+	EvaluationCriteria?:               #EvaluationCriteria | fn.#ObjectExpression
 	EvaluationInterval?: int & <=3600 & >=10 |
 		{
 			string &
@@ -85,12 +85,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	EvaluationWindow?:  _#defs."/$defs/Properties/definitions/EvaluationWindow" | fn.#ObjectExpression
+	EvaluationWindow?:  #EvaluationWindow | fn.#ObjectExpression
 	ExtendedStatistic?: string | fn.#StringExpression
 	InsufficientDataActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Metrics?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDataQuery"] | fn.#ListExpression
+	Metrics?:    list.UniqueItems() & [...#MetricDataQuery] | fn.#ListExpression
 	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
 	OKActions?:  [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	Period?: int & >=1 |
@@ -109,7 +109,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	Statistic?: "Average" | "Maximum" | "Minimum" | "SampleCount" | "Sum" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	Threshold?: number |
 		{
 			string &
@@ -160,7 +160,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"Terabytes" |
 		"Terabytes/Second" |
 		fn.#StringExpression
-	WarmUpConfiguration?: _#defs."/$defs/Properties/definitions/WarmUpConfiguration" | fn.#ObjectExpression
+	WarmUpConfiguration?: #WarmUpConfiguration | fn.#ObjectExpression
 	if ExtendedStatistic != _|_ {
 		Statistic?: error("Statistic cannot be used with ExtendedStatistic")
 	}
@@ -191,7 +191,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}
 }) & matchN(>=1, [{Metrics!: _}, {MetricName!: _}, {EvaluationCriteria!: _}])
 
-_#defs: "/$defs/Properties/definitions/AlarmPromQLCriteria": close({
+#AlarmPromQLCriteria: close({
 	PendingPeriod?: int |
 		{
 			string &
@@ -224,20 +224,17 @@ _#defs: "/$defs/Properties/definitions/AlarmPromQLCriteria": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Dimension": close({
+#Dimension: close({
 	Name!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationCriteria": close(
-	{PromQLCriteria?: _#defs."/$defs/Properties/definitions/AlarmPromQLCriteria" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#EvaluationCriteria: close({PromQLCriteria?: #AlarmPromQLCriteria | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationWindow": close({
+#EvaluationWindow: close({
 	SlidingWindow?:   close({}) | fn.#ObjectExpression
-	WallClockWindow?: _#defs."/$defs/Properties/definitions/WallClockWindow" | fn.#ObjectExpression
+	WallClockWindow?: #WallClockWindow | fn.#ObjectExpression
 	if WallClockWindow != _|_ {
 		SlidingWindow?: error(
 			"SlidingWindow cannot be used with WallClockWindow; set exactly one of WallClockWindow, SlidingWindow",
@@ -246,19 +243,19 @@ _#defs: "/$defs/Properties/definitions/EvaluationWindow": close({
 }) & matchN(>=1, [{WallClockWindow!: _}, {SlidingWindow!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Metric": close({
-	Dimensions?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Dimension"] | fn.#ListExpression
+#Metric: close({
+	Dimensions?: list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
 	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
+#MetricDataQuery: close({
 	AccountId?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Expression?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 	Id!:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([a-z])([A-Za-z0-9\\_]*)$" | fn.#StringExpression
 	Label?:      string | fn.#StringExpression
-	MetricStat?: _#defs."/$defs/Properties/definitions/MetricStat" | fn.#ObjectExpression
+	MetricStat?: #MetricStat | fn.#ObjectExpression
 	Period?: int & >=1 |
 		{
 			string &
@@ -278,8 +275,8 @@ _#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricStat": close({
-	Metric!: _#defs."/$defs/Properties/definitions/Metric" | fn.#ObjectExpression
+#MetricStat: close({
+	Metric!: #Metric | fn.#ObjectExpression
 	Period!: int & >=1 |
 		{
 			string &
@@ -327,16 +324,15 @@ _#defs: "/$defs/Properties/definitions/MetricStat": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WallClockWindow": close({Timezone?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#WallClockWindow: close({Timezone?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WarmUpConfiguration": close({
+#WarmUpConfiguration: close({
 	OnlyStartEvaluatingAfterWarmUpPeriodEnds?: bool |
 		"true" |
 		"True" |

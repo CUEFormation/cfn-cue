@@ -12,25 +12,23 @@ import (
 // Resource Type definition for AWS::MSK::ServerlessCluster
 #Properties: close({
 	Arn?:                  string
-	ClientAuthentication!: _#defs."/$defs/Properties/definitions/ClientAuthentication"
+	ClientAuthentication!: #ClientAuthentication
 	ClusterName!:          strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// A key-value pair to associate with a resource.
 	Tags?: close({
 
 		{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string}})
-	VpcConfigs!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VpcConfig"]
+	VpcConfigs!: list.UniqueItems() & [...#VpcConfig]
 })
 
-_#defs: "/$defs/Properties/definitions/ClientAuthentication": close(
-	{Sasl!: _#defs."/$defs/Properties/definitions/Sasl"},
-)
+#ClientAuthentication: close({Sasl!: #Sasl})
 
-_#defs: "/$defs/Properties/definitions/Iam": close({Enabled!: bool})
+#Iam: close({Enabled!: bool})
 
-_#defs: "/$defs/Properties/definitions/Sasl": close({Iam!: _#defs."/$defs/Properties/definitions/Iam"})
+#Sasl: close({Iam!: #Iam})
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroups?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 	SubnetIds!:      list.UniqueItems() & [...string]
 })

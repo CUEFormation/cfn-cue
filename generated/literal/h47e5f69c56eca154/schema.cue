@@ -3,15 +3,15 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource schema represents the NotificationChannel resource in the Amazon DevOps Guru.
 #Properties: close({
-	Config!: _#defs."/$defs/Properties/definitions/NotificationChannelConfig"
+	Config!: #NotificationChannelConfig
 
 	// The ID of a notification channel.
 	Id?: strings.MaxRunes(36) &
@@ -20,41 +20,37 @@ import (
 })
 
 // DevOps Guru insight severities to filter for
-_#defs: "/$defs/Properties/definitions/InsightSeveritiesFilterList": list.MaxItems(3) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/InsightSeverity"
-]
+#InsightSeveritiesFilterList: list.MaxItems(3) & list.MinItems(1) & [...#InsightSeverity]
 
 // DevOps Guru Insight Severity Enum
-_#defs: "/$defs/Properties/definitions/InsightSeverity": "LOW" | "MEDIUM" | "HIGH"
+#InsightSeverity: "LOW" | "MEDIUM" | "HIGH"
 
 // Information about notification channels you have configured with DevOps Guru.
-_#defs: "/$defs/Properties/definitions/NotificationChannelConfig": close({
-	Filters?: _#defs."/$defs/Properties/definitions/NotificationFilterConfig"
-	Sns?:     _#defs."/$defs/Properties/definitions/SnsChannelConfig"
+#NotificationChannelConfig: close({
+	Filters?: #NotificationFilterConfig
+	Sns?:     #SnsChannelConfig
 })
 
 // Information about filters of a notification channel configured in DevOpsGuru
 // to filter for insights.
-_#defs: "/$defs/Properties/definitions/NotificationFilterConfig": close({
-	MessageTypes?: _#defs."/$defs/Properties/definitions/NotificationMessageTypesFilterList"
-	Severities?:   _#defs."/$defs/Properties/definitions/InsightSeveritiesFilterList"
+#NotificationFilterConfig: close({
+	MessageTypes?: #NotificationMessageTypesFilterList
+	Severities?:   #InsightSeveritiesFilterList
 })
 
 // DevOps Guru NotificationMessageType Enum
-_#defs: "/$defs/Properties/definitions/NotificationMessageType": "NEW_INSIGHT" |
+#NotificationMessageType: "NEW_INSIGHT" |
 	"CLOSED_INSIGHT" |
 	"NEW_ASSOCIATION" |
 	"SEVERITY_UPGRADED" |
 	"NEW_RECOMMENDATION"
 
 // DevOps Guru message types to filter for
-_#defs: "/$defs/Properties/definitions/NotificationMessageTypesFilterList": list.MaxItems(5) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/NotificationMessageType"
-]
+#NotificationMessageTypesFilterList: list.MaxItems(5) & list.MinItems(1) & [...#NotificationMessageType]
 
 // Information about a notification channel configured in DevOps Guru to send
 // notifications when insights are created.
-_#defs: "/$defs/Properties/definitions/SnsChannelConfig": close({
+#SnsChannelConfig: close({
 	TopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
 	strings.MaxRunes(1024) &
 	strings.MinRunes(36) &

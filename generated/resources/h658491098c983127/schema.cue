@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,54 +14,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Connect::TaskTemplate.
 #Properties: close({
-	ClientToken?: _#defs."/$defs/Properties/definitions/ClientToken"
+	ClientToken?: #ClientToken
 	Constraints?: close({
-		InvisibleFields?: _#defs."/$defs/Properties/definitions/InvisibleTaskTemplateFields"
-		ReadOnlyFields?:  _#defs."/$defs/Properties/definitions/ReadOnlyTaskTemplateFields"
-		RequiredFields?:  _#defs."/$defs/Properties/definitions/RequiredTaskTemplateFields"
+		InvisibleFields?: #InvisibleTaskTemplateFields
+		ReadOnlyFields?:  #ReadOnlyTaskTemplateFields
+		RequiredFields?:  #RequiredTaskTemplateFields
 	}) |
 	fn.#ObjectExpression
 	ContactFlowArn?: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" |
 		fn.#StringExpression
-	Defaults?:    list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/DefaultFieldValue"] | fn.#ListExpression
+	Defaults?:    list.MaxItems(50) & [...#DefaultFieldValue] | fn.#ListExpression
 	Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	Fields?:      list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Field"] | fn.#ListExpression
+	Fields?:      list.MaxItems(50) & [...#Field] | fn.#ListExpression
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	Name?:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	SelfAssignContactFlowArn?: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" |
 		fn.#StringExpression
-	Status?: _#defs."/$defs/Properties/definitions/Status"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Status?: #Status
+	Tags?:   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ClientToken": strings.MaxRunes(500) &
+#ClientToken: strings.MaxRunes(500) &
 strings.MinRunes(0) &
 =~"^$|[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DefaultFieldValue": close({
-	DefaultValue!: _#defs."/$defs/Properties/definitions/FieldValue"
-	Id!:           _#defs."/$defs/Properties/definitions/FieldIdentifier"
+#DefaultFieldValue: close({
+	DefaultValue!: #FieldValue
+	Id!:           #FieldIdentifier
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Field": close({
-	Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	Id!:          _#defs."/$defs/Properties/definitions/FieldIdentifier"
-	SingleSelectOptions?: list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/FieldOption"] |
-		fn.#ListExpression
-	Type!: _#defs."/$defs/Properties/definitions/FieldType"
+#Field: close({
+	Description?:         strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Id!:                  #FieldIdentifier
+	SingleSelectOptions?: list.MaxItems(50) & [...#FieldOption] | fn.#ListExpression
+	Type!:                #FieldType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldIdentifier": close(
-	{Name!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#FieldIdentifier: close({Name!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FieldOption": strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#FieldOption: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FieldType": "NAME" |
+#FieldType: "NAME" |
 	"DESCRIPTION" |
 	"SCHEDULED_TIME" |
 	"QUICK_CONNECT" |
@@ -77,41 +74,23 @@ _#defs: "/$defs/Properties/definitions/FieldType": "NAME" |
 	"SELF_ASSIGN" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/FieldValue": strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+#FieldValue: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/InvisibleFieldInfo": close(
-	{Id!: _#defs."/$defs/Properties/definitions/FieldIdentifier"},
-) |
-	fn.#ObjectExpression
+#InvisibleFieldInfo: close({Id!: #FieldIdentifier}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InvisibleTaskTemplateFields": list.MaxItems(50) & [
-	..._#defs."/$defs/Properties/definitions/InvisibleFieldInfo"
-] |
-	fn.#ListExpression
+#InvisibleTaskTemplateFields: list.MaxItems(50) & [...#InvisibleFieldInfo] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ReadOnlyFieldInfo": close(
-	{Id!: _#defs."/$defs/Properties/definitions/FieldIdentifier"},
-) |
-	fn.#ObjectExpression
+#ReadOnlyFieldInfo: close({Id!: #FieldIdentifier}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReadOnlyTaskTemplateFields": list.MaxItems(50) & [
-	..._#defs."/$defs/Properties/definitions/ReadOnlyFieldInfo"
-] |
-	fn.#ListExpression
+#ReadOnlyTaskTemplateFields: list.MaxItems(50) & [...#ReadOnlyFieldInfo] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/RequiredFieldInfo": close(
-	{Id!: _#defs."/$defs/Properties/definitions/FieldIdentifier"},
-) |
-	fn.#ObjectExpression
+#RequiredFieldInfo: close({Id!: #FieldIdentifier}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RequiredTaskTemplateFields": list.MaxItems(50) & [
-	..._#defs."/$defs/Properties/definitions/RequiredFieldInfo"
-] |
-	fn.#ListExpression
+#RequiredTaskTemplateFields: list.MaxItems(50) & [...#RequiredFieldInfo] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Status": "ACTIVE" | "INACTIVE" | fn.#StringExpression
+#Status: "ACTIVE" | "INACTIVE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |

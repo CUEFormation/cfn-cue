@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"time"
+	"strings"
 	"list"
 )
 
@@ -35,23 +35,23 @@ import (
 
 	// The name of the AgentSpace.
 	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}\\p{P}\\p{S}\\p{Z}]+$"
-	OperatorApp?: _#defs."/$defs/Properties/definitions/OperatorApp"
-	Preferences?: _#defs."/$defs/Properties/definitions/Preferences"
+	OperatorApp?: #OperatorApp
+	Preferences?: #Preferences
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The timestamp when the resource was last updated.
 	UpdatedAt?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/IamAuthConfiguration": close({
+#IamAuthConfiguration: close({
 	CreatedAt?:          time.Time
 	OperatorAppRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	UpdatedAt?:          time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/IdcAuthConfiguration": close({
+#IdcAuthConfiguration: close({
 	CreatedAt?:          time.Time
 	IdcApplicationArn?:  string
 	IdcInstanceArn!:     string
@@ -60,7 +60,7 @@ _#defs: "/$defs/Properties/definitions/IdcAuthConfiguration": close({
 })
 
 // External identity provider configuration for the Operator App.
-_#defs: "/$defs/Properties/definitions/IdpAuthConfiguration": close({
+#IdpAuthConfiguration: close({
 	// The OIDC client identifier for the external identity provider application.
 	ClientId!: strings.MaxRunes(512) & strings.MinRunes(1)
 
@@ -85,24 +85,24 @@ _#defs: "/$defs/Properties/definitions/IdpAuthConfiguration": close({
 	UserIdClaim?: string
 })
 
-_#defs: "/$defs/Properties/definitions/OperatorApp": close({
-	Iam?: _#defs."/$defs/Properties/definitions/IamAuthConfiguration"
-	Idc?: _#defs."/$defs/Properties/definitions/IdcAuthConfiguration"
-	Idp?: _#defs."/$defs/Properties/definitions/IdpAuthConfiguration"
+#OperatorApp: close({
+	Iam?: #IamAuthConfiguration
+	Idc?: #IdcAuthConfiguration
+	Idp?: #IdpAuthConfiguration
 })
 
 // Preferences that configure behavior of this AgentSpace. This container fully
 // owns the AgentSpace preferences: the properties supplied here replace the
 // stored preferences in their entirety, and omitting the Preferences container
 // reverts all preferences to their service defaults.
-_#defs: "/$defs/Properties/definitions/Preferences": close({
+#Preferences: close({
 	// Indicates whether elevated directed actions are permitted in this AgentSpace.
 	// Defaults to false when not set.
 	ElevatedActionsEnabled?: bool
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

@@ -84,7 +84,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	Name!:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ProjectArn!: strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+" | fn.#StringExpression
-	Tags?:       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:       [...#Tag] | fn.#ListExpression
 	UplinkBandwidthBits?: int & <=104857600 & >=0 |
 		{
 			string &
@@ -151,7 +151,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

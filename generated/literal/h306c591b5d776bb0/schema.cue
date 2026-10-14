@@ -12,34 +12,32 @@ import (
 // Resource Type definition for AWS::EC2::SpotFleet
 #Properties: close({
 	Id?:                         string
-	SpotFleetRequestConfigData!: _#defs."/$defs/Properties/definitions/SpotFleetRequestConfigData"
+	SpotFleetRequestConfigData!: #SpotFleetRequestConfigData
 
 	// The tags to specify in SpotFleetRequestConfigData
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/AcceleratorCountRequest": close({
+#AcceleratorCountRequest: close({
 	Max?: int
 	Min?: int
 })
 
-_#defs: "/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest": close({
+#AcceleratorTotalMemoryMiBRequest: close({
 	Max?: int
 	Min?: int
 })
 
-_#defs: "/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest": close({
+#BaselineEbsBandwidthMbpsRequest: close({
 	Max?: int
 	Min?: int
 })
 
-_#defs: "/$defs/Properties/definitions/BaselinePerformanceFactorsRequest": close(
-	{Cpu?: _#defs."/$defs/Properties/definitions/CpuPerformanceFactorRequest"},
-)
+#BaselinePerformanceFactorsRequest: close({Cpu?: #CpuPerformanceFactorRequest})
 
-_#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
+#BlockDeviceMapping: close({
 	DeviceName!:  string
-	Ebs?:         _#defs."/$defs/Properties/definitions/EbsBlockDevice"
+	Ebs?:         #EbsBlockDevice
 	NoDevice?:    string
 	VirtualName?: string
 	if VirtualName != _|_ {
@@ -51,17 +49,13 @@ _#defs: "/$defs/Properties/definitions/BlockDeviceMapping": close({
 	}
 }) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
 
-_#defs: "/$defs/Properties/definitions/ClassicLoadBalancer": close({Name!: string})
+#ClassicLoadBalancer: close({Name!: string})
 
-_#defs: "/$defs/Properties/definitions/ClassicLoadBalancersConfig": close(
-	{ClassicLoadBalancers!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ClassicLoadBalancer"]},
-)
+#ClassicLoadBalancersConfig: close({ClassicLoadBalancers!: list.UniqueItems() & [...#ClassicLoadBalancer]})
 
-_#defs: "/$defs/Properties/definitions/CpuPerformanceFactorRequest": close(
-	{References?: [..._#defs."/$defs/Properties/definitions/PerformanceFactorReferenceRequest"]},
-)
+#CpuPerformanceFactorRequest: close({References?: [...#PerformanceFactorReferenceRequest]})
 
-_#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
+#EbsBlockDevice: close({
 	DeleteOnTermination?: bool
 	Encrypted?:           bool
 	Iops?:                int
@@ -70,34 +64,34 @@ _#defs: "/$defs/Properties/definitions/EbsBlockDevice": close({
 	VolumeType?:          string
 })
 
-_#defs: "/$defs/Properties/definitions/FleetLaunchTemplateSpecification": close({
+#FleetLaunchTemplateSpecification: close({
 	LaunchTemplateId?:   string
 	LaunchTemplateName?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"[a-zA-Z0-9\\(\\)\\.\\-/_]+"
 	Version!:            string
 })
 
-_#defs: "/$defs/Properties/definitions/GroupIdentifier": {...} & close({GroupId!: string})
+#GroupIdentifier: {...} & close({GroupId!: string})
 
-_#defs: "/$defs/Properties/definitions/IamInstanceProfileSpecification": close({Arn?: string})
+#IamInstanceProfileSpecification: close({Arn?: string})
 
-_#defs: "/$defs/Properties/definitions/InstanceIpv6Address": close({Ipv6Address!: string})
+#InstanceIpv6Address: close({Ipv6Address!: string})
 
-_#defs: "/$defs/Properties/definitions/InstanceNetworkInterfaceSpecification": close({
-	AssociatePublicIpAddress?: bool
-	DeleteOnTermination?:      bool
-	Description?:              string
-	DeviceIndex?:              int
-	Groups?:                   list.UniqueItems() & [...string]
-	Ipv6AddressCount?:         int
-	Ipv6Addresses?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InstanceIpv6Address"]
-	NetworkInterfaceId?:       string
-	PrivateIpAddresses?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PrivateIpAddressSpecification"]
+#InstanceNetworkInterfaceSpecification: close({
+	AssociatePublicIpAddress?:       bool
+	DeleteOnTermination?:            bool
+	Description?:                    string
+	DeviceIndex?:                    int
+	Groups?:                         list.UniqueItems() & [...string]
+	Ipv6AddressCount?:               int
+	Ipv6Addresses?:                  list.UniqueItems() & [...#InstanceIpv6Address]
+	NetworkInterfaceId?:             string
+	PrivateIpAddresses?:             list.UniqueItems() & [...#PrivateIpAddressSpecification]
 	SecondaryPrivateIpAddressCount?: int
 	SubnetId?:                       string
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceRequirementsRequest": close({
-	AcceleratorCount?:         _#defs."/$defs/Properties/definitions/AcceleratorCountRequest"
+#InstanceRequirementsRequest: close({
+	AcceleratorCount?:         #AcceleratorCountRequest
 	AcceleratorManufacturers?: [..."amazon-web-services" | "amd" | "habana" | "nvidia" | "xilinx"]
 	AcceleratorNames?: [
 		..."a10g" |
@@ -120,12 +114,12 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirementsRequest": close({
 			"trainium2" |
 			"u30"
 	]
-	AcceleratorTotalMemoryMiB?:  _#defs."/$defs/Properties/definitions/AcceleratorTotalMemoryMiBRequest"
+	AcceleratorTotalMemoryMiB?:  #AcceleratorTotalMemoryMiBRequest
 	AcceleratorTypes?:           [..."gpu" | "fpga" | "inference" | "media"]
 	AllowedInstanceTypes?:       [...strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+"]
 	BareMetal?:                  "included" | "required" | "excluded"
-	BaselineEbsBandwidthMbps?:   _#defs."/$defs/Properties/definitions/BaselineEbsBandwidthMbpsRequest"
-	BaselinePerformanceFactors?: _#defs."/$defs/Properties/definitions/BaselinePerformanceFactorsRequest"
+	BaselineEbsBandwidthMbps?:   #BaselineEbsBandwidthMbpsRequest
+	BaselinePerformanceFactors?: #BaselinePerformanceFactorsRequest
 	BurstablePerformance?:       "included" | "required" | "excluded"
 	CpuManufacturers?:           [..."intel" | "amd" | "amazon-web-services" | "apple"]
 	ExcludedInstanceTypes?:      [...strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+"]
@@ -133,27 +127,27 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirementsRequest": close({
 	LocalStorage?:               "included" | "required" | "excluded"
 	LocalStorageTypes?:          [..."hdd" | "ssd"]
 	MaxSpotPriceAsPercentageOfOptimalOnDemandPrice?: int
-	MemoryGiBPerVCpu?:                               _#defs."/$defs/Properties/definitions/MemoryGiBPerVCpuRequest"
-	MemoryMiB?:                                      _#defs."/$defs/Properties/definitions/MemoryMiBRequest"
-	NetworkBandwidthGbps?:                           _#defs."/$defs/Properties/definitions/NetworkBandwidthGbpsRequest"
-	NetworkInterfaceCount?:                          _#defs."/$defs/Properties/definitions/NetworkInterfaceCountRequest"
+	MemoryGiBPerVCpu?:                               #MemoryGiBPerVCpuRequest
+	MemoryMiB?:                                      #MemoryMiBRequest
+	NetworkBandwidthGbps?:                           #NetworkBandwidthGbpsRequest
+	NetworkInterfaceCount?:                          #NetworkInterfaceCountRequest
 	OnDemandMaxPricePercentageOverLowestPrice?:      int
 	RequireEncryptionInTransit?:                     bool
 	RequireHibernateSupport?:                        bool
 	SpotMaxPricePercentageOverLowestPrice?:          int
-	TotalLocalStorageGB?:                            _#defs."/$defs/Properties/definitions/TotalLocalStorageGBRequest"
-	VCpuCount?:                                      _#defs."/$defs/Properties/definitions/VCpuCountRangeRequest"
+	TotalLocalStorageGB?:                            #TotalLocalStorageGBRequest
+	VCpuCount?:                                      #VCpuCountRangeRequest
 })
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateConfig": close({
-	LaunchTemplateSpecification?: _#defs."/$defs/Properties/definitions/FleetLaunchTemplateSpecification"
-	Overrides?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LaunchTemplateOverrides"]
+#LaunchTemplateConfig: close({
+	LaunchTemplateSpecification?: #FleetLaunchTemplateSpecification
+	Overrides?:                   list.UniqueItems() & [...#LaunchTemplateOverrides]
 })
 
-_#defs: "/$defs/Properties/definitions/LaunchTemplateOverrides": close({
+#LaunchTemplateOverrides: close({
 	AvailabilityZone?:     string
 	AvailabilityZoneId?:   string
-	InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirementsRequest"
+	InstanceRequirements?: #InstanceRequirementsRequest
 	InstanceType?:         string
 	Priority?:             number
 	SpotPrice?:            string
@@ -161,92 +155,90 @@ _#defs: "/$defs/Properties/definitions/LaunchTemplateOverrides": close({
 	WeightedCapacity?:     number
 })
 
-_#defs: "/$defs/Properties/definitions/LoadBalancersConfig": close({
-	ClassicLoadBalancersConfig?: _#defs."/$defs/Properties/definitions/ClassicLoadBalancersConfig"
-	TargetGroupsConfig?:         _#defs."/$defs/Properties/definitions/TargetGroupsConfig"
+#LoadBalancersConfig: close({
+	ClassicLoadBalancersConfig?: #ClassicLoadBalancersConfig
+	TargetGroupsConfig?:         #TargetGroupsConfig
 })
 
-_#defs: "/$defs/Properties/definitions/MemoryGiBPerVCpuRequest": close({
+#MemoryGiBPerVCpuRequest: close({
 	Max?: number
 	Min?: number
 })
 
-_#defs: "/$defs/Properties/definitions/MemoryMiBRequest": close({
+#MemoryMiBRequest: close({
 	Max?: int
 	Min?: int
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkBandwidthGbpsRequest": close({
+#NetworkBandwidthGbpsRequest: close({
 	Max?: number
 	Min?: number
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkInterfaceCountRequest": close({
+#NetworkInterfaceCountRequest: close({
 	Max?: int
 	Min?: int
 })
 
-_#defs: "/$defs/Properties/definitions/PerformanceFactorReferenceRequest": close({InstanceFamily?: string})
+#PerformanceFactorReferenceRequest: close({InstanceFamily?: string})
 
-_#defs: "/$defs/Properties/definitions/PrivateIpAddressSpecification": close({
+#PrivateIpAddressSpecification: close({
 	Primary?:          bool
 	PrivateIpAddress!: string
 })
 
-_#defs: "/$defs/Properties/definitions/SpotCapacityRebalance": close({
+#SpotCapacityRebalance: close({
 	ReplacementStrategy?: "launch" | "launch-before-terminate"
 	TerminationDelay?:    int
 })
 
-_#defs: "/$defs/Properties/definitions/SpotFleetLaunchSpecification": close({
-	BlockDeviceMappings?:  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/BlockDeviceMapping"]
+#SpotFleetLaunchSpecification: close({
+	BlockDeviceMappings?:  list.UniqueItems() & [...#BlockDeviceMapping]
 	EbsOptimized?:         bool
-	IamInstanceProfile?:   _#defs."/$defs/Properties/definitions/IamInstanceProfileSpecification"
+	IamInstanceProfile?:   #IamInstanceProfileSpecification
 	ImageId!:              =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$"
-	InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirementsRequest"
+	InstanceRequirements?: #InstanceRequirementsRequest
 	InstanceType?:         string
 	KernelId?:             string
 	KeyName?:              string
-	Monitoring?:           _#defs."/$defs/Properties/definitions/SpotFleetMonitoring"
-	NetworkInterfaces?: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/InstanceNetworkInterfaceSpecification"
-	]
-	Placement?:         _#defs."/$defs/Properties/definitions/SpotPlacement"
-	RamdiskId?:         string
-	SecurityGroups?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/GroupIdentifier"]
-	SpotPrice?:         string
-	SubnetId?:          string
-	TagSpecifications?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SpotFleetTagSpecification"]
-	UserData?:          string
-	WeightedCapacity?:  number
+	Monitoring?:           #SpotFleetMonitoring
+	NetworkInterfaces?:    list.UniqueItems() & [...#InstanceNetworkInterfaceSpecification]
+	Placement?:            #SpotPlacement
+	RamdiskId?:            string
+	SecurityGroups?:       list.UniqueItems() & [...#GroupIdentifier]
+	SpotPrice?:            string
+	SubnetId?:             string
+	TagSpecifications?:    list.UniqueItems() & [...#SpotFleetTagSpecification]
+	UserData?:             string
+	WeightedCapacity?:     number
 })
 
-_#defs: "/$defs/Properties/definitions/SpotFleetMonitoring": close({Enabled?: bool})
+#SpotFleetMonitoring: close({Enabled?: bool})
 
-_#defs: "/$defs/Properties/definitions/SpotFleetRequestConfigData": close({
+#SpotFleetRequestConfigData: close({
 	AllocationStrategy?: "capacityOptimized" |
 		"capacityOptimizedPrioritized" |
 		"diversified" |
 		"lowestPrice" |
 		"priceCapacityOptimized"
-	Context?:                         string
-	ExcessCapacityTerminationPolicy?: "Default" | "NoTermination" | "default" | "noTermination"
-	IamFleetRole!:                    string
-	InstanceInterruptionBehavior?:    "hibernate" | "stop" | "terminate"
-	InstancePoolsToUseCount?:         int
-	LaunchSpecifications?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SpotFleetLaunchSpecification"]
-	LaunchTemplateConfigs?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LaunchTemplateConfig"]
-	LoadBalancersConfig?:        _#defs."/$defs/Properties/definitions/LoadBalancersConfig"
-	OnDemandAllocationStrategy?: string
-	OnDemandMaxTotalPrice?:      string
-	OnDemandTargetCapacity?:     int
-	ReplaceUnhealthyInstances?:  bool
-	SpotMaintenanceStrategies?:  _#defs."/$defs/Properties/definitions/SpotMaintenanceStrategies"
-	SpotMaxTotalPrice?:          string
-	SpotPrice?:                  string
-	TagSpecifications?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SpotFleetTagSpecification"]
-	TargetCapacity!:         int
-	TargetCapacityUnitType?: "vcpu" | "memory-mib" | "units"
+	Context?:                          string
+	ExcessCapacityTerminationPolicy?:  "Default" | "NoTermination" | "default" | "noTermination"
+	IamFleetRole!:                     string
+	InstanceInterruptionBehavior?:     "hibernate" | "stop" | "terminate"
+	InstancePoolsToUseCount?:          int
+	LaunchSpecifications?:             list.UniqueItems() & [...#SpotFleetLaunchSpecification]
+	LaunchTemplateConfigs?:            list.UniqueItems() & [...#LaunchTemplateConfig]
+	LoadBalancersConfig?:              #LoadBalancersConfig
+	OnDemandAllocationStrategy?:       string
+	OnDemandMaxTotalPrice?:            string
+	OnDemandTargetCapacity?:           int
+	ReplaceUnhealthyInstances?:        bool
+	SpotMaintenanceStrategies?:        #SpotMaintenanceStrategies
+	SpotMaxTotalPrice?:                string
+	SpotPrice?:                        string
+	TagSpecifications?:                list.UniqueItems() & [...#SpotFleetTagSpecification]
+	TargetCapacity!:                   int
+	TargetCapacityUnitType?:           "vcpu" | "memory-mib" | "units"
 	TerminateInstancesWithExpiration?: bool
 	Type?:                             "maintain" | "request"
 	ValidFrom?:                        string
@@ -258,7 +250,7 @@ _#defs: "/$defs/Properties/definitions/SpotFleetRequestConfigData": close({
 	}
 }) & matchN(>=1, [{LaunchSpecifications!: _}, {LaunchTemplateConfigs!: _}])
 
-_#defs: "/$defs/Properties/definitions/SpotFleetTagSpecification": close({
+#SpotFleetTagSpecification: close({
 	ResourceType?: "client-vpn-endpoint" |
 		"customer-gateway" |
 		"dedicated-host" |
@@ -306,37 +298,33 @@ _#defs: "/$defs/Properties/definitions/SpotFleetTagSpecification": close({
 		"vpc-peering-connection" |
 		"vpn-connection" |
 		"vpn-gateway"
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/SpotMaintenanceStrategies": close(
-	{CapacityRebalance?: _#defs."/$defs/Properties/definitions/SpotCapacityRebalance"},
-)
+#SpotMaintenanceStrategies: close({CapacityRebalance?: #SpotCapacityRebalance})
 
-_#defs: "/$defs/Properties/definitions/SpotPlacement": close({
+#SpotPlacement: close({
 	AvailabilityZone?:   string
 	AvailabilityZoneId?: string
 	GroupName?:          string
 	Tenancy?:            "dedicated" | "default" | "host"
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/TargetGroup": close({Arn!: string})
+#TargetGroup: close({Arn!: string})
 
-_#defs: "/$defs/Properties/definitions/TargetGroupsConfig": close(
-	{TargetGroups!: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TargetGroup"]},
-)
+#TargetGroupsConfig: close({TargetGroups!: list.UniqueItems() & [...#TargetGroup]})
 
-_#defs: "/$defs/Properties/definitions/TotalLocalStorageGBRequest": close({
+#TotalLocalStorageGBRequest: close({
 	Max?: number
 	Min?: number
 })
 
-_#defs: "/$defs/Properties/definitions/VCpuCountRangeRequest": close({
+#VCpuCountRangeRequest: close({
 	Max?: int
 	Min?: int
 })

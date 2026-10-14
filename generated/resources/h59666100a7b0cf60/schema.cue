@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -19,65 +19,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates an Amazon S3 Tables table bucket in the same AWS Region where you
 // create the AWS CloudFormation stack.
 #Properties: close({
-	EncryptionConfiguration?:   _#defs."/$defs/Properties/definitions/EncryptionConfiguration"
-	MetricsConfiguration?:      _#defs."/$defs/Properties/definitions/MetricsConfiguration"
-	ReplicationConfiguration?:  _#defs."/$defs/Properties/definitions/ReplicationConfiguration"
-	StorageClassConfiguration?: _#defs."/$defs/Properties/definitions/StorageClassConfiguration"
-	TableBucketName!:           _#defs."/$defs/Properties/definitions/TableBucketName"
-	Tags?:                    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	UnreferencedFileRemoval?: _#defs."/$defs/Properties/definitions/UnreferencedFileRemoval"
+	EncryptionConfiguration?:   #EncryptionConfiguration
+	MetricsConfiguration?:      #MetricsConfiguration
+	ReplicationConfiguration?:  #ReplicationConfiguration
+	StorageClassConfiguration?: #StorageClassConfiguration
+	TableBucketName!:           #TableBucketName
+	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	UnreferencedFileRemoval?:   #UnreferencedFileRemoval
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close({
+#EncryptionConfiguration: close({
 	KMSKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	SSEAlgorithm?: "AES256" | "aws:kms" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricsConfiguration": close(
-	{Status?: "Enabled" | "Disabled" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#MetricsConfiguration: close({Status?: "Enabled" | "Disabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationConfiguration": close({
-	Role!: string | fn.#StringExpression
-	Rules!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ReplicationRule"] |
-		fn.#ListExpression
+#ReplicationConfiguration: close({
+	Role!:  string | fn.#StringExpression
+	Rules!: list.MaxItems(1) & list.MinItems(1) & [...#ReplicationRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationDestination": close(
-	{DestinationTableBucketARN!: string | fn.#StringExpression},
+#ReplicationDestination: close({DestinationTableBucketARN!: string | fn.#StringExpression}) | fn.#ObjectExpression
+
+#ReplicationRule: close(
+	{Destinations!: list.MaxItems(5) & list.MinItems(1) & [...#ReplicationDestination] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicationRule": close({
-	Destinations!: list.MaxItems(5) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/ReplicationDestination"
-	] |
-		fn.#ListExpression
-}) |
+#StorageClassConfiguration: close({StorageClass?: "STANDARD" | "INTELLIGENT_TIERING" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageClassConfiguration": close(
-	{StorageClass?: "STANDARD" | "INTELLIGENT_TIERING" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TableBucketARN": =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" |
-	fn.#StringExpression
+#TableBucketName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TableBucketName": strings.MaxRunes(63) & strings.MinRunes(3) |
-fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UnreferencedFileRemoval": close({
+#UnreferencedFileRemoval: close({
 	NoncurrentDays?: int & >=1 |
 		{
 			string &

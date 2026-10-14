@@ -14,16 +14,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Lightsail::KeyPair
 #Properties: close({
 	KeyPairName!: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-	Tags?:        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:        [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceLocation": close({
+#ResourceLocation: close({
 	AvailabilityZone?: string | fn.#StringExpression
 	RegionName?:       string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

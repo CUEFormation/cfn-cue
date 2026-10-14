@@ -11,25 +11,25 @@ import (
 
 // Definition of AWS::PaymentCryptography::Key Resource Type
 #Properties: close({
-	DeriveKeyUsage?:         _#defs."/$defs/Properties/definitions/DeriveKeyUsage"
+	DeriveKeyUsage?:         #DeriveKeyUsage
 	Enabled?:                bool
 	Exportable!:             bool
-	KeyAttributes!:          _#defs."/$defs/Properties/definitions/KeyAttributes"
-	KeyCheckValueAlgorithm?: _#defs."/$defs/Properties/definitions/KeyCheckValueAlgorithm"
+	KeyAttributes!:          #KeyAttributes
+	KeyCheckValueAlgorithm?: #KeyCheckValueAlgorithm
 	KeyIdentifier?: strings.MaxRunes(322) &
 	strings.MinRunes(7) &
 	=~"^arn:aws:payment-cryptography:[a-z]{2}-[a-z]{1,16}-[0-9]+:[0-9]{12}:(key/[0-9a-zA-Z]{16,64}|alias/[a-zA-Z0-9/_-]+)$|^alias/[a-zA-Z0-9/_-]+$"
-	KeyOrigin?: _#defs."/$defs/Properties/definitions/KeyOrigin"
-	KeyState?:  _#defs."/$defs/Properties/definitions/KeyState"
+	KeyOrigin?: #KeyOrigin
+	KeyState?:  #KeyState
 
 	// The resource-based policy attached to the key, in JSON format.
 	Policy?: strings.MaxRunes(20480) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$"
 	ReplicationRegions?: [...=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$"]
-	ReplicationStatus?:  _#defs."/$defs/Properties/definitions/ReplicationStatus"
-	Tags?:               list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	ReplicationStatus?:  #ReplicationStatus
+	Tags?:               list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/DeriveKeyUsage": "TR31_B0_BASE_DERIVATION_KEY" |
+#DeriveKeyUsage: "TR31_B0_BASE_DERIVATION_KEY" |
 	"TR31_C0_CARD_VERIFICATION_KEY" |
 	"TR31_D0_SYMMETRIC_DATA_ENCRYPTION_KEY" |
 	"TR31_E0_EMV_MKEY_APP_CRYPTOGRAMS" |
@@ -49,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/DeriveKeyUsage": "TR31_B0_BASE_DERIVATION
 	"TR31_V1_IBM3624_PIN_VERIFICATION_KEY" |
 	"TR31_V2_VISA_PIN_VERIFICATION_KEY"
 
-_#defs: "/$defs/Properties/definitions/KeyAlgorithm": "TDES_2KEY" |
+#KeyAlgorithm: "TDES_2KEY" |
 	"TDES_3KEY" |
 	"AES_128" |
 	"AES_192" |
@@ -65,18 +65,18 @@ _#defs: "/$defs/Properties/definitions/KeyAlgorithm": "TDES_2KEY" |
 	"ECC_NIST_P384" |
 	"ECC_NIST_P521"
 
-_#defs: "/$defs/Properties/definitions/KeyAttributes": close({
-	KeyAlgorithm!:  _#defs."/$defs/Properties/definitions/KeyAlgorithm"
-	KeyClass!:      _#defs."/$defs/Properties/definitions/KeyClass"
-	KeyModesOfUse!: _#defs."/$defs/Properties/definitions/KeyModesOfUse"
-	KeyUsage!:      _#defs."/$defs/Properties/definitions/KeyUsage"
+#KeyAttributes: close({
+	KeyAlgorithm!:  #KeyAlgorithm
+	KeyClass!:      #KeyClass
+	KeyModesOfUse!: #KeyModesOfUse
+	KeyUsage!:      #KeyUsage
 })
 
-_#defs: "/$defs/Properties/definitions/KeyCheckValueAlgorithm": "CMAC" | "ANSI_X9_24" | "HMAC" | "SHA_1"
+#KeyCheckValueAlgorithm: "CMAC" | "ANSI_X9_24" | "HMAC" | "SHA_1"
 
-_#defs: "/$defs/Properties/definitions/KeyClass": "SYMMETRIC_KEY" | "ASYMMETRIC_KEY_PAIR" | "PRIVATE_KEY" | "PUBLIC_KEY"
+#KeyClass: "SYMMETRIC_KEY" | "ASYMMETRIC_KEY_PAIR" | "PRIVATE_KEY" | "PUBLIC_KEY"
 
-_#defs: "/$defs/Properties/definitions/KeyModesOfUse": close({
+#KeyModesOfUse: close({
 	Decrypt?:        bool
 	DeriveKey?:      bool
 	Encrypt?:        bool
@@ -89,21 +89,15 @@ _#defs: "/$defs/Properties/definitions/KeyModesOfUse": close({
 })
 
 // Defines the source of a key
-_#defs: "/$defs/Properties/definitions/KeyOrigin": "EXTERNAL" | "AWS_PAYMENT_CRYPTOGRAPHY"
+#KeyOrigin: "EXTERNAL" | "AWS_PAYMENT_CRYPTOGRAPHY"
 
 // Defines the replication state of a key
-_#defs: "/$defs/Properties/definitions/KeyReplicationState": "IN_PROGRESS" |
-	"DELETE_IN_PROGRESS" |
-	"FAILED" |
-	"SYNCHRONIZED"
+#KeyReplicationState: "IN_PROGRESS" | "DELETE_IN_PROGRESS" | "FAILED" | "SYNCHRONIZED"
 
 // Defines the state of a key
-_#defs: "/$defs/Properties/definitions/KeyState": "CREATE_IN_PROGRESS" |
-	"CREATE_COMPLETE" |
-	"DELETE_PENDING" |
-	"DELETE_COMPLETE"
+#KeyState: "CREATE_IN_PROGRESS" | "CREATE_COMPLETE" | "DELETE_PENDING" | "DELETE_COMPLETE"
 
-_#defs: "/$defs/Properties/definitions/KeyUsage": "TR31_B0_BASE_DERIVATION_KEY" |
+#KeyUsage: "TR31_B0_BASE_DERIVATION_KEY" |
 	"TR31_C0_CARD_VERIFICATION_KEY" |
 	"TR31_D0_SYMMETRIC_DATA_ENCRYPTION_KEY" |
 	"TR31_D1_ASYMMETRIC_KEY_FOR_DATA_ENCRYPTION" |
@@ -128,11 +122,11 @@ _#defs: "/$defs/Properties/definitions/KeyUsage": "TR31_B0_BASE_DERIVATION_KEY" 
 	"TR31_V2_VISA_PIN_VERIFICATION_KEY" |
 	"TR31_K2_TR34_ASYMMETRIC_KEY"
 
-_#defs: "/$defs/Properties/definitions/ReplicationStatus": close({
+#ReplicationStatus: close({
 
-	{[=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$"]: _#defs."/$defs/Properties/definitions/ReplicationStatusType"}})
+	{[=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$"]: #ReplicationStatusType}})
 
-_#defs: "/$defs/Properties/definitions/ReplicationStatusType": close({
+#ReplicationStatusType: close({
 	// The ARN of the AWS KMS key that protects the replica in this region.
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
@@ -144,11 +138,11 @@ _#defs: "/$defs/Properties/definitions/ReplicationStatusType": close({
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^[a-zA-Z0-9:/_-]+$"
-	Status!:        _#defs."/$defs/Properties/definitions/KeyReplicationState"
+	Status!:        #KeyReplicationState
 	StatusMessage?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

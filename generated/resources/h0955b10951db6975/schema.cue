@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
-	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,7 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Definition of AWS::Bedrock::DataAutomationProject Resource Type
 #Properties: close({
-	CustomOutputConfiguration?: _#defs."/$defs/Properties/definitions/CustomOutputConfiguration"
+	CustomOutputConfiguration?: #CustomOutputConfiguration
 	KmsEncryptionContext?: close({
 		KmsEncryptionContext?: _
 		if KmsEncryptionContext != _|_ {
@@ -28,251 +28,189 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	OverrideConfiguration?: _#defs."/$defs/Properties/definitions/OverrideConfiguration"
+	OverrideConfiguration?: #OverrideConfiguration
 	ProjectDescription?:    string | fn.#StringExpression
 	ProjectName!:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
 	ProjectType?:           "ASYNC" | "SYNC" | fn.#StringExpression
-	StandardOutputConfiguration?: _#defs."/$defs/Properties/definitions/StandardOutputConfiguration"
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	StandardOutputConfiguration?: #StandardOutputConfiguration
+	Tags?:                        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AudioExtractionCategory": close({
-	State!:             _#defs."/$defs/Properties/definitions/State"
-	TypeConfiguration?: _#defs."/$defs/Properties/definitions/AudioExtractionCategoryTypeConfiguration"
-	Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AudioExtractionCategoryType"] |
-		fn.#ListExpression
+#AudioExtractionCategory: close({
+	State!:             #State
+	TypeConfiguration?: #AudioExtractionCategoryTypeConfiguration
+	Types?:             list.UniqueItems() & [...#AudioExtractionCategoryType] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioExtractionCategoryType": "AUDIO_CONTENT_MODERATION" |
+#AudioExtractionCategoryType: "AUDIO_CONTENT_MODERATION" |
 	"TRANSCRIPT" |
 	"TOPIC_CONTENT_MODERATION" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AudioExtractionCategoryTypeConfiguration": close(
-	{Transcript?: _#defs."/$defs/Properties/definitions/TranscriptConfiguration"},
-) |
-	fn.#ObjectExpression
+#AudioExtractionCategoryTypeConfiguration: close({Transcript?: #TranscriptConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioGenerativeOutputLanguage": "DEFAULT" | "EN" | fn.#StringExpression
+#AudioGenerativeOutputLanguage: "DEFAULT" | "EN" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AudioLanguageConfiguration": close({
-	GenerativeOutputLanguage?:  _#defs."/$defs/Properties/definitions/AudioGenerativeOutputLanguage"
+#AudioLanguageConfiguration: close({
+	GenerativeOutputLanguage?:  #AudioGenerativeOutputLanguage
 	IdentifyMultipleLanguages?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InputLanguages?:            [..._#defs."/$defs/Properties/definitions/Language"] | fn.#ListExpression
+	InputLanguages?:            [...#Language] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioOverrideConfiguration": close({
-	LanguageConfiguration?:      _#defs."/$defs/Properties/definitions/AudioLanguageConfiguration"
-	ModalityProcessing?:         _#defs."/$defs/Properties/definitions/ModalityProcessingConfiguration"
-	SensitiveDataConfiguration?: _#defs."/$defs/Properties/definitions/SensitiveDataConfiguration"
+#AudioOverrideConfiguration: close({
+	LanguageConfiguration?:      #AudioLanguageConfiguration
+	ModalityProcessing?:         #ModalityProcessingConfiguration
+	SensitiveDataConfiguration?: #SensitiveDataConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioStandardExtraction": close(
-	{Category!: _#defs."/$defs/Properties/definitions/AudioExtractionCategory"},
-) |
-	fn.#ObjectExpression
+#AudioStandardExtraction: close({Category!: #AudioExtractionCategory}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioStandardGenerativeField": close({
-	State!: _#defs."/$defs/Properties/definitions/State"
-	Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AudioStandardGenerativeFieldType"] |
-		fn.#ListExpression
+#AudioStandardGenerativeField: close({
+	State!: #State
+	Types?: list.UniqueItems() & [...#AudioStandardGenerativeFieldType] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AudioStandardGenerativeFieldType": "AUDIO_SUMMARY" |
-	"IAB" |
-	"TOPIC_SUMMARY" |
-	fn.#StringExpression
+#AudioStandardGenerativeFieldType: "AUDIO_SUMMARY" | "IAB" | "TOPIC_SUMMARY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AudioStandardOutputConfiguration": close({
-	Extraction?:      _#defs."/$defs/Properties/definitions/AudioStandardExtraction"
-	GenerativeField?: _#defs."/$defs/Properties/definitions/AudioStandardGenerativeField"
+#AudioStandardOutputConfiguration: close({
+	Extraction?:      #AudioStandardExtraction
+	GenerativeField?: #AudioStandardGenerativeField
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlueprintItem": close({
+#BlueprintItem: close({
 	BlueprintArn!: strings.MaxRunes(128) &
 	=~"^arn:aws(|-cn|-us-gov|-iso|-iso-[a-z]):bedrock:[a-zA-Z0-9-]*:(aws|[0-9]{12}):blueprint/(bedrock-data-automation-public-[a-zA-Z0-9-_]{1,30}|[a-zA-Z0-9-]{12,36})$" |
 	fn.#StringExpression
-	BlueprintStage?:   _#defs."/$defs/Properties/definitions/BlueprintStage"
+	BlueprintStage?:   #BlueprintStage
 	BlueprintVersion?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BlueprintStage": "DEVELOPMENT" | "LIVE" | fn.#StringExpression
+#BlueprintStage: "DEVELOPMENT" | "LIVE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ChannelLabelingConfiguration": close(
-	{State!: _#defs."/$defs/Properties/definitions/State"},
+#ChannelLabelingConfiguration: close({State!: #State}) | fn.#ObjectExpression
+
+#CustomOutputConfiguration: close({Blueprints?: [...#BlueprintItem] | fn.#ListExpression}) | fn.#ObjectExpression
+
+#DataAutomationProjectStage: "DEVELOPMENT" | "LIVE" | fn.#StringExpression
+
+#DataAutomationProjectStatus: "COMPLETED" | "IN_PROGRESS" | "FAILED" | fn.#StringExpression
+
+#DesiredModality: "DOCUMENT" | "IMAGE" | "VIDEO" | "AUDIO" | fn.#StringExpression
+
+#DocumentBoundingBox: close({State!: #State}) | fn.#ObjectExpression
+
+#DocumentExtractionGranularity: close(
+	{Types?: list.UniqueItems() & [...#DocumentExtractionGranularityType] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomOutputConfiguration": close(
-	{Blueprints?: [..._#defs."/$defs/Properties/definitions/BlueprintItem"] | fn.#ListExpression},
-) |
+#DocumentExtractionGranularityType: "DOCUMENT" | "PAGE" | "ELEMENT" | "WORD" | "LINE" | fn.#StringExpression
+
+#DocumentOutputAdditionalFileFormat: close({State!: #State}) | fn.#ObjectExpression
+
+#DocumentOutputFormat: close({
+	AdditionalFileFormat!: #DocumentOutputAdditionalFileFormat
+	TextFormat!:           #DocumentOutputTextFormat
+}) |
+fn.#ObjectExpression
+
+#DocumentOutputTextFormat: close({Types?: list.UniqueItems() & [...#DocumentOutputTextFormatType] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataAutomationProjectStage": "DEVELOPMENT" | "LIVE" | fn.#StringExpression
+#DocumentOutputTextFormatType: "PLAIN_TEXT" | "MARKDOWN" | "HTML" | "CSV" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DataAutomationProjectStatus": "COMPLETED" |
-	"IN_PROGRESS" |
-	"FAILED" |
-	fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/DesiredModality": "DOCUMENT" | "IMAGE" | "VIDEO" | "AUDIO" | fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/DocumentBoundingBox": close(
-	{State!: _#defs."/$defs/Properties/definitions/State"},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/DocumentExtractionGranularity": close({
-	Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DocumentExtractionGranularityType"] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/DocumentExtractionGranularityType": "DOCUMENT" |
-	"PAGE" |
-	"ELEMENT" |
-	"WORD" |
-	"LINE" |
-	fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/DocumentOutputAdditionalFileFormat": close(
-	{State!: _#defs."/$defs/Properties/definitions/State"},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/DocumentOutputFormat": close({
-	AdditionalFileFormat!: _#defs."/$defs/Properties/definitions/DocumentOutputAdditionalFileFormat"
-	TextFormat!:           _#defs."/$defs/Properties/definitions/DocumentOutputTextFormat"
+#DocumentOverrideConfiguration: close({
+	ModalityProcessing?:         #ModalityProcessingConfiguration
+	SensitiveDataConfiguration?: #SensitiveDataConfiguration
+	Splitter?:                   #SplitterConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentOutputTextFormat": close({
-	Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/DocumentOutputTextFormatType"] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/DocumentOutputTextFormatType": "PLAIN_TEXT" |
-	"MARKDOWN" |
-	"HTML" |
-	"CSV" |
-	fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/DocumentOverrideConfiguration": close({
-	ModalityProcessing?:         _#defs."/$defs/Properties/definitions/ModalityProcessingConfiguration"
-	SensitiveDataConfiguration?: _#defs."/$defs/Properties/definitions/SensitiveDataConfiguration"
-	Splitter?:                   _#defs."/$defs/Properties/definitions/SplitterConfiguration"
+#DocumentStandardExtraction: close({
+	BoundingBox!: #DocumentBoundingBox
+	Granularity!: #DocumentExtractionGranularity
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentStandardExtraction": close({
-	BoundingBox!: _#defs."/$defs/Properties/definitions/DocumentBoundingBox"
-	Granularity!: _#defs."/$defs/Properties/definitions/DocumentExtractionGranularity"
+#DocumentStandardGenerativeField: close({State!: #State}) | fn.#ObjectExpression
+
+#DocumentStandardOutputConfiguration: close({
+	Extraction?:      #DocumentStandardExtraction
+	GenerativeField?: #DocumentStandardGenerativeField
+	OutputFormat?:    #DocumentOutputFormat
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentStandardGenerativeField": close(
-	{State!: _#defs."/$defs/Properties/definitions/State"},
-) |
-	fn.#ObjectExpression
+#ImageBoundingBox: close({State!: #State}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentStandardOutputConfiguration": close({
-	Extraction?:      _#defs."/$defs/Properties/definitions/DocumentStandardExtraction"
-	GenerativeField?: _#defs."/$defs/Properties/definitions/DocumentStandardGenerativeField"
-	OutputFormat?:    _#defs."/$defs/Properties/definitions/DocumentOutputFormat"
+#ImageExtractionCategory: close({
+	State!: #State
+	Types?: list.UniqueItems() & [...#ImageExtractionCategoryType] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageBoundingBox": close({State!: _#defs."/$defs/Properties/definitions/State"}) |
-	fn.#ObjectExpression
+#ImageExtractionCategoryType: "CONTENT_MODERATION" | "TEXT_DETECTION" | "LOGOS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ImageExtractionCategory": close({
-	State!: _#defs."/$defs/Properties/definitions/State"
-	Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ImageExtractionCategoryType"] |
-		fn.#ListExpression
+#ImageOverrideConfiguration: close({
+	ModalityProcessing?:         #ModalityProcessingConfiguration
+	SensitiveDataConfiguration?: #SensitiveDataConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageExtractionCategoryType": "CONTENT_MODERATION" |
-	"TEXT_DETECTION" |
-	"LOGOS" |
-	fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/ImageOverrideConfiguration": close({
-	ModalityProcessing?:         _#defs."/$defs/Properties/definitions/ModalityProcessingConfiguration"
-	SensitiveDataConfiguration?: _#defs."/$defs/Properties/definitions/SensitiveDataConfiguration"
+#ImageStandardExtraction: close({
+	BoundingBox!: #ImageBoundingBox
+	Category!:    #ImageExtractionCategory
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageStandardExtraction": close({
-	BoundingBox!: _#defs."/$defs/Properties/definitions/ImageBoundingBox"
-	Category!:    _#defs."/$defs/Properties/definitions/ImageExtractionCategory"
+#ImageStandardGenerativeField: close({
+	State!: #State
+	Types?: list.UniqueItems() & [...#ImageStandardGenerativeFieldType] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageStandardGenerativeField": close({
-	State!: _#defs."/$defs/Properties/definitions/State"
-	Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ImageStandardGenerativeFieldType"] |
-		fn.#ListExpression
+#ImageStandardGenerativeFieldType: "IMAGE_SUMMARY" | "IAB" | fn.#StringExpression
+
+#ImageStandardOutputConfiguration: close({
+	Extraction?:      #ImageStandardExtraction
+	GenerativeField?: #ImageStandardGenerativeField
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ImageStandardGenerativeFieldType": "IMAGE_SUMMARY" | "IAB" | fn.#StringExpression
+#Language: "EN" | "DE" | "ES" | "FR" | "IT" | "PT" | "JA" | "KO" | "CN" | "TW" | "HK" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ImageStandardOutputConfiguration": close({
-	Extraction?:      _#defs."/$defs/Properties/definitions/ImageStandardExtraction"
-	GenerativeField?: _#defs."/$defs/Properties/definitions/ImageStandardGenerativeField"
+#ModalityProcessingConfiguration: close({State?: #State}) | fn.#ObjectExpression
+
+#ModalityRoutingConfiguration: close({
+	jpeg?: #DesiredModality
+	mov?:  #DesiredModality
+	mp4?:  #DesiredModality
+	png?:  #DesiredModality
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Language": "EN" |
-	"DE" |
-	"ES" |
-	"FR" |
-	"IT" |
-	"PT" |
-	"JA" |
-	"KO" |
-	"CN" |
-	"TW" |
-	"HK" |
-	fn.#StringExpression
-
-_#defs: "/$defs/Properties/definitions/ModalityProcessingConfiguration": close(
-	{State?: _#defs."/$defs/Properties/definitions/State"},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/ModalityRoutingConfiguration": close({
-	jpeg?: _#defs."/$defs/Properties/definitions/DesiredModality"
-	mov?:  _#defs."/$defs/Properties/definitions/DesiredModality"
-	mp4?:  _#defs."/$defs/Properties/definitions/DesiredModality"
-	png?:  _#defs."/$defs/Properties/definitions/DesiredModality"
+#OverrideConfiguration: close({
+	Audio?:           #AudioOverrideConfiguration
+	Document?:        #DocumentOverrideConfiguration
+	Image?:           #ImageOverrideConfiguration
+	ModalityRouting?: #ModalityRoutingConfiguration
+	Video?:           #VideoOverrideConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OverrideConfiguration": close({
-	Audio?:           _#defs."/$defs/Properties/definitions/AudioOverrideConfiguration"
-	Document?:        _#defs."/$defs/Properties/definitions/DocumentOverrideConfiguration"
-	Image?:           _#defs."/$defs/Properties/definitions/ImageOverrideConfiguration"
-	ModalityRouting?: _#defs."/$defs/Properties/definitions/ModalityRoutingConfiguration"
-	Video?:           _#defs."/$defs/Properties/definitions/VideoOverrideConfiguration"
-}) |
-fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/PIIEntitiesConfiguration": {
-	PiiEntityTypes?:    [..._#defs."/$defs/Properties/definitions/PIIEntityTypes"] | fn.#ListExpression
-	RedactionMaskMode?: _#defs."/$defs/Properties/definitions/PIIRedactionMaskMode"
+#PIIEntitiesConfiguration: {
+	PiiEntityTypes?:    [...#PIIEntityTypes] | fn.#ListExpression
+	RedactionMaskMode?: #PIIRedactionMaskMode
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PIIEntityTypes": "ALL" |
+#PIIEntityTypes: "ALL" |
 	"ADDRESS" |
 	"AGE" |
 	"NAME" |
@@ -306,98 +244,80 @@ _#defs: "/$defs/Properties/definitions/PIIEntityTypes": "ALL" |
 	"UK_UNIQUE_TAXPAYER_REFERENCE_NUMBER" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PIIRedactionMaskMode": "PII" | "ENTITY_TYPE" | fn.#StringExpression
+#PIIRedactionMaskMode: "PII" | "ENTITY_TYPE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SensitiveDataConfiguration": {
-	DetectionMode?:  _#defs."/$defs/Properties/definitions/SensitiveDataDetectionMode"
-	DetectionScope?: [..._#defs."/$defs/Properties/definitions/SensitiveDataDetectionScope"] | fn.#ListExpression
-	PiiEntitiesConfiguration?: _#defs."/$defs/Properties/definitions/PIIEntitiesConfiguration"
+#SensitiveDataConfiguration: {
+	DetectionMode?:            #SensitiveDataDetectionMode
+	DetectionScope?:           [...#SensitiveDataDetectionScope] | fn.#ListExpression
+	PiiEntitiesConfiguration?: #PIIEntitiesConfiguration
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SensitiveDataDetectionMode": "DETECTION" |
-	"DETECTION_AND_REDACTION" |
-	fn.#StringExpression
+#SensitiveDataDetectionMode: "DETECTION" | "DETECTION_AND_REDACTION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SensitiveDataDetectionScope": "STANDARD" | "CUSTOM" | fn.#StringExpression
+#SensitiveDataDetectionScope: "STANDARD" | "CUSTOM" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SpeakerLabelingConfiguration": close(
-	{State!: _#defs."/$defs/Properties/definitions/State"},
-) |
-	fn.#ObjectExpression
+#SpeakerLabelingConfiguration: close({State!: #State}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SplitterConfiguration": close(
-	{State?: _#defs."/$defs/Properties/definitions/State"},
-) |
-	fn.#ObjectExpression
+#SplitterConfiguration: close({State?: #State}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StandardOutputConfiguration": close({
-	Audio?:    _#defs."/$defs/Properties/definitions/AudioStandardOutputConfiguration"
-	Document?: _#defs."/$defs/Properties/definitions/DocumentStandardOutputConfiguration"
-	Image?:    _#defs."/$defs/Properties/definitions/ImageStandardOutputConfiguration"
-	Video?:    _#defs."/$defs/Properties/definitions/VideoStandardOutputConfiguration"
+#StandardOutputConfiguration: close({
+	Audio?:    #AudioStandardOutputConfiguration
+	Document?: #DocumentStandardOutputConfiguration
+	Image?:    #ImageStandardOutputConfiguration
+	Video?:    #VideoStandardOutputConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/State": "ENABLED" | "DISABLED" | fn.#StringExpression
+#State: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TranscriptConfiguration": close({
-	ChannelLabeling?: _#defs."/$defs/Properties/definitions/ChannelLabelingConfiguration"
-	SpeakerLabeling?: _#defs."/$defs/Properties/definitions/SpeakerLabelingConfiguration"
+#TranscriptConfiguration: close({
+	ChannelLabeling?: #ChannelLabelingConfiguration
+	SpeakerLabeling?: #SpeakerLabelingConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Unit": close({}) | fn.#ObjectExpression
+#Unit: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VideoBoundingBox": close({State!: _#defs."/$defs/Properties/definitions/State"}) |
-	fn.#ObjectExpression
+#VideoBoundingBox: close({State!: #State}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VideoExtractionCategory": close({
-	State!: _#defs."/$defs/Properties/definitions/State"
-	Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VideoExtractionCategoryType"] |
-		fn.#ListExpression
+#VideoExtractionCategory: close({
+	State!: #State
+	Types?: list.UniqueItems() & [...#VideoExtractionCategoryType] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VideoExtractionCategoryType": "CONTENT_MODERATION" |
-	"TEXT_DETECTION" |
-	"TRANSCRIPT" |
-	"LOGOS" |
-	fn.#StringExpression
+#VideoExtractionCategoryType: "CONTENT_MODERATION" | "TEXT_DETECTION" | "TRANSCRIPT" | "LOGOS" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VideoOverrideConfiguration": close({
-	ModalityProcessing?:         _#defs."/$defs/Properties/definitions/ModalityProcessingConfiguration"
-	SensitiveDataConfiguration?: _#defs."/$defs/Properties/definitions/SensitiveDataConfiguration"
+#VideoOverrideConfiguration: close({
+	ModalityProcessing?:         #ModalityProcessingConfiguration
+	SensitiveDataConfiguration?: #SensitiveDataConfiguration
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VideoStandardExtraction": close({
-	BoundingBox!: _#defs."/$defs/Properties/definitions/VideoBoundingBox"
-	Category!:    _#defs."/$defs/Properties/definitions/VideoExtractionCategory"
+#VideoStandardExtraction: close({
+	BoundingBox!: #VideoBoundingBox
+	Category!:    #VideoExtractionCategory
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VideoStandardGenerativeField": close({
-	State!: _#defs."/$defs/Properties/definitions/State"
-	Types?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VideoStandardGenerativeFieldType"] |
-		fn.#ListExpression
+#VideoStandardGenerativeField: close({
+	State!: #State
+	Types?: list.UniqueItems() & [...#VideoStandardGenerativeFieldType] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VideoStandardGenerativeFieldType": "VIDEO_SUMMARY" |
-	"IAB" |
-	"CHAPTER_SUMMARY" |
-	fn.#StringExpression
+#VideoStandardGenerativeFieldType: "VIDEO_SUMMARY" | "IAB" | "CHAPTER_SUMMARY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VideoStandardOutputConfiguration": close({
-	Extraction?:      _#defs."/$defs/Properties/definitions/VideoStandardExtraction"
-	GenerativeField?: _#defs."/$defs/Properties/definitions/VideoStandardGenerativeField"
+#VideoStandardOutputConfiguration: close({
+	Extraction?:      #VideoStandardExtraction
+	GenerativeField?: #VideoStandardGenerativeField
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

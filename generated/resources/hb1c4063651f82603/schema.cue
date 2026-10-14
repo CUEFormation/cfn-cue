@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -20,47 +20,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon ECR Public User Guide*.
 #Properties: close({
 	RepositoryCatalogData?: close({
-		AboutText?:             _#defs."/$defs/Properties/definitions/AboutText"
-		Architectures?:         _#defs."/$defs/Properties/definitions/ArchitectureList"
-		OperatingSystems?:      _#defs."/$defs/Properties/definitions/OperatingSystemList"
-		RepositoryDescription?: _#defs."/$defs/Properties/definitions/RepositoryDescription"
-		UsageText?:             _#defs."/$defs/Properties/definitions/UsageText"
+		AboutText?:             #AboutText
+		Architectures?:         #ArchitectureList
+		OperatingSystems?:      #OperatingSystemList
+		RepositoryDescription?: #RepositoryDescription
+		UsageText?:             #UsageText
 	}) |
 	fn.#ObjectExpression
 	RepositoryName?:       strings.MaxRunes(256) & strings.MinRunes(2) | fn.#StringExpression
 	RepositoryPolicyText?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AboutText": strings.MaxRunes(10240) | fn.#StringExpression
+#AboutText: strings.MaxRunes(10240) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Architecture": strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+#Architecture: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ArchitectureList": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Architecture"
-] |
-	fn.#ListExpression
+#ArchitectureList: list.MaxItems(50) & list.UniqueItems() & [...#Architecture] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/OperatingSystem": strings.MaxRunes(50) & strings.MinRunes(1) |
-fn.#StringExpression
+#OperatingSystem: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OperatingSystemList": list.MaxItems(50) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/OperatingSystem"
-] |
-	fn.#ListExpression
+#OperatingSystemList: list.MaxItems(50) & list.UniqueItems() & [...#OperatingSystem] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/RegistryId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
-fn.#StringExpression
+#RegistryId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RepositoryDescription": strings.MaxRunes(1024) | fn.#StringExpression
+#RepositoryDescription: strings.MaxRunes(1024) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UsageText": strings.MaxRunes(10240) | fn.#StringExpression
+#UsageText: strings.MaxRunes(10240) | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ECR::PublicRepository"
 	Properties?: #Properties

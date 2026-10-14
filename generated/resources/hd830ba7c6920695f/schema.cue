@@ -15,18 +15,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Schema of AWS::EC2::IPAMScope Type
 #Properties: close({
 	Description?:                    string | fn.#StringExpression
-	ExternalAuthorityConfiguration?: _#defs."/$defs/Properties/definitions/IpamScopeExternalAuthorityConfiguration"
+	ExternalAuthorityConfiguration?: #IpamScopeExternalAuthorityConfiguration
 	IpamId!:                         string | fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                           list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/IpamScopeExternalAuthorityConfiguration": close({
+#IpamScopeExternalAuthorityConfiguration: close({
 	ExternalResourceIdentifier!:     string | fn.#StringExpression
 	IpamScopeExternalAuthorityType!: "infoblox" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

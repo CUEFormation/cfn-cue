@@ -14,28 +14,28 @@ package schema
 	Id?: string
 
 	// The list of IP address cidr pools for the network
-	IpPools!: [..._#defs."/$defs/Properties/definitions/IpPool"]
+	IpPools!: [...#IpPool]
 
 	// The user-specified name of the Network to be created.
 	Name!: string
 
 	// The routes for the network
-	Routes?: [..._#defs."/$defs/Properties/definitions/Route"]
+	Routes?: [...#Route]
 
 	// The current state of the Network.
-	State?: _#defs."/$defs/Properties/definitions/NetworkState"
+	State?: #NetworkState
 
 	// A collection of key-value pairs.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tags"]
+	Tags?: [...#Tags]
 })
 
 // IP address cidr pool
-_#defs: "/$defs/Properties/definitions/IpPool": close({
+#IpPool: close({
 	// IP address cidr pool
 	Cidr?: string
 })
 
-_#defs: "/$defs/Properties/definitions/NetworkState": "CREATING" |
+#NetworkState: "CREATING" |
 	"CREATE_FAILED" |
 	"ACTIVE" |
 	"DELETING" |
@@ -45,7 +45,7 @@ _#defs: "/$defs/Properties/definitions/NetworkState": "CREATING" |
 	"DELETED" |
 	"DELETE_FAILED"
 
-_#defs: "/$defs/Properties/definitions/Route": close({
+#Route: close({
 	// Ip address cidr
 	Cidr?: string
 
@@ -54,7 +54,7 @@ _#defs: "/$defs/Properties/definitions/Route": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tags": close({
+#Tags: close({
 	Key?:   string
 	Value?: string
 })

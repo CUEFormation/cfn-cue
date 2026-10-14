@@ -13,33 +13,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SecurityAgent::TargetDomain
 #Properties: close({
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:               [...#Tag] | fn.#ListExpression
 	TargetDomainName!:   string | fn.#StringExpression
 	VerificationMethod!: "DNS_TXT" | "HTTP_ROUTE" | "PRIVATE_VPC" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DnsVerification": close({
+#DnsVerification: close({
 	DnsRecordName?: string | fn.#StringExpression
 	DnsRecordType?: "TXT" | fn.#StringExpression
 	Token?:         string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpVerification": close({
+#HttpVerification: close({
 	RoutePath?: string | fn.#StringExpression
 	Token?:     string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VerificationDetails": close({
-	DnsTxt?:    _#defs."/$defs/Properties/definitions/DnsVerification"
-	HttpRoute?: _#defs."/$defs/Properties/definitions/HttpVerification"
+#VerificationDetails: close({
+	DnsTxt?:    #DnsVerification
+	HttpRoute?: #HttpVerification
 	Method?:    "DNS_TXT" | "HTTP_ROUTE" | "PRIVATE_VPC" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

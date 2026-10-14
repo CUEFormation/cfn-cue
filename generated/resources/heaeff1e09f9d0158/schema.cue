@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:          string | fn.#StringExpression
 	DestinationCidrBlock!: string | fn.#StringExpression
-	DestinationPortRange?: _#defs."/$defs/Properties/definitions/TrafficMirrorPortRange" | fn.#ObjectExpression
+	DestinationPortRange?: #TrafficMirrorPortRange | fn.#ObjectExpression
 	Protocol?: int |
 		{
 			string &
@@ -31,7 +31,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	RuleAction!: _#defs."/$defs/Properties/definitions/TrafficMirrorRuleAction" | fn.#StringExpression
+	RuleAction!: #TrafficMirrorRuleAction | fn.#StringExpression
 	RuleNumber!: int |
 		{
 			string &
@@ -47,21 +47,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	SourceCidrBlock!:       string | fn.#StringExpression
-	SourcePortRange?:       _#defs."/$defs/Properties/definitions/TrafficMirrorPortRange" | fn.#ObjectExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TrafficDirection!:      _#defs."/$defs/Properties/definitions/TrafficDirection" | fn.#StringExpression
+	SourcePortRange?:       #TrafficMirrorPortRange | fn.#ObjectExpression
+	Tags?:                  [...#Tag] | fn.#ListExpression
+	TrafficDirection!:      #TrafficDirection | fn.#StringExpression
 	TrafficMirrorFilterId!: string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficDirection": =~"(?i)^(?:egress|ingress)$" | fn.#StringExpression
+#TrafficDirection: =~"(?i)^(?:egress|ingress)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficMirrorPortRange": close({
+#TrafficMirrorPortRange: close({
 	FromPort!: int |
 		{
 			string &
@@ -93,7 +93,7 @@ _#defs: "/$defs/Properties/definitions/TrafficMirrorPortRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficMirrorRuleAction": =~"(?i)^(?:accept|reject)$" | fn.#StringExpression
+#TrafficMirrorRuleAction: =~"(?i)^(?:accept|reject)$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EC2::TrafficMirrorFilterRule"
 	Properties!: #Properties

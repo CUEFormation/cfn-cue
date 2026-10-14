@@ -8,8 +8,8 @@ import "strings"
 
 // Associates WebACL to Application Load Balancer, CloudFront or API Gateway.
 #Properties: close({
-	ResourceArn!: _#defs."/$defs/Properties/definitions/ResourceArn"
-	WebACLArn!:   _#defs."/$defs/Properties/definitions/ResourceArn"
+	ResourceArn!: #ResourceArn
+	WebACLArn!:   #ResourceArn
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(2048) & strings.MinRunes(20) & =~"\\S"
+#ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"\\S"

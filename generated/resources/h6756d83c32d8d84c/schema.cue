@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"struct"
 	"list"
 )
@@ -20,28 +20,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ArtifactName?: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
 	fn.#StringExpression
 	ArtifactType!:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	MetadataProperties?: _#defs."/$defs/Properties/definitions/MetadataProperties" | fn.#ObjectExpression
+	MetadataProperties?: #MetadataProperties | fn.#ObjectExpression
 	Properties?: struct.MaxFields(30) & close({
 
 		{[=~".+"]: strings.MaxRunes(4096) | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Source!: _#defs."/$defs/Properties/definitions/ArtifactSource" | fn.#ObjectExpression
-	Tags?:   list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Source!: #ArtifactSource | fn.#ObjectExpression
+	Tags?:   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ArtifactSource": close({
-	SourceTypes?: [..._#defs."/$defs/Properties/definitions/ArtifactSourceType"] | fn.#ListExpression
+#ArtifactSource: close({
+	SourceTypes?: [...#ArtifactSourceType] | fn.#ListExpression
 	SourceUri!:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ArtifactSourceType": close({
+#ArtifactSourceType: close({
 	SourceIdType!: "MD5Hash" | "S3ETag" | "S3Version" | "Custom" | fn.#StringExpression
 	Value!:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataProperties": close({
+#MetadataProperties: close({
 	CommitId?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	GeneratedBy?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	ProjectId?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
@@ -49,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/MetadataProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

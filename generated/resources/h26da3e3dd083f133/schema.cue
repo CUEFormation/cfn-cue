@@ -16,12 +16,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // to a specific resource.
 #Properties: close({
 	LastUpdateReason?:   =~"^([^\u0000-\u007f]|[-_ a-zA-Z0-9])+$" | fn.#StringExpression
-	Parameters!:         _#defs."/$defs/Properties/definitions/Parameters" | fn.#ObjectExpression
-	SecurityControlArn?: _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-	SecurityControlId?:  _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
+	Parameters!:         #Parameters | fn.#ObjectExpression
+	SecurityControlArn?: #NonEmptyString | fn.#StringExpression
+	SecurityControlId?:  #NonEmptyString | fn.#StringExpression
 }) & matchN(>=1, [{SecurityControlId!: _}, {SecurityControlArn!: _}])
 
-_#defs: "/$defs/Properties/definitions/IntegerList": [
+#IntegerList: [
 	...int |
 		{
 			string &
@@ -39,18 +39,17 @@ _#defs: "/$defs/Properties/definitions/IntegerList": [
 ] |
 	fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/NonEmptyString": =~".*\\S.*" | fn.#StringExpression
+#NonEmptyString: =~".*\\S.*" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NonEmptyStringList": [..._#defs."/$defs/Properties/definitions/NonEmptyString"] |
-	fn.#ListExpression
+#NonEmptyStringList: [...#NonEmptyString] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterConfiguration": close({
-	Value?:     _#defs."/$defs/Properties/definitions/ParameterValue"
+#ParameterConfiguration: close({
+	Value?:     #ParameterValue
 	ValueType!: "DEFAULT" | "CUSTOM" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterValue": close({
+#ParameterValue: close({
 	Boolean?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Double?: number |
 		{
@@ -71,8 +70,8 @@ _#defs: "/$defs/Properties/definitions/ParameterValue": close({
 				)
 		} |
 		fn.#NumberExpression
-	Enum?:     _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-	EnumList?: _#defs."/$defs/Properties/definitions/NonEmptyStringList" | fn.#ListExpression
+	Enum?:     #NonEmptyString | fn.#StringExpression
+	EnumList?: #NonEmptyStringList | fn.#ListExpression
 	Integer?: int |
 		{
 			string &
@@ -87,9 +86,9 @@ _#defs: "/$defs/Properties/definitions/ParameterValue": close({
 				)
 		} |
 		fn.#NumberExpression
-	IntegerList?: _#defs."/$defs/Properties/definitions/IntegerList" | fn.#ListExpression
-	String?:      _#defs."/$defs/Properties/definitions/NonEmptyString" | fn.#StringExpression
-	StringList?:  _#defs."/$defs/Properties/definitions/NonEmptyStringList" | fn.#ListExpression
+	IntegerList?: #IntegerList | fn.#ListExpression
+	String?:      #NonEmptyString | fn.#StringExpression
+	StringList?:  #NonEmptyStringList | fn.#ListExpression
 	if Boolean != _|_ {
 		Double?: error(
 			"Double cannot be used with Boolean; set exactly one of Boolean, Double, Enum, EnumList, Integer, IntegerList, String, StringList",
@@ -210,9 +209,9 @@ _#defs: "/$defs/Properties/definitions/ParameterValue": close({
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Parameters": close({
+#Parameters: close({
 
-	{[=~".*\\S.*"]: _#defs."/$defs/Properties/definitions/ParameterConfiguration"}}) |
+	{[=~".*\\S.*"]: #ParameterConfiguration}}) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SecurityHub::SecurityControl"

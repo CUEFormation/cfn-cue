@@ -41,13 +41,13 @@ import "strings"
 	Period?: "daily" | "weekly" | "monthly"
 
 	// A list of tag instances.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The identifier of the usage limit.
 	UsageLimitId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key, or name, for the resource tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

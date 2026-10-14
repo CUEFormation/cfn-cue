@@ -10,11 +10,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SecurityLake::SubscriberNotification
 #Properties: close({
-	NotificationConfiguration!: _#defs."/$defs/Properties/definitions/NotificationConfiguration"
+	NotificationConfiguration!: #NotificationConfiguration
 	SubscriberArn!:             =~"^arn:.*$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/HttpsNotificationConfiguration": close({
+#HttpsNotificationConfiguration: close({
 	AuthorizationApiKeyName?:  string | fn.#StringExpression
 	AuthorizationApiKeyValue?: string | fn.#StringExpression
 	Endpoint!:                 =~"^https?://.+$" | fn.#StringExpression
@@ -25,9 +25,9 @@ _#defs: "/$defs/Properties/definitions/HttpsNotificationConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
-	HttpsNotificationConfiguration?: _#defs."/$defs/Properties/definitions/HttpsNotificationConfiguration"
-	SqsNotificationConfiguration?:   _#defs."/$defs/Properties/definitions/SqsNotificationConfiguration"
+#NotificationConfiguration: close({
+	HttpsNotificationConfiguration?: #HttpsNotificationConfiguration
+	SqsNotificationConfiguration?:   #SqsNotificationConfiguration
 	if HttpsNotificationConfiguration != _|_ {
 		SqsNotificationConfiguration?: error(
 			"SqsNotificationConfiguration cannot be used with HttpsNotificationConfiguration; set exactly one of HttpsNotificationConfiguration, SqsNotificationConfiguration",
@@ -36,9 +36,7 @@ _#defs: "/$defs/Properties/definitions/NotificationConfiguration": close({
 }) & matchN(>=1, [{HttpsNotificationConfiguration!: _}, {SqsNotificationConfiguration!: _}]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SqsNotificationConfiguration": fn.#Object & {...} |
-string |
-fn.#StringObjectExpression
+#SqsNotificationConfiguration: fn.#Object & {...} | string | fn.#StringObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SecurityLake::SubscriberNotification"
 	Properties!: #Properties

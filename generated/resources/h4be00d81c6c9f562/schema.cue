@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"strings"
 )
 
@@ -19,31 +19,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource schema for AWS::EC2::NetworkInsightsAnalysis
 #Properties: close({
 	AdditionalAccounts?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	FilterInArns?:          [..._#defs."/$defs/Properties/definitions/ResourceArn"] | fn.#ListExpression
-	FilterOutArns?:         [..._#defs."/$defs/Properties/definitions/ResourceArn"] | fn.#ListExpression
+	FilterInArns?:          [...#ResourceArn] | fn.#ListExpression
+	FilterOutArns?:         [...#ResourceArn] | fn.#ListExpression
 	NetworkInsightsPathId!: string | fn.#StringExpression
-	Tags?:                  list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AdditionalDetail": close({
+#AdditionalDetail: close({
 	AdditionalDetailType?: string | fn.#StringExpression
-	Component?:            _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	LoadBalancers?:        [..._#defs."/$defs/Properties/definitions/AnalysisComponent"] | fn.#ListExpression
+	Component?:            #AnalysisComponent
+	LoadBalancers?:        [...#AnalysisComponent] | fn.#ListExpression
 	ServiceName?:          string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AlternatePathHint": close({
+#AlternatePathHint: close({
 	ComponentArn?: string | fn.#StringExpression
 	ComponentId?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnalysisAclRule": close({
+#AnalysisAclRule: close({
 	Cidr?:       string | fn.#StringExpression
 	Egress?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PortRange?:  _#defs."/$defs/Properties/definitions/PortRange"
-	Protocol?:   _#defs."/$defs/Properties/definitions/Protocol"
+	PortRange?:  #PortRange
+	Protocol?:   #Protocol
 	RuleAction?: string | fn.#StringExpression
 	RuleNumber?: int |
 		{
@@ -62,36 +62,36 @@ _#defs: "/$defs/Properties/definitions/AnalysisAclRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnalysisComponent": close({
+#AnalysisComponent: close({
 	Arn?: string | fn.#StringExpression
 	Id?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnalysisLoadBalancerListener": close({
-	InstancePort?:     _#defs."/$defs/Properties/definitions/Port"
-	LoadBalancerPort?: _#defs."/$defs/Properties/definitions/Port"
+#AnalysisLoadBalancerListener: close({
+	InstancePort?:     #Port
+	LoadBalancerPort?: #Port
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnalysisLoadBalancerTarget": close({
-	Address?:          _#defs."/$defs/Properties/definitions/IpAddress"
+#AnalysisLoadBalancerTarget: close({
+	Address?:          #IpAddress
 	AvailabilityZone?: string | fn.#StringExpression
-	Instance?:         _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	Port?:             _#defs."/$defs/Properties/definitions/Port"
+	Instance?:         #AnalysisComponent
+	Port?:             #Port
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnalysisPacketHeader": close({
-	DestinationAddresses?:  [..._#defs."/$defs/Properties/definitions/IpAddress"] | fn.#ListExpression
-	DestinationPortRanges?: [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
-	Protocol?:              _#defs."/$defs/Properties/definitions/Protocol"
-	SourceAddresses?:       [..._#defs."/$defs/Properties/definitions/IpAddress"] | fn.#ListExpression
-	SourcePortRanges?:      [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
+#AnalysisPacketHeader: close({
+	DestinationAddresses?:  [...#IpAddress] | fn.#ListExpression
+	DestinationPortRanges?: [...#PortRange] | fn.#ListExpression
+	Protocol?:              #Protocol
+	SourceAddresses?:       [...#IpAddress] | fn.#ListExpression
+	SourcePortRanges?:      [...#PortRange] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnalysisRouteTableRoute": close({
+#AnalysisRouteTableRoute: close({
 	NatGatewayId?:                string | fn.#StringExpression
 	NetworkInterfaceId?:          string | fn.#StringExpression
 	Origin?:                      string | fn.#StringExpression
@@ -106,17 +106,17 @@ _#defs: "/$defs/Properties/definitions/AnalysisRouteTableRoute": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnalysisSecurityGroupRule": close({
+#AnalysisSecurityGroupRule: close({
 	Cidr?:            string | fn.#StringExpression
 	Direction?:       string | fn.#StringExpression
-	PortRange?:       _#defs."/$defs/Properties/definitions/PortRange"
+	PortRange?:       #PortRange
 	PrefixListId?:    string | fn.#StringExpression
-	Protocol?:        _#defs."/$defs/Properties/definitions/Protocol"
+	Protocol?:        #Protocol
 	SecurityGroupId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AnalysisTransitGatewayPolicyTableEntry": null |
+#AnalysisTransitGatewayPolicyTableEntry: null |
 bool |
 number |
 string |
@@ -127,74 +127,74 @@ string |
 } |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Explanation": close({
-	Acl?:                           _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	AclRule?:                       _#defs."/$defs/Properties/definitions/AnalysisAclRule"
-	Address?:                       _#defs."/$defs/Properties/definitions/IpAddress"
-	Addresses?:                     [..._#defs."/$defs/Properties/definitions/IpAddress"] | fn.#ListExpression
-	AttachedTo?:                    _#defs."/$defs/Properties/definitions/AnalysisComponent"
+#Explanation: close({
+	Acl?:                           #AnalysisComponent
+	AclRule?:                       #AnalysisAclRule
+	Address?:                       #IpAddress
+	Addresses?:                     [...#IpAddress] | fn.#ListExpression
+	AttachedTo?:                    #AnalysisComponent
 	AvailabilityZones?:             [...string | fn.#StringExpression] | fn.#ListExpression
 	Cidrs?:                         [...string | fn.#StringExpression] | fn.#ListExpression
-	ClassicLoadBalancerListener?:   _#defs."/$defs/Properties/definitions/AnalysisLoadBalancerListener"
-	Component?:                     _#defs."/$defs/Properties/definitions/AnalysisComponent"
+	ClassicLoadBalancerListener?:   #AnalysisLoadBalancerListener
+	Component?:                     #AnalysisComponent
 	ComponentAccount?:              string | fn.#StringExpression
 	ComponentRegion?:               string | fn.#StringExpression
-	CustomerGateway?:               _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	Destination?:                   _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	DestinationVpc?:                _#defs."/$defs/Properties/definitions/AnalysisComponent"
+	CustomerGateway?:               #AnalysisComponent
+	Destination?:                   #AnalysisComponent
+	DestinationVpc?:                #AnalysisComponent
 	Direction?:                     string | fn.#StringExpression
-	ElasticLoadBalancerListener?:   _#defs."/$defs/Properties/definitions/AnalysisComponent"
+	ElasticLoadBalancerListener?:   #AnalysisComponent
 	ExplanationCode?:               string | fn.#StringExpression
-	IngressRouteTable?:             _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	InternetGateway?:               _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	LoadBalancerArn?:               _#defs."/$defs/Properties/definitions/ResourceArn"
-	LoadBalancerListenerPort?:      _#defs."/$defs/Properties/definitions/Port"
-	LoadBalancerTarget?:            _#defs."/$defs/Properties/definitions/AnalysisLoadBalancerTarget"
-	LoadBalancerTargetGroup?:       _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	LoadBalancerTargetGroups?:      [..._#defs."/$defs/Properties/definitions/AnalysisComponent"] | fn.#ListExpression
-	LoadBalancerTargetPort?:        _#defs."/$defs/Properties/definitions/Port"
+	IngressRouteTable?:             #AnalysisComponent
+	InternetGateway?:               #AnalysisComponent
+	LoadBalancerArn?:               #ResourceArn
+	LoadBalancerListenerPort?:      #Port
+	LoadBalancerTarget?:            #AnalysisLoadBalancerTarget
+	LoadBalancerTargetGroup?:       #AnalysisComponent
+	LoadBalancerTargetGroups?:      [...#AnalysisComponent] | fn.#ListExpression
+	LoadBalancerTargetPort?:        #Port
 	MissingComponent?:              string | fn.#StringExpression
-	NatGateway?:                    _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	NetworkInterface?:              _#defs."/$defs/Properties/definitions/AnalysisComponent"
+	NatGateway?:                    #AnalysisComponent
+	NetworkInterface?:              #AnalysisComponent
 	PacketField?:                   string | fn.#StringExpression
-	Port?:                          _#defs."/$defs/Properties/definitions/Port"
-	PortRanges?:                    [..._#defs."/$defs/Properties/definitions/PortRange"] | fn.#ListExpression
-	PrefixList?:                    _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	Protocols?:                     [..._#defs."/$defs/Properties/definitions/Protocol"] | fn.#ListExpression
-	RouteTable?:                    _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	RouteTableRoute?:               _#defs."/$defs/Properties/definitions/AnalysisRouteTableRoute"
-	SecurityGroup?:                 _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	SecurityGroupRule?:             _#defs."/$defs/Properties/definitions/AnalysisSecurityGroupRule"
-	SecurityGroups?:                [..._#defs."/$defs/Properties/definitions/AnalysisComponent"] | fn.#ListExpression
-	SourceVpc?:                     _#defs."/$defs/Properties/definitions/AnalysisComponent"
+	Port?:                          #Port
+	PortRanges?:                    [...#PortRange] | fn.#ListExpression
+	PrefixList?:                    #AnalysisComponent
+	Protocols?:                     [...#Protocol] | fn.#ListExpression
+	RouteTable?:                    #AnalysisComponent
+	RouteTableRoute?:               #AnalysisRouteTableRoute
+	SecurityGroup?:                 #AnalysisComponent
+	SecurityGroupRule?:             #AnalysisSecurityGroupRule
+	SecurityGroups?:                [...#AnalysisComponent] | fn.#ListExpression
+	SourceVpc?:                     #AnalysisComponent
 	State?:                         string | fn.#StringExpression
-	Subnet?:                        _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	SubnetRouteTable?:              _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	TransitGateway?:                _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	TransitGatewayAttachment?:      _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	TransitGatewayRouteTable?:      _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	TransitGatewayRouteTableRoute?: _#defs."/$defs/Properties/definitions/TransitGatewayRouteTableRoute"
-	Vpc?:                           _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	VpcPeeringConnection?:          _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	VpnConnection?:                 _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	VpnGateway?:                    _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	vpcEndpoint?:                   _#defs."/$defs/Properties/definitions/AnalysisComponent"
+	Subnet?:                        #AnalysisComponent
+	SubnetRouteTable?:              #AnalysisComponent
+	TransitGateway?:                #AnalysisComponent
+	TransitGatewayAttachment?:      #AnalysisComponent
+	TransitGatewayRouteTable?:      #AnalysisComponent
+	TransitGatewayRouteTableRoute?: #TransitGatewayRouteTableRoute
+	Vpc?:                           #AnalysisComponent
+	VpcPeeringConnection?:          #AnalysisComponent
+	VpnConnection?:                 #AnalysisComponent
+	VpnGateway?:                    #AnalysisComponent
+	vpcEndpoint?:                   #AnalysisComponent
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IpAddress": string | fn.#StringExpression
+#IpAddress: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PathComponent": close({
-	AclRule?:                     _#defs."/$defs/Properties/definitions/AnalysisAclRule"
-	AdditionalDetails?:           [..._#defs."/$defs/Properties/definitions/AdditionalDetail"] | fn.#ListExpression
-	Component?:                   _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	DestinationVpc?:              _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	ElasticLoadBalancerListener?: _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	Explanations?:                [..._#defs."/$defs/Properties/definitions/Explanation"] | fn.#ListExpression
-	InboundHeader?:               _#defs."/$defs/Properties/definitions/AnalysisPacketHeader"
-	OutboundHeader?:              _#defs."/$defs/Properties/definitions/AnalysisPacketHeader"
-	RouteTableRoute?:             _#defs."/$defs/Properties/definitions/AnalysisRouteTableRoute"
-	SecurityGroupRule?:           _#defs."/$defs/Properties/definitions/AnalysisSecurityGroupRule"
+#PathComponent: close({
+	AclRule?:                     #AnalysisAclRule
+	AdditionalDetails?:           [...#AdditionalDetail] | fn.#ListExpression
+	Component?:                   #AnalysisComponent
+	DestinationVpc?:              #AnalysisComponent
+	ElasticLoadBalancerListener?: #AnalysisComponent
+	Explanations?:                [...#Explanation] | fn.#ListExpression
+	InboundHeader?:               #AnalysisPacketHeader
+	OutboundHeader?:              #AnalysisPacketHeader
+	RouteTableRoute?:             #AnalysisRouteTableRoute
+	SecurityGroupRule?:           #AnalysisSecurityGroupRule
 	SequenceNumber?: int |
 		{
 			string &
@@ -210,15 +210,15 @@ _#defs: "/$defs/Properties/definitions/PathComponent": close({
 		} |
 		fn.#NumberExpression
 	ServiceName?:                   string | fn.#StringExpression
-	SourceVpc?:                     _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	Subnet?:                        _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	TransitGateway?:                _#defs."/$defs/Properties/definitions/AnalysisComponent"
-	TransitGatewayRouteTableRoute?: _#defs."/$defs/Properties/definitions/TransitGatewayRouteTableRoute"
-	Vpc?:                           _#defs."/$defs/Properties/definitions/AnalysisComponent"
+	SourceVpc?:                     #AnalysisComponent
+	Subnet?:                        #AnalysisComponent
+	TransitGateway?:                #AnalysisComponent
+	TransitGatewayRouteTableRoute?: #TransitGatewayRouteTableRoute
+	Vpc?:                           #AnalysisComponent
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Port": int |
+#Port: int |
 	{
 		string &
 			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -232,7 +232,7 @@ _#defs: "/$defs/Properties/definitions/Port": int |
 	} |
 	fn.#NumberExpression
 
-_#defs: "/$defs/Properties/definitions/PortRange": close({
+#PortRange: close({
 	From?: int |
 		{
 			string &
@@ -264,20 +264,19 @@ _#defs: "/$defs/Properties/definitions/PortRange": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Protocol": string | fn.#StringExpression
+#Protocol: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceArn": strings.MaxRunes(1283) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(1283) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
+#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/TransitGatewayRouteTableRoute": close({
+#TransitGatewayRouteTableRoute: close({
 	AttachmentId?:    string | fn.#StringExpression
 	DestinationCidr?: string | fn.#StringExpression
 	PrefixListId?:    string | fn.#StringExpression

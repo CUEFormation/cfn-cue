@@ -14,8 +14,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::ApplicationSignals::Discovery
 #Properties: close({})
 
-_#defs: "/$defs/Properties/definitions/AccountId": strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
-fn.#StringExpression
+#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ApplicationSignals::Discovery"
 	Properties?: #Properties

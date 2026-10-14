@@ -6,10 +6,10 @@ package schema
 
 // Resource schema for AWS::CertificateManager::Account.
 #Properties: close({
-	AccountId?:                 _#defs."/$defs/Properties/definitions/AccountId"
-	ExpiryEventsConfiguration!: _#defs."/$defs/Properties/definitions/ExpiryEventsConfiguration"
+	AccountId?:                 #AccountId
+	ExpiryEventsConfiguration!: #ExpiryEventsConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/AccountId": string
+#AccountId: string
 
-_#defs: "/$defs/Properties/definitions/ExpiryEventsConfiguration": close({DaysBeforeExpiry?: int & <=45 & >=1})
+#ExpiryEventsConfiguration: close({DaysBeforeExpiry?: int & <=45 & >=1})

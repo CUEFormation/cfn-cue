@@ -8,27 +8,27 @@ import "strings"
 
 // Resource Type definition for AWS::GuardDuty::Detector
 #Properties: close({
-	DataSources?:                _#defs."/$defs/Properties/definitions/CFNDataSourceConfigurations"
+	DataSources?:                #CFNDataSourceConfigurations
 	Enable!:                     bool
-	Features?:                   [..._#defs."/$defs/Properties/definitions/CFNFeatureConfiguration"]
+	Features?:                   [...#CFNFeatureConfiguration]
 	FindingPublishingFrequency?: "FIFTEEN_MINUTES" | "ONE_HOUR" | "SIX_HOURS"
 	Id?:                         string
-	Tags?:                       [..._#defs."/$defs/Properties/definitions/TagItem"]
+	Tags?:                       [...#TagItem]
 })
 
-_#defs: "/$defs/Properties/definitions/CFNDataSourceConfigurations": close({
-	Kubernetes?:        _#defs."/$defs/Properties/definitions/CFNKubernetesConfiguration"
-	MalwareProtection?: _#defs."/$defs/Properties/definitions/CFNMalwareProtectionConfiguration"
-	S3Logs?:            _#defs."/$defs/Properties/definitions/CFNS3LogsConfiguration"
+#CFNDataSourceConfigurations: close({
+	Kubernetes?:        #CFNKubernetesConfiguration
+	MalwareProtection?: #CFNMalwareProtectionConfiguration
+	S3Logs?:            #CFNS3LogsConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/CFNFeatureAdditionalConfiguration": close({
+#CFNFeatureAdditionalConfiguration: close({
 	Name?: ("EC2_AGENT_MANAGEMENT" | "ECS_FARGATE_AGENT_MANAGEMENT" | "EKS_ADDON_MANAGEMENT" | "RDS_DATA_RISK") & (strings.MaxRunes(256) & strings.MinRunes(1))
 	Status?: ("DISABLED" | "ENABLED") & (strings.MaxRunes(128) & strings.MinRunes(1))
 })
 
-_#defs: "/$defs/Properties/definitions/CFNFeatureConfiguration": close({
-	AdditionalConfiguration?: [..._#defs."/$defs/Properties/definitions/CFNFeatureAdditionalConfiguration"]
+#CFNFeatureConfiguration: close({
+	AdditionalConfiguration?: [...#CFNFeatureAdditionalConfiguration]
 	Name!: ("AI_ANALYST" |
 		"AI_PROTECTION" |
 		"EBS_MALWARE_PROTECTION" |
@@ -41,21 +41,17 @@ _#defs: "/$defs/Properties/definitions/CFNFeatureConfiguration": close({
 	Status!: "ENABLED" | "DISABLED"
 })
 
-_#defs: "/$defs/Properties/definitions/CFNKubernetesAuditLogsConfiguration": close({Enable!: bool})
+#CFNKubernetesAuditLogsConfiguration: close({Enable!: bool})
 
-_#defs: "/$defs/Properties/definitions/CFNKubernetesConfiguration": close(
-	{AuditLogs!: _#defs."/$defs/Properties/definitions/CFNKubernetesAuditLogsConfiguration"},
-)
+#CFNKubernetesConfiguration: close({AuditLogs!: #CFNKubernetesAuditLogsConfiguration})
 
-_#defs: "/$defs/Properties/definitions/CFNMalwareProtectionConfiguration": close(
-	{ScanEc2InstanceWithFindings?: _#defs."/$defs/Properties/definitions/CFNScanEc2InstanceWithFindingsConfiguration"},
-)
+#CFNMalwareProtectionConfiguration: close({ScanEc2InstanceWithFindings?: #CFNScanEc2InstanceWithFindingsConfiguration})
 
-_#defs: "/$defs/Properties/definitions/CFNS3LogsConfiguration": close({Enable!: bool})
+#CFNS3LogsConfiguration: close({Enable!: bool})
 
-_#defs: "/$defs/Properties/definitions/CFNScanEc2InstanceWithFindingsConfiguration": close({EbsVolumes?: bool})
+#CFNScanEc2InstanceWithFindingsConfiguration: close({EbsVolumes?: bool})
 
-_#defs: "/$defs/Properties/definitions/TagItem": close({
+#TagItem: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

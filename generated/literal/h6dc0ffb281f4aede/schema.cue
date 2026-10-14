@@ -12,8 +12,7 @@ import (
 // This creates a Resource of UsageProfile type.
 #Properties: close({
 	// UsageProfile configuration for supported service ex: (Jobs, Sessions).
-	Configuration?: _#defs."/$defs/Properties/definitions/ProfileConfiguration" &
-	(null | bool | number | string | list.MinItems(1) | {...})
+	Configuration?: #ProfileConfiguration & (null | bool | number | string | list.MinItems(1) | {...})
 
 	// Creation time.
 	CreatedOn?: strings.MaxRunes(128) & strings.MinRunes(1)
@@ -25,10 +24,10 @@ import (
 	Name!: strings.MaxRunes(128) & strings.MinRunes(5)
 
 	// The tags to be applied to this UsageProfiles.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigurationObject": (null |
+#ConfigurationObject: (null |
 bool |
 number |
 string |
@@ -60,7 +59,7 @@ close({
 	MinValue?:      string
 }))
 
-_#defs: "/$defs/Properties/definitions/ProfileConfiguration": null |
+#ProfileConfiguration: null |
 bool |
 number |
 string |
@@ -73,7 +72,7 @@ close({
 	[...] |
 	close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/ConfigurationObject"}})
+		{[=~"^.+$"]: #ConfigurationObject}})
 	SessionConfiguration?: null |
 	bool |
 	number |
@@ -81,10 +80,10 @@ close({
 	[...] |
 	close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/ConfigurationObject"}})
+		{[=~"^.+$"]: #ConfigurationObject}})
 }) & matchN(>=1, [{JobConfiguration!: _}, {SessionConfiguration!: _}])
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A key to identify the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

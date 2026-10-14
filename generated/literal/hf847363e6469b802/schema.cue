@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 	"struct"
 )
 
@@ -17,71 +17,67 @@ import (
 
 	// Name of the scan
 	ScanName!:      strings.MinRunes(1)
-	Schedule!:      _#defs."/$defs/Properties/definitions/Schedule"
-	SecurityLevel!: _#defs."/$defs/Properties/definitions/CisSecurityLevel"
-	Tags?:          _#defs."/$defs/Properties/definitions/CisTagMap"
-	Targets!:       _#defs."/$defs/Properties/definitions/CisTargets"
+	Schedule!:      #Schedule
+	SecurityLevel!: #CisSecurityLevel
+	Tags?:          #CisTagMap
+	Targets!:       #CisTargets
 })
 
-_#defs: "/$defs/Properties/definitions/CisSecurityLevel": "LEVEL_1" | "LEVEL_2"
+#CisSecurityLevel: "LEVEL_1" | "LEVEL_2"
 
-_#defs: "/$defs/Properties/definitions/CisTagMap": close({
+#CisTagMap: close({
 
 	{[=~"^.{2,127}$"]: =~"^.{1,255}$"}})
 
-_#defs: "/$defs/Properties/definitions/CisTargets": null |
+#CisTargets: null |
 bool |
 number |
 string |
 [...] |
 close({
 	AccountIds!: list.MaxItems(10000) & list.MinItems(1) & list.UniqueItems() & [...=~"^\\d{12}|ALL_ACCOUNTS|SELF$"]
-	TargetResourceTags!: _#defs."/$defs/Properties/definitions/TargetResourceTags"
+	TargetResourceTags!: #TargetResourceTags
 })
 
-_#defs: "/$defs/Properties/definitions/DailySchedule": close({StartTime!: _#defs."/$defs/Properties/definitions/Time"})
+#DailySchedule: close({StartTime!: #Time})
 
-_#defs: "/$defs/Properties/definitions/Day": "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN"
+#Day: "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN"
 
-_#defs: "/$defs/Properties/definitions/DaysList": list.MaxItems(7) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/Day"
-]
+#DaysList: list.MaxItems(7) & list.MinItems(1) & list.UniqueItems() & [...#Day]
 
-_#defs: "/$defs/Properties/definitions/MonthlySchedule": close({
-	Day!:       _#defs."/$defs/Properties/definitions/Day"
-	StartTime!: _#defs."/$defs/Properties/definitions/Time"
+#MonthlySchedule: close({
+	Day!:       #Day
+	StartTime!: #Time
 })
 
-_#defs: "/$defs/Properties/definitions/OneTimeSchedule": string | {...}
+#OneTimeSchedule: string | {...}
 
 // Choose a Schedule cadence
-_#defs: "/$defs/Properties/definitions/Schedule": null | bool | number | string | [...] | {
-	Daily?:   _#defs."/$defs/Properties/definitions/DailySchedule"
-	Monthly?: _#defs."/$defs/Properties/definitions/MonthlySchedule"
-	OneTime?: _#defs."/$defs/Properties/definitions/OneTimeSchedule"
-	Weekly?:  _#defs."/$defs/Properties/definitions/WeeklySchedule"
+#Schedule: null | bool | number | string | [...] | {
+	Daily?:   #DailySchedule
+	Monthly?: #MonthlySchedule
+	OneTime?: #OneTimeSchedule
+	Weekly?:  #WeeklySchedule
 	...
 }
 
-_#defs: "/$defs/Properties/definitions/TagValueList": list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-	...string
-]
+#TagValueList: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...string]
 
-_#defs: "/$defs/Properties/definitions/TargetResourceTags": null |
+#TargetResourceTags: null |
 bool |
 number |
 string |
 [...] |
 struct.MaxFields(5) & close({
 
-	{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/TagValueList"}})
+	{[=~"^.+$"]: #TagValueList}})
 
-_#defs: "/$defs/Properties/definitions/Time": close({
+#Time: close({
 	TimeOfDay!: =~"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
 	TimeZone!:  string
 })
 
-_#defs: "/$defs/Properties/definitions/WeeklySchedule": close({
-	Days!:      _#defs."/$defs/Properties/definitions/DaysList"
-	StartTime!: _#defs."/$defs/Properties/definitions/Time"
+#WeeklySchedule: close({
+	Days!:      #DaysList
+	StartTime!: #Time
 })

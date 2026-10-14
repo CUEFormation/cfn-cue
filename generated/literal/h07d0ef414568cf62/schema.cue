@@ -35,19 +35,17 @@ import (
 	Name!: strings.MaxRunes(100) & strings.MinRunes(1)
 
 	// The assigned purposes of the predefined attribute.
-	Purposes?: list.MaxItems(10) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Purpose"]
+	Purposes?: list.MaxItems(10) & list.MinItems(1) & [...#Purpose]
 
 	// The values of a predefined attribute.
-	Values?: close({StringList?: _#defs."/$defs/Properties/definitions/StringList"})
+	Values?: close({StringList?: #StringList})
 })
 
 // A label allowing customers to categorize a predefined attribute.
-_#defs: "/$defs/Properties/definitions/Purpose": strings.MaxRunes(100) & strings.MinRunes(1)
+#Purpose: strings.MaxRunes(100) & strings.MinRunes(1)
 
 // Predefined attribute values of type string list.
-_#defs: "/$defs/Properties/definitions/StringList": list.MaxItems(500) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/Value"
-]
+#StringList: list.MaxItems(500) & list.MinItems(1) & [...#Value]
 
 // Textual or numeric value that describes an attribute.
-_#defs: "/$defs/Properties/definitions/Value": strings.MaxRunes(100) & strings.MinRunes(1)
+#Value: strings.MaxRunes(100) & strings.MinRunes(1)

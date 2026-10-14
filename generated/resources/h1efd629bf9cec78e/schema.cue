@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -22,30 +22,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:capacity-provider:[a-zA-Z0-9-_]+)|[a-zA-Z0-9-_]+$" |
 	fn.#StringExpression
-	CapacityProviderScalingConfig?: _#defs."/$defs/Properties/definitions/CapacityProviderScalingConfig" |
-		fn.#ObjectExpression
-	InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirements" | fn.#ObjectExpression
+	CapacityProviderScalingConfig?: #CapacityProviderScalingConfig | fn.#ObjectExpression
+	InstanceRequirements?:          #InstanceRequirements | fn.#ObjectExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(10000) &
 	strings.MinRunes(0) &
 	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
 	fn.#StringExpression
-	PermissionsConfig!: _#defs."/$defs/Properties/definitions/CapacityProviderPermissionsConfig" | fn.#ObjectExpression
-	PropagateTags?:     _#defs."/$defs/Properties/definitions/PropagateTagsConfig" | fn.#ObjectExpression
-	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TelemetryConfig?:   _#defs."/$defs/Properties/definitions/CapacityProviderTelemetryConfig" | fn.#ObjectExpression
-	VpcConfig!:         _#defs."/$defs/Properties/definitions/CapacityProviderVpcConfig" | fn.#ObjectExpression
+	PermissionsConfig!: #CapacityProviderPermissionsConfig | fn.#ObjectExpression
+	PropagateTags?:     #PropagateTagsConfig | fn.#ObjectExpression
+	Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	TelemetryConfig?:   #CapacityProviderTelemetryConfig | fn.#ObjectExpression
+	VpcConfig!:         #CapacityProviderVpcConfig | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Architecture": "x86_64" | "arm64" | fn.#StringExpression
+#Architecture: "x86_64" | "arm64" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderLoggingConfig": close({
+#CapacityProviderLoggingConfig: close({
 	LogGroup?:       strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
 	SystemLogLevel?: "DEBUG" | "INFO" | "WARN" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderPermissionsConfig": close({
+#CapacityProviderPermissionsConfig: close({
 	CapacityProviderOperatorRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(10000) &
 	strings.MinRunes(0) &
@@ -54,11 +53,11 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderPermissionsConfig": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderPredefinedMetricType": "LambdaCapacityProviderAverageCPUUtilization" |
+#CapacityProviderPredefinedMetricType: "LambdaCapacityProviderAverageCPUUtilization" |
 	"LambdaCapacityProviderAverageGPUUtilization" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderScalingConfig": close({
+#CapacityProviderScalingConfig: close({
 	MaxVCpuCount?: int & <=15000 & >=2 |
 		{
 			string &
@@ -75,28 +74,19 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderScalingConfig": close({
 				)
 		} |
 		fn.#NumberExpression
-	ScalingMode?: _#defs."/$defs/Properties/definitions/CapacityProviderScalingMode" | fn.#StringExpression
-	ScalingPolicies?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TargetTrackingScalingPolicy"
-	] |
-		fn.#ListExpression
+	ScalingMode?:     #CapacityProviderScalingMode | fn.#StringExpression
+	ScalingPolicies?: list.MaxItems(10) & list.MinItems(1) & [...#TargetTrackingScalingPolicy] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderScalingMode": "Auto" | "Manual" | fn.#StringExpression
+#CapacityProviderScalingMode: "Auto" | "Manual" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderState": "Pending" |
-	"Active" |
-	"Failed" |
-	"Deleting" |
-	fn.#StringExpression
+#CapacityProviderState: "Pending" | "Active" | "Failed" | "Deleting" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderTelemetryConfig": close(
-	{LoggingConfig?: _#defs."/$defs/Properties/definitions/CapacityProviderLoggingConfig" | fn.#ObjectExpression},
-) |
+#CapacityProviderTelemetryConfig: close({LoggingConfig?: #CapacityProviderLoggingConfig | fn.#ObjectExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderVpcConfig": close({
+#CapacityProviderVpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & [...] & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(1024) &
@@ -112,13 +102,12 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderVpcConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
+#InstanceRequirements: close({
 	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [
 		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Architectures?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Architecture"] |
-		fn.#ListExpression
+	Architectures?: list.MaxItems(1) & list.MinItems(1) & [...#Architecture] | fn.#ListExpression
 	ExcludedInstanceTypes?: list.MaxItems(400) & [...] & [
 		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
 	] |
@@ -126,24 +115,22 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PropagateTagsConfig": close({
-	ExplicitTags?: list.MaxItems(40) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	Mode?: _#defs."/$defs/Properties/definitions/PropagateTagsMode" | fn.#StringExpression
+#PropagateTagsConfig: close({
+	ExplicitTags?: list.MaxItems(40) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	Mode?:         #PropagateTagsMode | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PropagateTagsMode": "None" | "Explicit" | fn.#StringExpression
+#PropagateTagsMode: "None" | "Explicit" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicy": close({
-	PredefinedMetricType!: _#defs."/$defs/Properties/definitions/CapacityProviderPredefinedMetricType" |
-		fn.#StringExpression
+#TargetTrackingScalingPolicy: close({
+	PredefinedMetricType!: #CapacityProviderPredefinedMetricType | fn.#StringExpression
 	TargetValue!: <=100 & >=0 |
 		{
 			string &

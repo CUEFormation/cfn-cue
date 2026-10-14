@@ -11,27 +11,27 @@ import (
 
 // Resource Type definition for AWS::AppStream::Application
 #Properties: close({
-	AppBlockArn!:        _#defs."/$defs/Properties/definitions/Arn"
-	Arn?:                _#defs."/$defs/Properties/definitions/Arn"
-	AttributesToDelete?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ApplicationAttribute"]
+	AppBlockArn!:        #Arn
+	Arn?:                #Arn
+	AttributesToDelete?: list.UniqueItems() & [...#ApplicationAttribute]
 	CreatedTime?:        string
 	Description?:        strings.MaxRunes(256) & strings.MinRunes(0)
 	DisplayName?:        strings.MaxRunes(100) & strings.MinRunes(0)
-	IconS3Location!:     _#defs."/$defs/Properties/definitions/S3Location"
+	IconS3Location!:     #S3Location
 	InstanceFamilies!:   list.UniqueItems() & [...strings.MinRunes(1)]
 	LaunchParameters?:   strings.MinRunes(1)
 	LaunchPath!:         strings.MinRunes(1)
 	Name!:               =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$"
-	Platforms!: list.MaxItems(4) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/PlatformType"]
-	Tags?:      list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
-	WorkingDirectory?: strings.MinRunes(1)
+	Platforms!:          list.MaxItems(4) & list.UniqueItems() & [...] & [...#PlatformType]
+	Tags?:               list.UniqueItems() & [...#Tag]
+	WorkingDirectory?:   strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/ApplicationAttribute": string
+#ApplicationAttribute: string
 
-_#defs: "/$defs/Properties/definitions/Arn": string
+#Arn: string
 
-_#defs: "/$defs/Properties/definitions/PlatformType": "AMAZON_LINUX2" |
+#PlatformType: "AMAZON_LINUX2" |
 	"RHEL8" |
 	"ROCKY_LINUX8" |
 	"UBUNTU_PRO_2404" |
@@ -41,12 +41,12 @@ _#defs: "/$defs/Properties/definitions/PlatformType": "AMAZON_LINUX2" |
 	"WINDOWS_SERVER_2022" |
 	"WINDOWS_SERVER_2025"
 
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	S3Bucket!: strings.MaxRunes(63) & strings.MinRunes(3)
 	S3Key!:    strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": matchN(1, [close({
+#Tag: matchN(1, [close({
 	Key!:   string
 	Value!: string
 }), close({

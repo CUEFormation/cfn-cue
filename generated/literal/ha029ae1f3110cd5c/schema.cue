@@ -17,7 +17,7 @@ package schema
 	// transcoding it to a transport stream (TS) for downstream distribution. You
 	// can choose between several predefined encoding profiles based on common use
 	// cases.
-	EncodingConfig?: _#defs."/$defs/Properties/definitions/EncodingConfig"
+	EncodingConfig?: #EncodingConfig
 
 	// The Amazon Resource Name (ARN), a unique identifier for any AWS resource, of the flow.
 	FlowArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$"
@@ -35,46 +35,44 @@ package schema
 	FlowSize?: "MEDIUM" | "LARGE" | "LARGE_4X"
 
 	// The maintenance settings you want to use for the flow.
-	Maintenance?: _#defs."/$defs/Properties/definitions/Maintenance"
+	Maintenance?: #Maintenance
 
 	// The media streams associated with the flow. You can associate any of these
 	// media streams with sources and outputs on the flow.
-	MediaStreams?: [..._#defs."/$defs/Properties/definitions/MediaStream"]
+	MediaStreams?: [...#MediaStream]
 
 	// The name of the flow.
 	Name!: string
 
 	// Specifies the configuration settings for NDI sources and outputs. Required
 	// when the flow includes NDI sources or outputs.
-	NdiConfig?: _#defs."/$defs/Properties/definitions/NdiConfig"
+	NdiConfig?: #NdiConfig
 
 	// The source of the flow.
-	Source!: _#defs."/$defs/Properties/definitions/Source"
+	Source!: #Source
 
 	// The source failover config of the flow.
-	SourceFailoverConfig?: _#defs."/$defs/Properties/definitions/FailoverConfig"
+	SourceFailoverConfig?: #FailoverConfig
 
 	// The source monitoring config of the flow.
-	SourceMonitoringConfig?: _#defs."/$defs/Properties/definitions/SourceMonitoringConfig"
+	SourceMonitoringConfig?: #SourceMonitoringConfig
 
 	// Key-value pairs that can be used to tag this flow.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The VPC interfaces that you added to this flow.
-	VpcInterfaces?: [..._#defs."/$defs/Properties/definitions/VpcInterface"]
+	VpcInterfaces?: [...#VpcInterface]
 })
 
 // Specifies the configuration for audio stream metrics monitoring.
-_#defs: "/$defs/Properties/definitions/AudioMonitoringSetting": close(
-	{SilentAudio?: _#defs."/$defs/Properties/definitions/SilentAudio"},
-)
+#AudioMonitoringSetting: close({SilentAudio?: #SilentAudio})
 
 // Configuration settings for automatic encryption key management, where
 // MediaConnect handles key creation and rotation.
-_#defs: "/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration": close({})
+#AutomaticEncryptionKeyConfiguration: close({})
 
 // Configures settings for the BlackFrames metric.
-_#defs: "/$defs/Properties/definitions/BlackFrames": close({
+#BlackFrames: close({
 	// Indicates whether the BlackFrames metric is enabled or disabled.
 	State?: "ENABLED" | "DISABLED"
 
@@ -82,8 +80,8 @@ _#defs: "/$defs/Properties/definitions/BlackFrames": close({
 	ThresholdSeconds?: int
 })
 
-_#defs: "/$defs/Properties/definitions/EncodingConfig": close({
-	EncodingProfile?: _#defs."/$defs/Properties/definitions/EncodingProfile"
+#EncodingConfig: close({
+	EncodingProfile?: #EncodingProfile
 
 	// The maximum video bitrate to use when transcoding the NDI source to a
 	// Transport Stream. This parameter enables you to override the default video
@@ -95,10 +93,10 @@ _#defs: "/$defs/Properties/definitions/EncodingConfig": close({
 
 // The encoding profile to use when transcoding the NDI source to a Transport
 // Stream. You can change this value while a flow is running.
-_#defs: "/$defs/Properties/definitions/EncodingProfile": "DISTRIBUTION_H264_DEFAULT" | "CONTRIBUTION_H264_DEFAULT"
+#EncodingProfile: "DISTRIBUTION_H264_DEFAULT" | "CONTRIBUTION_H264_DEFAULT"
 
 // Information about the encryption of the flow.
-_#defs: "/$defs/Properties/definitions/Encryption": close({
+#Encryption: close({
 	// The type of algorithm that is used for the encryption (such as aes128, aes192, or aes256).
 	Algorithm?: "aes128" | "aes192" | "aes256"
 
@@ -144,7 +142,7 @@ _#defs: "/$defs/Properties/definitions/Encryption": close({
 })
 
 // The settings for source failover
-_#defs: "/$defs/Properties/definitions/FailoverConfig": close({
+#FailoverConfig: close({
 	// The type of failover you choose for this flow. MERGE combines the source
 	// streams into a single stream, allowing graceful recovery from any
 	// single-source loss. FAILOVER allows switching between different streams.
@@ -164,22 +162,22 @@ _#defs: "/$defs/Properties/definitions/FailoverConfig": close({
 
 // The configuration that defines how content is encrypted during transit
 // between the MediaConnect router and a MediaConnect flow.
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryption": close({
-	EncryptionKeyConfiguration!: _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration"
-	EncryptionKeyType?:          _#defs."/$defs/Properties/definitions/FlowTransitEncryptionKeyType"
+#FlowTransitEncryption: close({
+	EncryptionKeyConfiguration!: #FlowTransitEncryptionKeyConfiguration
+	EncryptionKeyType?:          #FlowTransitEncryptionKeyType
 })
 
 // Configuration settings for flow transit encryption keys.
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyConfiguration": matchN(1, [close(
-	{SecretsManager!: _#defs."/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"},
+#FlowTransitEncryptionKeyConfiguration: matchN(1, [close(
+	{SecretsManager!: #SecretsManagerEncryptionKeyConfiguration},
 ), close(
-	{Automatic!: _#defs."/$defs/Properties/definitions/AutomaticEncryptionKeyConfiguration"},
+	{Automatic!: #AutomaticEncryptionKeyConfiguration},
 )])
 
-_#defs: "/$defs/Properties/definitions/FlowTransitEncryptionKeyType": "SECRETS_MANAGER" | "AUTOMATIC"
+#FlowTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC"
 
 // A set of parameters that define the media stream.
-_#defs: "/$defs/Properties/definitions/Fmtp": close({
+#Fmtp: close({
 	// The format of the audio channel.
 	ChannelOrder?: string
 
@@ -203,7 +201,7 @@ _#defs: "/$defs/Properties/definitions/Fmtp": close({
 })
 
 // Configures settings for the FrozenFrames metric.
-_#defs: "/$defs/Properties/definitions/FrozenFrames": close({
+#FrozenFrames: close({
 	// Indicates whether the FrozenFrames metric is enabled or disabled.
 	State?: "ENABLED" | "DISABLED"
 
@@ -212,32 +210,32 @@ _#defs: "/$defs/Properties/definitions/FrozenFrames": close({
 })
 
 // The source configuration for cloud flows receiving a stream from a bridge.
-_#defs: "/$defs/Properties/definitions/GatewayBridgeSource": close({
+#GatewayBridgeSource: close({
 	// The ARN of the bridge feeding this flow.
 	BridgeArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:bridge:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$"
 
 	// The name of the VPC interface attachment to use for this bridge source.
-	VpcInterfaceAttachment?: _#defs."/$defs/Properties/definitions/VpcInterfaceAttachment"
+	VpcInterfaceAttachment?: #VpcInterfaceAttachment
 })
 
 // The transport parameters associated with an incoming media stream.
-_#defs: "/$defs/Properties/definitions/InputConfiguration": close({
+#InputConfiguration: close({
 	// The port that the flow listens on for an incoming media stream.
 	InputPort!: int
 
 	// The VPC interface where the media stream comes in from.
-	Interface!: _#defs."/$defs/Properties/definitions/Interface"
+	Interface!: #Interface
 })
 
 // The VPC interface that you want to use for the media stream associated with the output.
-_#defs: "/$defs/Properties/definitions/Interface": close({
+#Interface: close({
 	// The name of the VPC interface that you want to use for the media stream
 	// associated with the output.
 	Name!: string
 })
 
 // The maintenance setting of a flow.
-_#defs: "/$defs/Properties/definitions/Maintenance": close({
+#Maintenance: close({
 	// A day of a week when the maintenance will happen. Use
 	// Monday/Tuesday/Wednesday/Thursday/Friday/Saturday/Sunday.
 	MaintenanceDay!: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday"
@@ -252,9 +250,9 @@ _#defs: "/$defs/Properties/definitions/Maintenance": close({
 // sources and outputs on that flow, as long as they use the CDI protocol or
 // the ST 2110 JPEG XS protocol. Each source or output can consist of one or
 // many media streams.
-_#defs: "/$defs/Properties/definitions/MediaStream": close({
+#MediaStream: close({
 	// Attributes that are related to the media stream.
-	Attributes?: _#defs."/$defs/Properties/definitions/MediaStreamAttributes"
+	Attributes?: #MediaStreamAttributes
 
 	// The sample rate for the stream. This value in measured in kHz.
 	ClockRate?: int
@@ -277,23 +275,23 @@ _#defs: "/$defs/Properties/definitions/MediaStream": close({
 	MediaStreamType!: "video" | "audio" | "ancillary-data"
 
 	// Key-value pairs that can be used to tag this media stream.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The resolution of the video.
 	VideoFormat?: "2160p" | "1080p" | "1080i" | "720p" | "480p"
 })
 
 // Attributes that are related to the media stream.
-_#defs: "/$defs/Properties/definitions/MediaStreamAttributes": close({
+#MediaStreamAttributes: close({
 	// A set of parameters that define the media stream.
-	Fmtp?: _#defs."/$defs/Properties/definitions/Fmtp"
+	Fmtp?: #Fmtp
 
 	// The audio language, in a format that is recognized by the receiver.
 	Lang?: string
 })
 
 // The media stream that is associated with the source, and the parameters for that association.
-_#defs: "/$defs/Properties/definitions/MediaStreamSourceConfiguration": close({
+#MediaStreamSourceConfiguration: close({
 	// The format that was used to encode the data. For ancillary data streams, set
 	// the encoding name to smpte291. For audio streams, set the encoding name to
 	// pcm. For video, 2110 streams, set the encoding name to raw. For video, JPEG
@@ -301,7 +299,7 @@ _#defs: "/$defs/Properties/definitions/MediaStreamSourceConfiguration": close({
 	EncodingName!: "jxsv" | "raw" | "smpte291" | "pcm"
 
 	// The media streams that you want to associate with the source.
-	InputConfigurations?: [..._#defs."/$defs/Properties/definitions/InputConfiguration"]
+	InputConfigurations?: [...#InputConfiguration]
 
 	// A name that helps you distinguish one media stream from another.
 	MediaStreamName!: string
@@ -309,7 +307,7 @@ _#defs: "/$defs/Properties/definitions/MediaStreamSourceConfiguration": close({
 
 // Specifies the configuration settings for NDI sources and outputs. Required
 // when the flow includes NDI sources or outputs.
-_#defs: "/$defs/Properties/definitions/NdiConfig": close({
+#NdiConfig: close({
 	// A prefix for the names of the NDI sources that the flow creates. If a custom
 	// name isn't specified, MediaConnect generates a unique 12-character ID as the
 	// prefix.
@@ -318,17 +316,17 @@ _#defs: "/$defs/Properties/definitions/NdiConfig": close({
 	// A list of up to three NDI discovery server configurations. While not required
 	// by the API, this configuration is necessary for NDI functionality to work
 	// properly.
-	NdiDiscoveryServers?: [..._#defs."/$defs/Properties/definitions/NdiDiscoveryServerConfig"]
+	NdiDiscoveryServers?: [...#NdiDiscoveryServerConfig]
 
 	// A setting that controls whether NDI sources or outputs can be used in the
 	// flow. The default value is DISABLED. This value must be set as ENABLED for
 	// your flow to support NDI sources or outputs.
-	NdiState?: _#defs."/$defs/Properties/definitions/NdiState"
+	NdiState?: #NdiState
 })
 
 // Specifies the configuration settings for individual NDI discovery servers. A
 // maximum of 3 servers is allowed.
-_#defs: "/$defs/Properties/definitions/NdiDiscoveryServerConfig": close({
+#NdiDiscoveryServerConfig: close({
 	// The unique network address of the NDI discovery server.
 	DiscoveryServerAddress!: string
 
@@ -339,13 +337,13 @@ _#defs: "/$defs/Properties/definitions/NdiDiscoveryServerConfig": close({
 	VpcInterfaceAdapter!: string
 })
 
-_#defs: "/$defs/Properties/definitions/NdiSourceSettings": close({SourceName?: string})
+#NdiSourceSettings: close({SourceName?: string})
 
-_#defs: "/$defs/Properties/definitions/NdiState": "ENABLED" | "DISABLED"
+#NdiState: "ENABLED" | "DISABLED"
 
 // The configuration settings for transit encryption of a flow source using AWS
 // Secrets Manager, including the secret ARN and role ARN.
-_#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration": close({
+#SecretsManagerEncryptionKeyConfiguration: close({
 	// The ARN of the IAM role used for transit encryption from the router output
 	// using AWS Secrets Manager.
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -356,7 +354,7 @@ _#defs: "/$defs/Properties/definitions/SecretsManagerEncryptionKeyConfiguration"
 })
 
 // Configures settings for the SilentAudio metric.
-_#defs: "/$defs/Properties/definitions/SilentAudio": close({
+#SilentAudio: close({
 	// Indicates whether the SilentAudio metric is enabled or disabled.
 	State?: "ENABLED" | "DISABLED"
 
@@ -365,9 +363,9 @@ _#defs: "/$defs/Properties/definitions/SilentAudio": close({
 })
 
 // The settings for the source of the flow.
-_#defs: "/$defs/Properties/definitions/Source": close({
+#Source: close({
 	// The type of decryption that is used on the content ingested from this source.
-	Decryption?: _#defs."/$defs/Properties/definitions/Encryption"
+	Decryption?: #Encryption
 
 	// A description for the source. This value is not used or seen outside of the
 	// current AWS Elemental MediaConnect account.
@@ -380,7 +378,7 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 		=~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:entitlement:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$"
 
 	// The source configuration for cloud flows receiving a stream from a bridge.
-	GatewayBridgeSource?: _#defs."/$defs/Properties/definitions/GatewayBridgeSource"
+	GatewayBridgeSource?: #GatewayBridgeSource
 
 	// The IP address that the flow will be listening on for incoming content.
 	IngestIp?: string
@@ -399,7 +397,7 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 	MaxSyncBuffer?: int
 
 	// The media stream that is associated with the source, and the parameters for that association.
-	MediaStreamSourceConfigurations?: [..._#defs."/$defs/Properties/definitions/MediaStreamSourceConfiguration"]
+	MediaStreamSourceConfigurations?: [...#MediaStreamSourceConfiguration]
 
 	// The minimum latency in milliseconds.
 	MinLatency?: int
@@ -409,7 +407,7 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 
 	// The settings for the NDI flow source. This includes the exact name of the
 	// upstream NDI sender that you want to connect to your flow source.
-	NdiSourceSettings?: _#defs."/$defs/Properties/definitions/NdiSourceSettings"
+	NdiSourceSettings?: #NdiSourceSettings
 
 	// The protocol that is used by the source.
 	Protocol?: "zixi-push" |
@@ -422,7 +420,7 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 		"cdi" |
 		"ndi-speed-hq"
 	RouterIntegrationState?:             "ENABLED" | "DISABLED"
-	RouterIntegrationTransitDecryption?: _#defs."/$defs/Properties/definitions/FlowTransitEncryption"
+	RouterIntegrationTransitDecryption?: #FlowTransitEncryption
 
 	// The port that the flow uses to send outbound requests to initiate connection
 	// with the sender for fujitsu-qos protocol.
@@ -449,7 +447,7 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 	StreamId?: string
 
 	// Key-value pairs that can be used to tag this source.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The name of the VPC Interface this Source is configured with.
 	VpcInterfaceName?: string
@@ -461,9 +459,9 @@ _#defs: "/$defs/Properties/definitions/Source": close({
 })
 
 // The settings for source monitoring.
-_#defs: "/$defs/Properties/definitions/SourceMonitoringConfig": close({
+#SourceMonitoringConfig: close({
 	// Contains the settings for audio stream metrics monitoring.
-	AudioMonitoringSettings?: [..._#defs."/$defs/Properties/definitions/AudioMonitoringSetting"]
+	AudioMonitoringSettings?: [...#AudioMonitoringSetting]
 
 	// Indicates whether content quality analysis is enabled or disabled.
 	ContentQualityAnalysisState?: "ENABLED" | "DISABLED"
@@ -472,22 +470,22 @@ _#defs: "/$defs/Properties/definitions/SourceMonitoringConfig": close({
 	ThumbnailState?: "ENABLED" | "DISABLED"
 
 	// Contains the settings for video stream metrics monitoring.
-	VideoMonitoringSettings?: [..._#defs."/$defs/Properties/definitions/VideoMonitoringSetting"]
+	VideoMonitoringSettings?: [...#VideoMonitoringSetting]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
 // Specifies the configuration for video stream metrics monitoring.
-_#defs: "/$defs/Properties/definitions/VideoMonitoringSetting": close({
-	BlackFrames?:  _#defs."/$defs/Properties/definitions/BlackFrames"
-	FrozenFrames?: _#defs."/$defs/Properties/definitions/FrozenFrames"
+#VideoMonitoringSetting: close({
+	BlackFrames?:  #BlackFrames
+	FrozenFrames?: #FrozenFrames
 })
 
 // The details of a VPC interface.
-_#defs: "/$defs/Properties/definitions/VpcInterface": close({
+#VpcInterface: close({
 	// Immutable and has to be a unique against other VpcInterfaces in this Flow.
 	Name!: string
 
@@ -509,11 +507,11 @@ _#defs: "/$defs/Properties/definitions/VpcInterface": close({
 	SubnetId!: string
 
 	// Key-value pairs that can be used to tag this VPC interface.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
 // The settings for attaching a VPC interface to an resource.
-_#defs: "/$defs/Properties/definitions/VpcInterfaceAttachment": close({
+#VpcInterfaceAttachment: close({
 	// The name of the VPC interface to use for this resource.
 	VpcInterfaceName?: string
 })

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -23,10 +23,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" |
 	fn.#StringExpression
-	Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-	PolicyDetails!: list.MaxItems(3) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/PolicyDetail"] |
-		fn.#ListExpression
-	ResourceSelection!: _#defs."/$defs/Properties/definitions/ResourceSelection" | fn.#ObjectExpression
+	Name!:              =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+	PolicyDetails!:     list.MaxItems(3) & list.MinItems(1) & [...#PolicyDetail] | fn.#ListExpression
+	ResourceSelection!: #ResourceSelection | fn.#ObjectExpression
 	ResourceType!:      "AMI_IMAGE" | "CONTAINER_IMAGE" | fn.#StringExpression
 	Status?:            "DISABLED" | "ENABLED" | fn.#StringExpression
 	Tags?: close({
@@ -35,15 +34,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Action": close({
-	IncludeResources?: _#defs."/$defs/Properties/definitions/IncludeResources"
+#Action: close({
+	IncludeResources?: #IncludeResources
 	Type!:             "DELETE" | "DEPRECATE" | "DISABLE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AmiExclusionRules": close({
+#AmiExclusionRules: close({
 	IsPublic?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LastLaunched?: _#defs."/$defs/Properties/definitions/LastLaunched" | fn.#ObjectExpression
+	LastLaunched?: #LastLaunched | fn.#ObjectExpression
 	Regions?:      [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 	SharedAccounts?: list.MaxItems(1536) & list.MinItems(1) & [...=~"^[0-9]{12}$" | fn.#StringExpression] |
 		fn.#ListExpression
@@ -54,8 +53,8 @@ _#defs: "/$defs/Properties/definitions/AmiExclusionRules": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExclusionRules": close({
-	Amis?: _#defs."/$defs/Properties/definitions/AmiExclusionRules"
+#ExclusionRules: close({
+	Amis?: #AmiExclusionRules
 	TagMap?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
@@ -63,7 +62,7 @@ _#defs: "/$defs/Properties/definitions/ExclusionRules": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Filter": close({
+#Filter: close({
 	RetainAtLeast?: int & <=10 & >=1 |
 		{
 			string &
@@ -81,7 +80,7 @@ _#defs: "/$defs/Properties/definitions/Filter": close({
 		} |
 		fn.#NumberExpression
 	Type!: "AGE" | "COUNT" | fn.#StringExpression
-	Unit?: _#defs."/$defs/Properties/definitions/TimeUnit" | fn.#StringExpression
+	Unit?: #TimeUnit | fn.#StringExpression
 	Value!: int & <=1000 & >=1 |
 		{
 			string &
@@ -101,15 +100,15 @@ _#defs: "/$defs/Properties/definitions/Filter": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IncludeResources": close({
+#IncludeResources: close({
 	Amis?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Containers?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Snapshots?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LastLaunched": close({
-	Unit!: _#defs."/$defs/Properties/definitions/TimeUnit" | fn.#StringExpression
+#LastLaunched: close({
+	Unit!: #TimeUnit | fn.#StringExpression
 	Value!: int & <=365 & >=1 |
 		{
 			string &
@@ -129,22 +128,21 @@ _#defs: "/$defs/Properties/definitions/LastLaunched": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PolicyDetail": close({
-	Action!:         _#defs."/$defs/Properties/definitions/Action"
-	ExclusionRules?: _#defs."/$defs/Properties/definitions/ExclusionRules"
-	Filter!:         _#defs."/$defs/Properties/definitions/Filter"
+#PolicyDetail: close({
+	Action!:         #Action
+	ExclusionRules?: #ExclusionRules
+	Filter!:         #Filter
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RecipeSelection": close({
+#RecipeSelection: close({
 	Name!:            =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
 	SemanticVersion!: =~"^(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceSelection": close({
-	Recipes?: list.MaxItems(50) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/RecipeSelection"] |
-		fn.#ListExpression
+#ResourceSelection: close({
+	Recipes?: list.MaxItems(50) & list.MinItems(1) & [...#RecipeSelection] | fn.#ListExpression
 	TagMap?: close({
 
 		{[=~".{1,}"]: string | fn.#StringExpression}}) |
@@ -152,7 +150,7 @@ _#defs: "/$defs/Properties/definitions/ResourceSelection": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TimeUnit": "DAYS" | "WEEKS" | "MONTHS" | "YEARS" | fn.#StringExpression
+#TimeUnit: "DAYS" | "WEEKS" | "MONTHS" | "YEARS" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ImageBuilder::LifecyclePolicy"
 	Properties!: #Properties

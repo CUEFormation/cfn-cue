@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"github.com/cueformation/cfn-cue/iam:iam"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -26,10 +26,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 	Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
 	fn.#StringExpression
-	Policies?: [..._#defs."/$defs/Properties/definitions/Policy"] | fn.#ListExpression
+	Policies?: [...#Policy] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Policy": close({
+#Policy: close({
 	PolicyDocument!: iam.#IdentityPolicyValue
 	PolicyName!:     string | fn.#StringExpression
 }) |

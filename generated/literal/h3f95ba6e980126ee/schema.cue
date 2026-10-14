@@ -11,14 +11,12 @@ import (
 
 // Resource Type definition for SSO InstanceAccessControlAttributeConfiguration
 #Properties: close({
-	AccessControlAttributes?: _#defs."/$defs/Properties/definitions/AccessControlAttributeList"
+	AccessControlAttributes?: #AccessControlAttributeList
 
 	// The InstanceAccessControlAttributeConfiguration property has been deprecated
 	// but is still supported for backwards compatibility purposes. We recomend
 	// that you use AccessControlAttributes property instead.
-	InstanceAccessControlAttributeConfiguration?: close(
-		{AccessControlAttributes!: _#defs."/$defs/Properties/definitions/AccessControlAttributeList"},
-	)
+	InstanceAccessControlAttributeConfiguration?: close({AccessControlAttributes!: #AccessControlAttributeList})
 
 	// The ARN of the AWS SSO instance under which the operation will be executed.
 	InstanceArn!: strings.MaxRunes(1224) &
@@ -26,23 +24,17 @@ import (
 	=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}"
 })
 
-_#defs: "/$defs/Properties/definitions/AccessControlAttribute": close({
+#AccessControlAttribute: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]+"
-	Value!: _#defs."/$defs/Properties/definitions/AccessControlAttributeValue"
+	Value!: #AccessControlAttributeValue
 })
 
-_#defs: "/$defs/Properties/definitions/AccessControlAttributeList": list.MaxItems(50) & [
-	..._#defs."/$defs/Properties/definitions/AccessControlAttribute"
-]
+#AccessControlAttributeList: list.MaxItems(50) & [...#AccessControlAttribute]
 
-_#defs: "/$defs/Properties/definitions/AccessControlAttributeValue": close(
-	{Source!: _#defs."/$defs/Properties/definitions/AccessControlAttributeValueSourceList"},
-)
+#AccessControlAttributeValue: close({Source!: #AccessControlAttributeValueSourceList})
 
-_#defs: "/$defs/Properties/definitions/AccessControlAttributeValueSource": strings.MaxRunes(256) &
+#AccessControlAttributeValueSource: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@\\[\\]\\{\\}\\$\\\\\"]*"
 
-_#defs: "/$defs/Properties/definitions/AccessControlAttributeValueSourceList": list.MaxItems(1) & [
-	..._#defs."/$defs/Properties/definitions/AccessControlAttributeValueSource"
-]
+#AccessControlAttributeValueSourceList: list.MaxItems(1) & [...#AccessControlAttributeValueSource]

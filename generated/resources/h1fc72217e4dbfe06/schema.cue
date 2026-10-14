@@ -54,28 +54,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Rules](https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config.html)
 // in the *Developer Guide*.
 #Properties: close({
-	Compliance?:     close({}) | fn.#ObjectExpression
-	ConfigRuleName?: string | fn.#StringExpression
-	Description?:    strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	EvaluationModes?: [..._#defs."/$defs/Properties/definitions/EvaluationModeConfiguration" | fn.#ObjectExpression] |
-		fn.#ListExpression
+	Compliance?:                close({}) | fn.#ObjectExpression
+	ConfigRuleName?:            string | fn.#StringExpression
+	Description?:               strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	EvaluationModes?:           [...#EvaluationModeConfiguration | fn.#ObjectExpression] | fn.#ListExpression
 	InputParameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
 	MaximumExecutionFrequency?: string | fn.#StringExpression
-	Scope?:                     _#defs."/$defs/Properties/definitions/Scope" | fn.#ObjectExpression
-	Source!:                    _#defs."/$defs/Properties/definitions/Source" | fn.#ObjectExpression
+	Scope?:                     #Scope | fn.#ObjectExpression
+	Source!:                    #Source | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CustomPolicyDetails": close({
+#CustomPolicyDetails: close({
 	EnableDebugLogDelivery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PolicyRuntime?:          string | fn.#StringExpression
 	PolicyText?:             string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EvaluationModeConfiguration": close({Mode?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#EvaluationModeConfiguration: close({Mode?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Scope": close({
+#Scope: close({
 	ComplianceResourceId?:    string | fn.#StringExpression
 	ComplianceResourceTypes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	TagKey?:                  string | fn.#StringExpression
@@ -83,16 +81,15 @@ _#defs: "/$defs/Properties/definitions/Scope": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Source": close({
-	CustomPolicyDetails?: _#defs."/$defs/Properties/definitions/CustomPolicyDetails" | fn.#ObjectExpression
+#Source: close({
+	CustomPolicyDetails?: #CustomPolicyDetails | fn.#ObjectExpression
 	Owner!:               string | fn.#StringExpression
-	SourceDetails?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/SourceDetail" | fn.#ObjectExpression] |
-		fn.#ListExpression
-	SourceIdentifier?: string | fn.#StringExpression
+	SourceDetails?:       list.UniqueItems() & [...#SourceDetail | fn.#ObjectExpression] | fn.#ListExpression
+	SourceIdentifier?:    string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceDetail": close({
+#SourceDetail: close({
 	EventSource!:               string | fn.#StringExpression
 	MaximumExecutionFrequency?: string | fn.#StringExpression
 	MessageType!:               string | fn.#StringExpression

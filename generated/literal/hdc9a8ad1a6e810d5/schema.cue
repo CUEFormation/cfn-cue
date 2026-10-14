@@ -51,10 +51,10 @@ import "strings"
 
 	// A list of metadata items that you can associate with your auto scaling
 	// configuration resource. A tag is a key-value pair.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })

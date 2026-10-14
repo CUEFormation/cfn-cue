@@ -17,8 +17,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *API Gateway Developer Guide*.
 #Properties: close({
 	DomainName!:               string | fn.#StringExpression
-	DomainNameConfigurations?: [..._#defs."/$defs/Properties/definitions/DomainNameConfiguration"] | fn.#ListExpression
-	MutualTlsAuthentication?:  _#defs."/$defs/Properties/definitions/MutualTlsAuthentication" | fn.#ObjectExpression
+	DomainNameConfigurations?: [...#DomainNameConfiguration] | fn.#ListExpression
+	MutualTlsAuthentication?:  #MutualTlsAuthentication | fn.#ObjectExpression
 	RoutingMode?: "API_MAPPING_ONLY" | "ROUTING_RULE_THEN_API_MAPPING" | "ROUTING_RULE_ONLY" | fn.#StringExpression
 	Tags?: close({
 
@@ -26,7 +26,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DomainNameConfiguration": close({
+#DomainNameConfiguration: close({
 	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	CertificateName?:                     string | fn.#StringExpression
@@ -37,7 +37,7 @@ _#defs: "/$defs/Properties/definitions/DomainNameConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MutualTlsAuthentication": close({
+#MutualTlsAuthentication: close({
 	TruststoreUri?:     string | fn.#StringExpression
 	TruststoreVersion?: string | fn.#StringExpression
 }) |

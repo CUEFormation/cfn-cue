@@ -45,12 +45,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ResourceIdentifier?:        string | fn.#StringExpression
 	SourceEndpointArn!:         string | fn.#StringExpression
 	TableMappings!:             string | fn.#StringExpression
-	Tags?:              list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TargetEndpointArn!: string | fn.#StringExpression
-	TaskData?:          string | fn.#StringExpression
+	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	TargetEndpointArn!:         string | fn.#StringExpression
+	TaskData?:                  string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

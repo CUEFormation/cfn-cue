@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,68 +14,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Represents a policy store that you can place schema, policies, and policy
 // templates in to validate authorization requests
 #Properties: close({
-	DeletionProtection?: _#defs."/$defs/Properties/definitions/DeletionProtection"
+	DeletionProtection?: #DeletionProtection
 	Description?:        strings.MaxRunes(150) & strings.MinRunes(0) | fn.#StringExpression
-	EncryptionSettings?: _#defs."/$defs/Properties/definitions/EncryptionSettings"
-	Schema?:             _#defs."/$defs/Properties/definitions/SchemaDefinition"
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	ValidationSettings!: _#defs."/$defs/Properties/definitions/ValidationSettings"
+	EncryptionSettings?: #EncryptionSettings
+	Schema?:             #SchemaDefinition
+	Tags?:               [...#Tag] | fn.#ListExpression
+	ValidationSettings!: #ValidationSettings
 })
 
-_#defs: "/$defs/Properties/definitions/Default": close({}) | fn.#ObjectExpression
+#Default: close({}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeletionMode": "ENABLED" | "DISABLED" | fn.#StringExpression
+#DeletionMode: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DeletionProtection": close(
-	{Mode!: _#defs."/$defs/Properties/definitions/DeletionMode"},
-) |
-	fn.#ObjectExpression
+#DeletionProtection: close({Mode!: #DeletionMode}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionContext": close({
+#EncryptionContext: close({
 
 	{[=~"^.+$"]: strings.MinRunes(1) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionSettings": fn.#Object & {...} & matchN(1, [close(
-	{KmsEncryptionSettings!: _#defs."/$defs/Properties/definitions/KmsEncryptionSettings"},
-), close(
-	{Default!: _#defs."/$defs/Properties/definitions/Default"},
-)]) |
+#EncryptionSettings: fn.#Object & {...} & matchN(1, [
+	close({KmsEncryptionSettings!: #KmsEncryptionSettings}), close({Default!: #Default}),
+]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KmsEncryptionSettings": close({
-	EncryptionContext?: _#defs."/$defs/Properties/definitions/EncryptionContext"
-	Key!:               _#defs."/$defs/Properties/definitions/KmsKey"
+#KmsEncryptionSettings: close({
+	EncryptionContext?: #EncryptionContext
+	Key!:               #KmsKey
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KmsEncryptionState": close({
-	EncryptionContext!: _#defs."/$defs/Properties/definitions/EncryptionContext"
-	Key!:               _#defs."/$defs/Properties/definitions/KmsKey"
+#KmsEncryptionState: close({
+	EncryptionContext!: #EncryptionContext
+	Key!:               #KmsKey
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKey": =~"^[a-zA-Z0-9:/_-]+$" | fn.#StringExpression
+#KmsKey: =~"^[a-zA-Z0-9:/_-]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaDefinition": close(
-	{CedarJson?: _#defs."/$defs/Properties/definitions/SchemaJson"},
-) |
-	fn.#ObjectExpression
+#SchemaDefinition: close({CedarJson?: #SchemaJson}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SchemaJson": string | fn.#StringExpression
+#SchemaJson: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ValidationMode": "OFF" | "STRICT" | fn.#StringExpression
+#ValidationMode: "OFF" | "STRICT" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ValidationSettings": close(
-	{Mode!: _#defs."/$defs/Properties/definitions/ValidationMode"},
-) |
-	fn.#ObjectExpression
+#ValidationSettings: close({Mode!: #ValidationMode}) | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::VerifiedPermissions::PolicyStore"
 	Properties!: #Properties

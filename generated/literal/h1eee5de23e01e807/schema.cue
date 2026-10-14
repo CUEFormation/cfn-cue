@@ -30,20 +30,20 @@ import "strings"
 
 	// [VPC only] The outbound rules associated with the security group. There is a
 	// short interruption during which you cannot connect to the security group.
-	"SecurityGroupEgress"?: [..._#defs."/$defs/Properties/definitions/Egress"]
+	"SecurityGroupEgress"?: [...#Egress]
 
 	// The inbound rules associated with the security group. There is a short
 	// interruption during which you cannot connect to the security group.
-	SecurityGroupIngress?: [..._#defs."/$defs/Properties/definitions/Ingress"]
+	SecurityGroupIngress?: [...#Ingress]
 
 	// Any tags assigned to the security group.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The ID of the VPC for the security group.
 	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
-_#defs: "/$defs/Properties/definitions/Egress": close({
+#Egress: close({
 	CidrIp?:                     string
 	CidrIpv6?:                   string
 	Description?:                string
@@ -78,7 +78,7 @@ _#defs: "/$defs/Properties/definitions/Egress": close({
 	}
 }) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationSecurityGroupId!: _}, {DestinationPrefixListId!: _}])
 
-_#defs: "/$defs/Properties/definitions/Ingress": close({
+#Ingress: close({
 	CidrIp?:                     string
 	CidrIpv6?:                   string
 	Description?:                string
@@ -132,7 +132,7 @@ _#defs: "/$defs/Properties/definitions/Ingress": close({
 	[{CidrIp!: _}, {CidrIpv6!: _}, {SourcePrefixListId!: _}, {SourceSecurityGroupId!: _}, {SourceSecurityGroupName!: _}],
 )
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

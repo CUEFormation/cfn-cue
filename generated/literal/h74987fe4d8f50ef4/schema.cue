@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -27,29 +27,29 @@ import (
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// Specifies a provisioned concurrency configuration for a function's alias.
-	ProvisionedConcurrencyConfig?: _#defs."/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration"
+	ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration
 
 	// The routing configuration of the alias.
-	RoutingConfig?: _#defs."/$defs/Properties/definitions/AliasRoutingConfiguration"
+	RoutingConfig?: #AliasRoutingConfiguration
 	if ProvisionedConcurrencyConfig != _|_ {
 		RoutingConfig?: error("RoutingConfig cannot be used with ProvisionedConcurrencyConfig")
 	}
 })
 
 // The traffic-shifting configuration of a Lambda function alias.
-_#defs: "/$defs/Properties/definitions/AliasRoutingConfiguration": close({
+#AliasRoutingConfiguration: close({
 	// The second version, and the percentage of traffic that's routed to it.
-	AdditionalVersionWeights?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/VersionWeight"]
+	AdditionalVersionWeights?: list.UniqueItems() & [...#VersionWeight]
 })
 
 // A provisioned concurrency configuration for a function's alias.
-_#defs: "/$defs/Properties/definitions/ProvisionedConcurrencyConfiguration": close({
+#ProvisionedConcurrencyConfiguration: close({
 	// The amount of provisioned concurrency to allocate for the alias.
 	ProvisionedConcurrentExecutions!: int
 })
 
 // The traffic-shifting configuration of a Lambda function alias.
-_#defs: "/$defs/Properties/definitions/VersionWeight": close({
+#VersionWeight: close({
 	// The qualifier of the second version.
 	FunctionVersion!: string
 

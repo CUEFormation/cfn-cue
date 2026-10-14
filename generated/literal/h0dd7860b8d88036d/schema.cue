@@ -13,8 +13,8 @@ import (
 #Properties: close({
 	// The number of DPUs Athena has provisioned and allocated for the reservation
 	AllocatedDpus?:                   int & >=0
-	Arn?:                             _#defs."/$defs/Properties/definitions/Arn"
-	CapacityAssignmentConfiguration?: _#defs."/$defs/Properties/definitions/CapacityAssignmentConfiguration"
+	Arn?:                             #Arn
+	CapacityAssignmentConfiguration?: #CapacityAssignmentConfiguration
 
 	// The date and time the reservation was created.
 	CreationTime?: string
@@ -26,44 +26,33 @@ import (
 	Name!: =~"[a-zA-Z0-9._-]{1,128}"
 
 	// The status of the reservation.
-	Status?: _#defs."/$defs/Properties/definitions/CapacityReservationStatus"
+	Status?: #CapacityReservationStatus
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The number of DPUs to request to be allocated to the reservation.
 	TargetDpus!: int & >=1
 })
 
 // The Amazon Resource Name (ARN) of the specified capacity reservation
-_#defs: "/$defs/Properties/definitions/Arn": string
+#Arn: string
 
-_#defs: "/$defs/Properties/definitions/CapacityAssignment": close(
-	{WorkgroupNames!: _#defs."/$defs/Properties/definitions/WorkgroupNames"},
-)
+#CapacityAssignment: close({WorkgroupNames!: #WorkgroupNames})
 
 // Assignment configuration to assign workgroups to a reservation
-_#defs: "/$defs/Properties/definitions/CapacityAssignmentConfiguration": close(
-	{CapacityAssignments!: _#defs."/$defs/Properties/definitions/CapacityAssignments"},
-)
+#CapacityAssignmentConfiguration: close({CapacityAssignments!: #CapacityAssignments})
 
 // List of capacity assignments
-_#defs: "/$defs/Properties/definitions/CapacityAssignments": [
-	..._#defs."/$defs/Properties/definitions/CapacityAssignment"
-]
+#CapacityAssignments: [...#CapacityAssignment]
 
-_#defs: "/$defs/Properties/definitions/CapacityReservationStatus": "PENDING" |
-	"ACTIVE" |
-	"CANCELLING" |
-	"CANCELLED" |
-	"FAILED" |
-	"UPDATE_PENDING"
+#CapacityReservationStatus: "PENDING" | "ACTIVE" | "CANCELLING" | "CANCELLED" | "FAILED" | "UPDATE_PENDING"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/WorkgroupName": =~"[a-zA-Z0-9._-]{1,128}"
+#WorkgroupName: =~"[a-zA-Z0-9._-]{1,128}"
 
-_#defs: "/$defs/Properties/definitions/WorkgroupNames": [..._#defs."/$defs/Properties/definitions/WorkgroupName"]
+#WorkgroupNames: [...#WorkgroupName]

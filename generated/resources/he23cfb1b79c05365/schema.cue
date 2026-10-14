@@ -100,7 +100,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	SnapshotId?:     string | fn.#StringExpression
 	SourceVolumeId?: string | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:           [...#Tag] | fn.#ListExpression
 	Throughput?: int |
 		{
 			string &
@@ -132,7 +132,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	VolumeType?: =~"(?i)^(?:gp2|gp3|io1|io2|sc1|st1|standard)$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

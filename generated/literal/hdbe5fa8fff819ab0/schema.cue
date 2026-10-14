@@ -15,10 +15,10 @@ import (
 	Id?:             string
 	PolicyDocument!: strings.MaxRunes(404600) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | {...}
 	PolicyName?:     strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$"
-	Tags?:           list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:           list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

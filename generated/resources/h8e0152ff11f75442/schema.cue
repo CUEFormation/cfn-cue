@@ -14,44 +14,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SES::EmailIdentity
 #Properties: close({
-	ConfigurationSetAttributes?: _#defs."/$defs/Properties/definitions/ConfigurationSetAttributes"
-	DkimAttributes?:             _#defs."/$defs/Properties/definitions/DkimAttributes"
-	DkimSigningAttributes?:      _#defs."/$defs/Properties/definitions/DkimSigningAttributes"
+	ConfigurationSetAttributes?: #ConfigurationSetAttributes
+	DkimAttributes?:             #DkimAttributes
+	DkimSigningAttributes?:      #DkimSigningAttributes
 	EmailIdentity!:              string | fn.#StringExpression
-	FeedbackAttributes?:         _#defs."/$defs/Properties/definitions/FeedbackAttributes"
-	MailFromAttributes?:         _#defs."/$defs/Properties/definitions/MailFromAttributes"
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	FeedbackAttributes?:         #FeedbackAttributes
+	MailFromAttributes?:         #MailFromAttributes
+	Tags?:                       list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigurationSetAttributes": close(
-	{ConfigurationSetName?: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#ConfigurationSetAttributes: close({ConfigurationSetName?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DkimAttributes": close(
+#DkimAttributes: close(
 	{SigningEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DkimSigningAttributes": close({
+#DkimSigningAttributes: close({
 	DomainSigningPrivateKey?: string | fn.#StringExpression
 	DomainSigningSelector?:   string | fn.#StringExpression
 	NextSigningKeyLength?:    =~"RSA_1024_BIT|RSA_2048_BIT" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FeedbackAttributes": close(
+#FeedbackAttributes: close(
 	{EmailForwardingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MailFromAttributes": close({
+#MailFromAttributes: close({
 	BehaviorOnMxFailure?: =~"USE_DEFAULT_VALUE|REJECT_MESSAGE" | fn.#StringExpression
 	MailFromDomain?:      string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

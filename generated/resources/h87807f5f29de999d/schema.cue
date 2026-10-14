@@ -45,7 +45,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?:                  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                  [...#Tag] | fn.#ListExpression
 	TrafficMirrorFilterId!: string | fn.#StringExpression
 	TrafficMirrorTargetId!: string | fn.#StringExpression
 	VirtualNetworkId?: int |
@@ -64,16 +64,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TrafficMirrorSessionField": "packet-length" |
-	"description" |
-	"virtual-network-id" |
-	fn.#StringExpression
+#TrafficMirrorSessionField: "packet-length" | "description" | "virtual-network-id" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EC2::TrafficMirrorSession"
 	Properties!: #Properties

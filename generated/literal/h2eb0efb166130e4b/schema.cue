@@ -17,10 +17,10 @@ import "list"
 	Name?: string
 
 	// Specifies which resource types are in scope for the configuration recorder to record.
-	RecordingGroup?: _#defs."/$defs/Properties/definitions/RecordingGroup"
+	RecordingGroup?: #RecordingGroup
 
 	// Specifies the default recording frequency for the configuration recorder.
-	RecordingMode?: _#defs."/$defs/Properties/definitions/RecordingMode"
+	RecordingMode?: #RecordingMode
 
 	// Returns the Amazon Resource Name (ARN) for the Configuration Recorder.
 	ResourceARN?: =~"arn:(aws|aws-cn|aws-us-gov):config:\\w+(?:-\\w+)+:[0-9]*:.*"
@@ -35,44 +35,44 @@ import "list"
 })
 
 // Specifies whether the configuration recorder excludes certain resource types from being recorded.
-_#defs: "/$defs/Properties/definitions/ExclusionByResourceTypes": close({
+#ExclusionByResourceTypes: close({
 	// A comma-separated list of resource types to exclude from recording by the configuration recorder.
 	ResourceTypes!: list.UniqueItems() & [...string]
 })
 
 // Specifies which resource types AWS Config records for configuration changes.
-_#defs: "/$defs/Properties/definitions/RecordingGroup": close({
+#RecordingGroup: close({
 	// Specifies whether AWS Config records configuration changes for all supported
 	// resource types, excluding the global IAM resource types.
 	AllSupported?: bool
 
 	// An object that specifies how AWS Config excludes resource types from being
 	// recorded by the configuration recorder.
-	ExclusionByResourceTypes?: _#defs."/$defs/Properties/definitions/ExclusionByResourceTypes"
+	ExclusionByResourceTypes?: #ExclusionByResourceTypes
 
 	// This option is a bundle which only applies to the global IAM resource types:
 	// IAM users, groups, roles, and customer managed policies.
 	IncludeGlobalResourceTypes?: bool
 
 	// An object that specifies the recording strategy for the configuration recorder.
-	RecordingStrategy?: _#defs."/$defs/Properties/definitions/RecordingStrategy"
+	RecordingStrategy?: #RecordingStrategy
 
 	// A comma-separated list that specifies which resource types AWS Config records.
 	ResourceTypes?: list.UniqueItems() & [...string]
 })
 
 // Specifies the default recording frequency for the configuration recorder.
-_#defs: "/$defs/Properties/definitions/RecordingMode": close({
+#RecordingMode: close({
 	// The default recording frequency that AWS Config uses to record configuration changes.
 	RecordingFrequency!: string
 
 	// An array of 'RecordingModeOverride' objects for you to specify your overrides
 	// for the recording mode.
-	RecordingModeOverrides?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RecordingModeOverride"]
+	RecordingModeOverrides?: list.UniqueItems() & [...#RecordingModeOverride]
 })
 
 // Specifies your overrides for the recording mode
-_#defs: "/$defs/Properties/definitions/RecordingModeOverride": close({
+#RecordingModeOverride: close({
 	// A description that you provide for the override.
 	Description?: string
 
@@ -84,4 +84,4 @@ _#defs: "/$defs/Properties/definitions/RecordingModeOverride": close({
 })
 
 // Specifies the recording strategy of the configuration recorder.
-_#defs: "/$defs/Properties/definitions/RecordingStrategy": close({UseOnly!: string})
+#RecordingStrategy: close({UseOnly!: string})

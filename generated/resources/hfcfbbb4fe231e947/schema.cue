@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -18,14 +18,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A security profile defines a set of expected behaviors for devices in your account.
 #Properties: close({
-	AdditionalMetricsToRetainV2?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricToRetain"] |
-		fn.#ListExpression
+	AdditionalMetricsToRetainV2?: list.UniqueItems() & [...#MetricToRetain] | fn.#ListExpression
 	AlertTargets?: close({
 
-		{[=~"[a-zA-Z0-9:_-]+"]: _#defs."/$defs/Properties/definitions/AlertTarget"}}) |
+		{[=~"[a-zA-Z0-9:_-]+"]: #AlertTarget}}) |
 	fn.#ObjectExpression
-	Behaviors?: list.MaxItems(100) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Behavior"] |
-		fn.#ListExpression
+	Behaviors?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#Behavior] | fn.#ListExpression
 	MetricsExportConfig?: close({
 		MqttTopic!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
 		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
@@ -34,28 +32,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 	SecurityProfileDescription?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
 	SecurityProfileName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TargetArns?: list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
+	Tags?:                list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	TargetArns?:          list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AlertTarget": close({
+#AlertTarget: close({
 	AlertTargetArn!: strings.MaxRunes(2048) | fn.#StringExpression
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Behavior": close({
-	Criteria?:        _#defs."/$defs/Properties/definitions/BehaviorCriteria"
-	ExportMetric?:    _#defs."/$defs/Properties/definitions/ExportMetric"
+#Behavior: close({
+	Criteria?:        #BehaviorCriteria
+	ExportMetric?:    #ExportMetric
 	Metric?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	MetricDimension?: _#defs."/$defs/Properties/definitions/MetricDimension"
+	MetricDimension?: #MetricDimension
 	Name!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
 	SuppressAlerts?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BehaviorCriteria": close({
+#BehaviorCriteria: close({
 	ComparisonOperator?: "less-than" |
 		"less-than-equals" |
 		"greater-than" |
@@ -113,40 +111,31 @@ _#defs: "/$defs/Properties/definitions/BehaviorCriteria": close({
 				)
 		} |
 		fn.#NumberExpression
-	MlDetectionConfig?:    _#defs."/$defs/Properties/definitions/MachineLearningDetectionConfig"
-	StatisticalThreshold?: _#defs."/$defs/Properties/definitions/StatisticalThreshold"
-	Value?:                _#defs."/$defs/Properties/definitions/MetricValue"
+	MlDetectionConfig?:    #MachineLearningDetectionConfig
+	StatisticalThreshold?: #StatisticalThreshold
+	Value?:                #MetricValue
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ExportMetric": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#ExportMetric: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/MachineLearningDetectionConfig": close(
-	{ConfidenceLevel?: "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression},
-) |
+#MachineLearningDetectionConfig: close({ConfidenceLevel?: "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricDimension": close({
+#MetricDimension: close({
 	DimensionName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
 	Operator?:      "IN" | "NOT_IN" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricToRetain": close({
-	ExportMetric?:    _#defs."/$defs/Properties/definitions/ExportMetric"
+#MetricToRetain: close({
+	ExportMetric?:    #ExportMetric
 	Metric!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	MetricDimension?: _#defs."/$defs/Properties/definitions/MetricDimension"
+	MetricDimension?: #MetricDimension
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricValue": close({
+#MetricValue: close({
 	Cidrs?: list.UniqueItems() & [
 		...strings.MaxRunes(43) & strings.MinRunes(2) & =~"^[a-fA-F0-9:\\.\\/]+$" | fn.#StringExpression
 	] |
@@ -218,7 +207,7 @@ _#defs: "/$defs/Properties/definitions/MetricValue": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StatisticalThreshold": close({
+#StatisticalThreshold: close({
 	Statistic?: "Average" |
 		"p0" |
 		"p0.1" |
@@ -235,7 +224,7 @@ _#defs: "/$defs/Properties/definitions/StatisticalThreshold": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -38,11 +38,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // address](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-eips.html#allocate-eip)
 // in the *Amazon VPC User Guide*.
 #Properties: close({
-	AllocationId?:     string | fn.#StringExpression
-	AvailabilityMode?: "regional" | "zonal" | fn.#StringExpression
-	AvailabilityZoneAddresses?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AvailabilityZoneAddress"] |
-		fn.#ListExpression
-	ConnectivityType?: "private" | "public" | fn.#StringExpression
+	AllocationId?:              string | fn.#StringExpression
+	AvailabilityMode?:          "regional" | "zonal" | fn.#StringExpression
+	AvailabilityZoneAddresses?: list.UniqueItems() & [...#AvailabilityZoneAddress] | fn.#ListExpression
+	ConnectivityType?:          "private" | "public" | fn.#StringExpression
 	MaxDrainDurationSeconds?: int |
 		{
 			string &
@@ -77,19 +76,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	SecondaryPrivateIpAddresses?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	SubnetId?:                    string | fn.#StringExpression
-	Tags?:                        [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                        [...#Tag] | fn.#ListExpression
 	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AvailabilityZoneAddress": close({
+#AvailabilityZoneAddress: close({
 	AllocationIds!:      list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 	AvailabilityZone?:   string | fn.#StringExpression
 	AvailabilityZoneId?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

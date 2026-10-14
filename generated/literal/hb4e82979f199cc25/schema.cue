@@ -18,7 +18,7 @@ import (
 	Description?: strings.MaxRunes(500) & =~".*\\S.*"
 
 	// Entry point for Testcase.
-	EntryPoint?: _#defs."/$defs/Properties/definitions/EntryPoint"
+	EntryPoint?: #EntryPoint
 
 	// The initialization data of the test case.
 	InitializationData?: strings.MaxRunes(256000) & strings.MinRunes(1)
@@ -32,7 +32,7 @@ import (
 	LastModifiedRegion?: =~"[a-z]{2}(-[a-z]+){1,2}(-[0-9])?"
 
 	// Last modified time.
-	LastModifiedTime?: _#defs."/$defs/Properties/definitions/Timestamp"
+	LastModifiedTime?: #Timestamp
 
 	// The name of the test case.
 	Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*"
@@ -41,7 +41,7 @@ import (
 	Status?: "SAVED" | "PUBLISHED"
 
 	// One or more tags.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The identifier of the test case.
 	TestCaseArn?: strings.MaxRunes(500) &
@@ -50,7 +50,7 @@ import (
 })
 
 // The Entry Point associated with the test case
-_#defs: "/$defs/Properties/definitions/EntryPoint": close({
+#EntryPoint: close({
 	// The chat entry point parameters for the test case
 	ChatEntryPointParameters?: close({
 		// The flow id used for the TestCase
@@ -74,7 +74,7 @@ _#defs: "/$defs/Properties/definitions/EntryPoint": close({
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
@@ -89,4 +89,4 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // A epoch time stamp field used for test case operations.
-_#defs: "/$defs/Properties/definitions/Timestamp": number
+#Timestamp: number

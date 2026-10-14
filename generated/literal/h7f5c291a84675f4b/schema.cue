@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -21,10 +21,10 @@ import (
 
 	// A list of fleets and/or fleet aliases that can be used to fulfill game
 	// session placement requests in the queue.
-	Destinations?: [..._#defs."/$defs/Properties/definitions/GameSessionQueueDestination"]
+	Destinations?: [...#GameSessionQueueDestination]
 
 	// A list of locations where a queue is allowed to place new game sessions.
-	FilterConfiguration?: _#defs."/$defs/Properties/definitions/FilterConfiguration"
+	FilterConfiguration?: #FilterConfiguration
 
 	// A descriptive label that is associated with game session queue. Queue names
 	// must be unique within each Region.
@@ -34,13 +34,13 @@ import (
 	NotificationTarget?: strings.MaxRunes(300) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]*(\\.fifo)?"
 
 	// A set of policies that act as a sliding cap on player latency.
-	PlayerLatencyPolicies?: [..._#defs."/$defs/Properties/definitions/PlayerLatencyPolicy"]
+	PlayerLatencyPolicies?: [...#PlayerLatencyPolicy]
 
 	// Custom settings to use when prioritizing destinations and locations for game session placements.
-	PriorityConfiguration?: _#defs."/$defs/Properties/definitions/PriorityConfiguration"
+	PriorityConfiguration?: #PriorityConfiguration
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 
 	// The maximum time, in seconds, that a new game session placement request remains in the queue.
 	TimeoutInSeconds?: int & >=0
@@ -48,27 +48,25 @@ import (
 
 // A list of locations to allow game session placement in, in the form of AWS
 // Region codes such as us-west-2.
-_#defs: "/$defs/Properties/definitions/AllowedLocations": list.MaxItems(100) & list.MinItems(1) & [
+#AllowedLocations: list.MaxItems(100) & list.MinItems(1) & [
 	...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z]+(-([a-z]+|\\d))*"
 ]
 
-_#defs: "/$defs/Properties/definitions/FilterConfiguration": close(
-	{AllowedLocations?: _#defs."/$defs/Properties/definitions/AllowedLocations"},
-)
+#FilterConfiguration: close({AllowedLocations?: #AllowedLocations})
 
 // A fleet or alias designated in a game session queue.
-_#defs: "/$defs/Properties/definitions/GameSessionQueueDestination": close(
+#GameSessionQueueDestination: close(
 	{DestinationArn?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/-]+"},
 )
 
 // The prioritization order to use for fleet locations, when the PriorityOrder
 // property includes LOCATION.
-_#defs: "/$defs/Properties/definitions/LocationOrder": list.MaxItems(100) & list.MinItems(1) & [
+#LocationOrder: list.MaxItems(100) & list.MinItems(1) & [
 	...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+"
 ]
 
 // Sets a latency cap for individual players when placing a game session.
-_#defs: "/$defs/Properties/definitions/PlayerLatencyPolicy": close({
+#PlayerLatencyPolicy: close({
 	// The maximum latency value that is allowed for any player, in milliseconds.
 	// All policies must have a value set for this property.
 	MaximumIndividualPlayerLatencyMilliseconds?: int & >=0
@@ -77,18 +75,16 @@ _#defs: "/$defs/Properties/definitions/PlayerLatencyPolicy": close({
 	PolicyDurationSeconds?: int & >=0
 })
 
-_#defs: "/$defs/Properties/definitions/PriorityConfiguration": close({
-	LocationOrder?: _#defs."/$defs/Properties/definitions/LocationOrder"
-	PriorityOrder?: _#defs."/$defs/Properties/definitions/PriorityOrder"
+#PriorityConfiguration: close({
+	LocationOrder?: #LocationOrder
+	PriorityOrder?: #PriorityOrder
 })
 
 // The recommended sequence to use when prioritizing where to place new game sessions.
-_#defs: "/$defs/Properties/definitions/PriorityOrder": list.MaxItems(4) & list.MinItems(1) & [
-	..."LATENCY" | "COST" | "DESTINATION" | "LOCATION"
-]
+#PriorityOrder: list.MaxItems(4) & list.MinItems(1) & [..."LATENCY" | "COST" | "DESTINATION" | "LOCATION"]
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode characters in length.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

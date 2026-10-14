@@ -14,10 +14,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	KmsKey?:             string | fn.#StringExpression
 	Name?:               string | fn.#StringExpression
 	PermissionsMode!:    string | fn.#StringExpression
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:               [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

@@ -19,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // A replication configuration that you later provide to configure and start a
 // AWS DMS Serverless replication
 #Properties: close({
-	ComputeConfig!:               _#defs."/$defs/Properties/definitions/ComputeConfig"
+	ComputeConfig!:               #ComputeConfig
 	ReplicationConfigIdentifier!: string | fn.#StringExpression
 	ReplicationSettings?:         fn.#Object & {...} | string | fn.#StringObjectExpression
 	ReplicationType!:             "full-load" | "full-load-and-cdc" | "cdc" | fn.#StringExpression
@@ -27,11 +27,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	SourceEndpointArn!:           string | fn.#StringExpression
 	SupplementalSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
 	TableMappings!:               fn.#Object & {...} | string | fn.#StringObjectExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TargetEndpointArn!: string | fn.#StringExpression
+	Tags?:                        list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	TargetEndpointArn!:           string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ComputeConfig": close({
+#ComputeConfig: close({
 	AvailabilityZone?: string | fn.#StringExpression
 	DnsNameServers?:   string | fn.#StringExpression
 	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/ComputeConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |

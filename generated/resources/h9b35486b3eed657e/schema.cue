@@ -18,16 +18,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a generated template from existing resources using the CloudFormation IaC Generator.
 #Properties: close({
 	GeneratedTemplateName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	TemplateConfiguration?: _#defs."/$defs/Properties/definitions/TemplateConfiguration"
+	TemplateConfiguration?: #TemplateConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/TemplateConfiguration": close({
+#TemplateConfiguration: close({
 	DeletionPolicy?:      "DELETE" | "RETAIN" | fn.#StringExpression
 	UpdateReplacePolicy?: "DELETE" | "RETAIN" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TemplateProgress": close({
+#TemplateProgress: close({
 	ResourcesFailed?: int |
 		{
 			string &

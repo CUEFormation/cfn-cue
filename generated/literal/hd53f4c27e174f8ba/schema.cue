@@ -13,22 +13,22 @@ import (
 #Properties: close({
 	Arn?:                   string
 	AwsAccountId?:          strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$"
-	ConfigOptions?:         _#defs."/$defs/Properties/definitions/TopicConfigOptions"
-	CustomInstructions?:    _#defs."/$defs/Properties/definitions/CustomInstructions"
-	DataSets?:              [..._#defs."/$defs/Properties/definitions/DatasetMetadata"]
+	ConfigOptions?:         #TopicConfigOptions
+	CustomInstructions?:    #CustomInstructions
+	DataSets?:              [...#DatasetMetadata]
 	Description?:           strings.MaxRunes(256) & strings.MinRunes(0)
 	FolderArns?:            list.MaxItems(20) & [...] & [...string]
 	Name?:                  strings.MaxRunes(128) & strings.MinRunes(1)
-	Tags?:                  list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                  list.MaxItems(200) & list.MinItems(1) & [...#Tag]
 	TopicId?:               strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_.\\\\+]*$"
-	UserExperienceVersion?: _#defs."/$defs/Properties/definitions/TopicUserExperienceVersion"
+	UserExperienceVersion?: #TopicUserExperienceVersion
 })
 
-_#defs: "/$defs/Properties/definitions/AggregationFunctionParameters": close({
+#AggregationFunctionParameters: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})
 
-_#defs: "/$defs/Properties/definitions/AuthorSpecifiedAggregation": "COUNT" |
+#AuthorSpecifiedAggregation: "COUNT" |
 	"DISTINCT_COUNT" |
 	"MIN" |
 	"MAX" |
@@ -41,52 +41,52 @@ _#defs: "/$defs/Properties/definitions/AuthorSpecifiedAggregation": "COUNT" |
 	"VARP" |
 	"PERCENTILE"
 
-_#defs: "/$defs/Properties/definitions/CategoryFilterFunction": "EXACT" | "CONTAINS"
+#CategoryFilterFunction: "EXACT" | "CONTAINS"
 
-_#defs: "/$defs/Properties/definitions/CategoryFilterType": "CUSTOM_FILTER" | "CUSTOM_FILTER_LIST" | "FILTER_LIST"
+#CategoryFilterType: "CUSTOM_FILTER" | "CUSTOM_FILTER_LIST" | "FILTER_LIST"
 
-_#defs: "/$defs/Properties/definitions/CellValueSynonym": close({
+#CellValueSynonym: close({
 	CellValue?: strings.MaxRunes(256) & strings.MinRunes(0)
 	Synonyms?:  [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/CollectiveConstant": close({ValueList?: [...string]})
+#CollectiveConstant: close({ValueList?: [...string]})
 
-_#defs: "/$defs/Properties/definitions/ColumnDataRole": "DIMENSION" | "MEASURE"
+#ColumnDataRole: "DIMENSION" | "MEASURE"
 
-_#defs: "/$defs/Properties/definitions/ColumnOrderingType": "GREATER_IS_BETTER" | "LESSER_IS_BETTER" | "SPECIFIED"
+#ColumnOrderingType: "GREATER_IS_BETTER" | "LESSER_IS_BETTER" | "SPECIFIED"
 
-_#defs: "/$defs/Properties/definitions/ComparativeOrder": close({
+#ComparativeOrder: close({
 	SpecifedOrder?:                 [...string]
-	TreatUndefinedSpecifiedValues?: _#defs."/$defs/Properties/definitions/UndefinedSpecifiedValueType"
-	UseOrdering?:                   _#defs."/$defs/Properties/definitions/ColumnOrderingType"
+	TreatUndefinedSpecifiedValues?: #UndefinedSpecifiedValueType
+	UseOrdering?:                   #ColumnOrderingType
 })
 
-_#defs: "/$defs/Properties/definitions/ConstantType": "SINGULAR" | "RANGE" | "COLLECTIVE"
+#ConstantType: "SINGULAR" | "RANGE" | "COLLECTIVE"
 
 // <p>Instructions that provide additional guidance and context for response generation.</p>
-_#defs: "/$defs/Properties/definitions/CustomInstructions": close({
+#CustomInstructions: close({
 	// <p>A text field for providing additional guidance or context for response generation.</p>
 	CustomInstructionsString!: strings.MaxRunes(10000) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/DataAggregation": close({
-	DatasetRowDateGranularity?: _#defs."/$defs/Properties/definitions/TopicTimeGranularity"
+#DataAggregation: close({
+	DatasetRowDateGranularity?: #TopicTimeGranularity
 	DefaultDateColumnName?:     strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/DatasetMetadata": close({
-	CalculatedFields?:   [..._#defs."/$defs/Properties/definitions/TopicCalculatedField"]
-	Columns?:            [..._#defs."/$defs/Properties/definitions/TopicColumn"]
-	DataAggregation?:    _#defs."/$defs/Properties/definitions/DataAggregation"
+#DatasetMetadata: close({
+	CalculatedFields?:   [...#TopicCalculatedField]
+	Columns?:            [...#TopicColumn]
+	DataAggregation?:    #DataAggregation
 	DatasetArn!:         string
 	DatasetDescription?: strings.MaxRunes(256) & strings.MinRunes(0)
 	DatasetName?:        strings.MaxRunes(256) & strings.MinRunes(0)
-	Filters?:            [..._#defs."/$defs/Properties/definitions/TopicFilter"]
-	NamedEntities?:      [..._#defs."/$defs/Properties/definitions/TopicNamedEntity"]
+	Filters?:            [...#TopicFilter]
+	NamedEntities?:      [...#TopicNamedEntity]
 })
 
-_#defs: "/$defs/Properties/definitions/DefaultAggregation": "SUM" |
+#DefaultAggregation: "SUM" |
 	"MAX" |
 	"MIN" |
 	"COUNT" |
@@ -98,34 +98,31 @@ _#defs: "/$defs/Properties/definitions/DefaultAggregation": "SUM" |
 	"VAR" |
 	"VARP"
 
-_#defs: "/$defs/Properties/definitions/DefaultFormatting": close({
-	DisplayFormat?:        _#defs."/$defs/Properties/definitions/DisplayFormat"
-	DisplayFormatOptions?: _#defs."/$defs/Properties/definitions/DisplayFormatOptions"
+#DefaultFormatting: close({
+	DisplayFormat?:        #DisplayFormat
+	DisplayFormatOptions?: #DisplayFormatOptions
 })
 
-_#defs: "/$defs/Properties/definitions/DisplayFormat": "AUTO" | "PERCENT" | "CURRENCY" | "NUMBER" | "DATE" | "STRING"
+#DisplayFormat: "AUTO" | "PERCENT" | "CURRENCY" | "NUMBER" | "DATE" | "STRING"
 
-_#defs: "/$defs/Properties/definitions/DisplayFormatOptions": close({
+#DisplayFormatOptions: close({
 	BlankCellFormat?:    strings.MaxRunes(256) & strings.MinRunes(0)
 	CurrencySymbol?:     strings.MaxRunes(256) & strings.MinRunes(0)
 	DateFormat?:         strings.MaxRunes(256) & strings.MinRunes(0)
-	DecimalSeparator?:   _#defs."/$defs/Properties/definitions/TopicNumericSeparatorSymbol"
+	DecimalSeparator?:   #TopicNumericSeparatorSymbol
 	FractionDigits?:     number
 	GroupingSeparator?:  strings.MaxRunes(256) & strings.MinRunes(0)
-	NegativeFormat?:     _#defs."/$defs/Properties/definitions/NegativeFormat"
+	NegativeFormat?:     #NegativeFormat
 	Prefix?:             strings.MaxRunes(256) & strings.MinRunes(0)
 	Suffix?:             strings.MaxRunes(256) & strings.MinRunes(0)
-	UnitScaler?:         _#defs."/$defs/Properties/definitions/NumberScale"
+	UnitScaler?:         #NumberScale
 	UseBlankCellFormat?: bool
 	UseGrouping?:        bool
 })
 
-_#defs: "/$defs/Properties/definitions/FilterClass": "ENFORCED_VALUE_FILTER" |
-	"CONDITIONAL_VALUE_FILTER" |
-	"NAMED_VALUE_FILTER" |
-	"DASHBOARD_DEFAULT_FILTER"
+#FilterClass: "ENFORCED_VALUE_FILTER" | "CONDITIONAL_VALUE_FILTER" | "NAMED_VALUE_FILTER" | "DASHBOARD_DEFAULT_FILTER"
 
-_#defs: "/$defs/Properties/definitions/NamedEntityAggType": "SUM" |
+#NamedEntityAggType: "SUM" |
 	"MIN" |
 	"MAX" |
 	"COUNT" |
@@ -139,20 +136,20 @@ _#defs: "/$defs/Properties/definitions/NamedEntityAggType": "SUM" |
 	"MEDIAN" |
 	"CUSTOM"
 
-_#defs: "/$defs/Properties/definitions/NamedEntityDefinition": close({
+#NamedEntityDefinition: close({
 	FieldName?:     strings.MaxRunes(256) & strings.MinRunes(0)
-	Metric?:        _#defs."/$defs/Properties/definitions/NamedEntityDefinitionMetric"
+	Metric?:        #NamedEntityDefinitionMetric
 	PropertyName?:  strings.MaxRunes(256) & strings.MinRunes(0)
-	PropertyRole?:  _#defs."/$defs/Properties/definitions/PropertyRole"
-	PropertyUsage?: _#defs."/$defs/Properties/definitions/PropertyUsage"
+	PropertyRole?:  #PropertyRole
+	PropertyUsage?: #PropertyUsage
 })
 
-_#defs: "/$defs/Properties/definitions/NamedEntityDefinitionMetric": close({
-	Aggregation?:                   _#defs."/$defs/Properties/definitions/NamedEntityAggType"
-	AggregationFunctionParameters?: _#defs."/$defs/Properties/definitions/AggregationFunctionParameters"
+#NamedEntityDefinitionMetric: close({
+	Aggregation?:                   #NamedEntityAggType
+	AggregationFunctionParameters?: #AggregationFunctionParameters
 })
 
-_#defs: "/$defs/Properties/definitions/NamedFilterAggType": "NO_AGGREGATION" |
+#NamedFilterAggType: "NO_AGGREGATION" |
 	"SUM" |
 	"AVERAGE" |
 	"COUNT" |
@@ -165,55 +162,48 @@ _#defs: "/$defs/Properties/definitions/NamedFilterAggType": "NO_AGGREGATION" |
 	"VAR" |
 	"VARP"
 
-_#defs: "/$defs/Properties/definitions/NamedFilterType": "CATEGORY_FILTER" |
+#NamedFilterType: "CATEGORY_FILTER" |
 	"NUMERIC_EQUALITY_FILTER" |
 	"NUMERIC_RANGE_FILTER" |
 	"DATE_RANGE_FILTER" |
 	"RELATIVE_DATE_FILTER" |
 	"NULL_FILTER"
 
-_#defs: "/$defs/Properties/definitions/NegativeFormat": close({
+#NegativeFormat: close({
 	Prefix?: strings.MaxRunes(256) & strings.MinRunes(0)
 	Suffix?: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/NumberScale": "NONE" |
-	"AUTO" |
-	"THOUSANDS" |
-	"MILLIONS" |
-	"BILLIONS" |
-	"TRILLIONS" |
-	"LAKHS" |
-	"CRORES"
+#NumberScale: "NONE" | "AUTO" | "THOUSANDS" | "MILLIONS" | "BILLIONS" | "TRILLIONS" | "LAKHS" | "CRORES"
 
-_#defs: "/$defs/Properties/definitions/PropertyRole": "PRIMARY" | "ID"
+#PropertyRole: "PRIMARY" | "ID"
 
-_#defs: "/$defs/Properties/definitions/PropertyUsage": "INHERIT" | "DIMENSION" | "MEASURE"
+#PropertyUsage: "INHERIT" | "DIMENSION" | "MEASURE"
 
-_#defs: "/$defs/Properties/definitions/RangeConstant": close({
+#RangeConstant: close({
 	Maximum?: strings.MaxRunes(256) & strings.MinRunes(0)
 	Minimum?: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/SemanticEntityType": close({
+#SemanticEntityType: close({
 	SubTypeName?:    strings.MaxRunes(256) & strings.MinRunes(0)
 	TypeName?:       strings.MaxRunes(256) & strings.MinRunes(0)
-	TypeParameters?: _#defs."/$defs/Properties/definitions/TypeParameters"
+	TypeParameters?: #TypeParameters
 })
 
-_#defs: "/$defs/Properties/definitions/SemanticType": close({
+#SemanticType: close({
 	FalseyCellValue?:         string
 	FalseyCellValueSynonyms?: [...string]
 	SubTypeName?:             strings.MaxRunes(256) & strings.MinRunes(0)
 	TruthyCellValue?:         string
 	TruthyCellValueSynonyms?: [...string]
 	TypeName?:                strings.MaxRunes(256) & strings.MinRunes(0)
-	TypeParameters?:          _#defs."/$defs/Properties/definitions/TypeParameters"
+	TypeParameters?:          #TypeParameters
 })
 
 // <p>The key or keys of the key-value pairs for the resource tag or tags assigned to the
 // resource.</p>
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// <p>Tag key.</p>
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -221,140 +211,133 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/TopicCalculatedField": close({
-	Aggregation?:                _#defs."/$defs/Properties/definitions/DefaultAggregation"
-	AllowedAggregations?:        [..._#defs."/$defs/Properties/definitions/AuthorSpecifiedAggregation"]
+#TopicCalculatedField: close({
+	Aggregation?:                #DefaultAggregation
+	AllowedAggregations?:        [...#AuthorSpecifiedAggregation]
 	CalculatedFieldDescription?: strings.MaxRunes(500) & strings.MinRunes(0)
 	CalculatedFieldName!:        strings.MaxRunes(256) & strings.MinRunes(0)
 	CalculatedFieldSynonyms?:    [...strings.MaxRunes(256) & strings.MinRunes(0)]
-	CellValueSynonyms?:          [..._#defs."/$defs/Properties/definitions/CellValueSynonym"]
-	ColumnDataRole?:             _#defs."/$defs/Properties/definitions/ColumnDataRole"
-	ComparativeOrder?:           _#defs."/$defs/Properties/definitions/ComparativeOrder"
-	DefaultFormatting?:          _#defs."/$defs/Properties/definitions/DefaultFormatting"
+	CellValueSynonyms?:          [...#CellValueSynonym]
+	ColumnDataRole?:             #ColumnDataRole
+	ComparativeOrder?:           #ComparativeOrder
+	DefaultFormatting?:          #DefaultFormatting
 	DisableIndexing?:            bool
 	Expression!:                 strings.MaxRunes(4096) & strings.MinRunes(1)
 	IsIncludedInTopic?:          bool
 	NeverAggregateInFilter?:     bool
 	NonAdditive?:                bool
-	NotAllowedAggregations?:     [..._#defs."/$defs/Properties/definitions/AuthorSpecifiedAggregation"]
-	SemanticType?:               _#defs."/$defs/Properties/definitions/SemanticType"
-	TimeGranularity?:            _#defs."/$defs/Properties/definitions/TopicTimeGranularity"
+	NotAllowedAggregations?:     [...#AuthorSpecifiedAggregation]
+	SemanticType?:               #SemanticType
+	TimeGranularity?:            #TopicTimeGranularity
 })
 
-_#defs: "/$defs/Properties/definitions/TopicCategoryFilter": close({
-	CategoryFilterFunction?: _#defs."/$defs/Properties/definitions/CategoryFilterFunction"
-	CategoryFilterType?:     _#defs."/$defs/Properties/definitions/CategoryFilterType"
-	Constant?:               _#defs."/$defs/Properties/definitions/TopicCategoryFilterConstant"
+#TopicCategoryFilter: close({
+	CategoryFilterFunction?: #CategoryFilterFunction
+	CategoryFilterType?:     #CategoryFilterType
+	Constant?:               #TopicCategoryFilterConstant
 	Inverse?:                bool
 })
 
-_#defs: "/$defs/Properties/definitions/TopicCategoryFilterConstant": close({
-	CollectiveConstant?: _#defs."/$defs/Properties/definitions/CollectiveConstant"
-	ConstantType?:       _#defs."/$defs/Properties/definitions/ConstantType"
+#TopicCategoryFilterConstant: close({
+	CollectiveConstant?: #CollectiveConstant
+	ConstantType?:       #ConstantType
 	SingularConstant?:   strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TopicColumn": close({
-	Aggregation?:            _#defs."/$defs/Properties/definitions/DefaultAggregation"
-	AllowedAggregations?:    [..._#defs."/$defs/Properties/definitions/AuthorSpecifiedAggregation"]
-	CellValueSynonyms?:      [..._#defs."/$defs/Properties/definitions/CellValueSynonym"]
-	ColumnDataRole?:         _#defs."/$defs/Properties/definitions/ColumnDataRole"
+#TopicColumn: close({
+	Aggregation?:            #DefaultAggregation
+	AllowedAggregations?:    [...#AuthorSpecifiedAggregation]
+	CellValueSynonyms?:      [...#CellValueSynonym]
+	ColumnDataRole?:         #ColumnDataRole
 	ColumnDescription?:      strings.MaxRunes(500) & strings.MinRunes(0)
 	ColumnFriendlyName?:     strings.MaxRunes(256) & strings.MinRunes(0)
 	ColumnName!:             strings.MaxRunes(256) & strings.MinRunes(0)
 	ColumnSynonyms?:         [...strings.MaxRunes(256) & strings.MinRunes(0)]
-	ComparativeOrder?:       _#defs."/$defs/Properties/definitions/ComparativeOrder"
-	DefaultFormatting?:      _#defs."/$defs/Properties/definitions/DefaultFormatting"
+	ComparativeOrder?:       #ComparativeOrder
+	DefaultFormatting?:      #DefaultFormatting
 	DisableIndexing?:        bool
 	IsIncludedInTopic?:      bool
 	NeverAggregateInFilter?: bool
 	NonAdditive?:            bool
-	NotAllowedAggregations?: [..._#defs."/$defs/Properties/definitions/AuthorSpecifiedAggregation"]
-	SemanticType?:           _#defs."/$defs/Properties/definitions/SemanticType"
-	TimeGranularity?:        _#defs."/$defs/Properties/definitions/TopicTimeGranularity"
+	NotAllowedAggregations?: [...#AuthorSpecifiedAggregation]
+	SemanticType?:           #SemanticType
+	TimeGranularity?:        #TopicTimeGranularity
 })
 
-_#defs: "/$defs/Properties/definitions/TopicConfigOptions": close({QBusinessInsightsEnabled?: bool})
+#TopicConfigOptions: close({QBusinessInsightsEnabled?: bool})
 
-_#defs: "/$defs/Properties/definitions/TopicDateRangeFilter": close({
-	Constant?:  _#defs."/$defs/Properties/definitions/TopicRangeFilterConstant"
+#TopicDateRangeFilter: close({
+	Constant?:  #TopicRangeFilterConstant
 	Inclusive?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/TopicDetails": close({
-	ConfigOptions?:         _#defs."/$defs/Properties/definitions/TopicConfigOptions"
-	DataSets?:              [..._#defs."/$defs/Properties/definitions/DatasetMetadata"]
+#TopicDetails: close({
+	ConfigOptions?:         #TopicConfigOptions
+	DataSets?:              [...#DatasetMetadata]
 	Description?:           strings.MaxRunes(256) & strings.MinRunes(0)
 	Name?:                  strings.MaxRunes(128) & strings.MinRunes(1)
-	UserExperienceVersion?: _#defs."/$defs/Properties/definitions/TopicUserExperienceVersion"
+	UserExperienceVersion?: #TopicUserExperienceVersion
 })
 
-_#defs: "/$defs/Properties/definitions/TopicFilter": close({
-	CategoryFilter?:        _#defs."/$defs/Properties/definitions/TopicCategoryFilter"
-	DateRangeFilter?:       _#defs."/$defs/Properties/definitions/TopicDateRangeFilter"
-	FilterClass?:           _#defs."/$defs/Properties/definitions/FilterClass"
+#TopicFilter: close({
+	CategoryFilter?:        #TopicCategoryFilter
+	DateRangeFilter?:       #TopicDateRangeFilter
+	FilterClass?:           #FilterClass
 	FilterDescription?:     strings.MaxRunes(500) & strings.MinRunes(0)
 	FilterName!:            strings.MaxRunes(256) & strings.MinRunes(0)
 	FilterSynonyms?:        [...strings.MaxRunes(256) & strings.MinRunes(0)]
-	FilterType?:            _#defs."/$defs/Properties/definitions/NamedFilterType"
-	NumericEqualityFilter?: _#defs."/$defs/Properties/definitions/TopicNumericEqualityFilter"
-	NumericRangeFilter?:    _#defs."/$defs/Properties/definitions/TopicNumericRangeFilter"
+	FilterType?:            #NamedFilterType
+	NumericEqualityFilter?: #TopicNumericEqualityFilter
+	NumericRangeFilter?:    #TopicNumericRangeFilter
 	OperandFieldName!:      strings.MaxRunes(256) & strings.MinRunes(0)
-	RelativeDateFilter?:    _#defs."/$defs/Properties/definitions/TopicRelativeDateFilter"
+	RelativeDateFilter?:    #TopicRelativeDateFilter
 })
 
-_#defs: "/$defs/Properties/definitions/TopicNamedEntity": close({
-	Definition?:         [..._#defs."/$defs/Properties/definitions/NamedEntityDefinition"]
+#TopicNamedEntity: close({
+	Definition?:         [...#NamedEntityDefinition]
 	EntityDescription?:  strings.MaxRunes(500) & strings.MinRunes(0)
 	EntityName!:         strings.MaxRunes(256) & strings.MinRunes(0)
 	EntitySynonyms?:     [...strings.MaxRunes(256) & strings.MinRunes(0)]
-	SemanticEntityType?: _#defs."/$defs/Properties/definitions/SemanticEntityType"
+	SemanticEntityType?: #SemanticEntityType
 })
 
-_#defs: "/$defs/Properties/definitions/TopicNumericEqualityFilter": close({
-	Aggregation?: _#defs."/$defs/Properties/definitions/NamedFilterAggType"
-	Constant?:    _#defs."/$defs/Properties/definitions/TopicSingularFilterConstant"
+#TopicNumericEqualityFilter: close({
+	Aggregation?: #NamedFilterAggType
+	Constant?:    #TopicSingularFilterConstant
 })
 
-_#defs: "/$defs/Properties/definitions/TopicNumericRangeFilter": close({
-	Aggregation?: _#defs."/$defs/Properties/definitions/NamedFilterAggType"
-	Constant?:    _#defs."/$defs/Properties/definitions/TopicRangeFilterConstant"
+#TopicNumericRangeFilter: close({
+	Aggregation?: #NamedFilterAggType
+	Constant?:    #TopicRangeFilterConstant
 	Inclusive?:   bool
 })
 
-_#defs: "/$defs/Properties/definitions/TopicNumericSeparatorSymbol": "COMMA" | "DOT"
+#TopicNumericSeparatorSymbol: "COMMA" | "DOT"
 
-_#defs: "/$defs/Properties/definitions/TopicRangeFilterConstant": close({
-	ConstantType?:  _#defs."/$defs/Properties/definitions/ConstantType"
-	RangeConstant?: _#defs."/$defs/Properties/definitions/RangeConstant"
+#TopicRangeFilterConstant: close({
+	ConstantType?:  #ConstantType
+	RangeConstant?: #RangeConstant
 })
 
-_#defs: "/$defs/Properties/definitions/TopicRelativeDateFilter": close({
-	Constant?:                   _#defs."/$defs/Properties/definitions/TopicSingularFilterConstant"
-	RelativeDateFilterFunction?: _#defs."/$defs/Properties/definitions/TopicRelativeDateFilterFunction"
-	TimeGranularity?:            _#defs."/$defs/Properties/definitions/TopicTimeGranularity"
+#TopicRelativeDateFilter: close({
+	Constant?:                   #TopicSingularFilterConstant
+	RelativeDateFilterFunction?: #TopicRelativeDateFilterFunction
+	TimeGranularity?:            #TopicTimeGranularity
 })
 
-_#defs: "/$defs/Properties/definitions/TopicRelativeDateFilterFunction": "PREVIOUS" | "THIS" | "LAST" | "NEXT" | "NOW"
+#TopicRelativeDateFilterFunction: "PREVIOUS" | "THIS" | "LAST" | "NEXT" | "NOW"
 
-_#defs: "/$defs/Properties/definitions/TopicSingularFilterConstant": close({
-	ConstantType?:     _#defs."/$defs/Properties/definitions/ConstantType"
+#TopicSingularFilterConstant: close({
+	ConstantType?:     #ConstantType
 	SingularConstant?: strings.MaxRunes(256) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/TopicTimeGranularity": "SECOND" |
-	"MINUTE" |
-	"HOUR" |
-	"DAY" |
-	"WEEK" |
-	"MONTH" |
-	"QUARTER" |
-	"YEAR"
+#TopicTimeGranularity: "SECOND" | "MINUTE" | "HOUR" | "DAY" | "WEEK" | "MONTH" | "QUARTER" | "YEAR"
 
-_#defs: "/$defs/Properties/definitions/TopicUserExperienceVersion": "LEGACY" | "NEW_READER_EXPERIENCE"
+#TopicUserExperienceVersion: "LEGACY" | "NEW_READER_EXPERIENCE"
 
-_#defs: "/$defs/Properties/definitions/TypeParameters": close({
+#TypeParameters: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})
 
-_#defs: "/$defs/Properties/definitions/UndefinedSpecifiedValueType": "LEAST" | "MOST"
+#UndefinedSpecifiedValueType: "LEAST" | "MOST"

@@ -12,56 +12,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	UserHierarchyStructure?: close({
-		LevelFive?:  _#defs."/$defs/Properties/definitions/LevelFive"
-		LevelFour?:  _#defs."/$defs/Properties/definitions/LevelFour"
-		LevelOne?:   _#defs."/$defs/Properties/definitions/LevelOne"
-		LevelThree?: _#defs."/$defs/Properties/definitions/LevelThree"
-		LevelTwo?:   _#defs."/$defs/Properties/definitions/LevelTwo"
+		LevelFive?:  #LevelFive
+		LevelFour?:  #LevelFour
+		LevelOne?:   #LevelOne
+		LevelThree?: #LevelThree
+		LevelTwo?:   #LevelTwo
 	}) |
 	fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/HierarchyLevelArn": =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group-level/[-0-9]*$" |
+#HierarchyLevelArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group-level/[-0-9]*$" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/HierarchyLevelId": string | fn.#StringExpression
+#HierarchyLevelId: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LevelFive": close({
-	HierarchyLevelArn?: _#defs."/$defs/Properties/definitions/HierarchyLevelArn"
-	HierarchyLevelId?:  _#defs."/$defs/Properties/definitions/HierarchyLevelId"
-	Name!:              _#defs."/$defs/Properties/definitions/Name"
+#LevelFive: close({
+	HierarchyLevelArn?: #HierarchyLevelArn
+	HierarchyLevelId?:  #HierarchyLevelId
+	Name!:              #Name
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LevelFour": close({
-	HierarchyLevelArn?: _#defs."/$defs/Properties/definitions/HierarchyLevelArn"
-	HierarchyLevelId?:  _#defs."/$defs/Properties/definitions/HierarchyLevelId"
-	Name!:              _#defs."/$defs/Properties/definitions/Name"
+#LevelFour: close({
+	HierarchyLevelArn?: #HierarchyLevelArn
+	HierarchyLevelId?:  #HierarchyLevelId
+	Name!:              #Name
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LevelOne": close({
-	HierarchyLevelArn?: _#defs."/$defs/Properties/definitions/HierarchyLevelArn"
-	HierarchyLevelId?:  _#defs."/$defs/Properties/definitions/HierarchyLevelId"
-	Name!:              _#defs."/$defs/Properties/definitions/Name"
+#LevelOne: close({
+	HierarchyLevelArn?: #HierarchyLevelArn
+	HierarchyLevelId?:  #HierarchyLevelId
+	Name!:              #Name
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LevelThree": close({
-	HierarchyLevelArn?: _#defs."/$defs/Properties/definitions/HierarchyLevelArn"
-	HierarchyLevelId?:  _#defs."/$defs/Properties/definitions/HierarchyLevelId"
-	Name!:              _#defs."/$defs/Properties/definitions/Name"
+#LevelThree: close({
+	HierarchyLevelArn?: #HierarchyLevelArn
+	HierarchyLevelId?:  #HierarchyLevelId
+	Name!:              #Name
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LevelTwo": close({
-	HierarchyLevelArn?: _#defs."/$defs/Properties/definitions/HierarchyLevelArn"
-	HierarchyLevelId?:  _#defs."/$defs/Properties/definitions/HierarchyLevelId"
-	Name!:              _#defs."/$defs/Properties/definitions/Name"
+#LevelTwo: close({
+	HierarchyLevelArn?: #HierarchyLevelArn
+	HierarchyLevelId?:  #HierarchyLevelId
+	Name!:              #Name
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Name": string | fn.#StringExpression
+#Name: string | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Connect::UserHierarchyStructure"
 	Properties!: #Properties

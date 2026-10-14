@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -25,7 +25,7 @@ import (
 
 	// S3 URL to import domains from.
 	DomainFileUrl?: strings.MaxRunes(1024) & strings.MinRunes(1)
-	Domains?:       _#defs."/$defs/Properties/definitions/Domains"
+	Domains?:       #Domains
 
 	// ResourceId
 	Id?: strings.MaxRunes(64) & strings.MinRunes(1)
@@ -52,14 +52,14 @@ import (
 	StatusMessage?: string
 
 	// Tags
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 // An inline list of domains to use for this domain list.
-_#defs: "/$defs/Properties/definitions/Domains": list.UniqueItems() & [...strings.MaxRunes(255) & strings.MinRunes(1)]
+#Domains: list.UniqueItems() & [...strings.MaxRunes(255) & strings.MinRunes(1)]
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 127 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,

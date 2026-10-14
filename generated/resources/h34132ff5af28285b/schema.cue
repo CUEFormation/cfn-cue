@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -25,30 +25,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(20) &
 	=~"^arn:aws[-a-z]*:kms:[-a-z0-9]+:[0-9]{12}:key/.+$" |
 	fn.#StringExpression
-	LoggingConfiguration?:      _#defs."/$defs/Properties/definitions/LoggingConfiguration"
-	QueryLoggingConfiguration?: _#defs."/$defs/Properties/definitions/QueryLoggingConfiguration"
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	WorkspaceConfiguration?: _#defs."/$defs/Properties/definitions/WorkspaceConfiguration"
+	LoggingConfiguration?:      #LoggingConfiguration
+	QueryLoggingConfiguration?: #QueryLoggingConfiguration
+	Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	WorkspaceConfiguration?:    #WorkspaceConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/CloudWatchLogDestination": close(
-	{LogGroupArn!: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression},
-) |
+#CloudWatchLogDestination: close({LogGroupArn!: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Label": close({
+#Label: close({
 	Name!:  strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$" | fn.#StringExpression
 	Value!: strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LimitsPerLabelSet": close({
-	LabelSet!: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Label"] | fn.#ListExpression
-	Limits!:   _#defs."/$defs/Properties/definitions/LimitsPerLabelSetEntry"
+#LimitsPerLabelSet: close({
+	LabelSet!: list.UniqueItems() & [...] & [...#Label] | fn.#ListExpression
+	Limits!:   #LimitsPerLabelSetEntry
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LimitsPerLabelSetEntry": close({
+#LimitsPerLabelSetEntry: close({
 	MaxSeries?: int & >=0 |
 		{
 			string &
@@ -67,18 +65,16 @@ _#defs: "/$defs/Properties/definitions/LimitsPerLabelSetEntry": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingConfiguration": close(
-	{LogGroupArn?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression},
-) |
+#LoggingConfiguration: close({LogGroupArn?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingDestination": close({
-	CloudWatchLogs!: _#defs."/$defs/Properties/definitions/CloudWatchLogDestination"
-	Filters!:        _#defs."/$defs/Properties/definitions/LoggingFilter"
+#LoggingDestination: close({
+	CloudWatchLogs!: #CloudWatchLogDestination
+	Filters!:        #LoggingFilter
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LoggingFilter": close({
+#LoggingFilter: close({
 	QspThreshold!: int & >=0 |
 		{
 			string &
@@ -97,21 +93,19 @@ _#defs: "/$defs/Properties/definitions/LoggingFilter": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/QueryLoggingConfiguration": close({
-	Destinations!: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/LoggingDestination"] |
-		fn.#ListExpression
-}) |
+#QueryLoggingConfiguration: close(
+	{Destinations!: list.MaxItems(1) & list.MinItems(1) & [...#LoggingDestination] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WorkspaceConfiguration": close({
-	LimitsPerLabelSets?: list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/LimitsPerLabelSet"] |
-		fn.#ListExpression
+#WorkspaceConfiguration: close({
+	LimitsPerLabelSets?: list.UniqueItems() & [...] & [...#LimitsPerLabelSet] | fn.#ListExpression
 	OutOfOrderTimeWindowInSeconds?: int & >=0 |
 		{
 			string &

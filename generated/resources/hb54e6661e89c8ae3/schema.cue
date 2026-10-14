@@ -18,12 +18,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource schema for AWS::Cassandra::Table
 #Properties: close({
-	AutoScalingSpecifications?:   _#defs."/$defs/Properties/definitions/AutoScalingSpecification"
-	BillingMode?:                 _#defs."/$defs/Properties/definitions/BillingMode"
-	CdcSpecification?:            _#defs."/$defs/Properties/definitions/CdcSpecification"
+	AutoScalingSpecifications?:   #AutoScalingSpecification
+	BillingMode?:                 #BillingMode
+	CdcSpecification?:            #CdcSpecification
 	ClientSideTimestampsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ClusteringKeyColumns?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ClusteringKeyColumn"] |
-		fn.#ListExpression
+	ClusteringKeyColumns?:        list.UniqueItems() & [...#ClusteringKeyColumn] | fn.#ListExpression
 	DefaultTimeToLive?: int & >=0 |
 		{
 			string &
@@ -39,23 +38,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	EncryptionSpecification?: _#defs."/$defs/Properties/definitions/EncryptionSpecification"
-	KeyspaceName!:            =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
-	PartitionKeyColumns!: list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Column"] |
-		fn.#ListExpression
+	EncryptionSpecification?:    #EncryptionSpecification
+	KeyspaceName!:               =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
+	PartitionKeyColumns!:        list.MinItems(1) & list.UniqueItems() & [...#Column] | fn.#ListExpression
 	PointInTimeRecoveryEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RegularColumns?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Column"] | fn.#ListExpression
-	ReplicaSpecifications?: list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ReplicaSpecification"
-	] |
-		fn.#ListExpression
-	TableName?: =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	WarmThroughput?: _#defs."/$defs/Properties/definitions/WarmThroughput"
+	RegularColumns?:             list.UniqueItems() & [...#Column] | fn.#ListExpression
+	ReplicaSpecifications?:      list.MinItems(1) & list.UniqueItems() & [...#ReplicaSpecification] | fn.#ListExpression
+	TableName?:                  =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
+	Tags?:                       list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	WarmThroughput?:             #WarmThroughput
 })
 
-_#defs: "/$defs/Properties/definitions/AutoScalingSetting": close({
+#AutoScalingSetting: close({
 	AutoScalingDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaximumUnits?: int & >=1 |
 		{
@@ -87,65 +81,58 @@ _#defs: "/$defs/Properties/definitions/AutoScalingSetting": close({
 				)
 		} |
 		fn.#NumberExpression
-	ScalingPolicy?: _#defs."/$defs/Properties/definitions/ScalingPolicy"
+	ScalingPolicy?: #ScalingPolicy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AutoScalingSpecification": close({
-	ReadCapacityAutoScaling?:  _#defs."/$defs/Properties/definitions/AutoScalingSetting"
-	WriteCapacityAutoScaling?: _#defs."/$defs/Properties/definitions/AutoScalingSetting"
+#AutoScalingSpecification: close({
+	ReadCapacityAutoScaling?:  #AutoScalingSetting
+	WriteCapacityAutoScaling?: #AutoScalingSetting
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BillingMode": close({
-	Mode!:                  _#defs."/$defs/Properties/definitions/Mode"
-	ProvisionedThroughput?: _#defs."/$defs/Properties/definitions/ProvisionedThroughput"
+#BillingMode: close({
+	Mode!:                  #Mode
+	ProvisionedThroughput?: #ProvisionedThroughput
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CdcSpecification": close({
-	Status!: _#defs."/$defs/Properties/definitions/CdcStatus"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	ViewType?: _#defs."/$defs/Properties/definitions/CdcViewType"
+#CdcSpecification: close({
+	Status!:   #CdcStatus
+	Tags?:     list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	ViewType?: #CdcViewType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CdcStatus": "ENABLED" | "DISABLED" | fn.#StringExpression
+#CdcStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/CdcViewType": "NEW_IMAGE" |
-	"OLD_IMAGE" |
-	"KEYS_ONLY" |
-	"NEW_AND_OLD_IMAGES" |
-	fn.#StringExpression
+#CdcViewType: "NEW_IMAGE" | "OLD_IMAGE" | "KEYS_ONLY" | "NEW_AND_OLD_IMAGES" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ClusteringKeyColumn": close({
-	Column!:  _#defs."/$defs/Properties/definitions/Column"
+#ClusteringKeyColumn: close({
+	Column!:  #Column
 	OrderBy?: "ASC" | "DESC" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Column": close({
+#Column: close({
 	ColumnName!: =~"^[a-zA-Z0-9][a-zA-Z0-9_]{1,47}$" | fn.#StringExpression
 	ColumnType!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionSpecification": close({
-	EncryptionType!:   _#defs."/$defs/Properties/definitions/EncryptionType"
-	KmsKeyIdentifier?: _#defs."/$defs/Properties/definitions/KmsKeyIdentifier"
+#EncryptionSpecification: close({
+	EncryptionType!:   #EncryptionType
+	KmsKeyIdentifier?: #KmsKeyIdentifier
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EncryptionType": "AWS_OWNED_KMS_KEY" |
-	"CUSTOMER_MANAGED_KMS_KEY" |
-	fn.#StringExpression
+#EncryptionType: "AWS_OWNED_KMS_KEY" | "CUSTOMER_MANAGED_KMS_KEY" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyIdentifier": string | fn.#StringExpression
+#KmsKeyIdentifier: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Mode": "PROVISIONED" | "ON_DEMAND" | fn.#StringExpression
+#Mode: "PROVISIONED" | "ON_DEMAND" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
+#ProvisionedThroughput: close({
 	ReadCapacityUnits!: int & >=1 |
 		{
 			string &
@@ -179,8 +166,8 @@ _#defs: "/$defs/Properties/definitions/ProvisionedThroughput": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicaSpecification": close({
-	ReadCapacityAutoScaling?: _#defs."/$defs/Properties/definitions/AutoScalingSetting"
+#ReplicaSpecification: close({
+	ReadCapacityAutoScaling?: #AutoScalingSetting
 	ReadCapacityUnits?: int |
 		{
 			string &
@@ -199,19 +186,16 @@ _#defs: "/$defs/Properties/definitions/ReplicaSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScalingPolicy": close({
-	TargetTrackingScalingPolicyConfiguration?:
-		_#defs."/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration"
-}) |
+#ScalingPolicy: close({TargetTrackingScalingPolicyConfiguration?: #TargetTrackingScalingPolicyConfiguration}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration": close({
+#TargetTrackingScalingPolicyConfiguration: close({
 	DisableScaleIn?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ScaleInCooldown?: int |
 		{
@@ -258,7 +242,7 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration"
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WarmThroughput": close({
+#WarmThroughput: close({
 	ReadUnitsPerSecond?: int & >=1 |
 		{
 			string &

@@ -11,19 +11,19 @@ import "strings"
 	BaselineIdentifier!:        strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$"
 	BaselineVersion!:           =~"^\\d+(?:\\.\\d+){0,2}$"
 	EnabledBaselineIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$"
-	Parameters?:                [..._#defs."/$defs/Properties/definitions/Parameter"]
-	Tags?:                      [..._#defs."/$defs/Properties/definitions/Tag"]
+	Parameters?:                [...#Parameter]
+	Tags?:                      [...#Tag]
 	TargetIdentifier!:          strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[0-9a-zA-Z_\\-:\\/]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/AnyType": bool | number | string | [...bool | number | string | {...}] | {...}
+#AnyType: bool | number | string | [...bool | number | string | {...}] | {...}
 
-_#defs: "/$defs/Properties/definitions/Parameter": close({
+#Parameter: close({
 	Key?:   strings.MaxRunes(256) & strings.MinRunes(1)
-	Value?: _#defs."/$defs/Properties/definitions/AnyType"
+	Value?: #AnyType
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(256) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })

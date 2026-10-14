@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -26,14 +26,14 @@ import (
 	strings.MinRunes(36) &
 	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 	Name!:                 strings.MaxRunes(63) & strings.MinRunes(1)
-	PrivacyConfiguration?: _#defs."/$defs/Properties/definitions/PrivacyConfiguration"
+	PrivacyConfiguration?: #PrivacyConfiguration
 
 	// An arbitrary set of tags (key-value pairs) for this cleanrooms-ml configured
 	// model algorithm association.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/CustomEntityConfig": close({
+#CustomEntityConfig: close({
 	CustomDataIdentifiers!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(200) &
 		strings.MinRunes(1) &
@@ -41,84 +41,74 @@ _#defs: "/$defs/Properties/definitions/CustomEntityConfig": close({
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/EntityType": "ALL_PERSONALLY_IDENTIFIABLE_INFORMATION" | "NUMBERS" | "CUSTOM"
+#EntityType: "ALL_PERSONALLY_IDENTIFIABLE_INFORMATION" | "NUMBERS" | "CUSTOM"
 
-_#defs: "/$defs/Properties/definitions/LogRedactionConfiguration": close({
-	CustomEntityConfig?: _#defs."/$defs/Properties/definitions/CustomEntityConfig"
-	EntitiesToRedact!:   list.MinItems(1) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/EntityType"]
+#LogRedactionConfiguration: close({
+	CustomEntityConfig?: #CustomEntityConfig
+	EntitiesToRedact!:   list.MinItems(1) & list.UniqueItems() & [...#EntityType]
 })
 
-_#defs: "/$defs/Properties/definitions/LogType": "ALL" | "ERROR_SUMMARY"
+#LogType: "ALL" | "ERROR_SUMMARY"
 
-_#defs: "/$defs/Properties/definitions/LogsConfigurationPolicy": close({
+#LogsConfigurationPolicy: close({
 	AllowedAccountIds!:         list.MaxItems(5) & list.MinItems(1) & [...=~"^[0-9]{12}$"]
 	FilterPattern?:             strings.MaxRunes(1024) & strings.MinRunes(0)
-	LogRedactionConfiguration?: _#defs."/$defs/Properties/definitions/LogRedactionConfiguration"
-	LogType?:                   _#defs."/$defs/Properties/definitions/LogType"
+	LogRedactionConfiguration?: #LogRedactionConfiguration
+	LogType?:                   #LogType
 })
 
-_#defs: "/$defs/Properties/definitions/MetricsConfigurationPolicy": close(
-	{NoiseLevel!: _#defs."/$defs/Properties/definitions/NoiseLevelType"},
-)
+#MetricsConfigurationPolicy: close({NoiseLevel!: #NoiseLevelType})
 
-_#defs: "/$defs/Properties/definitions/NoiseLevelType": "HIGH" | "MEDIUM" | "LOW" | "NONE"
+#NoiseLevelType: "HIGH" | "MEDIUM" | "LOW" | "NONE"
 
-_#defs: "/$defs/Properties/definitions/PrivacyConfiguration": close(
-	{Policies!: _#defs."/$defs/Properties/definitions/PrivacyConfigurationPolicies"},
-)
+#PrivacyConfiguration: close({Policies!: #PrivacyConfigurationPolicies})
 
-_#defs: "/$defs/Properties/definitions/PrivacyConfigurationPolicies": close({
-	TrainedModelExports?:       _#defs."/$defs/Properties/definitions/TrainedModelExportsConfigurationPolicy"
-	TrainedModelInferenceJobs?: _#defs."/$defs/Properties/definitions/TrainedModelInferenceJobsConfigurationPolicy"
-	TrainedModels?:             _#defs."/$defs/Properties/definitions/TrainedModelsConfigurationPolicy"
+#PrivacyConfigurationPolicies: close({
+	TrainedModelExports?:       #TrainedModelExportsConfigurationPolicy
+	TrainedModelInferenceJobs?: #TrainedModelInferenceJobsConfigurationPolicy
+	TrainedModels?:             #TrainedModelsConfigurationPolicy
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/TrainedModelArtifactMaxSize": close({
-	Unit!:  _#defs."/$defs/Properties/definitions/TrainedModelArtifactMaxSizeUnitType"
+#TrainedModelArtifactMaxSize: close({
+	Unit!:  #TrainedModelArtifactMaxSizeUnitType
 	Value!: <=10 & >=0.01
 })
 
-_#defs: "/$defs/Properties/definitions/TrainedModelArtifactMaxSizeUnitType": "GB"
+#TrainedModelArtifactMaxSizeUnitType: "GB"
 
-_#defs: "/$defs/Properties/definitions/TrainedModelExportFileType": "MODEL" | "OUTPUT"
+#TrainedModelExportFileType: "MODEL" | "OUTPUT"
 
-_#defs: "/$defs/Properties/definitions/TrainedModelExportsConfigurationPolicy": close({
-	FilesToExport!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TrainedModelExportFileType"
-	]
-	MaxSize!: _#defs."/$defs/Properties/definitions/TrainedModelExportsMaxSize"
+#TrainedModelExportsConfigurationPolicy: close({
+	FilesToExport!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#TrainedModelExportFileType]
+	MaxSize!:       #TrainedModelExportsMaxSize
 })
 
-_#defs: "/$defs/Properties/definitions/TrainedModelExportsMaxSize": close({
-	Unit!:  _#defs."/$defs/Properties/definitions/TrainedModelExportsMaxSizeUnitType"
+#TrainedModelExportsMaxSize: close({
+	Unit!:  #TrainedModelExportsMaxSizeUnitType
 	Value!: <=10 & >=0.01
 })
 
-_#defs: "/$defs/Properties/definitions/TrainedModelExportsMaxSizeUnitType": "GB"
+#TrainedModelExportsMaxSizeUnitType: "GB"
 
-_#defs: "/$defs/Properties/definitions/TrainedModelInferenceJobsConfigurationPolicy": close({
-	ContainerLogs?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/LogsConfigurationPolicy"
-	]
-	MaxOutputSize?: _#defs."/$defs/Properties/definitions/TrainedModelInferenceMaxOutputSize"
+#TrainedModelInferenceJobsConfigurationPolicy: close({
+	ContainerLogs?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#LogsConfigurationPolicy]
+	MaxOutputSize?: #TrainedModelInferenceMaxOutputSize
 })
 
-_#defs: "/$defs/Properties/definitions/TrainedModelInferenceMaxOutputSize": close({
-	Unit!:  _#defs."/$defs/Properties/definitions/TrainedModelInferenceMaxOutputSizeUnitType"
+#TrainedModelInferenceMaxOutputSize: close({
+	Unit!:  #TrainedModelInferenceMaxOutputSizeUnitType
 	Value!: <=50 & >=0.01
 })
 
-_#defs: "/$defs/Properties/definitions/TrainedModelInferenceMaxOutputSizeUnitType": "GB"
+#TrainedModelInferenceMaxOutputSizeUnitType: "GB"
 
-_#defs: "/$defs/Properties/definitions/TrainedModelsConfigurationPolicy": close({
-	ContainerLogs?: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/LogsConfigurationPolicy"
-	]
-	ContainerMetrics?: _#defs."/$defs/Properties/definitions/MetricsConfigurationPolicy"
-	MaxArtifactSize?:  _#defs."/$defs/Properties/definitions/TrainedModelArtifactMaxSize"
+#TrainedModelsConfigurationPolicy: close({
+	ContainerLogs?:    list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#LogsConfigurationPolicy]
+	ContainerMetrics?: #MetricsConfigurationPolicy
+	MaxArtifactSize?:  #TrainedModelArtifactMaxSize
 })

@@ -10,17 +10,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource type definition for AWS::Config::DeliveryChannel
 #Properties: close({
-	ConfigSnapshotDeliveryProperties?: _#defs."/$defs/Properties/definitions/ConfigSnapshotDeliveryProperties" |
-		fn.#ObjectExpression
-	Name?:         string | fn.#StringExpression
-	S3BucketName!: string | fn.#StringExpression
-	S3KeyPrefix?:  string | fn.#StringExpression
-	S3KmsKeyArn?:  string | fn.#StringExpression
+	ConfigSnapshotDeliveryProperties?: #ConfigSnapshotDeliveryProperties | fn.#ObjectExpression
+	Name?:                             string | fn.#StringExpression
+	S3BucketName!:                     string | fn.#StringExpression
+	S3KeyPrefix?:                      string | fn.#StringExpression
+	S3KmsKeyArn?:                      string | fn.#StringExpression
 	SnsTopicARN?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ConfigSnapshotDeliveryProperties": close({
+#ConfigSnapshotDeliveryProperties: close({
 	DeliveryFrequency?: "One_Hour" |
 		"Three_Hours" |
 		"Six_Hours" |

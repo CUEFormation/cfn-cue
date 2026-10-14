@@ -64,7 +64,7 @@ import (
 	// The dimensions for the metric associated with the alarm. For an alarm based
 	// on a math expression, you can't specify ``Dimensions``. Instead, you use
 	// ``Metrics``.
-	Dimensions?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Dimension"]
+	Dimensions?: list.MaxItems(30) & [...] & [...#Dimension]
 
 	// Used only for alarms based on percentiles. If ``ignore``, the alarm state
 	// does not change during periods with too few data points to be statistically
@@ -74,7 +74,7 @@ import (
 	EvaluateLowSampleCountPercentile?: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// The evaluation criteria for the alarm.
-	EvaluationCriteria?: _#defs."/$defs/Properties/definitions/EvaluationCriteria"
+	EvaluationCriteria?: #EvaluationCriteria
 
 	// The frequency, in seconds, at which the alarm is evaluated.
 	EvaluationInterval?: int & <=3600 & >=10
@@ -94,7 +94,7 @@ import (
 	// For more information, see [Alarm evaluation
 	// windows](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/alarm-evaluation-window.html)
 	// in the *CloudWatch User Guide*.
-	EvaluationWindow?: _#defs."/$defs/Properties/definitions/EvaluationWindow"
+	EvaluationWindow?: #EvaluationWindow
 
 	// The percentile statistic for the metric associated with the alarm. Specify a
 	// value between p0.0 and p100.
@@ -120,7 +120,7 @@ import (
 	// If you specify the ``Metrics`` parameter, you cannot specify ``MetricName``,
 	// ``Dimensions``, ``Period``, ``Namespace``, ``Statistic``,
 	// ``ExtendedStatistic``, or ``Unit``.
-	Metrics?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/MetricDataQuery"]
+	Metrics?: list.UniqueItems() & [...#MetricDataQuery]
 
 	// The namespace of the metric associated with the alarm. This is required for
 	// an alarm based on a metric. For an alarm based on a math expression, you
@@ -157,7 +157,7 @@ import (
 	// Tags can help you organize and categorize your resources. You can also use
 	// them to scope user permissions by granting a user permission to access or
 	// change only resources with certain tag values.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 
 	// The value to compare with the specified statistic.
 	Threshold?: number
@@ -217,7 +217,7 @@ import (
 	// For more information, see [Alarm warm-up
 	// periods](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/alarm-warm-up.html)
 	// in the *Amazon CloudWatch User Guide*.
-	WarmUpConfiguration?: _#defs."/$defs/Properties/definitions/WarmUpConfiguration"
+	WarmUpConfiguration?: #WarmUpConfiguration
 	if ExtendedStatistic != _|_ {
 		Statistic?: error("Statistic cannot be used with ExtendedStatistic")
 	}
@@ -251,7 +251,7 @@ import (
 // Contains the configuration that determines how a PromQL alarm evaluates its
 // contributors, including the query to run and the durations that define when
 // contributors transition between states.
-_#defs: "/$defs/Properties/definitions/AlarmPromQLCriteria": close({
+#AlarmPromQLCriteria: close({
 	// The duration, in seconds, that a contributor must be continuously breaching
 	// before it transitions to the ``ALARM`` state.
 	PendingPeriod?: int
@@ -269,7 +269,7 @@ _#defs: "/$defs/Properties/definitions/AlarmPromQLCriteria": close({
 // Dimension is an embedded property of the ``AWS::CloudWatch::Alarm`` type.
 // Dimensions are name/value pairs that can be associated with a CW metric. You
 // can specify a maximum of 30 dimensions for a given metric.
-_#defs: "/$defs/Properties/definitions/Dimension": close({
+#Dimension: close({
 	// The name of the dimension, from 1–255 characters in length. This dimension
 	// name must have been included when the metric was published.
 	Name!: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -280,9 +280,9 @@ _#defs: "/$defs/Properties/definitions/Dimension": close({
 
 // The evaluation criteria for an alarm. This is a union type that currently
 // supports ``PromQLCriteria``.
-_#defs: "/$defs/Properties/definitions/EvaluationCriteria": close({
+#EvaluationCriteria: close({
 	// The PromQL criteria for the alarm evaluation.
-	PromQLCriteria?: _#defs."/$defs/Properties/definitions/AlarmPromQLCriteria"
+	PromQLCriteria?: #AlarmPromQLCriteria
 })
 
 // The evaluation window that an alarm uses to select the range of metric data
@@ -292,7 +292,7 @@ _#defs: "/$defs/Properties/definitions/EvaluationCriteria": close({
 // For more information, see [Alarm evaluation
 // windows](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/alarm-evaluation-window.html)
 // in the *CloudWatch User Guide*.
-_#defs: "/$defs/Properties/definitions/EvaluationWindow": close({
+#EvaluationWindow: close({
 	// A sliding window, which advances each time the alarm is evaluated, forming a
 	// rolling time window. This is the default evaluation window.
 	SlidingWindow?: close({})
@@ -300,7 +300,7 @@ _#defs: "/$defs/Properties/definitions/EvaluationWindow": close({
 	// A wall clock window, which aligns the evaluated range to fixed clock
 	// boundaries that match the alarm's period, such as the top of the hour,
 	// midnight, or the start of the calendar week.
-	WallClockWindow?: _#defs."/$defs/Properties/definitions/WallClockWindow"
+	WallClockWindow?: #WallClockWindow
 	if WallClockWindow != _|_ {
 		SlidingWindow?: error(
 			"SlidingWindow cannot be used with WallClockWindow; set exactly one of WallClockWindow, SlidingWindow",
@@ -312,9 +312,9 @@ _#defs: "/$defs/Properties/definitions/EvaluationWindow": close({
 // property of the
 // [MetricStat](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudwatch-alarm-metricstat.html)
 // property type.
-_#defs: "/$defs/Properties/definitions/Metric": close({
+#Metric: close({
 	// The metric dimensions that you want to be used for the metric that the alarm will watch.
-	Dimensions?: list.MaxItems(30) & [...] & [..._#defs."/$defs/Properties/definitions/Dimension"]
+	Dimensions?: list.MaxItems(30) & [...] & [...#Dimension]
 
 	// The name of the metric that you want the alarm to watch. This is a required field.
 	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -330,7 +330,7 @@ _#defs: "/$defs/Properties/definitions/Metric": close({
 // see [Metric Math Syntax and
 // Functions](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/using-metric-math.html#metric-math-syntax)
 // in the *User Guide*.
-_#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
+#MetricDataQuery: close({
 	// The ID of the account where the metrics are located, if this is a cross-account alarm.
 	AccountId?: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -364,7 +364,7 @@ _#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
 	// math expression on returned data.
 	// Within one MetricDataQuery object, you must specify either ``Expression`` or
 	// ``MetricStat`` but not both.
-	MetricStat?: _#defs."/$defs/Properties/definitions/MetricStat"
+	MetricStat?: #MetricStat
 
 	// The granularity, in seconds, of the returned data points. For metrics with
 	// regular resolution, a period can be as short as one minute (60 seconds) and
@@ -388,9 +388,9 @@ _#defs: "/$defs/Properties/definitions/MetricDataQuery": close({
 // ``MetricStat`` is a property of the
 // [MetricDataQuery](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudwatch-alarm-metricdataquery.html)
 // property type.
-_#defs: "/$defs/Properties/definitions/MetricStat": close({
+#MetricStat: close({
 	// The metric to return, including the metric name, namespace, and dimensions.
-	Metric!: _#defs."/$defs/Properties/definitions/Metric"
+	Metric!: #Metric
 
 	// The granularity, in seconds, of the returned data points. For metrics with
 	// regular resolution, a period can be as short as one minute (60 seconds) and
@@ -449,7 +449,7 @@ _#defs: "/$defs/Properties/definitions/MetricStat": close({
 
 // One of the key-value pairs associated with the alarm. Tags can help you
 // organize and categorize your resources.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A string that you can use to assign a value. The combination of tag keys and
 	// values can help you organize and categorize your resources.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
@@ -469,7 +469,7 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 // Choose a wall clock window when your monitoring is tied to a business or
 // calendar period, such as daily reports, batch jobs, or backups, or when you
 // want alarm evaluations to match the periods shown on a metric dashboard.
-_#defs: "/$defs/Properties/definitions/WallClockWindow": close({
+#WallClockWindow: close({
 	// The time zone to use when the alarm aligns the evaluation window to clock
 	// boundaries. You can specify an IANA time zone name (for example,
 	// ``America/New_York``), a fixed UTC offset (for example, ``+05:30``), or an
@@ -486,7 +486,7 @@ _#defs: "/$defs/Properties/definitions/WallClockWindow": close({
 // publishing data.
 // During the warm-up period, the alarm stays in ``INSUFFICIENT_DATA`` and does
 // not perform alarm actions.
-_#defs: "/$defs/Properties/definitions/WarmUpConfiguration": close({
+#WarmUpConfiguration: close({
 	// Specifies whether the alarm waits for the full warm-up period before it
 	// starts to evaluate. The default is ``false``. If ``true``, the alarm waits
 	// the entire ``WarmUpPeriodDurationInMinutes`` before it starts to evaluate,

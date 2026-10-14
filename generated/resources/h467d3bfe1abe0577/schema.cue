@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -39,7 +39,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	DataCollectionOptions?: _#defs."/$defs/Properties/definitions/DataCollectionOptions" | fn.#ObjectExpression
+	DataCollectionOptions?: #DataCollectionOptions | fn.#ObjectExpression
 	DataStorageSizeInTBs?: number |
 		{
 			string &
@@ -75,7 +75,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	DbNodes?: list.UniqueItems() & [...close({
 		DbServerId!: string | fn.#StringExpression
-		Tags?:       [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+		Tags?:       [...#Tag] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
@@ -130,18 +130,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	SshPublicKeys?: list.MaxItems(1024) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	SystemVersion?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Tags?:          [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:          [...#Tag] | fn.#ListExpression
 	TimeZone?:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DataCollectionOptions": close({
+#DataCollectionOptions: close({
 	IsDiagnosticsEventsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IsHealthMonitoringEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IsIncidentLogsEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DbNode": close({
+#DbNode: close({
 	BackupIpId?:    string | fn.#StringExpression
 	BackupVnic2Id?: string | fn.#StringExpression
 	CpuCoreCount?: int |
@@ -194,13 +194,13 @@ _#defs: "/$defs/Properties/definitions/DbNode": close({
 		fn.#NumberExpression
 	Ocid?:    string | fn.#StringExpression
 	Status?:  string | fn.#StringExpression
-	Tags?:    [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:    [...#Tag] | fn.#ListExpression
 	Vnic2Id?: string | fn.#StringExpression
 	VnicId?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/IamRole": close({
+#IamRole: close({
 	AwsIntegration?: string | fn.#StringExpression
 	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
@@ -208,7 +208,7 @@ _#defs: "/$defs/Properties/definitions/IamRole": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

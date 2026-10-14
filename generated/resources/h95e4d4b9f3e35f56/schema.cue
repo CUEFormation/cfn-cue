@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -19,19 +19,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Evidently::Experiment.
 #Properties: close({
 	Description?: strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
-	MetricGoals!: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricGoalObject"
-	] |
-		fn.#ListExpression
-	Name!:           strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	OnlineAbConfig!: _#defs."/$defs/Properties/definitions/OnlineAbConfigObject"
+	MetricGoals!: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [...#MetricGoalObject] | fn.#ListExpression
+	Name!:        strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+	OnlineAbConfig!: #OnlineAbConfigObject
 	Project!: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)" |
 	fn.#StringExpression
 	RandomizationSalt?: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
 	RemoveSegment?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RunningStatus?:     _#defs."/$defs/Properties/definitions/RunningStatusObject" | fn.#ObjectExpression
+	RunningStatus?:     #RunningStatusObject | fn.#ObjectExpression
 	SamplingRate?: int & <=100000 & >=0 |
 		{
 			string &
@@ -52,14 +49,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(0) &
 	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:segment/[-a-zA-Z0-9._]*)" |
 	fn.#StringExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Treatments!: list.MaxItems(5) & list.MinItems(2) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/TreatmentObject"
-	] |
-		fn.#ListExpression
+	Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	Treatments!: list.MaxItems(5) & list.MinItems(2) & list.UniqueItems() & [...#TreatmentObject] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/MetricGoalObject": close({
+#MetricGoalObject: close({
 	DesiredChange!: "INCREASE" | "DECREASE" | fn.#StringExpression
 	EntityIdKey!:   string | fn.#StringExpression
 	EventPattern?:  string | fn.#StringExpression
@@ -69,14 +63,13 @@ _#defs: "/$defs/Properties/definitions/MetricGoalObject": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/OnlineAbConfigObject": close({
+#OnlineAbConfigObject: close({
 	ControlTreatmentName?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	TreatmentWeights?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/TreatmentToWeight"] |
-		fn.#ListExpression
+	TreatmentWeights?:     list.UniqueItems() & [...#TreatmentToWeight] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RunningStatusObject": matchN(1, [{
+#RunningStatusObject: matchN(1, [{
 	Status!:               _
 	AnalysisCompleteTime!: _
 	...
@@ -93,13 +86,13 @@ _#defs: "/$defs/Properties/definitions/RunningStatusObject": matchN(1, [{
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TreatmentObject": close({
+#TreatmentObject: close({
 	Description?:   string | fn.#StringExpression
 	Feature!:       =~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:.*)" | fn.#StringExpression
 	TreatmentName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
@@ -107,7 +100,7 @@ _#defs: "/$defs/Properties/definitions/TreatmentObject": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TreatmentToWeight": close({
+#TreatmentToWeight: close({
 	SplitWeight!: int & <=100000 & >=0 |
 		{
 			string &

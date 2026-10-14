@@ -23,10 +23,10 @@ import "strings"
 	SnapshotCopyGrantName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
 
 	// A list of tag instances.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key, or name, for the resource tag.
 	Key!: strings.MaxRunes(127) & strings.MinRunes(1)
 

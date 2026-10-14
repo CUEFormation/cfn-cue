@@ -11,55 +11,55 @@ import "strings"
 // from an upstream registry in your Amazon ECR private registry.
 #Properties: close({
 	// The ARN of the Secrets Manager secret associated with the pull through cache rule.
-	CredentialArn?: _#defs."/$defs/Properties/definitions/CredentialArn"
+	CredentialArn?: #CredentialArn
 
 	// The ARN of the IAM role associated with the pull through cache rule.
-	CustomRoleArn?: _#defs."/$defs/Properties/definitions/CustomRoleArn"
+	CustomRoleArn?: #CustomRoleArn
 
 	// The Amazon ECR repository prefix associated with the pull through cache rule.
-	EcrRepositoryPrefix?: _#defs."/$defs/Properties/definitions/EcrRepositoryPrefix"
+	EcrRepositoryPrefix?: #EcrRepositoryPrefix
 
 	// The name of the upstream source registry associated with the pull through cache rule.
-	UpstreamRegistry?: _#defs."/$defs/Properties/definitions/UpstreamRegistry"
+	UpstreamRegistry?: #UpstreamRegistry
 
 	// The upstream registry URL associated with the pull through cache rule.
-	UpstreamRegistryUrl?: _#defs."/$defs/Properties/definitions/UpstreamRegistryUrl"
+	UpstreamRegistryUrl?: #UpstreamRegistryUrl
 
 	// The upstream repository prefix associated with the pull through cache rule.
-	UpstreamRepositoryPrefix?: _#defs."/$defs/Properties/definitions/UpstreamRepositoryPrefix"
+	UpstreamRepositoryPrefix?: #UpstreamRepositoryPrefix
 })
 
 // The Amazon Resource Name (ARN) of the AWS Secrets Manager secret that
 // identifies the credentials to authenticate to the upstream registry.
-_#defs: "/$defs/Properties/definitions/CredentialArn": strings.MaxRunes(612) &
+#CredentialArn: strings.MaxRunes(612) &
 strings.MinRunes(50) &
 =~"^arn:[a-zA-Z-]+:secretsmanager:[a-zA-Z0-9-:]+:secret:ecr\\-pullthroughcache\\/[a-zA-Z0-9\\/_+=.@-]+$"
 
 // The ARN of the IAM role to be assumed by Amazon ECR to authenticate to ECR
 // upstream registry. This role must be in the same account as the registry
 // that you are configuring.
-_#defs: "/$defs/Properties/definitions/CustomRoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(0))
+#CustomRoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(0))
 
 // The ECRRepositoryPrefix is a custom alias for upstream registry url.
-_#defs: "/$defs/Properties/definitions/EcrRepositoryPrefix": strings.MaxRunes(30) &
+#EcrRepositoryPrefix: strings.MaxRunes(30) &
 strings.MinRunes(2) &
 =~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$"
 
-_#defs: "/$defs/Properties/definitions/PullThroughCacheRule": close({
-	CredentialArn?:            _#defs."/$defs/Properties/definitions/CredentialArn"
-	CustomRoleArn?:            _#defs."/$defs/Properties/definitions/CustomRoleArn"
-	EcrRepositoryPrefix!:      _#defs."/$defs/Properties/definitions/EcrRepositoryPrefix"
-	RegistryId?:               _#defs."/$defs/Properties/definitions/RegistryId"
-	UpstreamRegistry?:         _#defs."/$defs/Properties/definitions/UpstreamRegistry"
-	UpstreamRegistryUrl!:      _#defs."/$defs/Properties/definitions/UpstreamRegistryUrl"
-	UpstreamRepositoryPrefix?: _#defs."/$defs/Properties/definitions/UpstreamRepositoryPrefix"
+#PullThroughCacheRule: close({
+	CredentialArn?:            #CredentialArn
+	CustomRoleArn?:            #CustomRoleArn
+	EcrRepositoryPrefix!:      #EcrRepositoryPrefix
+	RegistryId?:               #RegistryId
+	UpstreamRegistry?:         #UpstreamRegistry
+	UpstreamRegistryUrl!:      #UpstreamRegistryUrl
+	UpstreamRepositoryPrefix?: #UpstreamRepositoryPrefix
 })
 
 // The account ID of the registry pull-through cache repository will be created in.
-_#defs: "/$defs/Properties/definitions/RegistryId": =~"^[0-9]{12}$"
+#RegistryId: =~"^[0-9]{12}$"
 
 // The name of the upstream registry.
-_#defs: "/$defs/Properties/definitions/UpstreamRegistry": "azure-container-registry" |
+#UpstreamRegistry: "azure-container-registry" |
 	"chainguard" |
 	"docker-hub" |
 	"ecr" |
@@ -71,11 +71,11 @@ _#defs: "/$defs/Properties/definitions/UpstreamRegistry": "azure-container-regis
 
 // The upstreamRegistryUrl is the endpoint of upstream registry url of the
 // public repository to be cached
-_#defs: "/$defs/Properties/definitions/UpstreamRegistryUrl": string
+#UpstreamRegistryUrl: string
 
 // The repository name prefix of upstream registry to match with the upstream
 // repository name. When this field isn't specified, Amazon ECR will use the
 // `ROOT`.
-_#defs: "/$defs/Properties/definitions/UpstreamRepositoryPrefix": strings.MaxRunes(30) &
+#UpstreamRepositoryPrefix: strings.MaxRunes(30) &
 strings.MinRunes(2) &
 =~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$"

@@ -15,62 +15,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of the AWS::QuickSight::TopicV2 Resource Type.
 #Properties: close({
 	AwsAccountId?:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	CustomInstructions?: _#defs."/$defs/Properties/definitions/CustomInstructions"
-	DataSetRelations?: list.MaxItems(32) & [...] & [..._#defs."/$defs/Properties/definitions/DataSetRelation"] |
-		fn.#ListExpression
-	DataSets?: list.MaxItems(32) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DataSetReference"] |
-		fn.#ListExpression
-	Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FolderArns?:  list.MaxItems(20) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Name?:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Permissions?: list.MaxItems(64) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/ResourcePermission"] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(200) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	TopicId?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_.\\\\+]*$" | fn.#StringExpression
+	CustomInstructions?: #CustomInstructions
+	DataSetRelations?:   list.MaxItems(32) & [...] & [...#DataSetRelation] | fn.#ListExpression
+	DataSets?:           list.MaxItems(32) & list.MinItems(1) & [...#DataSetReference] | fn.#ListExpression
+	Description?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	FolderArns?:         list.MaxItems(20) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+	Name?:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Permissions?:        list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+	Tags?:               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	TopicId?:            strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_.\\\\+]*$" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CustomInstructions": close(
+#CustomInstructions: close(
 	{CustomInstructionsString!: strings.MaxRunes(5000) & strings.MinRunes(0) | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSetReference": close({
+#DataSetReference: close({
 	DataSetArn!:  string | fn.#StringExpression
 	DataSetName?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSetRelation": close({
-	Left!:  _#defs."/$defs/Properties/definitions/DataSetRelationEndpoint"
-	Right!: _#defs."/$defs/Properties/definitions/DataSetRelationEndpoint"
+#DataSetRelation: close({
+	Left!:  #DataSetRelationEndpoint
+	Right!: #DataSetRelationEndpoint
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DataSetRelationEndpoint": close({
+#DataSetRelationEndpoint: close({
 	ColumnNames!: list.MaxItems(5) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	DataSetArn!:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourcePermission": close({
+#ResourcePermission: close({
 	Actions!:   list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TopicV2Details": close({
-	DataSetRelations?: list.MaxItems(32) & [...] & [..._#defs."/$defs/Properties/definitions/DataSetRelation"] |
-		fn.#ListExpression
-	DataSets?: list.MaxItems(32) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/DataSetReference"] |
-		fn.#ListExpression
-	Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#TopicV2Details: close({
+	DataSetRelations?: list.MaxItems(32) & [...] & [...#DataSetRelation] | fn.#ListExpression
+	DataSets?:         list.MaxItems(32) & list.MinItems(1) & [...#DataSetReference] | fn.#ListExpression
+	Description?:      strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Name!:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

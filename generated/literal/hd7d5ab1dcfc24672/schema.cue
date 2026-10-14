@@ -36,7 +36,7 @@ import "strings"
 	SnsTopicArns?: [...string]
 
 	// The tags to add to the configuration
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The id of the Microsoft Teams team
 	TeamId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$"
@@ -58,7 +58,7 @@ import "strings"
 	UserRoleRequired?: bool
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

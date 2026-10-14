@@ -33,14 +33,14 @@ import (
 	RegistrationAttachmentId?: string
 
 	// An array of tags (key and value pairs) to associate with the registration attachment.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 
 	// The URL to the document that was uploaded as the registration attachment, as
 	// returned by the service.
 	UploadedAttachmentUrl?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key identifier, or name, of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

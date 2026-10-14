@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -16,17 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description!:          strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 	ParameterGroupFamily!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
 	ParameterGroupName?:   strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	Parameters?:           [..._#defs."/$defs/Properties/definitions/Parameter"] | fn.#ListExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Parameters?:           [...#Parameter] | fn.#ListExpression
+	Tags?:                 [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Parameter": close({
+#Parameter: close({
 	ParameterName!:  string | fn.#StringExpression
 	ParameterValue!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

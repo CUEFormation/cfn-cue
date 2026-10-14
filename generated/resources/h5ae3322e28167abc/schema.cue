@@ -15,15 +15,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::MSK::Configuration
 #Properties: close({
 	Description?:       string | fn.#StringExpression
-	KafkaVersionsList?: _#defs."/$defs/Properties/definitions/KafkaVersionsList"
+	KafkaVersionsList?: #KafkaVersionsList
 	LatestRevision?:    close({}) | fn.#ObjectExpression
 	Name!:              string | fn.#StringExpression
 	ServerProperties!:  string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/KafkaVersionsList": [...string | fn.#StringExpression] | fn.#ListExpression
+#KafkaVersionsList: [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/LatestRevision": close({
+#LatestRevision: close({
 	CreationTime?: string | fn.#StringExpression
 	Description?:  string | fn.#StringExpression
 	Revision?: int |

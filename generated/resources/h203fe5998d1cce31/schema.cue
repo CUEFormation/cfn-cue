@@ -45,16 +45,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 	Name!:              strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	ProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	UserParameters?:    [..._#defs."/$defs/Properties/definitions/EnvironmentParameter"] | fn.#ListExpression
+	UserParameters?:    [...#EnvironmentParameter] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EnvironmentParameter": close({
+#EnvironmentParameter: close({
 	Name?:  string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EnvironmentStatus": "ACTIVE" |
+#EnvironmentStatus: "ACTIVE" |
 	"CREATING" |
 	"UPDATING" |
 	"DELETING" |

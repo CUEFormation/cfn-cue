@@ -18,10 +18,10 @@ package schema
 	DomainNameArn?: string
 
 	// The domain name configurations.
-	DomainNameConfigurations?: [..._#defs."/$defs/Properties/definitions/DomainNameConfiguration"]
+	DomainNameConfigurations?: [...#DomainNameConfiguration]
 
 	// The mutual TLS authentication configuration for a custom domain name.
-	MutualTlsAuthentication?: _#defs."/$defs/Properties/definitions/MutualTlsAuthentication"
+	MutualTlsAuthentication?: #MutualTlsAuthentication
 	RegionalDomainName?:      string
 	RegionalHostedZoneId?:    string
 
@@ -37,7 +37,7 @@ package schema
 // ``DomainNameConfiguration`` is a property of the
 // [AWS::ApiGatewayV2::DomainName](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-apigatewayv2-domainname.html)
 // resource.
-_#defs: "/$defs/Properties/definitions/DomainNameConfiguration": close({
+#DomainNameConfiguration: close({
 	// An AWS-managed certificate that will be used by the edge-optimized endpoint
 	// for this domain name. AWS Certificate Manager is the only supported source.
 	CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$"
@@ -68,7 +68,7 @@ _#defs: "/$defs/Properties/definitions/DomainNameConfiguration": close({
 // If specified, API Gateway performs two-way authentication between the client
 // and the server. Clients must present a trusted certificate to access your
 // API.
-_#defs: "/$defs/Properties/definitions/MutualTlsAuthentication": close({
+#MutualTlsAuthentication: close({
 	// An Amazon S3 URL that specifies the truststore for mutual TLS authentication,
 	// for example, ``s3://bucket-name/key-name``. The truststore can contain
 	// certificates from public or private certificate authorities. To update the

@@ -41,7 +41,7 @@ import (
 	State?: "Initializing" | "Active" | "CreateFailed" | "DeleteFailed" | "Deleting" | "Deleted"
 
 	// Tags for the instance.
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag]
 
 	// The version number of the instance.
 	VersionNumber?: number
@@ -51,7 +51,7 @@ import (
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

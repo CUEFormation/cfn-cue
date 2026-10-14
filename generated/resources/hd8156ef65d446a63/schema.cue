@@ -19,16 +19,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Definition of AWS::Wisdom::KnowledgeBase Resource Type
 #Properties: close({
 	Description?:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	KnowledgeBaseType!: _#defs."/$defs/Properties/definitions/KnowledgeBaseType"
+	KnowledgeBaseType!: #KnowledgeBaseType
 	Name!:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-	RenderingConfiguration?:            _#defs."/$defs/Properties/definitions/RenderingConfiguration"
-	ServerSideEncryptionConfiguration?: _#defs."/$defs/Properties/definitions/ServerSideEncryptionConfiguration"
-	SourceConfiguration?:               _#defs."/$defs/Properties/definitions/SourceConfiguration"
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VectorIngestionConfiguration?: _#defs."/$defs/Properties/definitions/VectorIngestionConfiguration"
+	RenderingConfiguration?:            #RenderingConfiguration
+	ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
+	SourceConfiguration?:               #SourceConfiguration
+	Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	VectorIngestionConfiguration?:      #VectorIngestionConfiguration
 })
 
-_#defs: "/$defs/Properties/definitions/AppIntegrationsConfiguration": close({
+#AppIntegrationsConfiguration: close({
 	AppIntegrationArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-z-]+?:[a-z-]+?:[a-z0-9-]*?:([0-9]{12})?:[a-zA-Z0-9-:/]+$" |
@@ -40,7 +40,7 @@ _#defs: "/$defs/Properties/definitions/AppIntegrationsConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BedrockFoundationModelConfiguration": close({
+#BedrockFoundationModelConfiguration: close({
 	ModelArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}::foundation-model\\/anthropic.claude-3-haiku-20240307-v1:0$" |
@@ -50,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/BedrockFoundationModelConfiguration": clo
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FixedSizeChunkingConfiguration": close({
+#FixedSizeChunkingConfiguration: close({
 	MaxTokens!: >=1 |
 		{
 			string &
@@ -93,10 +93,8 @@ _#defs: "/$defs/Properties/definitions/FixedSizeChunkingConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HierarchicalChunkingConfiguration": close({
-	LevelConfigurations!: list.MaxItems(2) & list.MinItems(2) & [
-		..._#defs."/$defs/Properties/definitions/HierarchicalChunkingLevelConfiguration"
-	] |
+#HierarchicalChunkingConfiguration: close({
+	LevelConfigurations!: list.MaxItems(2) & list.MinItems(2) & [...#HierarchicalChunkingLevelConfiguration] |
 		fn.#ListExpression
 	OverlapTokens!: >=1 |
 		{
@@ -120,7 +118,7 @@ _#defs: "/$defs/Properties/definitions/HierarchicalChunkingConfiguration": close
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HierarchicalChunkingLevelConfiguration": close({
+#HierarchicalChunkingLevelConfiguration: close({
 	MaxTokens!: <=8192 & >=1 |
 		{
 			string &
@@ -144,27 +142,16 @@ _#defs: "/$defs/Properties/definitions/HierarchicalChunkingLevelConfiguration": 
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KnowledgeBaseType": "EXTERNAL" |
-	"CUSTOM" |
-	"MESSAGE_TEMPLATES" |
-	"MANAGED" |
-	"QUICK_RESPONSES" |
-	fn.#StringExpression
+#KnowledgeBaseType: "EXTERNAL" | "CUSTOM" | "MESSAGE_TEMPLATES" | "MANAGED" | "QUICK_RESPONSES" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedSourceConfiguration": close(
-	{WebCrawlerConfiguration!: _#defs."/$defs/Properties/definitions/WebCrawlerConfiguration"},
-) |
-	fn.#ValueExpression
+#ManagedSourceConfiguration: close({WebCrawlerConfiguration!: #WebCrawlerConfiguration}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/RenderingConfiguration": close(
-	{TemplateUri?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#RenderingConfiguration: close({TemplateUri?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SeedUrl": close({Url?: =~"^https?://[A-Za-z0-9][^\\s]*$" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#SeedUrl: close({Url?: =~"^https?://[A-Za-z0-9][^\\s]*$" | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SemanticChunkingConfiguration": close({
+#SemanticChunkingConfiguration: close({
 	BreakpointPercentileThreshold!: <=99 & >=50 |
 		{
 			string &
@@ -227,51 +214,47 @@ _#defs: "/$defs/Properties/definitions/SemanticChunkingConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ServerSideEncryptionConfiguration": close({
+#ServerSideEncryptionConfiguration: close({
 	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string) & (strings.MaxRunes(4096) & strings.MinRunes(1)) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SourceConfiguration": matchN(1, [close(
-	{AppIntegrations!: _#defs."/$defs/Properties/definitions/AppIntegrationsConfiguration"},
+#SourceConfiguration: matchN(1, [close(
+	{AppIntegrations!: #AppIntegrationsConfiguration},
 ), close(
-	{ManagedSourceConfiguration!: _#defs."/$defs/Properties/definitions/ManagedSourceConfiguration"},
+	{ManagedSourceConfiguration!: #ManagedSourceConfiguration},
 )]) |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/UrlFilterList": list.MaxItems(25) & list.MinItems(1) & [
-	..._#defs."/$defs/Properties/definitions/UrlFilterPattern"
-] |
-	fn.#ListExpression
+#UrlFilterList: list.MaxItems(25) & list.MinItems(1) & [...#UrlFilterPattern] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/UrlFilterPattern": strings.MaxRunes(1000) & strings.MinRunes(1) |
-fn.#StringExpression
+#UrlFilterPattern: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/VectorIngestionConfiguration": close({
+#VectorIngestionConfiguration: close({
 	ChunkingConfiguration?: close({
 		ChunkingStrategy!:                  "FIXED_SIZE" | "NONE" | "HIERARCHICAL" | "SEMANTIC" | fn.#StringExpression
-		FixedSizeChunkingConfiguration?:    _#defs."/$defs/Properties/definitions/FixedSizeChunkingConfiguration"
-		HierarchicalChunkingConfiguration?: _#defs."/$defs/Properties/definitions/HierarchicalChunkingConfiguration"
-		SemanticChunkingConfiguration?:     _#defs."/$defs/Properties/definitions/SemanticChunkingConfiguration"
+		FixedSizeChunkingConfiguration?:    #FixedSizeChunkingConfiguration
+		HierarchicalChunkingConfiguration?: #HierarchicalChunkingConfiguration
+		SemanticChunkingConfiguration?:     #SemanticChunkingConfiguration
 	}) |
 	fn.#ObjectExpression
 	ParsingConfiguration?: close({
-		BedrockFoundationModelConfiguration?: _#defs."/$defs/Properties/definitions/BedrockFoundationModelConfiguration"
+		BedrockFoundationModelConfiguration?: #BedrockFoundationModelConfiguration
 		ParsingStrategy!:                     "BEDROCK_FOUNDATION_MODEL" | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WebCrawlerConfiguration": close({
+#WebCrawlerConfiguration: close({
 	CrawlerLimits?: close({
 		RateLimit?: <=3000 & >=1 |
 			{
@@ -295,13 +278,10 @@ _#defs: "/$defs/Properties/definitions/WebCrawlerConfiguration": close({
 			fn.#NumberExpression
 	}) |
 		fn.#ObjectExpression
-	ExclusionFilters?: _#defs."/$defs/Properties/definitions/UrlFilterList"
-	InclusionFilters?: _#defs."/$defs/Properties/definitions/UrlFilterList"
+	ExclusionFilters?: #UrlFilterList
+	InclusionFilters?: #UrlFilterList
 	Scope?:            "HOST_ONLY" | "SUBDOMAINS" | fn.#StringExpression
-	UrlConfiguration!: close({
-		SeedUrls?: list.MaxItems(100) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/SeedUrl"] |
-			fn.#ListExpression
-	}) |
+	UrlConfiguration!: close({SeedUrls?: list.MaxItems(100) & list.MinItems(1) & [...#SeedUrl] | fn.#ListExpression}) |
 		fn.#ObjectExpression
 }) |
 fn.#ObjectExpression

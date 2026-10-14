@@ -19,10 +19,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Definition!:  strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression
 	Description?: strings.MaxRunes(1024) | fn.#StringExpression
 	Name?: strings.MaxRunes(256) & strings.MinRunes(6) & =~"^view\\.[a-z0-9][a-z0-9_-]{0,250}$" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

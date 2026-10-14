@@ -15,10 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	AutoEnableControls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ControlFindingGenerator?: =~"^(SECURITY_CONTROL|STANDARD_CONTROL)$" | fn.#StringExpression
 	EnableDefaultStandards?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Tags?:                    _#defs."/$defs/Properties/definitions/Tags"
+	Tags?:                    #Tags
 })
 
-_#defs: "/$defs/Properties/definitions/Tags": {...} | fn.#ObjectExpression
+#Tags: {...} | fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::SecurityHub::Hub"
 	Properties?: #Properties

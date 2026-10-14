@@ -36,8 +36,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig"
-	FederatedIdentity?:  _#defs."/$defs/Properties/definitions/ObjectStorageFederatedIdentityConfig"
+	CustomSecretConfig?: #CustomSecretConfig
+	FederatedIdentity?:  #ObjectStorageFederatedIdentityConfig
 	SecretKey?:          strings.MaxRunes(200) & strings.MinRunes(8) & =~"^.+$" | fn.#StringExpression
 	ServerCertificate?:  strings.MaxRunes(32768) | fn.#StringExpression
 	ServerHostname?: strings.MaxRunes(255) &
@@ -63,11 +63,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ServerProtocol?: "HTTPS" | "HTTP" | fn.#StringExpression
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\p{Zs}]*$" |
 	fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
+#CmkSecretConfig: close({
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -80,7 +79,7 @@ _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
+#CustomSecretConfig: close({
 	SecretAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
@@ -93,7 +92,7 @@ _#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/GoogleOidcConfig": close({
+#GoogleOidcConfig: close({
 	IdentityPoolName!:     strings.MaxRunes(32) & strings.MinRunes(4) | fn.#StringExpression
 	IdentityProviderName!: strings.MaxRunes(32) & strings.MinRunes(4) | fn.#StringExpression
 	ProjectName!: strings.MaxRunes(30) & strings.MinRunes(6) & =~"^[a-z][a-z0-9-]{4,28}[a-z0-9]$" | fn.#StringExpression
@@ -101,27 +100,24 @@ _#defs: "/$defs/Properties/definitions/GoogleOidcConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ManagedSecretConfig": close({
+#ManagedSecretConfig: close({
 	SecretArn!: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectStorageExternalIdentityConfig": close(
-	{GoogleOidc?: _#defs."/$defs/Properties/definitions/GoogleOidcConfig"},
-) |
-	fn.#ObjectExpression
+#ObjectStorageExternalIdentityConfig: close({GoogleOidc?: #GoogleOidcConfig}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ObjectStorageFederatedIdentityConfig": close({
+#ObjectStorageFederatedIdentityConfig: close({
 	AwsIamRole?: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*|)$" |
 	fn.#StringExpression
-	ExternalIdentity?: _#defs."/$defs/Properties/definitions/ObjectStorageExternalIdentityConfig"
+	ExternalIdentity?: #ObjectStorageExternalIdentityConfig
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
 }) |

@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"struct"
 	"strings"
+	"struct"
 )
 
 import cfnScalarStrings "strings"
@@ -19,17 +19,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource for Greengrass component version.
 #Properties: close({
 	InlineRecipe?:   string | fn.#StringExpression
-	LambdaFunction?: _#defs."/$defs/Properties/definitions/LambdaFunctionRecipeSource"
+	LambdaFunction?: #LambdaFunctionRecipeSource
 	Tags?:           struct.MaxFields(50) & {...} | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ComponentDependencyRequirement": close({
+#ComponentDependencyRequirement: close({
 	DependencyType?:     "SOFT" | "HARD" | fn.#StringExpression
 	VersionRequirement?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ComponentPlatform": close({
+#ComponentPlatform: close({
 	Attributes?: close({
 
 		{[=~".+"]: string | fn.#StringExpression}}) |
@@ -38,19 +38,12 @@ _#defs: "/$defs/Properties/definitions/ComponentPlatform": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FilesystemPath": string | fn.#StringExpression
+#FilesystemPath: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaAddGroupOwnerBoolean": bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	fn.#BooleanExpression
+#LambdaAddGroupOwnerBoolean: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaContainerParams": close({
-	Devices?: [..._#defs."/$defs/Properties/definitions/LambdaDeviceMount"] | fn.#ListExpression
+#LambdaContainerParams: close({
+	Devices?: [...#LambdaDeviceMount] | fn.#ListExpression
 	MemorySizeInKB?: int |
 		{
 			string &
@@ -66,32 +59,32 @@ _#defs: "/$defs/Properties/definitions/LambdaContainerParams": close({
 		} |
 		fn.#NumberExpression
 	MountROSysfs?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Volumes?:      [..._#defs."/$defs/Properties/definitions/LambdaVolumeMount"] | fn.#ListExpression
+	Volumes?:      [...#LambdaVolumeMount] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaDeviceMount": close({
-	AddGroupOwner?: _#defs."/$defs/Properties/definitions/LambdaAddGroupOwnerBoolean"
-	Path?:          _#defs."/$defs/Properties/definitions/FilesystemPath"
-	Permission?:    _#defs."/$defs/Properties/definitions/LambdaFilesystemPermission"
+#LambdaDeviceMount: close({
+	AddGroupOwner?: #LambdaAddGroupOwnerBoolean
+	Path?:          #FilesystemPath
+	Permission?:    #LambdaFilesystemPermission
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaEventSource": close({
+#LambdaEventSource: close({
 	Topic?: string | fn.#StringExpression
 	Type?:  "PUB_SUB" | "IOT_CORE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaExecutionParameters": close({
+#LambdaExecutionParameters: close({
 	EnvironmentVariables?: close({
 
 		{[=~".+"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	EventSources?:             [..._#defs."/$defs/Properties/definitions/LambdaEventSource"] | fn.#ListExpression
+	EventSources?:             [...#LambdaEventSource] | fn.#ListExpression
 	ExecArgs?:                 [...string | fn.#StringExpression] | fn.#ListExpression
 	InputPayloadEncodingType?: "json" | "binary" | fn.#StringExpression
-	LinuxProcessParams?:       _#defs."/$defs/Properties/definitions/LambdaLinuxProcessParams"
+	LinuxProcessParams?:       #LambdaLinuxProcessParams
 	MaxIdleTimeInSeconds?: int |
 		{
 			string &
@@ -166,16 +159,16 @@ _#defs: "/$defs/Properties/definitions/LambdaExecutionParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaFilesystemPermission": "ro" | "rw" | fn.#StringExpression
+#LambdaFilesystemPermission: "ro" | "rw" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaFunctionRecipeSource": close({
+#LambdaFunctionRecipeSource: close({
 	ComponentDependencies?: close({
 
-		{[=~".*"]: _#defs."/$defs/Properties/definitions/ComponentDependencyRequirement"}}) |
+		{[=~".*"]: #ComponentDependencyRequirement}}) |
 	fn.#ObjectExpression
-	ComponentLambdaParameters?: _#defs."/$defs/Properties/definitions/LambdaExecutionParameters"
+	ComponentLambdaParameters?: #LambdaExecutionParameters
 	ComponentName?:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ComponentPlatforms?:        [..._#defs."/$defs/Properties/definitions/ComponentPlatform"] | fn.#ListExpression
+	ComponentPlatforms?:        [...#ComponentPlatform] | fn.#ListExpression
 	ComponentVersion?:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MinRunes(1) &
@@ -184,17 +177,17 @@ _#defs: "/$defs/Properties/definitions/LambdaFunctionRecipeSource": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaLinuxProcessParams": close({
-	ContainerParams?: _#defs."/$defs/Properties/definitions/LambdaContainerParams"
+#LambdaLinuxProcessParams: close({
+	ContainerParams?: #LambdaContainerParams
 	IsolationMode?:   "GreengrassContainer" | "NoContainer" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LambdaVolumeMount": close({
-	AddGroupOwner?:   _#defs."/$defs/Properties/definitions/LambdaAddGroupOwnerBoolean"
-	DestinationPath?: _#defs."/$defs/Properties/definitions/FilesystemPath"
-	Permission?:      _#defs."/$defs/Properties/definitions/LambdaFilesystemPermission"
-	SourcePath?:      _#defs."/$defs/Properties/definitions/FilesystemPath"
+#LambdaVolumeMount: close({
+	AddGroupOwner?:   #LambdaAddGroupOwnerBoolean
+	DestinationPath?: #FilesystemPath
+	Permission?:      #LambdaFilesystemPermission
+	SourcePath?:      #FilesystemPath
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

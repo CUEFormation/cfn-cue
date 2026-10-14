@@ -20,10 +20,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	FunctionType?: "REGULAR_FUNCTION" | "AGGREGATE_FUNCTION" | "STORED_PROCEDURE" | fn.#StringExpression
 	OwnerName?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	OwnerType?:    "USER" | "ROLE" | "GROUP" | fn.#StringExpression
-	ResourceUris?: list.MaxItems(1000) & [..._#defs."/$defs/Properties/definitions/ResourceUri"] | fn.#ListExpression
+	ResourceUris?: list.MaxItems(1000) & [...#ResourceUri] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceUri": close({
+#ResourceUri: close({
 	ResourceType?: "JAR" | "FILE" | "ARCHIVE" | fn.#StringExpression
 	Uri?:          strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |

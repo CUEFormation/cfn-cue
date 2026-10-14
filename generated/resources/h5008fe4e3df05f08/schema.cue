@@ -20,11 +20,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	Name!:  strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\S[\\w.-]*$" | fn.#StringExpression
 	Owner?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\S(.*\\S)?$" | fn.#StringExpression
-	Tags?:  list.MaxItems(50) & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	Type!:  "CodeCommit" | "Bitbucket" | "GitHubEnterpriseServer" | "S3Bucket" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

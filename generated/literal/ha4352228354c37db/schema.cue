@@ -14,7 +14,7 @@ import (
 #Properties: close({
 	// The event source configuration. Specify exactly one of
 	// AwsServiceEventsConfiguration or PartnerEventsConfiguration.
-	Configuration!: _#defs."/$defs/Properties/definitions/EventSourceConfiguration"
+	Configuration!: #EventSourceConfiguration
 
 	// The time the event source was created, as an ISO 8601 timestamp.
 	CreationTime?: string
@@ -55,16 +55,16 @@ import (
 	State?: "CREATING" | "ACTIVE" | "UPDATING" | "CREATE_FAILED" | "UPDATE_FAILED" | "DELETING" | "DELETE_FAILED"
 
 	// The tags assigned to the event source.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // Forward a single AWS service's events from the account's default event bus.
-_#defs: "/$defs/Properties/definitions/AwsServiceEventsConfiguration": close({
+#AwsServiceEventsConfiguration: close({
 	// A single AWS service source identifier, for example aws.s3. Wildcards and lists are not allowed.
 	AwsService!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^aws\\.[a-z0-9\\-]+$"
 
 	// The destination for events that could not be forwarded.
-	OnFailureConfiguration?: _#defs."/$defs/Properties/definitions/OnFailureConfiguration"
+	OnFailureConfiguration?: #OnFailureConfiguration
 
 	// A filter pattern, as a JSON string, that defines which events from the
 	// specified AWS service are forwarded to the event bus. Do not include source,
@@ -74,12 +74,12 @@ _#defs: "/$defs/Properties/definitions/AwsServiceEventsConfiguration": close({
 })
 
 // Event source configuration. Exactly one of the two variants must be set.
-_#defs: "/$defs/Properties/definitions/EventSourceConfiguration": close({
+#EventSourceConfiguration: close({
 	// Configuration for forwarding a single AWS service's events.
-	AwsServiceEventsConfiguration?: _#defs."/$defs/Properties/definitions/AwsServiceEventsConfiguration"
+	AwsServiceEventsConfiguration?: #AwsServiceEventsConfiguration
 
 	// Configuration for forwarding a partner event source's events.
-	PartnerEventsConfiguration?: _#defs."/$defs/Properties/definitions/PartnerEventsConfiguration"
+	PartnerEventsConfiguration?: #PartnerEventsConfiguration
 	if AwsServiceEventsConfiguration != _|_ {
 		PartnerEventsConfiguration?: error(
 			"PartnerEventsConfiguration cannot be used with AwsServiceEventsConfiguration; set exactly one of AwsServiceEventsConfiguration, PartnerEventsConfiguration",
@@ -91,7 +91,7 @@ _#defs: "/$defs/Properties/definitions/EventSourceConfiguration": close({
 // forwarding target or, for partner event sources, the managed partner event
 // bus. Arn is optional. An empty object removes a configured destination on
 // update.
-_#defs: "/$defs/Properties/definitions/OnFailureConfiguration": close({
+#OnFailureConfiguration: close({
 	// The ARN of the Amazon SQS standard queue that receives events that could not
 	// be forwarded. FIFO queues are not supported.
 	Arn?: strings.MaxRunes(1600) &
@@ -100,10 +100,10 @@ _#defs: "/$defs/Properties/definitions/OnFailureConfiguration": close({
 })
 
 // Forward a partner event source's events through a managed partner event bus.
-_#defs: "/$defs/Properties/definitions/PartnerEventsConfiguration": close({
+#PartnerEventsConfiguration: close({
 	// The destination for events that could not be forwarded, covering both the
 	// forwarding target and the managed partner event bus.
-	OnFailureConfiguration?: _#defs."/$defs/Properties/definitions/OnFailureConfiguration"
+	OnFailureConfiguration?: #OnFailureConfiguration
 
 	// The identifier of the AWS KMS customer managed key for EventBridge to use, if
 	// you choose to use a customer managed key to encrypt events on the managed
@@ -129,7 +129,7 @@ _#defs: "/$defs/Properties/definitions/PartnerEventsConfiguration": close({
 })
 
 // A key-value pair to associate with the resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key. Unique per resource; keys are case sensitive. No leading or
 	// trailing whitespace (interior whitespace is allowed).
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)

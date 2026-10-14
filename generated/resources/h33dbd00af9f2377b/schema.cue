@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -18,10 +18,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::Synthetics::Canary
 #Properties: close({
-	ArtifactConfig?:     _#defs."/$defs/Properties/definitions/ArtifactConfig" | fn.#ObjectExpression
+	ArtifactConfig?:     #ArtifactConfig | fn.#ObjectExpression
 	ArtifactS3Location!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^(s3|S3)://" | fn.#StringExpression
-	BrowserConfigs?: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/BrowserConfig"] |
-		fn.#ListExpression
+	BrowserConfigs?:     list.MaxItems(2) & list.MinItems(1) & [...#BrowserConfig] | fn.#ListExpression
 	Code!: matchN(>=1, [{
 		Handler!:  _
 		S3Bucket!: _
@@ -51,8 +50,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_\\-\\.]+$" | fn.#StringExpression
 		] |
 		fn.#ListExpression
-		Dependencies?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/Dependency"] |
-			fn.#ListExpression
+		Dependencies?: list.MaxItems(1) & [...] & [...#Dependency] | fn.#ListExpression
 		Handler?: strings.MaxRunes(128) &
 		strings.MinRunes(0) &
 		=~"^(([0-9a-zA-Z_-]+(\\/|\\.))*[0-9A-Za-z_\\\\-]+(\\.|::)[A-Za-z_][A-Za-z0-9_]*)?$" |
@@ -102,10 +100,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 			=~"^arn:[a-z0-9-]+:kms:[a-z0-9-]+:[0-9]{12}:(key/([a-f0-9-]{36}|mrk-[a-f0-9]{32})|alias/[a-zA-Z0-9:/_.-]+)$" |
 			fn.#StringExpression
-		Location!: string | fn.#StringExpression
-		ResourcesToReplicateTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ResourceToTag"] |
-			fn.#ListExpression
-		Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+		Location!:                 string | fn.#StringExpression
+		ResourcesToReplicateTags?: list.UniqueItems() & [...#ResourceToTag] | fn.#ListExpression
+		Tags?:                     [...#Tag] | fn.#ListExpression
 		VpcConfig?: close({
 			Ipv6AllowedForDualStack?: bool |
 				"true" |
@@ -126,13 +123,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
-	ResourcesToReplicateTags?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/ResourceToTag"
-	] |
+	ResourcesToReplicateTags?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ResourceToTag] |
 		fn.#ListExpression
-	RunConfig?:                _#defs."/$defs/Properties/definitions/RunConfig" | fn.#ObjectExpression
+	RunConfig?:                #RunConfig | fn.#ObjectExpression
 	RuntimeVersion!:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Schedule!:                 _#defs."/$defs/Properties/definitions/Schedule" | fn.#ObjectExpression
+	Schedule!:                 #Schedule | fn.#ObjectExpression
 	StartCanaryAfterCreation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SuccessRetentionPeriod?: int |
 		{
@@ -148,32 +143,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VPCConfig?:       _#defs."/$defs/Properties/definitions/VPCConfig" | fn.#ObjectExpression
-	VisualReference?: _#defs."/$defs/Properties/definitions/VisualReference" | fn.#ObjectExpression
-	VisualReferences?: list.MaxItems(2) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/VisualReference"] |
-		fn.#ListExpression
+	Tags?:             [...#Tag] | fn.#ListExpression
+	VPCConfig?:        #VPCConfig | fn.#ObjectExpression
+	VisualReference?:  #VisualReference | fn.#ObjectExpression
+	VisualReferences?: list.MaxItems(2) & list.MinItems(1) & [...#VisualReference] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ArtifactConfig": close(
-	{S3Encryption?: _#defs."/$defs/Properties/definitions/S3Encryption" | fn.#ObjectExpression},
-) |
-	fn.#ObjectExpression
+#ArtifactConfig: close({S3Encryption?: #S3Encryption | fn.#ObjectExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BaseScreenshot": {
+#BaseScreenshot: {
 	IgnoreCoordinates?: [...string | fn.#StringExpression] | fn.#ListExpression
 	ScreenshotName!:    string | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserConfig": close(
-	{BrowserType!: _#defs."/$defs/Properties/definitions/BrowserType"},
-) |
-	fn.#ObjectExpression
+#BrowserConfig: close({BrowserType!: #BrowserType}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BrowserType": "CHROME" | "FIREFOX" | fn.#StringExpression
+#BrowserType: "CHROME" | "FIREFOX" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Code": matchN(>=1, [{
+#Code: matchN(>=1, [{
 	Handler!:  _
 	S3Bucket!: _
 	S3Key!:    _
@@ -202,8 +190,7 @@ _#defs: "/$defs/Properties/definitions/Code": matchN(>=1, [{
 		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_\\-\\.]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	Dependencies?: list.MaxItems(1) & [...] & [..._#defs."/$defs/Properties/definitions/Dependency"] |
-		fn.#ListExpression
+	Dependencies?: list.MaxItems(1) & [...] & [...#Dependency] | fn.#ListExpression
 	Handler?: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^(([0-9a-zA-Z_-]+(\\/|\\.))*[0-9A-Za-z_\\\\-]+(\\.|::)[A-Za-z_][A-Za-z0-9_]*)?$" |
@@ -216,7 +203,7 @@ _#defs: "/$defs/Properties/definitions/Code": matchN(>=1, [{
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Dependency": close({
+#Dependency: close({
 	Reference!: strings.MaxRunes(140) &
 	strings.MinRunes(1) &
 	=~"arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:layer:[a-zA-Z0-9-_]+:[0-9]+" |
@@ -225,7 +212,7 @@ _#defs: "/$defs/Properties/definitions/Dependency": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Replica": close({
+#Replica: close({
 	CanaryState?: string | fn.#StringExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		=~"^arn:[a-z0-9-]+:kms:[a-z0-9-]+:[0-9]{12}:(key/([a-f0-9-]{36}|mrk-[a-f0-9]{32})|alias/[a-zA-Z0-9:/_.-]+)$" |
@@ -249,21 +236,19 @@ _#defs: "/$defs/Properties/definitions/Replica": close({
 				)
 		} |
 		fn.#NumberExpression
-	Location!:          string | fn.#StringExpression
-	ReplicationStatus?: _#defs."/$defs/Properties/definitions/ReplicaReplicationStatus" | fn.#ObjectExpression
-	ResourcesToReplicateTags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/ResourceToTag"] |
-		fn.#ListExpression
-	Tags?:      [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	VpcConfig?: _#defs."/$defs/Properties/definitions/VPCConfig" | fn.#ObjectExpression
+	Location!:                 string | fn.#StringExpression
+	ReplicationStatus?:        #ReplicaReplicationStatus | fn.#ObjectExpression
+	ResourcesToReplicateTags?: list.UniqueItems() & [...#ResourceToTag] | fn.#ListExpression
+	Tags?:                     [...#Tag] | fn.#ListExpression
+	VpcConfig?:                #VPCConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ReplicaReplicationStatus": close({State?: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#ReplicaReplicationStatus: close({State?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ResourceToTag": "lambda-function" | fn.#StringExpression
+#ResourceToTag: "lambda-function" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RetryConfig": close({
+#RetryConfig: close({
 	MaxRetries!: int & <=2 & >=0 |
 		{
 			string &
@@ -283,7 +268,7 @@ _#defs: "/$defs/Properties/definitions/RetryConfig": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RunConfig": close({
+#RunConfig: close({
 	ActiveTracing?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnvironmentVariables?: close({
 
@@ -340,7 +325,7 @@ _#defs: "/$defs/Properties/definitions/RunConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Encryption": close({
+#S3Encryption: close({
 	EncryptionMode?: "SSE_KMS" | "SSE_S3" | fn.#StringExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
@@ -350,20 +335,20 @@ _#defs: "/$defs/Properties/definitions/S3Encryption": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Schedule": close({
+#Schedule: close({
 	DurationInSeconds?: string | fn.#StringExpression
 	Expression!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	RetryConfig?:       _#defs."/$defs/Properties/definitions/RetryConfig" | fn.#ObjectExpression
+	RetryConfig?:       #RetryConfig | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VPCConfig": close({
+#VPCConfig: close({
 	Ipv6AllowedForDualStack?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SecurityGroupIds!: list.MaxItems(5) & [...] & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -376,10 +361,10 @@ _#defs: "/$defs/Properties/definitions/VPCConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VisualReference": close({
+#VisualReference: close({
 	BaseCanaryRunId!: string | fn.#StringExpression
-	BaseScreenshots?: [..._#defs."/$defs/Properties/definitions/BaseScreenshot"] | fn.#ListExpression
-	BrowserType?:     _#defs."/$defs/Properties/definitions/BrowserType"
+	BaseScreenshots?: [...#BaseScreenshot] | fn.#ListExpression
+	BrowserType?:     #BrowserType
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

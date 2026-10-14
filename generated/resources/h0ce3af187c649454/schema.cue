@@ -18,10 +18,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	Ruleset?:     strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
 	Tags?:        fn.#Object & {...} | string | fn.#StringObjectExpression
-	TargetTable?: _#defs."/$defs/Properties/definitions/DataQualityTargetTable" | fn.#ObjectExpression
+	TargetTable?: #DataQualityTargetTable | fn.#ObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/DataQualityTargetTable": close({
+#DataQualityTargetTable: close({
 	DatabaseName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 	TableName!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |

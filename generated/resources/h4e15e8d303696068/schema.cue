@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -21,56 +21,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	DocumentClassifierName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 	fn.#StringExpression
-	InputDataConfig!: _#defs."/$defs/Properties/definitions/DocumentClassifierInputDataConfig"
+	InputDataConfig!: #DocumentClassifierInputDataConfig
 	LanguageCode!:    "en" | "es" | "fr" | "it" | "de" | "pt" | fn.#StringExpression
 	Mode?:            "MULTI_CLASS" | "MULTI_LABEL" | fn.#StringExpression
-	ModelKmsKeyId?:   _#defs."/$defs/Properties/definitions/KmsKeyId"
+	ModelKmsKeyId?:   #KmsKeyId
 	ModelPolicy?: strings.MaxRunes(20000) & strings.MinRunes(1) & =~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
 	fn.#StringExpression
-	OutputDataConfig?: _#defs."/$defs/Properties/definitions/DocumentClassifierOutputDataConfig"
-	Tags?:             list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	OutputDataConfig?: #DocumentClassifierOutputDataConfig
+	Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	VersionName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
-	VolumeKmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"
-	VpcConfig?:      _#defs."/$defs/Properties/definitions/VpcConfig"
+	VolumeKmsKeyId?: #KmsKeyId
+	VpcConfig?:      #VpcConfig
 })
 
-_#defs: "/$defs/Properties/definitions/AugmentedManifestsListItem": close({
+#AugmentedManifestsListItem: close({
 	AttributeNames!: list.MaxItems(63) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	S3Uri!: _#defs."/$defs/Properties/definitions/S3Uri"
+	S3Uri!: #S3Uri
 	Split?: "TRAIN" | "TEST" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentClassifierDocuments": close({
-	S3Uri!:     _#defs."/$defs/Properties/definitions/S3Uri"
-	TestS3Uri?: _#defs."/$defs/Properties/definitions/S3Uri"
+#DocumentClassifierDocuments: close({
+	S3Uri!:     #S3Uri
+	TestS3Uri?: #S3Uri
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentClassifierInputDataConfig": close({
-	AugmentedManifests?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/AugmentedManifestsListItem"] |
-		fn.#ListExpression
+#DocumentClassifierInputDataConfig: close({
+	AugmentedManifests?:   list.UniqueItems() & [...#AugmentedManifestsListItem] | fn.#ListExpression
 	DataFormat?:           "COMPREHEND_CSV" | "AUGMENTED_MANIFEST" | fn.#StringExpression
-	DocumentReaderConfig?: _#defs."/$defs/Properties/definitions/DocumentReaderConfig"
+	DocumentReaderConfig?: #DocumentReaderConfig
 	DocumentType?:         "PLAIN_TEXT_DOCUMENT" | "SEMI_STRUCTURED_DOCUMENT" | fn.#StringExpression
-	Documents?:            _#defs."/$defs/Properties/definitions/DocumentClassifierDocuments"
+	Documents?:            #DocumentClassifierDocuments
 	LabelDelimiter?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[ ~!@#$%^*\\-_+=|\\\\:;\\t>?/]$" |
 	fn.#StringExpression
-	S3Uri?:     _#defs."/$defs/Properties/definitions/S3Uri"
-	TestS3Uri?: _#defs."/$defs/Properties/definitions/S3Uri"
+	S3Uri?:     #S3Uri
+	TestS3Uri?: #S3Uri
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentClassifierOutputDataConfig": close({
-	KmsKeyId?: _#defs."/$defs/Properties/definitions/KmsKeyId"
-	S3Uri?:    _#defs."/$defs/Properties/definitions/S3Uri"
+#DocumentClassifierOutputDataConfig: close({
+	KmsKeyId?: #KmsKeyId
+	S3Uri?:    #S3Uri
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DocumentReaderConfig": close({
+#DocumentReaderConfig: close({
 	DocumentReadAction!: "TEXTRACT_DETECT_DOCUMENT_TEXT" | "TEXTRACT_ANALYZE_DOCUMENT" | fn.#StringExpression
 	DocumentReadMode?:   "SERVICE_DEFAULT" | "FORCE_DOCUMENT_READ_ACTION" | fn.#StringExpression
 	FeatureTypes?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
@@ -80,25 +79,23 @@ _#defs: "/$defs/Properties/definitions/DocumentReaderConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyId": (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
+#KmsKeyId: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 	string) &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^\\p{ASCII}+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3Uri": strings.MaxRunes(1024) &
-strings.MinRunes(0) &
-=~"s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?" |
+#S3Uri: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 		strings.MaxRunes(32) &

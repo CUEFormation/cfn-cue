@@ -15,7 +15,7 @@ import "strings"
 	ConnectorLabel?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[a-zA-Z0-9][\\w!@#.-]+"
 
 	// Contains information about the configuration of the connector being registered.
-	ConnectorProvisioningConfig!: _#defs."/$defs/Properties/definitions/ConnectorProvisioningConfig"
+	ConnectorProvisioningConfig!: #ConnectorProvisioningConfig
 
 	// The provisioning type of the connector. Currently the only supported value is LAMBDA.
 	ConnectorProvisioningType!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9][\\w!@#.-]+"
@@ -25,15 +25,15 @@ import "strings"
 })
 
 // Contains information about the configuration of the connector being registered.
-_#defs: "/$defs/Properties/definitions/ConnectorProvisioningConfig": close({
+#ConnectorProvisioningConfig: close({
 	// Contains information about the configuration of the lambda which is being
 	// registered as the connector.
-	Lambda?: _#defs."/$defs/Properties/definitions/LambdaConnectorProvisioningConfig"
+	Lambda?: #LambdaConnectorProvisioningConfig
 })
 
 // Contains information about the configuration of the lambda which is being
 // registered as the connector.
-_#defs: "/$defs/Properties/definitions/LambdaConnectorProvisioningConfig": close({
+#LambdaConnectorProvisioningConfig: close({
 	// Lambda ARN of the connector being registered.
 	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(512) &

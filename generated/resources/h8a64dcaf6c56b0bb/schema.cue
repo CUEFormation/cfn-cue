@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/SecurityGroupVpcAssociationState": "associating" |
+#SecurityGroupVpcAssociationState: "associating" |
 	"associated" |
 	"association-failed" |
 	"disassociating" |

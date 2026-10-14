@@ -19,11 +19,11 @@ import (
 	Id?:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$"
 	Identifier?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$"
 	Name?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$"
-	Tags?:       _#defs."/$defs/Properties/definitions/TagsMap"
+	Tags?:       #TagsMap
 })
 
-_#defs: "/$defs/Properties/definitions/TagsMap": struct.MaxFields(50) & struct.MinFields(0) & close({
+#TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})

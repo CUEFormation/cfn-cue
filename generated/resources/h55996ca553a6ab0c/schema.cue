@@ -30,11 +30,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ArchivePolicy?:             fn.#Object & {...} | string | fn.#StringObjectExpression
 	ContentBasedDeduplication?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DataProtectionPolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
-	DeliveryStatusLogging?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/LoggingConfig"] |
-		fn.#ListExpression
-	DisplayName?:         string | fn.#StringExpression
-	FifoThroughputScope?: string | fn.#StringExpression
-	FifoTopic?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	DeliveryStatusLogging?:     list.UniqueItems() & [...#LoggingConfig] | fn.#ListExpression
+	DisplayName?:               string | fn.#StringExpression
+	FifoThroughputScope?:       string | fn.#StringExpression
+	FifoTopic?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KmsMasterKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		string |
 		fn.#StringExpression
@@ -55,13 +54,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	SignatureVersion?: string | fn.#StringExpression
-	Subscription?:     [..._#defs."/$defs/Properties/definitions/Subscription"] | fn.#ListExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Subscription?:     [...#Subscription] | fn.#ListExpression
+	Tags?:             [...#Tag] | fn.#ListExpression
 	TopicName?:        strings.MaxRunes(256) | fn.#StringExpression
 	TracingConfig?:    string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/LoggingConfig": close({
+#LoggingConfig: close({
 	FailureFeedbackRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 	Protocol!: "http/s" | "sqs" | "lambda" | "firehose" | "application" | fn.#StringExpression
@@ -71,13 +70,13 @@ _#defs: "/$defs/Properties/definitions/LoggingConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Subscription": close({
+#Subscription: close({
 	Endpoint!: string | fn.#StringExpression
 	Protocol!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

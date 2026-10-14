@@ -16,14 +16,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	AccessLoggingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ContainerName!:        string | fn.#StringExpression
-	CorsPolicy?:           [..._#defs."/$defs/Properties/definitions/CorsRule"] | fn.#ListExpression
+	CorsPolicy?:           [...#CorsRule] | fn.#ListExpression
 	LifecyclePolicy?:      string | fn.#StringExpression
-	MetricPolicy?:         _#defs."/$defs/Properties/definitions/MetricPolicy"
+	MetricPolicy?:         #MetricPolicy
 	Policy?:               string | fn.#StringExpression
-	Tags?:                 [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:                 [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CorsRule": close({
+#CorsRule: close({
 	AllowedHeaders?: [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowedMethods?: [...string | fn.#StringExpression] | fn.#ListExpression
 	AllowedOrigins?: [...string | fn.#StringExpression] | fn.#ListExpression
@@ -45,19 +45,19 @@ _#defs: "/$defs/Properties/definitions/CorsRule": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricPolicy": close({
+#MetricPolicy: close({
 	ContainerLevelMetrics!: string | fn.#StringExpression
-	MetricPolicyRules?:     [..._#defs."/$defs/Properties/definitions/MetricPolicyRule"] | fn.#ListExpression
+	MetricPolicyRules?:     [...#MetricPolicyRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricPolicyRule": close({
+#MetricPolicyRule: close({
 	ObjectGroup!:     string | fn.#StringExpression
 	ObjectGroupName!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

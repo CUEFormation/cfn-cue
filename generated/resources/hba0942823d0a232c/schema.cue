@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -20,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Actions!: close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Actions"}}) |
+		{[=~"^.+$"]: #Actions}}) |
 	fn.#ObjectExpression
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	LatestVersionNumber?: int |
@@ -40,12 +40,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Name!: =~"^[^\\/#:\\n]{1,64}$" | fn.#StringExpression
 	Parameters?: close({
 
-		{[=~"^.+$"]: _#defs."/$defs/Properties/definitions/Parameter"}}) |
+		{[=~"^.+$"]: #Parameter}}) |
 	fn.#ObjectExpression
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Action": close({
+#Action: close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
@@ -54,17 +54,16 @@ _#defs: "/$defs/Properties/definitions/Action": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Actions": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Action"] |
-	fn.#ListExpression
+#Actions: list.UniqueItems() & [...#Action] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Parameter": close({
+#Parameter: close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Dynamic?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Required!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

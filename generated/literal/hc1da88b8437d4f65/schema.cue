@@ -19,34 +19,30 @@ import (
 	// AWS account and AWS Region. This includes details such as which S3 bucket
 	// recordings are stored in.
 	ConnectionRecordingPreferences?: close({
-		KMSKeyArn!:             _#defs."/$defs/Properties/definitions/KMSKeyArn"
-		RecordingDestinations!: _#defs."/$defs/Properties/definitions/RecordingDestinations"
+		KMSKeyArn!:             #KMSKeyArn
+		RecordingDestinations!: #RecordingDestinations
 	})
 })
 
 // The name of the S3 bucket where RDP connection recordings are stored.
-_#defs: "/$defs/Properties/definitions/BucketName": string
+#BucketName: string
 
 // The AWS account number that owns the S3 bucket.
-_#defs: "/$defs/Properties/definitions/BucketOwner": =~"^[0-9]{12}$"
+#BucketOwner: =~"^[0-9]{12}$"
 
 // The ARN of a AWS KMS key that is used to encrypt data while it is being
 // processed by the service. This key must exist in the same AWS Region as the
 // node you start an RDP connection to.
-_#defs: "/$defs/Properties/definitions/KMSKeyArn": =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
+#KMSKeyArn: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 // Determines where recordings of RDP connections are stored.
-_#defs: "/$defs/Properties/definitions/RecordingDestinations": close(
-	{S3Buckets!: _#defs."/$defs/Properties/definitions/S3Buckets"},
-)
+#RecordingDestinations: close({S3Buckets!: #S3Buckets})
 
 // The S3 bucket where RDP connection recordings are stored.
-_#defs: "/$defs/Properties/definitions/S3Bucket": close({
-	BucketName!:  _#defs."/$defs/Properties/definitions/BucketName"
-	BucketOwner!: _#defs."/$defs/Properties/definitions/BucketOwner"
+#S3Bucket: close({
+	BucketName!:  #BucketName
+	BucketOwner!: #BucketOwner
 })
 
 // The S3 bucket where RDP connection recordings are stored.
-_#defs: "/$defs/Properties/definitions/S3Buckets": list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-	..._#defs."/$defs/Properties/definitions/S3Bucket"
-]
+#S3Buckets: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#S3Bucket]

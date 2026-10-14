@@ -27,13 +27,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"WINDOWS_2022" |
 		fn.#StringExpression
 	ServerSdkVersion?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\d+\\.\\d+\\.\\d+$" | fn.#StringExpression
-	StorageLocation?:  _#defs."/$defs/Properties/definitions/StorageLocation" | fn.#ObjectExpression
-	Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
-	Version?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	StorageLocation?:  #StorageLocation | fn.#ObjectExpression
+	Tags?:             list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	Version?:          strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/S3Location": null |
+#S3Location: null |
 bool |
 number |
 string |
@@ -73,7 +72,7 @@ string |
 } |
 fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/StorageLocation": close({
+#StorageLocation: close({
 	Bucket!:        strings.MinRunes(1) | fn.#StringExpression
 	Key!:           strings.MinRunes(1) | fn.#StringExpression
 	ObjectVersion?: strings.MinRunes(1) | fn.#StringExpression
@@ -82,7 +81,7 @@ _#defs: "/$defs/Properties/definitions/StorageLocation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"time"
 	"list"
+	"strings"
+	"time"
 )
 
 import cfnScalarStrings "strings"
@@ -21,7 +21,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:        strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
 	EndDate?:            time.Time | fn.#StringExpression
-	FlexibleTimeWindow!: _#defs."/$defs/Properties/definitions/FlexibleTimeWindow"
+	FlexibleTimeWindow!: #FlexibleTimeWindow
 	GroupName?:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.]+$" | fn.#StringExpression
 	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
@@ -32,14 +32,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ScheduleExpression!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ScheduleExpressionTimezone?: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 	StartDate?:                  time.Time | fn.#StringExpression
-	State?:                      _#defs."/$defs/Properties/definitions/ScheduleState"
-	Target!:                     _#defs."/$defs/Properties/definitions/Target"
+	State?:                      #ScheduleState
+	Target!:                     #Target
 })
 
-_#defs: "/$defs/Properties/definitions/AssignPublicIp": "ENABLED" | "DISABLED" | fn.#StringExpression
+#AssignPublicIp: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
-	AssignPublicIp?: _#defs."/$defs/Properties/definitions/AssignPublicIp"
+#AwsVpcConfiguration: close({
+	AssignPublicIp?: #AssignPublicIp
 	SecurityGroups?: list.MaxItems(5) & list.MinItems(1) & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1000) & strings.MinRunes(1)) |
 		fn.#StringExpression
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
+#CapacityProviderStrategyItem: close({
 	Base?: <=100000 & >=0 |
 		{
 			string &
@@ -97,30 +97,25 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeadLetterConfig": close({
+#DeadLetterConfig: close({
 	Arn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws[a-z-]*:sqs:[a-z0-9\\-]+:\\d{12}:[a-zA-Z0-9\\-_]+$" |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcsParameters": close({
-	CapacityProviderStrategy?: list.MaxItems(6) & [
-		..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"
-	] |
-		fn.#ListExpression
-	EnableECSManagedTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Group?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	LaunchType?:           _#defs."/$defs/Properties/definitions/LaunchType"
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-	PlacementConstraints?: list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/PlacementConstraint"] |
-		fn.#ListExpression
-	PlacementStrategy?: list.MaxItems(5) & [..._#defs."/$defs/Properties/definitions/PlacementStrategy"] |
-		fn.#ListExpression
-	PlatformVersion?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	PropagateTags?:   _#defs."/$defs/Properties/definitions/PropagateTags"
-	ReferenceId?:     strings.MaxRunes(1024) | fn.#StringExpression
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/TagMap"] | fn.#ListExpression
+#EcsParameters: close({
+	CapacityProviderStrategy?: list.MaxItems(6) & [...#CapacityProviderStrategyItem] | fn.#ListExpression
+	EnableECSManagedTags?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	EnableExecuteCommand?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Group?:                    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	LaunchType?:               #LaunchType
+	NetworkConfiguration?:     #NetworkConfiguration
+	PlacementConstraints?:     list.MaxItems(10) & [...#PlacementConstraint] | fn.#ListExpression
+	PlacementStrategy?:        list.MaxItems(5) & [...#PlacementStrategy] | fn.#ListExpression
+	PlatformVersion?:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	PropagateTags?:            #PropagateTags
+	ReferenceId?:              strings.MaxRunes(1024) | fn.#StringExpression
+	Tags?:                     list.MaxItems(50) & [...] & [...#TagMap] | fn.#ListExpression
 	TaskCount?: <=10 & >=1 |
 		{
 			string &
@@ -145,13 +140,13 @@ _#defs: "/$defs/Properties/definitions/EcsParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EventBridgeParameters": close({
+#EventBridgeParameters: close({
 	DetailType!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Source!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlexibleTimeWindow": close({
+#FlexibleTimeWindow: close({
 	MaximumWindowInMinutes?: <=1440 & >=1 |
 		{
 			string &
@@ -172,43 +167,38 @@ _#defs: "/$defs/Properties/definitions/FlexibleTimeWindow": close({
 				)
 		} |
 		fn.#NumberExpression
-	Mode!: _#defs."/$defs/Properties/definitions/FlexibleTimeWindowMode"
+	Mode!: #FlexibleTimeWindowMode
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/FlexibleTimeWindowMode": "OFF" | "FLEXIBLE" | fn.#StringExpression
+#FlexibleTimeWindowMode: "OFF" | "FLEXIBLE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisParameters": close(
-	{PartitionKey!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#KinesisParameters: close({PartitionKey!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LaunchType": "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
+#LaunchType: "EC2" | "FARGATE" | "EXTERNAL" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close(
-	{AwsvpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration"},
-) |
-	fn.#ObjectExpression
+#NetworkConfiguration: close({AwsvpcConfiguration?: #AwsVpcConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementConstraint": close({
+#PlacementConstraint: close({
 	Expression?: strings.MaxRunes(2000) | fn.#StringExpression
-	Type?:       _#defs."/$defs/Properties/definitions/PlacementConstraintType"
+	Type?:       #PlacementConstraintType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementConstraintType": "distinctInstance" | "memberOf" | fn.#StringExpression
+#PlacementConstraintType: "distinctInstance" | "memberOf" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementStrategy": close({
+#PlacementStrategy: close({
 	Field?: strings.MaxRunes(255) | fn.#StringExpression
-	Type?:  _#defs."/$defs/Properties/definitions/PlacementStrategyType"
+	Type?:  #PlacementStrategyType
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementStrategyType": "random" | "spread" | "binpack" | fn.#StringExpression
+#PlacementStrategyType: "random" | "spread" | "binpack" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/PropagateTags": "TASK_DEFINITION" | fn.#StringExpression
+#PropagateTags: "TASK_DEFINITION" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RetryPolicy": close({
+#RetryPolicy: close({
 	MaximumEventAgeInSeconds?: <=86400 & >=60 |
 		{
 			string &
@@ -252,47 +242,42 @@ _#defs: "/$defs/Properties/definitions/RetryPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SageMakerPipelineParameter": close({
+#SageMakerPipelineParameter: close({
 	Name!:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-_]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SageMakerPipelineParameters": close({
-	PipelineParameterList?: list.MaxItems(200) & [...] & [
-		..._#defs."/$defs/Properties/definitions/SageMakerPipelineParameter"
-	] |
-		fn.#ListExpression
-}) |
+#SageMakerPipelineParameters: close(
+	{PipelineParameterList?: list.MaxItems(200) & [...] & [...#SageMakerPipelineParameter] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ScheduleState": "ENABLED" | "DISABLED" | fn.#StringExpression
+#ScheduleState: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SqsParameters": close(
-	{MessageGroupId?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#SqsParameters: close({MessageGroupId?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Target": close({
+#Target: close({
 	Arn!:                   strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	DeadLetterConfig?:      _#defs."/$defs/Properties/definitions/DeadLetterConfig"
-	EcsParameters?:         _#defs."/$defs/Properties/definitions/EcsParameters"
-	EventBridgeParameters?: _#defs."/$defs/Properties/definitions/EventBridgeParameters"
+	DeadLetterConfig?:      #DeadLetterConfig
+	EcsParameters?:         #EcsParameters
+	EventBridgeParameters?: #EventBridgeParameters
 	Input?:                 strings.MinRunes(1) | fn.#StringExpression
-	KinesisParameters?:     _#defs."/$defs/Properties/definitions/KinesisParameters"
-	RetryPolicy?:           _#defs."/$defs/Properties/definitions/RetryPolicy"
+	KinesisParameters?:     #KinesisParameters
+	RetryPolicy?:           #RetryPolicy
 	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@\\/-]+$" |
 	fn.#StringExpression
-	SageMakerPipelineParameters?: _#defs."/$defs/Properties/definitions/SageMakerPipelineParameters"
-	SqsParameters?:               _#defs."/$defs/Properties/definitions/SqsParameters"
+	SageMakerPipelineParameters?: #SageMakerPipelineParameters
+	SqsParameters?:               #SqsParameters
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

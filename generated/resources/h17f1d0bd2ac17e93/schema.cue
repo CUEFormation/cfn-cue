@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -29,16 +29,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	ScheduleExpression?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(rate\\(.+\\)|cron\\(.+\\))?$" |
 	fn.#StringExpression
-	State?: "DISABLED" | "ENABLED" | "ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS" | fn.#StringExpression
-	Tags?:  [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Targets?: list.MaxItems(5) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Target"] |
-		fn.#ListExpression
+	State?:   "DISABLED" | "ENABLED" | "ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS" | fn.#StringExpression
+	Tags?:    [...#Tag] | fn.#ListExpression
+	Targets?: list.MaxItems(5) & list.UniqueItems() & [...#Target] | fn.#ListExpression
 }) & matchN(>=1, [{EventPattern!: _}, {ScheduleExpression!: _}])
 
-_#defs: "/$defs/Properties/definitions/AppSyncParameters": close({GraphQLOperation!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#AppSyncParameters: close({GraphQLOperation!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
+#AwsVpcConfiguration: close({
 	AssignPublicIp?: "DISABLED" | "ENABLED" | fn.#StringExpression
 	SecurityGroups?: list.UniqueItems() & [
 		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
@@ -49,7 +47,7 @@ _#defs: "/$defs/Properties/definitions/AwsVpcConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BatchArrayProperties": close({
+#BatchArrayProperties: close({
 	Size?: int |
 		{
 			string &
@@ -67,15 +65,15 @@ _#defs: "/$defs/Properties/definitions/BatchArrayProperties": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BatchParameters": close({
-	ArrayProperties?: _#defs."/$defs/Properties/definitions/BatchArrayProperties"
+#BatchParameters: close({
+	ArrayProperties?: #BatchArrayProperties
 	JobDefinition!:   string | fn.#StringExpression
 	JobName!:         string | fn.#StringExpression
-	RetryStrategy?:   _#defs."/$defs/Properties/definitions/BatchRetryStrategy"
+	RetryStrategy?:   #BatchRetryStrategy
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/BatchRetryStrategy": close({
+#BatchRetryStrategy: close({
 	Attempts?: int |
 		{
 			string &
@@ -93,7 +91,7 @@ _#defs: "/$defs/Properties/definitions/BatchRetryStrategy": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
+#CapacityProviderStrategyItem: close({
 	Base?: int & <=100000 & >=0 |
 		{
 			string &
@@ -130,31 +128,24 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderStrategyItem": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/DeadLetterConfig": close(
-	{Arn?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#DeadLetterConfig: close({Arn?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/EcsParameters": close({
-	CapacityProviderStrategy?: list.MaxItems(6) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/CapacityProviderStrategyItem"
-	] |
+#EcsParameters: close({
+	CapacityProviderStrategy?: list.MaxItems(6) & list.UniqueItems() & [...] & [...#CapacityProviderStrategyItem] |
 		fn.#ListExpression
 	EnableECSManagedTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Group?:                string | fn.#StringExpression
 	LaunchType?:           "EC2" | "EXTERNAL" | "FARGATE" | fn.#StringExpression
-	NetworkConfiguration?: _#defs."/$defs/Properties/definitions/NetworkConfiguration"
-	PlacementConstraints?: list.MaxItems(10) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/PlacementConstraint"
-	] |
+	NetworkConfiguration?: #NetworkConfiguration
+	PlacementConstraints?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#PlacementConstraint] |
 		fn.#ListExpression
-	PlacementStrategies?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/PlacementStrategy"] |
-		fn.#ListExpression
-	PlatformVersion?: string | fn.#StringExpression
-	PropagateTags?:   "TASK_DEFINITION" | fn.#StringExpression
-	ReferenceId?:     strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	TagList?:         list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	PlacementStrategies?: list.UniqueItems() & [...#PlacementStrategy] | fn.#ListExpression
+	PlatformVersion?:     string | fn.#StringExpression
+	PropagateTags?:       "TASK_DEFINITION" | fn.#StringExpression
+	ReferenceId?:         strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	TagList?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	TaskCount?: int & >=1 |
 		{
 			string &
@@ -174,7 +165,7 @@ _#defs: "/$defs/Properties/definitions/EcsParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HttpParameters": close({
+#HttpParameters: close({
 	HeaderParameters?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
@@ -187,7 +178,7 @@ _#defs: "/$defs/Properties/definitions/HttpParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InputTransformer": close({
+#InputTransformer: close({
 	InputPathsMap?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
@@ -196,29 +187,24 @@ _#defs: "/$defs/Properties/definitions/InputTransformer": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/KinesisParameters": close(
-	{PartitionKeyPath!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression},
-) |
+#KinesisParameters: close({PartitionKeyPath!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NetworkConfiguration": close(
-	{AwsVpcConfiguration?: _#defs."/$defs/Properties/definitions/AwsVpcConfiguration"},
-) |
-	fn.#ObjectExpression
+#NetworkConfiguration: close({AwsVpcConfiguration?: #AwsVpcConfiguration}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementConstraint": close({
+#PlacementConstraint: close({
 	Expression?: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
 	Type?:       "distinctInstance" | "memberOf" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PlacementStrategy": close({
+#PlacementStrategy: close({
 	Field?: string | fn.#StringExpression
 	Type?:  string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RedshiftDataParameters": close({
+#RedshiftDataParameters: close({
 	Database!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
 	DbUser?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	SecretManagerArn?: strings.MaxRunes(1600) &
@@ -232,7 +218,7 @@ _#defs: "/$defs/Properties/definitions/RedshiftDataParameters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RetryPolicy": close({
+#RetryPolicy: close({
 	MaximumEventAgeInSeconds?: int & <=86400 & >=60 |
 		{
 			string &
@@ -268,15 +254,13 @@ _#defs: "/$defs/Properties/definitions/RetryPolicy": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RunCommandParameters": close({
-	RunCommandTargets!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/RunCommandTarget"
-	] |
+#RunCommandParameters: close({
+	RunCommandTargets!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#RunCommandTarget] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RunCommandTarget": close({
+#RunCommandTarget: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
 	Values!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
 		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
@@ -285,49 +269,46 @@ _#defs: "/$defs/Properties/definitions/RunCommandTarget": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SageMakerPipelineParameter": close({
+#SageMakerPipelineParameter: close({
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9_-]*[a-zA-Z0-9])?$" |
 	fn.#StringExpression
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SageMakerPipelineParameters": close({
-	PipelineParameterList?: list.MaxItems(200) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/SageMakerPipelineParameter"
-	] |
+#SageMakerPipelineParameters: close({
+	PipelineParameterList?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#SageMakerPipelineParameter] |
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/SqsParameters": close({MessageGroupId!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#SqsParameters: close({MessageGroupId!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Target": close({
-	AppSyncParameters?: _#defs."/$defs/Properties/definitions/AppSyncParameters"
+#Target: close({
+	AppSyncParameters?: #AppSyncParameters
 	Arn!:               strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	BatchParameters?:   _#defs."/$defs/Properties/definitions/BatchParameters"
-	DeadLetterConfig?:  _#defs."/$defs/Properties/definitions/DeadLetterConfig"
-	EcsParameters?:     _#defs."/$defs/Properties/definitions/EcsParameters"
-	HttpParameters?:    _#defs."/$defs/Properties/definitions/HttpParameters"
+	BatchParameters?:   #BatchParameters
+	DeadLetterConfig?:  #DeadLetterConfig
+	EcsParameters?:     #EcsParameters
+	HttpParameters?:    #HttpParameters
 	Id!:                strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" | fn.#StringExpression
 	Input?:             strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
 	InputPath?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	InputTransformer?:  _#defs."/$defs/Properties/definitions/InputTransformer"
-	KinesisParameters?: _#defs."/$defs/Properties/definitions/KinesisParameters"
-	RedshiftDataParameters?: _#defs."/$defs/Properties/definitions/RedshiftDataParameters"
-	RetryPolicy?:            _#defs."/$defs/Properties/definitions/RetryPolicy"
+	InputTransformer?:  #InputTransformer
+	KinesisParameters?: #KinesisParameters
+	RedshiftDataParameters?: #RedshiftDataParameters
+	RetryPolicy?:            #RetryPolicy
 	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
 	fn.#StringExpression
-	RunCommandParameters?:        _#defs."/$defs/Properties/definitions/RunCommandParameters"
-	SageMakerPipelineParameters?: _#defs."/$defs/Properties/definitions/SageMakerPipelineParameters"
-	SqsParameters?:               _#defs."/$defs/Properties/definitions/SqsParameters"
+	RunCommandParameters?:        #RunCommandParameters
+	SageMakerPipelineParameters?: #SageMakerPipelineParameters
+	SqsParameters?:               #SqsParameters
 }) |
 fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {

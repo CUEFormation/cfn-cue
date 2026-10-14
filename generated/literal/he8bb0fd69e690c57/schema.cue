@@ -20,7 +20,7 @@ import (
 
 	// The number of router outputs associated with the network interface.
 	AssociatedOutputCount?: int
-	Configuration!:         _#defs."/$defs/Properties/definitions/RouterNetworkInterfaceConfiguration"
+	Configuration!:         #RouterNetworkInterfaceConfiguration
 
 	// The timestamp when the router network interface was created.
 	CreatedAt?: time.Time
@@ -30,14 +30,14 @@ import (
 
 	// The name of the router network interface.
 	Name!:                 strings.MaxRunes(128) & strings.MinRunes(1)
-	NetworkInterfaceType?: _#defs."/$defs/Properties/definitions/RouterNetworkInterfaceType"
+	NetworkInterfaceType?: #RouterNetworkInterfaceType
 
 	// The AWS Region for the router network interface. Defaults to the current region if not specified.
 	RegionName?: string
-	State?:      _#defs."/$defs/Properties/definitions/RouterNetworkInterfaceState"
+	State?:      #RouterNetworkInterfaceState
 
 	// Key-value pairs that can be used to tag and organize this router network interface.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The timestamp when the router network interface was last updated.
 	UpdatedAt?: time.Time
@@ -45,45 +45,36 @@ import (
 
 // The configuration settings for a public router network interface, including
 // the list of allowed CIDR blocks.
-_#defs: "/$defs/Properties/definitions/PublicRouterNetworkInterfaceConfiguration": close({
+#PublicRouterNetworkInterfaceConfiguration: close({
 	// The list of allowed CIDR blocks for the public router network interface.
-	AllowRules!: list.MaxItems(10) & [...] & [
-		..._#defs."/$defs/Properties/definitions/PublicRouterNetworkInterfaceRule"
-	]
+	AllowRules!: list.MaxItems(10) & [...] & [...#PublicRouterNetworkInterfaceRule]
 })
 
 // A rule that allows a specific CIDR block to access the public router network interface.
-_#defs: "/$defs/Properties/definitions/PublicRouterNetworkInterfaceRule": close({
+#PublicRouterNetworkInterfaceRule: close({
 	// The CIDR block that is allowed to access the public router network interface.
 	Cidr!: string
 })
 
 // The configuration settings for a router network interface.
-_#defs: "/$defs/Properties/definitions/RouterNetworkInterfaceConfiguration": matchN(1, [close(
-	{Public!: _#defs."/$defs/Properties/definitions/PublicRouterNetworkInterfaceConfiguration"},
-), close(
-	{Vpc!: _#defs."/$defs/Properties/definitions/VpcRouterNetworkInterfaceConfiguration"},
-)])
+#RouterNetworkInterfaceConfiguration: matchN(1, [
+	close({Public!: #PublicRouterNetworkInterfaceConfiguration}), close({Vpc!: #VpcRouterNetworkInterfaceConfiguration}),
+])
 
-_#defs: "/$defs/Properties/definitions/RouterNetworkInterfaceState": "CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETING" |
-	"ERROR" |
-	"RECOVERING"
+#RouterNetworkInterfaceState: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | "ERROR" | "RECOVERING"
 
-_#defs: "/$defs/Properties/definitions/RouterNetworkInterfaceType": "PUBLIC" | "VPC"
+#RouterNetworkInterfaceType: "PUBLIC" | "VPC"
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })
 
-_#defs: "/$defs/Properties/definitions/Unit": close({})
+#Unit: close({})
 
 // The configuration settings for a router network interface within a VPC,
 // including the security group IDs and subnet ID.
-_#defs: "/$defs/Properties/definitions/VpcRouterNetworkInterfaceConfiguration": close({
+#VpcRouterNetworkInterfaceConfiguration: close({
 	// The IDs of the security groups to associate with the router network interface within the VPC.
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 

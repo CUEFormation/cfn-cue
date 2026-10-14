@@ -20,13 +20,13 @@ import (
 	Id?:            strings.MaxRunes(20) & strings.MinRunes(20) & =~"^sn-[0-9a-z]{17}$"
 	LastUpdatedAt?: string
 	Name?:          strings.MaxRunes(63) & strings.MinRunes(3)
-	SharingConfig?: _#defs."/$defs/Properties/definitions/SharingConfig"
-	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	SharingConfig?: #SharingConfig
+	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/SharingConfig": close({enabled!: bool})
+#SharingConfig: close({enabled!: bool})
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

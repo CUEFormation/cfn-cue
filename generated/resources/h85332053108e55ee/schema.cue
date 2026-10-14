@@ -15,30 +15,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // permissions to a specific S3 bucket or prefix hosted in an S3 Access Grants
 // instance.
 #Properties: close({
-	AccessGrantsLocationConfiguration?: _#defs."/$defs/Properties/definitions/AccessGrantsLocationConfiguration" |
-		fn.#ObjectExpression
-	AccessGrantsLocationId!: string | fn.#StringExpression
-	ApplicationArn?:         string | fn.#StringExpression
-	Grantee!:                _#defs."/$defs/Properties/definitions/Grantee" | fn.#ObjectExpression
-	Permission!:             "READ" | "WRITE" | "READWRITE" | fn.#StringExpression
-	S3PrefixType?:           "Object" | fn.#StringExpression
-	Tags?:                   list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	AccessGrantsLocationConfiguration?: #AccessGrantsLocationConfiguration | fn.#ObjectExpression
+	AccessGrantsLocationId!:            string | fn.#StringExpression
+	ApplicationArn?:                    string | fn.#StringExpression
+	Grantee!:                           #Grantee | fn.#ObjectExpression
+	Permission!:                        "READ" | "WRITE" | "READWRITE" | fn.#StringExpression
+	S3PrefixType?:                      "Object" | fn.#StringExpression
+	Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccessGrantArn": string | fn.#StringExpression
+#AccessGrantArn: string | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/AccessGrantsLocationConfiguration": close(
-	{S3SubPrefix!: string | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#AccessGrantsLocationConfiguration: close({S3SubPrefix!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Grantee": close({
+#Grantee: close({
 	GranteeIdentifier!: string | fn.#StringExpression
 	GranteeType!:       "IAM" | "DIRECTORY_USER" | "DIRECTORY_GROUP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

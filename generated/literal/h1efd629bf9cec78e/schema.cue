@@ -19,10 +19,10 @@ import (
 	=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:capacity-provider:[a-zA-Z0-9-_]+)|[a-zA-Z0-9-_]+$"
 
 	// The scaling configuration for the capacity provider.
-	CapacityProviderScalingConfig?: _#defs."/$defs/Properties/definitions/CapacityProviderScalingConfig"
+	CapacityProviderScalingConfig?: #CapacityProviderScalingConfig
 
 	// The instance requirements for compute resources managed by the capacity provider.
-	InstanceRequirements?: _#defs."/$defs/Properties/definitions/InstanceRequirements"
+	InstanceRequirements?: #InstanceRequirements
 
 	// The ARN of the KMS key used to encrypt the capacity provider's resources.
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
@@ -31,27 +31,27 @@ import (
 	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$"
 
 	// The permissions configuration for the capacity provider.
-	PermissionsConfig!: _#defs."/$defs/Properties/definitions/CapacityProviderPermissionsConfig"
+	PermissionsConfig!: #CapacityProviderPermissionsConfig
 
 	// Configuration for tag propagation to managed resources launched by the capacity provider.
-	PropagateTags?: _#defs."/$defs/Properties/definitions/PropagateTagsConfig"
-	State?:         _#defs."/$defs/Properties/definitions/CapacityProviderState"
+	PropagateTags?: #PropagateTagsConfig
+	State?:         #CapacityProviderState
 
 	// A key-value pair that provides metadata for the capacity provider.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The telemetry configuration for the capacity provider, including logging settings.
-	TelemetryConfig?: _#defs."/$defs/Properties/definitions/CapacityProviderTelemetryConfig"
+	TelemetryConfig?: #CapacityProviderTelemetryConfig
 
 	// The VPC configuration for the capacity provider.
-	VpcConfig!: _#defs."/$defs/Properties/definitions/CapacityProviderVpcConfig"
+	VpcConfig!: #CapacityProviderVpcConfig
 })
 
 // Specifications for the types of EC2 instances that the capacity provider can use.
-_#defs: "/$defs/Properties/definitions/Architecture": "x86_64" | "arm64"
+#Architecture: "x86_64" | "arm64"
 
 // The capacity provider's Amazon CloudWatch Logs configuration settings.
-_#defs: "/$defs/Properties/definitions/CapacityProviderLoggingConfig": close({
+#CapacityProviderLoggingConfig: close({
 	// The name of the Amazon CloudWatch log group the capacity provider sends logs
 	// to. By default, Lambda capacity providers send logs to a default log group
 	// named ``/aws/lambda/capacity-provider/<capacity provider name>``. To use a
@@ -68,7 +68,7 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderLoggingConfig": close({
 
 // Configuration that specifies the permissions required for the capacity
 // provider to manage compute resources.
-_#defs: "/$defs/Properties/definitions/CapacityProviderPermissionsConfig": close({
+#CapacityProviderPermissionsConfig: close({
 	// The ARN of the IAM role that the capacity provider uses to manage compute
 	// instances and other AWS resources.
 	CapacityProviderOperatorRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -78,41 +78,39 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderPermissionsConfig": close
 })
 
 // The predefined metric for target tracking.
-_#defs: "/$defs/Properties/definitions/CapacityProviderPredefinedMetricType": "LambdaCapacityProviderAverageCPUUtilization" |
+#CapacityProviderPredefinedMetricType: "LambdaCapacityProviderAverageCPUUtilization" |
 	"LambdaCapacityProviderAverageGPUUtilization"
 
 // Configuration that defines how the capacity provider scales compute instances
 // based on demand and policies.
-_#defs: "/$defs/Properties/definitions/CapacityProviderScalingConfig": close({
+#CapacityProviderScalingConfig: close({
 	// The maximum number of vCPUs that the capacity provider can provision across
 	// all compute instances.
 	MaxVCpuCount?: int & <=15000 & >=2
 
 	// The scaling mode that determines how the capacity provider responds to changes in demand.
-	ScalingMode?: _#defs."/$defs/Properties/definitions/CapacityProviderScalingMode"
+	ScalingMode?: #CapacityProviderScalingMode
 
 	// A list of target tracking scaling policies for the capacity provider.
-	ScalingPolicies?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/TargetTrackingScalingPolicy"
-	]
+	ScalingPolicies?: list.MaxItems(10) & list.MinItems(1) & [...#TargetTrackingScalingPolicy]
 })
 
 // The scaling mode for the capacity provider.
-_#defs: "/$defs/Properties/definitions/CapacityProviderScalingMode": "Auto" | "Manual"
+#CapacityProviderScalingMode: "Auto" | "Manual"
 
 // The current state of the capacity provider. Indicates whether the provider is
 // being created, is active and ready for use, has failed, or is being deleted.
-_#defs: "/$defs/Properties/definitions/CapacityProviderState": "Pending" | "Active" | "Failed" | "Deleting"
+#CapacityProviderState: "Pending" | "Active" | "Failed" | "Deleting"
 
 // Configuration that specifies the telemetry collection for the capacity provider.
-_#defs: "/$defs/Properties/definitions/CapacityProviderTelemetryConfig": close({
+#CapacityProviderTelemetryConfig: close({
 	// The capacity provider's Amazon CloudWatch Logs configuration settings.
-	LoggingConfig?: _#defs."/$defs/Properties/definitions/CapacityProviderLoggingConfig"
+	LoggingConfig?: #CapacityProviderLoggingConfig
 })
 
 // VPC configuration that specifies the network settings for compute instances
 // managed by the capacity provider.
-_#defs: "/$defs/Properties/definitions/CapacityProviderVpcConfig": close({
+#CapacityProviderVpcConfig: close({
 	// A list of security group IDs that control network access for compute
 	// instances managed by the capacity provider.
 	SecurityGroupIds!: list.MaxItems(5) & [...] & [
@@ -130,7 +128,7 @@ _#defs: "/$defs/Properties/definitions/CapacityProviderVpcConfig": close({
 
 // Specifications that define the characteristics and constraints for compute
 // instances used by the capacity provider.
-_#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
+#InstanceRequirements: close({
 	// A list of EC2 instance types that the capacity provider is allowed to use. If
 	// not specified, all compatible instance types are allowed.
 	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [
@@ -139,7 +137,7 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 
 	// A list of supported CPU architectures for compute instances. Valid values
 	// include ``x86_64`` and ``arm64``.
-	Architectures?: list.MaxItems(1) & list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Architecture"]
+	Architectures?: list.MaxItems(1) & list.MinItems(1) & [...#Architecture]
 
 	// A list of EC2 instance types that the capacity provider should not use, even
 	// if they meet other requirements.
@@ -149,20 +147,20 @@ _#defs: "/$defs/Properties/definitions/InstanceRequirements": close({
 })
 
 // Configuration that defines how tags are propagated to managed resources.
-_#defs: "/$defs/Properties/definitions/PropagateTagsConfig": close({
+#PropagateTagsConfig: close({
 	// A list of tags to explicitly propagate to managed resources. Maximum of 40 tags.
-	ExplicitTags?: list.MaxItems(40) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	ExplicitTags?: list.MaxItems(40) & list.UniqueItems() & [...] & [...#Tag]
 
 	// The mode for tag propagation. Use ``Explicit`` to propagate specific tags, or
 	// ``None`` to disable propagation.
-	Mode?: _#defs."/$defs/Properties/definitions/PropagateTagsMode"
+	Mode?: #PropagateTagsMode
 })
 
 // The mode for tag propagation.
-_#defs: "/$defs/Properties/definitions/PropagateTagsMode": "None" | "Explicit"
+#PropagateTagsMode: "None" | "Explicit"
 
 // A key-value pair that provides metadata for the capacity provider.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key name of the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 
@@ -172,9 +170,9 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 
 // A scaling policy for the capacity provider that automatically adjusts
 // capacity to maintain a target value for a specific metric.
-_#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicy": close({
+#TargetTrackingScalingPolicy: close({
 	// The predefined metric type to track for scaling decisions.
-	PredefinedMetricType!: _#defs."/$defs/Properties/definitions/CapacityProviderPredefinedMetricType"
+	PredefinedMetricType!: #CapacityProviderPredefinedMetricType
 
 	// The target value for the metric that the scaling policy attempts to maintain
 	// through scaling actions.

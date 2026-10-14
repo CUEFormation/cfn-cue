@@ -36,10 +36,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	MaxErrors?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,6}|[0]|[1-9][0-9]%|[0-9]%|100%)$" |
 	fn.#StringExpression
 	Name!:           =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
-	OutputLocation?: _#defs."/$defs/Properties/definitions/InstanceAssociationOutputLocation"
+	OutputLocation?: #InstanceAssociationOutputLocation
 	Parameters?: close({
 
-		{[=~".{1,255}"]: _#defs."/$defs/Properties/definitions/ParameterValues"}}) |
+		{[=~".{1,255}"]: #ParameterValues}}) |
 	fn.#ObjectExpression
 	ScheduleExpression?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
 	ScheduleOffset?: int & <=6 & >=1 |
@@ -59,8 +59,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	SyncCompliance?: "AUTO" | "MANUAL" | fn.#StringExpression
-	Tags?:           list.MaxItems(1000) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Targets?:        list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/Target"] | fn.#ListExpression
+	Tags?:           list.MaxItems(1000) & [...] & [...#Tag] | fn.#ListExpression
+	Targets?:        list.MaxItems(5) & [...] & [...#Target] | fn.#ListExpression
 	WaitForSuccessTimeoutSeconds?: int & <=172800 & >=15 |
 		{
 			string &
@@ -79,33 +79,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceAssociationOutputLocation": close(
-	{S3Location?: _#defs."/$defs/Properties/definitions/S3OutputLocation"},
-) |
-	fn.#ObjectExpression
+#InstanceAssociationOutputLocation: close({S3Location?: #S3OutputLocation}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/ParameterValues": [...string | fn.#StringExpression] | fn.#ListExpression
+#ParameterValues: [...string | fn.#StringExpression] | fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/S3BucketName": strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3KeyPrefix": strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+#S3KeyPrefix: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/S3OutputLocation": close({
-	OutputS3BucketName?: _#defs."/$defs/Properties/definitions/S3BucketName"
-	OutputS3KeyPrefix?:  _#defs."/$defs/Properties/definitions/S3KeyPrefix"
-	OutputS3Region?:     _#defs."/$defs/Properties/definitions/S3Region"
+#S3OutputLocation: close({
+	OutputS3BucketName?: #S3BucketName
+	OutputS3KeyPrefix?:  #S3KeyPrefix
+	OutputS3Region?:     #S3Region
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/S3Region": strings.MaxRunes(20) & strings.MinRunes(3) | fn.#StringExpression
+#S3Region: strings.MaxRunes(20) & strings.MinRunes(3) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Target": close({
+#Target: close({
 	Key!: strings.MaxRunes(163) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]{1,128}$|resource-groups:Name" |
 	fn.#StringExpression
 	Values!: list.MaxItems(50) & [...] & [...string & string | fn.#StringExpression] | fn.#ListExpression

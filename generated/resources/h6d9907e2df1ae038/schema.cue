@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -17,9 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // configuration access roles), and Well-Architected pillar focus used to
 // generate Well-Architected Agent recommendations.
 #Properties: close({
-	AggregationConfiguration!: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		..._#defs."/$defs/Properties/definitions/AggregationConfiguration"
-	] |
+	AggregationConfiguration!: list.MaxItems(100) & list.UniqueItems() & [...] & [...#AggregationConfiguration] |
 		fn.#ListExpression
 	BusinessOverview?:   strings.MaxRunes(512) | fn.#StringExpression
 	DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -30,15 +28,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^arn:([a-z\\-]+):iam::[0-9]{12}:role/(service-role/)?[a-zA-Z0-9+=,.@\\-_]+$" |
 	fn.#StringExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Pillars!: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/Pillar"
-	] |
-		fn.#ListExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Name!:    strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	Pillars!: list.MaxItems(4) & list.MinItems(1) & list.UniqueItems() & [...#Pillar] | fn.#ListExpression
+	Tags?:    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AggregationConfiguration": close({
+#AggregationConfiguration: close({
 	AccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -52,13 +47,9 @@ _#defs: "/$defs/Properties/definitions/AggregationConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Pillar": "COST_OPTIMIZATION" |
-	"SECURITY" |
-	"RESILIENCE" |
-	"PERFORMANCE" |
-	fn.#StringExpression
+#Pillar: "COST_OPTIMIZATION" | "SECURITY" | "RESILIENCE" | "PERFORMANCE" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

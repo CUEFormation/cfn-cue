@@ -3,10 +3,10 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"math"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -15,16 +15,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::OpenSearchServerless::CollectionGroup
 #Properties: close({
-	CapacityLimits?:  _#defs."/$defs/Properties/definitions/CapacityLimits"
+	CapacityLimits?:  #CapacityLimits
 	Description?:     strings.MaxRunes(1000) | fn.#StringExpression
 	Generation?:      "CLASSIC" | "NEXTGEN" | fn.#StringExpression
 	Name!:            strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" | fn.#StringExpression
 	StandbyReplicas!: "ENABLED" | "DISABLED" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] |
-		fn.#ListExpression
+	Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CapacityLimits": close({
+#CapacityLimits: close({
 	MaxIndexingCapacityInOcu?: math.MultipleOf(0.5) & >=1 | fn.#NumberExpression
 	MaxSearchCapacityInOcu?:   math.MultipleOf(0.5) & >=1 | fn.#NumberExpression
 	MinIndexingCapacityInOcu?: math.MultipleOf(0.5) & >=0 | fn.#NumberExpression
@@ -32,7 +31,7 @@ _#defs: "/$defs/Properties/definitions/CapacityLimits": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

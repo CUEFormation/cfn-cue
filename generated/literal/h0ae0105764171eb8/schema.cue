@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -15,7 +15,7 @@ import (
 	Arn?: string
 
 	// The models to associate with this detector.
-	AssociatedModels?: list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/Model"]
+	AssociatedModels?: list.MaxItems(10) & [...#Model]
 
 	// The time when the detector was created.
 	CreatedTime?: string
@@ -33,18 +33,18 @@ import (
 	DetectorVersionStatus?: "DRAFT" | "ACTIVE"
 
 	// The event type to associate this detector with.
-	EventType!: _#defs."/$defs/Properties/definitions/EventType"
+	EventType!: #EventType
 
 	// The time when the detector was last updated.
 	LastUpdatedTime?:   string
 	RuleExecutionMode?: "FIRST_MATCHED" | "ALL_MATCHED"
-	Rules!:             list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Rule"]
+	Rules!:             list.MinItems(1) & [...#Rule]
 
 	// Tags associated with this detector.
-	Tags?: list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/EntityType": close({
+#EntityType: close({
 	Arn?: string
 
 	// The time when the entity type was created.
@@ -59,10 +59,10 @@ _#defs: "/$defs/Properties/definitions/EntityType": close({
 	Name?:            string
 
 	// Tags associated with this entity type.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/EventType": close({
+#EventType: close({
 	// The ARN of the event type.
 	Arn?: string
 
@@ -71,10 +71,10 @@ _#defs: "/$defs/Properties/definitions/EventType": close({
 
 	// The description of the event type.
 	Description?:    strings.MaxRunes(128) & strings.MinRunes(1)
-	EntityTypes?:    list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EntityType"]
-	EventVariables?: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/EventVariable"]
+	EntityTypes?:    list.MinItems(1) & [...#EntityType]
+	EventVariables?: list.MinItems(1) & [...#EventVariable]
 	Inline?:         bool
-	Labels?:         list.MinItems(2) & [..._#defs."/$defs/Properties/definitions/Label"]
+	Labels?:         list.MinItems(2) & [...#Label]
 
 	// The time when the event type was last updated.
 	LastUpdatedTime?: string
@@ -83,10 +83,10 @@ _#defs: "/$defs/Properties/definitions/EventType": close({
 	Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$"
 
 	// Tags associated with this event type.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/EventVariable": close({
+#EventVariable: close({
 	Arn?: string
 
 	// The time when the event variable was created.
@@ -104,7 +104,7 @@ _#defs: "/$defs/Properties/definitions/EventVariable": close({
 	Name?:            string
 
 	// Tags associated with this event variable.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 	VariableType?: "AUTH_CODE" |
 		"AVS" |
 		"BILLING_ADDRESS_L1" |
@@ -140,7 +140,7 @@ _#defs: "/$defs/Properties/definitions/EventVariable": close({
 		"USERAGENT"
 })
 
-_#defs: "/$defs/Properties/definitions/Label": close({
+#Label: close({
 	Arn?: string
 
 	// The time when the label was created.
@@ -155,13 +155,13 @@ _#defs: "/$defs/Properties/definitions/Label": close({
 	Name?:            string
 
 	// Tags associated with this label.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 })
 
 // A model to associate with a detector.
-_#defs: "/$defs/Properties/definitions/Model": close({Arn?: string})
+#Model: close({Arn?: string})
 
-_#defs: "/$defs/Properties/definitions/Outcome": close({
+#Outcome: close({
 	Arn?: string
 
 	// The time when the outcome was created.
@@ -176,10 +176,10 @@ _#defs: "/$defs/Properties/definitions/Outcome": close({
 	Name?:            string
 
 	// Tags associated with this outcome.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Rule": close({
+#Rule: close({
 	Arn?: string
 
 	// The time when the event type was created.
@@ -193,15 +193,15 @@ _#defs: "/$defs/Properties/definitions/Rule": close({
 
 	// The time when the event type was last updated.
 	LastUpdatedTime?: string
-	Outcomes?:        list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/Outcome"]
+	Outcomes?:        list.MinItems(1) & [...#Outcome]
 	RuleId?:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z_-]+$"
 	RuleVersion?:     strings.MaxRunes(5) & strings.MinRunes(1) & =~"^([1-9][0-9]*)$"
 
 	// Tags associated with this event type.
-	Tags?: list.MaxItems(200) & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(200) & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

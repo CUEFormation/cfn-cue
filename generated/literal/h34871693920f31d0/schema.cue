@@ -35,13 +35,13 @@ import "time"
 	Origin?: "OWNED" | "ENTITLED"
 
 	// Tags for the data set.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The date and time that the data set was last updated, in ISO 8601 format.
 	UpdatedAt?: time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

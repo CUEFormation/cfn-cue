@@ -16,19 +16,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // describes an association between a local gateway route table and a VPC.
 #Properties: close({
 	LocalGatewayRouteTableId!: string | fn.#StringExpression
-	Tags?:                     _#defs."/$defs/Properties/definitions/Tags" | fn.#ListExpression
+	Tags?:                     #Tags | fn.#ListExpression
 	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tags": list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] |
-	fn.#ListExpression
+#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::EC2::LocalGatewayRouteTableVPCAssociation"
 	Properties!: #Properties

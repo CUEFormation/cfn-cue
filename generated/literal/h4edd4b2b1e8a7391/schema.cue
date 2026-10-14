@@ -9,10 +9,10 @@ package schema
 // Supported only for REST APIs.
 #Properties: close({
 	// The resulting action based on matching a routing rules condition. Only InvokeApi is supported.
-	Actions!: [..._#defs."/$defs/Properties/definitions/Action"]
+	Actions!: [...#Action]
 
 	// The conditions of the routing rule.
-	Conditions!: [..._#defs."/$defs/Properties/definitions/Condition"]
+	Conditions!: [...#Condition]
 
 	// The ARN of the domain name.
 	DomainNameArn!: string
@@ -26,14 +26,14 @@ package schema
 })
 
 // Represents a routing rule action. The only supported action is ``invokeApi``.
-_#defs: "/$defs/Properties/definitions/Action": {
+#Action: {
 	// Represents an InvokeApi action.
-	InvokeApi!: _#defs."/$defs/Properties/definitions/ActionInvokeApi"
+	InvokeApi!: #ActionInvokeApi
 	...
 }
 
 // Represents an InvokeApi action.
-_#defs: "/$defs/Properties/definitions/ActionInvokeApi": {
+#ActionInvokeApi: {
 	// The API identifier of the target API.
 	ApiId!: string
 
@@ -50,24 +50,24 @@ _#defs: "/$defs/Properties/definitions/ActionInvokeApi": {
 // conditions and one ``matchBasePaths`` conditions. API Gateway evaluates
 // header conditions and base path conditions together. You can only use AND
 // between header and base path conditions.
-_#defs: "/$defs/Properties/definitions/Condition": {
+#Condition: {
 	// The base path to be matched.
-	MatchBasePaths?: _#defs."/$defs/Properties/definitions/MatchBasePaths"
+	MatchBasePaths?: #MatchBasePaths
 
 	// The headers to be matched.
-	MatchHeaders?: _#defs."/$defs/Properties/definitions/MatchHeaders"
+	MatchHeaders?: #MatchHeaders
 	...
 }
 
 // Represents a ``MatchBasePaths`` condition.
-_#defs: "/$defs/Properties/definitions/MatchBasePaths": {
+#MatchBasePaths: {
 	// The string of the case sensitive base path to be matched.
 	AnyOf!: [...string]
 	...
 }
 
 // Represents a ``MatchHeaderValue``.
-_#defs: "/$defs/Properties/definitions/MatchHeaderValue": {
+#MatchHeaderValue: {
 	// The case insensitive header name to be matched. The header name must be less
 	// than 40 characters and the only allowed characters are ``a-z``, ``A-Z``,
 	// ``0-9``, and the following special characters: ``*?-!#$%&'.^_`|~.``.
@@ -84,10 +84,10 @@ _#defs: "/$defs/Properties/definitions/MatchHeaderValue": {
 }
 
 // Represents a ``MatchHeaders`` condition.
-_#defs: "/$defs/Properties/definitions/MatchHeaders": {
+#MatchHeaders: {
 	// The header name and header value glob to be matched. The matchHeaders
 	// condition is matched if any of the header name and header value globs are
 	// matched.
-	AnyOf!: [..._#defs."/$defs/Properties/definitions/MatchHeaderValue"]
+	AnyOf!: [...#MatchHeaderValue]
 	...
 }

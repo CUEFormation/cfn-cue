@@ -21,21 +21,21 @@ import (
 	=~"^(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:certificate/[0-9a-z-]+)?$"
 	CreatedAt?:          string
 	CustomDomainName?:   strings.MaxRunes(255) & strings.MinRunes(3)
-	DnsEntry?:           _#defs."/$defs/Properties/definitions/DnsEntry"
+	DnsEntry?:           #DnsEntry
 	Id?:                 strings.MaxRunes(21) & strings.MinRunes(21) & =~"^svc-[0-9a-z]{17}$"
 	IdleTimeoutSeconds?: int & <=600 & >=60
 	LastUpdatedAt?:      string
 	Name?:               strings.MaxRunes(40) & strings.MinRunes(3)
 	Status?:             "ACTIVE" | "CREATE_IN_PROGRESS" | "DELETE_IN_PROGRESS" | "CREATE_FAILED" | "DELETE_FAILED"
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:               list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/DnsEntry": close({
+#DnsEntry: close({
 	DomainName?:   string
 	HostedZoneId?: string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })

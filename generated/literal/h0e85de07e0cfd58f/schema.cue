@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -20,8 +20,8 @@ import (
 
 	// The authentication mode used to determine identity of user.
 	AuthenticationType?: "NTLM" | "KERBEROS"
-	CmkSecretConfig?:    _#defs."/$defs/Properties/definitions/CmkSecretConfig"
-	CustomSecretConfig?: _#defs."/$defs/Properties/definitions/CustomSecretConfig"
+	CmkSecretConfig?:    #CmkSecretConfig
+	CustomSecretConfig?: #CustomSecretConfig
 
 	// Specifies the IPv4 addresses for the DNS servers that your SMB file server
 	// belongs to. This parameter applies only if AuthenticationType is set to
@@ -62,8 +62,8 @@ import (
 
 	// The URL of the SMB location that was described.
 	LocationUri?:         strings.MaxRunes(4356) & =~"^(efs|nfs|s3|smb|fsxw)://[a-zA-Z0-9./\\-]+$"
-	ManagedSecretConfig?: _#defs."/$defs/Properties/definitions/ManagedSecretConfig"
-	MountOptions?:        _#defs."/$defs/Properties/definitions/MountOptions"
+	ManagedSecretConfig?: #ManagedSecretConfig
+	MountOptions?:        #MountOptions
 
 	// The password of the user who can mount the share and has the permissions to
 	// access files and folders in the SMB share.
@@ -80,7 +80,7 @@ import (
 	Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 
 	// The user who can mount the share, has the permissions to access files and
 	// folders in the SMB share.
@@ -90,7 +90,7 @@ import (
 // Specifies configuration information for a DataSync-managed secret, such as a
 // password or set of credentials that DataSync uses to access a specific
 // transfer location, and a customer-managed AWS KMS key.
-_#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
+#CmkSecretConfig: close({
 	// Specifies the ARN for the customer-managed AWS KMS key used to encrypt the
 	// secret specified for SecretArn. DataSync provides this key to AWS Secrets
 	// Manager.
@@ -109,7 +109,7 @@ _#defs: "/$defs/Properties/definitions/CmkSecretConfig": close({
 // password or set of credentials that DataSync uses to access a specific
 // transfer location, and an IAM role that DataSync can assume and access the
 // customer-managed secret.
-_#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
+#CustomSecretConfig: close({
 	// Specifies the ARN for the AWS Identity and Access Management role that
 	// DataSync uses to access the secret specified for SecretArn.
 	SecretAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
@@ -127,20 +127,20 @@ _#defs: "/$defs/Properties/definitions/CustomSecretConfig": close({
 // password or set of credentials that DataSync uses to access a specific
 // transfer location. DataSync uses the default AWS-managed KMS key to encrypt
 // this secret in AWS Secrets Manager.
-_#defs: "/$defs/Properties/definitions/ManagedSecretConfig": close({
+#ManagedSecretConfig: close({
 	// Specifies the ARN for an AWS Secrets Manager secret.
 	SecretArn!: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$"
 })
 
 // The mount options used by DataSync to access the SMB server.
-_#defs: "/$defs/Properties/definitions/MountOptions": close({
+#MountOptions: close({
 	// The specific SMB version that you want DataSync to use to mount your SMB share.
 	Version?: "AUTOMATIC" | "SMB1" | "SMB2_0" | "SMB2" | "SMB3"
 })
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The key for an AWS resource tag.
 	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$"
 

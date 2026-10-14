@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -50,7 +50,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x21\\x23-\\x5B\\x5D-\\x7E]+$" | fn.#StringExpression
 	] |
 	fn.#ListExpression
-	AnalyticsConfiguration?: _#defs."/$defs/Properties/definitions/AnalyticsConfiguration"
+	AnalyticsConfiguration?: #AnalyticsConfiguration
 	AuthSessionValidity?: int & <=15 & >=3 |
 		{
 			string &
@@ -119,7 +119,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 	PreventUserExistenceErrors?: "ENABLED" | "LEGACY" | fn.#StringExpression
 	ReadAttributes?:       [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	RefreshTokenRotation?: _#defs."/$defs/Properties/definitions/RefreshTokenRotation"
+	RefreshTokenRotation?: #RefreshTokenRotation
 	RefreshTokenValidity?: int & <=315360000 & >=1 |
 		{
 			string &
@@ -141,12 +141,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#StringExpression
 	] |
 	fn.#ListExpression
-	TokenValidityUnits?: _#defs."/$defs/Properties/definitions/TokenValidityUnits"
+	TokenValidityUnits?: #TokenValidityUnits
 	UserPoolId!:         strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
 	WriteAttributes?:    [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AnalyticsConfiguration": close({
+#AnalyticsConfiguration: close({
 	ApplicationArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
@@ -162,7 +162,7 @@ _#defs: "/$defs/Properties/definitions/AnalyticsConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/RefreshTokenRotation": {
+#RefreshTokenRotation: {
 	Feature?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	RetryGracePeriodSeconds?: int & <=60 & >=0 |
 		{
@@ -183,7 +183,7 @@ _#defs: "/$defs/Properties/definitions/RefreshTokenRotation": {
 	...
 } | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/TokenValidityUnits": close({
+#TokenValidityUnits: close({
 	AccessToken?:  "days" | "hours" | "minutes" | "seconds" | fn.#StringExpression
 	IdToken?:      "days" | "hours" | "minutes" | "seconds" | fn.#StringExpression
 	RefreshToken?: "days" | "hours" | "minutes" | "seconds" | fn.#StringExpression

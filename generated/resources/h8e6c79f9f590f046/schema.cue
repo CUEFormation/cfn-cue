@@ -17,14 +17,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Cells?: list.MaxItems(5) & [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	RecoveryGroupName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-	Tags?: [
-		..._#defs."/$defs/Properties/definitions/Tag" & (null | bool | number | string | list.MaxItems(20) | {...}) |
-		fn.#ObjectExpression
-	] |
+	Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
 	fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

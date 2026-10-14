@@ -34,7 +34,7 @@ import (
 	LastModifiedTime?: time.Time
 
 	// Metadata properties of the tracking entity, trial, or trial component.
-	MetadataProperties?: _#defs."/$defs/Properties/definitions/MetadataProperties"
+	MetadataProperties?: #MetadataProperties
 
 	// A list of properties to add to the action.
 	Properties?: struct.MaxFields(30) & close({
@@ -42,16 +42,16 @@ import (
 		{[=~".+"]: strings.MaxRunes(2500)}})
 
 	// The source type, ID, and URI.
-	Source!: _#defs."/$defs/Properties/definitions/ActionSource"
+	Source!: #ActionSource
 
 	// The status of the action.
 	Status?: "Unknown" | "InProgress" | "Completed" | "Failed" | "Stopping" | "Stopped"
 
 	// A list of tags to apply to the action.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/ActionSource": close({
+#ActionSource: close({
 	// The ID of the source.
 	SourceId?: strings.MaxRunes(256) & strings.MinRunes(0)
 
@@ -62,7 +62,7 @@ _#defs: "/$defs/Properties/definitions/ActionSource": close({
 	SourceUri!: strings.MaxRunes(2048) & strings.MinRunes(1)
 })
 
-_#defs: "/$defs/Properties/definitions/MetadataProperties": close({
+#MetadataProperties: close({
 	// The commit ID.
 	CommitId?: strings.MaxRunes(1024) & strings.MinRunes(0)
 
@@ -76,7 +76,7 @@ _#defs: "/$defs/Properties/definitions/MetadataProperties": close({
 	Repository?: strings.MaxRunes(1024) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 

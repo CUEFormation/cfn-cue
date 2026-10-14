@@ -21,18 +21,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // subscribers.
 #Properties: close({
 	Description?:             strings.MaxRunes(512) | fn.#StringExpression
-	EncryptionConfiguration?: _#defs."/$defs/Properties/definitions/EncryptionConfiguration" | fn.#ObjectExpression
+	EncryptionConfiguration?: #EncryptionConfiguration | fn.#ObjectExpression
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" | fn.#StringExpression
-	StorageConfiguration?: _#defs."/$defs/Properties/definitions/StorageConfiguration" | fn.#ObjectExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	StorageConfiguration?: #StorageConfiguration | fn.#ObjectExpression
+	Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EncryptionConfiguration": close(
+#EncryptionConfiguration: close(
 	{KmsKeyIdentifier?: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" | fn.#StringExpression},
 ) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/StorageConfiguration": close({
+#StorageConfiguration: close({
 	RetentionPeriodInDays?: int & <=365 & >=1 |
 		{
 			string &
@@ -52,7 +52,7 @@ _#defs: "/$defs/Properties/definitions/StorageConfiguration": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

@@ -3,135 +3,121 @@
 package schema
 
 import (
-	"list"
 	"strings"
+	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerTrafficPolicy Resource Type
 #Properties: close({
-	DefaultAction!:       _#defs."/$defs/Properties/definitions/AcceptAction"
+	DefaultAction!:       #AcceptAction
 	MaxMessageSizeBytes?: >=1
-	PolicyStatements!:    [..._#defs."/$defs/Properties/definitions/PolicyStatement"]
-	Tags?:                list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	PolicyStatements!:    [...#PolicyStatement]
+	Tags?:                list.MaxItems(200) & [...] & [...#Tag]
 	TrafficPolicyArn?:    string
 	TrafficPolicyId?:     strings.MaxRunes(100) & strings.MinRunes(1)
 	TrafficPolicyName?:   strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/AcceptAction": "ALLOW" | "DENY"
+#AcceptAction: "ALLOW" | "DENY"
 
-_#defs: "/$defs/Properties/definitions/IngressAddressListEmailAttribute": "RECIPIENT"
+#IngressAddressListEmailAttribute: "RECIPIENT"
 
-_#defs: "/$defs/Properties/definitions/IngressAnalysis": close({
+#IngressAnalysis: close({
 	Analyzer!:    =~"^[a-zA-Z0-9:_/+=,@.#-]+$"
 	ResultField!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(addon\\.)?[\\sa-zA-Z0-9_]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/IngressBooleanExpression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/IngressBooleanToEvaluate"
-	Operator!: _#defs."/$defs/Properties/definitions/IngressBooleanOperator"
+#IngressBooleanExpression: close({
+	Evaluate!: #IngressBooleanToEvaluate
+	Operator!: #IngressBooleanOperator
 })
 
-_#defs: "/$defs/Properties/definitions/IngressBooleanOperator": "IS_TRUE" | "IS_FALSE"
+#IngressBooleanOperator: "IS_TRUE" | "IS_FALSE"
 
-_#defs: "/$defs/Properties/definitions/IngressBooleanToEvaluate": matchN(1, [close(
-	{Analysis!: _#defs."/$defs/Properties/definitions/IngressAnalysis"},
-), close(
-	{IsInAddressList!: _#defs."/$defs/Properties/definitions/IngressIsInAddressList"},
-)])
+#IngressBooleanToEvaluate: matchN(1, [
+	close({Analysis!: #IngressAnalysis}), close({IsInAddressList!: #IngressIsInAddressList}),
+])
 
-_#defs: "/$defs/Properties/definitions/IngressIpOperator": "CIDR_MATCHES" | "NOT_CIDR_MATCHES"
+#IngressIpOperator: "CIDR_MATCHES" | "NOT_CIDR_MATCHES"
 
-_#defs: "/$defs/Properties/definitions/IngressIpToEvaluate": close(
-	{Attribute!: _#defs."/$defs/Properties/definitions/IngressIpv4Attribute"},
-)
+#IngressIpToEvaluate: close({Attribute!: #IngressIpv4Attribute})
 
-_#defs: "/$defs/Properties/definitions/IngressIpv4Attribute": "SENDER_IP"
+#IngressIpv4Attribute: "SENDER_IP"
 
-_#defs: "/$defs/Properties/definitions/IngressIpv4Expression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/IngressIpToEvaluate"
-	Operator!: _#defs."/$defs/Properties/definitions/IngressIpOperator"
+#IngressIpv4Expression: close({
+	Evaluate!: #IngressIpToEvaluate
+	Operator!: #IngressIpOperator
 	Values!: [
 		...=~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/([0-9]|[12][0-9]|3[0-2])$"
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/IngressIpv6Attribute": "SENDER_IPV6"
+#IngressIpv6Attribute: "SENDER_IPV6"
 
-_#defs: "/$defs/Properties/definitions/IngressIpv6Expression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/IngressIpv6ToEvaluate"
-	Operator!: _#defs."/$defs/Properties/definitions/IngressIpOperator"
+#IngressIpv6Expression: close({
+	Evaluate!: #IngressIpv6ToEvaluate
+	Operator!: #IngressIpOperator
 	Values!: [
 		...strings.MaxRunes(49) &
 		=~"^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))\\/(12[0-8]|1[0-1][0-9]|[1-9][0-9]|[0-9])$"
 	]
 })
 
-_#defs: "/$defs/Properties/definitions/IngressIpv6ToEvaluate": close(
-	{Attribute!: _#defs."/$defs/Properties/definitions/IngressIpv6Attribute"},
-)
+#IngressIpv6ToEvaluate: close({Attribute!: #IngressIpv6Attribute})
 
-_#defs: "/$defs/Properties/definitions/IngressIsInAddressList": close({
+#IngressIsInAddressList: close({
 	AddressLists!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...string]
-	Attribute!:    _#defs."/$defs/Properties/definitions/IngressAddressListEmailAttribute"
+	Attribute!:    #IngressAddressListEmailAttribute
 })
 
-_#defs: "/$defs/Properties/definitions/IngressStringEmailAttribute": "RECIPIENT"
+#IngressStringEmailAttribute: "RECIPIENT"
 
-_#defs: "/$defs/Properties/definitions/IngressStringExpression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/IngressStringToEvaluate"
-	Operator!: _#defs."/$defs/Properties/definitions/IngressStringOperator"
+#IngressStringExpression: close({
+	Evaluate!: #IngressStringToEvaluate
+	Operator!: #IngressStringOperator
 	Values!:   [...string]
 })
 
-_#defs: "/$defs/Properties/definitions/IngressStringOperator": "EQUALS" |
-	"NOT_EQUALS" |
-	"STARTS_WITH" |
-	"ENDS_WITH" |
-	"CONTAINS"
+#IngressStringOperator: "EQUALS" | "NOT_EQUALS" | "STARTS_WITH" | "ENDS_WITH" | "CONTAINS"
 
-_#defs: "/$defs/Properties/definitions/IngressStringToEvaluate": matchN(1, [close(
-	{Attribute!: _#defs."/$defs/Properties/definitions/IngressStringEmailAttribute"},
-), close(
-	{Analysis!: _#defs."/$defs/Properties/definitions/IngressAnalysis"},
-)])
+#IngressStringToEvaluate: matchN(1, [
+	close({Attribute!: #IngressStringEmailAttribute}), close({Analysis!: #IngressAnalysis}),
+])
 
-_#defs: "/$defs/Properties/definitions/IngressTlsAttribute": "TLS_PROTOCOL"
+#IngressTlsAttribute: "TLS_PROTOCOL"
 
-_#defs: "/$defs/Properties/definitions/IngressTlsProtocolAttribute": "TLS1_2" | "TLS1_3"
+#IngressTlsProtocolAttribute: "TLS1_2" | "TLS1_3"
 
-_#defs: "/$defs/Properties/definitions/IngressTlsProtocolExpression": close({
-	Evaluate!: _#defs."/$defs/Properties/definitions/IngressTlsProtocolToEvaluate"
-	Operator!: _#defs."/$defs/Properties/definitions/IngressTlsProtocolOperator"
-	Value!:    _#defs."/$defs/Properties/definitions/IngressTlsProtocolAttribute"
+#IngressTlsProtocolExpression: close({
+	Evaluate!: #IngressTlsProtocolToEvaluate
+	Operator!: #IngressTlsProtocolOperator
+	Value!:    #IngressTlsProtocolAttribute
 })
 
-_#defs: "/$defs/Properties/definitions/IngressTlsProtocolOperator": "MINIMUM_TLS_VERSION" | "IS"
+#IngressTlsProtocolOperator: "MINIMUM_TLS_VERSION" | "IS"
 
-_#defs: "/$defs/Properties/definitions/IngressTlsProtocolToEvaluate": close(
-	{Attribute!: _#defs."/$defs/Properties/definitions/IngressTlsAttribute"},
-)
+#IngressTlsProtocolToEvaluate: close({Attribute!: #IngressTlsAttribute})
 
-_#defs: "/$defs/Properties/definitions/PolicyCondition": matchN(1, [close(
-	{StringExpression!: _#defs."/$defs/Properties/definitions/IngressStringExpression"},
+#PolicyCondition: matchN(1, [close(
+	{StringExpression!: #IngressStringExpression},
 ), close(
-	{IpExpression!: _#defs."/$defs/Properties/definitions/IngressIpv4Expression"},
+	{IpExpression!: #IngressIpv4Expression},
 ), close(
-	{Ipv6Expression!: _#defs."/$defs/Properties/definitions/IngressIpv6Expression"},
+	{Ipv6Expression!: #IngressIpv6Expression},
 ), close(
-	{TlsExpression!: _#defs."/$defs/Properties/definitions/IngressTlsProtocolExpression"},
+	{TlsExpression!: #IngressTlsProtocolExpression},
 ), close(
-	{BooleanExpression!: _#defs."/$defs/Properties/definitions/IngressBooleanExpression"},
+	{BooleanExpression!: #IngressBooleanExpression},
 )])
 
-_#defs: "/$defs/Properties/definitions/PolicyStatement": close({
-	Action!:     _#defs."/$defs/Properties/definitions/AcceptAction"
-	Conditions!: list.MinItems(1) & [..._#defs."/$defs/Properties/definitions/PolicyCondition"]
+#PolicyStatement: close({
+	Action!:     #AcceptAction
+	Conditions!: list.MinItems(1) & [...#PolicyCondition]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

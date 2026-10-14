@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -14,30 +14,30 @@ import (
 #Properties: close({
 	// A unique identifier for the mitigation action.
 	ActionName?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+"
-	ActionParams!:        _#defs."/$defs/Properties/definitions/ActionParams"
+	ActionParams!:        #ActionParams
 	MitigationActionArn?: string
 	MitigationActionId?:  string
 	RoleArn!:             =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20))
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // The set of parameters for this mitigation action. You can specify only one
 // type of parameter (in other words, you can apply only one action for each
 // defined mitigation action).
-_#defs: "/$defs/Properties/definitions/ActionParams": close({
-	AddThingsToThingGroupParams?:       _#defs."/$defs/Properties/definitions/AddThingsToThingGroupParams"
-	EnableIoTLoggingParams?:            _#defs."/$defs/Properties/definitions/EnableIoTLoggingParams"
-	PublishFindingToSnsParams?:         _#defs."/$defs/Properties/definitions/PublishFindingToSnsParams"
-	ReplaceDefaultPolicyVersionParams?: _#defs."/$defs/Properties/definitions/ReplaceDefaultPolicyVersionParams"
-	UpdateCACertificateParams?:         _#defs."/$defs/Properties/definitions/UpdateCACertificateParams"
-	UpdateDeviceCertificateParams?:     _#defs."/$defs/Properties/definitions/UpdateDeviceCertificateParams"
+#ActionParams: close({
+	AddThingsToThingGroupParams?:       #AddThingsToThingGroupParams
+	EnableIoTLoggingParams?:            #EnableIoTLoggingParams
+	PublishFindingToSnsParams?:         #PublishFindingToSnsParams
+	ReplaceDefaultPolicyVersionParams?: #ReplaceDefaultPolicyVersionParams
+	UpdateCACertificateParams?:         #UpdateCACertificateParams
+	UpdateDeviceCertificateParams?:     #UpdateDeviceCertificateParams
 })
 
 // Parameters to define a mitigation action that moves devices associated with a
 // certificate to one or more specified thing groups, typically for quarantine.
-_#defs: "/$defs/Properties/definitions/AddThingsToThingGroupParams": close({
+#AddThingsToThingGroupParams: close({
 	// Specifies if this mitigation action can move the things that triggered the
 	// mitigation action out of one or more dynamic thing groups.
 	OverrideDynamicGroups?: bool
@@ -50,7 +50,7 @@ _#defs: "/$defs/Properties/definitions/AddThingsToThingGroupParams": close({
 
 // Parameters to define a mitigation action that enables AWS IoT logging at a
 // specified level of detail.
-_#defs: "/$defs/Properties/definitions/EnableIoTLoggingParams": close({
+#EnableIoTLoggingParams: close({
 	// Specifies which types of information are logged.
 	LogLevel!: "DEBUG" | "INFO" | "ERROR" | "WARN" | "UNSET_VALUE"
 
@@ -61,19 +61,17 @@ _#defs: "/$defs/Properties/definitions/EnableIoTLoggingParams": close({
 // Parameters, to define a mitigation action that publishes findings to Amazon
 // SNS. You can implement your own custom actions in response to the Amazon SNS
 // messages.
-_#defs: "/$defs/Properties/definitions/PublishFindingToSnsParams": close({
+#PublishFindingToSnsParams: close({
 	// The ARN of the topic to which you want to publish the findings.
 	TopicArn!:
 		=~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(11))
 })
 
 // Parameters to define a mitigation action that adds a blank policy to restrict permissions.
-_#defs: "/$defs/Properties/definitions/ReplaceDefaultPolicyVersionParams": close(
-	{TemplateName!: "BLANK_POLICY" | "UNSET_VALUE"},
-)
+#ReplaceDefaultPolicyVersionParams: close({TemplateName!: "BLANK_POLICY" | "UNSET_VALUE"})
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag's key.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 
@@ -83,8 +81,8 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 
 // Parameters to define a mitigation action that changes the state of the CA
 // certificate to inactive.
-_#defs: "/$defs/Properties/definitions/UpdateCACertificateParams": close({Action!: "DEACTIVATE" | "UNSET_VALUE"})
+#UpdateCACertificateParams: close({Action!: "DEACTIVATE" | "UNSET_VALUE"})
 
 // Parameters to define a mitigation action that changes the state of the device
 // certificate to inactive.
-_#defs: "/$defs/Properties/definitions/UpdateDeviceCertificateParams": close({Action!: "DEACTIVATE" | "UNSET_VALUE"})
+#UpdateDeviceCertificateParams: close({Action!: "DEACTIVATE" | "UNSET_VALUE"})

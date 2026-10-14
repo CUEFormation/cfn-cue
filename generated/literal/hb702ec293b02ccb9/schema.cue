@@ -12,133 +12,131 @@ package schema
 	MeshName!:           string
 	MeshOwner?:          string
 	ResourceOwner?:      string
-	Spec!:               _#defs."/$defs/Properties/definitions/GatewayRouteSpec"
-	Tags?:               [..._#defs."/$defs/Properties/definitions/Tag"]
+	Spec!:               #GatewayRouteSpec
+	Tags?:               [...#Tag]
 	Uid?:                string
 	VirtualGatewayName!: string
 })
 
-_#defs: "/$defs/Properties/definitions/GatewayRouteHostnameMatch": close({
+#GatewayRouteHostnameMatch: close({
 	Exact?:  string
 	Suffix?: string
 })
 
-_#defs: "/$defs/Properties/definitions/GatewayRouteHostnameRewrite": close({DefaultTargetHostname?: string})
+#GatewayRouteHostnameRewrite: close({DefaultTargetHostname?: string})
 
-_#defs: "/$defs/Properties/definitions/GatewayRouteMetadataMatch": close({
+#GatewayRouteMetadataMatch: close({
 	Exact?:  string
 	Prefix?: string
-	Range?:  _#defs."/$defs/Properties/definitions/GatewayRouteRangeMatch"
+	Range?:  #GatewayRouteRangeMatch
 	Regex?:  string
 	Suffix?: string
 })
 
-_#defs: "/$defs/Properties/definitions/GatewayRouteRangeMatch": close({
+#GatewayRouteRangeMatch: close({
 	End!:   int
 	Start!: int
 })
 
-_#defs: "/$defs/Properties/definitions/GatewayRouteSpec": close({
-	GrpcRoute?:  _#defs."/$defs/Properties/definitions/GrpcGatewayRoute"
-	Http2Route?: _#defs."/$defs/Properties/definitions/HttpGatewayRoute"
-	HttpRoute?:  _#defs."/$defs/Properties/definitions/HttpGatewayRoute"
+#GatewayRouteSpec: close({
+	GrpcRoute?:  #GrpcGatewayRoute
+	Http2Route?: #HttpGatewayRoute
+	HttpRoute?:  #HttpGatewayRoute
 	Priority?:   int
 })
 
-_#defs: "/$defs/Properties/definitions/GatewayRouteTarget": close({
+#GatewayRouteTarget: close({
 	Port?:           int
-	VirtualService!: _#defs."/$defs/Properties/definitions/GatewayRouteVirtualService"
+	VirtualService!: #GatewayRouteVirtualService
 })
 
-_#defs: "/$defs/Properties/definitions/GatewayRouteVirtualService": close({VirtualServiceName!: string})
+#GatewayRouteVirtualService: close({VirtualServiceName!: string})
 
-_#defs: "/$defs/Properties/definitions/GrpcGatewayRoute": close({
-	Action!: _#defs."/$defs/Properties/definitions/GrpcGatewayRouteAction"
-	Match!:  _#defs."/$defs/Properties/definitions/GrpcGatewayRouteMatch"
+#GrpcGatewayRoute: close({
+	Action!: #GrpcGatewayRouteAction
+	Match!:  #GrpcGatewayRouteMatch
 })
 
-_#defs: "/$defs/Properties/definitions/GrpcGatewayRouteAction": close({
-	Rewrite?: _#defs."/$defs/Properties/definitions/GrpcGatewayRouteRewrite"
-	Target!:  _#defs."/$defs/Properties/definitions/GatewayRouteTarget"
+#GrpcGatewayRouteAction: close({
+	Rewrite?: #GrpcGatewayRouteRewrite
+	Target!:  #GatewayRouteTarget
 })
 
-_#defs: "/$defs/Properties/definitions/GrpcGatewayRouteMatch": close({
-	Hostname?:    _#defs."/$defs/Properties/definitions/GatewayRouteHostnameMatch"
-	Metadata?:    [..._#defs."/$defs/Properties/definitions/GrpcGatewayRouteMetadata"]
+#GrpcGatewayRouteMatch: close({
+	Hostname?:    #GatewayRouteHostnameMatch
+	Metadata?:    [...#GrpcGatewayRouteMetadata]
 	Port?:        int
 	ServiceName?: string
 })
 
-_#defs: "/$defs/Properties/definitions/GrpcGatewayRouteMetadata": close({
+#GrpcGatewayRouteMetadata: close({
 	Invert?: bool
-	Match?:  _#defs."/$defs/Properties/definitions/GatewayRouteMetadataMatch"
+	Match?:  #GatewayRouteMetadataMatch
 	Name!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/GrpcGatewayRouteRewrite": close(
-	{Hostname?: _#defs."/$defs/Properties/definitions/GatewayRouteHostnameRewrite"},
-)
+#GrpcGatewayRouteRewrite: close({Hostname?: #GatewayRouteHostnameRewrite})
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRoute": close({
-	Action!: _#defs."/$defs/Properties/definitions/HttpGatewayRouteAction"
-	Match!:  _#defs."/$defs/Properties/definitions/HttpGatewayRouteMatch"
+#HttpGatewayRoute: close({
+	Action!: #HttpGatewayRouteAction
+	Match!:  #HttpGatewayRouteMatch
 })
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRouteAction": close({
-	Rewrite?: _#defs."/$defs/Properties/definitions/HttpGatewayRouteRewrite"
-	Target!:  _#defs."/$defs/Properties/definitions/GatewayRouteTarget"
+#HttpGatewayRouteAction: close({
+	Rewrite?: #HttpGatewayRouteRewrite
+	Target!:  #GatewayRouteTarget
 })
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRouteHeader": close({
+#HttpGatewayRouteHeader: close({
 	Invert?: bool
-	Match?:  _#defs."/$defs/Properties/definitions/HttpGatewayRouteHeaderMatch"
+	Match?:  #HttpGatewayRouteHeaderMatch
 	Name!:   string
 })
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRouteHeaderMatch": close({
+#HttpGatewayRouteHeaderMatch: close({
 	Exact?:  string
 	Prefix?: string
-	Range?:  _#defs."/$defs/Properties/definitions/GatewayRouteRangeMatch"
+	Range?:  #GatewayRouteRangeMatch
 	Regex?:  string
 	Suffix?: string
 })
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRouteMatch": close({
-	Headers?:         [..._#defs."/$defs/Properties/definitions/HttpGatewayRouteHeader"]
-	Hostname?:        _#defs."/$defs/Properties/definitions/GatewayRouteHostnameMatch"
+#HttpGatewayRouteMatch: close({
+	Headers?:         [...#HttpGatewayRouteHeader]
+	Hostname?:        #GatewayRouteHostnameMatch
 	Method?:          string
-	Path?:            _#defs."/$defs/Properties/definitions/HttpPathMatch"
+	Path?:            #HttpPathMatch
 	Port?:            int
 	Prefix?:          string
-	QueryParameters?: [..._#defs."/$defs/Properties/definitions/QueryParameter"]
+	QueryParameters?: [...#QueryParameter]
 })
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRoutePathRewrite": close({Exact?: string})
+#HttpGatewayRoutePathRewrite: close({Exact?: string})
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRoutePrefixRewrite": close({
+#HttpGatewayRoutePrefixRewrite: close({
 	DefaultPrefix?: string
 	Value?:         string
 })
 
-_#defs: "/$defs/Properties/definitions/HttpGatewayRouteRewrite": close({
-	Hostname?: _#defs."/$defs/Properties/definitions/GatewayRouteHostnameRewrite"
-	Path?:     _#defs."/$defs/Properties/definitions/HttpGatewayRoutePathRewrite"
-	Prefix?:   _#defs."/$defs/Properties/definitions/HttpGatewayRoutePrefixRewrite"
+#HttpGatewayRouteRewrite: close({
+	Hostname?: #GatewayRouteHostnameRewrite
+	Path?:     #HttpGatewayRoutePathRewrite
+	Prefix?:   #HttpGatewayRoutePrefixRewrite
 })
 
-_#defs: "/$defs/Properties/definitions/HttpPathMatch": close({
+#HttpPathMatch: close({
 	Exact?: string
 	Regex?: string
 })
 
-_#defs: "/$defs/Properties/definitions/HttpQueryParameterMatch": close({Exact?: string})
+#HttpQueryParameterMatch: close({Exact?: string})
 
-_#defs: "/$defs/Properties/definitions/QueryParameter": close({
-	Match?: _#defs."/$defs/Properties/definitions/HttpQueryParameterMatch"
+#QueryParameter: close({
+	Match?: #HttpQueryParameterMatch
 	Name!:  string
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

@@ -15,19 +15,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::Backup::BackupVault
 #Properties: close({
 	AccessPolicy?:    fn.#Object & {...} | string | fn.#StringObjectExpression
-	BackupVaultName!: _#defs."/$defs/Properties/definitions/BackupVaultNamePattern"
+	BackupVaultName!: #BackupVaultNamePattern
 	BackupVaultTags?: close({
 
 		{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
 	fn.#ObjectExpression
 	EncryptionKeyArn?:  string | fn.#StringExpression
-	LockConfiguration?: _#defs."/$defs/Properties/definitions/LockConfigurationType"
-	Notifications?:     _#defs."/$defs/Properties/definitions/NotificationObjectType"
+	LockConfiguration?: #LockConfigurationType
+	Notifications?:     #NotificationObjectType
 })
 
-_#defs: "/$defs/Properties/definitions/BackupVaultNamePattern": =~"^[a-zA-Z0-9\\-\\_]{2,50}$" | fn.#StringExpression
+#BackupVaultNamePattern: =~"^[a-zA-Z0-9\\-\\_]{2,50}$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/LockConfigurationType": close({
+#LockConfigurationType: close({
 	ChangeableForDays?: int |
 		{
 			string &
@@ -73,7 +73,7 @@ _#defs: "/$defs/Properties/definitions/LockConfigurationType": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/NotificationObjectType": close({
+#NotificationObjectType: close({
 	BackupVaultEvents!: [...string | fn.#StringExpression] | fn.#ListExpression
 	SNSTopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression

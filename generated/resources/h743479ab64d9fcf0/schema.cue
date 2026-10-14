@@ -17,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // The AWS::EC2::NetworkInterface resource creates network interface
 #Properties: close({
-	ConnectionTrackingSpecification?: _#defs."/$defs/Properties/definitions/ConnectionTrackingSpecification"
+	ConnectionTrackingSpecification?: #ConnectionTrackingSpecification
 	Description?:                     string | fn.#StringExpression
 	EnablePrimaryIpv6?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	GroupSet?: [
@@ -40,7 +40,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Ipv4Prefixes?: [..._#defs."/$defs/Properties/definitions/Ipv4PrefixSpecification"] | fn.#ListExpression
+	Ipv4Prefixes?: [...#Ipv4PrefixSpecification] | fn.#ListExpression
 	Ipv6AddressCount?: int |
 		{
 			string &
@@ -55,8 +55,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Ipv6Addresses?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/InstanceIpv6Address"] |
-		fn.#ListExpression
+	Ipv6Addresses?: list.UniqueItems() & [...#InstanceIpv6Address] | fn.#ListExpression
 	Ipv6PrefixCount?: int |
 		{
 			string &
@@ -71,9 +70,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Ipv6Prefixes?:       [..._#defs."/$defs/Properties/definitions/Ipv6PrefixSpecification"] | fn.#ListExpression
+	Ipv6Prefixes?:       [...#Ipv6PrefixSpecification] | fn.#ListExpression
 	PrivateIpAddress?:   string | fn.#StringExpression
-	PrivateIpAddresses?: [..._#defs."/$defs/Properties/definitions/PrivateIpAddressSpecification"] | fn.#ListExpression
+	PrivateIpAddresses?: [...#PrivateIpAddressSpecification] | fn.#ListExpression
 	PublicIpDnsHostnameTypeSpecification?: "public-dual-stack-dns-name" |
 		"public-ipv4-dns-name" |
 		"public-ipv6-dns-name" |
@@ -94,13 +93,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 	SourceDestCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SubnetId!:        string | fn.#StringExpression
-	Tags?:            [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:            [...#Tag] | fn.#ListExpression
 	if Ipv6AddressCount != _|_ {
 		Ipv6Addresses?: error("Ipv6Addresses cannot be used with Ipv6AddressCount")
 	}
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({
+#ConnectionTrackingSpecification: close({
 	TcpEstablishedTimeout?: int |
 		{
 			string &
@@ -146,22 +145,19 @@ _#defs: "/$defs/Properties/definitions/ConnectionTrackingSpecification": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InstanceIpv6Address": close({Ipv6Address!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#InstanceIpv6Address: close({Ipv6Address!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ipv4PrefixSpecification": close({Ipv4Prefix!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Ipv4PrefixSpecification: close({Ipv4Prefix!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Ipv6PrefixSpecification": close({Ipv6Prefix!: string | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#Ipv6PrefixSpecification: close({Ipv6Prefix!: string | fn.#StringExpression}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PrivateIpAddressSpecification": close({
+#PrivateIpAddressSpecification: close({
 	Primary!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PrivateIpAddress!: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/PublicIpDnsNameOptions": close({
+#PublicIpDnsNameOptions: close({
 	DnsHostnameType?:        string | fn.#StringExpression
 	PublicDualStackDnsName?: string | fn.#StringExpression
 	PublicIpv4DnsName?:      string | fn.#StringExpression
@@ -169,7 +165,7 @@ _#defs: "/$defs/Properties/definitions/PublicIpDnsNameOptions": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string | fn.#StringExpression
 	Value!: string | fn.#StringExpression
 }) |

@@ -13,10 +13,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // A trust store.
 #Properties: close({
-	CaCertificatesBundleSource?: _#defs."/$defs/Properties/definitions/CaCertificatesBundleSource" |
-		fn.#ObjectExpression
-	Name!: string | fn.#StringExpression
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	CaCertificatesBundleSource?: #CaCertificatesBundleSource | fn.#ObjectExpression
+	Name!:                       string | fn.#StringExpression
+	Tags?:                       [...#Tag] | fn.#ListExpression
 	UseClientCertificateOCSPEndpoint?: bool |
 		"true" |
 		"True" |
@@ -27,7 +26,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#BooleanExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CaCertificatesBundleS3Location": close({
+#CaCertificatesBundleS3Location: close({
 	Bucket!:  string | fn.#StringExpression
 	Key!:     string | fn.#StringExpression
 	Region!:  string | fn.#StringExpression
@@ -35,13 +34,12 @@ _#defs: "/$defs/Properties/definitions/CaCertificatesBundleS3Location": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CaCertificatesBundleSource": close({
-	CaCertificatesBundleS3Location!: _#defs."/$defs/Properties/definitions/CaCertificatesBundleS3Location" |
-		fn.#ObjectExpression
-}) |
+#CaCertificatesBundleSource: close(
+	{CaCertificatesBundleS3Location!: #CaCertificatesBundleS3Location | fn.#ObjectExpression},
+) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

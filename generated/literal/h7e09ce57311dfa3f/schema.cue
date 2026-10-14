@@ -19,7 +19,7 @@ import (
 	// List of key-value pair outputs.
 	Outputs?: struct.MaxFields(100) & close({
 
-		{[=~"^[A-Za-z0-9]{1,64}$"]: _#defs."/$defs/Properties/definitions/OutputType"}})
+		{[=~"^[A-Za-z0-9]{1,64}$"]: #OutputType}})
 	PathId?:                   strings.MaxRunes(100) & strings.MinRunes(1)
 	PathName?:                 strings.MaxRunes(100) & strings.MinRunes(1)
 	ProductId?:                strings.MaxRunes(100) & strings.MinRunes(1)
@@ -28,20 +28,20 @@ import (
 	ProvisionedProductName?:   strings.MaxRunes(128) & strings.MinRunes(1)
 	ProvisioningArtifactId?:   strings.MaxRunes(100) & strings.MinRunes(1)
 	ProvisioningArtifactName?: string
-	ProvisioningParameters?:   [..._#defs."/$defs/Properties/definitions/ProvisioningParameter"]
-	ProvisioningPreferences?:  _#defs."/$defs/Properties/definitions/ProvisioningPreferences"
+	ProvisioningParameters?:   [...#ProvisioningParameter]
+	ProvisioningPreferences?:  #ProvisioningPreferences
 	RecordId?:                 strings.MaxRunes(50) & strings.MinRunes(1)
-	Tags?:                     [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?:                     [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/OutputType": string
+#OutputType: string
 
-_#defs: "/$defs/Properties/definitions/ProvisioningParameter": close({
+#ProvisioningParameter: close({
 	Key!:   strings.MaxRunes(1000) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(4096)
 })
 
-_#defs: "/$defs/Properties/definitions/ProvisioningPreferences": close({
+#ProvisioningPreferences: close({
 	StackSetAccounts?:                   list.UniqueItems() & [...=~"^[0-9]{12}$"]
 	StackSetFailureToleranceCount?:      int & >=0
 	StackSetFailureTolerancePercentage?: int & <=100 & >=0
@@ -51,7 +51,7 @@ _#defs: "/$defs/Properties/definitions/ProvisioningPreferences": close({
 	StackSetRegions?:                    list.UniqueItems() & [...=~"^[a-z]{2}-([a-z]+-)+[1-9]"]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

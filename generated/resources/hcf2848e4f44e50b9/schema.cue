@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -57,7 +57,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				} |
 				fn.#NumberExpression
 			ServerName!: string | fn.#StringExpression
-			SslMode?:    _#defs."/$defs/Properties/definitions/MongoDbSslModeValue"
+			SslMode?:    #MongoDbSslModeValue
 		}) |
 		fn.#ObjectExpression
 		IbmDb2LuwSettings?: close({
@@ -112,7 +112,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				} |
 				fn.#NumberExpression
 			ServerName!: string | fn.#StringExpression
-			SslMode!:    _#defs."/$defs/Properties/definitions/Db2SslModeValue"
+			SslMode!:    #Db2SslModeValue
 		}) |
 		fn.#ObjectExpression
 		IbmDb2zOsSettings?: close({
@@ -135,7 +135,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				} |
 				fn.#NumberExpression
 			ServerName!: string | fn.#StringExpression
-			SslMode!:    _#defs."/$defs/Properties/definitions/Db2SslModeValue"
+			SslMode!:    #Db2SslModeValue
 		}) |
 		fn.#ObjectExpression
 		MariaDbSettings?: close({
@@ -157,7 +157,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				} |
 				fn.#NumberExpression
 			ServerName!: string | fn.#StringExpression
-			SslMode!:    _#defs."/$defs/Properties/definitions/DmsSslModeValue"
+			SslMode!:    #DmsSslModeValue
 		}) |
 		fn.#ObjectExpression
 		MicrosoftSqlServerSettings?: close({
@@ -182,13 +182,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			S3AccessRoleArn?: string | fn.#StringExpression
 			S3Path?:          string | fn.#StringExpression
 			ServerName!:      string | fn.#StringExpression
-			SslMode!:         _#defs."/$defs/Properties/definitions/DmsSslModeValue"
+			SslMode!:         #DmsSslModeValue
 		}) |
 		fn.#ObjectExpression
 		MongoDbSettings?: close({
-			AuthMechanism?:  _#defs."/$defs/Properties/definitions/MongoDbAuthMechanism"
+			AuthMechanism?:  #MongoDbAuthMechanism
 			AuthSource?:     string | fn.#StringExpression
-			AuthType?:       _#defs."/$defs/Properties/definitions/MongoDbAuthType"
+			AuthType?:       #MongoDbAuthType
 			CertificateArn?: string | fn.#StringExpression
 			DatabaseName?:   string | fn.#StringExpression
 			Port!: int |
@@ -208,7 +208,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				} |
 				fn.#NumberExpression
 			ServerName!: string | fn.#StringExpression
-			SslMode?:    _#defs."/$defs/Properties/definitions/MongoDbSslModeValue"
+			SslMode?:    #MongoDbSslModeValue
 		}) |
 		fn.#ObjectExpression
 		MySqlSettings?: close({
@@ -230,7 +230,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				} |
 				fn.#NumberExpression
 			ServerName!: string | fn.#StringExpression
-			SslMode!:    _#defs."/$defs/Properties/definitions/DmsSslModeValue"
+			SslMode!:    #DmsSslModeValue
 		}) |
 		fn.#ObjectExpression
 		OracleSettings?: close({
@@ -258,7 +258,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			SecretsManagerSecurityDbEncryptionAccessRoleArn?: string | fn.#StringExpression
 			SecretsManagerSecurityDbEncryptionSecretId?:      string | fn.#StringExpression
 			ServerName!:                                      string | fn.#StringExpression
-			SslMode!:                                         _#defs."/$defs/Properties/definitions/DmsSslModeValue"
+			SslMode!:                                         #DmsSslModeValue
 		}) |
 		fn.#ObjectExpression
 		PostgreSqlSettings?: close({
@@ -281,7 +281,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				} |
 				fn.#NumberExpression
 			ServerName!: string | fn.#StringExpression
-			SslMode!:    _#defs."/$defs/Properties/definitions/DmsSslModeValue"
+			SslMode!:    #DmsSslModeValue
 		}) |
 		fn.#ObjectExpression
 		RedshiftSettings?: close({
@@ -326,7 +326,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				} |
 				fn.#NumberExpression
 			ServerName!: string | fn.#StringExpression
-			SslMode!:    _#defs."/$defs/Properties/definitions/SybaseSslModeValue"
+			SslMode!:    #SybaseSslModeValue
 		}) |
 		fn.#ObjectExpression
 	}) & matchN(
@@ -356,30 +356,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}],
 	) |
 	fn.#ObjectExpression
-	Tags?:    list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:    list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	Virtual?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Db2SslModeValue": "none" | "verify-ca" | fn.#StringExpression
+#Db2SslModeValue: "none" | "verify-ca" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/DmsSslModeValue": "none" |
-	"require" |
-	"verify-ca" |
-	"verify-full" |
-	fn.#StringExpression
+#DmsSslModeValue: "none" | "require" | "verify-ca" | "verify-full" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MongoDbAuthMechanism": "default" |
-	"mongodb_cr" |
-	"scram_sha_1" |
-	fn.#StringExpression
+#MongoDbAuthMechanism: "default" | "mongodb_cr" | "scram_sha_1" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MongoDbAuthType": "no" | "password" | fn.#StringExpression
+#MongoDbAuthType: "no" | "password" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/MongoDbSslModeValue": "none" | "require" | "verify-full" | fn.#StringExpression
+#MongoDbSslModeValue: "none" | "require" | "verify-full" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/SybaseSslModeValue": "none" | "require" | "verify-ca" | fn.#StringExpression
+#SybaseSslModeValue: "none" | "require" | "verify-ca" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

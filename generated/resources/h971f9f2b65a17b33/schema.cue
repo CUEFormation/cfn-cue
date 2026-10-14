@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 	"time"
 )
 
@@ -20,28 +20,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Creates a dynamic instrumentation configuration for a specific code or
 // endpoint location within a service and environment.
 #Properties: close({
-	AttributeFilters?: list.MaxItems(10) & list.MinItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AttributeFilterGroup"
-	] |
-		fn.#ListExpression
-	CaptureConfiguration!: close({CodeCapture!: _#defs."/$defs/Properties/definitions/CodeCaptureConfiguration"}) |
-		fn.#ObjectExpression
-	Description?: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+	AttributeFilters?:     list.MaxItems(10) & list.MinItems(1) & [...#AttributeFilterGroup] | fn.#ListExpression
+	CaptureConfiguration!: close({CodeCapture!: #CodeCaptureConfiguration}) | fn.#ObjectExpression
+	Description?:          strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
 	Environment!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9:/+=,.@_-]+$" | fn.#StringExpression
 	ExpiresAt?:   time.Time | fn.#StringExpression
 	InstrumentationType!: "BREAKPOINT" | "PROBE" | fn.#StringExpression
-	Location!:   close({CodeLocation!: _#defs."/$defs/Properties/definitions/CodeLocation"}) | fn.#ObjectExpression
+	Location!:            close({CodeLocation!: #CodeLocation}) | fn.#ObjectExpression
 	Service!:    strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9:/+=,.@_-]+$" | fn.#StringExpression
 	SignalType!: "SNAPSHOT" | fn.#StringExpression
-	Tags?:       list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:       list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AttributeFilterGroup": close({
+#AttributeFilterGroup: close({
 
 	{[=~"^.{1,50}$"]: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression}}) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CaptureLimitsConfig": close({
+#CaptureLimitsConfig: close({
 	MaxCollectionDepth?: int & <=5 & >=1 |
 		{
 			string &
@@ -173,10 +169,10 @@ _#defs: "/$defs/Properties/definitions/CaptureLimitsConfig": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeCaptureConfiguration": close({
+#CodeCaptureConfiguration: close({
 	CaptureArguments?: list.MaxItems(10) & [...strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
-	CaptureLimits!: _#defs."/$defs/Properties/definitions/CaptureLimitsConfig"
+	CaptureLimits!: #CaptureLimitsConfig
 	CaptureLocals?: list.MaxItems(20) & [...strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression] |
 	fn.#ListExpression
 	CaptureReturn?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -184,7 +180,7 @@ _#defs: "/$defs/Properties/definitions/CodeCaptureConfiguration": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CodeLocation": close({
+#CodeLocation: close({
 	ClassName?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	CodeUnit?:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	FilePath!:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
@@ -208,7 +204,7 @@ _#defs: "/$defs/Properties/definitions/CodeLocation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |

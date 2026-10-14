@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"list"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,38 +14,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::SageMaker::Image
 #Properties: close({
-	ImageDescription?: _#defs."/$defs/Properties/definitions/ImageDescription"
-	ImageDisplayName?: _#defs."/$defs/Properties/definitions/ImageDisplayName"
-	ImageName!:        _#defs."/$defs/Properties/definitions/ImageName"
-	ImageRoleArn!:     _#defs."/$defs/Properties/definitions/ImageRoleArn"
-	Tags?:             list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	ImageDescription?: #ImageDescription
+	ImageDisplayName?: #ImageDisplayName
+	ImageName!:        #ImageName
+	ImageRoleArn!:     #ImageRoleArn
+	Tags?:             list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ImageArn": strings.MaxRunes(256) &
+#ImageArn: strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[\\w]+)*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:image\\/[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ImageDescription": strings.MaxRunes(512) & strings.MinRunes(1) & =~".+" |
-fn.#StringExpression
+#ImageDescription: strings.MaxRunes(512) & strings.MinRunes(1) & =~".+" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ImageDisplayName": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^[A-Za-z0-9 -_]+$" |
-fn.#StringExpression
+#ImageDisplayName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9 -_]+$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ImageName": strings.MaxRunes(63) &
-strings.MinRunes(1) &
-=~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$" |
-fn.#StringExpression
+#ImageName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ImageRoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#ImageRoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

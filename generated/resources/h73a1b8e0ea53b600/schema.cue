@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -27,47 +27,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"METRICS" |
 		fn.#StringExpression
 	EncryptionConfig?: close({
-		KmsKeyArn?: _#defs."/$defs/Properties/definitions/KmsKeyArn"
-		RoleArn?:   _#defs."/$defs/Properties/definitions/RoleArn"
+		KmsKeyArn?: #KmsKeyArn
+		RoleArn?:   #RoleArn
 	}) |
 	fn.#ObjectExpression
-	Schema!: close({Attributes?: _#defs."/$defs/Properties/definitions/Attributes"}) | fn.#ObjectExpression
+	Schema!: close({Attributes?: #Attributes}) | fn.#ObjectExpression
 	Tags?: list.MaxItems(200) & [...] & [...close({
-		Key!:   _#defs."/$defs/Properties/definitions/Key"
-		Value!: _#defs."/$defs/Properties/definitions/Value"
+		Key!:   #Key
+		Value!: #Value
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Attributes": list.MaxItems(100) & list.MinItems(1) & [...close({
+#Attributes: list.MaxItems(100) & list.MinItems(1) & [...close({
 	AttributeName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" | fn.#StringExpression
 	AttributeType?: "string" | "integer" | "float" | "timestamp" | "geolocation" | fn.#StringExpression
 }) |
 fn.#ObjectExpression] |
 fn.#ListExpression
 
-_#defs: "/$defs/Properties/definitions/Key": strings.MaxRunes(128) &
-strings.MinRunes(1) &
-=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
-fn.#StringExpression
+#Key: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/KmsKeyArn": =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#KmsKeyArn: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"arn:aws[-a-z]*:kms:.*:key/.*" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/RoleArn": =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
 strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$" |
 fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/Value": strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
-fn.#StringExpression
+#Value: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::Forecast::Dataset"
 	Properties!: #Properties

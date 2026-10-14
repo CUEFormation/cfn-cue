@@ -17,19 +17,19 @@ import (
 	Description?:    strings.MaxRunes(1024) & strings.MinRunes(0)
 	ProfileId?:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"^lp-[a-f0-9-]+$"
 	ProfileName!:    strings.MaxRunes(256) & strings.MinRunes(1)
-	ResourceLimits!: _#defs."/$defs/Properties/definitions/ResourceLimitsMap"
+	ResourceLimits!: #ResourceLimitsMap
 	UpdatedAt?:      time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/LimitUnit": "MB" | "GB" | "HOURS" | "DAYS"
+#LimitUnit: "MB" | "GB" | "HOURS" | "DAYS"
 
-_#defs: "/$defs/Properties/definitions/ProfileLimitValue": close({
+#ProfileLimitValue: close({
 	MaxValue!: >=0
-	Unit!:     _#defs."/$defs/Properties/definitions/LimitUnit"
+	Unit!:     #LimitUnit
 })
 
-_#defs: "/$defs/Properties/definitions/ResourceLimitsMap": close({
+#ResourceLimitsMap: close({
 
-	{[=~".+"]: _#defs."/$defs/Properties/definitions/ProfileLimitValue"}})
+	{[=~".+"]: #ProfileLimitValue}})
 
-_#defs: "/$defs/Properties/definitions/ResourceType": "INDEX_STORAGE" | "AGENT_HOURS"
+#ResourceType: "INDEX_STORAGE" | "AGENT_HOURS"

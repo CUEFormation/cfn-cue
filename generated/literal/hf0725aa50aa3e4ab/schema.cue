@@ -25,28 +25,26 @@ import (
 	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9\\-\\._]*$"
 
 	// Required run-specific configurations.
-	RunConfigurations!: _#defs."/$defs/Properties/definitions/RunConfigurations"
+	RunConfigurations!: #RunConfigurations
 
 	// Current configuration status.
 	Status?: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | "DELETED" | "FAILED"
 
 	// Tags for the configuration.
-	Tags?: _#defs."/$defs/Properties/definitions/TagMap"
+	Tags?: #TagMap
 
 	// Unique identifier for the configuration.
 	Uuid?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/RunConfigurations": close(
-	{VpcConfig?: _#defs."/$defs/Properties/definitions/VpcConfig"},
-)
+#RunConfigurations: close({VpcConfig?: #VpcConfig})
 
 // A map of resource tags
-_#defs: "/$defs/Properties/definitions/TagMap": close({
+#TagMap: close({
 
 	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0)}})
 
-_#defs: "/$defs/Properties/definitions/VpcConfig": close({
+#VpcConfig: close({
 	SecurityGroupIds?: list.MaxItems(5) & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(128) &

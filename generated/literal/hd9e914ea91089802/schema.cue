@@ -16,19 +16,18 @@ import (
 
 	// Recipe name
 	Name!:  strings.MaxRunes(255) & strings.MinRunes(1)
-	Steps!: [..._#defs."/$defs/Properties/definitions/RecipeStep"]
-	Tags?:  [..._#defs."/$defs/Properties/definitions/Tag"]
+	Steps!: [...#RecipeStep]
+	Tags?:  [...#Tag]
 })
 
-_#defs: "/$defs/Properties/definitions/Action": close({
+#Action: close({
 	// Step action operation
-	Operation!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$"
-	Parameters?: _#defs."/$defs/Properties/definitions/RecipeParameters" |
-		_#defs."/$defs/Properties/definitions/ParameterMap"
+	Operation!:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$"
+	Parameters?: #RecipeParameters | #ParameterMap
 })
 
 // Condition expressions applied to the step action
-_#defs: "/$defs/Properties/definitions/ConditionExpression": close({
+#ConditionExpression: close({
 	// Input condition to be applied to the target column
 	Condition!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$"
 
@@ -39,7 +38,7 @@ _#defs: "/$defs/Properties/definitions/ConditionExpression": close({
 	Value?: strings.MaxRunes(1024) & strings.MinRunes(0)
 })
 
-_#defs: "/$defs/Properties/definitions/DataCatalogInputDefinition": close({
+#DataCatalogInputDefinition: close({
 	// Catalog id
 	CatalogId?: string
 
@@ -48,14 +47,14 @@ _#defs: "/$defs/Properties/definitions/DataCatalogInputDefinition": close({
 
 	// Table name
 	TableName?:     string
-	TempDirectory?: _#defs."/$defs/Properties/definitions/S3Location"
+	TempDirectory?: #S3Location
 })
 
-_#defs: "/$defs/Properties/definitions/ParameterMap": close({
+#ParameterMap: close({
 
 	{[=~"^[A-Za-z0-9]{1,128}$"]: string}})
 
-_#defs: "/$defs/Properties/definitions/RecipeParameters": null |
+#RecipeParameters: null |
 bool |
 number |
 string |
@@ -93,8 +92,8 @@ close({
 
 	// Input
 	Input?: close({
-		DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition"
-		S3InputDefinition?:          _#defs."/$defs/Properties/definitions/S3Location"
+		DataCatalogInputDefinition?: #DataCatalogInputDefinition
+		S3InputDefinition?:          #S3Location
 		if S3InputDefinition != _|_ {
 			DataCatalogInputDefinition?: error(
 				"DataCatalogInputDefinition cannot be used with S3InputDefinition; set exactly one of S3InputDefinition, DataCatalogInputDefinition",
@@ -139,7 +138,7 @@ close({
 	SampleSize?:                          string
 	SampleType?:                          string
 	SecondInput?:                         string
-	SecondaryInputs?:                     [..._#defs."/$defs/Properties/definitions/SecondaryInput"]
+	SecondaryInputs?:                     [...#SecondaryInput]
 	SheetIndexes?:                        list.MaxItems(1) & list.MinItems(1) & [...int]
 	SheetNames?:                          list.MaxItems(1) & list.MinItems(1) & [...string]
 	SourceColumn?:                        string
@@ -174,23 +173,23 @@ close({
 	ViewFrame?:                           string
 })
 
-_#defs: "/$defs/Properties/definitions/RecipeStep": close({
-	Action!: _#defs."/$defs/Properties/definitions/Action"
+#RecipeStep: close({
+	Action!: #Action
 
 	// Condition expressions applied to the step action
-	ConditionExpressions?: [..._#defs."/$defs/Properties/definitions/ConditionExpression"]
+	ConditionExpressions?: [...#ConditionExpression]
 })
 
 // Input location
-_#defs: "/$defs/Properties/definitions/S3Location": close({
+#S3Location: close({
 	Bucket!: string
 	Key?:    string
 })
 
 // Secondary input
-_#defs: "/$defs/Properties/definitions/SecondaryInput": close({
-	DataCatalogInputDefinition?: _#defs."/$defs/Properties/definitions/DataCatalogInputDefinition"
-	S3InputDefinition?:          _#defs."/$defs/Properties/definitions/S3Location"
+#SecondaryInput: close({
+	DataCatalogInputDefinition?: #DataCatalogInputDefinition
+	S3InputDefinition?:          #S3Location
 	if S3InputDefinition != _|_ {
 		DataCatalogInputDefinition?: error(
 			"DataCatalogInputDefinition cannot be used with S3InputDefinition; set exactly one of S3InputDefinition, DataCatalogInputDefinition",
@@ -199,7 +198,7 @@ _#defs: "/$defs/Properties/definitions/SecondaryInput": close({
 }) & matchN(>=1, [{S3InputDefinition!: _}, {DataCatalogInputDefinition!: _}])
 
 // A key-value pair to associate with a resource.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

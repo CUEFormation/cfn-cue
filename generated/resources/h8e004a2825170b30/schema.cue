@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -14,10 +14,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Resource Type definition for AWS::WorkSpaces::ConnectionAlias
 #Properties: close({
 	ConnectionString!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[.0-9a-zA-Z\\-]{1,255}$" | fn.#StringExpression
-	Tags?:             [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:             [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ConnectionAliasAssociation": close({
+#ConnectionAliasAssociation: close({
 	AssociatedAccountId?: string | fn.#StringExpression
 	AssociationStatus?: "NOT_ASSOCIATED" |
 		"PENDING_ASSOCIATION" |
@@ -30,7 +30,7 @@ _#defs: "/$defs/Properties/definitions/ConnectionAliasAssociation": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
 }) |

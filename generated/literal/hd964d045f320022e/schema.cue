@@ -37,7 +37,7 @@ import (
 
 	// Name for the cluster policy.
 	Name!:            strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$"
-	SchedulerConfig!: _#defs."/$defs/Properties/definitions/SchedulerConfig"
+	SchedulerConfig!: #SchedulerConfig
 
 	// Status of the cluster policy.
 	Status?: "Creating" |
@@ -54,11 +54,11 @@ import (
 		"Deleted"
 
 	// Tags of the cluster policy.
-	Tags?: list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 })
 
 // Priority class configuration.
-_#defs: "/$defs/Properties/definitions/PriorityClass": close({
+#PriorityClass: close({
 	// Name of the priority class.
 	Name!: =~"^[a-z0-9]([-a-z0-9]*[a-z0-9]){0,39}?$"
 
@@ -67,7 +67,7 @@ _#defs: "/$defs/Properties/definitions/PriorityClass": close({
 })
 
 // Cluster policy configuration.
-_#defs: "/$defs/Properties/definitions/SchedulerConfig": close({
+#SchedulerConfig: close({
 	// When enabled, entities borrow idle compute based on assigned FairShareWeight.
 	FairShare?: "Enabled" | "Disabled"
 
@@ -75,10 +75,10 @@ _#defs: "/$defs/Properties/definitions/SchedulerConfig": close({
 	IdleResourceSharing?: "Enabled" | "Disabled"
 
 	// List of priority class configurations.
-	PriorityClasses?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/PriorityClass"]
+	PriorityClasses?: list.MaxItems(10) & [...] & [...#PriorityClass]
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
 })

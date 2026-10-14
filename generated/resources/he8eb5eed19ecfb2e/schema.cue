@@ -20,10 +20,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
 		fn.#StringExpression
-	DomainName?:              string | fn.#StringExpression
-	EndpointAccessMode?:      string | fn.#StringExpression
-	EndpointConfiguration?:   _#defs."/$defs/Properties/definitions/EndpointConfiguration" | fn.#ObjectExpression
-	MutualTlsAuthentication?: _#defs."/$defs/Properties/definitions/MutualTlsAuthentication" | fn.#ObjectExpression
+	DomainName?:                          string | fn.#StringExpression
+	EndpointAccessMode?:                  string | fn.#StringExpression
+	EndpointConfiguration?:               #EndpointConfiguration | fn.#ObjectExpression
+	MutualTlsAuthentication?:             #MutualTlsAuthentication | fn.#ObjectExpression
 	OwnershipVerificationCertificateArn?: string | fn.#StringExpression
 	RegionalCertificateArn?:              string | fn.#StringExpression
 	RoutingMode?: "BASE_PATH_MAPPING_ONLY" |
@@ -31,22 +31,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"ROUTING_RULE_ONLY" |
 		fn.#StringExpression
 	SecurityPolicy?: string | fn.#StringExpression
-	Tags?:           [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:           [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/EndpointConfiguration": close({
+#EndpointConfiguration: close({
 	IpAddressType?: string | fn.#StringExpression
 	Types?:         [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MutualTlsAuthentication": close({
+#MutualTlsAuthentication: close({
 	TruststoreUri?:     string | fn.#StringExpression
 	TruststoreVersion?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key?:   string | fn.#StringExpression
 	Value?: string | fn.#StringExpression
 }) |

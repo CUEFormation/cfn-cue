@@ -8,27 +8,23 @@ import "strings"
 
 // Resource schema for AWS::FIS::TargetAccountConfiguration
 #Properties: close({
-	AccountId!:            _#defs."/$defs/Properties/definitions/TargetAccountId"
-	Description?:          _#defs."/$defs/Properties/definitions/TargetAccountConfigurationDescription"
-	ExperimentTemplateId!: _#defs."/$defs/Properties/definitions/TargetExperimentTemplateId"
-	RoleArn!:              _#defs."/$defs/Properties/definitions/TargetAccountRoleArn"
+	AccountId!:            #TargetAccountId
+	Description?:          #TargetAccountConfigurationDescription
+	ExperimentTemplateId!: #TargetExperimentTemplateId
+	RoleArn!:              #TargetAccountRoleArn
 })
 
 // The description of the target account.
-_#defs: "/$defs/Properties/definitions/TargetAccountConfigurationDescription": strings.MaxRunes(512) &
-strings.MinRunes(0) &
-=~"^[\\s\\S]*$"
+#TargetAccountConfigurationDescription: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\s\\S]*$"
 
 // The AWS account ID of the target account.
-_#defs: "/$defs/Properties/definitions/TargetAccountId": strings.MaxRunes(512) & strings.MinRunes(12) & =~"^[\\S]+$"
+#TargetAccountId: strings.MaxRunes(512) & strings.MinRunes(12) & =~"^[\\S]+$"
 
 // The Amazon Resource Name (ARN) of an IAM role for the target account.
-_#defs: "/$defs/Properties/definitions/TargetAccountRoleArn": =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+#TargetAccountRoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(1224) &
 strings.MinRunes(20) &
 =~"^[\\S]+$"
 
 // The ID of the experiment template.
-_#defs: "/$defs/Properties/definitions/TargetExperimentTemplateId": strings.MaxRunes(64) &
-strings.MinRunes(0) &
-=~"^[\\S]+$"
+#TargetExperimentTemplateId: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[\\S]+$"

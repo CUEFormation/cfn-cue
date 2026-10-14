@@ -42,11 +42,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	EnableSimpleResponses?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IdentitySource?:               [...string | fn.#StringExpression] | fn.#ListExpression
 	IdentityValidationExpression?: string | fn.#StringExpression
-	JwtConfiguration?:             _#defs."/$defs/Properties/definitions/JWTConfiguration" | fn.#ObjectExpression
+	JwtConfiguration?:             #JWTConfiguration | fn.#ObjectExpression
 	Name!:                         string | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/JWTConfiguration": close({
+#JWTConfiguration: close({
 	Audience?: [...string | fn.#StringExpression] | fn.#ListExpression
 	Issuer?:   string | fn.#StringExpression
 }) |

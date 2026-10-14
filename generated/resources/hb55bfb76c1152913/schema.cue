@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -37,9 +37,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	strings.MinRunes(1) &
 	=~"^https://([^/]+)/?(.*)$|^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
 	fn.#StringExpression
-	DirectInternetAccess?: "Disabled" | "Enabled" | fn.#StringExpression
-	InstanceMetadataServiceConfiguration?: _#defs."/$defs/Properties/definitions/InstanceMetadataServiceConfiguration" |
-		fn.#ObjectExpression
+	DirectInternetAccess?:                 "Disabled" | "Enabled" | fn.#StringExpression
+	InstanceMetadataServiceConfiguration?: #InstanceMetadataServiceConfiguration | fn.#ObjectExpression
 	InstanceType!: "ml.c4.2xlarge" |
 		"ml.c4.4xlarge" |
 		"ml.c4.8xlarge" |
@@ -259,7 +258,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	] |
 	fn.#ListExpression
 	SubnetId?: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[-0-9a-zA-Z]+$" | fn.#StringExpression
-	Tags?:     list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	VolumeSizeInGB?: int & <=16384 & >=5 |
 		{
 			string &
@@ -278,12 +277,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#NumberExpression
 })
 
-_#defs: "/$defs/Properties/definitions/InstanceMetadataServiceConfiguration": close({
+#InstanceMetadataServiceConfiguration: close({
 	MinimumInstanceMetadataServiceVersion!: strings.MaxRunes(1) & strings.MinRunes(0) & =~"^1|2$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

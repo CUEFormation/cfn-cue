@@ -13,7 +13,7 @@ import (
 #Properties: close({
 	// Amazon Resource Name for the Schema.
 	Arn?:               =~"arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:.*"
-	CheckpointVersion?: _#defs."/$defs/Properties/definitions/SchemaVersion"
+	CheckpointVersion?: #SchemaVersion
 
 	// Compatibility setting for the schema.
 	Compatibility!: "NONE" | "DISABLED" | "BACKWARD" | "BACKWARD_ALL" | "FORWARD" | "FORWARD_ALL" | "FULL" | "FULL_ALL"
@@ -30,17 +30,17 @@ import (
 
 	// Name of the schema.
 	Name!:     strings.MaxRunes(255) & strings.MinRunes(1)
-	Registry?: _#defs."/$defs/Properties/definitions/Registry"
+	Registry?: #Registry
 
 	// Definition for the initial schema version in plain-text.
 	SchemaDefinition?: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S"
 
 	// List of tags to tag the schema
-	Tags?: list.MaxItems(10) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(10) & [...] & [...#Tag]
 })
 
 // Identifier for the registry which the schema is part of.
-_#defs: "/$defs/Properties/definitions/Registry": close({
+#Registry: close({
 	// Amazon Resource Name for the Registry.
 	Arn?: =~"arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:.*"
 
@@ -49,7 +49,7 @@ _#defs: "/$defs/Properties/definitions/Registry": close({
 })
 
 // Specify checkpoint version for update. This is only required to update the Compatibility.
-_#defs: "/$defs/Properties/definitions/SchemaVersion": close({
+#SchemaVersion: close({
 	// Indicates if the latest version needs to be updated.
 	IsLatest?: bool
 
@@ -57,7 +57,7 @@ _#defs: "/$defs/Properties/definitions/SchemaVersion": close({
 	VersionNumber?: int & <=100000 & >=1
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A key to identify the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

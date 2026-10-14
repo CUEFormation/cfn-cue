@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -20,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Capabilities!: [...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression] |
 	fn.#ListExpression
-	CapabilityOptions?: _#defs."/$defs/Properties/definitions/CapabilityOptions"
+	CapabilityOptions?: #CapabilityOptions
 	Email!: strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" | fn.#StringExpression
 	Name!:  strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
 	Phone?: strings.MaxRunes(22) &
@@ -28,36 +28,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$" |
 	fn.#StringExpression
 	ProfileId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Tags?:      list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/CapabilityOptions": close({
-	InboundEdi?:  _#defs."/$defs/Properties/definitions/InboundEdiOptions"
-	OutboundEdi?: _#defs."/$defs/Properties/definitions/OutboundEdiOptions"
+#CapabilityOptions: close({
+	InboundEdi?:  #InboundEdiOptions
+	OutboundEdi?: #OutboundEdiOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/InboundEdiOptions": close(
-	{X12?: _#defs."/$defs/Properties/definitions/X12InboundEdiOptions"},
-) |
-	fn.#ObjectExpression
+#InboundEdiOptions: close({X12?: #X12InboundEdiOptions}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/LineTerminator": "CRLF" | "LF" | "CR" | fn.#StringExpression
+#LineTerminator: "CRLF" | "LF" | "CR" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/OutboundEdiOptions": close(
-	{X12!: _#defs."/$defs/Properties/definitions/X12Envelope"},
-) |
-	fn.#ValueExpression
+#OutboundEdiOptions: close({X12!: #X12Envelope}) | fn.#ValueExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/WrapFormat": "SEGMENT" | "ONE_LINE" | "LINE_LENGTH" | fn.#StringExpression
+#WrapFormat: "SEGMENT" | "ONE_LINE" | "LINE_LENGTH" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/WrapOptions": close({
+#WrapOptions: close({
 	LineLength?: >=1 |
 		{
 			string &
@@ -77,18 +71,18 @@ _#defs: "/$defs/Properties/definitions/WrapOptions": close({
 				)
 		} |
 		fn.#NumberExpression
-	LineTerminator?: _#defs."/$defs/Properties/definitions/LineTerminator"
-	WrapBy?:         _#defs."/$defs/Properties/definitions/WrapFormat"
+	LineTerminator?: #LineTerminator
+	WrapBy?:         #WrapFormat
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/X12AcknowledgmentOptions": close({
-	FunctionalAcknowledgment!: _#defs."/$defs/Properties/definitions/X12FunctionalAcknowledgment"
-	TechnicalAcknowledgment!:  _#defs."/$defs/Properties/definitions/X12TechnicalAcknowledgment"
+#X12AcknowledgmentOptions: close({
+	FunctionalAcknowledgment!: #X12FunctionalAcknowledgment
+	TechnicalAcknowledgment!:  #X12TechnicalAcknowledgment
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/X12ControlNumbers": close({
+#X12ControlNumbers: close({
 	StartingFunctionalGroupControlNumber?: <=999999999 & >=1 |
 		{
 			string &
@@ -152,7 +146,7 @@ _#defs: "/$defs/Properties/definitions/X12ControlNumbers": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/X12Delimiters": close({
+#X12Delimiters: close({
 	ComponentSeparator?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[!&'()*+,\\-./:;?=%@\\[\\]_{}|<>~^`\"]$" |
 	fn.#StringExpression
 	DataElementSeparator?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[!&'()*+,\\-./:;?=%@\\[\\]_{}|<>~^`\"]$" |
@@ -162,32 +156,29 @@ _#defs: "/$defs/Properties/definitions/X12Delimiters": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/X12Envelope": close({
-	Common?:      _#defs."/$defs/Properties/definitions/X12OutboundEdiHeaders"
-	WrapOptions?: _#defs."/$defs/Properties/definitions/WrapOptions"
+#X12Envelope: close({
+	Common?:      #X12OutboundEdiHeaders
+	WrapOptions?: #WrapOptions
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/X12FunctionalAcknowledgment": "DO_NOT_GENERATE" |
+#X12FunctionalAcknowledgment: "DO_NOT_GENERATE" |
 	"GENERATE_ALL_SEGMENTS" |
 	"GENERATE_WITHOUT_TRANSACTION_SET_RESPONSE_LOOP" |
 	fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/X12FunctionalGroupHeaders": close({
+#X12FunctionalGroupHeaders: close({
 	ApplicationReceiverCode?: strings.MaxRunes(15) & strings.MinRunes(2) & =~"^[a-zA-Z0-9 ]*$" | fn.#StringExpression
 	ApplicationSenderCode?:   strings.MaxRunes(15) & strings.MinRunes(2) & =~"^[a-zA-Z0-9 ]*$" | fn.#StringExpression
 	ResponsibleAgencyCode?:   strings.MaxRunes(2) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/X12GS05TimeFormat": "HHMM" | "HHMMSS" | "HHMMSSDD" | fn.#StringExpression
+#X12GS05TimeFormat: "HHMM" | "HHMMSS" | "HHMMSSDD" | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/X12InboundEdiOptions": close(
-	{AcknowledgmentOptions?: _#defs."/$defs/Properties/definitions/X12AcknowledgmentOptions"},
-) |
-	fn.#ObjectExpression
+#X12InboundEdiOptions: close({AcknowledgmentOptions?: #X12AcknowledgmentOptions}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/X12InterchangeControlHeaders": close({
+#X12InterchangeControlHeaders: close({
 	AcknowledgmentRequestedCode?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
 	ReceiverId?:          strings.MaxRunes(15) & strings.MinRunes(15) & =~"^[a-zA-Z0-9 ]*$" | fn.#StringExpression
 	ReceiverIdQualifier?: strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
@@ -198,19 +189,17 @@ _#defs: "/$defs/Properties/definitions/X12InterchangeControlHeaders": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/X12OutboundEdiHeaders": close({
-	ControlNumbers?:            _#defs."/$defs/Properties/definitions/X12ControlNumbers"
-	Delimiters?:                _#defs."/$defs/Properties/definitions/X12Delimiters"
-	FunctionalGroupHeaders?:    _#defs."/$defs/Properties/definitions/X12FunctionalGroupHeaders"
-	Gs05TimeFormat?:            _#defs."/$defs/Properties/definitions/X12GS05TimeFormat"
-	InterchangeControlHeaders?: _#defs."/$defs/Properties/definitions/X12InterchangeControlHeaders"
+#X12OutboundEdiHeaders: close({
+	ControlNumbers?:            #X12ControlNumbers
+	Delimiters?:                #X12Delimiters
+	FunctionalGroupHeaders?:    #X12FunctionalGroupHeaders
+	Gs05TimeFormat?:            #X12GS05TimeFormat
+	InterchangeControlHeaders?: #X12InterchangeControlHeaders
 	ValidateEdi?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/X12TechnicalAcknowledgment": "DO_NOT_GENERATE" |
-	"GENERATE_ALL_SEGMENTS" |
-	fn.#StringExpression
+#X12TechnicalAcknowledgment: "DO_NOT_GENERATE" | "GENERATE_ALL_SEGMENTS" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::B2BI::Partnership"
 	Properties!: #Properties

@@ -15,7 +15,7 @@ import (
 	DatasetArn?: string
 
 	// The configuration for the dataset.
-	DatasetConfig?: _#defs."/$defs/Properties/definitions/DatasetConfig"
+	DatasetConfig?: #DatasetConfig
 
 	// A description about the dataset, and its functionality.
 	DatasetDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
@@ -31,26 +31,26 @@ import (
 	DatasetName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@.]+$"
 
 	// The data source for the dataset.
-	DatasetSource?: _#defs."/$defs/Properties/definitions/DatasetSource"
+	DatasetSource?: #DatasetSource
 
 	// The type of the dataset.
 	DatasetType?: "SESSION" | "CURATED" | "EXTERNAL"
 
 	// An array of key-value pairs to apply to this resource.
-	Tags?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.UniqueItems() & [...#Tag]
 
 	// The name of the workspace associated with the dataset.
 	WorkspaceName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/DatasetConfig": close({
+#DatasetConfig: close({
 	// The session configuration for a SESSION dataset.
-	Session?: _#defs."/$defs/Properties/definitions/SessionConfig"
+	Session?: #SessionConfig
 })
 
-_#defs: "/$defs/Properties/definitions/DatasetSource": close({
+#DatasetSource: close({
 	// The details of the dataset source associated with the dataset.
-	SourceDetail?: _#defs."/$defs/Properties/definitions/SourceDetail"
+	SourceDetail?: #SourceDetail
 
 	// The format of the dataset source associated with the dataset.
 	SourceFormat!: "KNOWLEDGE_BASE" | "TIMESERIES"
@@ -59,7 +59,7 @@ _#defs: "/$defs/Properties/definitions/DatasetSource": close({
 	SourceType!: "KENDRA" | "SITEWISE"
 })
 
-_#defs: "/$defs/Properties/definitions/KendraSourceDetail": close({
+#KendraSourceDetail: close({
 	// The knowledgeBaseArn details for the Kendra dataset source.
 	KnowledgeBaseArn!: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$"
 
@@ -70,7 +70,7 @@ _#defs: "/$defs/Properties/definitions/KendraSourceDetail": close({
 	=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/SessionConfig": close({
+#SessionConfig: close({
 	// The end time of the session as an ISO 8601 UTC instant, for example 2024-12-31T23:59:59Z.
 	SessionEndTime!: string
 
@@ -78,12 +78,12 @@ _#defs: "/$defs/Properties/definitions/SessionConfig": close({
 	SessionStartTime!: string
 })
 
-_#defs: "/$defs/Properties/definitions/SourceDetail": close({
+#SourceDetail: close({
 	// Contains details about the Kendra dataset source.
-	Kendra?: _#defs."/$defs/Properties/definitions/KendraSourceDetail"
+	Kendra?: #KendraSourceDetail
 })
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   string
 	Value!: string
 })

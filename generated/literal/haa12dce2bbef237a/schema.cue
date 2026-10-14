@@ -54,7 +54,7 @@ package schema
 	StaticRoutesOnly?: bool
 
 	// Any tags assigned to the VPN connection.
-	Tags?: [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: [...#Tag]
 
 	// The ID of the transit gateway associated with the VPN connection.
 	// You must specify either ``TransitGatewayId`` or ``VpnGatewayId``, but not both.
@@ -88,11 +88,11 @@ package schema
 	VpnGatewayId?: string
 
 	// The tunnel options for the VPN connection.
-	VpnTunnelOptionsSpecifications?: [..._#defs."/$defs/Properties/definitions/VpnTunnelOptionsSpecification"]
+	VpnTunnelOptionsSpecifications?: [...#VpnTunnelOptionsSpecification]
 })
 
 // Options for sending VPN tunnel logs to CloudWatch.
-_#defs: "/$defs/Properties/definitions/CloudwatchLogOptionsSpecification": close({
+#CloudwatchLogOptionsSpecification: close({
 	// Specifies whether to enable BGP logging for the VPN connection. Default value is ``False``.
 	// Valid values: ``True`` | ``False``
 	BgpLogEnabled?: bool
@@ -117,50 +117,50 @@ _#defs: "/$defs/Properties/definitions/CloudwatchLogOptionsSpecification": close
 })
 
 // The IKE version that is permitted for the VPN tunnel.
-_#defs: "/$defs/Properties/definitions/IKEVersionsRequestListValue": close({
+#IKEVersionsRequestListValue: close({
 	// The IKE version.
 	Value?: "ikev1" | "ikev2"
 })
 
 // Specifies a Diffie-Hellman group number for the VPN tunnel for phase 1 IKE negotiations.
-_#defs: "/$defs/Properties/definitions/Phase1DHGroupNumbersRequestListValue": close({
+#Phase1DHGroupNumbersRequestListValue: close({
 	// The Diffie-Hellmann group number.
 	Value?: (==2 | ==14 | ==15 | ==16 | ==17 | ==18 | ==19 | ==20 | ==21 | ==22 | ==23 | ==24) & int
 })
 
 // Specifies the encryption algorithm for the VPN tunnel for phase 1 IKE negotiations.
-_#defs: "/$defs/Properties/definitions/Phase1EncryptionAlgorithmsRequestListValue": close({
+#Phase1EncryptionAlgorithmsRequestListValue: close({
 	// The value for the encryption algorithm.
 	Value?: "AES128" | "AES256" | "AES128-GCM-16" | "AES256-GCM-16"
 })
 
 // Specifies the integrity algorithm for the VPN tunnel for phase 1 IKE negotiations.
-_#defs: "/$defs/Properties/definitions/Phase1IntegrityAlgorithmsRequestListValue": close({
+#Phase1IntegrityAlgorithmsRequestListValue: close({
 	// The value for the integrity algorithm.
 	Value?: "SHA1" | "SHA2-256" | "SHA2-384" | "SHA2-512"
 })
 
 // Specifies a Diffie-Hellman group number for the VPN tunnel for phase 2 IKE negotiations.
-_#defs: "/$defs/Properties/definitions/Phase2DHGroupNumbersRequestListValue": close({
+#Phase2DHGroupNumbersRequestListValue: close({
 	// The Diffie-Hellmann group number.
 	Value?: (==2 | ==5 | ==14 | ==15 | ==16 | ==17 | ==18 | ==19 | ==20 | ==21 | ==22 | ==23 | ==24) & int
 })
 
 // Specifies the encryption algorithm for the VPN tunnel for phase 2 IKE negotiations.
-_#defs: "/$defs/Properties/definitions/Phase2EncryptionAlgorithmsRequestListValue": close({
+#Phase2EncryptionAlgorithmsRequestListValue: close({
 	// The encryption algorithm.
 	Value?: "AES128" | "AES256" | "AES128-GCM-16" | "AES256-GCM-16"
 })
 
 // Specifies the integrity algorithm for the VPN tunnel for phase 2 IKE negotiations.
-_#defs: "/$defs/Properties/definitions/Phase2IntegrityAlgorithmsRequestListValue": close({
+#Phase2IntegrityAlgorithmsRequestListValue: close({
 	// The integrity algorithm.
 	Value?: "SHA1" | "SHA2-256" | "SHA2-384" | "SHA2-512"
 })
 
 // Specifies a tag. For more information, see [Resource
 // tags](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html).
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// The tag key.
 	Key!: string
 
@@ -169,13 +169,13 @@ _#defs: "/$defs/Properties/definitions/Tag": close({
 })
 
 // Options for logging VPN tunnel activity.
-_#defs: "/$defs/Properties/definitions/VpnTunnelLogOptionsSpecification": close({
+#VpnTunnelLogOptionsSpecification: close({
 	// Options for sending VPN tunnel logs to CloudWatch.
-	CloudwatchLogOptions?: _#defs."/$defs/Properties/definitions/CloudwatchLogOptionsSpecification"
+	CloudwatchLogOptions?: #CloudwatchLogOptionsSpecification
 })
 
 // The tunnel options for a single VPN tunnel.
-_#defs: "/$defs/Properties/definitions/VpnTunnelOptionsSpecification": close({
+#VpnTunnelOptionsSpecification: close({
 	// The action to take after DPD timeout occurs. Specify ``restart`` to restart
 	// the IKE initiation. Specify ``clear`` to end the IKE session.
 	// Valid Values: ``clear`` | ``none`` | ``restart``
@@ -192,26 +192,26 @@ _#defs: "/$defs/Properties/definitions/VpnTunnelOptionsSpecification": close({
 
 	// The IKE versions that are permitted for the VPN tunnel.
 	// Valid values: ``ikev1`` | ``ikev2``
-	IKEVersions?: [..._#defs."/$defs/Properties/definitions/IKEVersionsRequestListValue"]
+	IKEVersions?: [...#IKEVersionsRequestListValue]
 
 	// Options for logging VPN tunnel activity.
-	LogOptions?: _#defs."/$defs/Properties/definitions/VpnTunnelLogOptionsSpecification"
+	LogOptions?: #VpnTunnelLogOptionsSpecification
 
 	// One or more Diffie-Hellman group numbers that are permitted for the VPN
 	// tunnel for phase 1 IKE negotiations.
 	// Valid values: ``2`` | ``14`` | ``15`` | ``16`` | ``17`` | ``18`` | ``19`` |
 	// ``20`` | ``21`` | ``22`` | ``23`` | ``24``
-	Phase1DHGroupNumbers?: [..._#defs."/$defs/Properties/definitions/Phase1DHGroupNumbersRequestListValue"]
+	Phase1DHGroupNumbers?: [...#Phase1DHGroupNumbersRequestListValue]
 
 	// One or more encryption algorithms that are permitted for the VPN tunnel for
 	// phase 1 IKE negotiations.
 	// Valid values: ``AES128`` | ``AES256`` | ``AES128-GCM-16`` | ``AES256-GCM-16``
-	Phase1EncryptionAlgorithms?: [..._#defs."/$defs/Properties/definitions/Phase1EncryptionAlgorithmsRequestListValue"]
+	Phase1EncryptionAlgorithms?: [...#Phase1EncryptionAlgorithmsRequestListValue]
 
 	// One or more integrity algorithms that are permitted for the VPN tunnel for
 	// phase 1 IKE negotiations.
 	// Valid values: ``SHA1`` | ``SHA2-256`` | ``SHA2-384`` | ``SHA2-512``
-	Phase1IntegrityAlgorithms?: [..._#defs."/$defs/Properties/definitions/Phase1IntegrityAlgorithmsRequestListValue"]
+	Phase1IntegrityAlgorithms?: [...#Phase1IntegrityAlgorithmsRequestListValue]
 
 	// The lifetime for phase 1 of the IKE negotiation, in seconds.
 	// Constraints: A value between 900 and 28,800.
@@ -222,17 +222,17 @@ _#defs: "/$defs/Properties/definitions/VpnTunnelOptionsSpecification": close({
 	// tunnel for phase 2 IKE negotiations.
 	// Valid values: ``2`` | ``5`` | ``14`` | ``15`` | ``16`` | ``17`` | ``18`` |
 	// ``19`` | ``20`` | ``21`` | ``22`` | ``23`` | ``24``
-	Phase2DHGroupNumbers?: [..._#defs."/$defs/Properties/definitions/Phase2DHGroupNumbersRequestListValue"]
+	Phase2DHGroupNumbers?: [...#Phase2DHGroupNumbersRequestListValue]
 
 	// One or more encryption algorithms that are permitted for the VPN tunnel for
 	// phase 2 IKE negotiations.
 	// Valid values: ``AES128`` | ``AES256`` | ``AES128-GCM-16`` | ``AES256-GCM-16``
-	Phase2EncryptionAlgorithms?: [..._#defs."/$defs/Properties/definitions/Phase2EncryptionAlgorithmsRequestListValue"]
+	Phase2EncryptionAlgorithms?: [...#Phase2EncryptionAlgorithmsRequestListValue]
 
 	// One or more integrity algorithms that are permitted for the VPN tunnel for
 	// phase 2 IKE negotiations.
 	// Valid values: ``SHA1`` | ``SHA2-256`` | ``SHA2-384`` | ``SHA2-512``
-	Phase2IntegrityAlgorithms?: [..._#defs."/$defs/Properties/definitions/Phase2IntegrityAlgorithmsRequestListValue"]
+	Phase2IntegrityAlgorithms?: [...#Phase2IntegrityAlgorithmsRequestListValue]
 
 	// The lifetime for phase 2 of the IKE negotiation, in seconds.
 	// Constraints: A value between 900 and 3,600. The value must be less than the

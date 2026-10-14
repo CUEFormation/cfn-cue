@@ -14,14 +14,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The AWS::LookoutVision::Project type creates an Amazon Lookout for Vision
 // project. A project is a grouping of the resources needed to create and
 // manage a Lookout for Vision model.
-#Properties: close({ProjectName!: _#defs."/$defs/Properties/definitions/ProjectName"})
+#Properties: close({ProjectName!: #ProjectName})
 
-_#defs: "/$defs/Properties/definitions/Arn": strings.MaxRunes(1000) | fn.#StringExpression
+#Arn: strings.MaxRunes(1000) | fn.#StringExpression
 
-_#defs: "/$defs/Properties/definitions/ProjectName": strings.MaxRunes(255) &
-strings.MinRunes(1) &
-=~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*" |
-fn.#StringExpression
+#ProjectName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*" | fn.#StringExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::LookoutVision::Project"
 	Properties!: #Properties

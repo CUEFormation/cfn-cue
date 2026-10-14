@@ -21,24 +21,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 	ActionType!:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	Description?:        strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
-	MetadataProperties?: _#defs."/$defs/Properties/definitions/MetadataProperties" | fn.#ObjectExpression
+	MetadataProperties?: #MetadataProperties | fn.#ObjectExpression
 	Properties?: struct.MaxFields(30) & close({
 
 		{[=~".+"]: strings.MaxRunes(2500) | fn.#StringExpression}}) |
 	fn.#ObjectExpression
-	Source!: _#defs."/$defs/Properties/definitions/ActionSource" | fn.#ObjectExpression
+	Source!: #ActionSource | fn.#ObjectExpression
 	Status?: "Unknown" | "InProgress" | "Completed" | "Failed" | "Stopping" | "Stopped" | fn.#StringExpression
-	Tags?:   list.MaxItems(50) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/ActionSource": close({
+#ActionSource: close({
 	SourceId?:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	SourceType?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 	SourceUri!:  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetadataProperties": close({
+#MetadataProperties: close({
 	CommitId?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	GeneratedBy?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	ProjectId?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
@@ -46,7 +46,7 @@ _#defs: "/$defs/Properties/definitions/MetadataProperties": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
 }) |

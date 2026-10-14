@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -22,55 +22,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
 	InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
 	MetricCalculation!: close({
-		Calculation!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		CalculationComponents!: list.MaxItems(5) & list.MinItems(1) & [
-			..._#defs."/$defs/Properties/definitions/CalculationComponent"
-		] |
-			fn.#ListExpression
+		Calculation!:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		CalculationComponents!: list.MaxItems(5) & list.MinItems(1) & [...#CalculationComponent] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
 	Name!:                   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	PositiveTrendIndicator?: "POSITIVE" | "NEGATIVE" | "NEUTRAL" | fn.#StringExpression
 	Status!:                 "SAVED" | "PUBLISHED" | fn.#StringExpression
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
-	Unit!: "INTEGER" | "DOUBLE" | "PERCENT" | "SECONDS" | fn.#StringExpression
+	Tags?:                   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	Unit!:                   "INTEGER" | "DOUBLE" | "PERCENT" | "SECONDS" | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AvailableFilter": close({
+#AvailableFilter: close({
 	Id!:   string | fn.#StringExpression
 	Type!: "METRIC_LEVEL" | "RESOURCE_LEVEL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CalculationComponent": close({
-	Alias!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_][a-zA-Z0-9_]*" | fn.#StringExpression
-	MetricFilters?: list.MaxItems(5) & [...] & [..._#defs."/$defs/Properties/definitions/MetricFilter"] |
-		fn.#ListExpression
-	MetricId?:   strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
-	MetricName?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#CalculationComponent: close({
+	Alias!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_][a-zA-Z0-9_]*" | fn.#StringExpression
+	MetricFilters?: list.MaxItems(5) & [...] & [...#MetricFilter] | fn.#ListExpression
+	MetricId?:      strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
+	MetricName?:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/CreatedByInfo": fn.#Object & {...} & matchN(1, [
+#CreatedByInfo: fn.#Object & {...} & matchN(1, [
 	close({AWSIdentityArn!: string | fn.#StringExpression}), close({ConnectUserArn!: string | fn.#StringExpression}),
 ]) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricFilter": close({
-	BooleanCondition?: _#defs."/$defs/Properties/definitions/MetricFilterBooleanCondition"
+#MetricFilter: close({
+	BooleanCondition?: #MetricFilterBooleanCondition
 	MetricFilterKey!:  strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
 	Negate?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NumberCondition?:  _#defs."/$defs/Properties/definitions/MetricFilterNumberCondition"
-	StringCondition?:  _#defs."/$defs/Properties/definitions/MetricFilterStringCondition"
+	NumberCondition?:  #MetricFilterNumberCondition
+	StringCondition?:  #MetricFilterStringCondition
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricFilterBooleanCondition": close(
-	{Comparison!: "IS_TRUE" | "IS_FALSE" | fn.#StringExpression},
-) |
+#MetricFilterBooleanCondition: close({Comparison!: "IS_TRUE" | "IS_FALSE" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricFilterNumberCondition": close({
+#MetricFilterNumberCondition: close({
 	Comparison!: "LESSER" | "LESSER_OR_EQUAL" | "GREATER" | "GREATER_OR_EQUAL" | fn.#StringExpression
 	Values!: list.MaxItems(10) & list.MinItems(1) & [
 		...number |
@@ -97,13 +91,13 @@ _#defs: "/$defs/Properties/definitions/MetricFilterNumberCondition": close({
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/MetricFilterStringCondition": close({
+#MetricFilterStringCondition: close({
 	Comparison!: "MATCHES_ANY" | "MATCHES_NONE" | fn.#StringExpression
 	Values!:     list.MaxItems(15) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) | fn.#StringExpression
 }) |

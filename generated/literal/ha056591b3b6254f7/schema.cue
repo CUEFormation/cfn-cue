@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"list"
 	"strings"
 	"time"
-	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -35,9 +35,7 @@ import (
 	// If both IncludeFilters and ExcludeFilters are omitted, all metrics in the
 	// account will be streamed. IncludeFilters and ExcludeFilters are mutually
 	// exclusive. Default to null.
-	ExcludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricStreamFilter"
-	]
+	ExcludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [...#MetricStreamFilter]
 
 	// The ARN of the Kinesis Firehose where to stream the data.
 	FirehoseArn?: strings.MaxRunes(2048) & strings.MinRunes(20)
@@ -47,9 +45,7 @@ import (
 	// IncludeFilters and ExcludeFilters are omitted, all metrics in the account
 	// will be streamed. IncludeFilters and ExcludeFilters are mutually exclusive.
 	// Default to null.
-	IncludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricStreamFilter"
-	]
+	IncludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [...#MetricStreamFilter]
 
 	// If you are creating a metric stream in a monitoring account, specify true to
 	// include metrics from source accounts that are linked to this monitoring
@@ -75,16 +71,14 @@ import (
 	// statistics for each metric that is streamed. You can use this parameter to
 	// have the metric stream also send additional statistics in the stream. This
 	// array can have up to 100 members.
-	StatisticsConfigurations?: list.MaxItems(100) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricStreamStatisticsConfiguration"
-	]
+	StatisticsConfigurations?: list.MaxItems(100) & list.UniqueItems() & [...#MetricStreamStatisticsConfiguration]
 
 	// A set of tags to assign to the delivery stream.
-	Tags?: list.MaxItems(50) & list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"]
+	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag]
 })
 
 // This structure defines the metrics that will be streamed.
-_#defs: "/$defs/Properties/definitions/MetricStreamFilter": close({
+#MetricStreamFilter: close({
 	// Only metrics with MetricNames matching these values will be streamed. Must be
 	// set together with Namespace.
 	MetricNames?: list.MaxItems(999) & [...strings.MaxRunes(255) & strings.MinRunes(1)]
@@ -97,19 +91,17 @@ _#defs: "/$defs/Properties/definitions/MetricStreamFilter": close({
 // metrics to stream those additional statistics for. All metrics that match
 // the combination of metric name and namespace will be streamed with the
 // extended statistics, no matter their dimensions.
-_#defs: "/$defs/Properties/definitions/MetricStreamStatisticsConfiguration": close({
+#MetricStreamStatisticsConfiguration: close({
 	// The additional statistics to stream for the metrics listed in IncludeMetrics.
 	AdditionalStatistics!: list.MaxItems(20) & list.UniqueItems() & [...string]
 
 	// An array that defines the metrics that are to have additional statistics streamed.
-	IncludeMetrics!: list.MaxItems(100) & list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/MetricStreamStatisticsMetric"
-	]
+	IncludeMetrics!: list.MaxItems(100) & list.UniqueItems() & [...#MetricStreamStatisticsMetric]
 })
 
 // A structure that specifies the metric name and namespace for one metric that
 // is going to have additional statistics included in the stream.
-_#defs: "/$defs/Properties/definitions/MetricStreamStatisticsMetric": close({
+#MetricStreamStatisticsMetric: close({
 	// The name of the metric.
 	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -118,7 +110,7 @@ _#defs: "/$defs/Properties/definitions/MetricStreamStatisticsMetric": close({
 })
 
 // Metadata that you can assign to a Metric Stream, consisting of a key-value pair.
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	// A unique identifier for the tag.
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
 

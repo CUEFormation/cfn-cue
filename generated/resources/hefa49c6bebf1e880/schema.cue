@@ -16,18 +16,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Properties: close({
 	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Location?:        _#defs."/$defs/Properties/definitions/Location" | fn.#ObjectExpression
-	Tags?:            list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Location?:        #Location | fn.#ObjectExpression
+	Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
 })
 
-_#defs: "/$defs/Properties/definitions/Location": close({
+#Location: close({
 	Address?:   strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	Latitude?:  strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	Longitude?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
 }) |

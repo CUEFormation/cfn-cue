@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"list"
+	"strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,14 +16,14 @@ import (
 	=~"^arn:aws(|-cn|-us-gov):bedrock:[a-z0-9-]{1,20}:[0-9]{12}:agent-alias/[0-9a-zA-Z]{10}/[0-9a-zA-Z]{10}$"
 
 	// The list of history events for an alias for an Agent.
-	AgentAliasHistoryEvents?: list.MaxItems(10) & [..._#defs."/$defs/Properties/definitions/AgentAliasHistoryEvent"]
+	AgentAliasHistoryEvents?: list.MaxItems(10) & [...#AgentAliasHistoryEvent]
 
 	// Id for an Agent Alias generated at the server side.
 	AgentAliasId?: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^(\\bTSTALIASID\\b|[0-9a-zA-Z]+)$"
 
 	// Name for a resource.
 	AgentAliasName!:   =~"^([0-9a-zA-Z][_-]?){1,100}$"
-	AgentAliasStatus?: _#defs."/$defs/Properties/definitions/AgentAliasStatus"
+	AgentAliasStatus?: #AgentAliasStatus
 
 	// Identifier for a resource.
 	AgentId!: =~"^[0-9a-zA-Z]{10}$"
@@ -35,39 +35,35 @@ import (
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1)
 
 	// Routing configuration for an Agent alias.
-	RoutingConfiguration?: list.MaxItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AgentAliasRoutingConfigurationListItem"
-	]
-	Tags?: _#defs."/$defs/Properties/definitions/TagsMap"
+	RoutingConfiguration?: list.MaxItems(1) & [...#AgentAliasRoutingConfigurationListItem]
+	Tags?:                 #TagsMap
 
 	// Time Stamp.
 	UpdatedAt?: string
 })
 
 // History event for an alias for an Agent.
-_#defs: "/$defs/Properties/definitions/AgentAliasHistoryEvent": close({
+#AgentAliasHistoryEvent: close({
 	// Time Stamp.
 	EndDate?: string
 
 	// Routing configuration for an Agent alias.
-	RoutingConfiguration?: list.MaxItems(1) & [
-		..._#defs."/$defs/Properties/definitions/AgentAliasRoutingConfigurationListItem"
-	]
+	RoutingConfiguration?: list.MaxItems(1) & [...#AgentAliasRoutingConfigurationListItem]
 
 	// Time Stamp.
 	StartDate?: string
 })
 
 // Details about the routing configuration for an Agent alias.
-_#defs: "/$defs/Properties/definitions/AgentAliasRoutingConfigurationListItem": close({
+#AgentAliasRoutingConfigurationListItem: close({
 	// Agent Version.
 	AgentVersion!: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]{0,4}[1-9][0-9]{0,4})$"
 })
 
 // The statuses an Agent Alias can be in.
-_#defs: "/$defs/Properties/definitions/AgentAliasStatus": "CREATING" | "PREPARED" | "FAILED" | "UPDATING" | "DELETING"
+#AgentAliasStatus: "CREATING" | "PREPARED" | "FAILED" | "UPDATING" | "DELETING"
 
 // A map of tag keys and values
-_#defs: "/$defs/Properties/definitions/TagsMap": close({
+#TagsMap: close({
 
 	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$"}})

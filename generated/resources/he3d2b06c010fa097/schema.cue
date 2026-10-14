@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -21,21 +21,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
 	Name!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
 	Properties?:  _#defs."/$defs/Properties/definitions/Properties" | fn.#ObjectExpression
-	Tags?:        list.MaxItems(200) & [...] & [..._#defs."/$defs/Properties/definitions/Tag"] | fn.#ListExpression
+	Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	Vpc?:         strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
 })
 
-_#defs: "/$defs/Properties/definitions/PrivateDnsPropertiesMutable": close(
-	{SOA?: _#defs."/$defs/Properties/definitions/SOA"},
-) |
-	fn.#ObjectExpression
+#PrivateDnsPropertiesMutable: close({SOA?: #SOA}) | fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Properties": close(
-	{DnsProperties?: _#defs."/$defs/Properties/definitions/PrivateDnsPropertiesMutable"},
-) |
-	fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/SOA": close({
+#SOA: close({
 	TTL?: <=2147483647 & >=0 |
 		{
 			string &
@@ -59,11 +51,14 @@ _#defs: "/$defs/Properties/definitions/SOA": close({
 }) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/Tag": close({
+#Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
 }) |
 fn.#ObjectExpression
+
+_#defs: "/$defs/Properties/definitions/Properties": close({DnsProperties?: #PrivateDnsPropertiesMutable}) |
+	fn.#ObjectExpression
 #Resource: base.#ResourceAttributes & {
 	Type!:       "AWS::ServiceDiscovery::PrivateDnsNamespace"
 	Properties!: #Properties

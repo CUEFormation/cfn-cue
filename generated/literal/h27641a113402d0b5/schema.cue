@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"time"
-	"strings"
 	"list"
+	"strings"
+	"time"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -28,29 +28,27 @@ import (
 		{[=~".+"]: string}})
 	ManageAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$"
-	ProvisioningConfigurations?: [..._#defs."/$defs/Properties/definitions/ProvisioningConfiguration"]
+	ProvisioningConfigurations?: [...#ProvisioningConfiguration]
 	ProvisioningRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$"
-	RegionalParameters?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/RegionalParameter"]
+	RegionalParameters?: list.UniqueItems() & [...#RegionalParameter]
 	UpdatedAt?:          time.Time
 })
 
-_#defs: "/$defs/Properties/definitions/LakeFormationConfiguration": close({
+#LakeFormationConfiguration: close({
 	LocationRegistrationExcludeS3Locations?: list.MaxItems(20) & [...] & [
 		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^s3://.+$"
 	]
 	LocationRegistrationRole?: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$"
 })
 
-_#defs: "/$defs/Properties/definitions/Parameter": close({
+#Parameter: close({
 
 	{[=~".+"]: string}})
 
-_#defs: "/$defs/Properties/definitions/ProvisioningConfiguration": close(
-	{LakeFormationConfiguration!: _#defs."/$defs/Properties/definitions/LakeFormationConfiguration"},
-)
+#ProvisioningConfiguration: close({LakeFormationConfiguration!: #LakeFormationConfiguration})
 
-_#defs: "/$defs/Properties/definitions/RegionalParameter": close({
-	Parameters?: _#defs."/$defs/Properties/definitions/Parameter"
+#RegionalParameter: close({
+	Parameters?: #Parameter
 	Region?:     =~"^[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]$"
 })

@@ -14,10 +14,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 // Resource Type definition for AWS::MediaConvert::JobTemplate
 #Properties: close({
-	AccelerationSettings?: _#defs."/$defs/Properties/definitions/AccelerationSettings" | fn.#ObjectExpression
+	AccelerationSettings?: #AccelerationSettings | fn.#ObjectExpression
 	Category?:             string | fn.#StringExpression
 	Description?:          string | fn.#StringExpression
-	HopDestinations?:      [..._#defs."/$defs/Properties/definitions/HopDestination"] | fn.#ListExpression
+	HopDestinations?:      [...#HopDestination] | fn.#ListExpression
 	Name?:                 string | fn.#StringExpression
 	Priority?: int & <=50 & >=-50 |
 		{
@@ -56,12 +56,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
 })
 
-_#defs: "/$defs/Properties/definitions/AccelerationSettings": close(
-	{Mode!: "DISABLED" | "ENABLED" | "PREFERRED" | fn.#StringExpression},
-) |
+#AccelerationSettings: close({Mode!: "DISABLED" | "ENABLED" | "PREFERRED" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-_#defs: "/$defs/Properties/definitions/HopDestination": close({
+#HopDestination: close({
 	Priority?: int & <=50 & >=-50 |
 		{
 			string &

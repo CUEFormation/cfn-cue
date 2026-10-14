@@ -44,7 +44,7 @@ import (
 	PolicyType!: "PredictiveScaling" | "StepScaling" | "TargetTrackingScaling"
 
 	// The predictive scaling policy configuration.
-	PredictiveScalingPolicyConfiguration?: _#defs."/$defs/Properties/definitions/PredictiveScalingPolicyConfiguration"
+	PredictiveScalingPolicyConfiguration?: #PredictiveScalingPolicyConfiguration
 
 	// The identifier of the resource associated with the scaling policy. This
 	// string consists of the resource type and unique identifier.
@@ -205,11 +205,10 @@ import (
 		"workspaces"
 
 	// A step scaling policy.
-	StepScalingPolicyConfiguration?: _#defs."/$defs/Properties/definitions/StepScalingPolicyConfiguration"
+	StepScalingPolicyConfiguration?: #StepScalingPolicyConfiguration
 
 	// A target tracking scaling policy.
-	TargetTrackingScalingPolicyConfiguration?:
-		_#defs."/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration"
+	TargetTrackingScalingPolicyConfiguration?: #TargetTrackingScalingPolicyConfiguration
 	if ScalingTargetId != _|_ {
 		ResourceId?: error(
 			"ResourceId cannot be used with ScalingTargetId; set exactly one of ScalingTargetId, ResourceId",
@@ -249,11 +248,11 @@ import (
 // [AWS::ApplicationAutoScaling::ScalingPolicy
 // TargetTrackingScalingPolicyConfiguration](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-applicationautoscaling-scalingpolicy-targettrackingscalingpolicyconfiguration.html)
 // property type.
-_#defs: "/$defs/Properties/definitions/CustomizedMetricSpecification": close({
+#CustomizedMetricSpecification: close({
 	// The dimensions of the metric.
 	// Conditional: If you published your metric with dimensions, you must specify
 	// the same dimensions in your scaling policy.
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/MetricDimension"]
+	Dimensions?: [...#MetricDimension]
 
 	// The name of the metric. To get the exact metric name, namespace, and
 	// dimensions, inspect the
@@ -264,7 +263,7 @@ _#defs: "/$defs/Properties/definitions/CustomizedMetricSpecification": close({
 
 	// The metrics to include in the target tracking scaling policy, as a metric
 	// data query. This can include both raw metric and metric math expressions.
-	Metrics?: [..._#defs."/$defs/Properties/definitions/TargetTrackingMetricDataQuery"]
+	Metrics?: [...#TargetTrackingMetricDataQuery]
 
 	// The namespace of the metric.
 	Namespace?: string
@@ -284,7 +283,7 @@ _#defs: "/$defs/Properties/definitions/CustomizedMetricSpecification": close({
 // [AWS::ApplicationAutoScaling::ScalingPolicy
 // CustomizedMetricSpecification](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-applicationautoscaling-scalingpolicy-customizedmetricspecification.html)
 // property type. Duplicate dimensions are not allowed.
-_#defs: "/$defs/Properties/definitions/MetricDimension": close({
+#MetricDimension: close({
 	// The name of the dimension.
 	Name!: string
 
@@ -298,7 +297,7 @@ _#defs: "/$defs/Properties/definitions/MetricDimension": close({
 // [AWS::ApplicationAutoScaling::ScalingPolicy
 // TargetTrackingScalingPolicyConfiguration](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-applicationautoscaling-scalingpolicy-targettrackingscalingpolicyconfiguration.html)
 // property type.
-_#defs: "/$defs/Properties/definitions/PredefinedMetricSpecification": close({
+#PredefinedMetricSpecification: close({
 	// The metric type. The ``ALBRequestCountPerTarget`` metric type applies only to
 	// Spot fleet requests and ECS services.
 	PredefinedMetricType!: "ALBRequestCountPerTarget" |
@@ -354,32 +353,26 @@ _#defs: "/$defs/Properties/definitions/PredefinedMetricSpecification": close({
 })
 
 // Represents a CloudWatch metric of your choosing for a predictive scaling policy.
-_#defs: "/$defs/Properties/definitions/PredictiveScalingCustomizedCapacityMetric": close({
+#PredictiveScalingCustomizedCapacityMetric: close({
 	// One or more metric data queries to provide data points for a metric specification.
-	MetricDataQueries!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PredictiveScalingMetricDataQuery"
-	]
+	MetricDataQueries!: list.UniqueItems() & [...#PredictiveScalingMetricDataQuery]
 })
 
 // The customized load metric specification.
-_#defs: "/$defs/Properties/definitions/PredictiveScalingCustomizedLoadMetric": close({
-	MetricDataQueries!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PredictiveScalingMetricDataQuery"
-	]
-})
+#PredictiveScalingCustomizedLoadMetric: close(
+	{MetricDataQueries!: list.UniqueItems() & [...#PredictiveScalingMetricDataQuery]},
+)
 
 // One or more metric data queries to provide data points for a metric specification.
-_#defs: "/$defs/Properties/definitions/PredictiveScalingCustomizedScalingMetric": close({
+#PredictiveScalingCustomizedScalingMetric: close({
 	// One or more metric data queries to provide data points for a metric specification.
-	MetricDataQueries!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PredictiveScalingMetricDataQuery"
-	]
+	MetricDataQueries!: list.UniqueItems() & [...#PredictiveScalingMetricDataQuery]
 })
 
 // Describes the scaling metric.
-_#defs: "/$defs/Properties/definitions/PredictiveScalingMetric": close({
+#PredictiveScalingMetric: close({
 	// Describes the dimensions of the metric.
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/PredictiveScalingMetricDimension"]
+	Dimensions?: [...#PredictiveScalingMetricDimension]
 
 	// The name of the metric.
 	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -393,7 +386,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingMetric": close({
 // values of returned metric statistics to create a new time series. A time
 // series is a series of data points, each of which is associated with a
 // timestamp.
-_#defs: "/$defs/Properties/definitions/PredictiveScalingMetricDataQuery": close({
+#PredictiveScalingMetricDataQuery: close({
 	// The math expression to perform on the returned data, if this object is
 	// performing a math expression. This expression can use the ``Id`` of the
 	// other metrics to refer to those metrics, and can also use the ``Id`` of
@@ -418,7 +411,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingMetricDataQuery": close(
 	// Information about the metric data to return.
 	// Conditional: Within each ``MetricDataQuery`` object, you must specify either
 	// ``Expression`` or ``MetricStat``, but not both.
-	MetricStat?: _#defs."/$defs/Properties/definitions/PredictiveScalingMetricStat"
+	MetricStat?: #PredictiveScalingMetricStat
 
 	// Indicates whether to return the timestamps and raw data values of this metric.
 	// If you use any math expressions, specify ``true`` for this value for only the
@@ -432,7 +425,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingMetricDataQuery": close(
 })
 
 // Describes the dimension of a metric.
-_#defs: "/$defs/Properties/definitions/PredictiveScalingMetricDimension": close({
+#PredictiveScalingMetricDimension: close({
 	// The name of the dimension.
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -447,42 +440,39 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingMetricDimension": close(
 // provides a simpler way to configure metrics for a scaling policy. You choose
 // the metric pair, and the policy automatically knows the correct sum and
 // average statistics to use for the load metric and the scaling metric.
-_#defs: "/$defs/Properties/definitions/PredictiveScalingMetricSpecification": close({
+#PredictiveScalingMetricSpecification: close({
 	// The customized capacity metric specification.
-	CustomizedCapacityMetricSpecification?:
-		_#defs."/$defs/Properties/definitions/PredictiveScalingCustomizedCapacityMetric"
+	CustomizedCapacityMetricSpecification?: #PredictiveScalingCustomizedCapacityMetric
 
 	// The customized load metric specification.
-	CustomizedLoadMetricSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingCustomizedLoadMetric"
+	CustomizedLoadMetricSpecification?: #PredictiveScalingCustomizedLoadMetric
 
 	// The customized scaling metric specification.
-	CustomizedScalingMetricSpecification?:
-		_#defs."/$defs/Properties/definitions/PredictiveScalingCustomizedScalingMetric"
+	CustomizedScalingMetricSpecification?: #PredictiveScalingCustomizedScalingMetric
 
 	// The predefined load metric specification.
-	PredefinedLoadMetricSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingPredefinedLoadMetric"
+	PredefinedLoadMetricSpecification?: #PredictiveScalingPredefinedLoadMetric
 
 	// The predefined metric pair specification that determines the appropriate
 	// scaling metric and load metric to use.
-	PredefinedMetricPairSpecification?: _#defs."/$defs/Properties/definitions/PredictiveScalingPredefinedMetricPair"
+	PredefinedMetricPairSpecification?: #PredictiveScalingPredefinedMetricPair
 
 	// The predefined scaling metric specification.
-	PredefinedScalingMetricSpecification?:
-		_#defs."/$defs/Properties/definitions/PredictiveScalingPredefinedScalingMetric"
+	PredefinedScalingMetricSpecification?: #PredictiveScalingPredefinedScalingMetric
 
 	// Specifies the target utilization.
 	TargetValue!: number
 })
 
 // This structure defines the CloudWatch metric to return, along with the statistic and unit.
-_#defs: "/$defs/Properties/definitions/PredictiveScalingMetricStat": close({
+#PredictiveScalingMetricStat: close({
 	// The CloudWatch metric to return, including the metric name, namespace, and
 	// dimensions. To get the exact metric name, namespace, and dimensions, inspect
 	// the
 	// [Metric](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Metric.html)
 	// object that is returned by a call to
 	// [ListMetrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_ListMetrics.html).
-	Metric?: _#defs."/$defs/Properties/definitions/PredictiveScalingMetric"
+	Metric?: #PredictiveScalingMetric
 
 	// The statistic to return. It can include any CloudWatch statistic or extended
 	// statistic. For a list of valid values, see the table in
@@ -500,7 +490,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingMetricStat": close({
 
 // Represents a predictive scaling policy configuration. Predictive scaling is
 // supported on Amazon ECS services.
-_#defs: "/$defs/Properties/definitions/PredictiveScalingPolicyConfiguration": close({
+#PredictiveScalingPolicyConfiguration: close({
 	// Defines the behavior that should be applied if the forecast capacity
 	// approaches or exceeds the maximum capacity. Defaults to ``HonorMaxCapacity``
 	// if not specified.
@@ -519,9 +509,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPolicyConfiguration": cl
 	// This is an array, but we currently only support a single metric
 	// specification. That is, you can specify a target value and a single metric
 	// pair, or a target value and one scaling metric and one load metric.
-	MetricSpecifications!: list.UniqueItems() & [
-		..._#defs."/$defs/Properties/definitions/PredictiveScalingMetricSpecification"
-	]
+	MetricSpecifications!: list.UniqueItems() & [...#PredictiveScalingMetricSpecification]
 
 	// The predictive scaling mode. Defaults to ``ForecastOnly`` if not specified.
 	Mode?: "ForecastAndScale" | "ForecastOnly"
@@ -546,7 +534,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPolicyConfiguration": cl
 // + ``ALBRequestCount``
 // + ``ALBRequestCountPerTarget``
 // + ``TotalALBRequestCount``
-_#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedLoadMetric": close({
+#PredictiveScalingPredefinedLoadMetric: close({
 	// The metric type.
 	PredefinedMetricType!: ("ALBRequestCount" |
 		"ALBRequestCountPerTarget" |
@@ -573,7 +561,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedLoadMetric": c
 // + ``ALBRequestCount``
 // + ``ALBRequestCountPerTarget``
 // + ``TotalALBRequestCount``
-_#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedMetricPair": close({
+#PredictiveScalingPredefinedMetricPair: close({
 	// Indicates which metrics to use. There are two different types of metrics for
 	// each metric type: one is a load metric and one is a scaling metric.
 	PredefinedMetricType!: ("ALBRequestCount" |
@@ -605,7 +593,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedMetricPair": c
 // + ``ALBRequestCount``
 // + ``ALBRequestCountPerTarget``
 // + ``TotalALBRequestCount``
-_#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedScalingMetric": close({
+#PredictiveScalingPredefinedScalingMetric: close({
 	// The metric type.
 	PredefinedMetricType!: ("ALBRequestCount" |
 		"ALBRequestCountPerTarget" |
@@ -638,7 +626,7 @@ _#defs: "/$defs/Properties/definitions/PredictiveScalingPredefinedScalingMetric"
 // You can find a sample template snippet in the
 // [Examples](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-applicationautoscaling-scalingpolicy.html#aws-resource-applicationautoscaling-scalingpolicy--examples)
 // section of the ``AWS::ApplicationAutoScaling::ScalingPolicy`` documentation.
-_#defs: "/$defs/Properties/definitions/StepAdjustment": close({
+#StepAdjustment: close({
 	// The lower bound for the difference between the alarm threshold and the
 	// CloudWatch metric. If the metric value is above the breach threshold, the
 	// lower bound is inclusive (the metric must be greater than or equal to the
@@ -671,7 +659,7 @@ _#defs: "/$defs/Properties/definitions/StepAdjustment": close({
 // For more information, see [Step scaling
 // policies](https://docs.aws.amazon.com/autoscaling/application/userguide/application-auto-scaling-step-scaling-policies.html)
 // in the *Application Auto Scaling User Guide*.
-_#defs: "/$defs/Properties/definitions/StepScalingPolicyConfiguration": close({
+#StepScalingPolicyConfiguration: close({
 	// Specifies whether the ``ScalingAdjustment`` value in the ``StepAdjustment``
 	// property is an absolute number or a percentage of the current capacity.
 	AdjustmentType?: "ChangeInCapacity" | "ExactCapacity" | "PercentChangeInCapacity"
@@ -700,14 +688,14 @@ _#defs: "/$defs/Properties/definitions/StepScalingPolicyConfiguration": close({
 	// A set of adjustments that enable you to scale based on the size of the alarm breach.
 	// At least one step adjustment is required if you are adding a new step scaling
 	// policy configuration.
-	StepAdjustments?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/StepAdjustment"]
+	StepAdjustments?: list.UniqueItems() & [...#StepAdjustment]
 })
 
 // Represents a specific metric for a target tracking scaling policy for Application Auto Scaling.
 // Metric is a property of the [AWS::ApplicationAutoScaling::ScalingPolicy
 // TargetTrackingMetricStat](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-applicationautoscaling-scalingpolicy-targettrackingmetricstat.html)
 // property type.
-_#defs: "/$defs/Properties/definitions/TargetTrackingMetric": close({
+#TargetTrackingMetric: close({
 	// The dimensions for the metric. For the list of available dimensions, see the
 	// AWS documentation available from the table in [services that publish
 	// CloudWatch
@@ -715,7 +703,7 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingMetric": close({
 	// in the *Amazon CloudWatch User Guide*.
 	// Conditional: If you published your metric with dimensions, you must specify
 	// the same dimensions in your scaling policy.
-	Dimensions?: [..._#defs."/$defs/Properties/definitions/TargetTrackingMetricDimension"]
+	Dimensions?: [...#TargetTrackingMetricDimension]
 
 	// The name of the metric.
 	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1)
@@ -743,7 +731,7 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingMetric": close({
 // [AWS::ApplicationAutoScaling::ScalingPolicy
 // CustomizedMetricSpecification](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-applicationautoscaling-scalingpolicy-customizedmetricspecification.html)
 // property type.
-_#defs: "/$defs/Properties/definitions/TargetTrackingMetricDataQuery": close({
+#TargetTrackingMetricDataQuery: close({
 	// The math expression to perform on the returned data, if this object is
 	// performing a math expression. This expression can use the ``Id`` of the
 	// other metrics to refer to those metrics, and can also use the ``Id`` of
@@ -768,7 +756,7 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingMetricDataQuery": close({
 	// Information about the metric data to return.
 	// Conditional: Within each ``MetricDataQuery`` object, you must specify either
 	// ``Expression`` or ``MetricStat``, but not both.
-	MetricStat?: _#defs."/$defs/Properties/definitions/TargetTrackingMetricStat"
+	MetricStat?: #TargetTrackingMetricStat
 
 	// Indicates whether to return the timestamps and raw data values of this metric.
 	// If you use any math expressions, specify ``true`` for this value for only the
@@ -786,7 +774,7 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingMetricDataQuery": close({
 // [AWS::ApplicationAutoScaling::ScalingPolicy
 // TargetTrackingMetric](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-applicationautoscaling-scalingpolicy-targettrackingmetric.html)
 // property type. Duplicate dimensions are not allowed.
-_#defs: "/$defs/Properties/definitions/TargetTrackingMetricDimension": close({
+#TargetTrackingMetricDimension: close({
 	// The name of the dimension.
 	Name?: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -803,14 +791,14 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingMetricDimension": close({
 // CloudWatch
 // concepts](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/cloudwatch_concepts.html)
 // in the *Amazon CloudWatch User Guide*.
-_#defs: "/$defs/Properties/definitions/TargetTrackingMetricStat": close({
+#TargetTrackingMetricStat: close({
 	// The CloudWatch metric to return, including the metric name, namespace, and
 	// dimensions. To get the exact metric name, namespace, and dimensions, inspect
 	// the
 	// [Metric](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_Metric.html)
 	// object that is returned by a call to
 	// [ListMetrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_ListMetrics.html).
-	Metric?: _#defs."/$defs/Properties/definitions/TargetTrackingMetric"
+	Metric?: #TargetTrackingMetric
 
 	// The statistic to return. It can include any CloudWatch statistic or extended
 	// statistic. For a list of valid values, see the table in
@@ -836,9 +824,9 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingMetricStat": close({
 // For more information, see [Target tracking scaling
 // policies](https://docs.aws.amazon.com/autoscaling/application/userguide/application-auto-scaling-target-tracking.html)
 // in the *Application Auto Scaling User Guide*.
-_#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration": close({
+#TargetTrackingScalingPolicyConfiguration: close({
 	// A customized metric. You can specify either a predefined metric or a customized metric.
-	CustomizedMetricSpecification?: _#defs."/$defs/Properties/definitions/CustomizedMetricSpecification"
+	CustomizedMetricSpecification?: #CustomizedMetricSpecification
 
 	// Indicates whether scale in by the target tracking scaling policy is disabled.
 	// If the value is ``true``, scale in is disabled and the target tracking
@@ -848,7 +836,7 @@ _#defs: "/$defs/Properties/definitions/TargetTrackingScalingPolicyConfiguration"
 	DisableScaleIn?: bool
 
 	// A predefined metric. You can specify either a predefined metric or a customized metric.
-	PredefinedMetricSpecification?: _#defs."/$defs/Properties/definitions/PredefinedMetricSpecification"
+	PredefinedMetricSpecification?: #PredefinedMetricSpecification
 
 	// The amount of time, in seconds, after a scale-in activity completes before
 	// another scale-in activity can start. For more information and for default
