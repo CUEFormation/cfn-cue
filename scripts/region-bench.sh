@@ -2,15 +2,11 @@
 # Benchmarks template validation through regions/us-east-1 #Template for
 # regions of increasing size. Writes RESULT lines to $OUT/results.txt.
 #
-#   scripts/region-bench.sh                    union and dispatch variants
+#   scripts/region-bench.sh                  the current generator
 #   OLD_REF=<git ref> scripts/region-bench.sh  also the generator at that ref
 #
-# Variants:
-#   union     the generated region: each resource is checked against a
-#             union of every resource type
-#   dispatch  the same module with #Resources rewritten to select
-#             #ResourceTypes[Type] (a prototype; not generated yet)
-#   old       the generator at OLD_REF
+# For example, OLD_REF=671dded measures the #Resource union that preceded
+# selection by Type, and OLD_REF=f01c05f the optional-field intrinsics.
 #
 # TYPES lists region sizes (default "6 50 200 800 1839"); SIZES lists
 # template sizes (default 1,10,50); RUN_TIMEOUT caps each run in seconds.
@@ -21,7 +17,7 @@ SNAP=$REPO/snapshots/schemas-2026-10-12.zip
 TYPES=${TYPES:-6 50 200 800 1839}
 SIZES=${SIZES:-1,10,50}
 RUN_TIMEOUT=${RUN_TIMEOUT:-600}
-VARIANTS="union dispatch"
+VARIANTS="current"
 if [ -n "${OLD_REF:-}" ]; then
 	git -C "$REPO" worktree add -q "$OUT/old-src" "$OLD_REF" || exit 1
 	trap 'git -C "$REPO" worktree remove --force "$OUT/old-src"' EXIT
@@ -39,21 +35,7 @@ generate() { # variant types dir
 	local src=$REPO
 	[ "$1" = old ] && src=$OUT/old-src
 	rm -rf "$3"
-	(cd "$src" && go run ./cmd/cfn-cue -source "$SNAP" -out "$3" -regions us-east-1 -resources "$(head -n "$2" "$OUT/types.txt" | paste -sd, -)" >/dev/null) || return 1
-	[ "$1" = dispatch ] || return 0
-	python3 - "$3/regions/us-east-1/region.cue" <<'EOF'
-import sys
-p = sys.argv[1]
-s = open(p).read()
-union = "#Resources: [base.#LogicalID]: #Resource\n"
-assert union in s
-open(p, "w").write(s.replace(union, '''#Resources: [base.#LogicalID]~(_, R): {
-	Type!: string
-	if R.Type =~ "^Custom::" {#ResourceTypes["AWS::CloudFormation::CustomResource"]}
-	if R.Type !~ "^Custom::" {#ResourceTypes[R.Type]}
-}
-'''))
-EOF
+	(cd "$src" && go run ./cmd/cfn-cue -source "$SNAP" -out "$3" -regions us-east-1 -resources "$(head -n "$2" "$OUT/types.txt" | paste -sd, -)" >/dev/null)
 }
 for types in $TYPES; do
 	for variant in $VARIANTS; do

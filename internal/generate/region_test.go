@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/errors"
 )
 
 func TestRegionalAliasCollisionPreservesOutput(t *testing.T) {
@@ -148,4 +149,56 @@ func TestRegionalTypeNamesSAM(t *testing.T) {
 	}
 	schema = build(t, out, "./regions/us-east-1/types").LookupPath(cue.MakePath(cue.Def("Template")))
 	validate(t, schema, `{Resources: Function: {Type: "AWS::Serverless::Function"}}`, false)
+}
+
+// TestRegionalTypeSelection checks that the full region selects each
+// resource's schema by Type, including Custom:: names and ForEach fragments.
+func TestRegionalTypeSelection(t *testing.T) {
+	for _, custom := range []bool{false, true} {
+		s := fixture(t)
+		providers := `{"AWS::Test::Thing":"test"}`
+		if custom {
+			providers = `{"AWS::Test::Thing":"test","AWS::CloudFormation::CustomResource":"custom"}`
+			s.files["resources/custom.json"] = []byte(`{"typeName":"AWS::CloudFormation::CustomResource","type":"object",
+				"properties":{"ServiceToken":{"type":"string"}},"patternProperties":{".*":{}},"required":["ServiceToken"]}`)
+		}
+		s.files["providers/us-east-1.json"] = []byte(providers)
+		delete(s.files, "providers/eusc-de-east-1.json")
+		for _, extensions := range []bool{false, true} {
+			out := filepath.Join(t.TempDir(), "generated")
+			if _, err := Generate(s, Options{Out: out, LanguageExtensions: extensions}); err != nil {
+				t.Fatal(err)
+			}
+			schema := build(t, out, "./regions/us-east-1").LookupPath(cue.MakePath(cue.Def("Template")))
+			prefix := ""
+			if extensions {
+				prefix = `Transform: "AWS::LanguageExtensions", `
+			}
+			check := func(resources string, good bool) {
+				t.Helper()
+				validate(t, schema, "{"+prefix+"Resources: "+resources+"}", good)
+			}
+			check(`{Thing: {Type: "AWS::Test::Thing", Properties: Name: "one"}}`, true)
+			check(`{Thing: {Type: "AWS::Test::Thing", Properties: Name: "bad"}}`, false)
+			check(`{Thing: {Type: "AWS::Test::Thing", Properties: Name: "one", Bogus: 1}}`, false)
+			check(`{Thing: {Properties: Name: "one"}}`, false)
+			check(`{Thing: {Type: 5}}`, false)
+			check(`{Thing: {Type: {Ref: "T"}}}`, false)
+			check(`{Thing: {Type: "AWS::Other::Thing"}}`, false)
+			check(`{Thing: {Type: "Custom::Thing", Properties: ServiceToken: "arn:aws:lambda:us-east-1:123456789012:function:f"}}`, custom)
+			check(`{Thing: {Type: "AWS::CloudFormation::CustomResource", Properties: ServiceToken: "token"}}`, custom)
+			check(`{Thing: {Type: "Custom::bad!", Properties: ServiceToken: "token"}}`, false)
+			check(`{Thing: {Type: "Custom::Thing", Properties: {}}}`, false)
+			if extensions {
+				check(`{"Fn::ForEach::Things": ["X", ["a", "b"], {"Thing${X}": {Type: "AWS::Test::Thing", Properties: Name: "one"}}]}`, true)
+				check(`{"Fn::ForEach::Things": ["X", ["a"], {"Thing${X}": {Type: "AWS::Other::Thing"}}]}`, false)
+				check(`{"Fn::ForEach::Things": ["X", ["a"], {"Thing${X}": {Type: "AWS::Test::Thing", Properties: Name: "bad"}}]}`, false)
+			}
+			// One error naming the type, not one Type conflict per resource type.
+			e := schema.Unify(schema.Context().CompileString(`{` + prefix + `Resources: Thing: {Type: "AWS::Other::Thing"}}`)).Validate(cue.Concrete(true))
+			if list := errors.Errors(e); len(list) != 1 || !strings.Contains(list[0].Error(), `undefined field: "AWS::Other::Thing"`) {
+				t.Fatalf("unknown type error: %v", e)
+			}
+		}
+	}
 }

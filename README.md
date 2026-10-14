@@ -119,16 +119,13 @@ their intrinsic validation. The full regional imports above retain property and
 intrinsic checking. The two packages are isolated so importing the lightweight
 one never imports the full resource registry.
 
-**Scaling limitation:** the complete us-east-1 full package (1,839 types) loads
-in about 2.7 s and passes the full-region integration test in about 8 s. Its
-`#Template` checks each resource against a union of every resource type, which
-costs about 0.5 s per resource with CUE v0.18.0-alpha.3: 36 s for a 50-resource
-template. A resource checked against its own `#ResourceTypes["AWS::..."]` entry
-takes a few milliseconds. Use the lightweight package for structure/type-name
-checks, `-resources` for a smaller full module, or `#ResourceTypes` entries for
-full property checks. [BENCHMARKS.md](BENCHMARKS.md) has the measurements,
-including a prototype that selects the schema by `Type` (about 1 ms per resource
-in a full region).
+**Scaling:** the full package's `#Template` selects each resource's schema by
+`Type` (`#ResourceTypes[Type]`), so validation costs about 1 ms per resource
+whatever the region's size. Loading the complete us-east-1 package (1,839 types)
+takes about 2.7 s, because every resource package is imported; `-resources`
+modules load faster. The lightweight package checks structure and type names
+without loading property schemas. [BENCHMARKS.md](BENCHMARKS.md) has the
+measurements.
 
 To record paired measurements at several resource counts:
 
