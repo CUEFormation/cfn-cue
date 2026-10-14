@@ -206,6 +206,10 @@ go vet ./...
 CFN_CUE_INTEGRATION=1 go test ./internal/generate \
   -run TestCurrentResources -timeout 3m
 
+# The smoke corpus against the complete us-east-1 and us-west-2 #Template.
+CFN_CUE_INTEGRATION=1 go test ./internal/validate \
+  -run TestCorpusRegionalTemplates -timeout 3m
+
 # Benchmark the complete us-east-1 aggregate with a bounded run.
 GOMEMLIMIT=2GiB CFN_CUE_INTEGRATION=1 CFN_CUE_FULL_REGION=1 \
   go test ./internal/generate -run TestCurrentResources -timeout 3m
@@ -217,7 +221,7 @@ CFN_CUE_PERF=1 go test ./internal/generate -run TestResourcePerformance -v
 scripts/region-bench.sh
 ```
 
-Tests cover recursive provider definitions, nested intrinsics, conditional branches, wrong return categories, malformed function objects, required properties, unknown fields/types, read-only filtering, schema exclusivity, LanguageExtensions, resource ForEach, regional selection, strict diagnostics, and preservation of existing output after failure. The opt-in test generates a filtered module from the real upstream snapshot and checks S3 and IAM templates, including policy documents that permit either strings or objects.
+Tests cover recursive provider definitions, nested intrinsics, conditional branches, wrong return categories, malformed function objects, required properties, unknown fields/types, read-only filtering, schema exclusivity, LanguageExtensions, resource ForEach, regional selection, strict diagnostics, and preservation of existing output after failure. The opt-in test generates a filtered module from the real upstream snapshot and checks S3 and IAM templates, including policy documents that permit either strings or objects. A second opt-in test checks the 46 smoke corpus templates against the complete us-east-1 and us-west-2 `#Template` and compares the results with `corpus/smoke/expectations.json`.
 
 See [RESEARCH.md](RESEARCH.md) for upstream locations and the next design decisions.
 

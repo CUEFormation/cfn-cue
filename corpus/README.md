@@ -32,7 +32,9 @@ or newer dependencies. An offline version check rejects stale or manually
 upgraded Python packages and points back to setup.
 
 `test` runs formatting checks, Go tests and vet, the pinned S3/IAM integration,
-Python parser/provenance tests, and the 46-template contract in two regions.
+Python parser/provenance tests, and the 46-template contract in two regions. The
+contract runs twice: through `cfn-cue-validate`, which loads only the resource
+packages a template uses, and against each region's complete `#Template`.
 Expected failures remain explicit. The final report is
 `.corpus-smoke-report/report.md`; a changed expectation makes the command fail.
 
