@@ -71,7 +71,7 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 	m := &Manifest{Generator: "cfn-cue/v2", Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, Regions: map[string]map[string]string{}, Schemas: map[string]SchemaInfo{}, Diagnostics: []Diagnostic{}}
 	m.ValidationNotes = []string{
 		"Each region has a full resource package and a separate types package. The types package checks template structure and regional type names, leaving resource Properties unconstrained.",
-		"Full regional aggregate evaluation has exceeded prior verification budgets; use the reproducible regional performance script to measure current CUE versions and resource scales.",
+		"The full region #Template checks each resource against a union of all resource types, about 0.5 s per resource in a complete region; #ResourceTypes entries and -resources modules avoid that cost.",
 		"Intrinsic schemas validate argument shapes and result type classes. Function-specific nesting permissions and context permissions require cfn-lint.",
 		"Ref, GetAtt, Sub, mapping lookups, condition evaluation, macro expansion, and property-specific constraints on intrinsic results require semantic validation.",
 		"CreationPolicy, UpdatePolicy, parameter type names, and SAM Globals use structural schemas; service-specific restrictions require cfn-lint.",

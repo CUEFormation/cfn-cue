@@ -118,12 +118,16 @@ their intrinsic validation. The full regional imports above retain property and
 intrinsic checking. The two packages are isolated so importing the lightweight
 one never imports the full resource registry.
 
-**Scaling limitation:** prior complete us-east-1 evaluation with CUE
-v0.18.0-alpha.3 exceeded a three-minute limit with `GOMEMLIMIT=2GiB` as the soft
-Go memory target. Both versions are retained so this can be measured as CUE and
-the schemas evolve. Use the lightweight package for structure/type-name checks,
-`-resources` for a smaller full module, or individual resource imports for full
-property checks. The full regional representation remains experimental at scale.
+**Scaling limitation:** the complete us-east-1 full package (1,839 types) loads
+in about 2.7 s and passes the full-region integration test in about 8 s. Its
+`#Template` checks each resource against a union of every resource type, which
+costs about 0.5 s per resource with CUE v0.18.0-alpha.3: 36 s for a 50-resource
+template. A resource checked against its own `#ResourceTypes["AWS::..."]` entry
+takes a few milliseconds. Use the lightweight package for structure/type-name
+checks, `-resources` for a smaller full module, or `#ResourceTypes` entries for
+full property checks. [BENCHMARKS.md](BENCHMARKS.md) has the measurements,
+including a prototype that selects the schema by `Type` (about 1 ms per resource
+in a full region).
 
 To record paired measurements at several resource counts:
 
@@ -185,6 +189,12 @@ CFN_CUE_INTEGRATION=1 go test ./internal/generate \
 # Benchmark the complete us-east-1 aggregate with a bounded run.
 GOMEMLIMIT=2GiB CFN_CUE_INTEGRATION=1 CFN_CUE_FULL_REGION=1 \
   go test ./internal/generate -run TestCurrentResources -timeout 3m
+
+# Per-resource cost against each resource's own schema.
+CFN_CUE_PERF=1 go test ./internal/generate -run TestResourcePerformance -v
+
+# Union versus Type-selection cost at several region sizes (see BENCHMARKS.md).
+scripts/region-bench.sh
 ```
 
 Tests cover recursive provider definitions, nested intrinsics, conditional branches, wrong return categories, malformed function objects, required properties, unknown fields/types, read-only filtering, schema exclusivity, LanguageExtensions, resource ForEach, regional selection, strict diagnostics, and preservation of existing output after failure. The opt-in test generates a filtered module from the real upstream snapshot and checks S3 and IAM templates, including policy documents that permit either strings or objects.
