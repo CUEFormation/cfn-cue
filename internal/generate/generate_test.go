@@ -149,19 +149,21 @@ func TestDefinitionNames(t *testing.T) {
 // definitions the template input schema no longer reaches, transitively, while
 // literal packages keep every definition. Percent-encoded references and,
 // in TestRootReferenceKept, references from the root schema keep their targets.
+// A field rule inside a pruned definition is dropped; one in a kept
+// definition still applies.
 func TestPrunedDefinitions(t *testing.T) {
 	root := `{"typeName":"AWS::Test::Pruned","type":"object","additionalProperties":false,
-		"properties":{"Id":{"$ref":"#/definitions/AccountId"},"Wrapper":{"$ref":"#/definitions/Wrapper"},"Odd":{"$ref":"#/definitions/odd~1name"},"Spaced":{"$ref":"#/definitions/odd%20space"}},
+		"properties":{"Id":{"$ref":"#/definitions/AccountId"},"Wrapper":{"$ref":"#/definitions/Wrapper"},"Odd":{"$ref":"#/definitions/odd~1name"},"Spaced":{"$ref":"#/definitions%2Fodd%20space"}},
 		"readOnlyProperties":["/properties/Id"],
 		"definitions":{
 			"AccountId":{"allOf":[{"$ref":"#/definitions/Digits"}]},
 			"Digits":{"type":"string","pattern":"^[0-9]+$"},
-			"Wrapper":{"type":"object","additionalProperties":false,"properties":{"Inner":{"$ref":"#/definitions/Inner"}}},
+			"Wrapper":{"type":"object","additionalProperties":false,"properties":{"Inner":{"$ref":"#/definitions/Inner"},"Other":{"type":"string"}},"requiredXor":["Inner","Other"]},
 			"Inner":{"type":"string"},
 			"odd space":{"type":"string"},
 			"odd/name":{"type":"string"},
 			"odd/orphan":{"type":"string"},
-			"Orphan":{"type":"object","properties":{"X":{"type":"string"}}}}}`
+			"Orphan":{"type":"object","properties":{"X":{"type":"string"},"Y":{"type":"string"}},"requiredXor":["X","Y"]}}}`
 	out := filepath.Join(t.TempDir(), "generated")
 	if _, e := Generate(&Source{Label: "pruned", SHA256: "pruned", files: map[string][]byte{
 		"providers/us-east-1.json": []byte(`{"AWS::Test::Pruned":"pruned"}`),
@@ -191,6 +193,7 @@ func TestPrunedDefinitions(t *testing.T) {
 	resource := pkg.LookupPath(cue.MakePath(cue.Def("Resource")))
 	validate(t, resource, `{Type:"AWS::Test::Pruned",Properties:{Wrapper:{Inner:"x"},Odd:"y",Spaced:"z"}}`, true)
 	validate(t, resource, `{Type:"AWS::Test::Pruned",Properties:{Id:"123456789012"}}`, false)
+	validate(t, resource, `{Type:"AWS::Test::Pruned",Properties:{Wrapper:{Inner:"x",Other:"y"}}}`, false)
 }
 
 // TestRootReferenceKept checks that a definition referenced by the root

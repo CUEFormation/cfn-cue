@@ -715,15 +715,16 @@ func (c *converter) pruneDefinitions(root map[string]any) {
 }
 
 // definitionRef returns the provider definition a reference written by
-// localRef points into. A nested name is a JSON Pointer token inside a URI
-// fragment, so percent-encoding is decoded before ~1 and ~0.
+// localRef points into. The reference is a JSON Pointer in a URI fragment, so
+// the whole fragment is percent-decoded before it is split into tokens and ~1
+// and ~0 are unescaped.
 func definitionRef(r string) (string, bool) {
+	if decoded, e := url.PathUnescape(r); e == nil {
+		r = decoded
+	}
 	rest, ok := strings.CutPrefix(r, "#/$defs/Properties/definitions/")
 	if ok {
 		name, _, _ := strings.Cut(rest, "/")
-		if decoded, e := url.PathUnescape(name); e == nil {
-			name = decoded
-		}
 		return strings.ReplaceAll(strings.ReplaceAll(name, "~1", "/"), "~0", "~"), true
 	}
 	if rest, ok = strings.CutPrefix(r, "#/$defs/"); ok {
